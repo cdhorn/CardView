@@ -155,15 +155,17 @@ class PersonProfilePage(BaseProfilePage):
         if spouses is not None:
             spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
 
-        timeline_box = Gtk.VBox(spacing=3)
-        timeline = get_timeline_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
-        if timeline is not None:
-            timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
+        if self._config.get("preferences.profile.person.layout.show-timeline"):            
+            timeline_box = Gtk.VBox(spacing=3)
+            timeline = get_timeline_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+            if timeline is not None:
+                timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
 
-        citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
-        if citations is not None:
-            citations_box.pack_start(citations, expand=False, fill=False, padding=0)
+        if self._config.get("preferences.profile.person.layout.show-citations"):
+            citations_box = Gtk.VBox(spacing=3)
+            citations = get_citation_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+            if citations is not None:
+                citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
         if self._config.get("preferences.profile.person.layout.families-stacked"):
             families_box = Gtk.VBox(spacing=3)
