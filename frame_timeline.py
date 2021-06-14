@@ -211,18 +211,18 @@ class TimelineProfileFrame(Gtk.Frame, BaseProfile):
 
         grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2, column_spacing=2)
 
-        text = glocale.translation.sgettext(event.type.xml_str())
+        event_type = glocale.translation.sgettext(event.type.xml_str())
+        event_person_name = name_displayer.display(event_person)
         if (event_person and anchor_person.handle != event_person.handle and relation_to_anchor not in ["self", "", None]):
-            text = "{} {} {}".format(text, _("of"), relation_to_anchor.title())
+            text = "{} {} {}".format(event_type, _("of"), relation_to_anchor.title())
             if self.enable_tooltips:
-                display_name = name_displayer.display(event_person)            
-                tooltip = "{} {} {}".format(_("Click to view"), display_name, _("or right click to select edit."))
+                tooltip = "{} {} {}".format(_("Click to view"), event_person_name, _("or right click to select edit."))
             else:
                 tooltip = None
             name = TextLink(text, event_person.handle, router, "link-person", tooltip=tooltip, hexpand=True)
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
-            name.set_markup("<b>{}</b>".format(text))
+            name.set_markup("<b>{}</b>".format(event_type))
         grid.attach(name, 0, 0, 1, 1)
 
         gramps_id = self.get_gramps_id_label()
@@ -252,8 +252,11 @@ class TimelineProfileFrame(Gtk.Frame, BaseProfile):
             column2_row = column2_row + 1
 
         if self.option("timeline", "show-description"):
-            description = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)        
-            description.set_markup(self.markup.format(event.get_description()))
+            description = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)
+            text = event.get_description()
+            if not text:
+                text = "{} {} {}".format(event_type, _("of"), event_person_name)
+            description.set_markup(self.markup.format(text))
             grid.attach(description, 0, 3, 1, 1)
 
         if self.option("timeline", "show-best-confidence"):
