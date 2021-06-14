@@ -120,7 +120,7 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         if divorce:
             self.divorced = True
             if self.option(context, "show-divorce"):
-                self.add_couple_event(divorce)
+                self.add_event(divorce)
                 added_event = True
 
         metadata_section = Gtk.VBox()
