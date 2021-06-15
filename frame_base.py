@@ -279,7 +279,7 @@ class BaseProfile():
         item.connect('activate', self.edit_object)
         return item
 
-    def edit_object(self, obj):
+    def edit_object(self, *obj):
         try:
             _EDITORS[self.object_type()](self.dbstate, self.uistate, [], self.obj)
         except WindowActiveError:

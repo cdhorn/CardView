@@ -30,11 +30,15 @@ Person Profile View
 #
 #-------------------------------------------------------------------------
 from html import escape
-from operator import itemgetter
 import pickle
+
+#-------------------------------------------------------------------------
+#
+# Set up logging
+#
+#-------------------------------------------------------------------------
 import logging
-import os
-import re
+_LOG = logging.getLogger("plugin.relview")
 
 #-------------------------------------------------------------------------
 #
@@ -44,47 +48,100 @@ import re
 from gi.repository import Gdk
 from gi.repository import Gtk
 from gi.repository import Pango
-from gi.repository import GdkPixbuf
 
 #-------------------------------------------------------------------------
 #
 # Gramps Modules
 #
 #-------------------------------------------------------------------------
-
-from gramps.gen.config import config
-from gramps.gen.lib import Family, ChildRef, Person
+from gramps.gen.const import GRAMPS_LOCALE as glocale
+_ = glocale.translation.sgettext
+ngettext = glocale.translation.ngettext # else "nearby" comments are ignored
+from gramps.gen.lib import (ChildRef, EventRoleType, EventType, Family,
+                            FamilyRelType, Name, Person, Surname)
+from gramps.gen.lib.date import Today
+from gramps.gen.db import DbTxn
+from gramps.gui.views.navigationview import NavigationView
 from gramps.gui.uimanager import ActionGroup
+from gramps.gui.editors import EditPerson, EditFamily
+from gramps.gui.editors import FilterEditor
+from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.display.place import displayer as place_displayer
+from gramps.gen.utils.file import media_path_full
+from gramps.gen.utils.alive import probably_alive
+from gramps.gui.utils import open_file_with_default_application
+from gramps.gen.datehandler import displayer, get_date
+from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gen.config import config
+from gramps.gui import widgets
+from gramps.gui.widgets.reorderfam import Reorder
 from gramps.gui.selectors import SelectorFactory
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.views.bookmarks import PersonBookmarks
-from gramps.gui.editors import FilterEditor
 from gramps.gen.const import CUSTOM_FILTERS
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-_ = glocale.translation.sgettext
+from gramps.gen.utils.db import (get_birth_or_fallback, get_death_or_fallback,
+                          preset_name)
+from gramps.gui.ddtargets import DdTargets
+from gramps.gen.utils.symbols import Symbols
 
-# plugin modules
-from navigationview import NavigationView
-from person_profile_page import PersonProfilePage
+_NAME_START = 0
+_LABEL_START = 0
+_LABEL_STOP = 1
+_DATA_START = _LABEL_STOP
+_DATA_STOP = _DATA_START+1
+_BTN_START = _DATA_STOP
+_BTN_STOP = _BTN_START+2
+_PLABEL_START = 1
+_PLABEL_STOP = _PLABEL_START+1
+_PDATA_START = _PLABEL_STOP
+_PDATA_STOP = _PDATA_START+2
+_PDTLS_START = _PLABEL_STOP
+_PDTLS_STOP = _PDTLS_START+2
+_CLABEL_START = _PLABEL_START+1
+_CLABEL_STOP = _CLABEL_START+1
+_CDATA_START = _CLABEL_STOP
+_CDATA_STOP = _CDATA_START+1
+_CDTLS_START = _CDATA_START
+_CDTLS_STOP = _CDTLS_START+1
+_ALABEL_START = 0
+_ALABEL_STOP = _ALABEL_START+1
+_ADATA_START = _ALABEL_STOP
+_ADATA_STOP = _ADATA_START+3
+_SDATA_START = 2
+_SDATA_STOP = 4
+_RETURN = Gdk.keyval_from_name("Return")
+_KP_ENTER = Gdk.keyval_from_name("KP_Enter")
+_SPACE = Gdk.keyval_from_name("space")
+_LEFT_BUTTON = 1
+_RIGHT_BUTTON = 3
+
+#-------------------------------------------------------------------------
+#
+# Plugin Modules
+#
+#-------------------------------------------------------------------------
+from frame_css import add_style_double_frame, add_style_single_frame
+from frame_groups import get_parent_profiles, get_spouse_profiles, get_citation_profiles, get_timeline_profiles
+from frame_image import ImageFrame
+from frame_person import PersonProfileFrame
 from frame_utils import EventFormatSelector, TagModeSelector
 
-_LOG = logging.getLogger("plugin.relview")
 
-class PersonProfile(NavigationView):
+class PersonProfileView(NavigationView):
     """
-    View showing a textual representation of the relationships and events of
-    the active person.
+    Summary view of a person in a navigatable format.
     """
-    #settings in the config file
+
     CONFIGSETTINGS = (
-        ('preferences.profile.person.layout.use-thick-borders', True),
-        ('preferences.profile.person.layout.use-color-scheme', True),
-        ('preferences.profile.person.layout.use-smaller-detail-font', True),
         ('preferences.profile.person.layout.enable-tooltips', True),
+        ('preferences.profile.person.layout.pinned-header', True),
         ('preferences.profile.person.layout.spouses-left', True),
         ('preferences.profile.person.layout.families-stacked', False),
         ('preferences.profile.person.layout.show-timeline', True),
         ('preferences.profile.person.layout.show-citations', False),
+        ('preferences.profile.person.layout.use-thick-borders', True),
+        ('preferences.profile.person.layout.use-color-scheme', True),
+        ('preferences.profile.person.layout.use-smaller-detail-font', True),
 
         ('preferences.profile.person.active.event-format', 0),
         ('preferences.profile.person.active.show-gender', True),
@@ -152,7 +209,6 @@ class PersonProfile(NavigationView):
         ('preferences.profile.person.timeline.show-tags', True),
         ('preferences.profile.person.timeline.show-age', True), 
         ('preferences.profile.person.timeline.show-image', True),
-
         ('preferences.profile.person.timeline.show-class-vital', True),
         ('preferences.profile.person.timeline.show-class-family', True),
         ('preferences.profile.person.timeline.show-class-religious', True),
@@ -182,24 +238,36 @@ class PersonProfile(NavigationView):
         )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
-        NavigationView.__init__(self, _('Person Profile View'),
+        NavigationView.__init__(self, _('Person Profile'),
                                       pdata, dbstate, uistate,
                                       PersonBookmarks,
                                       nav_group)
 
         dbstate.connect('database-changed', self.change_db)
         uistate.connect('nameformat-changed', self.build_tree)
+        uistate.connect('placeformat-changed', self.build_tree)
+        uistate.connect('font-changed', self.font_changed)
         self.redrawing = False
 
-        self.pages = {}
-        self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config))
-        self.active_page = None
+        self.child = None
+        self.old_handle = None
+
+        self.reorder_sensitive = False
+        self.collapsed_items = {}
 
         self.additional_uis.append(self.additional_ui)
+        self.symbols = Symbols()
+        self.reload_symbols()
 
-    def _add_page(self, page):
-        page.connect('object-changed', self.object_changed)
-        self.pages[page.obj_type()] = page
+    def get_handle_from_gramps_id(self, gid):
+        """
+        returns the handle of the specified object
+        """
+        obj = self.dbstate.db.get_person_from_gramps_id(gid)
+        if obj:
+            return obj.get_handle()
+        else:
+            return None
 
     def _connect_db_signals(self):
         """
@@ -207,18 +275,60 @@ class PersonProfile(NavigationView):
         Register the callbacks we need.
         """
         # Add a signal to pick up event changes, bug #1416
-        self.callman.add_db_signal('event-update', self.family_update)
+        self.callman.add_db_signal('event-update', self.redraw)
+        self.callman.add_db_signal('event-add', self.redraw)
+        self.callman.add_db_signal('event-delete', self.redraw)
+        self.callman.add_db_signal('event-rebuild', self.redraw)
         self.callman.add_db_signal('citation-update', self.redraw)
-
-        self.callman.add_db_signal('person-add', self.person_update)
+        self.callman.add_db_signal('citation-add', self.redraw)
+        self.callman.add_db_signal('citation-delete', self.redraw)
+        self.callman.add_db_signal('citation-rebuild', self.redraw)
         self.callman.add_db_signal('person-update', self.person_update)
+        self.callman.add_db_signal('person-add', self.person_update)
+        self.callman.add_db_signal('person-delete', self.redraw)
         self.callman.add_db_signal('person-rebuild', self.person_rebuild)
         self.callman.add_db_signal('family-update', self.family_update)
         self.callman.add_db_signal('family-add',    self.family_add)
         self.callman.add_db_signal('family-delete', self.family_delete)
         self.callman.add_db_signal('family-rebuild', self.family_rebuild)
 
-        self.callman.add_db_signal('person-delete', self.redraw)
+    def reload_symbols(self):
+        if self.uistate and self.uistate.symbols:
+            gsfs = self.symbols.get_symbol_for_string
+            self.male = gsfs(self.symbols.SYMBOL_MALE)
+            self.female = gsfs(self.symbols.SYMBOL_FEMALE)
+            self.bth = gsfs(self.symbols.SYMBOL_BIRTH)
+            self.bptsm = gsfs(self.symbols.SYMBOL_BAPTISM)
+            self.marriage = gsfs(self.symbols.SYMBOL_MARRIAGE)
+            self.marr = gsfs(self.symbols.SYMBOL_HETEROSEXUAL)
+            self.homom = gsfs(self.symbols.SYMBOL_MALE_HOMOSEXUAL)
+            self.homof = gsfs(self.symbols.SYMBOL_LESBIAN)
+            self.divorce = gsfs(self.symbols.SYMBOL_DIVORCE)
+            self.unmarr = gsfs(self.symbols.SYMBOL_UNMARRIED_PARTNERSHIP)
+            death_idx = self.uistate.death_symbol
+            self.dth = self.symbols.get_death_symbol_for_char(death_idx)
+            self.burial = gsfs(self.symbols.SYMBOL_BURIED)
+            self.cremation = gsfs(self.symbols.SYMBOL_CREMATED)
+        else:
+            gsf = self.symbols.get_symbol_fallback
+            self.male = gsf(self.symbols.SYMBOL_MALE)
+            self.female = gsf(self.symbols.SYMBOL_FEMALE)
+            self.bth = gsf(self.symbols.SYMBOL_BIRTH)
+            self.bptsm = gsf(self.symbols.SYMBOL_BAPTISM)
+            self.marriage = gsf(self.symbols.SYMBOL_MARRIAGE)
+            self.marr = gsf(self.symbols.SYMBOL_HETEROSEXUAL)
+            self.homom = gsf(self.symbols.SYMBOL_MALE_HOMOSEXUAL)
+            self.homof = gsf(self.symbols.SYMBOL_LESBIAN)
+            self.divorce = gsf(self.symbols.SYMBOL_DIVORCE)
+            self.unmarr = gsf(self.symbols.SYMBOL_UNMARRIED_PARTNERSHIP)
+            death_idx = self.symbols.DEATH_SYMBOL_LATIN_CROSS
+            self.dth = self.symbols.get_death_symbol_fallback(death_idx)
+            self.burial = gsf(self.symbols.SYMBOL_BURIED)
+            self.cremation = gsf(self.symbols.SYMBOL_CREMATED)
+
+    def font_changed(self):
+        self.reload_symbols()
+        self.build_tree()
 
     def navigation_type(self):
         return 'Person'
@@ -231,11 +341,9 @@ class PersonProfile(NavigationView):
         return True
 
     def goto_handle(self, handle):
-        self.change_object(handle)
+        self.change_person(handle)
 
     def config_update(self, client, cnxn_id, entry, data):
-        for page in self.pages.values():
-            page.config_update()
         self.redraw()
 
     def build_tree(self):
@@ -245,10 +353,10 @@ class PersonProfile(NavigationView):
         if self.active:
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -258,10 +366,10 @@ class PersonProfile(NavigationView):
             self.bookmarks.redraw()
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -269,10 +377,10 @@ class PersonProfile(NavigationView):
         if self.active:
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -280,10 +388,10 @@ class PersonProfile(NavigationView):
         if self.active:
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -291,10 +399,10 @@ class PersonProfile(NavigationView):
         if self.active:
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -302,10 +410,10 @@ class PersonProfile(NavigationView):
         if self.active:
             person = self.get_active()
             if person:
-                while not self.change_object(person):
+                while not self.change_person(person):
                     pass
             else:
-                self.change_object(None)
+                self.change_person(None)
         else:
             self.dirty = True
 
@@ -319,28 +427,29 @@ class PersonProfile(NavigationView):
         This assumes that this icon has already been registered with
         GNOME as a stock icon.
         """
-        return 'gramps-relation'
+        return 'gramps-person'
 
     def get_viewtype_stock(self):
         """Type of view in category
         """
-        return 'gramps-relation'
+        return 'gramps-person'
 
     def build_widget(self):
         """
         Build the widget that contains the view, see
         :class:`~gui.views.pageview.PageView
         """
-        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        container.set_border_width(12)
-
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        container.set_border_width(6)
         self.header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.header.show()
-
-        container.set_spacing(6)
-        container.pack_start(self.header, True, True, 0)
-        container.show_all()
-
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.child = None
+        self.scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+        self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                               Gtk.PolicyType.AUTOMATIC)
+        self.scroll.add_with_viewport(self.vbox)
+        container.pack_start(self.header, False, False, 0)
+        container.pack_end(self.scroll, True, True, 0)
         return container
 
     additional_ui = [  # Defines the UI string for UIManager
@@ -388,10 +497,6 @@ class PersonProfile(NavigationView):
         <item>
           <attribute name="action">win.ChangeOrder</attribute>
           <attribute name="label" translatable="yes">_Reorder</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddParticipant</attribute>
-          <attribute name="label" translatable="yes">Add Participant...</attribute>
         </item>
         <item>
           <attribute name="action">win.FilterEdit</attribute>
@@ -457,8 +562,8 @@ class PersonProfile(NavigationView):
 ''',
         '''
     <placeholder id='BarCommonEdit'>
-    <child groups='RO'>
-      <object class="GtkToolButton" id="EditButton">
+    <child groups='RW'>
+      <object class="GtkToolButton">
         <property name="icon-name">gtk-edit</property>
         <property name="action-name">win.Edit</property>
         <property name="tooltip_text" translatable="yes">'''
@@ -469,7 +574,7 @@ class PersonProfile(NavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='RW'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddParents</property>
@@ -481,7 +586,7 @@ class PersonProfile(NavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='RW'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.ShareFamily</property>
@@ -493,7 +598,7 @@ class PersonProfile(NavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='RW'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-spouse</property>
         <property name="action-name">win.AddSpouse</property>
@@ -505,7 +610,7 @@ class PersonProfile(NavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='ChangeOrder'>
+    <child groups='RW'>
       <object class="GtkToolButton">
         <property name="icon-name">view-sort-ascending</property>
         <property name="action-name">win.ChangeOrder</property>
@@ -518,43 +623,33 @@ class PersonProfile(NavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Event'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-parents-add</property>
-        <property name="action-name">win.AddParticipant</property>
-        <property name="tooltip_text" translatable="yes">'''
-        '''Add a new participant to the event</property>
-        <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='Event'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-parents-open</property>
-        <property name="action-name">win.ShareParticipant</property>
-        <property name="tooltip_text" translatable="yes">'''
-        '''Add an existing participant to the event</property>
-        <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
     </placeholder>
      ''']
 
     def define_actions(self):
         NavigationView.define_actions(self)
-        for page in self.pages.values():
-            page.define_actions(self)
 
-        self._add_action('Edit', self.edit_active, '<PRIMARY>Return')
+        self.order_action = ActionGroup(name=self.title + '/ChangeOrder')
+        self.order_action.add_actions([
+            ('ChangeOrder', self.reorder)])
+
+        self.family_action = ActionGroup(name=self.title + '/Family')
+        self.family_action.add_actions([
+            ('Edit', self.edit_active, "<PRIMARY>Return"),
+            ('AddSpouse', self.add_spouse),
+            ('AddParents', self.add_parents),
+            ('ShareFamily', self.select_parents)])
+
         self._add_action('FilterEdit', callback=self.filter_editor)
         self._add_action('PRIMARY-J', self.jump, '<PRIMARY>J')
+
+        self._add_action_group(self.order_action)
+        self._add_action_group(self.family_action)
+
+        self.uimanager.set_actions_sensitive(self.order_action,
+                                             self.reorder_sensitive)
+        self.uimanager.set_actions_sensitive(self.family_action, False)
+        self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
     def filter_editor(self, *obj):
         try:
@@ -563,72 +658,188 @@ class PersonProfile(NavigationView):
         except WindowActiveError:
             return
 
-    def edit_active(self, *obj):
-        self.active_page.edit_active()
-
     def change_db(self, db):
         #reset the connects
         self._change_db(db)
+        if self.child:
+            list(map(self.vbox.remove, self.vbox.get_children()))
+            list(map(self.header.remove, self.header.get_children()))
+            self.child = None
         if self.active:
                 self.bookmarks.redraw()
-        self.history.clear()
         self.redraw()
 
     def redraw(self, *obj):
         active_person = self.get_active()
         if active_person:
-            self.change_object(active_person)
+            self.change_person(active_person)
         else:
-            self.change_object(None)
+            self.change_person(None)
 
-    def object_changed(self, obj_type, handle):
-        self.change_active((obj_type, handle))
-        self.change_object((obj_type, handle))
-
-    def change_object(self, obj_tuple):
-
-        if obj_tuple is None:
-            return
-
-
+    def change_person(self, obj):
+        self.change_active(obj)
+        try:
+            return self._change_person(obj)
+        except AttributeError as msg:
+            import traceback
+            exc = traceback.format_exc()
+            _LOG.error(str(msg) +"\n" + exc)
+            from gramps.gui.dialog import RunDatabaseRepair
+            RunDatabaseRepair(str(msg),
+                              parent=self.uistate.window)
+            self.redrawing = False
+            return True
+        
+    def _change_person(self, obj):
         if self.redrawing:
             return False
         self.redrawing = True
 
-        obj_type, handle, = obj_tuple
-        if obj_type == 'Person':
-            obj = self.dbstate.db.get_person_from_handle(handle)
-        elif obj_type == 'Event':
-            obj = self.dbstate.db.get_event_from_handle(handle)
-
-        for page in self.pages.values():
-            page.disable_actions(self.uimanager)
-
-        page = self.pages[obj_type]
-
-        page.enable_actions(self.uimanager, obj)
-        self.uimanager.update_menu()
-
-        edit_button = self.uimanager.get_widget("EditButton")
-        if edit_button:
-            if obj_type == 'Person':
-                tooltip = _('Edit the active person')
-            elif obj_type == 'Event':
-                tooltip = _('Edit the active event')
-            edit_button.set_tooltip_text(tooltip)
-
         list(map(self.header.remove, self.header.get_children()))
-        mbox = page.display_profile(obj)
-        self.header.pack_start(mbox, True, True, 0)
+        list(map(self.vbox.remove, self.vbox.get_children()))        
+
+        person = None
+        if obj:
+            person = self.dbstate.db.get_person_from_handle(obj)
+        if not person:
+            self.uimanager.set_actions_sensitive(self.family_action, False)
+            self.uimanager.set_actions_sensitive(self.order_action, False)
+            self.redrawing = False
+            return
+        self.uimanager.set_actions_sensitive(self.family_action, True)
+
+        header = Gtk.HBox()
+        home = self.dbstate.db.get_default_person()
+        self.active_profile = PersonProfileFrame(self.dbstate,
+                self.uistate, person, "active", "preferences.profile.person",
+                self._config, self.link_router, relation=home)
+        if self._config.get("preferences.profile.person.active.show-image"):
+            image = ImageFrame(self.dbstate.db,
+                    self.uistate, person,
+                    size=bool(self._config.get("preferences.profile.person.active.show-image-large")))
+            if self._config.get("preferences.profile.person.active.show-image-first"): 
+                header.pack_start(image, expand=False, fill=False, padding=0)
+                add_style_double_frame(image, self.active_profile)
+        header.pack_start(self.active_profile, expand=True, fill=True, padding=0)
+        if self._config.get("preferences.profile.person.active.show-image"):
+            if not self._config.get("preferences.profile.person.active.show-image-first"):            
+                header.pack_end(image, expand=False, fill=False, padding=0)
+                add_style_double_frame(self.active_profile, image)
+        else:
+            add_style_single_frame(self.active_profile)
+
+        body = Gtk.HBox(expand=True, spacing=3)
+        parents_box = Gtk.VBox(spacing=3)
+        parents = get_parent_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+        if parents is not None:
+            parents_box.pack_start(parents, expand=False, fill=False, padding=0)
+
+        spouses_box = Gtk.VBox(spacing=3)
+        spouses = get_spouse_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+        if spouses is not None:
+            spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
+
+        if self._config.get("preferences.profile.person.layout.show-timeline"):            
+            timeline_box = Gtk.VBox(spacing=3)
+            timeline = get_timeline_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+            if timeline is not None:
+                timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
+
+        if self._config.get("preferences.profile.person.layout.show-citations"):
+            citations_box = Gtk.VBox(spacing=3)
+            citations = get_citation_profiles(self.dbstate, self.uistate, person, router=self.link_router, config=self._config)
+            if citations is not None:
+                citations_box.pack_start(citations, expand=False, fill=False, padding=0)
+
+        if self._config.get("preferences.profile.person.layout.families-stacked"):
+            families_box = Gtk.VBox(spacing=3)
+            families_box.pack_start(parents_box, expand=False, fill=False, padding=0)
+            families_box.pack_start(spouses_box, expand=False, fill=False, padding=0)
+            if self._config.get("preferences.profile.person.layout.spouses-left"):
+                body.pack_start(families_box, expand=True, fill=True, padding=0)
+            if self._config.get("preferences.profile.person.layout.show-timeline"):
+                body.pack_start(timeline_box, expand=True, fill=True, padding=0)
+            if self._config.get("preferences.profile.person.layout.show-citations"):
+                body.pack_start(citations_box, expand=True, fill=True, padding=0)
+            if not self._config.get("preferences.profile.person.layout.spouses-left"):
+                body.pack_start(families_box, expand=True, fill=True, padding=0)
+        else:
+            if self._config.get("preferences.profile.person.layout.spouses-left"):
+                body.pack_start(spouses_box, expand=True, fill=True, padding=0)
+            else:
+                body.pack_start(parents_box, expand=True, fill=True, padding=0)
+            if self._config.get("preferences.profile.person.layout.show-timeline"):
+                body.pack_start(timeline_box, expand=True, fill=True, padding=0)
+            if self._config.get("preferences.profile.person.layout.show-citations"):
+                body.pack_start(citations_box, expand=True, fill=True, padding=0)
+            if self._config.get("preferences.profile.person.layout.spouses-left"):
+                body.pack_start(parents_box, expand=True, fill=True, padding=0)
+            else:
+                body.pack_start(spouses_box, expand=True, fill=True, padding=0)
+
+        if self._config.get("preferences.profile.person.layout.pinned-header"):
+            self.header.pack_start(header, False, False, 0)
+            self.header.show_all()
+        else:
+            self.vbox.pack_start(header, False, False, 0)
+        self.child = body
+        self.vbox.pack_start(self.child, True, True, 0)
+        self.vbox.show_all()
+                
+        family_handle_list = person.get_parent_family_handle_list()
+        self.reorder_sensitive = len(family_handle_list)> 1
+        family_handle_list = person.get_family_handle_list()
+        if not self.reorder_sensitive:
+            self.reorder_sensitive = len(family_handle_list)> 1
 
         self.redrawing = False
         self.uistate.modify_statusbar(self.dbstate)
-
+        self.uimanager.set_actions_sensitive(self.order_action,
+                                             self.reorder_sensitive)
         self.dirty = False
-
-        self.active_page = page
-
         return True
+
+    def link_router(self, obj, event, handle, action):
+        if action == "link-person":
+            if button_activated(event, _LEFT_BUTTON):            
+                self.change_person(handle)
+    
+    def marriage_symbol(self, family, markup=True):
+        if family:
+            father = mother = None
+            hdl1 = family.get_father_handle()
+            if hdl1:
+                father = self.dbstate.db.get_person_from_handle(hdl1).gender
+            hdl2 = family.get_mother_handle()
+            if hdl2:
+                mother = self.dbstate.db.get_person_from_handle(hdl2).gender
+            if father != mother:
+                symbol = self.marr
+            elif father == Person.MALE:
+                symbol = self.homom
+            else:
+                symbol = self.homof
+            if markup:
+                msg = '<span size="12000" >%s</span>' % symbol
+            else:
+                msg = symbol
+        else:
+            msg = ""
+        return msg
+
+    def change_to(self, obj, handle):
+        self.change_active(handle)
+
+    def reorder_button_press(self, obj, event, handle):
+        if button_activated(event, _LEFT_BUTTON):
+            self.reorder(obj)
+
+    def reorder(self, *obj):
+        if self.get_active():
+            try:
+                Reorder(self.dbstate, self.uistate, [], self.get_active())
+            except WindowActiveError:
+                pass
 
     def config_connect(self):
         """
@@ -639,7 +850,6 @@ class PersonProfile(NavigationView):
         for item in self.CONFIGSETTINGS:
             self._config.connect(item[0],
                 self.config_update)
-        config.connect("interface.toolbar-on", self.config_update)
 
     def layout_panel(self, configdialog):
         """
@@ -651,34 +861,37 @@ class PersonProfile(NavigationView):
         grid.set_row_spacing(6)
         configdialog.add_text(grid,
                 _('Layout Options'),
-                0, bold=True)        
+                0, bold=True)
+        configdialog.add_checkbox(grid,
+                _('Pin active person header so it does not scroll'),
+                1, 'preferences.profile.person.layout.pinned-header')
         configdialog.add_checkbox(grid,
                 _('Place spouses & children on left side'),
-                1, 'preferences.profile.person.layout.spouses-left')
+                2, 'preferences.profile.person.layout.spouses-left')
         configdialog.add_checkbox(grid,
                 _('Stack parents & spouses in a single column'),
-                2, 'preferences.profile.person.layout.families-stacked')
+                3, 'preferences.profile.person.layout.families-stacked')
         configdialog.add_checkbox(grid,
                 _('Show event timeline'),
-                3, 'preferences.profile.person.layout.show-timeline')
+                4, 'preferences.profile.person.layout.show-timeline')
         configdialog.add_checkbox(grid,
                 _('Show associated citations'),
-                4, 'preferences.profile.person.layout.show-citations')
+                5, 'preferences.profile.person.layout.show-citations')
         configdialog.add_text(grid,
                 _('Styling Options'),
-                5, bold=True)
+                6, bold=True)
         configdialog.add_checkbox(grid,
                 _('Use smaller font for detail attributes'),
-                6, 'preferences.profile.person.layout.use-smaller-detail-font')
+                7, 'preferences.profile.person.layout.use-smaller-detail-font')
         configdialog.add_checkbox(grid,
                 _('Use thicker borders'),
-                7, 'preferences.profile.person.layout.use-thick-borders')
+                8, 'preferences.profile.person.layout.use-thick-borders')
         configdialog.add_checkbox(grid,
                 _('Use color schema'),
-                8, 'preferences.profile.person.layout.use-color-scheme')
+                9, 'preferences.profile.person.layout.use-color-scheme')
         configdialog.add_checkbox(grid,
                 _('Enable tooltips'),
-                9, 'preferences.profile.person.layout.enable-tooltips')
+                10, 'preferences.profile.person.layout.enable-tooltips')
         return _('Layout'), grid
 
     def active_panel(self, configdialog):
@@ -930,7 +1143,7 @@ class PersonProfile(NavigationView):
                 _('Show burial if available and not used as death equivalent'),
                 9, 'preferences.profile.person.sibling.show-burial')
         configdialog.add_checkbox(grid,
-                _('Show age at death and if selected burial'),
+                _('Show age at death and if selected burial'),    
                 10, 'preferences.profile.person.sibling.show-age')
         return _('Siblings'), grid
 
@@ -967,7 +1180,6 @@ class PersonProfile(NavigationView):
         configdialog.add_checkbox(grid1,
                 _('Show image'),
                 7, 'preferences.profile.person.timeline.show-image')
-        
         grid2 = Gtk.Grid()
         grid2.set_border_width(12)
         grid2.set_column_spacing(6)
@@ -1006,7 +1218,6 @@ class PersonProfile(NavigationView):
         configdialog.add_checkbox(grid2,
                 _('Show custom'),
                 10, 'preferences.profile.person.timeline.show-class-custom')
-        
         grid3 = Gtk.Grid()
         grid3.set_border_width(12)
         grid3.set_column_spacing(6)
@@ -1075,19 +1286,6 @@ class PersonProfile(NavigationView):
                 _('Show image'),
                 3, 'preferences.profile.person.citation.show-image')
         return _('Citations'), grid
-    
-    def _config_update_theme(self, obj):
-        """
-        callback from the theme checkbox
-        """
-        if obj.get_active():
-            self.theme = 'WEBPAGE'
-            self._config.set('preferences.relation-display-theme',
-                              'WEBPAGE')
-        else:
-            self.theme = 'CLASSIC'
-            self._config.set('preferences.relation-display-theme',
-                              'CLASSIC')
 
     def _get_configure_page_funcs(self):
         """
@@ -1096,28 +1294,37 @@ class PersonProfile(NavigationView):
 
         :return: list of functions
         """
-        return [self.layout_panel, self.active_panel, self.parents_panel, self.siblings_panel, self.spouses_panel, self.children_panel, self.timeline_panel, self.citations_panel]
+        return [self.layout_panel, self.active_panel, self.parents_panel,
+                self.siblings_panel, self.spouses_panel, self.children_panel,
+                self.timeline_panel, self.citations_panel]
 
-    def set_active(self):
-        """
-        Called when the page is displayed.
-        """
-        NavigationView.set_active(self)
-        self.uistate.viewmanager.tags.tag_enable(update_menu=False)
+    def edit_active(self, *obj):
+        if self.active_profile:
+            self.active_profile.edit_object()
 
-    def set_inactive(self):
-        """
-        Called when the page is no longer displayed.
-        """
-        NavigationView.set_inactive(self)
-        self.uistate.viewmanager.tags.tag_disable()
-
-    def selected_handles(self):
-        return [self.get_active()[1]]
-
+    def add_spouse(self, *obj):
+        if self.active_profile:
+            self.active_profile.add_new_spouse()
+            
+    def select_parents(self, *obj):
+        if self.active_profile:
+            self.active_profile.add_existing_parents()
+            
+    def add_parents(self, *obj):
+        if self.active_profile:
+            self.active_profile.add_new_parents()
+            
     def add_tag(self, trans, object_handle, tag_handle):
-        """
-        Add the given tag to the active object.
-        """
-        self.active_page.add_tag(trans, object_handle, tag_handle)
+        if self.active_profile:
+            self.active_profile.add_tag(trans, object_handle, tag_handle)
+
+def button_activated(event, mouse_button):
+    if (event.type == Gdk.EventType.BUTTON_PRESS and
+        event.button == mouse_button) or \
+       (event.type == Gdk.EventType.KEY_PRESS and
+        event.keyval in (_RETURN, _KP_ENTER, _SPACE)):
+        return True
+    else:
+        return False
+
 

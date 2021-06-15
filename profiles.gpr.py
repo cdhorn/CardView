@@ -30,7 +30,7 @@ fname = 'person_profile.py',
 authors = ["The Gramps project"],
 authors_email = ["http://gramps-project.org"],
 category = ("People", _("People")),
-viewclass = 'PersonProfile',
+viewclass = 'PersonProfileView',
 order = END,
 )
 

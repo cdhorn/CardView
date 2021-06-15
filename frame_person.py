@@ -83,7 +83,7 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
     """
 
     def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0):
-        Gtk.Frame.__init__(self, expand=True, shadow_type=Gtk.ShadowType.NONE)
+        Gtk.Frame.__init__(self, hexpand=True, vexpand=False, shadow_type=Gtk.ShadowType.NONE)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = person
         self.person = person
