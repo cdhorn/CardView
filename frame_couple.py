@@ -76,7 +76,7 @@ _ = _trans.gettext
 class CoupleProfileFrame(Gtk.VBox, BaseProfile):
 
     def __init__(self, dbstate, uistate, family, context, space, config, router, parent=None, relation=None):
-        Gtk.VBox.__init__(self, expand=False)
+        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = family
         self.family = family
@@ -84,28 +84,26 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         self.parent = parent
         self.relation = relation
 
-        self.frame = Gtk.Frame()
-        parent_grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2)
+        self.body = Gtk.VBox(spacing=3)
         self.event_box = Gtk.EventBox()
-        self.event_box.add(parent_grid)
+        self.event_box.add(self.body)
         self.event_box.connect('button-press-event', self.build_action_menu)
+
+        self.frame = Gtk.Frame()
         self.frame.add(self.event_box)
-        self.pack_start(self.frame, expand=True, fill=True, padding=0)
+        self.add(self.frame)
+
+        self.sizegroup = Gtk.SizeGroup()
+        self.sizegroup.set_mode(Gtk.SizeGroupMode.HORIZONTAL)
 
         partner1, partner2 = self._get_parents()
-        profile, image = self._get_profile(partner1)
+        profile = self._get_profile(partner1)
         if profile:
-            if image:
-                parent_grid.attach(profile, 0, 0, 1, 1)
-                parent_grid.attach(image, 1, 0, 1, 1)
-                add_style_double_frame(profile, image)
-            else:
-                parent_grid.attach(profile, 0, 0, 2, 1)
-                add_style_single_frame(profile)
+            self.body.pack_start(profile, True, True, 0)
+            add_style_single_frame(profile)
 
-        couple_section = Gtk.VBox()
         if not self.color_scheme:
-            couple_section.pack_start(Gtk.HSeparator(), True, True, 0)
+            self.body.pack_start(Gtk.HSeparator(), True, True, 0)
 
         couple_facts = Gtk.HBox()
         couple_facts.pack_start(self.facts_grid, True, True, 0)
@@ -132,24 +130,18 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
             metadata_section.pack_start(flowbox, False, False, 0)
 
         couple_facts.pack_end(metadata_section, False, False, 0)
-        couple_section.pack_start(couple_facts, True, True, 0)
-        parent_grid.attach(couple_section, 0, 1, 1, 1)
+        self.body.pack_start(couple_facts, True, True, 0)
 
         if partner2:
             if added_event and not self.color_scheme:
-                couple_section.pack_start(Gtk.HSeparator(), True, True, 0)
+                self.body.pack_start(Gtk.HSeparator(), True, True, 0)
     
-            profile, image = self._get_profile(partner2)
+            profile = self._get_profile(partner2)
             if profile:
-                if image:
-                    parent_grid.attach(profile, 0, 2, 1, 1)
-                    parent_grid.attach(image, 1, 2, 1, 1)
-                    add_style_double_frame(profile, image)
-                else:
-                    parent_grid.attach(profile, 0, 2, 2, 1)
-                    add_style_single_frame(profile)
+                self.body.pack_start(profile, True, True, 0)
+                add_style_single_frame(profile)
 
-        add_style_single_frame(self)
+        add_style_single_frame(self.frame)
         self.show_all()
 
     def _get_profile(self, person):
@@ -161,15 +153,13 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
                 self.context,
                 self.space,
                 self.config,
-                self.router
+                self.router,
+                group=self.sizegroup
             )
             profile.family_backlink_handle = self.family.handle
-            image = None
-            if self.option(self.context, "show-image"):
-                image = ImageFrame(self.dbstate.db, self.uistate, person, size=0)
-            return profile, image
-        return None, None
-        
+            return profile
+        return None
+
     def _get_parents(self):
         father = None
         if self.family.father_handle:

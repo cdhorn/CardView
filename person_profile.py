@@ -708,25 +708,11 @@ class PersonProfileView(NavigationView):
             return
         self.uimanager.set_actions_sensitive(self.family_action, True)
 
-        header = Gtk.HBox()
         home = self.dbstate.db.get_default_person()
         self.active_profile = PersonProfileFrame(self.dbstate,
                 self.uistate, person, "active", "preferences.profile.person",
                 self._config, self.link_router, relation=home)
-        if self._config.get("preferences.profile.person.active.show-image"):
-            image = ImageFrame(self.dbstate.db,
-                    self.uistate, person,
-                    size=bool(self._config.get("preferences.profile.person.active.show-image-large")))
-            if self._config.get("preferences.profile.person.active.show-image-first"): 
-                header.pack_start(image, expand=False, fill=False, padding=0)
-                add_style_double_frame(image, self.active_profile)
-        header.pack_start(self.active_profile, expand=True, fill=True, padding=0)
-        if self._config.get("preferences.profile.person.active.show-image"):
-            if not self._config.get("preferences.profile.person.active.show-image-first"):            
-                header.pack_end(image, expand=False, fill=False, padding=0)
-                add_style_double_frame(self.active_profile, image)
-        else:
-            add_style_single_frame(self.active_profile)
+        add_style_single_frame(self.active_profile)
 
         body = Gtk.HBox(expand=True, spacing=3)
         parents_box = Gtk.VBox(spacing=3)
@@ -778,10 +764,10 @@ class PersonProfileView(NavigationView):
                 body.pack_start(spouses_box, expand=True, fill=True, padding=0)
 
         if self._config.get("preferences.profile.person.layout.pinned-header"):
-            self.header.pack_start(header, False, False, 0)
+            self.header.pack_start(self.active_profile, False, False, 0)
             self.header.show_all()
         else:
-            self.vbox.pack_start(header, False, False, 0)
+            self.vbox.pack_start(self.active_profile, False, False, 0)
         self.child = body
         self.vbox.pack_start(self.child, True, True, 0)
         self.vbox.show_all()

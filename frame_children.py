@@ -49,7 +49,6 @@ from gramps.gen.display.place import displayer as place_displayer
 #
 # ------------------------------------------------------------------------
 from frame_css import add_style_single_frame, add_style_double_frame
-from frame_image import ImageFrame
 from frame_base import BaseProfile
 from frame_person import PersonProfileFrame
 from frame_couple import CoupleProfileFrame
@@ -71,14 +70,15 @@ _ = _trans.gettext
 
 # ------------------------------------------------------------------------
 #
-# FamilyProfileFrame class
+# ChildrenProfileFrame class
 #
 # ------------------------------------------------------------------------
-class ChildrenProfileFrame(Gtk.Grid, BaseProfile):
+class ChildrenProfileFrame(Gtk.VBox, BaseProfile):
 
-    def __init__(self, dbstate, uistate, family, context, space, config, router, parent=None, relation=None, children="Children"):
+    def __init__(self, dbstate, uistate, family, context, space, config, router,
+                 parent=None, relation=None, children="Children"):
 
-        Gtk.Grid.__init__(self, hexpand=True, row_spacing=3)
+        Gtk.VBox.__init__(self, hexpand=True, spacing=3)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.family = family
         self.context = context
@@ -91,20 +91,19 @@ class ChildrenProfileFrame(Gtk.Grid, BaseProfile):
         if self.context == "parent":
             context = "sibling"
 
+        sizegroup = Gtk.SizeGroup()
+        sizegroup.set_mode(Gtk.SizeGroupMode.HORIZONTAL)
+
         for ref in self.family.get_child_ref_list():
             if ref:
                 child = self.dbstate.db.get_person_from_handle(ref.ref)
                 child_number = self.number + 1
                 if not self.option(context, "number-children"):
                     child_number = 0
-                profile = PersonProfileFrame(self.dbstate, self.uistate, child, context, self.space, self.config, self.router, number=child_number, relation=self.relation)
+                profile = PersonProfileFrame(self.dbstate, self.uistate, child, context,
+                                             self.space, self.config, self.router,
+                                             number=child_number, relation=self.relation, group=sizegroup)
                 profile.family_backlink_handle = self.family.handle
-                self.attach(profile, 0, self.number, 1, 1)
-                
-                if self.option(context, "show-image"):
-                    image = ImageFrame(self.dbstate.db, self.uistate, child, size=0)
-                    self.attach(image, 1, self.number, 1, 1)
-                    add_style_double_frame(profile, image)
-                else:
-                    add_style_single_frame(profile)
+                self.pack_start(profile, True, True, 0)
+                add_style_single_frame(profile)
                 self.number = self.number + 1

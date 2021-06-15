@@ -54,6 +54,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_image import ImageFrame
 from frame_base import BaseProfile
 from frame_utils import (
     _GENDERS, 
@@ -82,7 +83,7 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
     better accomodate composite layouts.
     """
 
-    def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0):
+    def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0, group=None):
         Gtk.Frame.__init__(self, hexpand=True, vexpand=False, shadow_type=Gtk.ShadowType.NONE)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = person
@@ -101,6 +102,15 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
         self.event_box.connect('button-press-event', self.build_action_menu)
         self.add(self.event_box)
         
+        if self.option(context, "show-image"):
+            self.image = ImageFrame(self.dbstate.db,
+                                    self.uistate, self.person,
+                                    size=bool(self.option(context, "show-image-large")))
+            if group:
+                group.add_widget(self.image)
+            if self.option(context, "show-image-first"):
+                self.sections.pack_start(self.image, expand=False, fill=False, padding=0)
+                
         subject_section = Gtk.VBox()
         self.sections.pack_start(subject_section, True, True, 0)
 
@@ -159,10 +169,10 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
         flowbox = self.get_tags_flowbox()
         if flowbox:
             metadata_section.pack_start(flowbox, False, False, 0)
-#        if self.option(context, "show-tags"):
-#            tags = get_tags(self.dbstate.db, self.person)
-#            metadata_section.pack_start(tags, False, False, 0)
-
+        
+        if self.option(context, "show-image"):
+            if not self.option(context, "show-image-first"):
+                self.sections.pack_start(self.image, expand=False, fill=False, padding=0)
 
     def _load_base_facts(self, key_events):
         living = True
