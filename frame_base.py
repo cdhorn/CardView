@@ -92,8 +92,6 @@ class BaseProfile():
         self.space = space
         self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
         self.facts_row = 0
-        self.thick_borders = self.config.get("{}.layout.use-thick-borders".format(self.space))
-        self.color_scheme = self.config.get("{}.layout.use-color-scheme".format(self.space))
         self.enable_tooltips = self.config.get("{}.layout.enable-tooltips".format(self.space))
         self.markup = "{}"
         if self.config.get("{}.layout.use-smaller-detail-font".format(self.space)):
@@ -364,3 +362,78 @@ class BaseProfile():
         with DbTxn(_("Remove Tag from %s") % object_type, self.dbstate.db) as trans:
             self.obj.remove_tag(handle)
             commit_method(self.obj, trans)
+
+    
+    def set_css_style(self):
+        """
+        Add styling to a frame object.
+        """
+        border = self.option("layout", "border-width")
+        color = self._get_color_string()
+        css = ".frame {{ border-width: {}px; {} }}".format(border, color)
+        css = css.encode('utf-8')
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        if isinstance(self, Gtk.Frame):
+            context = self.get_style_context()
+        elif hasattr(self, "frame"):
+            context = self.frame.get_style_context()
+        else:
+            return
+        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        context.add_class("frame")
+
+
+    def _get_color_string(self):
+        """
+        Determine coloring scheme to be used if specified.
+        """
+        background_color = ""
+        border_color = ""
+
+        if isinstance(self.obj, Person):
+            if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+                return ""
+            if self.obj.gender == Person.MALE:
+                key = "male"
+            elif self.obj.gender == Person.FEMALE:
+                key = "female"
+            else:
+                key = "unknown"
+            if self.living:
+                value = "alive"
+            else:
+                value = "dead"
+            border_color = global_config.get("colors.border-{}-{}".format(key, value))
+            if self.relation and self.relation.handle == self.obj.handle:
+                key = "home"
+                value = "person"
+            background_color = global_config.get("colors.{}-{}".format(key, value))
+
+        if isinstance(self.obj, Family):
+            if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+                return ""
+            background_color = global_config.get("colors.family")
+            border_color = global_config.get("colors.border-family")
+            if self.obj.type is not None or self.divorced is not None:
+                key = self.obj.type.value
+                if self.divorced is not None and self.divorced:
+                    border_color = global_config.get("colors.border-family-divorced")
+                    key = 99
+                values = {
+                    0: "-married",
+                    1: "-unmarried",
+                    2: "-civil-union",
+                    3: "-unknown",
+                    4: "",
+                    99: "-divorced"
+                }
+                background_color = global_config.get("colors.family{}".format(values[key]))
+
+        scheme = global_config.get("colors.scheme")
+        css = ""
+        if background_color:
+            css = 'background-color: {};'.format(background_color[scheme])
+        if border_color:
+            css = '{} border-color: {};'.format(css, border_color[scheme])
+        return css

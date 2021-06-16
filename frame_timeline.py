@@ -82,7 +82,7 @@ def generate_timeline(dbstate, uistate, person, router, config=None, space="pref
     if config.get("{}.layout.use-smaller-detail-font".format(space)):
         markup = "<small>{}</small>"
 
-    border = bool(config.get("{}.layout.use-thick-borders".format(space))) + 2
+    border = config.get("{}.layout.border-width".format(space))
     if config.get("{}.timeline.show-image".format(space)):
         right = 0
     else:

@@ -174,6 +174,9 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
             if not self.option(context, "show-image-first"):
                 self.sections.pack_start(self.image, expand=False, fill=False, padding=0)
 
+        self.set_css_style()
+
+
     def _load_base_facts(self, key_events):
         living = True
         if key_events["death"] or key_events["burial"]:

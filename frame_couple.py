@@ -48,7 +48,6 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_css import add_style_single_frame, add_style_double_frame
 from frame_image import ImageFrame
 from frame_person import PersonProfileFrame
 from frame_base import BaseProfile
@@ -84,12 +83,12 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         self.parent = parent
         self.relation = relation
 
-        self.body = Gtk.VBox(spacing=3)
+        self.body = Gtk.VBox(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
         self.event_box = Gtk.EventBox()
         self.event_box.add(self.body)
         self.event_box.connect('button-press-event', self.build_action_menu)
 
-        self.frame = Gtk.Frame()
+        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.frame.add(self.event_box)
         self.add(self.frame)
 
@@ -100,10 +99,6 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         profile = self._get_profile(partner1)
         if profile:
             self.body.pack_start(profile, True, True, 0)
-            add_style_single_frame(profile)
-
-        if not self.color_scheme:
-            self.body.pack_start(Gtk.HSeparator(), True, True, 0)
 
         couple_facts = Gtk.HBox()
         couple_facts.pack_start(self.facts_grid, True, True, 0)
@@ -133,15 +128,11 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         self.body.pack_start(couple_facts, True, True, 0)
 
         if partner2:
-            if added_event and not self.color_scheme:
-                self.body.pack_start(Gtk.HSeparator(), True, True, 0)
-    
             profile = self._get_profile(partner2)
             if profile:
                 self.body.pack_start(profile, True, True, 0)
-                add_style_single_frame(profile)
 
-        add_style_single_frame(self.frame)
+        self.set_css_style()
         self.show_all()
 
     def _get_profile(self, person):

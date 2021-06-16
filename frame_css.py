@@ -68,11 +68,7 @@ def add_style_single_frame(obj):
     """
     Add styling to a single frame object.
     """
-    thick_border=False
-    if hasattr(obj, "config"):
-        if obj.config.get("preferences.profile.layout.use-thick-borders"):
-            thick_border = True
-    border = get_border_string(thick_borders=thick_border)
+    border = obj.config.get("preferences.profile.person.layout.border-width", right_open=True)
     color = get_color_string(obj)
     css = ".frame {{ {} {} }}".format(border, color)
     add_style(obj, css, "frame")
@@ -83,15 +79,8 @@ def add_style_double_frame(obj1, obj2):
     Add styling to two side by side frames objects such that no border
     appears between them so they appear as if one.
     """
-    thick_border = False
-    if hasattr(obj1, "config"):
-        if obj1.config.get("preferences.profile.layout.use-thick-borders"):
-            thick_border = True
-    elif hasattr(obj2, "config"):
-        if obj2.config.get("preferences.profile.layout.use-thick-borders"):
-            thick_border = True
-    obj1_border = get_border_string(thick_borders=thick_border, right_open=True)
-    obj2_border = get_border_string(thick_borders=thick_border, left_open=True)
+    obj1_border = obj1.config.get("preferences.profile.person.layout.border-width", right_open=True)
+    obj2_border = obj2.config.get("preferences.profile.person.layout.border-width", left_open=True)
     if isinstance(obj1, ImageFrame):
         color = get_color_string(obj2)
     else:
@@ -101,23 +90,6 @@ def add_style_double_frame(obj1, obj2):
     css = ".frame {{ {} {} }}".format(obj2_border, color)
     add_style(obj2, css, "frame")
     
-    
-def get_border_string(thick_borders=True, left_open=False, right_open=False):
-    """
-    Generate border styling string.
-    """
-    css = 'border-top-width: {}px; border-bottom-width: {}px; border-left-width: {}px; border-right-width: {}px;'
-    border = 2
-    if thick_borders:
-        border = 3
-    left = border
-    right = border
-    if left_open:
-        left = 0
-    if right_open:
-        right = 0
-    return css.format(border, border, left, right)
-
     
 def get_color_string(obj):
     """

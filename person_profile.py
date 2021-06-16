@@ -120,7 +120,6 @@ _RIGHT_BUTTON = 3
 # Plugin Modules
 #
 #-------------------------------------------------------------------------
-from frame_css import add_style_double_frame, add_style_single_frame
 from frame_groups import get_parent_profiles, get_spouse_profiles, get_citation_profiles, get_timeline_profiles
 from frame_image import ImageFrame
 from frame_person import PersonProfileFrame
@@ -139,7 +138,7 @@ class PersonProfileView(NavigationView):
         ('preferences.profile.person.layout.families-stacked', False),
         ('preferences.profile.person.layout.show-timeline', True),
         ('preferences.profile.person.layout.show-citations', False),
-        ('preferences.profile.person.layout.use-thick-borders', True),
+        ('preferences.profile.person.layout.border-width', 2),
         ('preferences.profile.person.layout.use-color-scheme', True),
         ('preferences.profile.person.layout.use-smaller-detail-font', True),
 
@@ -712,7 +711,6 @@ class PersonProfileView(NavigationView):
         self.active_profile = PersonProfileFrame(self.dbstate,
                 self.uistate, person, "active", "preferences.profile.person",
                 self._config, self.link_router, relation=home)
-        add_style_single_frame(self.active_profile)
 
         body = Gtk.HBox(expand=True, spacing=3)
         parents_box = Gtk.VBox(spacing=3)
@@ -869,9 +867,10 @@ class PersonProfileView(NavigationView):
         configdialog.add_checkbox(grid,
                 _('Use smaller font for detail attributes'),
                 7, 'preferences.profile.person.layout.use-smaller-detail-font')
-        configdialog.add_checkbox(grid,
-                _('Use thicker borders'),
-                8, 'preferences.profile.person.layout.use-thick-borders')
+        configdialog.add_spinner(grid,
+                _('Desired border width'),
+                8, 'preferences.profile.person.layout.border-width',
+                (0,5))
         configdialog.add_checkbox(grid,
                 _('Use color schema'),
                 9, 'preferences.profile.person.layout.use-color-scheme')

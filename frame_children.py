@@ -48,7 +48,6 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_css import add_style_single_frame, add_style_double_frame
 from frame_base import BaseProfile
 from frame_person import PersonProfileFrame
 from frame_couple import CoupleProfileFrame
@@ -105,5 +104,5 @@ class ChildrenProfileFrame(Gtk.VBox, BaseProfile):
                                              number=child_number, relation=self.relation, group=sizegroup)
                 profile.family_backlink_handle = self.family.handle
                 self.pack_start(profile, True, True, 0)
-                add_style_single_frame(profile)
+#                add_style_single_frame(profile)
                 self.number = self.number + 1
