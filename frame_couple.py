@@ -48,7 +48,6 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_image import ImageFrame
 from frame_person import PersonProfileFrame
 from frame_base import BaseProfile
 
@@ -79,7 +78,7 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = family
         self.family = family
-        self.context= context
+        self.context = context
         self.parent = parent
         self.relation = relation
 

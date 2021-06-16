@@ -54,7 +54,6 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_image import ImageFrame
 from frame_base import BaseProfile
 from frame_utils import (
     _GENDERS, 
@@ -103,9 +102,7 @@ class PersonProfileFrame(Gtk.Frame, BaseProfile):
         self.add(self.event_box)
         
         if self.option(context, "show-image"):
-            self.image = ImageFrame(self.dbstate.db,
-                                    self.uistate, self.person,
-                                    size=bool(self.option(context, "show-image-large")))
+            self.load_image()
             if group:
                 group.add_widget(self.image)
             if self.option(context, "show-image-first"):

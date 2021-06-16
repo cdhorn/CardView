@@ -81,6 +81,7 @@ class CitationProfileFrame(Gtk.Frame, BaseProfile):
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = citation
         self.citation = citation
+        self.context = "citation"
 
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
             

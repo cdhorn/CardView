@@ -121,7 +121,6 @@ _RIGHT_BUTTON = 3
 #
 #-------------------------------------------------------------------------
 from frame_groups import get_parent_profiles, get_spouse_profiles, get_citation_profiles, get_timeline_profiles
-from frame_image import ImageFrame
 from frame_person import PersonProfileFrame
 from frame_utils import EventFormatSelector, TagModeSelector
 

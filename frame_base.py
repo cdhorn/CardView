@@ -46,6 +46,9 @@ from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
+from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gen.utils.file import media_path_full
+from gramps.gui.utils import open_file_with_default_application
 
 
 # ------------------------------------------------------------------------
@@ -87,6 +90,7 @@ class BaseProfile():
         self.dbstate = dbstate
         self.uistate = uistate
         self.obj = None
+        self.image = None
         self.router = router
         self.config = config
         self.space = space
@@ -103,11 +107,17 @@ class BaseProfile():
         except AttributeError:
             return False
 
-    def make_label(self, text):
-        label = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)
+    def make_label(self, text, left=True):
+        if left:
+            label = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)
+        else:
+            label = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
         label.set_markup(self.markup.format(text))
         return label
-
+    
+    def load_image(self):
+        self.image = ImageFrame(self.dbstate.db, self.uistate, self.obj, size=bool(self.option(self.context, "show-image-large")))
+        
     def add_event(self, event, reference=None, show_age=False):
         if event:
             age = None
@@ -437,3 +447,43 @@ class BaseProfile():
         if border_color:
             css = '{} border-color: {};'.format(css, border_color[scheme])
         return css
+
+
+
+class ImageFrame(Gtk.Frame):
+    """
+    Simple class for managing display of an image.
+    """
+
+    def __init__(self, db, uistate, obj, size=0):
+        Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
+        self.db = db
+        self.uistate = uistate
+        media = obj.get_media_list()
+        if media:
+            thumbnail = self.get_thumbnail(media[0], size)
+            if thumbnail:
+                self.add(thumbnail)
+
+    def get_thumbnail(self, media_ref, size):
+        mobj = self.db.get_media_from_handle(media_ref.ref)
+        if mobj and mobj.get_mime_type()[0:5] == "image":
+            pixbuf = get_thumbnail_image(
+                media_path_full(self.db, mobj.get_path()),
+                rectangle=media_ref.get_rectangle(),
+                size=size)
+            image = Gtk.Image()
+            image.set_from_pixbuf(pixbuf)
+            button = Gtk.Button(relief=Gtk.ReliefStyle.NONE)
+            button.add(image)
+            button.connect("clicked", lambda obj: self.view_photo(mobj))
+            button.show_all()
+            return button
+        return None
+
+    def view_photo(self, photo):
+        """
+        Open this picture in the default picture viewer.
+        """
+        photo_path = media_path_full(self.db, photo.get_path())
+        open_file_with_default_application(photo_path, self.uistate)

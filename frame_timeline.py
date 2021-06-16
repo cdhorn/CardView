@@ -50,9 +50,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_css import add_style
 from frame_base import BaseProfile
-from frame_image import ImageFrame
 from timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 from frame_utils import get_relation, get_confidence, TextLink, get_key_person_events
 
@@ -77,110 +75,21 @@ _ = _trans.gettext
 # ------------------------------------------------------------------------
 
 def generate_timeline(dbstate, uistate, person, router, config=None, space="preferences.profile.person"):
-    person_cache = {}
-    markup = "{}"
-    if config.get("{}.layout.use-smaller-detail-font".format(space)):
-        markup = "<small>{}</small>"
-
-    border = config.get("{}.layout.border-width".format(space))
-    if config.get("{}.timeline.show-image".format(space)):
-        right = 0
-    else:
-        right = border
-    if config.get("{}.timeline.show-age".format(space)):
-        left = 0
-    else:
-        left = border        
-    css_format = '.frame {{ border-top-width: {}px; border-bottom-width: {}px; border-left-width: {}px; border-right-width: {}px; }}'
-                
     categories, relations, ancestors, offspring = get_timeline_filters(space, config)
     timeline = Timeline(dbstate.db, events=categories, relatives=relations)
     timeline.add_person(person.handle, anchor=True, ancestors=ancestors, offspring=offspring)
 
-    view = Gtk.Grid(expand=False, margin_right=3, margin_left=3, margin_top=0, margin_bottom=0, row_spacing=3)
-    row = 0
-    column = 0
-    if config.get("{}.timeline.show-age".format(space)):
-        column = 1
+    view = Gtk.VBox(expand=False, margin_right=3, margin_left=3, margin_top=0, margin_bottom=0, spacing=3)
+    lsizegroup = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+    rsizegroup = Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL)
 
+    count = 0
     for timeline_event in timeline.events():
-        if config.get("{}.timeline.show-age".format(space)):
-            age_frame, person_cache = build_age_frame(dbstate.db, person, timeline_event[0], timeline_event[1], person_cache, markup)
-            age_frame.set_shadow_type(Gtk.ShadowType.NONE)
-            view.attach(age_frame, 0, row, 1, 1)
-            css = css_format.format(border, border, border, 0)
-            add_style(age_frame, css, "frame")
-
-        event_frame = TimelineProfileFrame(dbstate, uistate, space, config, router, person, timeline_event[0], timeline_event[1], timeline_event[2])
-        view.attach(event_frame, column, row, 1, 1)
-        css = css_format.format(border, border, left, right)
-        add_style(event_frame, css, "frame")
-        
-        if config.get("{}.timeline.show-image".format(space)):
-            image_frame = ImageFrame(dbstate.db, uistate, timeline_event[0], size=0)
-            image_frame.set_shadow_type(Gtk.ShadowType.NONE)
-            view.attach(image_frame, column + 1, row, 1, 1)
-            css = css_format.format(border, border, 0, border)
-            add_style(image_frame, css, "frame")
-        row = row + 1
+        event_frame = TimelineProfileFrame(dbstate, uistate, space, config, router, person, timeline_event[0], timeline_event[1], timeline_event[2], lgroup=lsizegroup, rgroup=rsizegroup)
+        view.pack_start(event_frame, False, False, 0)
+        count = count + 1
     view.show_all()
-    return view, row
-
-
-def build_age_frame(db, anchor_person, event, event_person, person_cache, markup):
-    frame = Gtk.Frame(expand=False)
-    if anchor_person:
-        target_person = anchor_person
-    else:
-        target_person = event_person
-    if target_person.handle in person_cache:
-        birth = person_cache[target_person.handle]
-    else:
-        key_events = get_key_person_events(db, target_person, birth_only=True)
-        birth = key_events["birth"]
-        person_cache.update({target_person.handle: birth})
-        
-    span = Span(birth.date, event.date)
-    if span.is_valid():
-        precision=global_config.get("preferences.age-display-precision")
-        age = str(span.format(precision=precision).strip("()"))
-        vbox = Gtk.VBox(hexpand=False, margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
-        text = "{}\n{}".format(_("Age"), age.replace(", ", ",\n"))
-        label = Gtk.Label(label=markup.format(text), use_markup=True, justify=Gtk.Justification.CENTER)
-        vbox.add(label)
-        frame.add(vbox)
-    return frame, person_cache
-
-
-def get_quality_labels(db, event):
-    sources = []
-    confidence = 0
-    citations = len(event.citation_list)
-    if event.citation_list:
-        for handle in event.citation_list:
-            citation = db.get_citation_from_handle(handle)
-            if citation.source_handle not in sources:
-                sources.append(citation.source_handle)
-            if citation.confidence > confidence:
-                confidence = citation.confidence
-
-    if sources:
-        if len(sources) == 1:
-            source_text = "1 {}".format(_("Source"))
-        else:
-            source_text = "{} {}".format(len(sources), _("Sources"))
-    else:
-        source_text = _("No Sources")
-            
-    if citations:
-        if citations == 1:
-            citation_text = "1 {}".format(_("Citation"))
-        else:
-            citation_text = "{} {}".format(citations, _("Citations"))
-    else:
-        citation_text = _("No Citations")
-
-    return source_text, citation_text, get_confidence(confidence)
+    return view, count
 
 
 def get_timeline_filters(space, config):
@@ -204,13 +113,38 @@ def get_timeline_filters(space, config):
 
 class TimelineProfileFrame(Gtk.Frame, BaseProfile):
 
-    def __init__(self, dbstate, uistate, space, config, router, anchor_person, event, event_person, relation_to_anchor):
+    def __init__(self, dbstate, uistate, space, config, router, anchor_person, event, event_person, relation_to_anchor, lgroup=None, rgroup=None):
         Gtk.Frame.__init__(self, expand=True, shadow_type=Gtk.ShadowType.NONE)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = event
+        self.event = event
+        self.context = "timeline"
+        self.anchor_person = anchor_person
+        self.event_person = event_person
+        self.relation_to_anchor = relation_to_anchor
+
+        body = Gtk.HBox()
+        if self.option("timeline", "show-age"):
+            vbox = Gtk.VBox(hexpand=True, margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
+            if anchor_person:
+                target_person = anchor_person
+            else:
+                target_person = event_person
+            key_events = get_key_person_events(self.dbstate.db, target_person, birth_only=True)
+            birth = key_events["birth"]
+        
+            span = Span(birth.date, event.date)
+            if span.is_valid():
+                precision=global_config.get("preferences.age-display-precision")
+                age = str(span.format(precision=precision).strip("()"))
+                text = "{}\n{}".format(_("Age"), age.replace(", ", ",\n"))
+                label = Gtk.Label(label=self.markup.format(text), use_markup=True, justify=Gtk.Justification.CENTER)
+                vbox.add(label)
+            if lgroup:
+                lgroup.add_widget(vbox)
+            body.pack_start(vbox, False, False, 0)
 
         grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2, column_spacing=2)
-
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
         if (event_person and anchor_person.handle != event_person.handle and relation_to_anchor not in ["self", "", None]):
@@ -228,46 +162,76 @@ class TimelineProfileFrame(Gtk.Frame, BaseProfile):
         gramps_id = self.get_gramps_id_label()
         grid.attach(gramps_id, 1, 0, 1, 1)
 
-        source_text, citation_text, confidence_text = get_quality_labels(self.dbstate.db, event)
+        source_text, citation_text, confidence_text = self.get_quality_labels()
         column2_row = 1
 
-        date = Gtk.Label(hexpand=False, halign=Gtk.Align.START, wrap=True)
-        date.set_markup(self.markup.format(glocale.date_displayer.display(event.date)))
+        date = self.make_label(glocale.date_displayer.display(event.date))
         grid.attach(date, 0, 1, 1, 1)
 
         if self.option("timeline", "show-source-count"):
-            sources = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
-            sources.set_markup(self.markup.format(source_text))
+            sources = self.make_label(source_text, left=False)
             grid.attach(sources, 1, column2_row, 1, 1)
             column2_row = column2_row + 1
 
-        place = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)
-        place.set_markup(self.markup.format(place_displayer.display_event(self.dbstate.db, event)))
+        place = self.make_label(place_displayer.display_event(self.dbstate.db, event))
         grid.attach(place, 0, 2, 1, 1)
 
         if self.option("timeline", "show-citation-count"):
-            citations = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
-            citations.set_markup(self.markup.format(citation_text))
+            citations = self.make_label(citation_text, left=False)
             grid.attach(citations, 1, column2_row, 1, 1)
             column2_row = column2_row + 1
 
         if self.option("timeline", "show-description"):
-            description = Gtk.Label(hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT, wrap=True)
             text = event.get_description()
             if not text:
                 text = "{} {} {}".format(event_type, _("of"), event_person_name)
-            description.set_markup(self.markup.format(text))
+            description = self.make_label(text)
             grid.attach(description, 0, 3, 1, 1)
 
         if self.option("timeline", "show-best-confidence"):
-            confidence = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
-            confidence.set_markup(self.markup.format(confidence_text))
+            confidence = self.make_label(confidence_text, left=False)
             grid.attach(confidence, 1, column2_row, 1, 1)
             column2_row = column2_row + 1
 
+        body.pack_start(grid, False, False, 0)
+        if self.option("timeline", "show-image"):
+            self.load_image()
+            if rgroup:
+                rgroup.add_widget(self.image)
+            body.pack_start(self.image, False, False, 0)
+            
         self.event_box = Gtk.EventBox()
-        self.event_box.add(grid)
+        self.event_box.add(body)
         self.event_box.connect('button-press-event', self.build_action_menu)
         self.add(self.event_box)
+        self.set_css_style()
 
+    def get_quality_labels(self):
+        sources = []
+        confidence = 0
+        citations = len(self.event.citation_list)
+        if self.event.citation_list:
+            for handle in self.event.citation_list:
+                citation = self.dbstate.db.get_citation_from_handle(handle)
+                if citation.source_handle not in sources:
+                    sources.append(citation.source_handle)
+                if citation.confidence > confidence:
+                    confidence = citation.confidence
 
+        if sources:
+            if len(sources) == 1:
+                source_text = "1 {}".format(_("Source"))
+            else:
+                source_text = "{} {}".format(len(sources), _("Sources"))
+        else:
+            source_text = _("No Sources")
+            
+        if citations:
+            if citations == 1:
+                citation_text = "1 {}".format(_("Citation"))
+            else:
+                citation_text = "{} {}".format(citations, _("Citations"))
+        else:
+            citation_text = _("No Citations")
+
+        return source_text, citation_text, get_confidence(confidence)
