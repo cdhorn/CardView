@@ -19,7 +19,7 @@
 #
 
 """
-Citation Placard.
+CitationGrampsFrame.
 """
 
 # ------------------------------------------------------------------------
@@ -27,7 +27,6 @@ Citation Placard.
 # GTK modules
 #
 # ------------------------------------------------------------------------
-
 from gi.repository import Gtk, GdkPixbuf
 
 
@@ -36,7 +35,6 @@ from gi.repository import Gtk, GdkPixbuf
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import EventType, Citation, Span
 from gramps.gen.relationship import get_relationship_calculator
@@ -48,7 +46,7 @@ from gramps.gen.display.place import PlaceDisplay
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import BaseProfile
+from frame_base import GrampsFrame
 from frame_utils import get_relation, get_confidence, TextLink
 
 
@@ -69,16 +67,14 @@ pd = PlaceDisplay()
 
 # ------------------------------------------------------------------------
 #
-# CitationPlacard Class
+# CitationGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-
-
-class CitationProfileFrame(Gtk.Frame, BaseProfile):
+class CitationGrampsFrame(Gtk.Frame, GrampsFrame):
     
     def __init__(self, dbstate, uistate, citation, space, config, router, meta_group=None, image_group=None, data_group=None):
         Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
-        BaseProfile.__init__(self, dbstate, uistate, space, config, router)
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
         self.obj = citation
         self.citation = citation
         self.context = "citation"

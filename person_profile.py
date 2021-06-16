@@ -121,7 +121,7 @@ _RIGHT_BUTTON = 3
 #
 #-------------------------------------------------------------------------
 from frame_groups import get_parent_profiles, get_spouse_profiles, get_citation_profiles, get_timeline_profiles
-from frame_person import PersonProfileFrame
+from frame_person import PersonGrampsFrame
 from frame_utils import EventFormatSelector, TagModeSelector
 
 
@@ -709,7 +709,7 @@ class PersonProfileView(NavigationView):
         self.uimanager.set_actions_sensitive(self.family_action, True)
 
         home = self.dbstate.db.get_default_person()
-        self.active_profile = PersonProfileFrame(self.dbstate,
+        self.active_profile = PersonGrampsFrame(self.dbstate,
                 self.uistate, person, "active", "preferences.profile.person",
                 self._config, self.link_router, relation=home)
 

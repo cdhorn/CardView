@@ -18,9 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-"""
-Placard utility functions.
-"""
+
 
 # ------------------------------------------------------------------------
 #
@@ -43,18 +41,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_citation import CitationProfileFrame
-from frame_children import ChildrenProfileFrame
-from frame_couple import CoupleProfileFrame
-from frame_timeline import generate_timeline
-from timeline import Timeline
+from frame_citation import CitationGrampsFrame
+from frame_children import ChildrenGrampsFrameGroup
+from frame_timeline import TimelineGrampsFrameGroup
+from frame_couple import CoupleGrampsFrame
+#from timeline import Timeline
 
 
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
@@ -73,8 +66,8 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
         parents.add(elements)
             
         family = dbstate.db.get_family_from_handle(primary_handle)
-        couple = CoupleProfileFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
-        children = ChildrenProfileFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+        couple = CoupleGrampsFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+        children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
         if children.number > 0:
             expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.parent.expand-children"))
             expander.add(children)
@@ -85,8 +78,8 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
     for handle in person.parent_family_list:
         if handle != primary_handle:
             family = dbstate.db.get_family_from_handle(handle)
-            couple = CoupleProfileFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
-            children = ChildrenProfileFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+            couple = CoupleGrampsFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+            children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
             if children.number > 0:
                 expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.parent.expand-children"))
                 expander.add(children)
@@ -105,8 +98,8 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
             elements = Gtk.VBox(spacing=6)
             spouses.add(elements)
         family = dbstate.db.get_family_from_handle(handle)
-        couple = CoupleProfileFrame(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person, parent=person)
-        children = ChildrenProfileFrame(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person)
+        couple = CoupleGrampsFrame(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person, parent=person)
+        children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person)
         if children.number > 0:
             expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.spouse.expand-children"))
             expander.add(children)
@@ -128,24 +121,22 @@ def get_citation_profiles(dbstate, uistate, person, router, config=None):
             elements = Gtk.VBox(spacing=6)
             citations.add(elements)
         citation = dbstate.db.get_citation_from_handle(handle)
-        placard = CitationProfileFrame(dbstate, uistate, citation,
-                                       "preferences.profile.person", config, router,
-                                       data_group=data_group,
-                                       meta_group=meta_group,
-                                       image_group=image_group)
+        placard = CitationGrampsFrame(dbstate, uistate, citation,
+                                      "preferences.profile.person", config, router,
+                                      data_group=data_group,
+                                      meta_group=meta_group,
+                                      image_group=image_group)
         elements.pack_start(placard, True, True, 0)
     return citations
 
 
 def get_timeline_profiles(dbstate, uistate, person, router, config=None):
 
-    grid, rows = generate_timeline(dbstate, uistate, person, router, config)
-    if not rows:
+    group = TimelineGrampsFrameGroup(dbstate, uistate, person, router, config)
+    if not group.count:
         return None
 
     timeline = Gtk.Expander(expanded=True, use_markup=True)
     timeline.set_label("<small><b>{}</b></small>".format(_("Timeline")))
-    elements = Gtk.VBox(spacing=6)
-    timeline.add(elements)
-    elements.pack_start(grid, True, True, 0)
+    timeline.add(group)
     return timeline

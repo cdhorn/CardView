@@ -19,7 +19,7 @@
 #
 
 """
-FamilyProfileFrame
+CoupleGrampsFrame
 """
 
 # ------------------------------------------------------------------------
@@ -48,8 +48,8 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_person import PersonProfileFrame
-from frame_base import BaseProfile
+from frame_base import GrampsFrame
+from frame_person import PersonGrampsFrame
 
 from frame_utils import format_date_string, get_key_person_events, get_key_family_events, TextLink
 
@@ -68,14 +68,14 @@ _ = _trans.gettext
 
 # ------------------------------------------------------------------------
 #
-# FamilyProfileFrame class
+# CoupleGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class CoupleProfileFrame(Gtk.VBox, BaseProfile):
+class CoupleGrampsFrame(Gtk.VBox, GrampsFrame):
 
     def __init__(self, dbstate, uistate, family, context, space, config, router, parent=None, relation=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        BaseProfile.__init__(self, dbstate, uistate, space, config, router)
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
         self.obj = family
         self.family = family
         self.context = context
@@ -136,7 +136,7 @@ class CoupleProfileFrame(Gtk.VBox, BaseProfile):
 
     def _get_profile(self, person):
         if person:
-            profile = PersonProfileFrame(
+            profile = PersonGrampsFrame(
                 self.dbstate,
                 self.uistate,
                 person,

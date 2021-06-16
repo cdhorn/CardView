@@ -19,7 +19,7 @@
 #
 
 """
-FamilyProfileFrame
+ChildrenGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -48,9 +48,8 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import BaseProfile
-from frame_person import PersonProfileFrame
-from frame_couple import CoupleProfileFrame
+from frame_base import GrampsFrame
+from frame_person import PersonGrampsFrame
 
 from frame_utils import format_date_string, get_key_person_events, get_key_family_events, TextLink
 
@@ -69,16 +68,16 @@ _ = _trans.gettext
 
 # ------------------------------------------------------------------------
 #
-# ChildrenProfileFrame class
+# ChildrenGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class ChildrenProfileFrame(Gtk.VBox, BaseProfile):
+class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsFrame):
 
     def __init__(self, dbstate, uistate, family, context, space, config, router,
                  parent=None, relation=None, children="Children"):
 
         Gtk.VBox.__init__(self, hexpand=True, spacing=3)
-        BaseProfile.__init__(self, dbstate, uistate, space, config, router)
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
         self.family = family
         self.context = context
         self.parent = parent
@@ -99,9 +98,9 @@ class ChildrenProfileFrame(Gtk.VBox, BaseProfile):
                 child_number = self.number + 1
                 if not self.option(context, "number-children"):
                     child_number = 0
-                profile = PersonProfileFrame(self.dbstate, self.uistate, child, context,
-                                             self.space, self.config, self.router,
-                                             number=child_number, relation=self.relation, group=sizegroup)
+                profile = PersonGrampsFrame(self.dbstate, self.uistate, child, context,
+                                            self.space, self.config, self.router,
+                                            number=child_number, relation=self.relation, group=sizegroup)
                 profile.family_backlink_handle = self.family.handle
                 self.pack_start(profile, True, True, 0)
                 self.number = self.number + 1

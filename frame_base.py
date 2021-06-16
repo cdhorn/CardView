@@ -19,10 +19,16 @@
 #
 
 """
-BaseProfile
+GrampsFrame
 """
 
+# ------------------------------------------------------------------------
+#
+# Python modules
+#
+# ------------------------------------------------------------------------
 import time
+
 
 # ------------------------------------------------------------------------
 #
@@ -40,15 +46,15 @@ from gi.repository import Gtk, Gdk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
-from gramps.gui.editors import EditPerson, EditFamily, EditEvent, EditCitation
-from gramps.gen.lib import EventType, Person, Family, Event, Citation, Span
-from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.utils.alive import probably_alive
-from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gui.editors import EditPerson, EditFamily, EditEvent, EditCitation, EditPlace
+from gramps.gen.lib import EventType, Person, Family, Event, Citation, Span
+from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
+from gramps.gen.utils.alive import probably_alive
+from gramps.gen.utils.thumbnails import get_thumbnail_image
 
 
 # ------------------------------------------------------------------------
@@ -58,7 +64,7 @@ from gramps.gui.utils import open_file_with_default_application
 # ------------------------------------------------------------------------
 from frame_utils import (
     _GENDERS, get_relation, get_key_person_events, format_date_string, TextLink
-    )
+)
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -68,24 +74,24 @@ _ = _trans.gettext
 
 
 _EDITORS = {
-    "Person": EditPerson,
-    "Family": EditFamily,
+    "Citation": EditCitation,
     "Event": EditEvent,
-    "Citation": EditCitation
+    "Family": EditFamily,
+    "Person": EditPerson,
+    "Place": EditPlace
 }
 
 
 # ------------------------------------------------------------------------
 #
-# BaseProfile class
+# GrampsFrame class
 #
 # ------------------------------------------------------------------------
-class BaseProfile():
+class GrampsFrame():
     """
-    The BaseProfile class provides some basic services for profile construction
-    and management.
+    The GrampsFrame class provides core methods for constructing the view
+    for a primary Gramps object.
     """
-
     def __init__(self, dbstate, uistate, space, config, router):
         self.dbstate = dbstate
         self.uistate = uistate
@@ -449,12 +455,10 @@ class BaseProfile():
         return css
 
 
-
 class ImageFrame(Gtk.Frame):
     """
     Simple class for managing display of an image.
     """
-
     def __init__(self, db, uistate, obj, size=0):
         Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
         self.db = db

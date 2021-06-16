@@ -19,7 +19,7 @@
 #
 
 """
-PersonProfileFrame
+PersonGrampsFrame
 """
 
 # ------------------------------------------------------------------------
@@ -54,7 +54,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import BaseProfile
+from frame_base import GrampsFrame
 from frame_utils import (
     _GENDERS, 
     get_relation, get_key_person_events,
@@ -71,20 +71,16 @@ _ = _trans.gettext
 
 # ------------------------------------------------------------------------
 #
-# PersonProfileFrame class
+# PersonGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class PersonProfileFrame(Gtk.Frame, BaseProfile):
+class PersonGrampsFrame(Gtk.Frame, GrampsFrame):
     """
-    The PersonProfileFrame is intended to provide a summary of the core
-    information about an individual. At a minimum this is their name,
-    birth and death information. Their image is handled separately to
-    better accomodate composite layouts.
+    The PersonGrampsFrame exposes some of the basic facts about a Person.
     """
-
     def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0, group=None):
         Gtk.Frame.__init__(self, hexpand=True, vexpand=False, shadow_type=Gtk.ShadowType.NONE)
-        BaseProfile.__init__(self, dbstate, uistate, space, config, router)
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
         self.obj = person
         self.person = person
         self.context = context        
