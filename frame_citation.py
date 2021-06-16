@@ -76,46 +76,61 @@ pd = PlaceDisplay()
 
 class CitationProfileFrame(Gtk.Frame, BaseProfile):
     
-    def __init__(self, dbstate, uistate, citation, space, config, router):
-        Gtk.Frame.__init__(self, expand=False)
+    def __init__(self, dbstate, uistate, citation, space, config, router, meta_group=None, image_group=None, data_group=None):
+        Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
         BaseProfile.__init__(self, dbstate, uistate, space, config, router)
         self.obj = citation
         self.citation = citation
         self.context = "citation"
 
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
-            
-        self.grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2, column_spacing=2)
-        title = Gtk.Label(wrap=True, hexpand=True, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
+
+        attributes = Gtk.VBox(vexpand=False)
+        if data_group:
+            data_group.add_widget(attributes)
+        title = Gtk.Label(wrap=True, hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT)
         title.set_markup("<b>" + self.source.title + "</b>")
-        self.grid.attach(title, 0, 0, 1, 1)
+        attributes.pack_start(title, True, False, 0)
+
+        if self.source.author:
+            author = self.make_label(self.source.author)
+            attributes.pack_start(author, False, False, 0)
+
+        if self.source.pubinfo:
+            publisher = self.make_label(self.source.pubinfo)
+            attributes.pack_start(publisher, False, False, 0)
+
+        if self.citation.page:
+            page = self.make_label(self.citation.page)
+            attributes.pack_start(page, False, False, 0)
+
+        metadata = Gtk.VBox()
+        if meta_group:
+            meta_group.add_widget(metadata)
 
         gramps_id = self.get_gramps_id_label()
-        self.grid.attach(gramps_id, 1, 0, 1, 1)
+        metadata.pack_start(gramps_id, False, False, 0)
 
-        page = Gtk.Label(hexpand=False, halign=Gtk.Align.START, wrap=True)
-        page.set_markup(self.markup.format(self.citation.page))
-        self.grid.attach(page, 0, 1, 1, 1)
-
-        column2_row = 1
         if self.option("citation", "show-confidence"):
-            confidence = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
-            confidence.set_markup(self.markup.format(get_confidence(self.citation.confidence)))
-            self.grid.attach(confidence, 1, column2_row, 1, 1)
-            column2_row = column2_row + 1
+            confidence = self.make_label(get_confidence(self.citation.confidence), left=False)
+            metadata.pack_start(confidence, False, False, 0)
 
-        author = Gtk.Label(hexpand=False, halign=Gtk.Align.START, wrap=True)
-        author.set_markup(self.markup.format(self.source.author))
-        self.grid.attach(author, 0, 2, 1, 1)
+        flowbox = self.get_tags_flowbox()
+        if flowbox:
+            metadata.pack_start(flowbox, False, False, 0)
 
-        if self.option("citation", "show-publisher"):
-            publisher = Gtk.Label(hexpand=False, halign=Gtk.Align.START, wrap=True)
-            publisher.set_markup(self.markup.format(self.source.pubinfo))
-            self.grid.attach(publisher, 0, 3, 1, 1)
+        body = Gtk.HBox()
+        body.pack_start(attributes, False, False, 0)
+        body.pack_start(metadata, False, False, 0)
+        if self.option("citation", "show-image"):
+            self.load_image()
+            if image_group:
+                image_group.add_widget(self.image)
+            body.pack_start(self.image, False, False, 0)
 
-        self.grid.show_all()
         self.event_box = Gtk.EventBox()
-        self.event_box.add(self.grid)
+        self.event_box.add(body)
         self.event_box.connect('button-press-event', self.build_action_menu)
         self.add(self.event_box)
 
+        self.set_css_style()

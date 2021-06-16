@@ -118,6 +118,9 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
 
 def get_citation_profiles(dbstate, uistate, person, router, config=None):
     citations = None
+    data_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)    
+    meta_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+    image_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
     for handle in person.citation_list:
         if citations is None:
             citations = Gtk.Expander(expanded=True, use_markup=True)
@@ -125,7 +128,11 @@ def get_citation_profiles(dbstate, uistate, person, router, config=None):
             elements = Gtk.VBox(spacing=6)
             citations.add(elements)
         citation = dbstate.db.get_citation_from_handle(handle)
-        placard = CitationProfileFrame(dbstate, uistate, citation, "preferences.profile.person", config, router)
+        placard = CitationProfileFrame(dbstate, uistate, citation,
+                                       "preferences.profile.person", config, router,
+                                       data_group=data_group,
+                                       meta_group=meta_group,
+                                       image_group=image_group)
         elements.pack_start(placard, True, True, 0)
     return citations
 

@@ -233,6 +233,8 @@ class PersonProfileView(NavigationView):
         ('preferences.profile.person.citation.show-confidence', True),
         ('preferences.profile.person.citation.show-publisher', True),
         ('preferences.profile.person.citation.show-image', True),
+        ('preferences.profile.person.citation.tag-format', 1),
+        ('preferences.profile.person.citation.tag-width', 2),
         )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
@@ -1258,17 +1260,25 @@ class PersonProfileView(NavigationView):
         grid.set_row_spacing(6)
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid,
-                _('Attributes'),
+                _('Display Options'),
                 0, bold=True)
-        configdialog.add_checkbox(grid,
-                _('Show confidence rating'),
-                1, 'preferences.profile.person.citation.show-confidence')
-        configdialog.add_checkbox(grid,
-                _('Show publisher'),
-                2, 'preferences.profile.person.citation.show-publisher')
+        tag_mode = TagModeSelector('preferences.profile.person.citation.tag-format', self._config)
+        label = Gtk.Label(halign=Gtk.Align.START, label="{}: ".format(_('Tag display mode')))
+        grid.attach(label, 1, 1, 1, 1)
+        grid.attach(tag_mode, 2, 1, 1, 1)
+        configdialog.add_spinner(grid,
+                _('Maximum tags per line'),
+                2, 'preferences.profile.person.citation.tag-width',
+                (1,6))
         configdialog.add_checkbox(grid,
                 _('Show image'),
                 3, 'preferences.profile.person.citation.show-image')
+        configdialog.add_text(grid,
+                _('Attributes'),
+                4, bold=True)
+        configdialog.add_checkbox(grid,
+                _('Show confidence rating'),
+                5, 'preferences.profile.person.citation.show-confidence')
         return _('Citations'), grid
 
     def _get_configure_page_funcs(self):
