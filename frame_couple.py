@@ -71,33 +71,27 @@ _ = _trans.gettext
 # CoupleGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class CoupleGrampsFrame(Gtk.VBox, GrampsFrame):
+class CoupleGrampsFrame(GrampsFrame):
 
     def __init__(self, dbstate, uistate, family, context, space, config, router, parent=None, relation=None):
-        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.obj = family
+        self.set_object(family, context)
         self.family = family
-        self.context = context
         self.parent = parent
         self.relation = relation
 
-        self.body = Gtk.VBox(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
-        self.event_box = Gtk.EventBox()
-        self.event_box.add(self.body)
-        self.event_box.connect('button-press-event', self.build_action_menu)
+        self.section = Gtk.VBox(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
+        self.body.add(self.section)
 
-        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.frame.add(self.event_box)
-        self.add(self.frame)
-
-        self.sizegroup = Gtk.SizeGroup()
-        self.sizegroup.set_mode(Gtk.SizeGroupMode.HORIZONTAL)
-
+        self.groups = {
+            "image": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
+            "data": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
+            "metadata": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
+        }
         partner1, partner2 = self._get_parents()
         profile = self._get_profile(partner1)
         if profile:
-            self.body.pack_start(profile, True, True, 0)
+            self.section.pack_start(profile, True, True, 0)
 
         couple_facts = Gtk.HBox()
         couple_facts.pack_start(self.facts_grid, True, True, 0)
@@ -124,12 +118,12 @@ class CoupleGrampsFrame(Gtk.VBox, GrampsFrame):
             metadata_section.pack_start(flowbox, False, False, 0)
 
         couple_facts.pack_end(metadata_section, False, False, 0)
-        self.body.pack_start(couple_facts, True, True, 0)
+        self.section.pack_start(couple_facts, True, True, 0)
 
         if partner2:
             profile = self._get_profile(partner2)
             if profile:
-                self.body.pack_start(profile, True, True, 0)
+                self.section.pack_start(profile, True, True, 0)
 
         self.set_css_style()
         self.show_all()
@@ -144,7 +138,7 @@ class CoupleGrampsFrame(Gtk.VBox, GrampsFrame):
                 self.space,
                 self.config,
                 self.router,
-                group=self.sizegroup
+                groups=self.groups
             )
             profile.family_backlink_handle = self.family.handle
             return profile

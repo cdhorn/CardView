@@ -1,7 +1,10 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2001-2007  Donald N. Allingham
+# Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2015-2016  Nick Hall
+# Copyright (C) 2021       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,38 +77,26 @@ _ = _trans.gettext
 # PersonGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class PersonGrampsFrame(Gtk.Frame, GrampsFrame):
+class PersonGrampsFrame(GrampsFrame):
     """
     The PersonGrampsFrame exposes some of the basic facts about a Person.
     """
-    def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0, group=None):
-        Gtk.Frame.__init__(self, hexpand=True, vexpand=False, shadow_type=Gtk.ShadowType.NONE)
+    def __init__(self, dbstate, uistate, person, context, space, config, router, relation=None, number=0, groups=None):
         GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.obj = person
+        self.set_object(person, context)
         self.person = person
-        self.context = context        
         self.relation = relation
         self.family_backlink_handle = None
 
-        if context in ["family", "parent", "spouse"]:
-            self.sections = Gtk.HBox(margin_right=0, margin_left=0, margin_top=0, margin_bottom=0, spacing=2, hexpand=True, expand=True)
-        else:
-            self.sections = Gtk.HBox(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2, hexpand=True, expand=True)
-
-        self.event_box = Gtk.EventBox()
-        self.event_box.add(self.sections)
-        self.event_box.connect('button-press-event', self.build_action_menu)
-        self.add(self.event_box)
-        
         if self.option(context, "show-image"):
-            self.load_image()
-            if group:
-                group.add_widget(self.image)
+            self.load_image(groups)
             if self.option(context, "show-image-first"):
-                self.sections.pack_start(self.image, expand=False, fill=False, padding=0)
+                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
                 
         subject_section = Gtk.VBox()
-        self.sections.pack_start(subject_section, True, True, 0)
+        if groups and "data" in groups:
+            groups["data"].add_widget(subject_section)
+        self.body.pack_start(subject_section, True, True, 0)
 
         display_name = name_displayer.display(self.person)
         text = "<b>{}</b>".format(display_name)
@@ -154,7 +145,9 @@ class PersonGrampsFrame(Gtk.Frame, GrampsFrame):
                 relation_section.pack_start(label, False, False, 0)
 
         metadata_section = Gtk.VBox()
-        self.sections.pack_start(metadata_section, False, False, 0)
+        if groups and "metadata" in groups:
+            groups["metadata"].add_widget(metadata_section)
+        self.body.pack_start(metadata_section, False, False, 0)
 
         gramps_id = self.get_gramps_id_label()
         metadata_section.pack_start(gramps_id, False, False, 0)
@@ -165,7 +158,7 @@ class PersonGrampsFrame(Gtk.Frame, GrampsFrame):
         
         if self.option(context, "show-image"):
             if not self.option(context, "show-image-first"):
-                self.sections.pack_start(self.image, expand=False, fill=False, padding=0)
+                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
 
         self.set_css_style()
 

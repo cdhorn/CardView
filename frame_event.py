@@ -64,19 +64,16 @@ _ = _trans.gettext
 # EventGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class EventGrampsFrame(Gtk.Frame, GrampsFrame):
+class EventGrampsFrame(GrampsFrame):
 
-    def __init__(self, dbstate, uistate, space, config, router, anchor_person, event, event_person, relation_to_anchor, lgroup=None, rgroup=None):
-        Gtk.Frame.__init__(self, expand=True, shadow_type=Gtk.ShadowType.NONE)
+    def __init__(self, dbstate, uistate, space, config, router, anchor_person, event, event_person, relation_to_anchor, groups=None):
         GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.obj = event
+        self.set_object(event, "timeline")
         self.event = event
-        self.context = "timeline"
         self.anchor_person = anchor_person
         self.event_person = event_person
         self.relation_to_anchor = relation_to_anchor
 
-        body = Gtk.HBox()
         if self.option("timeline", "show-age"):
             vbox = Gtk.VBox(hexpand=True, margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
             if anchor_person:
@@ -93,9 +90,9 @@ class EventGrampsFrame(Gtk.Frame, GrampsFrame):
                 text = "{}\n{}".format(_("Age"), age.replace(", ", ",\n"))
                 label = Gtk.Label(label=self.markup.format(text), use_markup=True, justify=Gtk.Justification.CENTER)
                 vbox.add(label)
-            if lgroup:
-                lgroup.add_widget(vbox)
-            body.pack_start(vbox, False, False, 0)
+            if groups and "age" in groups:
+                groups["age"].add_widget(vbox)
+            self.body.pack_start(vbox, False, False, 0)
 
         grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2, column_spacing=2)
         event_type = glocale.translation.sgettext(event.type.xml_str())
@@ -146,17 +143,14 @@ class EventGrampsFrame(Gtk.Frame, GrampsFrame):
             grid.attach(confidence, 1, column2_row, 1, 1)
             column2_row = column2_row + 1
 
-        body.pack_start(grid, False, False, 0)
+        if groups and "data" in groups:
+            groups["data"].add_widget(grid)
+        self.body.pack_start(grid, False, False, 0)
         if self.option("timeline", "show-image"):
             self.load_image()
-            if rgroup:
-                rgroup.add_widget(self.image)
-            body.pack_start(self.image, False, False, 0)
-            
-        self.event_box = Gtk.EventBox()
-        self.event_box.add(body)
-        self.event_box.connect('button-press-event', self.build_action_menu)
-        self.add(self.event_box)
+            if groups and "image" in groups:
+                groups["image"].add_widget(self.image)
+            self.body.pack_start(self.image, False, False, 0)
         self.set_css_style()
 
     def get_quality_labels(self):

@@ -1,7 +1,10 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2001-2007  Donald N. Allingham
+# Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2015-2016  Nick Hall
+# Copyright (C) 2021       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +52,7 @@ from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gui.editors import EditPerson, EditFamily, EditEvent, EditCitation, EditPlace
-from gramps.gen.lib import EventType, Person, Family, Event, Citation, Span
+from gramps.gen.lib import EventType, Person, Family, Event, Citation, Span, Place, Source, Repository, Note
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
@@ -72,7 +75,6 @@ except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
 
-
 _EDITORS = {
     "Citation": EditCitation,
     "Event": EditEvent,
@@ -81,27 +83,40 @@ _EDITORS = {
     "Place": EditPlace
 }
 
+_RETURN = Gdk.keyval_from_name("Return")
+_KP_ENTER = Gdk.keyval_from_name("KP_Enter")
+_SPACE = Gdk.keyval_from_name("space")
+_LEFT_BUTTON = 1
+_RIGHT_BUTTON = 3
+
+def button_activated(event, mouse_button):
+    if (event.type == Gdk.EventType.BUTTON_PRESS and
+        event.button == mouse_button) or \
+       (event.type == Gdk.EventType.KEY_PRESS and
+        event.keyval in (_RETURN, _KP_ENTER, _SPACE)):
+        return True
+    else:
+        return False
+
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrame class
+# GrampsConfig class
 #
 # ------------------------------------------------------------------------
-class GrampsFrame():
+class GrampsConfig():
     """
-    The GrampsFrame class provides core methods for constructing the view
-    for a primary Gramps object.
+    The GrampsConfig class provides the basis for handling configuration
+    related information and helper methods common to both the GrampsFrame
+    and the various GrampsFrameGroup classes.
     """
     def __init__(self, dbstate, uistate, space, config, router):
         self.dbstate = dbstate
         self.uistate = uistate
-        self.obj = None
-        self.image = None
-        self.router = router
-        self.config = config
         self.space = space
-        self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
-        self.facts_row = 0
+        self.context = ""
+        self.config = config
+        self.router = router
         self.enable_tooltips = self.config.get("{}.layout.enable-tooltips".format(self.space))
         self.markup = "{}"
         if self.config.get("{}.layout.use-smaller-detail-font".format(self.space)):
@@ -120,9 +135,60 @@ class GrampsFrame():
             label = Gtk.Label(hexpand=False, halign=Gtk.Align.END, justify=Gtk.Justification.RIGHT, wrap=True)
         label.set_markup(self.markup.format(text))
         return label
-    
-    def load_image(self):
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsFrame class
+#
+# ------------------------------------------------------------------------
+class GrampsFrame(Gtk.VBox, GrampsConfig):
+    """
+    The GrampsFrame class provides core methods for constructing the view
+    for a primary Gramps object.
+    """
+    def __init__(self, dbstate, uistate, space, config, router):
+        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
+        GrampsConfig.__init__(self, dbstate, uistate, space, config, router)
+        self.obj = None
+        self.obj_type = None
+        self.context = None
+        self.image = None
+        self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
+        self.facts_row = 0
+        
+        self.body = Gtk.HBox()
+        self.eventbox = Gtk.EventBox()
+        self.eventbox.add(self.body)
+        self.eventbox.connect('button-press-event', self.route_action)
+        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.frame.add(self.eventbox)
+        self.add(self.frame)
+        
+    def set_object(self, obj, context):
+        self.context = context
+        self.obj = obj
+        if isinstance(self.obj, Person):
+            self.obj_type = "Person"
+        elif isinstance(self.obj, Family):
+            self.obj_type = "Family"
+        elif isinstance(self.obj, Event):
+            self.obj_type = "Event"
+        elif isinstance(self.obj, Place):
+            self.obj_type = "Place"
+        elif isinstance(self.obj, Source):
+            self.obj_type = "Source"
+        elif isinstance(self.obj, Citation):
+            self.obj_type = "Citation"
+        elif isinstance(self.obj, Repository):
+            self.obj_type = "Repository"
+        elif isinstance(self.obj, Note):
+            self.obj_type = "Note"
+        
+    def load_image(self, groups=None):
         self.image = ImageFrame(self.dbstate.db, self.uistate, self.obj, size=bool(self.option(self.context, "show-image-large")))
+        if groups and "image" in groups:
+            groups["image"].add_widget(self.image)
         
     def add_event(self, event, reference=None, show_age=False):
         if event:
@@ -199,16 +265,6 @@ class GrampsFrame():
                     self.facts_grid.attach(place_label, 0, self.facts_row, 1, 1)
                     self.facts_row = self.facts_row + 1
 
-    def object_type(self):
-        if isinstance(self.obj, Person):
-            return "Person"
-        if isinstance(self.obj, Family):
-            return "Family"
-        if isinstance(self.obj, Event):
-            return "Event"
-        if isinstance(self.obj, Citation):
-            return "Citation"
-
     def get_gramps_id_label(self):
         label = Gtk.Label(use_markup=True, label=self.markup.format(self.obj.gramps_id))
         hbox = Gtk.HBox()
@@ -252,7 +308,13 @@ class GrampsFrame():
             flowbox.add(tag_view)
         flowbox.show_all()
         return flowbox
-    
+
+    def route_action(self, obj, event):
+        if button_activated(event, _RIGHT_BUTTON):
+            self.build_action_menu(obj, event)
+        elif button_activated(event, _LEFT_BUTTON):
+            self.build_view_menu(obj, event)
+            
     def build_action_menu(self, obj, event):
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             self.action_menu = Gtk.Menu()
@@ -282,12 +344,15 @@ class GrampsFrame():
 
     def add_custom_actions(self):
         pass
-    
+
+    def build_view_menu(self, obj, event):
+        pass
+
     def _edit_object_option(self):
-        if self.object_type() == "Person":
+        if self.obj_type == "Person":
             name = _("Edit %s") % name_displayer.display(self.obj)
         else:
-            name = _("Edit {}".format(self.object_type()))
+            name = _("Edit {}".format(self.obj_type))
         image = Gtk.Image.new_from_icon_name('gtk-edit', Gtk.IconSize.MENU)
         item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=name)
         item.connect('activate', self.edit_object)
@@ -295,7 +360,7 @@ class GrampsFrame():
 
     def edit_object(self, *obj):
         try:
-            _EDITORS[self.object_type()](self.dbstate, self.uistate, [], self.obj)
+            _EDITORS[self.obj_type](self.dbstate, self.uistate, [], self.obj)
         except WindowActiveError:
             pass
 
@@ -311,9 +376,8 @@ class GrampsFrame():
         return item
 
     def change_privacy(self, obj, mode):
-        object_type = self.object_type()
-        commit_method = self.dbstate.db.method("commit_%s", object_type)
-        with DbTxn(_("Change Privacy for %s") % object_type, self.dbstate.db) as trans:
+        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(_("Change Privacy for %s") % self.obj_type, self.dbstate.db) as trans:
             self.obj.set_privacy(mode)
             commit_method(self.obj, trans)
         
@@ -342,9 +406,8 @@ class GrampsFrame():
         """
         Add the given tag to the active object.
         """
-        object_type = self.object_type()
-        commit_method = self.dbstate.db.method("commit_%s", object_type)
-        with DbTxn(_("Add Tag to %s") % object_type, self.dbstate.db) as trans:
+        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(_("Add Tag to %s") % self.obj_type, self.dbstate.db) as trans:
             self.obj.add_tag(handle)
             commit_method(self.obj, trans)
         
@@ -373,16 +436,14 @@ class GrampsFrame():
         """
         Remove the given tag for the person."
         """
-        object_type = self.object_type()
-        commit_method = self.dbstate.db.method("commit_%s", object_type)
-        with DbTxn(_("Remove Tag from %s") % object_type, self.dbstate.db) as trans:
+        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(_("Remove Tag from %s") % self.obj_type, self.dbstate.db) as trans:
             self.obj.remove_tag(handle)
             commit_method(self.obj, trans)
 
-    
     def set_css_style(self):
         """
-        Add styling to a frame object.
+        Style the frame.
         """
         border = self.option("layout", "border-width")
         color = self._get_color_string()
@@ -390,15 +451,9 @@ class GrampsFrame():
         css = css.encode('utf-8')
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
-        if isinstance(self, Gtk.Frame):
-            context = self.get_style_context()
-        elif hasattr(self, "frame"):
-            context = self.frame.get_style_context()
-        else:
-            return
+        context = self.frame.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
-
 
     def _get_color_string(self):
         """
@@ -455,9 +510,15 @@ class GrampsFrame():
         return css
 
 
+# ------------------------------------------------------------------------
+#
+# ImageFrame class
+#
+# ------------------------------------------------------------------------        
 class ImageFrame(Gtk.Frame):
     """
-    Simple class for managing display of an image.
+    A simple class for managing display of an image intended for embedding
+    in a GrampsFrame object.
     """
     def __init__(self, db, uistate, obj, size=0):
         Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)

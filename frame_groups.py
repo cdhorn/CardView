@@ -45,8 +45,6 @@ from frame_citation import CitationGrampsFrame
 from frame_children import ChildrenGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
-#from timeline import Timeline
-
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -111,21 +109,21 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
 
 def get_citation_profiles(dbstate, uistate, person, router, config=None):
     citations = None
-    data_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)    
-    meta_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
-    image_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+    groups = {
+        "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+    }
     for handle in person.citation_list:
         if citations is None:
             citations = Gtk.Expander(expanded=True, use_markup=True)
-            citations.set_label("<small><b>{}</b></small>".format(_("Citations")))
+            citations.set_label("<small><b>{}</b></small>".format(_("Cited Sources")))
             elements = Gtk.VBox(spacing=6)
             citations.add(elements)
         citation = dbstate.db.get_citation_from_handle(handle)
         placard = CitationGrampsFrame(dbstate, uistate, citation,
                                       "preferences.profile.person", config, router,
-                                      data_group=data_group,
-                                      meta_group=meta_group,
-                                      image_group=image_group)
+                                      groups=groups)
         elements.pack_start(placard, True, True, 0)
     return citations
 

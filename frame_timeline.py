@@ -48,7 +48,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_base import GrampsConfig
 from frame_event import EventGrampsFrame
 from timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 from frame_utils import get_relation, get_confidence, TextLink, get_key_person_events
@@ -65,14 +65,11 @@ _ = _trans.gettext
 # TimelineGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
-class TimelineGrampsFrameGroup(Gtk.VBox):
+class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
 
     def __init__(self, dbstate, uistate, person, router, config=None, space="preferences.profile.person"):
         Gtk.VBox.__init__(self, expand=False, margin_right=3, margin_left=3, margin_top=0, margin_bottom=0, spacing=3)
-        self.dbstate = dbstate
-        self.uistate = uistate
-        self.config = config
-        self.space = space
+        GrampsConfig.__init__(self, dbstate, uistate, space, config, router)
         self.count = 0
         self.categories = []
         self.relations = []
@@ -83,13 +80,16 @@ class TimelineGrampsFrameGroup(Gtk.VBox):
         self.timeline = Timeline(self.dbstate.db, events=self.categories, relatives=self.relations)
         self.timeline.add_person(person.handle, anchor=True, ancestors=self.ancestors, offspring=self.offspring)
 
-        lsizegroup = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
-        rsizegroup = Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL)
-
+        groups = {
+            "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        }    
         for timeline_event in self.timeline.events():
             event_frame = EventGrampsFrame(self.dbstate, self.uistate, self.space, self.config, router, person,
                                            timeline_event[0], timeline_event[1], timeline_event[2],
-                                           lgroup=lsizegroup, rgroup=rsizegroup)
+                                           groups=groups)
             self.pack_start(event_frame, False, False, 0)
             self.count = self.count + 1
         self.show_all()

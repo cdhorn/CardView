@@ -48,7 +48,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_base import GrampsConfig
 from frame_person import PersonGrampsFrame
 
 from frame_utils import format_date_string, get_key_person_events, get_key_family_events, TextLink
@@ -71,13 +71,12 @@ _ = _trans.gettext
 # ChildrenGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsFrame):
+class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsConfig):
 
     def __init__(self, dbstate, uistate, family, context, space, config, router,
                  parent=None, relation=None, children="Children"):
-
         Gtk.VBox.__init__(self, hexpand=True, spacing=3)
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
+        GrampsConfig.__init__(self, dbstate, uistate, space, config, router)
         self.family = family
         self.context = context
         self.parent = parent
@@ -89,9 +88,11 @@ class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsFrame):
         if self.context == "parent":
             context = "sibling"
 
-        sizegroup = Gtk.SizeGroup()
-        sizegroup.set_mode(Gtk.SizeGroupMode.HORIZONTAL)
-
+        groups = {
+            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        }
         for ref in self.family.get_child_ref_list():
             if ref:
                 child = self.dbstate.db.get_person_from_handle(ref.ref)
@@ -100,7 +101,7 @@ class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsFrame):
                     child_number = 0
                 profile = PersonGrampsFrame(self.dbstate, self.uistate, child, context,
                                             self.space, self.config, self.router,
-                                            number=child_number, relation=self.relation, group=sizegroup)
+                                            number=child_number, relation=self.relation, groups=groups)
                 profile.family_backlink_handle = self.family.handle
                 self.pack_start(profile, True, True, 0)
                 self.number = self.number + 1
