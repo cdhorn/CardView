@@ -20,42 +20,30 @@
 #
 
 """
-Placard utility functions.
+Frame utility functions and classes.
 """
-
-# ------------------------------------------------------------------------
-#
-# Python modules
-#
-# ------------------------------------------------------------------------
-
-import os
-
 
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
+from gi.repository import Gtk
 
-from gi.repository import Gtk, Gdk
 
 # ------------------------------------------------------------------------
 #
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-
-from gramps.gen.config import config as global_config
-from gramps.gen.const import IMAGE_DIR
-from gramps.gen.lib import EventType, Person, Family, FamilyRelType, Citation, Span, UrlType
-from gramps.gen.display.name import NameDisplay
+from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib import (
+    EventType,
+    Person,
+    Citation,
+)
 from gramps.gen.display.place import PlaceDisplay
 from gramps.gen.relationship import get_relationship_calculator
-from gramps.gen.utils.file import media_path_full
-from gramps.gen.utils.thumbnails import get_thumbnail_image
-from gramps.gen.utils.image import resize_to_buffer
-from gramps.gui.editors import EditPerson, EditFamily, EditEvent
 
 
 # ------------------------------------------------------------------------
@@ -63,35 +51,24 @@ from gramps.gui.editors import EditPerson, EditFamily, EditEvent
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-
-
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
-
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
 
-
 _GENDERS = {
-    Person.MALE    : '\u2642',
-    Person.FEMALE  : '\u2640',
-    Person.UNKNOWN : '\u2650',
+    Person.MALE: "\u2642",
+    Person.FEMALE: "\u2640",
+    Person.UNKNOWN: "\u2650",
 }
 
 _CONFIDENCE = {
     Citation.CONF_VERY_LOW: _("Very Low"),
-    Citation.CONF_LOW: _('Low'),
-    Citation.CONF_NORMAL: _('Normal'),
-    Citation.CONF_HIGH: _('High'),
-    Citation.CONF_VERY_HIGH: _('Very High')
+    Citation.CONF_LOW: _("Low"),
+    Citation.CONF_NORMAL: _("Normal"),
+    Citation.CONF_HIGH: _("High"),
+    Citation.CONF_VERY_HIGH: _("Very High"),
 }
 
 EVENT_FORMATS = {
@@ -104,16 +81,15 @@ EVENT_FORMATS = {
     6: _("Abbreviated split line"),
 }
 
-TAG_MODES = {
-    0: _("Disabled"),
-    1: _("Show icons"),
-    2: _("Show tag names")
-}
-    
+TAG_MODES = {0: _("Disabled"), 1: _("Show icons"), 2: _("Show tag names")}
+
 pd = PlaceDisplay()
 
 
 def format_date_string(event1, event2):
+    """
+    Format a simple one line date string.
+    """
     date1 = None
     if event1:
         date1 = glocale.date_displayer.display(event1.date)
@@ -133,12 +109,15 @@ def format_date_string(event1, event2):
 
 
 def get_relation(db, person, relation, depth=15):
+    """
+    Calculate relationship between two people.
+    """
     if isinstance(relation, Person):
         base_person = relation
     else:
         base_person = db.get_person_from_handle(relation)
     base_person_name = base_person.primary_name.get_regular_name().strip()
-        
+
     calc = get_relationship_calculator(reinit=True, clocale=glocale)
     calc.set_depth(depth)
     result = calc.get_one_relationship(db, base_person, person, extra_info=True)
@@ -147,7 +126,13 @@ def get_relation(db, person, relation, depth=15):
     return None
 
 
-def get_key_person_events(db, person, show_baptism=False, show_burial=False, birth_only=False):
+def get_key_person_events(
+    db, person, show_baptism=False, show_burial=False, birth_only=False
+):
+    """
+    Get some of the key events in the life of a person. If no birth or death
+    we use fallbacks unless we know those are specifically requested.
+    """
     birth = None
     baptism = None
     christening = None
@@ -212,10 +197,21 @@ def get_key_person_events(db, person, show_baptism=False, show_burial=False, bir
         if death is None:
             death = will
 
-    return {"birth": birth, "baptism": baptism, "death": death, "burial": burial, "religion": religion, "occupation": occupation}
+    return {
+        "birth": birth,
+        "baptism": baptism,
+        "death": death,
+        "burial": burial,
+        "religion": religion,
+        "occupation": occupation,
+    }
 
 
 def get_key_family_events(db, family):
+    """
+    Get the two key events in the formation and dissolution of a
+    family. Consider all the alternates and rank them.
+    """
     marriage = None
     marriage_settlement = None
     marriage_license = None
@@ -276,20 +272,29 @@ def get_key_family_events(db, family):
 
 
 def get_confidence(level):
+    """
+    Return textual string for the confidence level.
+    """
     return _CONFIDENCE[level]
 
 
 class TextLink(Gtk.EventBox):
-    def __init__(self, name, handle=None, callback=None, action=None, tooltip=None, hexpand=False):
+    """
+    A simple class for treating a label as a hyperlink.
+    """
+
+    def __init__(
+        self, name, handle=None, callback=None, action=None, tooltip=None, hexpand=False
+    ):
         Gtk.EventBox.__init__(self)
         self.label = Gtk.Label(hexpand=hexpand, halign=Gtk.Align.START, wrap=True)
         self.label.set_markup(name)
         self.add(self.label)
         self.name = name
         if callback:
-            self.connect('button-press-event', callback, handle, action)
-            self.connect('enter-notify-event', self.enter)
-            self.connect('leave-notify-event', self.leave)
+            self.connect("button-press-event", callback, handle, action)
+            self.connect("enter-notify-event", self.enter)
+            self.connect("leave-notify-event", self.leave)
         if tooltip:
             self.set_tooltip_text(tooltip)
 
@@ -301,6 +306,10 @@ class TextLink(Gtk.EventBox):
 
 
 class EventFormatSelector(Gtk.ComboBoxText):
+    """
+    An event format selector for the configdialog.
+    """
+
     def __init__(self, option, config):
         Gtk.ComboBoxText.__init__(self)
         self.option = option
@@ -309,7 +318,7 @@ class EventFormatSelector(Gtk.ComboBoxText):
             self.append_text(EVENT_FORMATS[key])
         current = self.config.get(self.option)
         self.set_active(current)
-        self.connect('changed', self.update)
+        self.connect("changed", self.update)
 
     def update(self, obj):
         current = self.get_active()
@@ -317,6 +326,10 @@ class EventFormatSelector(Gtk.ComboBoxText):
 
 
 class TagModeSelector(Gtk.ComboBoxText):
+    """
+    A tag display mode selector for the configdialog.
+    """
+
     def __init__(self, option, config):
         Gtk.ComboBoxText.__init__(self)
         self.option = option
@@ -325,7 +338,7 @@ class TagModeSelector(Gtk.ComboBoxText):
             self.append_text(TAG_MODES[key])
         current = self.config.get(self.option)
         self.set_active(current)
-        self.connect('changed', self.update)
+        self.connect("changed", self.update)
 
     def update(self, obj):
         current = self.get_active()

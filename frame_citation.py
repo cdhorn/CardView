@@ -27,7 +27,7 @@ CitationGrampsFrame.
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk
 
 
 # ------------------------------------------------------------------------
@@ -36,8 +36,6 @@ from gi.repository import Gtk, GdkPixbuf
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import EventType, Citation, Span
-from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.display.place import PlaceDisplay
 
 
@@ -47,7 +45,7 @@ from gramps.gen.display.place import PlaceDisplay
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
-from frame_utils import get_relation, get_confidence, TextLink
+from frame_utils import get_confidence
 
 
 # ------------------------------------------------------------------------
@@ -71,18 +69,27 @@ pd = PlaceDisplay()
 #
 # ------------------------------------------------------------------------
 class CitationGrampsFrame(GrampsFrame):
-    
-    def __init__(self, dbstate, uistate, citation, space, config, router, groups=None):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.set_object(citation, "citation")
-        self.citation = citation
+    """
+    The CitationGrampsFrame exposes some of the basic facts about a Citation.
+    """
 
+    def __init__(self, dbstate, uistate, citation, space, config, router, groups=None):
+        GrampsFrame.__init__(
+            self, dbstate, uistate, space, config, citation, "citation"
+        )
+        self.citation = citation
+        self.router = router
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
         attributes = Gtk.VBox(vexpand=False)
         if groups and "data" in groups:
             groups["data"].add_widget(attributes)
-        title = Gtk.Label(wrap=True, hexpand=False, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT)
+        title = Gtk.Label(
+            wrap=True,
+            hexpand=False,
+            halign=Gtk.Align.START,
+            justify=Gtk.Justification.LEFT,
+        )
         title.set_markup("<b>" + self.source.title + "</b>")
         attributes.pack_start(title, True, False, 0)
 
@@ -106,7 +113,9 @@ class CitationGrampsFrame(GrampsFrame):
         metadata.pack_start(gramps_id, False, False, 0)
 
         if self.option("citation", "show-confidence"):
-            confidence = self.make_label(get_confidence(self.citation.confidence), left=False)
+            confidence = self.make_label(
+                get_confidence(self.citation.confidence), left=False
+            )
             metadata.pack_start(confidence, False, False, 0)
 
         flowbox = self.get_tags_flowbox()

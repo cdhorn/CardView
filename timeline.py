@@ -18,10 +18,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+"""
+Timeline
+"""
 
-"""Timeline API resources."""
+# ------------------------------------------------------------------------
+#
+# Python modules
+#
+# ------------------------------------------------------------------------
 from typing import Dict, List, Tuple, Union
 
+
+# ------------------------------------------------------------------------
+#
+# Gramps modules
+#
+# ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db.base import DbReadBase
 from gramps.gen.display.place import PlaceDisplay
@@ -36,12 +49,6 @@ from gramps.gen.utils.db import (
     get_marriage_or_fallback,
 )
 from gramps.gen.utils.grampslocale import GrampsLocale
-
-#from .util import (
-#    get_person_profile_for_object,
-#    get_place_profile_for_object,
-#    get_rating,
-#)
 
 pd = PlaceDisplay()
 default_locale = GrampsLocale(lang="en")
@@ -422,74 +429,3 @@ class Timeline:
         """Return events from the timeline."""
         self.timeline.sort(key=lambda x: x[0].get_date_object().get_sort_value())
         return self.timeline
-
-
-#    def profile(self):
-#        """Return a profile for the timeline."""
-#        profiles = []
-#        self.timeline.sort(key=lambda x: x[0].get_date_object().get_sort_value())
-#        events = self.timeline
-#        for event in events:
-#            label = self.locale.translation.sgettext(str(event[0].type))
-#            if (
-#                event[1]
-#                and self.anchor_person
-#                and self.anchor_person.handle != event[1].handle
-#                and event[2] not in ["self", "", None]
-#            ):
-#                label = "{} ({})".format(label, event[2].title())
-
-#            try:
-#                obj = self.db_handle.get_place_from_handle(event[0].place)
-#                place = get_place_profile_for_object(
-#                    self.db_handle, obj, locale=self.locale
-#                )
-#                place["display_name"] = pd.display_event(self.db_handle, event[0])
-#                place["handle"] = event[0].place
-#            except HandleError:
-#                place = {}
-
-#            age = ""
-#            person = {}
-#            if event[1] is not None:
-#                person_age = ""
-#                get_person = True
-#                if self.anchor_person:
-#                    if self.anchor_person.handle in self.birth_dates:
-#                        age = self.get_age(
-#                            self.birth_dates[self.anchor_person.handle], event[0].date
-#                        )
-#                    if self.anchor_person.handle == event[1].handle:
-#                        person_age = age
-#                        if self.omit_anchor:
-#                            get_person = False
-#                if get_person:
-#                    person = get_person_profile_for_object(
-#                        self.db_handle, event[1], {}, locale=self.locale
-#                    )
-#                    if not person_age and event[1].handle in self.birth_dates:
-#                        person_age = self.get_age(
-#                            self.birth_dates[event[1].handle], event[0].date
-#                        )
-#                        if not age:
-#                            age = person_age
-#                    person["age"] = person_age
-
-#            profile = {
-#                "date": self.locale.date_displayer.display(event[0].date),
-#                "description": event[0].description,
-#                "gramps_id": event[0].gramps_id,
-#                "handle": event[0].handle,
-#                "label": self.locale.translation.sgettext(label),
-#                "media": [x.ref for x in event[0].media_list],
-#                "person": person,
-#                "place": place,
-#                "age": age,
-#                "type": event[0].type,
-#            }
-#            profile["person"]["relationship"] = str(event[2])
-#            if self.ratings:
-#                profile["citations"] = event[0].citations
-#                profile["confidence"] = event[0].confidence
-#            profiles.append(profile)
-#        return profiles

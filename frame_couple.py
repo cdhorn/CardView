@@ -35,12 +35,7 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Person, Family, Span
-from gramps.gen.relationship import get_relationship_calculator
-from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.display.place import displayer as place_displayer
 
 
 # ------------------------------------------------------------------------
@@ -50,8 +45,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
 from frame_person import PersonGrampsFrame
-
-from frame_utils import format_date_string, get_key_person_events, get_key_family_events, TextLink
+from frame_utils import get_key_family_events
 
 
 # ------------------------------------------------------------------------
@@ -72,15 +66,31 @@ _ = _trans.gettext
 #
 # ------------------------------------------------------------------------
 class CoupleGrampsFrame(GrampsFrame):
+    """
+    The CoupleGrampsFrame exposes some of the basic information about a Couple.
+    """
 
-    def __init__(self, dbstate, uistate, family, context, space, config, router, parent=None, relation=None):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.set_object(family, context)
+    def __init__(
+        self,
+        dbstate,
+        uistate,
+        family,
+        context,
+        space,
+        config,
+        router,
+        parent=None,
+        relation=None,
+    ):
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, family, context)
         self.family = family
         self.parent = parent
         self.relation = relation
+        self.router = router
 
-        self.section = Gtk.VBox(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
+        self.section = Gtk.VBox(
+            margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2
+        )
         self.body.add(self.section)
 
         self.groups = {
@@ -97,17 +107,14 @@ class CoupleGrampsFrame(GrampsFrame):
         couple_facts.pack_start(self.facts_grid, True, True, 0)
 
         marriage, divorce = get_key_family_events(self.dbstate.db, self.family)
-        added_event = False
         if marriage:
             self.add_event(marriage)
-            added_event = True
 
         self.divorced = False
         if divorce:
             self.divorced = True
             if self.option(context, "show-divorce"):
                 self.add_event(divorce)
-                added_event = True
 
         metadata_section = Gtk.VBox()
         gramps_id = self.get_gramps_id_label()
@@ -138,7 +145,7 @@ class CoupleGrampsFrame(GrampsFrame):
                 self.space,
                 self.config,
                 self.router,
-                groups=self.groups
+                groups=self.groups,
             )
             profile.family_backlink_handle = self.family.handle
             return profile
@@ -157,7 +164,11 @@ class CoupleGrampsFrame(GrampsFrame):
         if self.option(self.context, "show-matrilineal"):
             partner1 = mother
             partner2 = father
-        if self.context == "spouse" and self.parent and self.option(self.context, "show-spouse-only"):
+        if (
+            self.context == "spouse"
+            and self.parent
+            and self.option(self.context, "show-spouse-only")
+        ):
             if partner1.handle == self.parent.handle:
                 partner1 = partner2
             partner2 = None

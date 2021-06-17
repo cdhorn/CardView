@@ -27,7 +27,7 @@ EventGrampsFrame.
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk
 
 
 # ------------------------------------------------------------------------
@@ -37,8 +37,7 @@ from gi.repository import Gtk, GdkPixbuf
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import EventType, Citation, Span
-from gramps.gen.relationship import get_relationship_calculator
+from gramps.gen.lib import EventType, EventRoleType, Span
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 
@@ -49,8 +48,7 @@ from gramps.gen.display.place import displayer as place_displayer
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
-from timeline import EVENT_CATEGORIES, RELATIVES, Timeline
-from frame_utils import get_relation, get_confidence, TextLink, get_key_person_events
+from frame_utils import get_confidence, TextLink, get_key_person_events
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -65,45 +63,95 @@ _ = _trans.gettext
 #
 # ------------------------------------------------------------------------
 class EventGrampsFrame(GrampsFrame):
+    """
+    The EventGrampsFrame exposes some of the basic facts about an Event.
+    """
 
-    def __init__(self, dbstate, uistate, space, config, router, anchor_person, event, event_person, relation_to_anchor, groups=None):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, router)
-        self.set_object(event, "timeline")
+    def __init__(
+        self,
+        dbstate,
+        uistate,
+        space,
+        config,
+        router,
+        anchor_person,
+        event,
+        event_person,
+        relation_to_anchor,
+        groups=None,
+    ):
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, event, "timeline")
         self.event = event
+        self.router = router
         self.anchor_person = anchor_person
         self.event_person = event_person
         self.relation_to_anchor = relation_to_anchor
 
         if self.option("timeline", "show-age"):
-            vbox = Gtk.VBox(hexpand=True, margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2)
+            vbox = Gtk.VBox(
+                hexpand=True,
+                margin_right=3,
+                margin_left=3,
+                margin_top=3,
+                margin_bottom=3,
+                spacing=2,
+            )
             if anchor_person:
                 target_person = anchor_person
             else:
                 target_person = event_person
-            key_events = get_key_person_events(self.dbstate.db, target_person, birth_only=True)
+            key_events = get_key_person_events(
+                self.dbstate.db, target_person, birth_only=True
+            )
             birth = key_events["birth"]
-        
+
             span = Span(birth.date, event.date)
             if span.is_valid():
-                precision=global_config.get("preferences.age-display-precision")
+                precision = global_config.get("preferences.age-display-precision")
                 age = str(span.format(precision=precision).strip("()"))
                 text = "{}\n{}".format(_("Age"), age.replace(", ", ",\n"))
-                label = Gtk.Label(label=self.markup.format(text), use_markup=True, justify=Gtk.Justification.CENTER)
+                label = Gtk.Label(
+                    label=self.markup.format(text),
+                    use_markup=True,
+                    justify=Gtk.Justification.CENTER,
+                )
                 vbox.add(label)
             if groups and "age" in groups:
                 groups["age"].add_widget(vbox)
             self.body.pack_start(vbox, False, False, 0)
 
-        grid = Gtk.Grid(margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, row_spacing=2, column_spacing=2)
+        grid = Gtk.Grid(
+            margin_right=3,
+            margin_left=3,
+            margin_top=3,
+            margin_bottom=3,
+            row_spacing=2,
+            column_spacing=2,
+        )
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
-        if (event_person and anchor_person.handle != event_person.handle and relation_to_anchor not in ["self", "", None]):
+        if (
+            event_person
+            and anchor_person.handle != event_person.handle
+            and relation_to_anchor not in ["self", "", None]
+        ):
             text = "{} {} {}".format(event_type, _("of"), relation_to_anchor.title())
             if self.enable_tooltips:
-                tooltip = "{} {} {}".format(_("Click to view"), event_person_name, _("or right click to select edit."))
+                tooltip = "{} {} {}".format(
+                    _("Click to view"),
+                    event_person_name,
+                    _("or right click to select edit."),
+                )
             else:
                 tooltip = None
-            name = TextLink(text, event_person.handle, router, "link-person", tooltip=tooltip, hexpand=True)
+            name = TextLink(
+                text,
+                event_person.handle,
+                router,
+                "link-person",
+                tooltip=tooltip,
+                hexpand=True,
+            )
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
             name.set_markup("<b>{}</b>".format(event_type))
@@ -154,6 +202,9 @@ class EventGrampsFrame(GrampsFrame):
         self.set_css_style()
 
     def get_quality_labels(self):
+        """
+        Generate textual description for confidence, source and citation counts.
+        """
         sources = []
         confidence = 0
         citations = len(self.event.citation_list)
@@ -172,7 +223,7 @@ class EventGrampsFrame(GrampsFrame):
                 source_text = "{} {}".format(len(sources), _("Sources"))
         else:
             source_text = _("No Sources")
-            
+
         if citations:
             if citations == 1:
                 citation_text = "1 {}".format(_("Citation"))

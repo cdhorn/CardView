@@ -19,7 +19,6 @@
 #
 
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
@@ -53,8 +52,11 @@ except ValueError:
 _ = _trans.gettext
 
 
-
 def get_parent_profiles(dbstate, uistate, person, router, config=None):
+    """
+    Get all the parents and siblings for a person.
+    """
+
     parents = None
     primary_handle = person.get_main_parents_family_handle()
     if primary_handle:
@@ -62,52 +64,141 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
         parents.set_label("<small><b>{}</b></small>".format(_("Parents and Siblings")))
         elements = Gtk.VBox(spacing=6)
         parents.add(elements)
-            
+
         family = dbstate.db.get_family_from_handle(primary_handle)
-        couple = CoupleGrampsFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
-        children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+        couple = CoupleGrampsFrame(
+            dbstate,
+            uistate,
+            family,
+            "parent",
+            "preferences.profile.person",
+            config,
+            router,
+            relation=person,
+        )
+        children = ChildrenGrampsFrameGroup(
+            dbstate,
+            uistate,
+            family,
+            "parent",
+            "preferences.profile.person",
+            config,
+            router,
+            relation=person,
+        )
         if children.number > 0:
-            expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.parent.expand-children"))
+            expander = Gtk.Expander(
+                expand=True,
+                use_markup=True,
+                expanded=config.get(
+                    "preferences.profile.person.parent.expand-children"
+                ),
+            )
             expander.add(children)
-            expander.set_label("<b><small>{} {}</small></b>".format(children.number, _("Siblings")))
+            expander.set_label(
+                "<b><small>{} {}</small></b>".format(children.number, _("Siblings"))
+            )
             couple.pack_start(expander, expand=True, fill=True, padding=0)
         elements.add(couple)
 
     for handle in person.parent_family_list:
         if handle != primary_handle:
             family = dbstate.db.get_family_from_handle(handle)
-            couple = CoupleGrampsFrame(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
-            children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "parent", "preferences.profile.person", config, router, relation=person)
+            couple = CoupleGrampsFrame(
+                dbstate,
+                uistate,
+                family,
+                "parent",
+                "preferences.profile.person",
+                config,
+                router,
+                relation=person,
+            )
+            children = ChildrenGrampsFrameGroup(
+                dbstate,
+                uistate,
+                family,
+                "parent",
+                "preferences.profile.person",
+                config,
+                router,
+                relation=person,
+            )
             if children.number > 0:
-                expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.parent.expand-children"))
+                expander = Gtk.Expander(
+                    expand=True,
+                    use_markup=True,
+                    expanded=config.get(
+                        "preferences.profile.person.parent.expand-children"
+                    ),
+                )
                 expander.add(children)
-                expander.set_label("<b><small>{} {}</small></b>".format(children.number, _("Siblings")))
+                expander.set_label(
+                    "<b><small>{} {}</small></b>".format(children.number, _("Siblings"))
+                )
                 couple.pack_start(expander, expand=True, fill=True, padding=0)
             elements.add(couple)
     return parents
 
 
 def get_spouse_profiles(dbstate, uistate, person, router, config=None):
+    """
+    Get all the spouses and children for a person.
+    """
+
     spouses = None
     for handle in person.family_list:
         if spouses is None:
             spouses = Gtk.Expander(expanded=True, use_markup=True)
-            spouses.set_label("<small><b>{}</b></small>".format(_("Spouses and Children")))
+            spouses.set_label(
+                "<small><b>{}</b></small>".format(_("Spouses and Children"))
+            )
             elements = Gtk.VBox(spacing=6)
             spouses.add(elements)
         family = dbstate.db.get_family_from_handle(handle)
-        couple = CoupleGrampsFrame(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person, parent=person)
-        children = ChildrenGrampsFrameGroup(dbstate, uistate, family, "spouse", "preferences.profile.person", config, router, relation=person)
+        couple = CoupleGrampsFrame(
+            dbstate,
+            uistate,
+            family,
+            "spouse",
+            "preferences.profile.person",
+            config,
+            router,
+            relation=person,
+            parent=person,
+        )
+        children = ChildrenGrampsFrameGroup(
+            dbstate,
+            uistate,
+            family,
+            "spouse",
+            "preferences.profile.person",
+            config,
+            router,
+            relation=person,
+        )
         if children.number > 0:
-            expander = Gtk.Expander(expand=True, use_markup=True, expanded=config.get("preferences.profile.person.spouse.expand-children"))
+            expander = Gtk.Expander(
+                expand=True,
+                use_markup=True,
+                expanded=config.get(
+                    "preferences.profile.person.spouse.expand-children"
+                ),
+            )
             expander.add(children)
-            expander.set_label("<b><small>{} {}</small></b>".format(children.number, _("Children")))
-            couple.pack_start(expander, expand=True, fill=True, padding=0)        
+            expander.set_label(
+                "<b><small>{} {}</small></b>".format(children.number, _("Children"))
+            )
+            couple.pack_start(expander, expand=True, fill=True, padding=0)
         elements.pack_start(couple, True, True, 0)
     return spouses
 
 
 def get_citation_profiles(dbstate, uistate, person, router, config=None):
+    """
+    Get all the citations associated with a person.
+    """
+
     citations = None
     groups = {
         "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -121,14 +212,23 @@ def get_citation_profiles(dbstate, uistate, person, router, config=None):
             elements = Gtk.VBox(spacing=6)
             citations.add(elements)
         citation = dbstate.db.get_citation_from_handle(handle)
-        placard = CitationGrampsFrame(dbstate, uistate, citation,
-                                      "preferences.profile.person", config, router,
-                                      groups=groups)
+        placard = CitationGrampsFrame(
+            dbstate,
+            uistate,
+            citation,
+            "preferences.profile.person",
+            config,
+            router,
+            groups=groups,
+        )
         elements.pack_start(placard, True, True, 0)
     return citations
 
 
 def get_timeline_profiles(dbstate, uistate, person, router, config=None):
+    """
+    Get a timeline view of events in the life of a person.
+    """
 
     group = TimelineGrampsFrameGroup(dbstate, uistate, person, router, config)
     if not group.count:
