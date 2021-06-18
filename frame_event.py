@@ -137,10 +137,9 @@ class EventGrampsFrame(GrampsFrame):
         ):
             text = "{} {} {}".format(event_type, _("of"), relation_to_anchor.title())
             if self.enable_tooltips:
-                tooltip = "{} {} {}".format(
+                tooltip = "{} {}".format(
                     _("Click to view"),
                     event_person_name,
-                    _("or right click to select edit."),
                 )
             else:
                 tooltip = None

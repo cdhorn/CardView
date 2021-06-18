@@ -87,16 +87,16 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
         self.count = 0
         self.categories = []
         self.relations = []
+        self.relation_categories = []
         self.ancestors = 1
         self.offspring = 1
 
         self.prepare_timeline_filters()
         self.timeline = Timeline(
-            self.dbstate.db, events=self.categories, relatives=self.relations
+            self.dbstate.db, events=self.categories, relatives=self.relations, relative_events=self.relation_categories
         )
-        self.timeline.add_person(
+        self.timeline.set_person(
             person.handle,
-            anchor=True,
             ancestors=self.ancestors,
             offspring=self.offspring,
         )
@@ -133,15 +133,21 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                 "{}.timeline.show-class-{}".format(self.space, category)
             ):
                 self.categories.append(category)
+            if self.config.get(
+                "{}.timeline.show-family-class-{}".format(self.space, category)
+            ):
+                self.relation_categories.append(category)
 
         for relation in RELATIVES:
             if self.config.get(
                 "{}.timeline.show-family-{}".format(self.space, relation)
             ):
                 self.relations.append(relation)
+
         self.ancestors = self.config.get(
             "{}.timeline.generations-ancestors".format(self.space)
         )
+
         self.offspring = self.config.get(
             "{}.timeline.generations-offspring".format(self.space)
         )

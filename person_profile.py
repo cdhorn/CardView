@@ -205,6 +205,16 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-family-husband", True),
         ("preferences.profile.person.timeline.show-family-son", True),
         ("preferences.profile.person.timeline.show-family-daughter", True),
+        ("preferences.profile.person.timeline.show-family-class-vital", False),
+        ("preferences.profile.person.timeline.show-family-class-family", False),
+        ("preferences.profile.person.timeline.show-family-class-religious", False),
+        ("preferences.profile.person.timeline.show-family-class-vocational", False),
+        ("preferences.profile.person.timeline.show-family-class-academic", False),
+        ("preferences.profile.person.timeline.show-family-class-travel", False),
+        ("preferences.profile.person.timeline.show-family-class-legal", False),
+        ("preferences.profile.person.timeline.show-family-class-residence", False),
+        ("preferences.profile.person.timeline.show-family-class-other", False),
+        ("preferences.profile.person.timeline.show-family-class-custom", False),
         ("preferences.profile.person.citation.show-confidence", True),
         ("preferences.profile.person.citation.show-publisher", True),
         ("preferences.profile.person.citation.show-image", True),
@@ -1484,10 +1494,77 @@ class PersonProfileView(NavigationView):
             10,
             "preferences.profile.person.timeline.show-family-daughter",
         )
+        grid4 = Gtk.Grid()
+        grid4.set_border_width(12)
+        grid4.set_column_spacing(6)
+        grid4.set_row_spacing(6)
+        grid4.set_column_homogeneous(False)
+        configdialog.add_text(grid4, _("Relation Category Filters"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid4,
+            _("Show vital"),
+            1,
+            "preferences.profile.person.timeline.show-family-class-vital",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show family"),
+            2,
+            "preferences.profile.person.timeline.show-family-class-family",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show religious"),
+            3,
+            "preferences.profile.person.timeline.show-family-class-religious",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show vocational"),
+            4,
+            "preferences.profile.person.timeline.show-family-class-vocational",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show academic"),
+            5,
+            "preferences.profile.person.timeline.show-family-class-academic",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show travel"),
+            6,
+            "preferences.profile.person.timeline.show-family-class-travel",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show legal"),
+            7,
+            "preferences.profile.person.timeline.show-family-class-legal",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show residence"),
+            8,
+            "preferences.profile.person.timeline.show-family-class-residence",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show other"),
+            9,
+            "preferences.profile.person.timeline.show-family-class-other",
+        )
+        configdialog.add_checkbox(
+            grid4,
+            _("Show custom"),
+            10,
+            "preferences.profile.person.timeline.show-family-class-custom",
+        )
         grid = Gtk.Grid()
         grid.attach(grid1, 0, 0, 1, 1)
         grid.attach(grid2, 1, 0, 1, 1)
         grid.attach(grid3, 2, 0, 1, 1)
+        grid.attach(grid4, 3, 0, 1, 1)
         return _("Timeline"), grid
 
     def citations_panel(self, configdialog):
