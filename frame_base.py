@@ -55,22 +55,31 @@ from gramps.gui.editors import (
     EditPerson,
     EditFamily,
     EditEvent,
+    EditEventRef,
     EditCitation,
     EditPlace,
 )
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
     Person,
+    ChildRef,
     Family,
     Event,
+    EventRef,
+    EventType,
+    EventRoleType,
     Citation,
     Span,
     Place,
     Source,
     Repository,
+    Name,
     Note,
+    Surname
 )
+from gramps.gen.utils.db import preset_name
 from gramps.gen.utils.file import media_path_full
+from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 
@@ -537,7 +546,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if tag_menu:
             image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
             item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add Tag")
+                always_show_image=True, image=image, label=_("Add tag")
             )
             item.set_submenu(tag_menu)
             return item
@@ -571,7 +580,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if tag_menu:
             image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
             item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Remove Tag")
+                always_show_image=True, image=image, label=_("Remove tag")
             )
             item.set_submenu(tag_menu)
             return item
@@ -660,7 +669,151 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             css = "{} border-color: {};".format(css, border_color[scheme])
         return css
 
+    def _add_new_family_event_option(self):
+        """
+        Build menu option for adding a new event for a family.
+        """
+        item = None
+        if self.obj_type == "Family" or self.family_backlink:
+            image = Gtk.Image.new_from_icon_name("gramps-event", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add a new family event")
+            )
+            item.connect("activate", self.add_new_family_event)
+        return item
 
+    def add_new_family_event(self, obj):
+        """
+        Add a new event for a family.
+        """
+        event = Event()
+        event.set_type(EventType(EventType.MARRIAGE))
+        ref = EventRef()
+        ref.set_role(EventRoleType(EventRoleType.FAMILY))
+        if self.obj_type == "Family":
+            ref.ref = self.obj.handle
+        else:
+            ref.ref = self.family_backlink
+
+        try:
+            EditEventRef(
+                self.dbstate, self.uistate, [], event, ref, self.added_new_family_event
+            )
+        except WindowActiveError:
+            pass
+
+    def added_new_family_event(self, reference, primary):
+        """
+        Finish adding a new event for a family.
+        """
+        if self.obj_type == "Family":
+            family = self.obj
+        else:
+            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+
+        with DbTxn(_("Add family event"), self.dbstate.db) as trans:
+            family.add_event_ref(reference)
+            self.dbstate.db.commit_family(family, trans)
+
+    def _add_new_child_to_family_option(self):
+        """
+        Build menu item for adding a new child to the family.
+        """
+        item = None
+        if self.obj_type == "Family" or self.family_backlink:
+            image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True,
+                image=image,
+                label=_("Add a new child to the family"),
+            )
+            item.connect("activate", self.add_new_child_to_family)
+        return item
+
+    def add_new_child_to_family(self, *obj):
+        """
+        Add a new child to a family.
+        """
+        if self.obj_type == "Family":
+            handle = self.obj.handle
+            family = self.obj
+        else:
+            handle = self.family_backlink
+            family = self.dbstate.db.get_family_from_handle(handle)
+        callback = lambda x: self.callback_add_child(x, handle)
+        person = Person()
+        name = Name()
+        # the editor requires a surname
+        name.add_surname(Surname())
+        name.set_primary_surname(0)
+        father = self.dbstate.db.get_person_from_handle(family.get_father_handle())
+        if father:
+            preset_name(father, name)
+        else:
+            mother = self.dbstate.db.get_person_from_handle(family.get_mother_handle())
+            if mother:
+                preset_name(mother, name)
+        person.set_primary_name(name)
+        try:
+            EditPerson(self.dbstate, self.uistate, [], person, callback=callback)
+        except WindowActiveError:
+            pass
+
+    def callback_add_child(self, person, family_handle):
+        """
+        Finish adding the child to the family.
+        """
+        ref = ChildRef()
+        ref.ref = person.get_handle()
+        family = self.dbstate.db.get_family_from_handle(family_handle)
+        family.add_child_ref(ref)
+
+        with DbTxn(_("Add Child to Family"), self.dbstate.db) as trans:
+            # add parentref to child
+            person.add_parent_family_handle(family_handle)
+            # default relationship is used
+            self.dbstate.db.commit_person(person, trans)
+            # add child to family
+            self.dbstate.db.commit_family(family, trans)
+
+    def _add_existing_child_to_family_option(self):
+        """
+        Build menu item for adding existing child to the family.
+        """
+        item = None
+        if self.obj_type == "Family" or self.family_backlink:
+            image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True,
+                image=image,
+                label=_("Add an existing child to the family"),
+            )
+            item.connect("activate", self.add_existing_child_to_family)
+        return item
+
+    def add_existing_child_to_family(self, *obj):
+        """
+        Add the child to the family.
+        """
+        SelectPerson = SelectorFactory("Person")
+        if self.obj_type == "Family":
+            family = self.obj
+            handle = self.obj.handle
+        else:
+            handle = self.family_backlink
+            family = self.dbstate.db.get_family_from_handle(handle)
+        # it only makes sense to skip those who are already in the family
+        skip_list = [family.get_father_handle(), family.get_mother_handle()]
+        skip_list.extend(x.ref for x in family.get_child_ref_list())
+
+        selector = SelectPerson(
+            self.dbstate, self.uistate, [], _("Select Child"), skip=skip_list
+        )
+        person = selector.run()
+        if person:
+            self.callback_add_child(person, handle)
+
+    
 # ------------------------------------------------------------------------
 #
 # ImageFrame class

@@ -232,171 +232,19 @@ class PersonGrampsFrame(GrampsFrame):
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
-        if self.context in ["active"]:
-            self.action_menu.append(self._add_new_person_event_option())
-        if self.context in ["parent", "spouse"]:
+        self.action_menu.append(self._add_new_person_event_option())
+        if self.context in ["parent", "spouse", "family", "sibling", "child"]:
             self.action_menu.append(self._add_new_family_event_option())
         if self.context in ["active"]:
             self.action_menu.append(self._add_new_parents_option())
             self.action_menu.append(self._add_existing_parents_option())
-            self.action_menu.append(self._add_new_spouse_option())
-        if self.context in ["sibling", "child"]:
-            self.action_menu.append(self._remove_existing_parent_family_option())
+            self.action_menu.append(self._add_new_family_option())
         if self.context in ["parent", "spouse"]:
             self.action_menu.append(self._add_new_child_to_family_option())
-            self.action_menu.append(self._add_existing_person_to_family_option())
-            self.action_menu.append(self._remove_existing_partner_family_option())
-
-    def _add_new_parents_option(self):
-        """
-        Build menu option for adding a set of new parents to a person.
-        """
-        image = Gtk.Image.new_from_icon_name("gramps-parents-add", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Add a new set of parents")
-        )
-        item.connect("activate", self.add_new_parents)
-        return item
-
-    def add_new_parents(self, *obj):
-        """
-        Add new parents for the person.
-        """
-        family = Family()
-        ref = ChildRef()
-        ref.ref = self.person.handle
-        family.add_child_ref(ref)
-
-        try:
-            EditFamily(self.dbstate, self.uistate, [], family)
-        except WindowActiveError:
-            pass
-
-    def _add_existing_parents_option(self):
-        """
-        Build menu option for adding existing parents to a person.
-        """
-        image = Gtk.Image.new_from_icon_name("gramps-parents-open", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Add person as child to an existing family"),
-        )
-        item.connect("activate", self.add_existing_parents)
-        return item
-
-    def add_existing_parents(self, *obj):
-        """
-        Add existing parents for the person.
-        """
-        SelectFamily = SelectorFactory("Family")
-        skip = set(self.person.get_family_handle_list())
-        dialog = SelectFamily(self.dbstate, self.uistate, skip=skip)
-        family = dialog.run()
-        if family:
-            self.dbstate.db.add_child_to_family(family, self.person)
-
-    def _add_new_spouse_option(self):
-        """
-        Build menu option for adding a new spouse for a person.
-        """
-        image = Gtk.Image.new_from_icon_name("gramps-spouse", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Add a new family with person as parent"),
-        )
-        item.connect("activate", self.add_new_spouse)
-        return item
-
-    def add_new_spouse(self, *obj):
-        """
-        Add a new spouse for a person.
-        """
-        family = Family()
-        if self.person.gender == Person.MALE:
-            family.set_father_handle(self.person.handle)
-        else:
-            family.set_mother_handle(self.person.handle)
-
-        try:
-            EditFamily(self.dbstate, self.uistate, [], family)
-        except WindowActiveError:
-            pass
-
-    def _remove_existing_partner_family_option(self, spouse=False):
-        """
-        Build menu item for removing the spouse for a person.
-        """
-        image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Remove parent from this family"),
-        )
-        item.connect("activate", self.remove_existing_partner_family)
-        return item
-
-    def remove_existing_partner_family(self, obj):
-        """
-        Remove the spouse for a person.
-        """
-        if self.family_backlink:
-            person_name = name_displayer.display(self.person)
-            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-            father_handle = family.get_father_handle()
-            mother_handle = family.get_mother_handle()
-            partner_handle = None
-            if self.person.handle == father_handle:
-                if mother_handle:
-                    partner_handle = mother_handle
-            elif self.person.handle == mother_handle:
-                if father_handle:
-                    partner_handle = father_handle
-            if partner_handle:
-                partner = self.dbstate.db.get_person_from_handle(partner_handle)
-                partner_name = name_displayer.display(partner)
-                text = "You are about to remove {} as the partner of {} and a parent of this family.".format(person_name, partner_name)
-            else:
-                text = "You are about to remove {} as a parent of this family.".format(person_name)
-            if not self.confirm_action(
-                    "Warning",
-                    "{}\n\nAre you sure you want to continue?".format(text)
-            ):
-                return
-            self.dbstate.db.remove_parent_from_family(
-                self.person.handle, self.family_backlink
-            )
-
-    def _remove_existing_parent_family_option(self):
-        """
-        Build menu item for removing child from a family.
-        """
-        image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Remove child from this family"),
-        )
-        item.connect("activate", self.remove_existing_parent_family)
-        return item
-
-    def remove_existing_parent_family(self, obj):
-        """
-        Remove a child from the family.
-        """
-        if self.family_backlink:
-            person_name = name_displayer.display(self.person)
-            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-            family_text = family_name(family, self.dbstate.db)
-            if not self.confirm_action(
-                    "Warning",
-                    "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
-            ):
-                return
-            self.dbstate.db.remove_child_from_family(
-                self.person.handle, self.family_backlink
-            )
+            self.action_menu.append(self._add_existing_child_to_family_option())
+            self.action_menu.append(self._remove_as_parent_from_family_option())
+        if self.context in ["sibling", "child"]:
+            self.action_menu.append(self._remove_child_from_family_option())
 
     def _add_new_person_event_option(self):
         """
@@ -431,125 +279,154 @@ class PersonGrampsFrame(GrampsFrame):
         with DbTxn(_("Add person event"), self.dbstate.db) as trans:
             self.person.add_event_ref(reference)
             self.dbstate.db.commit_person(self.person, trans)
-
-    def _add_new_family_event_option(self):
+            
+    def _add_new_parents_option(self):
         """
-        Build menu option for adding a new event for a family.
+        Build menu option for adding a set of new parents to a person.
         """
-        image = Gtk.Image.new_from_icon_name("gramps-event", Gtk.IconSize.MENU)
+        image = Gtk.Image.new_from_icon_name("gramps-parents-add", Gtk.IconSize.MENU)
         item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Add a new family event")
+            always_show_image=True, image=image, label=_("Add a new set of parents")
         )
-        item.connect("activate", self.add_new_family_event)
+        item.connect("activate", self.add_new_parents)
         return item
 
-    def add_new_family_event(self, obj):
+    def add_new_parents(self, *obj):
         """
-        Add a new event for a family.
+        Add new parents for the person.
         """
-        event = Event()
-        event.set_type(EventType(EventType.MARRIAGE))
-        ref = EventRef()
-        ref.set_role(EventRoleType(EventRoleType.FAMILY))
-        ref.ref = self.family_backlink
-
-        try:
-            EditEventRef(
-                self.dbstate, self.uistate, [], event, ref, self.added_new_family_event
-            )
-        except WindowActiveError:
-            pass
-
-    def added_new_family_event(self, reference, primary):
-        """
-        Finish adding a new event for a family.
-        """
-        family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-        with DbTxn(_("Add family event"), self.dbstate.db) as trans:
-            family.add_event_ref(reference)
-            self.dbstate.db.commit_family(family, trans)
-
-    def _add_new_child_to_family_option(self):
-        """
-        Build menu item for adding a child to a family.
-        """
-        image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Add a new child to the family"),
-        )
-        item.connect("activate", self.add_new_child_to_family)
-        return item
-
-    def add_new_child_to_family(self, *obj):
-        """
-        Add a new child to a family.
-        """
-        handle = self.family_backlink
-        callback = lambda x: self.callback_add_child(x, handle)
-        person = Person()
-        name = Name()
-        # the editor requires a surname
-        name.add_surname(Surname())
-        name.set_primary_surname(0)
-        family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-        father = self.dbstate.db.get_person_from_handle(family.get_father_handle())
-        if father:
-            preset_name(father, name)
-        else:
-            mother = self.dbstate.db.get_person_from_handle(family.get_mother_handle())
-            preset_name(father, name)
-        person.set_primary_name(name)
-        try:
-            EditPerson(self.dbstate, self.uistate, [], person, callback=callback)
-        except WindowActiveError:
-            pass
-
-    def callback_add_child(self, person, family_handle):
-        """
-        Finish adding the child to the family.
-        """
+        family = Family()
         ref = ChildRef()
-        ref.ref = person.get_handle()
-        family = self.dbstate.db.get_family_from_handle(family_handle)
+        ref.ref = self.person.handle
         family.add_child_ref(ref)
 
-        with DbTxn(_("Add Child to Family"), self.dbstate.db) as trans:
-            # add parentref to child
-            person.add_parent_family_handle(family_handle)
-            # default relationship is used
-            self.dbstate.db.commit_person(person, trans)
-            # add child to family
-            self.dbstate.db.commit_family(family, trans)
+        try:
+            EditFamily(self.dbstate, self.uistate, [], family)
+        except WindowActiveError:
+            pass
 
-    def _add_existing_person_to_family_option(self):
+    def _add_existing_parents_option(self):
         """
-        Build menu item for adding existing person to a family.
+        Build menu option for adding existing parents to a person.
         """
-        image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
+        image = Gtk.Image.new_from_icon_name("gramps-parents-open", Gtk.IconSize.MENU)
         item = Gtk.ImageMenuItem(
             always_show_image=True,
             image=image,
-            label=_("Add an existing person to the family as a child"),
+            label=_("Add as child to an existing family"),
         )
-        item.connect("activate", self.add_existing_person_to_family)
+        item.connect("activate", self.add_existing_parents)
         return item
 
-    def add_existing_person_to_family(self, *obj):
+    def add_existing_parents(self, *obj):
         """
-        Add the person to the family.
+        Add existing parents for the person.
         """
-        SelectPerson = SelectorFactory("Person")
-        handle = self.family_backlink
-        family = self.dbstate.db.get_family_from_handle(handle)
-        # it only makes sense to skip those who are already in the family
-        skip_list = [family.get_father_handle(), family.get_mother_handle()]
-        skip_list.extend(x.ref for x in family.get_child_ref_list())
+        SelectFamily = SelectorFactory("Family")
+        skip = set(self.person.get_family_handle_list())
+        dialog = SelectFamily(self.dbstate, self.uistate, skip=skip)
+        family = dialog.run()
+        if family:
+            self.dbstate.db.add_child_to_family(family, self.person)
 
-        selector = SelectPerson(
-            self.dbstate, self.uistate, [], _("Select Child"), skip=skip_list
+    def _add_new_family_option(self):
+        """
+        Build menu option for adding a person as head of a new family.
+        """
+        image = Gtk.Image.new_from_icon_name("gramps-spouse", Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(
+            always_show_image=True,
+            image=image,
+            label=_("Add as parent of a new family"),
         )
-        person = selector.run()
-        if person:
-            self.callback_add_child(person, handle)
+        item.connect("activate", self.add_new_family)
+        return item
+
+    def add_new_family(self, *obj):
+        """
+        Add person as head of a new family.
+        """
+        family = Family()
+        if self.person.gender == Person.MALE:
+            family.set_father_handle(self.person.handle)
+        else:
+            family.set_mother_handle(self.person.handle)
+
+        try:
+            EditFamily(self.dbstate, self.uistate, [], family)
+        except WindowActiveError:
+            pass
+
+    def _remove_as_parent_from_family_option(self, spouse=False):
+        """
+        Build menu item for removing as parent from a family.
+        """
+        image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(
+            always_show_image=True,
+            image=image,
+            label=_("Remove parent from this family"),
+        )
+        item.connect("activate", self.remove_as_parent_from_family)
+        return item
+
+    def remove_as_parent_from_family(self, obj):
+        """
+        Remove a parent from a family.
+        """
+        if self.family_backlink:
+            person_name = name_displayer.display(self.person)
+            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+            father_handle = family.get_father_handle()
+            mother_handle = family.get_mother_handle()
+            partner_handle = None
+            if self.person.handle == father_handle:
+                if mother_handle:
+                    partner_handle = mother_handle
+            elif self.person.handle == mother_handle:
+                if father_handle:
+                    partner_handle = father_handle
+            if partner_handle:
+                partner = self.dbstate.db.get_person_from_handle(partner_handle)
+                partner_name = name_displayer.display(partner)
+                text = "You are about to remove {} as the partner of {} and a parent of this family.".format(person_name, partner_name)
+            else:
+                text = "You are about to remove {} as a parent of this family.".format(person_name)
+            if not self.confirm_action(
+                    "Warning",
+                    "{}\n\nAre you sure you want to continue?".format(text)
+            ):
+                return
+            self.dbstate.db.remove_parent_from_family(
+                self.person.handle, self.family_backlink
+            )
+ 
+    def _remove_child_from_family_option(self):
+        """
+        Build menu item for removing child from a family.
+        """
+        image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(
+            always_show_image=True,
+            image=image,
+            label=_("Remove child from this family"),
+        )
+        item.connect("activate", self.remove_child_from_family)
+        return item
+
+    def remove_child_from_family(self, obj):
+        """
+        Remove a child from the family.
+        """
+        if self.family_backlink:
+            person_name = name_displayer.display(self.person)
+            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+            family_text = family_name(family, self.dbstate.db)
+            if not self.confirm_action(
+                    "Warning",
+                    "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
+            ):
+                return
+            self.dbstate.db.remove_child_from_family(
+                self.person.handle, self.family_backlink
+            )

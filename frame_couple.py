@@ -178,3 +178,13 @@ class CoupleGrampsFrame(GrampsFrame):
             partner2 = None
         return partner1, partner2
 
+    def add_custom_actions(self):
+        """
+        Add action menu items for the person based on the context in which
+        they are present in relation to the active person.
+        """
+        if self.context in ["parent", "spouse"]:
+            self.action_menu.append(self._add_new_family_event_option())
+            self.action_menu.append(self._add_new_child_to_family_option())
+            self.action_menu.append(self._add_existing_child_to_family_option())
+

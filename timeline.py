@@ -390,15 +390,6 @@ class Timeline:
             timeline = timeline + self.prepare_event_sortvals(events, family=family)
         return timeline, birth, death
 
-    def _dump(self):
-        print("event_filters: " + str(self.event_filters))
-        print("eligible_events: " + str(self.eligible_events))
-        print("")
-        print("eligible_relatives: " + str(self.eligible_relatives))
-        print("relative_event_filters: " + str(self.relative_event_filters))
-        print("eligible_relative_events: " + str(self.eligible_relative_events))
-        print("")
-
     def set_person(
         self,
         handle: str,
@@ -408,7 +399,6 @@ class Timeline:
         """
         Generate a person timeline.
         """
-        self._dump()
         self.timeline = []
         self.timeline_type = "person"
         self.cached_people = {}
