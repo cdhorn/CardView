@@ -116,6 +116,7 @@ class PersonProfileView(NavigationView):
 
     CONFIGSETTINGS = (
         ("preferences.profile.person.layout.enable-tooltips", True),
+        ("preferences.profile.person.layout.enable-warnings", True),
         ("preferences.profile.person.layout.pinned-header", True),
         ("preferences.profile.person.layout.spouses-left", True),
         ("preferences.profile.person.layout.families-stacked", False),
@@ -948,6 +949,12 @@ class PersonProfileView(NavigationView):
             _("Enable tooltips"),
             10,
             "preferences.profile.person.layout.enable-tooltips",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Enable warnings"),
+            11,
+            "preferences.profile.person.layout.enable-warnings",
         )
         return _("Layout"), grid
 

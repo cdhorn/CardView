@@ -168,6 +168,52 @@ class GrampsConfig:
         label.set_markup(self.markup.format(text))
         return label
 
+    def confirm_action(self, title, message):
+        """
+        If enabled confirm a user requested action.
+        """
+        if not self.config.get(
+            "{}.layout.enable-warnings".format(self.space)
+        ):
+            return True
+        dialog = Gtk.Dialog(parent=self.uistate.window)
+        dialog.set_title(title)
+        dialog.set_default_size(400, 300)
+        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        dialog.add_button("_OK", Gtk.ResponseType.OK)
+        
+        label = Gtk.Label(
+            hexpand=True,
+            vexpand=True,
+            halign=Gtk.Align.CENTER,
+            justify=Gtk.Justification.CENTER,
+            use_markup=True,
+            wrap=True,
+            label=message
+        )
+        dialog.vbox.add(label)
+        dialog.show_all()
+        response = dialog.run()
+        dialog.destroy()
+        if response == Gtk.ResponseType.OK:
+            return True
+        return False
+
+    def get_family_text(self, handle):
+        family = self.dbstate.db.get_family_from_handle(handle)
+        text = ""
+        if family.father_handle:
+            father = self.dbstate.db.get_person_from_handle(family.father_handle)
+            text = name_displayer.display(father)
+        if family.mother_handle:
+            mother = self.dbstate.db.get_person_from_handle(family.mother_handle)
+            name = name_displayer.display(mother)
+            if text:
+                text = "{} {} {}".format(text, _("and"), name)
+            elif name:
+                text = name
+        return text
+        
 
 # ------------------------------------------------------------------------
 #
@@ -180,7 +226,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     for a primary Gramps object.
     """
 
-    def __init__(self, dbstate, uistate, space, config, obj, context):
+    def __init__(self, dbstate, uistate, space, config, obj, context, eventbox=True):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, dbstate, uistate, space, config)
         self.obj = obj
@@ -191,11 +237,14 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.action_menu = None
 
         self.body = Gtk.HBox()
-        self.eventbox = Gtk.EventBox()
-        self.eventbox.add(self.body)
-        self.eventbox.connect("button-press-event", self.route_action)
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.frame.add(self.eventbox)
+        if eventbox:
+            self.eventbox = Gtk.EventBox()
+            self.eventbox.add(self.body)
+            self.eventbox.connect("button-press-event", self.route_action)
+            self.frame.add(self.eventbox)
+        else:
+            self.frame.add(self.body)
         self.add(self.frame)
 
         if isinstance(self.obj, Person):
@@ -417,7 +466,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         For derived objects that may wish to provide an action for a left click.
         """
-
+        
     def _edit_object_option(self):
         """
         Construct the edit object menu option.

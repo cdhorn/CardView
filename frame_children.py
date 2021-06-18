@@ -114,7 +114,7 @@ class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                     number=child_number,
                     relation=self.relation,
                     groups=groups,
+                    family_backlink=family.handle
                 )
-                profile.family_backlink_handle = self.family.handle
                 self.pack_start(profile, True, True, 0)
                 self.number = self.number + 1

@@ -82,7 +82,7 @@ class CoupleGrampsFrame(GrampsFrame):
         parent=None,
         relation=None,
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, family, context)
+        GrampsFrame.__init__(self, dbstate, uistate, space, config, family, context, eventbox=False)
         self.family = family
         self.parent = parent
         self.relation = relation
@@ -125,7 +125,11 @@ class CoupleGrampsFrame(GrampsFrame):
             metadata_section.pack_start(flowbox, False, False, 0)
 
         couple_facts.pack_end(metadata_section, False, False, 0)
-        self.section.pack_start(couple_facts, True, True, 0)
+
+        self.eventbox = Gtk.EventBox()
+        self.eventbox.add(couple_facts)
+        self.eventbox.connect("button-press-event", self.route_action)
+        self.section.pack_start(self.eventbox, True, True, 0)
 
         if partner2:
             profile = self._get_profile(partner2)
@@ -146,8 +150,8 @@ class CoupleGrampsFrame(GrampsFrame):
                 self.config,
                 self.router,
                 groups=self.groups,
+                family_backlink=self.family.handle
             )
-            profile.family_backlink_handle = self.family.handle
             return profile
         return None
 
@@ -173,3 +177,4 @@ class CoupleGrampsFrame(GrampsFrame):
                 partner1 = partner2
             partner2 = None
         return partner1, partner2
+

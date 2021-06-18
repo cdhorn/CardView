@@ -55,7 +55,7 @@ from gramps.gen.lib import (
     Surname,
 )
 from gramps.gen.utils.alive import probably_alive
-from gramps.gen.utils.db import preset_name
+from gramps.gen.utils.db import family_name, preset_name
 from gramps.gui.editors import EditPerson, EditFamily, EditEventRef
 from gramps.gui.selectors import SelectorFactory
 
@@ -103,12 +103,13 @@ class PersonGrampsFrame(GrampsFrame):
         relation=None,
         number=0,
         groups=None,
+        family_backlink=None
     ):
         GrampsFrame.__init__(self, dbstate, uistate, space, config, person, context)
         self.person = person
         self.relation = relation
         self.router = router
-        self.family_backlink_handle = None
+        self.family_backlink = family_backlink
 
         if self.option(context, "show-image"):
             self.load_image(groups)
@@ -340,9 +341,31 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Remove the spouse for a person.
         """
-        if self.family_backlink_handle:
+        if self.family_backlink:
+            person_name = name_displayer.display(self.person)
+            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+            father_handle = family.get_father_handle()
+            mother_handle = family.get_mother_handle()
+            partner_handle = None
+            if self.person.handle == father_handle:
+                if mother_handle:
+                    partner_handle = mother_handle
+            elif self.person.handle == mother_handle:
+                if father_handle:
+                    partner_handle = father_handle
+            if partner_handle:
+                partner = self.dbstate.db.get_person_from_handle(partner_handle)
+                partner_name = name_displayer.display(partner)
+                text = "You are about to remove {} as the partner of {} and a parent of this family.".format(person_name, partner_name)
+            else:
+                text = "You are about to remove {} as a parent of this family.".format(person_name)
+            if not self.confirm_action(
+                    "Warning",
+                    "{}\n\nAre you sure you want to continue?".format(text)
+            ):
+                return
             self.dbstate.db.remove_parent_from_family(
-                self.person.handle, self.family_backlink_handle
+                self.person.handle, self.family_backlink
             )
 
     def _remove_existing_parent_family_option(self):
@@ -362,9 +385,17 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Remove a child from the family.
         """
-        if self.family_backlink_handle:
+        if self.family_backlink:
+            person_name = name_displayer.display(self.person)
+            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+            family_text = family_name(family, self.dbstate.db)
+            if not self.confirm_action(
+                    "Warning",
+                    "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
+            ):
+                return
             self.dbstate.db.remove_child_from_family(
-                self.person.handle, self.person.family_backlink_handle
+                self.person.handle, self.family_backlink
             )
 
     def _add_new_person_event_option(self):
@@ -420,7 +451,7 @@ class PersonGrampsFrame(GrampsFrame):
         event.set_type(EventType(EventType.MARRIAGE))
         ref = EventRef()
         ref.set_role(EventRoleType(EventRoleType.FAMILY))
-        ref.ref = self.family_backlink_handle
+        ref.ref = self.family_backlink
 
         try:
             EditEventRef(
@@ -433,7 +464,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Finish adding a new event for a family.
         """
-        family = self.dbstate.db.get_family_from_handle(self.family_backlink_handle)
+        family = self.dbstate.db.get_family_from_handle(self.family_backlink)
         with DbTxn(_("Add family event"), self.dbstate.db) as trans:
             family.add_event_ref(reference)
             self.dbstate.db.commit_family(family, trans)
@@ -455,14 +486,14 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Add a new child to a family.
         """
-        handle = self.family_backlink_handle
+        handle = self.family_backlink
         callback = lambda x: self.callback_add_child(x, handle)
         person = Person()
         name = Name()
         # the editor requires a surname
         name.add_surname(Surname())
         name.set_primary_surname(0)
-        family = self.dbstate.db.get_family_from_handle(self.family_backlink_handle)
+        family = self.dbstate.db.get_family_from_handle(self.family_backlink)
         father = self.dbstate.db.get_person_from_handle(family.get_father_handle())
         if father:
             preset_name(father, name)
@@ -510,7 +541,7 @@ class PersonGrampsFrame(GrampsFrame):
         Add the person to the family.
         """
         SelectPerson = SelectorFactory("Person")
-        handle = self.family_backlink_handle
+        handle = self.family_backlink
         family = self.dbstate.db.get_family_from_handle(handle)
         # it only makes sense to skip those who are already in the family
         skip_list = [family.get_father_handle(), family.get_mother_handle()]
