@@ -24,14 +24,6 @@ Timeline
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from typing import Dict, List, Tuple, Union
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -113,13 +105,13 @@ class Timeline:
 
     def __init__(
         self,
-        db_handle: DbReadBase,
-        dates: Union[str, None] = None,
-        events: Union[List, None] = None,
-        relatives: Union[List, None] = None,
-        relative_events: Union[List, None] = None,
-        precision: int = 1,
-        locale: GrampsLocale = glocale,
+        db_handle,
+        dates = None,
+        events = None,
+        relatives = None,
+        relative_events = None,
+        precision = 1,
+        locale = glocale,
     ):
         """
         Initialize timeline.
@@ -160,7 +152,7 @@ class Timeline:
             else:
                 self.end_date = None
 
-    def set_start_date(self, date: Union[Date, str]):
+    def set_start_date(self, date):
         """
         Set optional timeline start date.
         """
@@ -170,7 +162,7 @@ class Timeline:
         else:
             self.start_date = date
 
-    def set_end_date(self, date: Union[Date, str]):
+    def set_end_date(self, date):
         """
         Set optional timeline end date.
         """
@@ -180,20 +172,20 @@ class Timeline:
         else:
             self.end_date = date
 
-    def set_precision(self, precision: int):
+    def set_precision(self, precision):
         """
         Set optional precision for span.
         """
         self.precision = precision
 
-    def set_event_filters(self, filters: Union[List, None] = None):
+    def set_event_filters(self, filters = None):
         """
         Prepare the event filter table.
         """
         self.event_filters = filters or []
         self.eligible_events = self._prepare_eligible_events(self.event_filters)
 
-    def set_relative_event_filters(self, filters: Union[List, None] = None):
+    def set_relative_event_filters(self, filters = None):
         """
         Prepare the relative event filter table.
         """
@@ -202,7 +194,7 @@ class Timeline:
             self.relative_event_filters
         )
 
-    def _prepare_eligible_events(self, event_filters: List):
+    def _prepare_eligible_events(self, event_filters):
         """
         Prepare an eligible event filter list.
         """
@@ -249,7 +241,7 @@ class Timeline:
                 )
         return age
 
-    def is_eligible(self, event: Event, relative: bool):
+    def is_eligible(self, event, relative):
         """
         Check filters to see if an event is eligible for the master timeline.
         """
@@ -261,8 +253,8 @@ class Timeline:
 
     def merge_eligible_events(
         self,
-        person: Person,
-        timeline: List,
+        person,
+        timeline,
         relation="self",
         relative=False,
         birth=None,
@@ -296,7 +288,7 @@ class Timeline:
             self.timeline.append((keyed_event[0], (keyed_event[1], person, relation)))
             self.cached_events.append(keyed_event[1].handle)
 
-    def prepare_event_sortvals(self, events: List, family: Event = None):
+    def prepare_event_sortvals(self, events, family = None):
         """
         Prepare keys for sorting constructing synthetic keys when we can for any
         undated events based on the location the user placed them in the event list
@@ -327,7 +319,7 @@ class Timeline:
             lastval = sortval
         return keyed_list
 
-    def generate_union_event_sortval(self, family: Family, union: bool = True):
+    def generate_union_event_sortval(self, family, union = True):
         """
         For an undated family union or disolution try to generate a synthetic sortval
         based on birth of first or last child if one is present and does have a known date.
@@ -355,7 +347,7 @@ class Timeline:
                 return birth.date.sortval + offset
             return 0
 
-    def extract_person_events(self, person: Person):
+    def extract_person_events(self, person):
         """
         Extract and prepare the event list for an individual person. We do not filter yet
         as we may need information from the filtered events to better handle undated events.
@@ -393,9 +385,9 @@ class Timeline:
 
     def set_person(
         self,
-        handle: str,
-        ancestors: int = 0,
-        offspring: int = 0,
+        handle,
+        ancestors = 0,
+        offspring = 0,
     ):
         """
         Generate a person timeline.
@@ -434,7 +426,7 @@ class Timeline:
             for family in person.family_list:
                 self.add_family(family, ancestors=ancestors, offspring=offspring)
 
-    def add_person(self, handle: str):
+    def add_person(self, handle):
         """
         Add events for a specific person to the master timeline.
         """
@@ -444,7 +436,7 @@ class Timeline:
         if person.handle not in self.cached_people:
             self.cached_people.update({person.handle: birth})
                 
-    def add_relative(self, handle: str, ancestors: int = 1, offspring: int = 1):
+    def add_relative(self, handle, ancestors = 1, offspring = 1):
         """
         Add events for a relative of the reference person to the master timeline.
         """
@@ -505,10 +497,10 @@ class Timeline:
 
     def add_family(
         self,
-        handle: str,
-        ancestors: int = 0,
-        offspring: int = 0,
-        include_children: bool = True,
+        handle,
+        ancestors = 0,
+        offspring = 0,
+        include_children = True,
     ):
         """
         Add events for all family members to the timeline.
@@ -533,9 +525,9 @@ class Timeline:
 
     def set_family(
         self,
-        handle: str,
-        ancestors: int = 0,
-        offspring: int = 0,
+        handle,
+        ancestors = 0,
+        offspring = 0,
     ):
         """
         Generate a family timeline.

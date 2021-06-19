@@ -111,18 +111,19 @@ class EventGrampsFrame(GrampsFrame):
             )
             birth = key_events["birth"]
 
-            span = Span(birth.date, event.date)
-            if span.is_valid():
-                year = event.date.get_year()
-                precision = global_config.get("preferences.age-display-precision")
-                age = str(span.format(precision=precision).strip("()"))
-                text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
-                label = Gtk.Label(
-                    label=self.markup.format(text),
-                    use_markup=True,
-                    justify=Gtk.Justification.CENTER,
-                )
-                age_vbox.add(label)
+            if birth:
+                span = Span(birth.date, event.date)
+                if span.is_valid():
+                    year = event.date.get_year()
+                    precision = global_config.get("preferences.age-display-precision")
+                    age = str(span.format(precision=precision).strip("()"))
+                    text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                    label = Gtk.Label(
+                        label=self.markup.format(text),
+                        use_markup=True,
+                        justify=Gtk.Justification.CENTER,
+                    )
+                    age_vbox.add(label)
             if groups and "age" in groups:
                 groups["age"].add_widget(age_vbox)
             if not self.option(self.context, "show-image-first"):
