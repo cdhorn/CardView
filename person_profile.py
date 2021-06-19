@@ -131,6 +131,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.layout.border-width", 2),
         ("preferences.profile.person.layout.use-color-scheme", True),
         ("preferences.profile.person.layout.use-smaller-detail-font", True),
+        # active person
         ("preferences.profile.person.active.event-format", 0),
         ("preferences.profile.person.active.show-gender", True),
         ("preferences.profile.person.active.show-age", True),
@@ -142,6 +143,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.active.show-image-first", False),
         ("preferences.profile.person.active.tag-format", 1),
         ("preferences.profile.person.active.tag-width", 2),
+        # parent
         ("preferences.profile.person.parent.event-format", 0),
         ("preferences.profile.person.parent.show-matrilineal", False),
         ("preferences.profile.person.parent.expand-children", True),
@@ -155,6 +157,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.parent.show-image-first", False),
         ("preferences.profile.person.parent.tag-format", 1),
         ("preferences.profile.person.parent.tag-width", 2),
+        # spouse
         ("preferences.profile.person.spouse.event-format", 0),
         ("preferences.profile.person.spouse.expand-children", True),
         ("preferences.profile.person.spouse.show-spouse-only", True),
@@ -168,6 +171,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.spouse.show-image-first", False),
         ("preferences.profile.person.spouse.tag-format", 1),
         ("preferences.profile.person.spouse.tag-width", 2),
+        # child
         ("preferences.profile.person.child.event-format", 0),
         ("preferences.profile.person.child.number-children", False),
         ("preferences.profile.person.child.show-gender", True),
@@ -179,6 +183,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.child.show-image-large", False),
         ("preferences.profile.person.child.tag-format", 1),
         ("preferences.profile.person.child.tag-width", 2),
+        # sibling
         ("preferences.profile.person.sibling.event-format", 0),
         ("preferences.profile.person.sibling.number-children", False),
         ("preferences.profile.person.sibling.show-gender", True),
@@ -191,6 +196,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.sibling.show-image-large", False),
         ("preferences.profile.person.sibling.tag-format", 1),
         ("preferences.profile.person.sibling.tag-width", 2),
+        # timeline
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
@@ -231,6 +237,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-family-class-residence", False),
         ("preferences.profile.person.timeline.show-family-class-other", False),
         ("preferences.profile.person.timeline.show-family-class-custom", False),
+        # citation
         ("preferences.profile.person.citation.show-confidence", True),
         ("preferences.profile.person.citation.show-publisher", True),
         ("preferences.profile.person.citation.show-image", True),
@@ -238,35 +245,34 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.citation.show-image-large", False),
         ("preferences.profile.person.citation.tag-format", 1),
         ("preferences.profile.person.citation.tag-width", 2),
-
-        ('preferences.profile.colors.confidence.very-high', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.high', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.normal', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.low', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.very-low', ["#cccccc","#cccccc"]), 
-        ('preferences.profile.colors.confidence.border-very-high', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.border-high', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.border-normal', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.border-low', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.confidence.border-very-low', ["#cccccc","#cccccc"]),
-
-            # for relation scheme
-        ('preferences.profile.colors.relations.active', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.spouse', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.father', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.mother', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.brother', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.sister', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.son', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.daughter', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-active', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-father', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-mother', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-brother', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-sister', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-son', ["#cccccc","#cccccc"]),
-        ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#cccccc"]),
+        # confidence color scheme
+        ('preferences.profile.colors.confidence.very-high', ["#bbe68e","#304918"]),
+        ('preferences.profile.colors.confidence.high', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.confidence.normal', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.confidence.low', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.confidence.very-low', ["#eeeeee","#454545"]), 
+        ('preferences.profile.colors.confidence.border-very-high', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.confidence.border-high', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.confidence.border-normal', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.confidence.border-low', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.confidence.border-very-low', ["#cccccc","#000000"]),
+        # relation color scheme
+        ('preferences.profile.colors.relations.active', ["#bbe68e","#304918"]),
+        ('preferences.profile.colors.relations.spouse', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.father', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.mother', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.brother', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.sister', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.son', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.daughter', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.border-active', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-father', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-mother', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-brother', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-sister', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-son', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#000000"]),
     )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
@@ -283,6 +289,7 @@ class PersonProfileView(NavigationView):
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
         uistate.connect("font-changed", self.font_changed)
+        uistate.connect("color", self.build_tree)
         self.redrawing = False
 
         self.child = None
