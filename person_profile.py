@@ -1,8 +1,12 @@
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
+# Copyright (C) 2008       Raphael Ackermann
 # Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2010       Benny Malengier
+# Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
+# Copyright (C) 2015       Serge Noiraud
 # Copyright (C) 2021       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -46,6 +50,7 @@ from gi.repository import Gtk, Gdk
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
+from gramps.gen.config import config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.datehandler import displayer
@@ -58,6 +63,7 @@ from gramps.gui.uimanager import ActionGroup
 from gramps.gui.views.bookmarks import PersonBookmarks
 from gramps.gui.views.navigationview import NavigationView
 from gramps.gui.widgets.reorderfam import Reorder
+from gramps.gui.widgets import BasicLabel
 
 _ = glocale.translation.sgettext
 ngettext = glocale.translation.ngettext  # else "nearby" comments are ignored
@@ -145,6 +151,8 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.parent.show-burial", True),
         ("preferences.profile.person.parent.show-divorce", True),
         ("preferences.profile.person.parent.show-image", True),
+        ("preferences.profile.person.parent.show-image-large", False),
+        ("preferences.profile.person.parent.show-image-first", False),
         ("preferences.profile.person.parent.tag-format", 1),
         ("preferences.profile.person.parent.tag-width", 2),
         ("preferences.profile.person.spouse.event-format", 0),
@@ -156,6 +164,8 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.spouse.show-burial", True),
         ("preferences.profile.person.spouse.show-divorce", True),
         ("preferences.profile.person.spouse.show-image", True),
+        ("preferences.profile.person.spouse.show-image-large", False),
+        ("preferences.profile.person.spouse.show-image-first", False),
         ("preferences.profile.person.spouse.tag-format", 1),
         ("preferences.profile.person.spouse.tag-width", 2),
         ("preferences.profile.person.child.event-format", 0),
@@ -166,6 +176,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.child.show-burial", True),
         ("preferences.profile.person.child.show-image", True),
         ("preferences.profile.person.child.show-image-first", False),
+        ("preferences.profile.person.child.show-image-large", False),
         ("preferences.profile.person.child.tag-format", 1),
         ("preferences.profile.person.child.tag-width", 2),
         ("preferences.profile.person.sibling.event-format", 0),
@@ -177,15 +188,19 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.sibling.show-tags", True),
         ("preferences.profile.person.sibling.show-image", True),
         ("preferences.profile.person.sibling.show-image-first", False),
+        ("preferences.profile.person.sibling.show-image-large", False),
         ("preferences.profile.person.sibling.tag-format", 1),
         ("preferences.profile.person.sibling.tag-width", 2),
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
         ("preferences.profile.person.timeline.show-best-confidence", True),
-        ("preferences.profile.person.timeline.show-tags", True),
+        ("preferences.profile.person.timeline.tag-format", 1),
+        ("preferences.profile.person.timeline.tag-width", 2),
         ("preferences.profile.person.timeline.show-age", True),
         ("preferences.profile.person.timeline.show-image", True),
+        ("preferences.profile.person.timeline.show-image-first", False),
+        ("preferences.profile.person.timeline.show-image-large", False),        
         ("preferences.profile.person.timeline.show-class-vital", True),
         ("preferences.profile.person.timeline.show-class-family", True),
         ("preferences.profile.person.timeline.show-class-religious", True),
@@ -219,8 +234,39 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.citation.show-confidence", True),
         ("preferences.profile.person.citation.show-publisher", True),
         ("preferences.profile.person.citation.show-image", True),
+        ("preferences.profile.person.citation.show-image-first", False),
+        ("preferences.profile.person.citation.show-image-large", False),
         ("preferences.profile.person.citation.tag-format", 1),
         ("preferences.profile.person.citation.tag-width", 2),
+
+        ('preferences.profile.colors.confidence.very-high', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.high', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.normal', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.low', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.very-low', ["#cccccc","#cccccc"]), 
+        ('preferences.profile.colors.confidence.border-very-high', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.border-high', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.border-normal', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.border-low', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.confidence.border-very-low', ["#cccccc","#cccccc"]),
+
+            # for relation scheme
+        ('preferences.profile.colors.relations.active', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.spouse', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.father', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.mother', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.brother', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.sister', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.son', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.daughter', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-active', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-father', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-mother', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-brother', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-sister', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-son', ["#cccccc","#cccccc"]),
+        ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#cccccc"]),
     )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
@@ -233,7 +279,6 @@ class PersonProfileView(NavigationView):
             PersonBookmarks,
             nav_group,
         )
-
         dbstate.connect("database-changed", self.change_db)
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
@@ -885,14 +930,21 @@ class PersonProfileView(NavigationView):
         for item in self.CONFIGSETTINGS:
             self._config.connect(item[0], self.config_update)
 
-    def layout_panel(self, configdialog):
+    def create_grid(self):
         """
-        Builds layout and styling options section for the configuration dialog
+        Gtk.Grid for config panels (tabs).
         """
         grid = Gtk.Grid()
         grid.set_border_width(12)
         grid.set_column_spacing(6)
         grid.set_row_spacing(6)
+        return grid
+
+    def layout_panel(self, configdialog):
+        """
+        Builds layout and styling options section for the configuration dialog
+        """
+        grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid,
@@ -962,10 +1014,7 @@ class PersonProfileView(NavigationView):
         """
         Builds active person options section for the configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()        
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         event_format = EventFormatSelector(
@@ -1040,10 +1089,7 @@ class PersonProfileView(NavigationView):
         """
         Builds parents options section for the configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         event_format = EventFormatSelector(
@@ -1074,42 +1120,54 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Matrilineal mode"),
+            _("Use large image format"),
             5,
+            "preferences.profile.person.parent.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show image first on left hand side"),
+            6,
+            "preferences.profile.person.parent.show-image-first",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Matrilineal mode (inverts couple)"),
+            7,
             "preferences.profile.person.parent.show-matrilineal",
         )
         configdialog.add_checkbox(
             grid,
             _("Expand children by default"),
-            6,
+            8,
             "preferences.profile.person.parent.expand-children",
         )
-        configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
+        configdialog.add_text(grid, _("Display Attributes"), 9, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 8, "preferences.profile.person.parent.show-gender"
+            grid, _("Show gender"), 10, "preferences.profile.person.parent.show-gender"
         )
         configdialog.add_checkbox(
             grid,
             _("Show baptism if available and not used as birth equivalent"),
-            9,
+            11,
             "preferences.profile.person.parent.show-baptism",
         )
         configdialog.add_checkbox(
             grid,
             _("Show burial if available and not used as birth equivalent"),
-            10,
+            12,
             "preferences.profile.person.parent.show-burial",
         )
         configdialog.add_checkbox(
             grid,
             _("Show age at death and if selected burial"),
-            11,
+            13,
             "preferences.profile.person.parent.show-age",
         )
         configdialog.add_checkbox(
             grid,
             _("Show divorce or divorce equivalent"),
-            12,
+            14,
             "preferences.profile.person.parent.show-divorce",
         )
         return _("Parents"), grid
@@ -1118,10 +1176,7 @@ class PersonProfileView(NavigationView):
         """
         Builds spouses options section for the configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         event_format = EventFormatSelector(
@@ -1152,42 +1207,54 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Show spouse only"),
+            _("Use large image format"),
             5,
+            "preferences.profile.person.spouse.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show image first on left hand side"),
+            6,
+            "preferences.profile.person.spouse.show-image-first",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show spouse only"),
+            7,
             "preferences.profile.person.spouse.show-spouse-only",
         )
         configdialog.add_checkbox(
             grid,
             _("Expand children by default"),
-            6,
+            8,
             "preferences.profile.person.spouse.expand-children",
         )
-        configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
+        configdialog.add_text(grid, _("Display Attributes"), 9, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 8, "preferences.profile.person.spouse.show-gender"
+            grid, _("Show gender"), 10, "preferences.profile.person.spouse.show-gender"
         )
         configdialog.add_checkbox(
             grid,
             _("Show baptism if available and not used as birth equivalent"),
-            9,
+            11,
             "preferences.profile.person.spouse.show-baptism",
         )
         configdialog.add_checkbox(
             grid,
             _("Show burial if available and not used as death equivalent"),
-            10,
+            12,
             "preferences.profile.person.spouse.show-burial",
         )
         configdialog.add_checkbox(
             grid,
             _("Show age at death and if selected burial"),
-            11,
+            13,
             "preferences.profile.person.spouse.show-age",
         )
         configdialog.add_checkbox(
             grid,
             _("Show divorce or divorce equivalent"),
-            12,
+            14,
             "preferences.profile.person.spouse.show-divorce",
         )
         return _("Spouses"), grid
@@ -1196,10 +1263,7 @@ class PersonProfileView(NavigationView):
         """
         Builds children options section for the configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         event_format = EventFormatSelector(
@@ -1230,30 +1294,42 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Number children"),
+            _("Use large image format"),
             5,
+            "preferences.profile.person.child.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show image first on left hand side"),
+            6,
+            "preferences.profile.person.child.show-image-first",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Number children"),
+            7,
             "preferences.profile.person.child.number-children",
         )
-        configdialog.add_text(grid, _("Display Attributes"), 6, bold=True)
+        configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 7, "preferences.profile.person.child.show-gender"
+            grid, _("Show gender"), 9, "preferences.profile.person.child.show-gender"
         )
         configdialog.add_checkbox(
             grid,
             _("Show baptism if available and not used as birth equivalent"),
-            8,
+            10,
             "preferences.profile.person.child.show-baptism",
         )
         configdialog.add_checkbox(
             grid,
             _("Show burial if available and not used as death equivalent"),
-            9,
+            11,
             "preferences.profile.person.child.show-burial",
         )
         configdialog.add_checkbox(
             grid,
             _("Show age at death and if selected burial"),
-            10,
+            12,
             "preferences.profile.person.child.show-age",
         )
         return _("Children"), grid
@@ -1262,10 +1338,7 @@ class PersonProfileView(NavigationView):
         """
         Builds siblings options section for the configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         event_format = EventFormatSelector(
@@ -1296,30 +1369,42 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Number children"),
+            _("Use large image format"),
             5,
+            "preferences.profile.person.sibling.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show image first on left hand side"),
+            6,
+            "preferences.profile.person.sibling.show-image-first",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Number children"),
+            7,
             "preferences.profile.person.sibling.number-children",
         )
-        configdialog.add_text(grid, _("Display Attributes"), 6, bold=True)
+        configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 7, "preferences.profile.person.sibling.show-gender"
+            grid, _("Show gender"), 9, "preferences.profile.person.sibling.show-gender"
         )
         configdialog.add_checkbox(
             grid,
             _("Show baptism if available and not used as birth equivalent"),
-            8,
+            10,
             "preferences.profile.person.sibling.show-baptism",
         )
         configdialog.add_checkbox(
             grid,
             _("Show burial if available and not used as death equivalent"),
-            9,
+            11,
             "preferences.profile.person.sibling.show-burial",
         )
         configdialog.add_checkbox(
             grid,
             _("Show age at death and if selected burial"),
-            10,
+            12,
             "preferences.profile.person.sibling.show-age",
         )
         return _("Siblings"), grid
@@ -1328,49 +1413,68 @@ class PersonProfileView(NavigationView):
         """
         Builds active person timeline options section for the configuration dialog
         """
-        grid1 = Gtk.Grid()
-        grid1.set_border_width(12)
-        grid1.set_column_spacing(6)
-        grid1.set_row_spacing(6)
+        grid1 = self.create_grid()
         grid1.set_column_homogeneous(False)
-        configdialog.add_text(grid1, _("Display Attributes"), 0, bold=True)
+        configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
+        tag_mode = TagModeSelector(
+            "preferences.profile.person.timeline.tag-format", self._config
+        )
+        label = Gtk.Label(
+            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
+        )
+        grid1.attach(label, 1, 1, 1, 1)
+        grid1.attach(tag_mode, 2, 1, 1, 1)
+        configdialog.add_spinner(
+            grid1,
+            _("Maximum tags per line"),
+            2,
+            "preferences.profile.person.timeline.tag-width",
+            (1, 6),
+        )
         configdialog.add_checkbox(
-            grid1, _("Show age"), 1, "preferences.profile.person.timeline.show-age"
+            grid1, _("Show age"), 3, "preferences.profile.person.timeline.show-age"
+        )
+        configdialog.add_checkbox(
+            grid1, _("Show image"), 4, "preferences.profile.person.timeline.show-image"
         )
         configdialog.add_checkbox(
             grid1,
+            _("Use large image format"),
+            5,
+            "preferences.profile.person.timeline.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid1,
+            _("Show image first on left hand side"),
+            6,
+            "preferences.profile.person.timeline.show-image-first",
+        )
+        configdialog.add_text(grid1, _("Display Attributes"), 7, bold=True)
+        configdialog.add_checkbox(
+            grid1,
             _("Show description"),
-            2,
+            8,
             "preferences.profile.person.timeline.show-description",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show source count"),
-            3,
+            9,
             "preferences.profile.person.timeline.show-source-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show citation count"),
-            4,
+            10,
             "preferences.profile.person.timeline.show-citation-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show best confidence rating"),
-            5,
+            11,
             "preferences.profile.person.timeline.show-best-confidence",
         )
-        configdialog.add_checkbox(
-            grid1, _("Show tags"), 6, "preferences.profile.person.timeline.show-tags"
-        )
-        configdialog.add_checkbox(
-            grid1, _("Show image"), 7, "preferences.profile.person.timeline.show-image"
-        )
-        grid2 = Gtk.Grid()
-        grid2.set_border_width(12)
-        grid2.set_column_spacing(6)
-        grid2.set_row_spacing(6)
+        grid2 = self.create_grid()
         grid2.set_column_homogeneous(False)
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
@@ -1433,10 +1537,7 @@ class PersonProfileView(NavigationView):
             10,
             "preferences.profile.person.timeline.show-class-custom",
         )
-        grid3 = Gtk.Grid()
-        grid3.set_border_width(12)
-        grid3.set_column_spacing(6)
-        grid3.set_row_spacing(6)
+        grid3 = self.create_grid()
         grid3.set_column_homogeneous(False)
         configdialog.add_text(grid3, _("Relation Filters"), 0, bold=True)
         configdialog.add_spinner(
@@ -1501,10 +1602,7 @@ class PersonProfileView(NavigationView):
             10,
             "preferences.profile.person.timeline.show-family-daughter",
         )
-        grid4 = Gtk.Grid()
-        grid4.set_border_width(12)
-        grid4.set_column_spacing(6)
-        grid4.set_row_spacing(6)
+        grid4 = self.create_grid()
         grid4.set_column_homogeneous(False)
         configdialog.add_text(grid4, _("Relation Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
@@ -1578,10 +1676,7 @@ class PersonProfileView(NavigationView):
         """
         Builds citations options section for configuration dialog
         """
-        grid = Gtk.Grid()
-        grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
+        grid = self.create_grid()
         grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         tag_mode = TagModeSelector(
@@ -1602,14 +1697,170 @@ class PersonProfileView(NavigationView):
         configdialog.add_checkbox(
             grid, _("Show image"), 3, "preferences.profile.person.citation.show-image"
         )
-        configdialog.add_text(grid, _("Attributes"), 4, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Use large image format"),
+            4,
+            "preferences.profile.person.citation.show-image-large",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show image first on left hand side"),
+            5,
+            "preferences.profile.person.citation.show-image-first",
+        )
+        configdialog.add_text(grid, _("Attributes"), 6, bold=True)
         configdialog.add_checkbox(
             grid,
             _("Show confidence rating"),
-            5,
+            7,
             "preferences.profile.person.citation.show-confidence",
         )
         return _("Citations"), grid
+
+    def color_panel(self, configdialog):
+        """
+        Add the tab to set defaults colors for graph boxes.
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("See global preferences for option to switch between light and dark color schemes"), 0, bold=True)
+
+        color_type = {'Confidence': _('Confidence color scheme'),
+                      'Relation': _('Relation color scheme')}
+
+        # for confidence scheme
+        bg_very_high_text = _('Background for Very High')
+        bg_high_text = _('Background for High')
+        bg_normal_text = _('Background for Normal')
+        bg_low_text = _('Background for Low')
+        bg_very_low_text = _('Background for Very Low')
+        brd_very_high_text = _('Border for Very High')
+        brd_high_text = _('Border for High')
+        brd_normal_text = _('Border for Normal')
+        brd_low_text = _('Border for Low')
+        brd_very_low_text = _('Border for Very Low')
+
+        # for relation scheme
+        bg_active = _('Background for Active Person')
+        bg_spouse = _('Background for Spouse')
+        bg_father = _('Background for Father')
+        bg_mother = _('Background for Mother')
+        bg_brother = _('Background for Brother')
+        bg_sister = _('Background for Sister')
+        bg_son = _('Background for Son')
+        bg_daughter = _('Background for Daughter')
+        brd_active = _('Border for Active Person')
+        brd_spouse = _('Border for Spouse')
+        brd_father = _('Border for Father')
+        brd_mother = _('Border for Mother')
+        brd_brother = _('Border for Brother')
+        brd_sister = _('Border for Sister')
+        brd_son = _('Border for Son')
+        brd_daughter = _('Border for Daughter')
+
+        # color label, config constant, group grid row, column, color type
+        color_list = [
+            # for confidence scheme
+            (bg_very_high_text, 'preferences.profile.colors.confidence.very-high', 1, 1, 'Confidence'),
+            (bg_high_text, 'preferences.profile.colors.confidence.high', 2, 1, 'Confidence'),
+            (bg_normal_text, 'preferences.profile.colors.confidence.normal', 3, 1, 'Confidence'),
+            (bg_low_text, 'preferences.profile.colors.confidence.low', 4, 1, 'Confidence'),
+            (bg_very_low_text, 'preferences.profile.colors.confidence.very-low', 5, 1, 'Confidence'),
+            (brd_very_high_text, 'preferences.profile.colors.confidence.border-very-high', 1, 4, 'Confidence'),
+            (brd_high_text, 'preferences.profile.colors.confidence.border-high', 2, 4, 'Confidence'),
+            (brd_normal_text, 'preferences.profile.colors.confidence.border-normal', 3, 4, 'Confidence'),
+            (brd_low_text, 'preferences.profile.colors.confidence.border-low', 4, 4, 'Confidence'),
+            (brd_very_low_text, 'preferences.profile.colors.confidence.border-very-low', 5, 4, 'Confidence'),
+
+            # for relation scheme
+            (bg_active, 'preferences.profile.colors.relations.active', 1, 1, 'Relation'),
+            (bg_spouse, 'preferences.profile.colors.relations.spouse', 2, 1, 'Relation'),
+            (bg_father, 'preferences.profile.colors.relations.father', 3, 1, 'Relation'),
+            (bg_mother, 'preferences.profile.colors.relations.mother', 4, 1, 'Relation'),
+            (bg_brother, 'preferences.profile.colors.relations.brother', 5, 1, 'Relation'),
+            (bg_sister, 'preferences.profile.colors.relations.sister', 6, 1, 'Relation'),
+            (bg_son, 'preferences.profile.colors.relations.son', 7, 1, 'Relation'),
+            (bg_daughter, 'preferences.profile.colors.relations.daughter', 8, 1, 'Relation'),
+            (brd_active, 'preferences.profile.colors.relations.border-active', 1, 4, 'Relation'),
+            (brd_spouse, 'preferences.profile.colors.relations.border-spouse', 2, 4, 'Relation'),
+            (brd_father, 'preferences.profile.colors.relations.border-father', 3, 4, 'Relation'),
+            (brd_mother, 'preferences.profile.colors.relations.border-mother', 4, 4, 'Relation'),
+            (brd_brother, 'preferences.profile.colors.relations.border-brother', 5, 4, 'Relation'),
+            (brd_sister, 'preferences.profile.colors.relations.border-sister', 6, 4, 'Relation'),
+            (brd_son, 'preferences.profile.colors.relations.border-son', 7, 4, 'Relation'),
+            (brd_daughter, 'preferences.profile.colors.relations.border-daughter', 8, 4, 'Relation'),
+            ]
+
+        # prepare scrolled window for colors settings
+        scroll_window = Gtk.ScrolledWindow()
+        colors_grid = self.create_grid()
+        scroll_window.add(colors_grid)
+        scroll_window.set_vexpand(True)
+        scroll_window.set_policy(Gtk.PolicyType.NEVER,
+                                 Gtk.PolicyType.AUTOMATIC)
+        grid.attach(scroll_window, 0, 3, 7, 1)
+
+        # add color settings to scrolled window by groups
+        row = 0
+        self.colors = {}
+        for key, frame_lbl in color_type.items():
+            group_label = Gtk.Label()
+            group_label.set_halign(Gtk.Align.START)
+            group_label.set_margin_top(12)
+            group_label.set_markup(_('<b>%s</b>') % frame_lbl)
+            colors_grid.attach(group_label, 0, row, 3, 1)
+
+            row_added = 0
+            for color in color_list:
+                if color[4] == key:
+                    pref_name = color[1]
+                    self.colors[pref_name] = self.add_color(
+                        colors_grid, color[0], row + color[2],
+                        pref_name, col=color[3])
+                    row_added += 1
+            row += row_added + 1
+
+        return _('Colors'), grid
+
+    def add_color(self, grid, label, index, constant, col=0):
+        """
+        Add color chooser widget with label and hex value to the grid.
+        """
+        lwidget = BasicLabel(_("%s: ") % label)  # needed for French
+        colors = self._config.get(constant)
+        if isinstance(colors, list):
+            scheme = config.get('colors.scheme')
+            hexval = colors[scheme]
+        else:
+            hexval = colors
+        color = Gdk.color_parse(hexval)
+        entry = Gtk.ColorButton(color=color)
+        color_hex_label = BasicLabel(hexval)
+        color_hex_label.set_hexpand(True)
+        entry.connect('notify::color', self.update_color, constant,
+                      color_hex_label)
+        grid.attach(lwidget, col, index, 1, 1)
+        grid.attach(entry, col+1, index, 1, 1)
+        grid.attach(color_hex_label, col+2, index, 1, 1)
+        return entry
+
+    def update_color(self, obj, pspec, constant, color_hex_label):
+        """
+        Called on changing some color.
+        Either on programmatically color change.
+        """
+        rgba = obj.get_rgba()
+        hexval = "#%02x%02x%02x" % (int(rgba.red * 255),
+                                    int(rgba.green * 255),
+                                    int(rgba.blue * 255))
+        color_hex_label.set_text(hexval)
+        colors = self._config.get(constant)
+        if isinstance(colors, list):
+            scheme = config.get('colors.scheme')
+            colors[scheme] = hexval
+            self._config.set(constant, colors)
+        else:
+            self._config.set(constant, hexval)
 
     def _get_configure_page_funcs(self):
         """
@@ -1620,6 +1871,7 @@ class PersonProfileView(NavigationView):
         """
         return [
             self.layout_panel,
+            self.color_panel,
             self.active_panel,
             self.parents_panel,
             self.siblings_panel,

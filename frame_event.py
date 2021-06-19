@@ -49,6 +49,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
 from frame_utils import get_confidence, TextLink, get_key_person_events
+from timeline import RELATIVES
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -74,21 +75,26 @@ class EventGrampsFrame(GrampsFrame):
         space,
         config,
         router,
-        anchor_person,
+        reference_person,
         event,
         event_person,
-        relation_to_anchor,
+        relation_to_reference,
         groups=None,
     ):
         GrampsFrame.__init__(self, dbstate, uistate, space, config, event, "timeline")
         self.event = event
         self.router = router
-        self.anchor_person = anchor_person
+        self.reference_person = reference_person
         self.event_person = event_person
-        self.relation_to_anchor = relation_to_anchor
+        self.relation_to_reference = relation_to_reference
 
-        if self.option("timeline", "show-age"):
-            vbox = Gtk.VBox(
+        if self.option(self.context, "show-image"):
+            self.load_image(groups)
+            if self.option(self.context, "show-image-first"):
+                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
+        
+        if self.option(self.context, "show-age"):
+            age_vbox = Gtk.VBox(
                 hexpand=True,
                 margin_right=3,
                 margin_left=3,
@@ -96,8 +102,8 @@ class EventGrampsFrame(GrampsFrame):
                 margin_bottom=3,
                 spacing=2,
             )
-            if anchor_person:
-                target_person = anchor_person
+            if reference_person:
+                target_person = reference_person
             else:
                 target_person = event_person
             key_events = get_key_person_events(
@@ -107,35 +113,34 @@ class EventGrampsFrame(GrampsFrame):
 
             span = Span(birth.date, event.date)
             if span.is_valid():
+                year = event.date.get_year()
                 precision = global_config.get("preferences.age-display-precision")
                 age = str(span.format(precision=precision).strip("()"))
-                text = "{}\n{}".format(_("Age"), age.replace(", ", ",\n"))
+                text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
                 label = Gtk.Label(
                     label=self.markup.format(text),
                     use_markup=True,
                     justify=Gtk.Justification.CENTER,
                 )
-                vbox.add(label)
+                age_vbox.add(label)
             if groups and "age" in groups:
-                groups["age"].add_widget(vbox)
-            self.body.pack_start(vbox, False, False, 0)
+                groups["age"].add_widget(age_vbox)
+            if not self.option(self.context, "show-image-first"):
+                self.body.pack_start(age_vbox, False, False, 0)
 
-        grid = Gtk.Grid(
-            margin_right=3,
-            margin_left=3,
-            margin_top=3,
-            margin_bottom=3,
-            row_spacing=2,
-            column_spacing=2,
-        )
+        data = Gtk.VBox()
+        if groups and "data" in groups:
+            groups["data"].add_widget(data)
+        self.body.pack_start(data, True, True, 0)
+
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
         if (
             event_person
-            and anchor_person.handle != event_person.handle
-            and relation_to_anchor not in ["self", "", None]
+            and reference_person.handle != event_person.handle
+            and relation_to_reference not in ["self", "", None]
         ):
-            text = "{} {} {}".format(event_type, _("of"), relation_to_anchor.title())
+            text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
             if self.enable_tooltips:
                 tooltip = "{} {}".format(
                     _("Click to view"),
@@ -154,51 +159,56 @@ class EventGrampsFrame(GrampsFrame):
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
             name.set_markup("<b>{}</b>".format(event_type))
-        grid.attach(name, 0, 0, 1, 1)
+        data.pack_start(name, True, True, 0)
 
-        gramps_id = self.get_gramps_id_label()
-        grid.attach(gramps_id, 1, 0, 1, 1)
+        date = glocale.date_displayer.display(event.date)
+        if date:
+            data.pack_start(self.make_label(date), True, True, 0)
 
-        source_text, citation_text, confidence_text = self.get_quality_labels()
-        column2_row = 1
+        place = place_displayer.display_event(self.dbstate.db, event)
+        if place:
+            data.pack_start(self.make_label(place), True, True, 0)
 
-        date = self.make_label(glocale.date_displayer.display(event.date))
-        grid.attach(date, 0, 1, 1, 1)
-
-        if self.option("timeline", "show-source-count"):
-            sources = self.make_label(source_text, left=False)
-            grid.attach(sources, 1, column2_row, 1, 1)
-            column2_row = column2_row + 1
-
-        place = self.make_label(place_displayer.display_event(self.dbstate.db, event))
-        grid.attach(place, 0, 2, 1, 1)
-
-        if self.option("timeline", "show-citation-count"):
-            citations = self.make_label(citation_text, left=False)
-            grid.attach(citations, 1, column2_row, 1, 1)
-            column2_row = column2_row + 1
-
-        if self.option("timeline", "show-description"):
+        if self.option(self.context, "show-description"):
             text = event.get_description()
             if not text:
                 text = "{} {} {}".format(event_type, _("of"), event_person_name)
-            description = self.make_label(text)
-            grid.attach(description, 0, 3, 1, 1)
+            data.pack_start(self.make_label(text), True, True, 0)
 
-        if self.option("timeline", "show-best-confidence"):
-            confidence = self.make_label(confidence_text, left=False)
-            grid.attach(confidence, 1, column2_row, 1, 1)
-            column2_row = column2_row + 1
+        source_text, citation_text, confidence_text = self.get_quality_labels()
+        text = ""
+        comma = ""
+        if self.option(self.context, "show-source-count") and source_text:
+            text = source_text
+            comma = ", "
+        if self.option(self.context, "show-citation-count") and citation_text:
+            text = "{}{}{}".format(text, comma, citation_text)
+            comma = ", "
+        if self.option(self.context, "show-best-confidence") and confidence_text:
+            text = "{}{}{}".format(text, comma, confidence_text)
+        if text:
+            data.pack_start(self.make_label(text.lower().capitalize()), True, True, 0)
 
-        if groups and "data" in groups:
-            groups["data"].add_widget(grid)
-        self.body.pack_start(grid, False, False, 0)
-        if self.option("timeline", "show-image"):
-            self.load_image()
-            if groups and "image" in groups:
-                groups["image"].add_widget(self.image)
-            self.body.pack_start(self.image, False, False, 0)
+        metadata = Gtk.VBox()
+        if groups and "metadata" in groups:
+            groups["metadata"].add_widget(metadata)
+        self.body.pack_start(metadata, False, False, 0)
+
+        gramps_id = self.get_gramps_id_label()
+        metadata.pack_start(gramps_id, False, False, 0)
+
+        flowbox = self.get_tags_flowbox()
+        if flowbox:
+            metadata.pack_start(flowbox, False, False, 0)
+
+        if self.option(self.context, "show-image"):
+             if not self.option(self.context, "show-image-first"):
+                 self.body.pack_start(self.image, False, False, 0)
+             else:
+                 if self.option(self.context, "show-age"):
+                     self.body.pack_start(age_vbox, False, False, 0)                     
         self.set_css_style()
+            
 
     def get_quality_labels(self):
         """
@@ -232,3 +242,37 @@ class EventGrampsFrame(GrampsFrame):
             citation_text = _("No Citations")
 
         return source_text, citation_text, get_confidence(confidence)
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.config.get(
+                "preferences.profile.person.layout.use-color-scheme"
+        ):
+            return ""
+
+        key = None
+        if self.relation_to_reference == "self":
+            key = "active"
+        else:
+            for relative in RELATIVES:
+                if relative in ["wife", "husband"]:
+                    if "spouse" in self.relation_to_reference:
+                        key = "spouse"
+                elif relative in self.relation_to_reference:
+                    key = relative
+                    break
+        if not key:
+            return ""
+        
+        background_color = self.config.get("preferences.profile.colors.relations.{}".format(key))
+        border_color = self.config.get("preferences.profile.colors.relations.border-{}".format(key))
+        
+        scheme = global_config.get("colors.scheme")
+        css = ""
+        if background_color:
+            css = "background-color: {};".format(background_color[scheme])
+        if border_color:
+            css = "{} border-color: {};".format(css, border_color[scheme])
+        return css        

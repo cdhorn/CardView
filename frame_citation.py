@@ -35,8 +35,10 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import PlaceDisplay
+from gramps.gen.lib import Citation
 
 
 # ------------------------------------------------------------------------
@@ -45,7 +47,7 @@ from gramps.gen.display.place import PlaceDisplay
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
-from frame_utils import get_confidence
+from frame_utils import get_confidence, _CONFIDENCE
 
 
 # ------------------------------------------------------------------------
@@ -61,6 +63,14 @@ except ValueError:
 _ = _trans.gettext
 
 pd = PlaceDisplay()
+
+CONFIDENCE_COLOR_SCHEME = {
+    Citation.CONF_VERY_LOW: "very-low",
+    Citation.CONF_LOW: "low",
+    Citation.CONF_NORMAL: "normal",
+    Citation.CONF_HIGH: "high",
+    Citation.CONF_VERY_HIGH: "very-high",
+}    
 
 
 # ------------------------------------------------------------------------
@@ -81,9 +91,16 @@ class CitationGrampsFrame(GrampsFrame):
         self.router = router
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
-        attributes = Gtk.VBox(vexpand=False)
+        if self.option(self.context, "show-image"):
+            self.load_image(groups)
+            if self.option(self.context, "show-image-first"):
+                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
+
+        data = Gtk.VBox(vexpand=False)
         if groups and "data" in groups:
-            groups["data"].add_widget(attributes)
+            groups["data"].add_widget(data)
+        self.body.pack_start(data, False, False, 0)
+
         title = Gtk.Label(
             wrap=True,
             hexpand=False,
@@ -91,23 +108,24 @@ class CitationGrampsFrame(GrampsFrame):
             justify=Gtk.Justification.LEFT,
         )
         title.set_markup("<b>" + self.source.title + "</b>")
-        attributes.pack_start(title, True, False, 0)
+        data.pack_start(title, True, False, 0)
 
         if self.source.author:
             author = self.make_label(self.source.author)
-            attributes.pack_start(author, False, False, 0)
+            data.pack_start(author, False, False, 0)
 
         if self.source.pubinfo:
             publisher = self.make_label(self.source.pubinfo)
-            attributes.pack_start(publisher, False, False, 0)
+            data.pack_start(publisher, False, False, 0)
 
         if self.citation.page:
             page = self.make_label(self.citation.page)
-            attributes.pack_start(page, False, False, 0)
-
+            data.pack_start(page, False, False, 0)
+        
         metadata = Gtk.VBox()
         if groups and "metadata" in groups:
             groups["metadata"].add_widget(metadata)
+        self.body.pack_start(metadata, False, False, 0)
 
         gramps_id = self.get_gramps_id_label()
         metadata.pack_start(gramps_id, False, False, 0)
@@ -122,16 +140,28 @@ class CitationGrampsFrame(GrampsFrame):
         if flowbox:
             metadata.pack_start(flowbox, False, False, 0)
 
-        if groups:
-            if "data" in groups:
-                groups["data"].add_widget(attributes)
-            if "metadata" in groups:
-                groups["metadata"].add_widget(metadata)
-        self.body.pack_start(attributes, False, False, 0)
-        self.body.pack_start(metadata, False, False, 0)
-        if self.option("citation", "show-image"):
-            self.load_image()
-            if groups and "image" in groups:
-                groups["image"].add_widget(self.image)
-            self.body.pack_start(self.image, False, False, 0)
+        if self.option(self.context, "show-image"):
+            if not self.option(self.context, "show-image-first"):
+                self.body.pack_start(self.image, False, False, 0)
         self.set_css_style()
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.config.get(
+                "preferences.profile.person.layout.use-color-scheme"
+        ):
+            return ""
+        
+        key = CONFIDENCE_COLOR_SCHEME[self.obj.confidence]
+        background_color = self.config.get("preferences.profile.colors.confidence.{}".format(key))
+        border_color = self.config.get("preferences.profile.colors.confidence.border-{}".format(key))
+        
+        scheme = global_config.get("colors.scheme")
+        css = ""
+        if background_color:
+            css = "background-color: {};".format(background_color[scheme])
+        if border_color:
+            css = "{} border-color: {};".format(css, border_color[scheme])
+        return css        

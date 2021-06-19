@@ -483,7 +483,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if self.obj_type == "Person":
             name = _("Edit %s") % name_displayer.display(self.obj)
         else:
-            name = _("Edit {}".format(self.obj_type))
+            name = _("Edit {}".format(self.obj_type.lower()))
         image = Gtk.Image.new_from_icon_name("gtk-edit", Gtk.IconSize.MENU)
         item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=name)
         item.connect("activate", self.edit_object)
@@ -600,7 +600,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Apply some simple styling to the frame.
         """
         border = self.option("layout", "border-width")
-        color = self._get_color_string()
+        color = self.get_color_css()
         css = ".frame {{ border-width: {}px; {} }}".format(border, color)
         css = css.encode("utf-8")
         provider = Gtk.CssProvider()
@@ -609,7 +609,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
 
-    def _get_color_string(self):
+    def get_color_css(self):
         """
         Determine color scheme to be used if available."
         """
