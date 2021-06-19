@@ -209,7 +209,6 @@ class EventGrampsFrame(GrampsFrame):
                      self.body.pack_start(age_vbox, False, False, 0)                     
         self.set_css_style()
             
-
     def get_quality_labels(self):
         """
         Generate textual description for confidence, source and citation counts.

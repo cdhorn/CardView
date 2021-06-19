@@ -104,6 +104,7 @@ EVENT_CATEGORIES = [
 # set of dates.
 
 
+# TODO: WIP, not done for other than person at moment
 class Timeline:
     """
     Timeline class for constructing an event timeline for a person, family,
