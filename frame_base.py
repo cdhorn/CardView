@@ -58,6 +58,7 @@ from gramps.gui.editors import (
     EditEventRef,
     EditCitation,
     EditPlace,
+    EditNote,
 )
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
@@ -442,12 +443,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.action_menu = Gtk.Menu()
             self.action_menu.append(self._edit_object_option())
             self.add_custom_actions()
-            add_tag_option = self._add_tag_option()
-            if add_tag_option:
-                self.action_menu.append(add_tag_option)
-            remove_tag_option = self._remove_tag_option()
-            if remove_tag_option:
-                self.action_menu.append(remove_tag_option)
+            self.action_menu.append(self._notes_option())
+            item = self._tags_option()
+            if item:
+                self.action_menu.append(item)
             self.action_menu.append(self._change_privacy_option())
 
             if self.obj.change:
@@ -527,26 +526,34 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.obj.set_privacy(mode)
             commit_method(self.obj, trans)
 
-    def _add_tag_option(self):
+    def _tags_option(self):
         """
         If applicable generate menu option for tag addition with available tags.
         """
-        tag_menu = None
-        for handle in self.dbstate.db.get_tag_handles():
-            if handle not in self.obj.tag_list:
-                if not tag_menu:
-                    tag_menu = Gtk.Menu()
-                tag = self.dbstate.db.get_tag_from_handle(handle)
-                image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-                tag_menu_item = Gtk.ImageMenuItem(
-                    always_show_image=True, image=image, label=tag.name
-                )
-                tag_menu.add(tag_menu_item)
-                tag_menu_item.connect("activate", self.add_tag, tag.handle)
-        if tag_menu:
+        tag_list = self.dbstate.db.get_tag_handles()
+        if len(tag_list) > 0:
+            tag_menu = Gtk.Menu()
+            for handle in tag_list:
+                if handle not in self.obj.tag_list:
+                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                    image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
+                    tag_menu_item = Gtk.ImageMenuItem(
+                        always_show_image=True, image=image, label=tag.name
+                    )
+                    tag_menu.add(tag_menu_item)
+                    tag_menu_item.connect("activate", self.add_tag, tag.handle)
+            for handle in self.dbstate.db.get_tag_handles():
+                if handle in self.obj.tag_list:
+                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                    image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
+                    tag_menu_item = Gtk.ImageMenuItem(
+                        always_show_image=True, image=image, label=tag.name
+                    )
+                    tag_menu.add(tag_menu_item)
+                    tag_menu_item.connect("activate", self.remove_tag, tag.handle)
             image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
             item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add tag")
+                always_show_image=True, image=image, label=_("Tags")
             )
             item.set_submenu(tag_menu)
             return item
@@ -561,31 +568,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.obj.add_tag(handle)
             commit_method(self.obj, trans)
 
-    def _remove_tag_option(self):
-        """
-        If applicable generate menu option for tag removal with available tags.
-        """
-        tag_menu = None
-        for handle in self.dbstate.db.get_tag_handles():
-            if handle in self.obj.tag_list:
-                if not tag_menu:
-                    tag_menu = Gtk.Menu()
-                tag = self.dbstate.db.get_tag_from_handle(handle)
-                image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-                tag_menu_item = Gtk.ImageMenuItem(
-                    always_show_image=True, image=image, label=tag.name
-                )
-                tag_menu.add(tag_menu_item)
-                tag_menu_item.connect("activate", self.remove_tag, tag.handle)
-        if tag_menu:
-            image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Remove tag")
-            )
-            item.set_submenu(tag_menu)
-            return item
-        return None
-
     def remove_tag(self, obj, handle):
         """
         Remove the requested tag from the active object."
@@ -594,6 +576,74 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         with DbTxn(_("Remove Tag from %s") % self.obj_type, self.dbstate.db) as trans:
             self.obj.remove_tag(handle)
             commit_method(self.obj, trans)
+
+    def _notes_option(self):
+        """
+        Build note option menu. We support add new under that as well as edit existing.
+        """
+        if len(self.obj.get_note_list()) > 0:
+            note_submenu = Gtk.Menu()
+            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
+            note_submenu_item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add new note")
+            )
+            note_submenu.add(note_submenu_item)
+            note_submenu_item.connect("activate", self.add_note)
+            for handle in self.obj.get_note_list():
+                note = self.dbstate.db.get_note_from_handle(handle)
+                text = note.get()[:85].replace('\n', ' ')
+                if len(text) > 80:
+                    text = text[:80]+"..."
+                image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
+                note_submenu_item = Gtk.ImageMenuItem(
+                    always_show_image=True, image=image, label=text
+                )
+                note_submenu.add(note_submenu_item)
+                note_submenu_item.connect("activate", self.edit_note, note.handle)
+            image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Notes")
+            )
+            item.set_submenu(note_submenu)
+            return item
+        else:
+            image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add note")
+            )
+            item.connect("activate", self.add_note)
+            return item
+        return None
+
+    def add_note(self, obj):
+        """
+        Add a new note to the active object.
+        """
+        note = Note()
+        try:
+            EditNote(self.dbstate, self.uistate, [], note, self.added_note)
+        except WindowActiveError:
+            pass
+        
+    def added_note(self, handle):
+        """
+        Finish attaching note to the active object."
+        """
+        if handle:
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Note to %s") % self.obj_type, self.dbstate.db) as trans:
+                self.obj.add_note(handle)
+                commit_method(self.obj, trans)
+
+    def edit_note(self, obj, handle):
+        """
+        Edit a note for the active object.
+        """
+        note = self.dbstate.db.get_note_from_handle(handle)
+        try:
+            EditNote(self.dbstate, self.uistate, [], note)
+        except WindowActiveError:
+            pass
 
     def set_css_style(self):
         """
@@ -755,11 +805,11 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 preset_name(mother, name)
         person.set_primary_name(name)
         try:
-            EditPerson(self.dbstate, self.uistate, [], person, callback=callback)
+            EditPerson(self.dbstate, self.uistate, [], person, callback=added_child)
         except WindowActiveError:
             pass
 
-    def callback_add_child(self, person, family_handle):
+    def added_child(self, person, family_handle):
         """
         Finish adding the child to the family.
         """
@@ -811,7 +861,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         person = selector.run()
         if person:
-            self.callback_add_child(person, handle)
+            self.added_child(person, handle)
 
     
 # ------------------------------------------------------------------------
