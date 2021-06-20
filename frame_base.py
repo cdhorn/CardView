@@ -840,63 +840,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
 
     def get_color_css(self):
         """
-        Determine color scheme to be used if available."
+        For derived objects to set their color scheme if in use.
         """
-        background_color = ""
-        border_color = ""
-
-        if self.obj_type == "Person":
-            if not self.config.get(
-                "preferences.profile.person.layout.use-color-scheme"
-            ):
-                return ""
-            if self.obj.gender == Person.MALE:
-                key = "male"
-            elif self.obj.gender == Person.FEMALE:
-                key = "female"
-            else:
-                key = "unknown"
-            if self.living:
-                value = "alive"
-            else:
-                value = "dead"
-            border_color = global_config.get("colors.border-{}-{}".format(key, value))
-            if self.relation and self.relation.handle == self.obj.handle:
-                key = "home"
-                value = "person"
-            background_color = global_config.get("colors.{}-{}".format(key, value))
-
-        if self.obj_type == "Family":
-            if not self.config.get(
-                "preferences.profile.person.layout.use-color-scheme"
-            ):
-                return ""
-            background_color = global_config.get("colors.family")
-            border_color = global_config.get("colors.border-family")
-            if self.obj.type is not None or self.divorced is not None:
-                key = self.obj.type.value
-                if self.divorced is not None and self.divorced:
-                    border_color = global_config.get("colors.border-family-divorced")
-                    key = 99
-                values = {
-                    0: "-married",
-                    1: "-unmarried",
-                    2: "-civil-union",
-                    3: "-unknown",
-                    4: "",
-                    99: "-divorced",
-                }
-                background_color = global_config.get(
-                    "colors.family{}".format(values[key])
-                )
-
-        scheme = global_config.get("colors.scheme")
-        css = ""
-        if background_color:
-            css = "background-color: {};".format(background_color[scheme])
-        if border_color:
-            css = "{} border-color: {};".format(css, border_color[scheme])
-        return css
+        return ""
 
     def _add_new_family_event_option(self):
         """

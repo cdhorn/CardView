@@ -407,3 +407,36 @@ class PersonGrampsFrame(GrampsFrame):
             self.dbstate.db.remove_child_from_family(
                 self.person.handle, self.family_backlink
             )
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.config.get(
+                "preferences.profile.person.layout.use-color-scheme"
+        ):
+            return ""
+        
+        if self.obj.gender == Person.MALE:
+            key = "male"
+        elif self.obj.gender == Person.FEMALE:
+            key = "female"
+        else:
+            key = "unknown"
+        if self.living:
+            value = "alive"
+        else:
+            value = "dead"
+        border_color = global_config.get("colors.border-{}-{}".format(key, value))
+        if self.relation and self.relation.handle == self.obj.handle:
+            key = "home"
+            value = "person"
+        background_color = global_config.get("colors.{}-{}".format(key, value))
+
+        scheme = global_config.get("colors.scheme")
+        css = ""
+        if background_color:
+            css = "background-color: {};".format(background_color[scheme])
+        if border_color:
+            css = "{} border-color: {};".format(css, border_color[scheme])
+        return css

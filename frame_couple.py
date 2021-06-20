@@ -35,6 +35,7 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 
@@ -187,3 +188,38 @@ class CoupleGrampsFrame(GrampsFrame):
             self.action_menu.append(self._add_new_child_to_family_option())
             self.action_menu.append(self._add_existing_child_to_family_option())
 
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.config.get(
+                "preferences.profile.person.layout.use-color-scheme"
+        ):
+            return ""
+
+        background_color = global_config.get("colors.family")
+        border_color = global_config.get("colors.border-family")
+        if self.obj.type is not None or self.divorced is not None:
+            key = self.obj.type.value
+            if self.divorced is not None and self.divorced:
+                border_color = global_config.get("colors.border-family-divorced")
+                key = 99
+            values = {
+                0: "-married",
+                1: "-unmarried",
+                2: "-civil-union",
+                3: "-unknown",
+                4: "",
+                99: "-divorced",
+            }
+            background_color = global_config.get(
+                "colors.family{}".format(values[key])
+            )
+
+        scheme = global_config.get("colors.scheme")
+        css = ""
+        if background_color:
+            css = "background-color: {};".format(background_color[scheme])
+        if border_color:
+            css = "{} border-color: {};".format(css, border_color[scheme])
+        return css
