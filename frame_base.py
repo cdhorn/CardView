@@ -80,13 +80,15 @@ from gramps.gen.lib import (
     Repository,
     Name,
     Note,
-    Surname
+    Surname,
+    Tag
 )
 from gramps.gen.utils.db import preset_name
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 
 
 # ------------------------------------------------------------------------
@@ -536,9 +538,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         If applicable generate menu option for tag addition with available tags.
         """
+        tag_menu = Gtk.Menu()
+        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
+        tag_menu_item = Gtk.ImageMenuItem(
+            always_show_image=True, image=image, label=_("Add new tag")
+        )
+        tag_menu.add(tag_menu_item)
+        tag_menu_item.connect("activate", self.new_tag)
+        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
+        tag_menu_item = Gtk.ImageMenuItem(
+            always_show_image=True, image=image, label=_("Organize tags")
+        )
+        tag_menu.add(tag_menu_item)
+        tag_menu_item.connect("activate", self.organize_tags)
         tag_list = self.dbstate.db.get_tag_handles()
         if len(tag_list) > 0:
-            tag_menu = Gtk.Menu()
             for handle in tag_list:
                 if handle not in self.obj.tag_list:
                     tag = self.dbstate.db.get_tag_from_handle(handle)
@@ -557,13 +571,31 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     )
                     tag_menu.add(tag_menu_item)
                     tag_menu_item.connect("activate", self.remove_tag, tag.handle)
-            image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Tags")
-            )
-            item.set_submenu(tag_menu)
-            return item
-        return None
+        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(
+            always_show_image=True, image=image, label=_("Tags")
+        )
+        item.set_submenu(tag_menu)
+        return item
+
+    def new_tag(self, obj):
+        """
+        Add a new tag.
+        """
+        tag = Tag()
+        try:
+            EditTag(self.dbstate.db, self.uistate, [], tag)
+        except WindowActiveError:
+            pass
+
+    def organize_tags(self, obj):
+        """
+        Organize tags.
+        """
+        try:
+            OrganizeTagsDialog(self.dbstate.db, self.uistate, [])
+        except WindowActiveError:
+            pass
 
     def add_tag(self, obj, handle):
         """
