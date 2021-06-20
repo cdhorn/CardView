@@ -60,7 +60,8 @@ from gramps.gui.editors import (
     EditPlace,
     EditNote,
     EditAttribute,
-    EditSrcAttribute
+    EditSrcAttribute,
+    EditUrl
 )
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
@@ -81,10 +82,12 @@ from gramps.gen.lib import (
     Name,
     Note,
     Surname,
-    Tag
+    Tag,
+    Url
 )
 from gramps.gen.utils.db import preset_name
 from gramps.gen.utils.file import media_path_full
+from gramps.gui.display import display_url
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 from gramps.gen.utils.thumbnails import get_thumbnail_image
@@ -456,6 +459,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             item = self._tags_option()
             if item:
                 self.action_menu.append(item)
+            item = self._urls_option()
+            if item:
+                self.action_menu.append(item)
             self.action_menu.append(self._copy_to_clipboard_option())
             self.action_menu.append(self._change_privacy_option())
             if self.obj.change:
@@ -801,6 +807,72 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             with DbTxn(_("Updated Attribute for %s") % self.obj_type, self.dbstate.db) as trans:
                 commit_method(self.obj, trans)
         
+    def _urls_option(self):
+        """
+        Build urls option menu. We support add new under that and launching existing.
+        """
+        if not hasattr(self.obj, "urls"):
+            return None
+        if len(self.obj.get_url_list()) > 0:
+            url_submenu = Gtk.Menu()
+            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
+            url_submenu_item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add new url")
+            )
+            url_submenu.add(url_submenu_item)
+            url_submenu_item.connect("activate", self.add_url)
+            for url in self.obj.get_url_list():
+                image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
+                text = url.get_description()
+                if not text:
+                    text = url.get_path()
+                url_submenu_item = Gtk.ImageMenuItem(
+                    always_show_image=True, image=image, label=text
+                )
+                url_submenu.add(url_submenu_item)
+                url_submenu_item.connect("activate", self.launch_url, url)
+            image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Urls")
+            )
+            item.set_submenu(url_submenu)
+            return item
+        else:
+            image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add url")
+            )
+            item.connect("activate", self.add_url)
+            return item
+        return None
+
+    def add_url(self, obj):
+        """
+        Add a new url to the active object.
+        """
+        url = Url()
+        try:
+            EditUrl(self.dbstate, self.uistate, [], "", url, self.added_url)
+        except WindowActiveError:
+            pass
+        
+    def added_url(self, url):
+        """
+        Finish attaching new url to the active object."
+        """
+        if url:
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
+                self.obj.add_url(url)
+                commit_method(self.obj, trans)
+
+    def launch_url(self, obj, url):
+        """
+        Launch a url.
+        """
+        if url.get_path():
+            display_url(url.get_path())
+
     def set_css_style(self):
         """
         Apply some simple styling to the frame.
