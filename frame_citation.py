@@ -113,13 +113,20 @@ class CitationGrampsFrame(GrampsFrame):
             author = self.make_label(self.source.author)
             data.pack_start(author, False, False, 0)
 
-        if self.source.pubinfo:
-            publisher = self.make_label(self.source.pubinfo)
-            data.pack_start(publisher, False, False, 0)
-
         if self.citation.page:
             page = self.make_label(self.citation.page)
             data.pack_start(page, False, False, 0)
+
+        if self.option("citation", "show-date"):
+            if self.citation.get_date_object():
+                text = glocale.date_displayer.display(self.citation.get_date_object())
+                if text:
+                    data.pack_start(self.make_label(text), False, False, 0)
+        
+        if self.option("citation", "show-publisher"):
+            if self.source.pubinfo:
+                publisher = self.make_label(self.source.pubinfo)
+                data.pack_start(publisher, False, False, 0)
         
         metadata = Gtk.VBox()
         if groups and "metadata" in groups:

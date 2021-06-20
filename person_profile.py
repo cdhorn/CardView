@@ -238,14 +238,19 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-family-class-other", False),
         ("preferences.profile.person.timeline.show-family-class-custom", False),
         # citation
-        ("preferences.profile.person.citation.show-confidence", True),
-        ("preferences.profile.person.citation.show-publisher", True),
+        ("preferences.profile.person.citation.sort-by-date", False),
+        ("preferences.profile.person.citation.include-indirect", False),
+        ("preferences.profile.person.citation.include-family", False),
+        ("preferences.profile.person.citation.include-family-indirect", False),
         ("preferences.profile.person.citation.sort-by-date", False),
         ("preferences.profile.person.citation.show-image", True),
         ("preferences.profile.person.citation.show-image-first", False),
         ("preferences.profile.person.citation.show-image-large", False),
         ("preferences.profile.person.citation.tag-format", 1),
         ("preferences.profile.person.citation.tag-width", 2),
+        ("preferences.profile.person.citation.show-date", True),
+        ("preferences.profile.person.citation.show-publisher", True),
+        ("preferences.profile.person.citation.show-confidence", True),
         # confidence color scheme
         ('preferences.profile.colors.confidence.very-high', ["#bbe68e","#304918"]),
         ('preferences.profile.colors.confidence.high', ["#eeeeee","#454545"]),
@@ -1733,11 +1738,41 @@ class PersonProfileView(NavigationView):
             6,
             "preferences.profile.person.citation.sort-by-date",
         )
-        configdialog.add_text(grid, _("Attributes"), 7, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Include all person related citations not just primary ones"),
+            7,
+            "preferences.profile.person.citation.include-indirect",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Include all citations for the persons families as well"),
+            8,
+            "preferences.profile.person.citation.include-family",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Include all family related citations not just primary ones"),
+            9,
+            "preferences.profile.person.citation.include-family-indirect",
+        )
+        configdialog.add_text(grid, _("Attributes"), 10, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Show date"),
+            11,
+            "preferences.profile.person.citation.show-date",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show publisher"),
+            12,
+            "preferences.profile.person.citation.show-publisher",
+        )
         configdialog.add_checkbox(
             grid,
             _("Show confidence rating"),
-            8,
+            13,
             "preferences.profile.person.citation.show-confidence",
         )
         return _("Citations"), grid
