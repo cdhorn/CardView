@@ -946,7 +946,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         else:
             handle = self.family_backlink
             family = self.dbstate.db.get_family_from_handle(handle)
-        callback = lambda x: self.callback_add_child(x, handle)
+        callback = lambda x: self.added_child(x, handle)
         person = Person()
         name = Name()
         # the editor requires a surname
@@ -961,7 +961,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 preset_name(mother, name)
         person.set_primary_name(name)
         try:
-            EditPerson(self.dbstate, self.uistate, [], person, callback=added_child)
+            EditPerson(self.dbstate, self.uistate, [], person, callback=callback)
         except WindowActiveError:
             pass
 
