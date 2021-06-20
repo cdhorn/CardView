@@ -231,7 +231,7 @@ class Timeline:
         Return the calculated age or an empty string otherwise.
         """
         age = ""
-        if start_date:
+        if start_date and date:
             span = Span(start_date, date)
             if span.is_valid():
                 age = str(

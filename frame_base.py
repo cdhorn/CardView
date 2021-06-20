@@ -299,12 +299,13 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if event:
             age = None
             if show_age:
-                span = Span(reference.date, event.date)
-                if span.is_valid():
-                    precision = global_config.get("preferences.age-display-precision")
-                    age = str(span.format(precision=precision))
-                if age == "unknown":
-                    age = None
+                if reference and reference.date and event and event.date:
+                    span = Span(reference.date, event.date)
+                    if span.is_valid():
+                        precision = global_config.get("preferences.age-display-precision")
+                        age = str(span.format(precision=precision))
+                    if age == "unknown":
+                        age = None
 
             event_format = self.config.get(
                 "{}.{}.event-format".format(self.space, self.context)

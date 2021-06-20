@@ -111,7 +111,7 @@ class EventGrampsFrame(GrampsFrame):
             )
             birth = key_events["birth"]
 
-            if birth:
+            if birth and birth.date and event.date:
                 span = Span(birth.date, event.date)
                 if span.is_valid():
                     year = event.date.get_year()
