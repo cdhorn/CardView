@@ -57,7 +57,6 @@ from gramps.gen.datehandler import displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Person
-from gramps.gen.utils.symbols import Symbols
 from gramps.gui.editors import FilterEditor
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.views.bookmarks import PersonBookmarks
@@ -330,8 +329,6 @@ class PersonProfileView(NavigationView):
         self.collapsed_items = {}
 
         self.additional_uis.append(self.additional_ui)
-        self.symbols = Symbols()
-        self.reload_symbols()
 
     def get_handle_from_gramps_id(self, gid):
         """
@@ -372,43 +369,6 @@ class PersonProfileView(NavigationView):
         self.callman.add_db_signal("note-add", self.redraw)
         self.callman.add_db_signal("note-delete", self.redraw)
         self.callman.add_db_signal("note-rebuild", self.redraw)
-
-    def reload_symbols(self):
-        """
-        Reload symbols.
-        """
-        if self.uistate and self.uistate.symbols:
-            gsfs = self.symbols.get_symbol_for_string
-            self.male = gsfs(self.symbols.SYMBOL_MALE)
-            self.female = gsfs(self.symbols.SYMBOL_FEMALE)
-            self.bth = gsfs(self.symbols.SYMBOL_BIRTH)
-            self.bptsm = gsfs(self.symbols.SYMBOL_BAPTISM)
-            self.marriage = gsfs(self.symbols.SYMBOL_MARRIAGE)
-            self.marr = gsfs(self.symbols.SYMBOL_HETEROSEXUAL)
-            self.homom = gsfs(self.symbols.SYMBOL_MALE_HOMOSEXUAL)
-            self.homof = gsfs(self.symbols.SYMBOL_LESBIAN)
-            self.divorce = gsfs(self.symbols.SYMBOL_DIVORCE)
-            self.unmarr = gsfs(self.symbols.SYMBOL_UNMARRIED_PARTNERSHIP)
-            death_idx = self.uistate.death_symbol
-            self.dth = self.symbols.get_death_symbol_for_char(death_idx)
-            self.burial = gsfs(self.symbols.SYMBOL_BURIED)
-            self.cremation = gsfs(self.symbols.SYMBOL_CREMATED)
-        else:
-            gsf = self.symbols.get_symbol_fallback
-            self.male = gsf(self.symbols.SYMBOL_MALE)
-            self.female = gsf(self.symbols.SYMBOL_FEMALE)
-            self.bth = gsf(self.symbols.SYMBOL_BIRTH)
-            self.bptsm = gsf(self.symbols.SYMBOL_BAPTISM)
-            self.marriage = gsf(self.symbols.SYMBOL_MARRIAGE)
-            self.marr = gsf(self.symbols.SYMBOL_HETEROSEXUAL)
-            self.homom = gsf(self.symbols.SYMBOL_MALE_HOMOSEXUAL)
-            self.homof = gsf(self.symbols.SYMBOL_LESBIAN)
-            self.divorce = gsf(self.symbols.SYMBOL_DIVORCE)
-            self.unmarr = gsf(self.symbols.SYMBOL_UNMARRIED_PARTNERSHIP)
-            death_idx = self.symbols.DEATH_SYMBOL_LATIN_CROSS
-            self.dth = self.symbols.get_death_symbol_fallback(death_idx)
-            self.burial = gsf(self.symbols.SYMBOL_BURIED)
-            self.cremation = gsf(self.symbols.SYMBOL_CREMATED)
 
     def font_changed(self):
         """
@@ -762,7 +722,6 @@ class PersonProfileView(NavigationView):
 
         self.uimanager.set_actions_sensitive(self.order_action, self.reorder_sensitive)
         self.uimanager.set_actions_sensitive(self.family_action, False)
-        self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
     def filter_editor(self, *obj):
         try:
