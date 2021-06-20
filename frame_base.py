@@ -242,10 +242,11 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     for a primary Gramps object.
     """
 
-    def __init__(self, dbstate, uistate, space, config, obj, context, eventbox=True):
+    def __init__(self, dbstate, uistate, router, space, config, obj, context, eventbox=True):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, dbstate, uistate, space, config)
         self.obj = obj
+        self.router = router
         self.context = context
         self.image = None
         self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
@@ -455,8 +456,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             item = self._tags_option()
             if item:
                 self.action_menu.append(item)
+            self.action_menu.append(self._copy_to_clipboard_option())
             self.action_menu.append(self._change_privacy_option())
-
             if self.obj.change:
                 text = "{} {}".format(
                     _("Last changed"),
@@ -504,6 +505,23 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             _EDITORS[self.obj_type](self.dbstate, self.uistate, [], self.obj)
         except WindowActiveError:
             pass
+
+    def _copy_to_clipboard_option(self):
+        """
+        Construct menu option to copy current object to clipboard.
+        """
+        image = Gtk.Image.new_from_icon_name("edit-copy", Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(
+            always_show_image=True, image=image, label=_("Copy to clipboard")
+        )
+        item.connect("activate", self.copy_to_clipboard)
+        return item
+
+    def copy_to_clipboard(self, obj):
+        """
+        Copy current object to the clipboard.
+        """
+        self.router(None, None, self.obj.get_handle(), "copy-clipboard", self.obj_type)
 
     def _change_privacy_option(self):
         """

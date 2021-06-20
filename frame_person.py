@@ -105,10 +105,9 @@ class PersonGrampsFrame(GrampsFrame):
         groups=None,
         family_backlink=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, person, context)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context)
         self.person = person
         self.relation = relation
-        self.router = router
         self.family_backlink = family_backlink
 
         if self.option(context, "show-image"):

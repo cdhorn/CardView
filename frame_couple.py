@@ -82,11 +82,10 @@ class CoupleGrampsFrame(GrampsFrame):
         parent=None,
         relation=None,
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, family, context, eventbox=False)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, eventbox=False)
         self.family = family
         self.parent = parent
         self.relation = relation
-        self.router = router
 
         self.section = Gtk.VBox(
             margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2

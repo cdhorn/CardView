@@ -81,9 +81,8 @@ class EventGrampsFrame(GrampsFrame):
         relation_to_reference,
         groups=None,
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, space, config, event, "timeline")
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, event, "timeline")
         self.event = event
-        self.router = router
         self.reference_person = reference_person
         self.event_person = event_person
         self.relation_to_reference = relation_to_reference

@@ -334,6 +334,14 @@ class PersonProfileView(NavigationView):
         self.callman.add_db_signal("family-add", self.family_add)
         self.callman.add_db_signal("family-delete", self.family_delete)
         self.callman.add_db_signal("family-rebuild", self.family_rebuild)
+        self.callman.add_db_signal("tag-update", self.redraw)
+        self.callman.add_db_signal("tag-add", self.redraw)
+        self.callman.add_db_signal("tag-delete", self.redraw)
+        self.callman.add_db_signal("tag-rebuild", self.redraw)
+        self.callman.add_db_signal("note-update", self.redraw)
+        self.callman.add_db_signal("note-add", self.redraw)
+        self.callman.add_db_signal("note-delete", self.redraw)
+        self.callman.add_db_signal("note-rebuild", self.redraw)
 
     def reload_symbols(self):
         """
@@ -789,7 +797,7 @@ class PersonProfileView(NavigationView):
             "active",
             "preferences.profile.person",
             self._config,
-            self.link_router,
+            self.callback_router,
             relation=home,
         )
 
@@ -799,7 +807,7 @@ class PersonProfileView(NavigationView):
             self.dbstate,
             self.uistate,
             person,
-            router=self.link_router,
+            router=self.callback_router,
             config=self._config,
         )
         if parents is not None:
@@ -810,7 +818,7 @@ class PersonProfileView(NavigationView):
             self.dbstate,
             self.uistate,
             person,
-            router=self.link_router,
+            router=self.callback_router,
             config=self._config,
         )
         if spouses is not None:
@@ -822,7 +830,7 @@ class PersonProfileView(NavigationView):
                 self.dbstate,
                 self.uistate,
                 person,
-                router=self.link_router,
+                router=self.callback_router,
                 config=self._config,
             )
             if timeline is not None:
@@ -834,7 +842,7 @@ class PersonProfileView(NavigationView):
                 self.dbstate,
                 self.uistate,
                 person,
-                router=self.link_router,
+                router=self.callback_router,
                 config=self._config,
             )
             if citations is not None:
@@ -887,10 +895,12 @@ class PersonProfileView(NavigationView):
         self.dirty = False
         return True
 
-    def link_router(self, obj, event, handle, action):
+    def callback_router(self, obj, event, handle, action, data=None):
         if action == "link-person":
             if button_activated(event, _LEFT_BUTTON):
                 self.change_person(handle)
+        if action == "copy-clipboard":
+            self.copy_to_clipboard(data, [handle])
 
     def marriage_symbol(self, family, markup=True):
         if family:

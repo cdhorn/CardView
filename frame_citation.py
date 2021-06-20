@@ -85,10 +85,9 @@ class CitationGrampsFrame(GrampsFrame):
 
     def __init__(self, dbstate, uistate, citation, space, config, router, groups=None):
         GrampsFrame.__init__(
-            self, dbstate, uistate, space, config, citation, "citation"
+            self, dbstate, uistate, router, space, config, citation, "citation"
         )
         self.citation = citation
-        self.router = router
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
         if self.option(self.context, "show-image"):
