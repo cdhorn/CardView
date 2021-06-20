@@ -408,23 +408,24 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         tags = []
         for handle in self.obj.get_tag_list():
             tag = self.dbstate.db.get_tag_from_handle(handle)
-            tags.append((tag.priority, tag.name, tag.color))
-        tags.sort()
+            tags.append(tag)
+        if self.option("layout", "sort-tags-by-name"):
+            tags.sort(key = lambda x: x.name)
+        else:
+            tags.sort(key = lambda x: x.priority)
         for tag in tags:
-            color = Gdk.RGBA()
-            color.parse(tag[2])
             if tag_mode == 1:
                 tag_view = Gtk.Image()
                 tag_view.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
-                tag_view.set_tooltip_text(tag[1])
+                tag_view.set_tooltip_text(tag.name)
                 css = ".image {{ margin: 0px; padding: 0px; background-image: none; background-color: {}; }}".format(
-                    tag[2][:7]
+                    tag.color[:7]
                 )
                 css_class = "image"
             else:
-                tag_view = Gtk.Label(label=tag[1])
+                tag_view = Gtk.Label(label=tag.name)
                 css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; color: black; background-color: {}; }}".format(
-                    tag[2][:7]
+                    tag.color[:7]
                 )
                 css_class = "label"
             css = css.encode("utf-8")
@@ -583,10 +584,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             tag_add_list = []
             tag_remove_list = []
             for handle in tag_list:
+                tag = self.dbstate.db.get_tag_from_handle(handle)
                 if handle in self.obj.tag_list:
-                    tag_remove_list.append(handle)
+                    tag_remove_list.append(tag)
                 else:
-                    tag_add_list.append(handle)
+                    tag_add_list.append(tag)
+            if tag_add_list:
+                if self.option("layout", "sort-tags-by-name"):
+                    tag_add_list.sort(key = lambda x: x.name)
+                else:
+                    tag_add_list.sort(key = lambda x: x.priority)
+            if tag_remove_list:
+                if self.option("layout", "sort-tags-by-name"):
+                    tag_remove_list.sort(key = lambda x: x.name)
+                else:
+                    tag_remove_list.sort(key = lambda x: x.priority)
             separate = False
             if len(tag_list) > 10:
                 separate = True
@@ -596,22 +608,18 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 separate = False
             if separate:
                 add_menu = Gtk.Menu()
-                for handle in tag_add_list:
-                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                for tag in tag_add_list:
                     add_menu.add(self._menu_item("list-add", tag.name, self.add_tag, tag.handle))
                 menu.add(self._submenu_item("gramps-tag", _("Add tag"), add_menu))
                 remove_menu = Gtk.Menu()
-                for handle in tag_remove_list:
-                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                for tag in tag_remove_list:
                     remove_menu.add(self._menu_item("list-remove", tag.name, self.remove_tag, tag.handle))
                 menu.add(self._submenu_item("gramps-tag", _("Remove tag"), remove_menu))
             else:
                 menu.add(Gtk.SeparatorMenuItem())
-                for handle in tag_add_list:
-                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                for tag in tag_add_list:
                     menu.add(self._menu_item("list-add", tag.name, self.add_tag, tag.handle))
-                for handle in tag_remove_list:
-                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                for tag in tag_remove_list:
                     menu.add(self._menu_item("list-remove", tag.name, self.remove_tag, tag.handle))
         return self._submenu_item("gramps-tag", _("Tags"), menu)
 

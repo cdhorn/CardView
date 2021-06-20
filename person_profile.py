@@ -131,6 +131,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.layout.border-width", 2),
         ("preferences.profile.person.layout.use-color-scheme", True),
         ("preferences.profile.person.layout.use-smaller-detail-font", True),
+        ("preferences.profile.person.layout.sort-tags-by-name", False),
         # active person
         ("preferences.profile.person.active.event-format", 0),
         ("preferences.profile.person.active.show-gender", True),
@@ -1021,14 +1022,20 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Enable tooltips"),
+            _("Sort tags by name not priority"),
             10,
+            "preferences.profile.person.layout.sort-tags-by-name",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Enable tooltips"),
+            11,
             "preferences.profile.person.layout.enable-tooltips",
         )
         configdialog.add_checkbox(
             grid,
             _("Enable warnings"),
-            11,
+            12,
             "preferences.profile.person.layout.enable-warnings",
         )
         return _("Layout"), grid
