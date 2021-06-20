@@ -721,7 +721,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     text = text[:80]+"..."
                 menu.add(self._menu_item("gramps-attribute", text, self.edit_attribute, attribute))
             return self._submenu_item("gramps-attribute", _("Attributes"), menu)
-        return self._menu_item("gramps-attribute", _("Add attribute"), self.add_attribute)
+        return self._menu_item("gramps-attribute", _("Add new attribute"), self.add_attribute)
 
     def _get_attribute_types(self):
         if self.obj_type == "Person":
@@ -771,7 +771,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         attribute_types = self._get_attribute_types()
         try:
             if self.obj_type in ["Source", "Citation"]:
-                EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)                
+                EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.edited_attribute)
             else:
                 EditAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.edited_attribute)
         except WindowActiveError:
@@ -795,6 +795,14 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if len(self.obj.get_url_list()) > 0:
             menu = Gtk.Menu()
             menu.add(self._menu_item("list-add", _("Add new url"), self.add_url))
+            submenu = Gtk.Menu()
+            for url in self.obj.get_url_list():
+                text = url.get_description()
+                if not text:
+                    text = url.get_path()
+                if text:
+                    submenu.add(self._menu_item("gramps-url", text, self.edit_url, url))
+            menu.add(self._submenu_item("gramps-url", _("Edit urls"), submenu))
             menu.add(Gtk.SeparatorMenuItem())
             for url in self.obj.get_url_list():
                 text = url.get_description()
@@ -803,7 +811,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 if text:
                     menu.add(self._menu_item("gramps-url", text, self.launch_url, url))
             return self._submenu_item("gramps-url", _("Urls"), menu)
-        return self._menu_item("gramps-url", _("Add url"), self.add_url)
+        return self._menu_item("gramps-url", _("Add new url"), self.add_url)
 
     def add_url(self, obj):
         """
@@ -825,6 +833,24 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 self.obj.add_url(url)
                 commit_method(self.obj, trans)
 
+    def edit_url(self, obj, url):
+        """
+        Edit a url.
+        """
+        try:
+            EditUrl(self.dbstate, self.uistate, [], "", url, self.edited_url)
+        except WindowActiveError:
+            pass
+
+    def edited_url(self, url):
+        """
+        Finish saving an edited url.
+        """
+        if url:
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
+                commit_method(self.obj, trans)
+        
     def launch_url(self, obj, url):
         """
         Launch a url.
