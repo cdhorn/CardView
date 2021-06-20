@@ -288,7 +288,7 @@ class TextLink(Gtk.EventBox):
     ):
         Gtk.EventBox.__init__(self)
         self.label = Gtk.Label(hexpand=hexpand, halign=Gtk.Align.START, wrap=True)
-        self.label.set_markup(name)
+        self.label.set_markup(name.replace('&', '&amp;'))
         self.add(self.label)
         self.name = name
         if callback:
@@ -299,10 +299,10 @@ class TextLink(Gtk.EventBox):
             self.set_tooltip_text(tooltip)
 
     def enter(self, obj, event):
-        self.label.set_markup("<u>" + self.name + "</u>")
+        self.label.set_markup("<u>{}</u>".format(self.name.replace('&', '&amp;')))
 
     def leave(self, obj, event):
-        self.label.set_markup(self.name)
+        self.label.set_markup(self.name.replace('&', '&amp;'))
 
 
 class EventFormatSelector(Gtk.ComboBoxText):

@@ -107,7 +107,7 @@ class CitationGrampsFrame(GrampsFrame):
             halign=Gtk.Align.START,
             justify=Gtk.Justification.LEFT,
         )
-        title.set_markup("<b>" + self.source.title + "</b>")
+        title.set_markup("<b>{}</b>".format(self.source.title.replace('&', '&amp;')))
         data.pack_start(title, True, False, 0)
 
         if self.source.author:

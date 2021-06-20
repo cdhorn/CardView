@@ -179,7 +179,7 @@ class GrampsConfig:
                 justify=Gtk.Justification.RIGHT,
                 wrap=True,
             )
-        label.set_markup(self.markup.format(text))
+        label.set_markup(self.markup.format(text.replace('&', '&amp;')))
         return label
 
     def confirm_action(self, title, message):
@@ -379,7 +379,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build the label for a gramps id including lock icon if object marked private.
         """
-        label = Gtk.Label(use_markup=True, label=self.markup.format(self.obj.gramps_id))
+        label = Gtk.Label(use_markup=True, label=self.markup.format(self.obj.gramps_id.replace('&', '&amp;')))
         hbox = Gtk.HBox()
         hbox.pack_end(label, False, False, 0)
         if self.obj.private:
