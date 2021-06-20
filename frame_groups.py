@@ -205,18 +205,21 @@ def get_citation_profiles(dbstate, uistate, person, router, config=None):
         "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
     }
+
     citation_handles = person.get_citation_list()
     if config.get("preferences.profile.person.citation.include-indirect"):
         for item in person.get_citation_child_list():
             for handle in item.get_citation_list():
                 if handle not in citation_handles:
                     citation_handles.append(handle)
+
     if config.get("preferences.profile.person.citation.include-family"):
         for family_handle in person.get_family_handle_list():
             family = dbstate.db.get_family_from_handle(family_handle)
             for handle in family.get_citation_list():
                 if handle not in citation_handles:
                     citation_handles.append(handle)
+
             if config.get("preferences.profile.person.citation.include-family-indirect"):
                 for item in family.get_citation_child_list():
                     for handle in item.get_citation_list():

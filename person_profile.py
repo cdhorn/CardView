@@ -555,7 +555,9 @@ class PersonProfileView(NavigationView):
         self.child = None
         self.scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
         self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.scroll.add_with_viewport(self.vbox)
+        self.viewport = Gtk.Viewport()
+        self.viewport.add(self.vbox)
+        self.scroll.add(self.viewport)
         container.pack_start(self.header, False, False, 0)
         container.pack_end(self.scroll, True, True, 0)
         return container

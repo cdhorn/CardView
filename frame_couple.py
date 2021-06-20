@@ -88,9 +88,9 @@ class CoupleGrampsFrame(GrampsFrame):
         self.body.add(self.section)
 
         self.groups = {
-            "image": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
-            "data": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL),
+            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
         partner1, partner2 = self._get_parents()
         profile = self._get_profile(partner1)
