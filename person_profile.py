@@ -240,6 +240,7 @@ class PersonProfileView(NavigationView):
         # citation
         ("preferences.profile.person.citation.show-confidence", True),
         ("preferences.profile.person.citation.show-publisher", True),
+        ("preferences.profile.person.citation.sort-by-date", False),
         ("preferences.profile.person.citation.show-image", True),
         ("preferences.profile.person.citation.show-image-first", False),
         ("preferences.profile.person.citation.show-image-large", False),
@@ -1716,11 +1717,17 @@ class PersonProfileView(NavigationView):
             5,
             "preferences.profile.person.citation.show-image-first",
         )
-        configdialog.add_text(grid, _("Attributes"), 6, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Sort citations by date"),
+            6,
+            "preferences.profile.person.citation.sort-by-date",
+        )
+        configdialog.add_text(grid, _("Attributes"), 7, bold=True)
         configdialog.add_checkbox(
             grid,
             _("Show confidence rating"),
-            7,
+            8,
             "preferences.profile.person.citation.show-confidence",
         )
         return _("Citations"), grid

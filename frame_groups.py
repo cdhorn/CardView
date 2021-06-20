@@ -205,23 +205,28 @@ def get_citation_profiles(dbstate, uistate, person, router, config=None):
         "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
     }
-    for handle in person.citation_list:
-        if citations is None:
-            citations = Gtk.Expander(expanded=True, use_markup=True)
-            citations.set_label("<small><b>{}</b></small>".format(_("Cited Sources")))
-            elements = Gtk.VBox(spacing=6)
-            citations.add(elements)
-        citation = dbstate.db.get_citation_from_handle(handle)
-        placard = CitationGrampsFrame(
-            dbstate,
-            uistate,
-            citation,
-            "preferences.profile.person",
-            config,
-            router,
-            groups=groups,
-        )
-        elements.pack_start(placard, True, True, 0)
+    citation_list = []
+    for handle in person.get_citation_list():
+        citation_list.append(dbstate.db.get_citation_from_handle(handle))
+
+    if citation_list:
+        if config.get("preferences.profile.person.citation.sort-by-date"):
+            citation_list.sort(key=lambda x: x.get_date_object().get_sort_value())
+        citations = Gtk.Expander(expanded=True, use_markup=True)
+        citations.set_label("<small><b>{}</b></small>".format(_("Cited Sources")))
+        elements = Gtk.VBox(spacing=6)
+        citations.add(elements)
+        for citation in citation_list:
+            placard = CitationGrampsFrame(
+                dbstate,
+                uistate,
+                citation,
+                "preferences.profile.person",
+                config,
+                router,
+                groups=groups,
+            )
+            elements.pack_start(placard, True, True, 0)
     return citations
 
 
