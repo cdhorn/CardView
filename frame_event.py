@@ -40,6 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import EventType, EventRoleType, Span
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
+from gramps.gen.utils.alive import probably_alive
 
 
 # ------------------------------------------------------------------------
@@ -48,8 +49,15 @@ from gramps.gen.display.place import displayer as place_displayer
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
-from frame_utils import get_confidence, TextLink, get_key_person_events
-from timeline import RELATIVES
+from frame_utils import (
+    get_confidence,
+    get_confidence_color_css,
+    get_event_category_color_css,
+    get_key_person_events,
+    get_person_color_css,
+    get_relationship_color_css,
+    TextLink,
+)
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -79,13 +87,16 @@ class EventGrampsFrame(GrampsFrame):
         event,
         event_person,
         relation_to_reference,
+        category=None,
         groups=None,
     ):
         GrampsFrame.__init__(self, dbstate, uistate, router, space, config, event, "timeline")
         self.event = event
+        self.event_category = category
         self.reference_person = reference_person
         self.event_person = event_person
         self.relation_to_reference = relation_to_reference
+        self.confidence = 0
 
         if self.option(self.context, "show-image"):
             self.load_image(groups)
@@ -114,9 +125,12 @@ class EventGrampsFrame(GrampsFrame):
                 span = Span(birth.date, event.date)
                 if span.is_valid():
                     year = event.date.get_year()
-                    precision = global_config.get("preferences.age-display-precision")
-                    age = str(span.format(precision=precision).strip("()"))
-                    text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                    if birth.handle == event.handle:
+                        text = "<b>{}</b>".format(year)
+                    else:
+                        precision = global_config.get("preferences.age-display-precision")
+                        age = str(span.format(precision=precision).strip("()"))
+                        text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
                     label = Gtk.Label(
                         label=self.markup.format(text),
                         use_markup=True,
@@ -214,15 +228,14 @@ class EventGrampsFrame(GrampsFrame):
         Generate textual description for confidence, source and citation counts.
         """
         sources = []
-        confidence = 0
         citations = len(self.event.citation_list)
         if self.event.citation_list:
             for handle in self.event.citation_list:
                 citation = self.dbstate.db.get_citation_from_handle(handle)
                 if citation.source_handle not in sources:
                     sources.append(citation.source_handle)
-                if citation.confidence > confidence:
-                    confidence = citation.confidence
+                if citation.confidence > self.confidence:
+                    self.confidence = citation.confidence
 
         if sources:
             if len(sources) == 1:
@@ -240,7 +253,7 @@ class EventGrampsFrame(GrampsFrame):
         else:
             citation_text = _("No Citations")
 
-        return source_text, citation_text, get_confidence(confidence)
+        return source_text, citation_text, get_confidence(self.confidence)
 
     def get_color_css(self):
         """
@@ -251,27 +264,13 @@ class EventGrampsFrame(GrampsFrame):
         ):
             return ""
 
-        key = None
-        if self.relation_to_reference == "self":
-            key = "active"
-        else:
-            for relative in RELATIVES:
-                if relative in ["wife", "husband"]:
-                    if "spouse" in self.relation_to_reference:
-                        key = "spouse"
-                elif relative in self.relation_to_reference:
-                    key = relative
-                    break
-        if not key:
-            return ""
-        
-        background_color = self.config.get("preferences.profile.colors.relations.{}".format(key))
-        border_color = self.config.get("preferences.profile.colors.relations.border-{}".format(key))
-        
-        scheme = global_config.get("colors.scheme")
-        css = ""
-        if background_color:
-            css = "background-color: {};".format(background_color[scheme])
-        if border_color:
-            css = "{} border-color: {};".format(css, border_color[scheme])
-        return css        
+        scheme = self.option("timeline", "color-scheme")
+        if scheme == 1:
+            return get_relationship_color_css(self.relation_to_reference, self.config)
+        if scheme == 2:
+            return get_event_category_color_css(self.event_category, self.config)
+        if scheme == 3:
+            return get_confidence_color_css(self.confidence, self.config)
+
+        living = probably_alive(self.event_person, self.dbstate.db)
+        return get_person_color_css(self.event_person, self.config, living=living)

@@ -112,7 +112,7 @@ from frame_groups import (
     get_timeline_profiles,
 )
 from frame_person import PersonGrampsFrame
-from frame_utils import EventFormatSelector, TagModeSelector
+from frame_utils import ColorSchemeSelector, EventFormatSelector, TagModeSelector
 
 
 class PersonProfileView(NavigationView):
@@ -198,6 +198,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.sibling.tag-format", 1),
         ("preferences.profile.person.sibling.tag-width", 2),
         # timeline
+        ("preferences.profile.person.timeline.color-scheme", 1),
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
@@ -272,6 +273,7 @@ class PersonProfileView(NavigationView):
         ('preferences.profile.colors.relations.sister', ["#eeeeee","#454545"]),
         ('preferences.profile.colors.relations.son', ["#eeeeee","#454545"]),
         ('preferences.profile.colors.relations.daughter', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.relations.none', ["#eeeeee","#454545"]),
         ('preferences.profile.colors.relations.border-active', ["#cccccc","#000000"]),
         ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#000000"]),
         ('preferences.profile.colors.relations.border-father', ["#cccccc","#000000"]),
@@ -280,6 +282,28 @@ class PersonProfileView(NavigationView):
         ('preferences.profile.colors.relations.border-sister', ["#cccccc","#000000"]),
         ('preferences.profile.colors.relations.border-son', ["#cccccc","#000000"]),
         ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.relations.border-none', ["#cccccc","#000000"]),
+        # event category color scheme
+        ('preferences.profile.colors.events.vital', ["#bbe68e","#304918"]),
+        ('preferences.profile.colors.events.family', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.religious', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.vocational', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.academic', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.travel', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.legal', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.residence', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.other', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.custom', ["#eeeeee","#454545"]),
+        ('preferences.profile.colors.events.border-vital', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-family', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-religious', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-vocational', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-academic', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-travel', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-legal', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-residence', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-other', ["#cccccc","#000000"]),
+        ('preferences.profile.colors.events.border-custom', ["#cccccc","#000000"]),
     )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
@@ -1446,62 +1470,70 @@ class PersonProfileView(NavigationView):
         grid1 = self.create_grid()
         grid1.set_column_homogeneous(False)
         configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
+        color_scheme = ColorSchemeSelector(
+            "preferences.profile.person.timeline.color-scheme", self._config
+        )
+        label = Gtk.Label(
+            halign=Gtk.Align.START, label="{}: ".format(_("Color scheme to apply"))
+        )
+        grid1.attach(label, 1, 1, 1, 1)
+        grid1.attach(color_scheme, 2, 1, 1, 1)
         tag_mode = TagModeSelector(
             "preferences.profile.person.timeline.tag-format", self._config
         )
         label = Gtk.Label(
             halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
         )
-        grid1.attach(label, 1, 1, 1, 1)
-        grid1.attach(tag_mode, 2, 1, 1, 1)
+        grid1.attach(label, 1, 2, 1, 1)
+        grid1.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
             grid1,
             _("Maximum tags per line"),
-            2,
+            3,
             "preferences.profile.person.timeline.tag-width",
             (1, 6),
         )
         configdialog.add_checkbox(
-            grid1, _("Show age"), 3, "preferences.profile.person.timeline.show-age"
+            grid1, _("Show age"), 4, "preferences.profile.person.timeline.show-age"
         )
         configdialog.add_checkbox(
-            grid1, _("Show image"), 4, "preferences.profile.person.timeline.show-image"
+            grid1, _("Show image"), 5, "preferences.profile.person.timeline.show-image"
         )
         configdialog.add_checkbox(
             grid1,
             _("Use large image format"),
-            5,
+            6,
             "preferences.profile.person.timeline.show-image-large",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show image first on left hand side"),
-            6,
+            7,
             "preferences.profile.person.timeline.show-image-first",
         )
-        configdialog.add_text(grid1, _("Display Attributes"), 7, bold=True)
+        configdialog.add_text(grid1, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
             grid1,
             _("Show description"),
-            8,
+            9,
             "preferences.profile.person.timeline.show-description",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show source count"),
-            9,
+            10,
             "preferences.profile.person.timeline.show-source-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show citation count"),
-            10,
+            11,
             "preferences.profile.person.timeline.show-citation-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show best confidence rating"),
-            11,
+            12,
             "preferences.profile.person.timeline.show-best-confidence",
         )
         grid2 = self.create_grid()
@@ -1569,7 +1601,7 @@ class PersonProfileView(NavigationView):
         )
         grid3 = self.create_grid()
         grid3.set_column_homogeneous(False)
-        configdialog.add_text(grid3, _("Relation Filters"), 0, bold=True)
+        configdialog.add_text(grid3, _("Relationship Filters"), 0, bold=True)
         configdialog.add_spinner(
             grid3,
             _("Generations of ancestors to examine"),
@@ -1634,7 +1666,7 @@ class PersonProfileView(NavigationView):
         )
         grid4 = self.create_grid()
         grid4.set_column_homogeneous(False)
-        configdialog.add_text(grid4, _("Relation Category Filters"), 0, bold=True)
+        configdialog.add_text(grid4, _("Relationship Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
             grid4,
             _("Show vital"),
@@ -1790,9 +1822,11 @@ class PersonProfileView(NavigationView):
         """
         grid = self.create_grid()
         configdialog.add_text(grid, _("See global preferences for option to switch between light and dark color schemes"), 0, bold=True)
+        configdialog.add_text(grid, _("The default Gramps person color scheme is also managed under global preferences"), 1, bold=True)
 
         color_type = {'Confidence': _('Confidence color scheme'),
-                      'Relation': _('Relation color scheme')}
+                      'Relation': _('Relationship color scheme'),
+                      'Event': _('Event category color scheme')}
 
         # for confidence scheme
         bg_very_high_text = _('Background for Very High')
@@ -1815,6 +1849,7 @@ class PersonProfileView(NavigationView):
         bg_sister = _('Background for Sister')
         bg_son = _('Background for Son')
         bg_daughter = _('Background for Daughter')
+        bg_none = _('Background for None')
         brd_active = _('Border for Active Person')
         brd_spouse = _('Border for Spouse')
         brd_father = _('Border for Father')
@@ -1823,7 +1858,30 @@ class PersonProfileView(NavigationView):
         brd_sister = _('Border for Sister')
         brd_son = _('Border for Son')
         brd_daughter = _('Border for Daughter')
+        brd_none = _('Border for None')
 
+        # for event category scheme
+        bg_vital = _('Background for Vital Events')
+        bg_family = _('Background for Family Events')
+        bg_religious = _('Background for Religious Events')
+        bg_vocational = _('Background for Vocational Events')
+        bg_academic = _('Background for Academic Events')
+        bg_travel = _('Background for Travel Events')
+        bg_legal = _('Background for Legal Events')
+        bg_residence = _('Background for Residence Events')
+        bg_other = _('Background for Other Events')
+        bg_custom = _('Background for Custom Events')
+        brd_vital = _('Border for Vital Events')
+        brd_family = _('Border for Family Events')
+        brd_religious = _('Border for Religious Events')
+        brd_vocational = _('Border for Vocational Events')
+        brd_academic = _('Border for Academic Events')
+        brd_travel = _('Border for Travel Events')
+        brd_legal = _('Border for Legal Events')
+        brd_residence = _('Border for Residence Events')
+        brd_other = _('Border for Other Events')
+        brd_custom = _('Border for Custom Events')
+        
         # color label, config constant, group grid row, column, color type
         color_list = [
             # for confidence scheme
@@ -1847,6 +1905,7 @@ class PersonProfileView(NavigationView):
             (bg_sister, 'preferences.profile.colors.relations.sister', 6, 1, 'Relation'),
             (bg_son, 'preferences.profile.colors.relations.son', 7, 1, 'Relation'),
             (bg_daughter, 'preferences.profile.colors.relations.daughter', 8, 1, 'Relation'),
+            (bg_none, 'preferences.profile.colors.relations.none', 9, 1, 'Relation'),
             (brd_active, 'preferences.profile.colors.relations.border-active', 1, 4, 'Relation'),
             (brd_spouse, 'preferences.profile.colors.relations.border-spouse', 2, 4, 'Relation'),
             (brd_father, 'preferences.profile.colors.relations.border-father', 3, 4, 'Relation'),
@@ -1855,6 +1914,29 @@ class PersonProfileView(NavigationView):
             (brd_sister, 'preferences.profile.colors.relations.border-sister', 6, 4, 'Relation'),
             (brd_son, 'preferences.profile.colors.relations.border-son', 7, 4, 'Relation'),
             (brd_daughter, 'preferences.profile.colors.relations.border-daughter', 8, 4, 'Relation'),
+            (brd_none, 'preferences.profile.colors.relations.border-none', 9, 4, 'Relation'),
+
+            # for event category scheme
+            (bg_vital, 'preferences.profile.colors.events.vital', 1, 1, 'Event'),
+            (bg_family, 'preferences.profile.colors.events.family', 2, 1, 'Event'),
+            (bg_religious, 'preferences.profile.colors.events.religious', 3, 1, 'Event'),
+            (bg_vocational, 'preferences.profile.colors.events.vocational', 4, 1, 'Event'),
+            (bg_academic, 'preferences.profile.colors.events.academic', 5, 1, 'Event'),
+            (bg_travel, 'preferences.profile.colors.events.travel', 6, 1, 'Event'),
+            (bg_legal, 'preferences.profile.colors.events.legal', 7, 1, 'Event'),
+            (bg_residence, 'preferences.profile.colors.events.residence', 8, 1, 'Event'),
+            (bg_other, 'preferences.profile.colors.events.other', 9, 1, 'Event'),
+            (bg_custom, 'preferences.profile.colors.events.custom', 10, 1, 'Event'),
+            (brd_vital, 'preferences.profile.colors.events.border-vital', 1, 4, 'Event'),
+            (brd_family, 'preferences.profile.colors.events.border-family', 2, 4, 'Event'),
+            (brd_religious, 'preferences.profile.colors.events.border-religious', 3, 4, 'Event'),
+            (brd_vocational, 'preferences.profile.colors.events.border-vocational', 4, 4, 'Event'),
+            (brd_academic, 'preferences.profile.colors.events.border-academic', 5, 4, 'Event'),
+            (brd_travel, 'preferences.profile.colors.events.border-travel', 6, 4, 'Event'),
+            (brd_legal, 'preferences.profile.colors.events.border-legal', 7, 4, 'Event'),
+            (brd_residence, 'preferences.profile.colors.events.border-residence', 8, 4, 'Event'),
+            (brd_other, 'preferences.profile.colors.events.border-other', 9, 4, 'Event'),
+            (brd_custom, 'preferences.profile.colors.events.border-custom', 10, 4, 'Event'),
             ]
 
         # prepare scrolled window for colors settings

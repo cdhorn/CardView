@@ -118,6 +118,7 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                 timeline_event[0],
                 timeline_event[1],
                 timeline_event[2],
+                category=timeline_event[3],
                 groups=groups,
             )
             self.pack_start(event_frame, False, False, 0)

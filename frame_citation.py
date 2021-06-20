@@ -47,7 +47,7 @@ from gramps.gen.lib import Citation
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
-from frame_utils import get_confidence, _CONFIDENCE
+from frame_utils import _CONFIDENCE, get_confidence, get_confidence_color_css
 
 
 # ------------------------------------------------------------------------
@@ -63,14 +63,6 @@ except ValueError:
 _ = _trans.gettext
 
 pd = PlaceDisplay()
-
-CONFIDENCE_COLOR_SCHEME = {
-    Citation.CONF_VERY_LOW: "very-low",
-    Citation.CONF_LOW: "low",
-    Citation.CONF_NORMAL: "normal",
-    Citation.CONF_HIGH: "high",
-    Citation.CONF_VERY_HIGH: "very-high",
-}    
 
 
 # ------------------------------------------------------------------------
@@ -155,19 +147,8 @@ class CitationGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get(
-                "preferences.profile.person.layout.use-color-scheme"
-        ):
+        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
             return ""
-        
-        key = CONFIDENCE_COLOR_SCHEME[self.obj.confidence]
-        background_color = self.config.get("preferences.profile.colors.confidence.{}".format(key))
-        border_color = self.config.get("preferences.profile.colors.confidence.border-{}".format(key))
-        
-        scheme = global_config.get("colors.scheme")
-        css = ""
-        if background_color:
-            css = "background-color: {};".format(background_color[scheme])
-        if border_color:
-            css = "{} border-color: {};".format(css, border_color[scheme])
-        return css        
+
+        return get_confidence_color_css(self.obj.confidence, self.config)
+

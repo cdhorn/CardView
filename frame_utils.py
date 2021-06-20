@@ -36,6 +36,7 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import (
     EventType,
@@ -51,6 +52,8 @@ from gramps.gen.relationship import get_relationship_calculator
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from timeline import EVENT_CATEGORIES, RELATIVES
+
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
@@ -81,7 +84,26 @@ EVENT_FORMATS = {
     6: _("Abbreviated split line"),
 }
 
-TAG_MODES = {0: _("Disabled"), 1: _("Show icons"), 2: _("Show tag names")}
+COLOR_SCHEMES = {
+    0: _("Person scheme"),
+    1: _("Relationship scheme"),
+    2: _("Event category scheme"),
+    3: _("Evidence confidence scheme")
+}
+
+CONFIDENCE_COLOR_SCHEME = {
+    Citation.CONF_VERY_LOW: "very-low",
+    Citation.CONF_LOW: "low",
+    Citation.CONF_NORMAL: "normal",
+    Citation.CONF_HIGH: "high",
+    Citation.CONF_VERY_HIGH: "very-high",
+}
+
+TAG_MODES = {
+    0: _("Disabled"),
+    1: _("Show icons"),
+    2: _("Show tag names")
+}
 
 pd = PlaceDisplay()
 
@@ -90,22 +112,16 @@ def format_date_string(event1, event2):
     """
     Format a simple one line date string.
     """
-    date1 = None
-    if event1:
-        date1 = glocale.date_displayer.display(event1.date)
-    date2 = None
-    if event2:
-        date2 = glocale.date_displayer.display(event2.date)
-
     text = ""
-    if date1:
-        text = "{} ".format(date1.strip())
-    text = text + "-"
-    if date2:
-        text = "{} {}".format(text, date2.strip())
-    if text != "-":
-        return text
-    return ""
+    if event1:
+        text = glocale.date_displayer.display(event1.date)
+    text = "{} - ".format(text)
+    if event2:
+        text = "{}{}".format(text, glocale.date_displayer.display(event2.date))
+    text.strip()
+    if text == "-":
+        return ""
+    return text
 
 
 def get_relation(db, person, relation, depth=15):
@@ -343,3 +359,138 @@ class TagModeSelector(Gtk.ComboBoxText):
     def update(self, obj):
         current = self.get_active()
         self.config.set(self.option, current)
+
+
+class ColorSchemeSelector(Gtk.ComboBoxText):
+    """
+    A color scheme selector for the configdialog.
+    """
+
+    def __init__(self, option, config):
+        Gtk.ComboBoxText.__init__(self)
+        self.option = option
+        self.config = config
+        for key in COLOR_SCHEMES:
+            self.append_text(COLOR_SCHEMES[key])
+        current = self.config.get(self.option)
+        self.set_active(current)
+        self.connect("changed", self.update)
+
+    def update(self, obj):
+        current = self.get_active()
+        self.config.set(self.option, current)
+
+
+def format_color_css(background, border):
+    """
+    Return a formatted css color string.
+    """
+    scheme = global_config.get("colors.scheme")
+    css = ""
+    if background:
+        css = "background-color: {};".format(background[scheme])
+    if border:
+        css = "{} border-color: {};".format(css, border[scheme])
+    return css
+
+
+def get_confidence_color_css(index, config):
+    """
+    Return css color string based on confidence rating.
+    """
+    if not index and index != 0:
+        return ""
+
+    key = CONFIDENCE_COLOR_SCHEME[index]
+    background = config.get("preferences.profile.colors.confidence.{}".format(key))
+    border = config.get("preferences.profile.colors.confidence.border-{}".format(key))
+    return format_color_css(background, border)
+
+
+def get_relationship_color_css(index, config):
+    """
+    Return css color string based on relationship.
+    """
+    if not index:
+        return ""
+
+    key = None
+    if index == "self":
+        key = "active"
+    else:
+        key = "none"
+        for relative in RELATIVES:
+            if relative in ["wife", "husband"]:
+                if "spouse" in index:
+                    key = "spouse"
+            elif relative in index:
+                key = relative
+                break
+
+    background = config.get("preferences.profile.colors.relations.{}".format(key))
+    border = config.get("preferences.profile.colors.relations.border-{}".format(key))
+    return format_color_css(background, border)
+
+
+def get_event_category_color_css(index, config):
+    """
+    Return css color string based on event category.
+    """
+    if not index:
+        return ""
+
+    background = config.get("preferences.profile.colors.events.{}".format(index))
+    border = config.get("preferences.profile.colors.events.border-{}".format(index))
+    return format_color_css(background, border)
+
+
+def get_person_color_css(person, config, living=False, home=None):
+    """
+    Return css color string based on person information.
+    """
+    if not person:
+        return ""
+        
+    if person.gender == Person.MALE:
+        key = "male"
+    elif person.gender == Person.FEMALE:
+        key = "female"
+    else:
+        key = "unknown"
+    if living:
+        value = "alive"
+    else:
+        value = "dead"
+
+    border = global_config.get("colors.border-{}-{}".format(key, value))
+    if home and home.handle == person.handle:
+        key = "home"
+        value = "person"
+    background = global_config.get("colors.{}-{}".format(key, value))
+    return format_color_css(background, border)
+
+
+def get_family_color_css(family, config, divorced=False):
+    """
+    Return css color string based on family information.
+    """
+    background = global_config.get("colors.family")
+    border = global_config.get("colors.border-family")
+
+    if family and family.type is not None:
+        key = family.type.value
+        if divorced:
+            border = global_config.get("colors.border-family-divorced")
+            key = 99
+        values = {
+            0: "-married",
+            1: "-unmarried",
+            2: "-civil-union",
+            3: "-unknown",
+            4: "",
+            99: "-divorced",
+        }
+        background = global_config.get(
+            "colors.family{}".format(values[key])
+        )
+    return format_color_css(background, border)

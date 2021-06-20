@@ -73,7 +73,7 @@ EVENT_CATEGORIES = [
 
 # A timeline item is a tuple of following format:
 #
-# (Event, Person, relationship)
+# (Event, Person, relationship, category)
 #
 # A timeline may or may not have a reference person. If it does then relationships
 # are calculated with respect to them.
@@ -226,6 +226,22 @@ class Timeline:
                 eligible_events.add(event_name)
         return eligible_events
 
+    def get_category(self, event):
+        """
+        Return the category for groupig the event.
+        """
+        event_type = event.get_type()
+        for entry in event_type.get_menu_standard_xml():
+            event_key = entry[0].lower().replace("life events", "vital")
+            for event_id in entry[1]:
+                if event_type == event_id:
+                    return event_key
+        custom_event_types = self.db_handle.get_event_types()
+        for event_name in custom_event_types:
+            if event_type.get_value() == event_name:
+                return "custom"
+        return "other"
+        
     def get_age(self, start_date, date):
         """
         Return the calculated age or an empty string otherwise.
@@ -282,7 +298,7 @@ class Timeline:
             if self.end_date:
                 if keyed_event[0] > self.end_date.sortval:
                     continue
-            self.timeline.append((keyed_event[0], (keyed_event[1], person, relation)))
+            self.timeline.append((keyed_event[0], (keyed_event[1], person, relation, self.get_category(keyed_event[1]))))
             self.cached_events.append(keyed_event[1].handle)
 
     def prepare_event_sortvals(self, events, family = None):

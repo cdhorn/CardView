@@ -68,10 +68,11 @@ from gramps.gui.selectors import SelectorFactory
 from frame_base import GrampsFrame
 from frame_utils import (
     _GENDERS,
-    get_relation,
-    get_key_person_events,
-    TextLink,
     format_date_string,
+    get_key_person_events,
+    get_person_color_css,
+    get_relation,
+    TextLink,
 )
 
 try:
@@ -412,31 +413,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get(
-                "preferences.profile.person.layout.use-color-scheme"
-        ):
+        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
             return ""
-        
-        if self.obj.gender == Person.MALE:
-            key = "male"
-        elif self.obj.gender == Person.FEMALE:
-            key = "female"
-        else:
-            key = "unknown"
-        if self.living:
-            value = "alive"
-        else:
-            value = "dead"
-        border_color = global_config.get("colors.border-{}-{}".format(key, value))
-        if self.relation and self.relation.handle == self.obj.handle:
-            key = "home"
-            value = "person"
-        background_color = global_config.get("colors.{}-{}".format(key, value))
 
-        scheme = global_config.get("colors.scheme")
-        css = ""
-        if background_color:
-            css = "background-color: {};".format(background_color[scheme])
-        if border_color:
-            css = "{} border-color: {};".format(css, border_color[scheme])
-        return css
+        return get_person_color_css(self.obj, self.config, living=self.living, home=self.relation)

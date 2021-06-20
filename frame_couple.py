@@ -46,14 +46,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from frame_base import GrampsFrame
 from frame_person import PersonGrampsFrame
-from frame_utils import get_key_family_events
+from frame_utils import get_family_color_css, get_key_family_events
 
-
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
@@ -192,34 +186,7 @@ class CoupleGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get(
-                "preferences.profile.person.layout.use-color-scheme"
-        ):
+        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
             return ""
 
-        background_color = global_config.get("colors.family")
-        border_color = global_config.get("colors.border-family")
-        if self.obj.type is not None or self.divorced is not None:
-            key = self.obj.type.value
-            if self.divorced is not None and self.divorced:
-                border_color = global_config.get("colors.border-family-divorced")
-                key = 99
-            values = {
-                0: "-married",
-                1: "-unmarried",
-                2: "-civil-union",
-                3: "-unknown",
-                4: "",
-                99: "-divorced",
-            }
-            background_color = global_config.get(
-                "colors.family{}".format(values[key])
-            )
-
-        scheme = global_config.get("colors.scheme")
-        css = ""
-        if background_color:
-            css = "background-color: {};".format(background_color[scheme])
-        if border_color:
-            css = "{} border-color: {};".format(css, border_color[scheme])
-        return css
+        return get_family_color_css(self.obj, self.config, divorced=self.divorced)
