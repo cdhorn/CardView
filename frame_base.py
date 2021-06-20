@@ -490,6 +490,23 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         For derived objects that may wish to provide an action for a left click.
         """
         
+    def _menu_item(self, icon, label, callback, data1=None, data2=None):
+        image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
+        if data2 is not None:
+            item.connect("activate", callback, data1, data2)
+        elif data1 is not None:
+            item.connect("activate", callback, data1)
+        else:
+            item.connect("activate", callback)
+        return item
+
+    def _submenu_item(self, icon, label, menu):
+        image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
+        item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
+        item.set_submenu(menu)
+        return item
+
     def _edit_object_option(self):
         """
         Construct the edit object menu option.
@@ -498,12 +515,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             name = _("Edit %s") % name_displayer.display(self.obj)
         else:
             name = _("Edit {}".format(self.obj_type.lower()))
-        image = Gtk.Image.new_from_icon_name("gtk-edit", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=name)
-        item.connect("activate", self.edit_object)
-        return item
+        return self._menu_item("gtk-edit", name, self.edit_self)
 
-    def edit_object(self, *obj):
+    def edit_self(self, *obj):
         """
         Launch the desired editor based on object type.
         """
@@ -511,6 +525,15 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             _EDITORS[self.obj_type](self.dbstate, self.uistate, [], self.obj)
         except WindowActiveError:
             pass
+
+    def edit_object(self, skip, obj, obj_type):
+        """
+        Launch the desired editor based on object type.
+        """
+        try:
+            _EDITORS[obj_type](self.dbstate, self.uistate, [], obj)
+        except WindowActiveError:
+            pass        
 
     def _copy_to_clipboard_option(self):
         """
@@ -534,18 +557,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Construct the privacy menu option based on the current state.
         """
         if self.obj.private:
-            image = Gtk.Image.new_from_icon_name("gramps-unlock", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Make public")
-            )
-            item.connect("activate", self.change_privacy, False)
-        else:
-            image = Gtk.Image.new_from_icon_name("gramps-lock", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Make private")
-            )
-            item.connect("activate", self.change_privacy, True)
-        return item
+            return self._menu_item("gramps-unlock", _("Make public"), self.change_privacy, False)
+        return self._menu_item("gramps-lock", _("Make private"), self.change_privacy, True)
 
     def change_privacy(self, obj, mode):
         """
@@ -562,45 +575,45 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         If applicable generate menu option for tag addition with available tags.
         """
-        tag_menu = Gtk.Menu()
-        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-        tag_menu_item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Add new tag")
-        )
-        tag_menu.add(tag_menu_item)
-        tag_menu_item.connect("activate", self.new_tag)
-        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-        tag_menu_item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Organize tags")
-        )
-        tag_menu.add(tag_menu_item)
-        tag_menu_item.connect("activate", self.organize_tags)
+        menu = Gtk.Menu()
+        menu.add(self._menu_item("gramps-tag", _("Create new tag"), self.new_tag))
+        menu.add(self._menu_item("gramps-tag", _("Organize tags"), self.organize_tags))
         tag_list = self.dbstate.db.get_tag_handles()
         if len(tag_list) > 0:
+            tag_add_list = []
+            tag_remove_list = []
             for handle in tag_list:
-                if handle not in self.obj.tag_list:
-                    tag = self.dbstate.db.get_tag_from_handle(handle)
-                    image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
-                    tag_menu_item = Gtk.ImageMenuItem(
-                        always_show_image=True, image=image, label=tag.name
-                    )
-                    tag_menu.add(tag_menu_item)
-                    tag_menu_item.connect("activate", self.add_tag, tag.handle)
-            for handle in self.dbstate.db.get_tag_handles():
                 if handle in self.obj.tag_list:
+                    tag_remove_list.append(handle)
+                else:
+                    tag_add_list.append(handle)
+            separate = False
+            if len(tag_list) > 10:
+                separate = True
+            if tag_add_list and not tag_remove_list:
+                separate = False
+            if tag_remove_list and not tag_add_list:
+                separate = False
+            if separate:
+                add_menu = Gtk.Menu()
+                for handle in tag_add_list:
                     tag = self.dbstate.db.get_tag_from_handle(handle)
-                    image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
-                    tag_menu_item = Gtk.ImageMenuItem(
-                        always_show_image=True, image=image, label=tag.name
-                    )
-                    tag_menu.add(tag_menu_item)
-                    tag_menu_item.connect("activate", self.remove_tag, tag.handle)
-        image = Gtk.Image.new_from_icon_name("gramps-tag", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Tags")
-        )
-        item.set_submenu(tag_menu)
-        return item
+                    add_menu.add(self._menu_item("list-add", tag.name, self.add_tag, tag.handle))
+                menu.add(self._submenu_item("gramps-tag", _("Add tag"), add_menu))
+                remove_menu = Gtk.Menu()
+                for handle in tag_remove_list:
+                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                    remove_menu.add(self._menu_item("list-remove", tag.name, self.remove_tag, tag.handle))
+                menu.add(self._submenu_item("gramps-tag", _("Remove tag"), remove_menu))
+            else:
+                menu.add(Gtk.SeparatorMenuItem())
+                for handle in tag_add_list:
+                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                    menu.add(self._menu_item("list-add", tag.name, self.add_tag, tag.handle))
+                for handle in tag_remove_list:
+                    tag = self.dbstate.db.get_tag_from_handle(handle)
+                    menu.add(self._menu_item("list-remove", tag.name, self.remove_tag, tag.handle))
+        return self._submenu_item("gramps-tag", _("Tags"), menu)
 
     def new_tag(self, obj):
         """
@@ -644,38 +657,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Build note option menu. We support add new under that as well as edit existing.
         """
         if len(self.obj.get_note_list()) > 0:
-            note_submenu = Gtk.Menu()
-            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
-            note_submenu_item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add new note")
-            )
-            note_submenu.add(note_submenu_item)
-            note_submenu_item.connect("activate", self.add_note)
+            menu = Gtk.Menu()
+            menu.add(self._menu_item("list-add", _("Add new note"), self.add_note))
+            menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.get_note_list():
                 note = self.dbstate.db.get_note_from_handle(handle)
                 text = note.get()[:85].replace('\n', ' ')
                 if len(text) > 80:
                     text = text[:80]+"..."
-                image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
-                note_submenu_item = Gtk.ImageMenuItem(
-                    always_show_image=True, image=image, label=text
-                )
-                note_submenu.add(note_submenu_item)
-                note_submenu_item.connect("activate", self.edit_note, note.handle)
-            image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Notes")
-            )
-            item.set_submenu(note_submenu)
-            return item
-        else:
-            image = Gtk.Image.new_from_icon_name("gramps-notes", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add note")
-            )
-            item.connect("activate", self.add_note)
-            return item
-        return None
+                menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
+            return self._submenu_item("gramps-notes", _("Notes"), menu)
+        return self._menu_item("gramps-notes", _("Add new note"), self.add_note)
 
     def add_note(self, obj):
         """
@@ -712,37 +704,16 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Build attributes option menu. We support add new under that as well as edit existing.
         """
         if len(self.obj.get_attribute_list()) > 0:
-            attribute_submenu = Gtk.Menu()
-            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
-            attribute_submenu_item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add new attribute")
-            )
-            attribute_submenu.add(attribute_submenu_item)
-            attribute_submenu_item.connect("activate", self.add_attribute)
+            menu = Gtk.Menu()
+            menu.add(self._menu_item("list-add", _("Add new attribute"), self.add_attribute))
+            menu.add(Gtk.SeparatorMenuItem())
             for attribute in self.obj.get_attribute_list():
                 text = "{}: {}".format(attribute.get_type(), attribute.get_value())
                 if len(text) > 80:
                     text = text[:80]+"..."
-                image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
-                attribute_submenu_item = Gtk.ImageMenuItem(
-                    always_show_image=True, image=image, label=text
-                )
-                attribute_submenu.add(attribute_submenu_item)
-                attribute_submenu_item.connect("activate", self.edit_attribute, attribute)
-            image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Attributes")
-            )
-            item.set_submenu(attribute_submenu)
-            return item
-        else:
-            image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add attribute")
-            )
-            item.connect("activate", self.add_attribute)
-            return item
-        return None
+                menu.add(self._menu_item("gramps-attribute", text, self.edit_attribute, attribute))
+            return self._submenu_item("gramps-attribute", _("Attributes"), menu)
+        return self._menu_item("gramps-attribute", _("Add attribute"), self.add_attribute)
 
     def _get_attribute_types(self):
         if self.obj_type == "Person":
@@ -814,37 +785,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if not hasattr(self.obj, "urls"):
             return None
         if len(self.obj.get_url_list()) > 0:
-            url_submenu = Gtk.Menu()
-            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
-            url_submenu_item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add new url")
-            )
-            url_submenu.add(url_submenu_item)
-            url_submenu_item.connect("activate", self.add_url)
+            menu = Gtk.Menu()
+            menu.add(self._menu_item("list-add", _("Add new url"), self.add_url))
+            menu.add(Gtk.SeparatorMenuItem())
             for url in self.obj.get_url_list():
-                image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
                 text = url.get_description()
                 if not text:
                     text = url.get_path()
-                url_submenu_item = Gtk.ImageMenuItem(
-                    always_show_image=True, image=image, label=text
-                )
-                url_submenu.add(url_submenu_item)
-                url_submenu_item.connect("activate", self.launch_url, url)
-            image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Urls")
-            )
-            item.set_submenu(url_submenu)
-            return item
-        else:
-            image = Gtk.Image.new_from_icon_name("gramps-url", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add url")
-            )
-            item.connect("activate", self.add_url)
-            return item
-        return None
+                if text:
+                    menu.add(self._menu_item("gramps-url", text, self.launch_url, url))
+            return self._submenu_item("gramps-url", _("Urls"), menu)
+        return self._menu_item("gramps-url", _("Add url"), self.add_url)
 
     def add_url(self, obj):
         """
@@ -951,14 +902,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build menu option for adding a new event for a family.
         """
-        item = None
         if self.obj_type == "Family" or self.family_backlink:
-            image = Gtk.Image.new_from_icon_name("gramps-event", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True, image=image, label=_("Add a new family event")
-            )
-            item.connect("activate", self.add_new_family_event)
-        return item
+            return self._menu_item("gramps-event", _("Add a new family event"), self.add_new_family_event)
+        return None
 
     def add_new_family_event(self, obj):
         """
@@ -997,16 +943,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build menu item for adding a new child to the family.
         """
-        item = None
         if self.obj_type == "Family" or self.family_backlink:
-            image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True,
-                image=image,
-                label=_("Add a new child to the family"),
-            )
-            item.connect("activate", self.add_new_child_to_family)
-        return item
+            return self._menu_item("gramps-person", _("Add a new child to the family"), self.add_new_child_to_family)
+        return None
 
     def add_new_child_to_family(self, *obj):
         """
@@ -1058,16 +997,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build menu item for adding existing child to the family.
         """
-        item = None
         if self.obj_type == "Family" or self.family_backlink:
-            image = Gtk.Image.new_from_icon_name("gramps-person", Gtk.IconSize.MENU)
-            item = Gtk.ImageMenuItem(
-                always_show_image=True,
-                image=image,
-                label=_("Add an existing child to the family"),
-            )
-            item.connect("activate", self.add_existing_child_to_family)
-        return item
+            return self._menu_item("gramps-person", _("Add an existing child to the family"), self.add_existing_child_to_family)
+        return None
 
     def add_existing_child_to_family(self, *obj):
         """

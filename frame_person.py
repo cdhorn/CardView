@@ -234,27 +234,20 @@ class PersonGrampsFrame(GrampsFrame):
         self.action_menu.append(self._add_new_person_event_option())
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
             self.action_menu.append(self._add_new_family_event_option())
-        if self.context in ["active"]:
-            self.action_menu.append(self._add_new_parents_option())
-            self.action_menu.append(self._add_existing_parents_option())
-            self.action_menu.append(self._add_new_family_option())
         if self.context in ["parent", "spouse"]:
             self.action_menu.append(self._add_new_child_to_family_option())
             self.action_menu.append(self._add_existing_child_to_family_option())
             self.action_menu.append(self._remove_as_parent_from_family_option())
         if self.context in ["sibling", "child"]:
             self.action_menu.append(self._remove_child_from_family_option())
+        self.action_menu.append(self._parents_option())
+        self.action_menu.append(self._partners_option())
 
     def _add_new_person_event_option(self):
         """
         Build menu item for adding a new event for a person.
         """
-        image = Gtk.Image.new_from_icon_name("gramps-event", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Add a new person event")
-        )
-        item.connect("activate", self.add_new_person_event)
-        return item
+        return self._menu_item("gramps-event", _("Add a new person event"), self.add_new_person_event)
 
     def add_new_person_event(self, obj):
         """
@@ -278,17 +271,21 @@ class PersonGrampsFrame(GrampsFrame):
         with DbTxn(_("Add person event"), self.dbstate.db) as trans:
             self.person.add_event_ref(reference)
             self.dbstate.db.commit_person(self.person, trans)
-            
-    def _add_new_parents_option(self):
+
+    def _parents_option(self):
         """
-        Build menu option for adding a set of new parents to a person.
+        Build menu option for managing parents.
         """
-        image = Gtk.Image.new_from_icon_name("gramps-parents-add", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Add a new set of parents")
-        )
-        item.connect("activate", self.add_new_parents)
-        return item
+        menu = Gtk.Menu()
+        menu.add(self._menu_item("gramps-parents-add", _("Add a new set of parents"), self.add_new_parents))
+        menu.add(self._menu_item("gramps-parents-open", _("Add as child to an existing family"), self.add_existing_parents))
+        if self.obj.parent_family_list:
+            menu.add(Gtk.SeparatorMenuItem())
+            for handle in self.obj.parent_family_list:
+                family = self.dbstate.db.get_family_from_handle(handle)
+                family_text = family_name(family, self.dbstate.db)
+                menu.add(self._menu_item("gramps-parents", family_text, self.edit_object, family, "Family"))
+        return self._submenu_item("gramps-parents", _("Parents"), menu)
 
     def add_new_parents(self, *obj):
         """
@@ -304,19 +301,6 @@ class PersonGrampsFrame(GrampsFrame):
         except WindowActiveError:
             pass
 
-    def _add_existing_parents_option(self):
-        """
-        Build menu option for adding existing parents to a person.
-        """
-        image = Gtk.Image.new_from_icon_name("gramps-parents-open", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Add as child to an existing family"),
-        )
-        item.connect("activate", self.add_existing_parents)
-        return item
-
     def add_existing_parents(self, *obj):
         """
         Add existing parents for the person.
@@ -328,18 +312,19 @@ class PersonGrampsFrame(GrampsFrame):
         if family:
             self.dbstate.db.add_child_to_family(family, self.person)
 
-    def _add_new_family_option(self):
+    def _partners_option(self):
         """
-        Build menu option for adding a person as head of a new family.
+        Build menu option for managing partners.
         """
-        image = Gtk.Image.new_from_icon_name("gramps-spouse", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Add as parent of a new family"),
-        )
-        item.connect("activate", self.add_new_family)
-        return item
+        menu = Gtk.Menu()
+        menu.add(self._menu_item("gramps-spouse", _("Add as parent of new family"), self.add_new_family))
+        if self.obj.family_list:
+            menu.add(Gtk.SeparatorMenuItem())
+            for handle in self.obj.family_list:
+                family = self.dbstate.db.get_family_from_handle(handle)
+                family_text = family_name(family, self.dbstate.db)
+                menu.add(self._menu_item("gramps-spouse", family_text, self.edit_object, family, "Family"))
+        return self._submenu_item("gramps-spouse", _("Spouses"), menu)
 
     def add_new_family(self, *obj):
         """
@@ -404,14 +389,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Build menu item for removing child from a family.
         """
-        image = Gtk.Image.new_from_icon_name("list-remove", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True,
-            image=image,
-            label=_("Remove child from this family"),
-        )
-        item.connect("activate", self.remove_child_from_family)
-        return item
+        return self._menu_item("list-remove", _("Remove child from this family"), self.remove_child_from_family)
 
     def remove_child_from_family(self, obj):
         """
