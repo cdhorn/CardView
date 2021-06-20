@@ -59,9 +59,13 @@ from gramps.gui.editors import (
     EditCitation,
     EditPlace,
     EditNote,
+    EditAttribute,
+    EditSrcAttribute
 )
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
+    Attribute,
+    SrcAttribute,
     Person,
     ChildRef,
     Family,
@@ -443,6 +447,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.action_menu = Gtk.Menu()
             self.action_menu.append(self._edit_object_option())
             self.add_custom_actions()
+            self.action_menu.append(self._attributes_option())
             self.action_menu.append(self._notes_option())
             item = self._tags_option()
             if item:
@@ -645,6 +650,106 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         except WindowActiveError:
             pass
 
+    def _attributes_option(self):
+        """
+        Build attributes option menu. We support add new under that as well as edit existing.
+        """
+        if len(self.obj.get_attribute_list()) > 0:
+            attribute_submenu = Gtk.Menu()
+            image = Gtk.Image.new_from_icon_name("list-add", Gtk.IconSize.MENU)
+            attribute_submenu_item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add new attribute")
+            )
+            attribute_submenu.add(attribute_submenu_item)
+            attribute_submenu_item.connect("activate", self.add_attribute)
+            for attribute in self.obj.get_attribute_list():
+                text = "{}: {}".format(attribute.get_type(), attribute.get_value())
+                if len(text) > 80:
+                    text = text[:80]+"..."
+                image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
+                attribute_submenu_item = Gtk.ImageMenuItem(
+                    always_show_image=True, image=image, label=text
+                )
+                attribute_submenu.add(attribute_submenu_item)
+                attribute_submenu_item.connect("activate", self.edit_attribute, attribute)
+            image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Attributes")
+            )
+            item.set_submenu(attribute_submenu)
+            return item
+        else:
+            image = Gtk.Image.new_from_icon_name("gramps-attribute", Gtk.IconSize.MENU)
+            item = Gtk.ImageMenuItem(
+                always_show_image=True, image=image, label=_("Add attribute")
+            )
+            item.connect("activate", self.add_attribute)
+            return item
+        return None
+
+    def _get_attribute_types(self):
+        if self.obj_type == "Person":
+            return self.dbstate.db.get_person_attribute_types()
+        if self.obj_type == "Family":
+            return self.dbstate.db.get_family_attribute_types()
+        if self.obj_type == "Event":
+            return self.dbstate.db.get_event_attribute_types()
+        if self.obj_type == "Media":
+            return self.dbstate.db.get_media_attribute_types()
+        if self.obj_type == "Source":
+            return self.dbstate.db.get_source_attribute_types()
+        if self.obj_type == "Citation":
+            return self.dbstate.db.get_source_attribute_types()
+        
+    def add_attribute(self, obj):
+        """
+        Add a new attribute to the active object.
+        """
+        if self.obj_type in ["Source", "Citation"]:
+            attribute = SrcAttribute()
+        else:
+            attribute = Attribute()
+        attribute_types = self._get_attribute_types()
+        try:
+            if self.obj_type in ["Source", "Citation"]:
+                EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)
+            else:
+                EditAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)
+        except WindowActiveError:
+            pass
+        
+    def added_attribute(self, attribute):
+        """
+        Finish attaching attribute to the active object."
+        """
+        if attribute:
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Attribute to %s") % self.obj_type, self.dbstate.db) as trans:
+                self.obj.add_attribute(attribute)
+                commit_method(self.obj, trans)
+
+    def edit_attribute(self, obj, attribute):
+        """
+        Edit an attribute for the active object.
+        """
+        attribute_types = self._get_attribute_types()
+        try:
+            if self.obj_type in ["Source", "Citation"]:
+                EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)                
+            else:
+                EditAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.edited_attribute)
+        except WindowActiveError:
+            pass
+
+    def edited_attribute(self, attribute):
+        """
+        Save the edited attribute for the active object."
+        """
+        if attribute:
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Updated Attribute for %s") % self.obj_type, self.dbstate.db) as trans:
+                commit_method(self.obj, trans)
+        
     def set_css_style(self):
         """
         Apply some simple styling to the frame.

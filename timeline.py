@@ -275,15 +275,12 @@ class Timeline:
                 if death and keyed_event[1].handle == death.handle:
                     override = True
                 if not override:
-                    print(relation + " not eligible " + keyed_event[1].description)
                     continue
             if self.start_date:
                 if keyed_event[0] < self.start_date.sortval:
-                    print(relation + " before start " + keyed_event[1].description)
                     continue
             if self.end_date:
                 if keyed_event[0] > self.end_date.sortval:
-                    print(relation + " after end " + keyed_event[1].description)
                     continue
             self.timeline.append((keyed_event[0], (keyed_event[1], person, relation)))
             self.cached_events.append(keyed_event[1].handle)
@@ -450,7 +447,6 @@ class Timeline:
         )
         for relative in self.eligible_relatives:
             if relative in relationship:
-                print("found " + relationship)
                 timeline, birth, death = self.extract_person_events(person)
                 self.merge_eligible_events(
                     person,
