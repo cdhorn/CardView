@@ -200,7 +200,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.color-scheme", 1),
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-participants", True),
-        ("preferences.profile.person.timeline.show-role-always", True),
+        ("preferences.profile.person.timeline.show-role-always", False),
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
         ("preferences.profile.person.timeline.show-best-confidence", True),
