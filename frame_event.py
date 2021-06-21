@@ -41,6 +41,7 @@ from gramps.gen.lib import EventType, EventRoleType, Span
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
+from gramps.gen.utils.db import get_participant_from_event
 
 
 # ------------------------------------------------------------------------
@@ -54,6 +55,7 @@ from frame_utils import (
     get_confidence_color_css,
     get_event_category_color_css,
     get_key_person_events,
+    get_participants,
     get_person_color_css,
     get_relationship_color_css,
     TextLink,
@@ -85,6 +87,7 @@ class EventGrampsFrame(GrampsFrame):
         router,
         reference_person,
         event,
+        event_ref,
         event_person,
         relation_to_reference,
         category=None,
@@ -92,6 +95,7 @@ class EventGrampsFrame(GrampsFrame):
     ):
         GrampsFrame.__init__(self, dbstate, uistate, router, space, config, event, "timeline")
         self.event = event
+        self.event_ref = event_ref
         self.event_category = category
         self.reference_person = reference_person
         self.event_person = event_person
@@ -147,13 +151,13 @@ class EventGrampsFrame(GrampsFrame):
             groups["data"].add_widget(data)
         self.body.pack_start(data, True, True, 0)
 
+        role = None
+        if self.reference_person and self.reference_person.handle == self.event_person.handle:
+            role = self.event_ref.get_role()
+
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
-        if (
-            event_person
-            and reference_person.handle != event_person.handle
-            and relation_to_reference not in ["self", "", None]
-        ):
+        if (event_person and not role and relation_to_reference not in ["self", "", None]):
             text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
             if self.enable_tooltips:
                 tooltip = "{} {}".format(
@@ -172,8 +176,19 @@ class EventGrampsFrame(GrampsFrame):
             )
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
-            name.set_markup("<b>{}</b>".format(event_type))
+            label = event_type
+            if not role.is_primary() and not role.is_family():
+                text = event.get_description()                
+                if text:
+                    label = text
+            name.set_markup("<b>{}</b>".format(label))
         data.pack_start(name, True, True, 0)
+
+        if (
+                (role and not role.is_primary() and not role.is_family()) or
+                self.option(self.context, "show-role-always")
+        ):
+            data.pack_start(self.make_label(str(role)), True, True, 0)
 
         date = glocale.date_displayer.display(event.date)
         if date:
@@ -188,6 +203,11 @@ class EventGrampsFrame(GrampsFrame):
             if not text:
                 text = "{} {} {}".format(event_type, _("of"), event_person_name)
             data.pack_start(self.make_label(text), True, True, 0)
+
+        if self.option(self.context, "show-participants"):
+            participants, text = get_participants(self.dbstate.db, event)
+            if text and len(participants) > 1:
+                data.pack_start(self.make_label("Participants {}".format(text)), True, True, 0)
 
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""

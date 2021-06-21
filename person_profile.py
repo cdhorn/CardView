@@ -199,6 +199,8 @@ class PersonProfileView(NavigationView):
         # timeline
         ("preferences.profile.person.timeline.color-scheme", 1),
         ("preferences.profile.person.timeline.show-description", True),
+        ("preferences.profile.person.timeline.show-participants", True),
+        ("preferences.profile.person.timeline.show-role-always", True),
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
         ("preferences.profile.person.timeline.show-best-confidence", True),
@@ -1475,26 +1477,38 @@ class PersonProfileView(NavigationView):
         configdialog.add_text(grid1, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
             grid1,
-            _("Show description"),
+            _("Show role always not just secondary events"),
             9,
+            "preferences.profile.person.timeline.show-role-always",
+        )
+        configdialog.add_checkbox(
+            grid1,
+            _("Show description"),
+            10,
             "preferences.profile.person.timeline.show-description",
         )
         configdialog.add_checkbox(
             grid1,
+            _("Show registered participants if more than one person"),
+            11,
+            "preferences.profile.person.timeline.show-participants",
+        )
+        configdialog.add_checkbox(
+            grid1,
             _("Show source count"),
-            10,
+            12,
             "preferences.profile.person.timeline.show-source-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show citation count"),
-            11,
+            13,
             "preferences.profile.person.timeline.show-citation-count",
         )
         configdialog.add_checkbox(
             grid1,
             _("Show best confidence rating"),
-            12,
+            14,
             "preferences.profile.person.timeline.show-best-confidence",
         )
         grid2 = self.create_grid()

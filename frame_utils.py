@@ -1,6 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
+# Copyright (C) 2000-2007  Donald N. Allingham
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2021       Christopher Horn
 #
@@ -43,7 +44,7 @@ from gramps.gen.lib import (
     Person,
     Citation,
 )
-from gramps.gen.display.place import PlaceDisplay
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
 
 
@@ -104,8 +105,6 @@ TAG_MODES = {
     1: _("Show icons"),
     2: _("Show tag names")
 }
-
-pd = PlaceDisplay()
 
 
 def format_date_string(event1, event2):
@@ -494,3 +493,29 @@ def get_family_color_css(family, config, divorced=False):
             "colors.family{}".format(values[key])
         )
     return format_color_css(background, border)
+
+
+def get_participants(db, event):
+    """
+    Get all of the participants related to an event.
+    Returns people and also a descriptive string.
+    We eventually need to handle family but defer for moment.
+    """
+    participants = []
+    text = ""
+    comma = ""
+    result_list = list(
+        db.find_backlink_handles(event.handle,
+                                 include_classes=['Person'])
+    )
+    people = set([x[1] for x in result_list if x[0] == 'Person'])
+    for handle in people:
+        person = db.get_person_from_handle(handle)
+        if not person:
+            continue
+        for event_ref in person.get_event_ref_list():
+            if event.handle == event_ref.ref:
+                participants.append((person, event_ref))
+                text = "{}{}{}".format(text, comma, name_displayer.display(person))
+                comma = ", "
+    return participants, text

@@ -76,6 +76,7 @@ class CoupleGrampsFrame(GrampsFrame):
         router,
         parent=None,
         relation=None,
+        vertical=True
     ):
         GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, eventbox=False)
         self.family = family
@@ -86,7 +87,7 @@ class CoupleGrampsFrame(GrampsFrame):
             margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2
         )
         self.body.add(self.section)
-
+            
         self.groups = {
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -95,7 +96,16 @@ class CoupleGrampsFrame(GrampsFrame):
         partner1, partner2 = self._get_parents()
         profile = self._get_profile(partner1)
         if profile:
-            self.section.pack_start(profile, True, True, 0)
+            if vertical:
+                self.section.pack_start(profile, True, True, 0)
+            else:
+                hbox = Gtk.HBox(spacing=2)
+                hbox.pack_start(profile, True, True, 0)
+                if partner2:
+                    profile = self._get_profile(partner2)
+                    if profile:
+                        hbox.pack_start(profile, True, True, 0)
+                self.section.pack_start(hbox, True, True, 0)
 
         couple_facts = Gtk.HBox()
         couple_facts.pack_start(self.facts_grid, True, True, 0)
@@ -125,7 +135,7 @@ class CoupleGrampsFrame(GrampsFrame):
         self.eventbox.connect("button-press-event", self.route_action)
         self.section.pack_start(self.eventbox, True, True, 0)
 
-        if partner2:
+        if partner2 and vertical:
             profile = self._get_profile(partner2)
             if profile:
                 self.section.pack_start(profile, True, True, 0)
