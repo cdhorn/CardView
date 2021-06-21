@@ -238,7 +238,7 @@ class Timeline:
                     return event_key
         custom_event_types = self.db_handle.get_event_types()
         for event_name in custom_event_types:
-            if event_type.get_value() == event_name:
+            if event_type.xml_str() == event_name:
                 return "custom"
         return "other"
         
@@ -346,9 +346,9 @@ class Timeline:
         for event, event_ref in events:
             sortval = event.date.sortval
             if not sortval:
-                if event.type.is_marriage():
+                if event.type.is_marriage() and family:
                     sortval = self.generate_union_event_sortval(family, union=True)
-                if event.type.is_divorce():
+                if event.type.is_divorce() and family:
                     sortval = self.generate_union_event_sortval(family, union=False)
                 if not sortval:
                     sortval = lastval + 1
@@ -356,7 +356,7 @@ class Timeline:
             lastval = sortval
         return keyed_list
 
-    def generate_union_event_sortval(self, family, union = True):
+    def generate_union_event_sortval(self, family, union=True):
         """
         For an undated family union or disolution try to generate a synthetic sortval
         based on birth of first or last child if one is present and does have a known date.
@@ -383,12 +383,13 @@ class Timeline:
                 birth = birth_fallback
             if birth and birth.date.sortval:
                 return birth.date.sortval + offset
-            return 0
+        return 0
 
-    def extract_person_events(self, person):
+    def extract_person_events(self, person, relative=False):
         """
-        Extract and prepare the event list for an individual person. We do not filter yet
+        Extract and prepare the full event list for an individual person. We do not filter yet
         as we may need information from the filtered events to better handle undated events.
+        Note if being called to gather events for a relative we only want primary events.
         """
         birth = None
         birth_fallback = None
@@ -407,7 +408,9 @@ class Timeline:
                     death = event
                 if not death and not death_fallback and event.type in DEATH_INDICATORS:
                     death_fallback = event
-            events.append((event, event_ref))
+                events.append((event, event_ref))
+            elif not relative:
+                events.append((event, event_ref))
 
         timeline = self.prepare_event_sortvals(events)
         if not birth and birth_fallback:
@@ -490,7 +493,7 @@ class Timeline:
         )
         for relative in self.eligible_relatives:
             if relative in relationship:
-                timeline, birth, death = self.extract_person_events(person)
+                timeline, birth, death = self.extract_person_events(person, relative=True)
                 self.merge_eligible_events(
                     person,
                     timeline,

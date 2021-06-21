@@ -33,19 +33,3 @@ category = ("People", _("People")),
 viewclass = 'PersonProfileView',
 order = END,
 )
-
-register(VIEW,
-id = 'familyprofile',
-name = _("Family Profile"),
-description = _("A single page family profile view."),
-version = '0.99',
-gramps_target_version = '5.1',
-status = STABLE,
-fname = 'family_profile.py',
-authors = ["The Gramps Project"],
-authors_email = ["http://gramps-project.org"],
-category = ("Family", _("Family")),
-viewclass = 'FamilyProfileView',
-order = END,
-)
-
