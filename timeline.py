@@ -303,11 +303,12 @@ class Timeline:
                 role = event_ref.get_role()
                 if not role.is_primary() and not role.is_family():
                     primary = self.get_primary_event_participant(event.get_handle())
-                    calculator = get_relationship_calculator(reinit=True, clocale=self.locale)
-                    calculator.set_depth(self.depth)
-                    relationship = calculator.get_one_relationship(
-                        self.db_handle, person, primary
-                    )
+                    if primary:
+                        calculator = get_relationship_calculator(reinit=True, clocale=self.locale)
+                        calculator.set_depth(self.depth)
+                        relationship = calculator.get_one_relationship(
+                            self.db_handle, person, primary
+                        )
             self.timeline.append((sortval, (event, event_ref, person, relationship, self.get_category(event))))
             self.cached_events.append(event.handle)
 

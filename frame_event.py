@@ -41,7 +41,7 @@ from gramps.gen.lib import EventType, EventRoleType, Span
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
-from gramps.gen.utils.db import get_participant_from_event
+#from gramps.gen.utils.db import get_participant_from_event
 
 
 # ------------------------------------------------------------------------
@@ -157,6 +157,8 @@ class EventGrampsFrame(GrampsFrame):
 
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
+        participants = []
+        participant_string = ""
         if (event_person and not role and relation_to_reference not in ["self", "", None]):
             text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
             if self.enable_tooltips:
@@ -168,20 +170,43 @@ class EventGrampsFrame(GrampsFrame):
                 tooltip = None
             name = TextLink(
                 text,
-                event_person.handle,
-                router,
+                event_person.get_handle(),
+                self.router,
                 "link-person",
                 tooltip=tooltip,
                 hexpand=True,
             )
+        elif role and not role.is_primary():
+            participant_name = "Unknown"
+            participant_handle = ""
+            participants, participant_string = get_participants(self.dbstate.db, event)
+            for participant, participant_event_ref in participants:
+                if participant_event_ref.get_role().is_primary():
+                    participant_name = name_displayer.display(participant)
+                    participant_handle = participant.get_handle()
+            text = "{} {} {}".format(event_type, _("of"), participant_name)
+            if participant_handle:
+                if self.enable_tooltips:
+                    tooltip = "{} {}".format(
+                        _("Click to view"),
+                        participant_name,
+                    )
+                else:
+                    tooltip = None
+                name = TextLink(
+                    text,
+                    participant_handle,
+                    self.router,
+                    "link-person",
+                    tooltip=tooltip,
+                    hexpand=True,
+                )
+            else:
+                name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
+                name.set_markup("<b>{}</b>".format(event_type))                
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
-            label = event_type
-            if not role.is_primary() and not role.is_family():
-                text = event.get_description()                
-                if text:
-                    label = text
-            name.set_markup("<b>{}</b>".format(label))
+            name.set_markup("<b>{}</b>".format(event_type))
         data.pack_start(name, True, True, 0)
 
         if (
@@ -205,9 +230,10 @@ class EventGrampsFrame(GrampsFrame):
             data.pack_start(self.make_label(text), True, True, 0)
 
         if self.option(self.context, "show-participants"):
-            participants, text = get_participants(self.dbstate.db, event)
-            if text and len(participants) > 1:
-                data.pack_start(self.make_label("Participants {}".format(text)), True, True, 0)
+            if not participants:
+                participants, participant_string = get_participants(self.dbstate.db, event)
+            if participant_string and len(participants) > 1:
+                data.pack_start(self.make_label("Participants {}".format(participant_string)), True, True, 0)
 
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""
