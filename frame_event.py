@@ -151,15 +151,12 @@ class EventGrampsFrame(GrampsFrame):
             groups["data"].add_widget(data)
         self.body.pack_start(data, True, True, 0)
 
-        role = None
-        if self.reference_person and self.reference_person.handle == self.event_person.handle:
-            role = self.event_ref.get_role()
-
+        role = self.event_ref.get_role()
         event_type = glocale.translation.sgettext(event.type.xml_str())
         event_person_name = name_displayer.display(event_person)
         participants = []
         participant_string = ""
-        if (event_person and not role and relation_to_reference not in ["self", "", None]):
+        if (relation_to_reference not in ["self", "", None]):
             text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
             if self.enable_tooltips:
                 tooltip = "{} {}".format(
@@ -176,7 +173,7 @@ class EventGrampsFrame(GrampsFrame):
                 tooltip=tooltip,
                 hexpand=True,
             )
-        elif role and not role.is_primary():
+        elif not role.is_primary():
             participant_name = "Unknown"
             participant_handle = ""
             participants, participant_string = get_participants(self.dbstate.db, event)

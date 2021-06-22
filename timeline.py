@@ -299,13 +299,13 @@ class Timeline:
                 if sortval > self.end_date.sortval:
                     continue
             relationship = relation
-            if relation == "self":
+            if not relative:
                 role = event_ref.get_role()
                 if not role.is_primary() and not role.is_family():
                     primary = self.get_primary_event_participant(event.get_handle())
                     if primary:
                         calculator = get_relationship_calculator(reinit=True, clocale=self.locale)
-                        calculator.set_depth(self.depth)
+                        calculator.set_depth(4)
                         relationship = calculator.get_one_relationship(
                             self.db_handle, person, primary
                         )
