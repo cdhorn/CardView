@@ -722,10 +722,14 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             menu = Gtk.Menu()
             menu.add(self._menu_item("list-add", _("Add new attribute"), self.add_attribute))
             menu.add(Gtk.SeparatorMenuItem())
+            attribute_list = []
             for attribute in self.obj.get_attribute_list():
                 text = "{}: {}".format(attribute.get_type(), attribute.get_value())
                 if len(text) > 80:
                     text = text[:80]+"..."
+                attribute_list.append((text, attribute))
+            attribute_list.sort(key=lambda x: x[0])
+            for text, attribute in attribute_list:
                 menu.add(self._menu_item("gramps-attribute", text, self.edit_attribute, attribute))
             return self._submenu_item("gramps-attribute", _("Attributes"), menu)
         return self._menu_item("gramps-attribute", _("Add new attribute"), self.add_attribute)
