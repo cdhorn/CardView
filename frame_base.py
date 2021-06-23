@@ -673,7 +673,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         if len(self.obj.get_note_list()) > 0:
             menu = Gtk.Menu()
-            menu.add(self._menu_item("list-add", _("Add new note"), self.add_note))
+            menu.add(self._menu_item("list-add", _("Add a note"), self.add_note))
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.get_note_list():
                 note = self.dbstate.db.get_note_from_handle(handle)
@@ -682,7 +682,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     text = text[:80]+"..."
                 menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
             return self._submenu_item("gramps-notes", _("Notes"), menu)
-        return self._menu_item("gramps-notes", _("Add new note"), self.add_note)
+        return self._menu_item("gramps-notes", _("Add a note"), self.add_note)
 
     def add_note(self, obj):
         """
@@ -720,7 +720,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         if len(self.obj.get_attribute_list()) > 0:
             menu = Gtk.Menu()
-            menu.add(self._menu_item("list-add", _("Add new attribute"), self.add_attribute))
+            menu.add(self._menu_item("list-add", _("Add an attribute"), self.add_attribute))
+            removemenu = Gtk.Menu()
+            menu.add(self._submenu_item("gramps-attribute", _("Remove an attribute"), removemenu))
+            menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             attribute_list = []
             for attribute in self.obj.get_attribute_list():
@@ -730,9 +733,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 attribute_list.append((text, attribute))
             attribute_list.sort(key=lambda x: x[0])
             for text, attribute in attribute_list:
+                removemenu.add(self._menu_item("list-remove", text, self.remove_attribute, attribute))
                 menu.add(self._menu_item("gramps-attribute", text, self.edit_attribute, attribute))
             return self._submenu_item("gramps-attribute", _("Attributes"), menu)
-        return self._menu_item("gramps-attribute", _("Add new attribute"), self.add_attribute)
+        return self._menu_item("gramps-attribute", _("Add an attribute"), self.add_attribute)
 
     def _get_attribute_types(self):
         if self.obj_type == "Person":
@@ -796,7 +800,27 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
             with DbTxn(_("Updated Attribute for %s") % self.obj_type, self.dbstate.db) as trans:
                 commit_method(self.obj, trans)
-        
+
+    def remove_attribute(self, obj, attribute):
+        """
+        Finish removing attribute.
+        """
+        if attribute:
+            if not self.confirm_action(
+                "Warning",
+                "You are about to remove an attribute from this object.\n\nAre you sure you want to continue?"
+            ):
+                return
+
+            new_list = []
+            for item in self.obj.get_attribute_list():
+                if not attribute.is_equal(item):
+                    new_list.append(item)
+            self.obj.set_attribute_list(new_list)
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Remove Attribute from %s") % self.obj_type, self.dbstate.db) as trans:
+                commit_method(self.obj, trans)
+    
     def _urls_option(self):
         """
         Build urls option menu. We support add new under that and launching existing.
@@ -805,24 +829,26 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return None
         if len(self.obj.get_url_list()) > 0:
             menu = Gtk.Menu()
-            menu.add(self._menu_item("list-add", _("Add new url"), self.add_url))
-            submenu = Gtk.Menu()
-            for url in self.obj.get_url_list():
-                text = url.get_description()
-                if not text:
-                    text = url.get_path()
-                if text:
-                    submenu.add(self._menu_item("gramps-url", text, self.edit_url, url))
-            menu.add(self._submenu_item("gramps-url", _("Edit urls"), submenu))
+            menu.add(self._menu_item("list-add", _("Add a url"), self.add_url))
+            editmenu = Gtk.Menu()
+            menu.add(self._submenu_item("gramps-url", _("Edit a url"), editmenu))
+            removemenu = Gtk.Menu()
+            menu.add(self._submenu_item("gramps-url", _("Remove a url"), removemenu))
             menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            url_list = []
             for url in self.obj.get_url_list():
                 text = url.get_description()
                 if not text:
                     text = url.get_path()
-                if text:
-                    menu.add(self._menu_item("gramps-url", text, self.launch_url, url))
+                url_list.append((text, url))
+            url_list.sort(key=lambda x: x[0])
+            for text, url in url_list:
+                editmenu.add(self._menu_item("gramps-url", text, self.edit_url, url))
+                removemenu.add(self._menu_item("list-remove", text, self.remove_url, url))
+                menu.add(self._menu_item("gramps-url", text, self.launch_url, url))
             return self._submenu_item("gramps-url", _("Urls"), menu)
-        return self._menu_item("gramps-url", _("Add new url"), self.add_url)
+        return self._menu_item("gramps-url", _("Add a url"), self.add_url)
 
     def add_url(self, obj):
         """
@@ -861,7 +887,27 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
             with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
                 commit_method(self.obj, trans)
-        
+
+    def remove_url(self, obj, url):
+        """
+        Finish removing url.
+        """
+        if url:
+            if not self.confirm_action(
+                "Warning",
+                "You are about to remove an attribute from this object.\n\nAre you sure you want to continue?"
+            ):
+                return
+
+            new_list = []
+            for curl in self.obj.get_url_list():
+                if not url.is_equal(curl):
+                    new_list.append(curl)
+            self.obj.set_url_list(new_list)
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
+                commit_method(self.obj, trans)
+                
     def launch_url(self, obj, url):
         """
         Launch a url.

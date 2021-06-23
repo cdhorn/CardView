@@ -382,6 +382,7 @@ class EventGrampsFrame(GrampsFrame):
             removesubmenu = self._submenu_item("gramps-person", _("Remove a participant"), removemenu)
             menu.add(removesubmenu)
             menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
             participant_list = []
             for person, event_ref in participants:
                 name = name_displayer.display(person)
