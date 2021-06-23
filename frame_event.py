@@ -37,11 +37,14 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import EventType, EventRoleType, Span
+from gramps.gen.db import DbTxn
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import Event, EventRef, EventType, EventRoleType, Span, Person
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
-#from gramps.gen.utils.db import get_participant_from_event
+from gramps.gui.editors import EditEventRef, EditPerson
+from gramps.gui.selectors import SelectorFactory
 
 
 # ------------------------------------------------------------------------
@@ -49,7 +52,7 @@ from gramps.gen.utils.alive import probably_alive
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_base import _EDITORS, GrampsFrame
 from frame_utils import (
     get_confidence,
     get_confidence_color_css,
@@ -89,6 +92,7 @@ class EventGrampsFrame(GrampsFrame):
         event,
         event_ref,
         event_person,
+        event_family,
         relation_to_reference,
         category=None,
         groups=None,
@@ -99,8 +103,10 @@ class EventGrampsFrame(GrampsFrame):
         self.event_category = category
         self.reference_person = reference_person
         self.event_person = event_person
+        self.event_family = event_family
         self.relation_to_reference = relation_to_reference
         self.confidence = 0
+        self.event_participant = None
 
         if self.option(self.context, "show-image"):
             self.load_image(groups)
@@ -317,3 +323,164 @@ class EventGrampsFrame(GrampsFrame):
 
         living = probably_alive(self.event_person, self.dbstate.db)
         return get_person_color_css(self.event_person, self.config, living=living)
+
+    def add_custom_actions(self):
+        """
+        Add action menu items for the event.
+        """
+        self.action_menu.append(self._participants_option())
+
+    def edit_self(self, *obj):
+        """
+        Launch the desired editor based on object type.
+        """
+        if self.event_person.handle == self.reference_person.handle:
+            if self.event_ref.get_role().is_family():
+                callback = self.update_family_event
+            else:
+                callback = self.update_person_event
+            try:
+                EditEventRef(
+                    self.dbstate, self.uistate, [], self.event, self.event_ref, callback
+                )
+            except WindowActiveError:
+                pass
+            return
+        try:
+            _EDITORS[self.obj_type](self.dbstate, self.uistate, [], self.obj)
+        except WindowActiveError:
+            pass
+
+    def update_person_event(self, reference, primary):
+        """
+        Commit person to save an event reference update.
+        """
+        with DbTxn(_("Update Person Event Ref"), self.dbstate.db) as trans:
+            self.dbstate.db.commit_person(self.event_person, trans)
+
+    def update_family_event(self, reference, primary):
+        """
+        Commit family to save an event reference update.
+        """
+        with DbTxn(_("Update Family Event Ref"), self.dbstate.db) as trans:
+            self.dbstate.db.commit_family(self.event_family, trans)
+
+    def _participants_option(self):
+        """
+        Build participants option menu.
+        """
+        menu = Gtk.Menu()
+        menu.add(self._menu_item("gramps-person", _("Add a new person as a participant"), self.add_new_participant))
+        menu.add(self._menu_item("gramps-person", _("Add an existing person as a participant"), self.add_existing_participant))
+        participants, text = get_participants(self.dbstate.db, self.obj)
+        if len(participants) > 1:
+            gotomenu = Gtk.Menu()
+            menu.add(self._submenu_item("gramps-person", _("Go to a participant"), gotomenu))
+            editmenu = Gtk.Menu()
+            menu.add(self._submenu_item("gramps-person", _("Edit a participant"), editmenu))
+            removemenu = Gtk.Menu()
+            removesubmenu = self._submenu_item("gramps-person", _("Remove a participant"), removemenu)
+            menu.add(removesubmenu)
+            menu.add(Gtk.SeparatorMenuItem())
+            participant_list = []
+            for person, event_ref in participants:
+                name = name_displayer.display(person)
+                role = str(event_ref.get_role())
+                text = "{}: {}".format(role, name)
+                participant_list.append((text, person, event_ref))
+            participant_list.sort(key=lambda x: x[0])
+            for (text, person, event_ref) in participant_list:
+                handle = person.get_handle()
+                if not self.event_person.handle == handle:
+                    gotomenu.add(self._menu_item("gramps-person", text, self.goto_person, handle))
+                    editmenu.add(self._menu_item("gramps-person", text, self.edit_object, person, "Person"))
+                if not event_ref.get_role().is_primary():
+                    removemenu.add(self._menu_item("list-remove", text, self.remove_participant, person, event_ref))
+                if not self.event_person.handle == handle:                    
+                    menu.add(self._menu_item("gramps-person", text, self.edit_participant, person, event_ref))
+            if len(removemenu) == 0:
+                removesubmenu.destroy()
+        return self._submenu_item("gramps-person", _("Participants"), menu)
+
+    def edit_participant(self, obj, person, event_ref):
+        """
+        Edit the event participant refererence.
+        """
+        if self.event_ref.get_role().is_family():
+            callback = self.update_family_event
+        else:
+            callback = self.update_participant_event
+        try:
+            self.event_participant = person
+            EditEventRef(
+                self.dbstate, self.uistate, [], self.event, event_ref, callback
+            )
+        except WindowActiveError:
+            pass
+
+    def update_participant_event(self, event_ref, event):
+        """
+        Save the event participant to save any update.
+        """
+        if self.event_participant:
+            with DbTxn(_("Update Person Event Ref"), self.dbstate.db) as trans:
+                self.dbstate.db.commit_person(self.event_participant, trans)
+
+    def add_new_participant(self, obj):
+        """
+        Add a new person as participant to an event.
+        """
+        person = Person()
+        event_ref = EventRef()
+        event_ref.ref = self.event.handle
+        event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
+        person.add_event_ref(event_ref)
+        try:
+            EditPerson(self.dbstate, self.uistate, [], person)
+        except WindowActiveError:
+            pass
+    
+    def add_existing_participant(self, obj):
+        """
+        Add an existing person as participant to an event.
+        """
+        SelectPerson = SelectorFactory('Person')
+        dialog = SelectPerson(self.dbstate, self.uistate)
+        person = dialog.run()
+        if person:
+            event_ref = EventRef()
+            event_ref.ref = self.event.handle
+            event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
+            person.add_event_ref(event_ref)
+            if self.event_ref.get_role().is_primary():
+                callback = self.update_participant_event
+            elif self.event_ref.get_role().is_family():
+                callback = self.update_family_event
+            else:
+                callback = self.update_participant_event
+            self.event_participant = person
+            try:
+                EditEventRef(
+                    self.dbstate, self.uistate, [], self.event, event_ref, callback
+                )
+            except WindowActiveError:
+                pass
+
+    def remove_participant(self, obj, person, event_ref):
+        """
+        Remove a participant from an event.
+        """
+        person_name = name_displayer.display(person)
+        if not self.confirm_action(
+                "Warning",
+                "You are about to remove {} as a participant from this event.\n\nAre you sure you want to continue?".format(person_name)
+        ):
+            return
+
+        new_list = []
+        for ref in person.get_event_ref_list():
+            if not event_ref.is_equal(ref):
+                new_list.append(ref)
+        person.set_event_ref_list(new_list)
+        with DbTxn(_("Remove Person Event Ref"), self.dbstate.db) as trans:
+            self.dbstate.db.commit_person(person, trans)

@@ -73,7 +73,7 @@ EVENT_CATEGORIES = [
 
 # A timeline item is a tuple of following format:
 #
-# (Event, EventRef, Person, relationship, category)
+# (Event, EventRef, Person, Family, relationship, category)
 #
 # A timeline may or may not have a reference person. If it does then relationships
 # are calculated with respect to them.
@@ -281,7 +281,7 @@ class Timeline:
         By default birth and death will always be treated as available and if
         a fallback was identified for one of those we respect it.
         """
-        for sortval, event, event_ref in timeline:
+        for sortval, event, event_ref, family in timeline:
             if event.handle in self.cached_events:
                 continue
             if not self.is_eligible(event, relative):
@@ -309,7 +309,7 @@ class Timeline:
                         relationship = calculator.get_one_relationship(
                             self.db_handle, person, primary
                         )
-            self.timeline.append((sortval, (event, event_ref, person, relationship, self.get_category(event))))
+            self.timeline.append((sortval, (event, event_ref, person, family, relationship, self.get_category(event))))
             self.cached_events.append(event.handle)
 
     def get_primary_event_participant(self, handle):
@@ -325,7 +325,7 @@ class Timeline:
                             return person
         return None
             
-    def prepare_event_sortvals(self, events, family = None):
+    def prepare_event_sortvals(self, events):
         """
         Prepare keys for sorting constructing synthetic keys when we can for any
         undated events based on the location the user placed them in the event list
@@ -343,7 +343,7 @@ class Timeline:
                     break
                 index = index + 1
 
-        for event, event_ref in events:
+        for event, event_ref, family in events:
             sortval = event.date.sortval
             if not sortval:
                 if event.type.is_marriage() and family:
@@ -352,7 +352,7 @@ class Timeline:
                     sortval = self.generate_union_event_sortval(family, union=False)
                 if not sortval:
                     sortval = lastval + 1
-            keyed_list.append((sortval, event, event_ref))
+            keyed_list.append((sortval, event, event_ref, family))
             lastval = sortval
         return keyed_list
 
@@ -408,9 +408,9 @@ class Timeline:
                     death = event
                 if not death and not death_fallback and event.type in DEATH_INDICATORS:
                     death_fallback = event
-                events.append((event, event_ref))
+                events.append((event, event_ref, None))
             elif not relative:
-                events.append((event, event_ref))
+                events.append((event, event_ref, None))
 
         timeline = self.prepare_event_sortvals(events)
         if not birth and birth_fallback:
@@ -422,8 +422,8 @@ class Timeline:
         for family_handle in person.family_list:
             family = self.db_handle.get_family_from_handle(family_handle)
             for event_ref in family.event_ref_list:
-                events.append((self.db_handle.get_event_from_handle(event_ref.ref), event_ref))
-            timeline = timeline + self.prepare_event_sortvals(events, family=family)
+                events.append((self.db_handle.get_event_from_handle(event_ref.ref), event_ref, family))
+            timeline = timeline + self.prepare_event_sortvals(events)
         return timeline, birth, death
 
     def set_person(

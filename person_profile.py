@@ -890,8 +890,7 @@ class PersonProfileView(NavigationView):
 
     def callback_router(self, obj, event, handle, action, data=None):
         if action == "link-person":
-            if button_activated(event, _LEFT_BUTTON):
-                self.change_person(handle)
+            self.change_person(handle)            
         if action == "copy-clipboard":
             self.copy_to_clipboard(data, [handle])
 

@@ -508,6 +508,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         item.set_submenu(menu)
         return item
 
+    def goto_person(self, obj, handle):
+        """
+        Change active person for the view.
+        """
+        self.router(None, None, handle, "link-person")
+
     def _edit_object_option(self):
         """
         Construct the edit object menu option.
@@ -526,6 +532,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             _EDITORS[self.obj_type](self.dbstate, self.uistate, [], self.obj)
         except WindowActiveError:
             pass
+        return
 
     def edit_object(self, skip, obj, obj_type):
         """

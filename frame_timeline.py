@@ -107,7 +107,7 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        for event, event_ref, event_person, relation, category in self.timeline.events():
+        for event, event_ref, event_person, event_family, relation, category in self.timeline.events():
             event_frame = EventGrampsFrame(
                 self.dbstate,
                 self.uistate,
@@ -118,6 +118,7 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                 event,
                 event_ref,
                 event_person,
+                event_family,
                 relation,
                 category,
                 groups=groups,
