@@ -471,17 +471,21 @@ class EventGrampsFrame(GrampsFrame):
         """
         Remove a participant from an event.
         """
-        person_name = name_displayer.display(person)
-        if not self.confirm_action(
-                "Warning",
-                "You are about to remove {} as a participant from this event.\n\nAre you sure you want to continue?".format(person_name)
+        name = name_displayer.display(person)
+        role = str(event_ref.get_role())
+        text = "{}: {}".format(role, name)        
+        prefix = _("You are about to remove the following participant from this event:")
+        extra = _("Note this only removes the reference and does not delete the event or the participant. " \
+                  "The participant can be added back at a later time.")
+        confirm = _("Are you sure you want to continue?")
+        if self.confirm_action(
+                _("Warning"),
+                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
         ):
-            return
-
-        new_list = []
-        for ref in person.get_event_ref_list():
-            if not event_ref.is_equal(ref):
-                new_list.append(ref)
-        person.set_event_ref_list(new_list)
-        with DbTxn(_("Remove Person Event Ref"), self.dbstate.db) as trans:
-            self.dbstate.db.commit_person(person, trans)
+            new_list = []
+            for ref in person.get_event_ref_list():
+                if not event_ref.is_equal(ref):
+                    new_list.append(ref)
+            with DbTxn(_("Remove Person Event Ref"), self.dbstate.db) as trans:
+                person.set_event_ref_list(new_list)                
+                self.dbstate.db.commit_person(person, trans)
