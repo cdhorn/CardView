@@ -40,7 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_citation import CitationGrampsFrame
+from frame_sources import SourcesGrampsFrameGroup
 from frame_children import ChildrenGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
@@ -194,60 +194,22 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
     return spouses
 
 
-def get_citation_profiles(dbstate, uistate, person, router, config=None):
+def get_citation_profiles(dbstate, uistate, obj, router, space, config):
     """
-    Get all the citations associated with a person.
+    Get all the cited sources associated with an object.
     """
+    group = SourcesGrampsFrameGroup(dbstate, uistate, obj, space, config, router)
+    if len(group) == 0:
+        return None
 
-    citations = None
-    groups = {
-        "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-    }
-
-    citation_handles = person.get_citation_list()
-    if config.get("preferences.profile.person.citation.include-indirect"):
-        for item in person.get_citation_child_list():
-            for handle in item.get_citation_list():
-                if handle not in citation_handles:
-                    citation_handles.append(handle)
-
-    if config.get("preferences.profile.person.citation.include-family"):
-        for family_handle in person.get_family_handle_list():
-            family = dbstate.db.get_family_from_handle(family_handle)
-            for handle in family.get_citation_list():
-                if handle not in citation_handles:
-                    citation_handles.append(handle)
-
-            if config.get("preferences.profile.person.citation.include-family-indirect"):
-                for item in family.get_citation_child_list():
-                    for handle in item.get_citation_list():
-                        if handle not in citation_handles:
-                            citation_handles.append(handle)
-    citation_list = []
-    for handle in citation_handles:
-        citation_list.append(dbstate.db.get_citation_from_handle(handle))
-        
-    if citation_list:
-        if config.get("preferences.profile.person.citation.sort-by-date"):
-            citation_list.sort(key=lambda x: x.get_date_object().get_sort_value())
-        citations = Gtk.Expander(expanded=True, use_markup=True)
-        citations.set_label("<small><b>{}</b></small>".format(_("Cited Sources")))
-        elements = Gtk.VBox(spacing=6)
-        citations.add(elements)
-        for citation in citation_list:
-            placard = CitationGrampsFrame(
-                dbstate,
-                uistate,
-                citation,
-                "preferences.profile.person",
-                config,
-                router,
-                groups=groups,
-            )
-            elements.pack_start(placard, True, True, 0)
-    return citations
+    sources = Gtk.Expander(expanded=True, use_markup=True)
+    if len(group) == 1:
+        text = _("Cited Source")
+    else:
+        text = _("Cited Sources")
+    sources.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    sources.add(group)
+    return sources
 
 
 def get_timeline_profiles(dbstate, uistate, person, router, config=None):

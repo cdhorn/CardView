@@ -64,6 +64,11 @@ _ = _trans.gettext
 
 pd = PlaceDisplay()
 
+CITATION_TYPES = {
+    0: _("Direct"),
+    1: _("Indirect")
+}
+
 
 # ------------------------------------------------------------------------
 #
@@ -75,11 +80,14 @@ class CitationGrampsFrame(GrampsFrame):
     The CitationGrampsFrame exposes some of the basic facts about a Citation.
     """
 
-    def __init__(self, dbstate, uistate, citation, space, config, router, groups=None):
+    def __init__(self, dbstate, uistate, citation, space, config, router, groups=None, references=[], ref_type=0, ref_desc=""):
         GrampsFrame.__init__(
             self, dbstate, uistate, router, space, config, citation, "citation"
         )
         self.citation = citation
+        self.references = references
+        self.ref_type = ref_type
+        self.ref_desc = ref_desc
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
         self.enable_drag()
@@ -129,6 +137,15 @@ class CitationGrampsFrame(GrampsFrame):
         gramps_id = self.get_gramps_id_label()
         metadata.pack_start(gramps_id, False, False, 0)
 
+        if self.option("citation", "show-reference-type"):
+            ref_type = self.make_label(CITATION_TYPES[self.ref_type], left=False)
+            metadata.pack_start(ref_type, False, False, 0)
+
+        if self.option("citation", "show-reference-description"):
+            if self.ref_desc:
+                ref_desc = self.make_label(self.ref_desc, left=False)
+                metadata.pack_start(ref_desc, False, False, 0)
+        
         if self.option("citation", "show-confidence"):
             confidence = self.make_label(
                 get_confidence(self.citation.confidence), left=False

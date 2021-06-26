@@ -242,17 +242,19 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-family-class-custom", False),
         # citation
         ("preferences.profile.person.citation.sort-by-date", False),
-        ("preferences.profile.person.citation.include-indirect", False),
-        ("preferences.profile.person.citation.include-family", False),
-        ("preferences.profile.person.citation.include-family-indirect", False),
+        ("preferences.profile.person.citation.include-indirect", True),
+        ("preferences.profile.person.citation.include-family", True),
+        ("preferences.profile.person.citation.include-family-indirect", True),
         ("preferences.profile.person.citation.sort-by-date", False),
-        ("preferences.profile.person.citation.show-image", True),
+        ("preferences.profile.person.citation.show-image", False),
         ("preferences.profile.person.citation.show-image-first", False),
         ("preferences.profile.person.citation.show-image-large", False),
         ("preferences.profile.person.citation.tag-format", 1),
         ("preferences.profile.person.citation.tag-width", 2),
         ("preferences.profile.person.citation.show-date", True),
         ("preferences.profile.person.citation.show-publisher", True),
+        ("preferences.profile.person.citation.show-reference-type", True),
+        ("preferences.profile.person.citation.show-reference-description", True),
         ("preferences.profile.person.citation.show-confidence", True),
         # confidence color scheme
         ('preferences.profile.colors.confidence.very-high', ["#99c1f1","#304918"]),
@@ -835,8 +837,9 @@ class PersonProfileView(NavigationView):
                 self.dbstate,
                 self.uistate,
                 person,
-                router=self.callback_router,
-                config=self._config,
+                self.callback_router,
+                "preferences.profile.person",
+                self._config,
             )
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
@@ -1784,8 +1787,20 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid,
-            _("Show confidence rating"),
+            _("Show reference type"),
             13,
+            "preferences.profile.person.citation.show-reference-type",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show reference description"),
+            14,
+            "preferences.profile.person.citation.show-reference-description",
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show confidence rating"),
+            15,
             "preferences.profile.person.citation.show-confidence",
         )
         return _("Citations"), grid
