@@ -36,6 +36,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.db import DbTxn
 
 
 # ------------------------------------------------------------------------
@@ -44,6 +45,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsConfig
+from frame_list import GrampsFrameList
 from frame_person import PersonGrampsFrame
 
 
@@ -64,7 +66,7 @@ _ = _trans.gettext
 # ChildrenGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsConfig):
+class ChildrenGrampsFrameGroup(GrampsFrameList):
     def __init__(
         self,
         dbstate,
@@ -78,8 +80,7 @@ class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsConfig):
         relation=None,
         children="Children",
     ):
-        Gtk.VBox.__init__(self, hexpand=True, spacing=3)
-        GrampsConfig.__init__(self, dbstate, uistate, space, config)
+        GrampsFrameList.__init__(self, dbstate, uistate, space, config)
         self.family = family
         self.context = context
         self.parent = parent
@@ -116,5 +117,22 @@ class ChildrenGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                     groups=groups,
                     family_backlink=family.handle
                 )
-                self.pack_start(profile, True, True, 0)
+                self.add_frame(profile)
                 self.number = self.number + 1
+        self.show_all()
+
+    def save_reordered_list(self):
+        """
+        Save a reordered list of children.
+        """
+        new_list = []
+        for frame in self.row_frames:
+            for ref in self.family.get_child_ref_list():
+                if ref.ref == frame.obj.get_handle():
+                    new_list.append(ref)
+                    break
+
+        with DbTxn(_("Save reordered child list"), self.dbstate.db) as trans:
+            self.family.set_child_ref_list(new_list)
+            self.dbstate.db.commit_family(self.family, trans)
+

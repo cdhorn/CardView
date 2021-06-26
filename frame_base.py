@@ -102,6 +102,8 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_utils import get_gramps_object_type
+
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
@@ -246,8 +248,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.facts_row = 0
         self.action_menu = None
         self.eventbox = None
-        self.dnd_type = None
-        self.dnd_icon = None
+        self.obj_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(self.obj)
 
         self.body = Gtk.HBox()
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
@@ -259,31 +260,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.add(self.eventbox)
         else:
             self.add(self.frame)
-
-        if isinstance(self.obj, Person):
-            self.obj_type = "Person"
-            self.dnd_type = DdTargets.PERSON_LINK
-            self.dnd_icon = 'gramps-person'
-        elif isinstance(self.obj, Family):
-            self.obj_type = "Family"
-            self.dnd_type = DdTargets.FAMILY_LINK
-            self.dnd_icon = 'gramps-family'
-        elif isinstance(self.obj, Event):
-            self.obj_type = "Event"
-            self.dnd_type = DdTargets.EVENT
-            self.dnd_icon = 'gramps-event'
-        elif isinstance(self.obj, Place):
-            self.obj_type = "Place"
-        elif isinstance(self.obj, Source):
-            self.obj_type = "Source"
-        elif isinstance(self.obj, Citation):
-            self.obj_type = "Citation"
-            self.dnd_type = DdTargets.CITATION_LINK
-            self.dnd_icon = 'gramps-citation'
-        elif isinstance(self.obj, Repository):
-            self.obj_type = "Repository"
-        elif isinstance(self.obj, Note):
-            self.obj_type = "Note"
 
     def enable_drag(self):
         """

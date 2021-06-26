@@ -40,12 +40,19 @@ from gi.repository import Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import (
-    EventType,
-    Person,
     Citation,
+    Event,
+    EventType,
+    Family,
+    Note,
+    Person,
+    Place,
+    Repository,
+    Source,
 )
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
+from gramps.gui.ddtargets import DdTargets
 
 
 # ------------------------------------------------------------------------
@@ -107,6 +114,27 @@ TAG_MODES = {
 }
 
 
+def get_gramps_object_type(obj):
+    """
+    Return information for a primary Gramps object.
+    """
+    if isinstance(obj, Person):
+        return "Person", DdTargets.PERSON_LINK, 'gramps-person'
+    elif isinstance(obj, Family):
+        return "Family", DdTargets.FAMILY_LINK, 'gramps-family'
+    elif isinstance(obj, Event):
+        return "Event", DdTargets.EVENT, 'gramps-event'
+    elif isinstance(obj, Place):
+        return "Place", DdTargets.PLACE_LINK, 'gramps-place'
+    elif isinstance(obj, Source):
+        return "Source", DdTargets.SOURCE_LINK, 'gramps-source'
+    elif isinstance(obj, Citation):
+        return "Citation", DdTargets.CITATION_LINK, 'gramps-citation'
+    elif isinstance(obj, Repository):
+        return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
+    elif isinstance(obj, Note):
+        return "Note", DdTargets.NOTE_LINK, 'gramps-notes'
+    
 def format_date_string(event1, event2):
     """
     Format a simple one line date string.
