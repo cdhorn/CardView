@@ -93,7 +93,7 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                     ref_type=ref_type,
                     ref_desc=ref_desc
                 )
-                self.add(frame)
+                self.add_frame(frame)
         self.show_all()
 
     def collect_citations(self):

@@ -43,8 +43,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsConfig
 from frame_event import EventGrampsFrame
+from frame_list import GrampsFrameList
 from timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 
 try:
@@ -59,7 +59,7 @@ _ = _trans.gettext
 # TimelineGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
-class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
+class TimelineGrampsFrameGroup(GrampsFrameList):
     """
     The TimelineGrampsFrameGroup generates an event timeline for a person
     that may also optionally include events for close family if choosen.
@@ -74,16 +74,7 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
         config=None,
         space="preferences.profile.person",
     ):
-        Gtk.VBox.__init__(
-            self,
-            expand=False,
-            margin_right=3,
-            margin_left=3,
-            margin_top=0,
-            margin_bottom=0,
-            spacing=3,
-        )
-        GrampsConfig.__init__(self, dbstate, uistate, space, config)
+        GrampsFrameList.__init__(self, dbstate, uistate, space, config)
         self.count = 0
         self.categories = []
         self.relations = []
@@ -123,7 +114,7 @@ class TimelineGrampsFrameGroup(Gtk.VBox, GrampsConfig):
                 category,
                 groups=groups,
             )
-            self.pack_start(event_frame, False, False, 0)
+            self.add_frame(event_frame)
             self.count = self.count + 1
         self.show_all()
 
