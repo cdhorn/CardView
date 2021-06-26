@@ -134,6 +134,7 @@ class CoupleGrampsFrame(GrampsFrame):
         self.eventbox.add(couple_facts)
         self.eventbox.connect("button-press-event", self.route_action)
         self.section.pack_start(self.eventbox, True, True, 0)
+        self.enable_drag()
 
         if partner2 and vertical:
             profile = self._get_profile(partner2)

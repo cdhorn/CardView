@@ -82,6 +82,7 @@ class CitationGrampsFrame(GrampsFrame):
         self.citation = citation
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
+        self.enable_drag()
         if self.option(self.context, "show-image"):
             self.load_image(groups)
             if self.option(self.context, "show-image-first"):

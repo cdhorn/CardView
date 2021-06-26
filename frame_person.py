@@ -111,6 +111,7 @@ class PersonGrampsFrame(GrampsFrame):
         self.relation = relation
         self.family_backlink = family_backlink
 
+        self.enable_drag()
         if self.option(context, "show-image"):
             self.load_image(groups)
             if self.option(context, "show-image-first"):

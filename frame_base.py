@@ -30,6 +30,7 @@ GrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
+import pickle
 import time
 
 
@@ -88,10 +89,11 @@ from gramps.gen.lib import (
 )
 from gramps.gen.utils.db import preset_name
 from gramps.gen.utils.file import media_path_full
+from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.display import display_url
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
-from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 
 
@@ -243,35 +245,69 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
         self.facts_row = 0
         self.action_menu = None
+        self.eventbox = None
+        self.dnd_type = None
+        self.dnd_icon = None
 
         self.body = Gtk.HBox()
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.frame.add(self.body)        
         if eventbox:
             self.eventbox = Gtk.EventBox()
-            self.eventbox.add(self.body)
+            self.eventbox.add(self.frame)
             self.eventbox.connect("button-press-event", self.route_action)
-            self.frame.add(self.eventbox)
+            self.add(self.eventbox)
         else:
-            self.frame.add(self.body)
-        self.add(self.frame)
+            self.add(self.frame)
 
         if isinstance(self.obj, Person):
             self.obj_type = "Person"
+            self.dnd_type = DdTargets.PERSON_LINK
+            self.dnd_icon = 'gramps-person'
         elif isinstance(self.obj, Family):
             self.obj_type = "Family"
+            self.dnd_type = DdTargets.FAMILY_LINK
+            self.dnd_icon = 'gramps-family'
         elif isinstance(self.obj, Event):
             self.obj_type = "Event"
+            self.dnd_type = DdTargets.EVENT
+            self.dnd_icon = 'gramps-event'
         elif isinstance(self.obj, Place):
             self.obj_type = "Place"
         elif isinstance(self.obj, Source):
             self.obj_type = "Source"
         elif isinstance(self.obj, Citation):
             self.obj_type = "Citation"
+            self.dnd_type = DdTargets.CITATION_LINK
+            self.dnd_icon = 'gramps-citation'
         elif isinstance(self.obj, Repository):
             self.obj_type = "Repository"
         elif isinstance(self.obj, Note):
             self.obj_type = "Note"
 
+    def enable_drag(self):
+        """
+        Enable self as a drag source.
+        """
+        if self.eventbox:
+            self.eventbox.drag_source_set(Gdk.ModifierType.BUTTON1_MASK,
+                                          [], Gdk.DragAction.COPY)
+            target_list = Gtk.TargetList.new([])
+            target_list.add(self.dnd_type.atom_drag_type,
+                            self.dnd_type.target_flags,
+                            self.dnd_type.app_id)
+            self.eventbox.drag_source_set_target_list(target_list)
+            self.eventbox.drag_source_set_icon_name(self.dnd_icon)
+            self.eventbox.connect('drag_data_get', self.drag_data_get)
+
+    def drag_data_get(self, widget, context, sel_data, info, time):
+        """
+        Return requested data.
+        """
+        if info == self.dnd_type.app_id:
+            data = (self.dnd_type.drag_type, id(self), self.obj.get_handle(), 0)
+            sel_data.set(self.dnd_type.atom_drag_type, 8, pickle.dumps(data))
+        
     def load_image(self, groups=None):
         """
         Load primary image for the object if found.

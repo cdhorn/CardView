@@ -108,6 +108,7 @@ class EventGrampsFrame(GrampsFrame):
         self.confidence = 0
         self.event_participant = None
 
+        self.enable_drag()
         if self.option(self.context, "show-image"):
             self.load_image(groups)
             if self.option(self.context, "show-image-first"):
