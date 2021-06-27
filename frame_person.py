@@ -106,21 +106,12 @@ class PersonGrampsFrame(GrampsFrame):
         groups=None,
         family_backlink=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context, groups=groups)
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink
 
         self.enable_drag()
-        if self.option(context, "show-image"):
-            self.load_image(groups)
-            if self.option(context, "show-image-first"):
-                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
-
-        subject_section = Gtk.VBox()
-        if groups and "data" in groups:
-            groups["data"].add_widget(subject_section)
-        self.body.pack_start(subject_section, True, True, 0)
 
         display_name = name_displayer.display(self.person)
         text = "<b>{}</b>".format(display_name)
@@ -143,10 +134,7 @@ class PersonGrampsFrame(GrampsFrame):
             label = Gtk.Label(label=_GENDERS[self.person.gender])
             name_box.pack_start(label, False, False, 0)
         name_box.pack_start(name, False, False, 0)
-        subject_section.pack_start(name_box, True, True, 0)
-
-        events_section = Gtk.HBox()
-        subject_section.pack_start(events_section, True, True, 0)
+        self.title.pack_start(name_box, True, True, 0)
 
         key_events = get_key_person_events(
             self.dbstate.db,
@@ -154,13 +142,9 @@ class PersonGrampsFrame(GrampsFrame):
             show_baptism=self.option(context, "show-baptism"),
             show_burial=self.option(context, "show-burial"),
         )
-        events_section.pack_start(self.facts_grid, True, True, 0)
         self.living = self._load_base_facts(key_events)
         if self.living:
             self.living = probably_alive(self.person, self.dbstate.db)
-
-        relation_section = Gtk.VBox()
-        subject_section.pack_start(relation_section, True, True, 0)
 
         if self.relation and self.option(context, "show-relation"):
             text = ""
@@ -175,24 +159,7 @@ class PersonGrampsFrame(GrampsFrame):
                 )
             if text:
                 label = self.make_label(text)
-                relation_section.pack_start(label, False, False, 0)
-
-        metadata_section = Gtk.VBox()
-        if groups and "metadata" in groups:
-            groups["metadata"].add_widget(metadata_section)
-        self.body.pack_start(metadata_section, False, False, 0)
-
-        gramps_id = self.get_gramps_id_label()
-        metadata_section.pack_start(gramps_id, False, False, 0)
-
-        flowbox = self.get_tags_flowbox()
-        if flowbox:
-            metadata_section.pack_start(flowbox, False, False, 0)
-
-        if self.option(context, "show-image"):
-            if not self.option(context, "show-image-first"):
-                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
-
+                self.add_fact(label)
         self.set_css_style()
 
     def _load_base_facts(self, key_events):

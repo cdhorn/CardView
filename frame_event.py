@@ -97,7 +97,7 @@ class EventGrampsFrame(GrampsFrame):
         category=None,
         groups=None,
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, event, "timeline")
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, event, "timeline", groups=groups)
         self.event = event
         self.event_ref = event_ref
         self.event_category = category
@@ -109,20 +109,8 @@ class EventGrampsFrame(GrampsFrame):
         self.event_participant = None
 
         self.enable_drag()
-        if self.option(self.context, "show-image"):
-            self.load_image(groups)
-            if self.option(self.context, "show-image-first"):
-                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
         
         if self.option(self.context, "show-age"):
-            age_vbox = Gtk.VBox(
-                hexpand=True,
-                margin_right=3,
-                margin_left=3,
-                margin_top=3,
-                margin_bottom=3,
-                spacing=2,
-            )
             if reference_person:
                 target_person = reference_person
             else:
@@ -147,16 +135,7 @@ class EventGrampsFrame(GrampsFrame):
                         use_markup=True,
                         justify=Gtk.Justification.CENTER,
                     )
-                    age_vbox.add(label)
-            if groups and "age" in groups:
-                groups["age"].add_widget(age_vbox)
-            if not self.option(self.context, "show-image-first"):
-                self.body.pack_start(age_vbox, False, False, 0)
-
-        data = Gtk.VBox()
-        if groups and "data" in groups:
-            groups["data"].add_widget(data)
-        self.body.pack_start(data, True, True, 0)
+                    self.age.pack_start(label, False, False, 0)
 
         role = self.event_ref.get_role()
         event_type = glocale.translation.sgettext(event.type.xml_str())
@@ -211,33 +190,33 @@ class EventGrampsFrame(GrampsFrame):
         else:
             name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
             name.set_markup("<b>{}</b>".format(event_type))
-        data.pack_start(name, True, True, 0)
+        self.title.pack_start(name, True, True, 0)
 
         if (
                 (role and not role.is_primary() and not role.is_family()) or
                 self.option(self.context, "show-role-always")
         ):
-            data.pack_start(self.make_label(str(role)), True, True, 0)
+            self.add_fact(self.make_label(str(role)))
 
         date = glocale.date_displayer.display(event.date)
         if date:
-            data.pack_start(self.make_label(date), True, True, 0)
+            self.add_fact(self.make_label(date))
 
         place = place_displayer.display_event(self.dbstate.db, event)
         if place:
-            data.pack_start(self.make_label(place), True, True, 0)
+            self.add_fact(self.make_label(place))
 
         if self.option(self.context, "show-description"):
             text = event.get_description()
             if not text:
                 text = "{} {} {}".format(event_type, _("of"), event_person_name)
-            data.pack_start(self.make_label(text), True, True, 0)
+            self.add_fact(self.make_label(text))
 
         if self.option(self.context, "show-participants"):
             if not participants:
                 participants, participant_string = get_participants(self.dbstate.db, event)
             if participant_string and len(participants) > 1:
-                data.pack_start(self.make_label("Participants {}".format(participant_string)), True, True, 0)
+                self.add_fact(self.make_label("Participants {}".format(participant_string)))
 
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""
@@ -251,26 +230,7 @@ class EventGrampsFrame(GrampsFrame):
         if self.option(self.context, "show-best-confidence") and confidence_text:
             text = "{}{}{}".format(text, comma, confidence_text)
         if text:
-            data.pack_start(self.make_label(text.lower().capitalize()), True, True, 0)
-
-        metadata = Gtk.VBox()
-        if groups and "metadata" in groups:
-            groups["metadata"].add_widget(metadata)
-        self.body.pack_start(metadata, False, False, 0)
-
-        gramps_id = self.get_gramps_id_label()
-        metadata.pack_start(gramps_id, False, False, 0)
-
-        flowbox = self.get_tags_flowbox()
-        if flowbox:
-            metadata.pack_start(flowbox, False, False, 0)
-
-        if self.option(self.context, "show-image"):
-             if not self.option(self.context, "show-image-first"):
-                 self.body.pack_start(self.image, False, False, 0)
-             else:
-                 if self.option(self.context, "show-age"):
-                     self.body.pack_start(age_vbox, False, False, 0)                     
+            self.add_fact(self.make_label(text.lower().capitalize()))
         self.set_css_style()
             
     def get_quality_labels(self):

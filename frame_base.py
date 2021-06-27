@@ -3,6 +3,7 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2021       Christopher Horn
 #
@@ -181,14 +182,12 @@ class GrampsConfig:
             label = Gtk.Label(
                 hexpand=False,
                 halign=Gtk.Align.START,
-                justify=Gtk.Justification.LEFT,
                 wrap=True,
             )
         else:
             label = Gtk.Label(
                 hexpand=False,
                 halign=Gtk.Align.END,
-                justify=Gtk.Justification.RIGHT,
                 wrap=True,
             )
         label.set_markup(self.markup.format(text.replace('&', '&amp;')))
@@ -237,29 +236,117 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary Gramps object it exposes.
     """
 
-    def __init__(self, dbstate, uistate, router, space, config, obj, context, eventbox=True):
+    def __init__(self, dbstate, uistate, router, space, config, obj, context, vertical=True, groups=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, dbstate, uistate, space, config)
         self.obj = obj
         self.router = router
         self.context = context
-        self.image = None
-        self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6)
-        self.facts_row = 0
+        self.vertical = vertical
         self.action_menu = None
-        self.eventbox = None
         self.obj_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(self.obj)
 
-        self.body = Gtk.HBox()
-        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.frame.add(self.body)        
-        if eventbox:
-            self.eventbox = Gtk.EventBox()
-            self.eventbox.add(self.frame)
-            self.eventbox.connect("button-press-event", self.route_action)
-            self.add(self.eventbox)
+        if groups:
+            self.groups = groups
         else:
+            self.groups = {
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            }
+        self.body = Gtk.HBox(hexpand=True, margin=3)
+        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.frame.add(self.body)
+        self.eventbox = Gtk.EventBox()
+        self.eventbox.connect("button-press-event", self.route_action)
+
+        self.image = None
+        self.age = None
+        self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
+        self.tags = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
+        self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6, halign=Gtk.Align.START, hexpand=True)
+        if "data" in self.groups:
+            self.groups["data"].add_widget(self.facts_grid)
+        self.facts_row = 0
+        self.extra_grid = Gtk.Grid(row_spacing=2, column_spacing=6, hexpand=True, halign=Gtk.Align.START)
+        if "extra" in self.groups:
+            self.groups["extra"].add_widget(self.facts_grid)
+        self.extra_row = 0
+        self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
+        if "metadata" in self.groups:
+            self.groups["metadata"].add_widget(self.metadata)
+        self.partner1 = None
+        self.partner2 = None
+
+        if isinstance(self.obj, Family):
             self.add(self.frame)
+            self.build_couple_layout()
+        else:
+            self.eventbox.add(self.frame)
+            self.add(self.eventbox)
+            self.build_default_layout()
+
+        self.metadata.pack_start(self.get_gramps_id_label(), expand=False, fill=False, padding=0)
+        flowbox = self.get_tags_flowbox()
+        if flowbox:
+            self.tags.pack_start(flowbox, expand=True, fill=True, padding=0)
+
+    def build_default_layout(self):
+        """
+        Construct framework for default layout.
+        """
+        if self.option(self.context, "show-image"):
+            self.load_image(self.groups)
+            if self.option(self.context, "show-image-first"):
+                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
+
+        if self.option(self.context, "show-age"):
+            self.age = Gtk.VBox(
+                margin_right=3,
+                margin_left=3,
+                margin_top=3,
+                margin_bottom=3,
+                spacing=2
+            )
+            if "age" in self.groups:
+                self.groups["age"].add_widget(self.age)
+            self.body.pack_start(self.age, expand=False, fill=False, padding=0)
+
+        vcontent = Gtk.VBox()
+        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        hcontent = Gtk.HBox()
+        vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+        tcontent = Gtk.VBox()
+        hcontent.pack_start(tcontent, expand=True, fill=True, padding=0)
+        hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+        tcontent.pack_start(self.title, expand=True, fill=True, padding=0)
+        tsections = Gtk.HBox()
+        tcontent.pack_start(tsections, expand=True, fill=True, padding=0)
+        tsections.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
+        tsections.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
+        vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+
+        if self.image and not self.option(self.context, "show-image-first"):
+            self.body.pack_start(self.image, expand=False, fill=False, padding=0)
+
+    def build_couple_layout(self):
+        """
+        Construct framework for couple layout.
+        """
+        vcontent = Gtk.VBox(spacing=3)
+        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        if self.vertical:
+            self.partner1 = Gtk.HBox(hexpand=True)
+            vcontent.pack_start(self.partner1, expand=True, fill=True, padding=0)
+            hcontent = Gtk.HBox(hexpand=True)
+            self.eventbox.add(hcontent)
+            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+            vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+            self.partner2 = Gtk.HBox(hexpand=True)
+            vcontent.pack_start(self.partner2, expand=True, fill=True, padding=0)
 
     def enable_drag(self):
         """
@@ -296,6 +383,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         if groups and "image" in groups:
             groups["image"].add_widget(self.image)
+
+    def add_fact(self, fact):
+        """
+        Add a simple fact.
+        """
+        self.facts_grid.attach(fact, 0, self.facts_row, 2, 1)
+        self.facts_row = self.facts_row + 1
+
+    def add_extra_fact(self, fact):
+        """
+        Add a simple fact.
+        """
+        self.extra_grid.attach(fact, 0, self.extra_row, 2, 1)
+        self.extra_row = self.extra_row + 1
 
     def add_event(self, event, reference=None, show_age=False):
         """
@@ -403,7 +504,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return None
         tag_width = self.option(self.context, "tag-width")
         flowbox = Gtk.FlowBox(
-            min_children_per_line=tag_width, max_children_per_line=tag_width
+            min_children_per_line=20,
+            max_children_per_line=20,
+            orientation=Gtk.Orientation.HORIZONTAL
         )
         tags = []
         for handle in self.obj.get_tag_list():
@@ -736,18 +839,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                                  callback=self.added_citation)
                 except WindowActiveError:
                     pass
-#                    WarningDialog(_("Cannot share this reference"),
-#                                  self.__blocked_text(),
-#                                  parent=self.uistate.window)
             elif isinstance(selection, Citation):
                 try:
                     EditCitation(self.dbstate, self.uistate, [],
                                  selection, callback=self.added_citation)
                 except WindowActiveError:
                     pass
-#                    WarningDialog(_("Cannot share this reference"),
-#                                  self.__blocked_text(),
-#                                  parent=self.uistate.window)
             else:
                 raise ValueError("Selection must be either source or citation")
         

@@ -76,39 +76,22 @@ class CoupleGrampsFrame(GrampsFrame):
         router,
         parent=None,
         relation=None,
-        vertical=True
+        vertical=True,
+        groups=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, eventbox=False)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, groups=groups)
         self.family = family
         self.parent = parent
         self.relation = relation
 
-        self.section = Gtk.VBox(
-            margin_right=3, margin_left=3, margin_top=3, margin_bottom=3, spacing=2
-        )
-        self.body.add(self.section)
-            
-        self.groups = {
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         partner1, partner2 = self._get_parents()
         profile = self._get_profile(partner1)
         if profile:
-            if vertical:
-                self.section.pack_start(profile, True, True, 0)
-            else:
-                hbox = Gtk.HBox(spacing=2)
-                hbox.pack_start(profile, True, True, 0)
-                if partner2:
-                    profile = self._get_profile(partner2)
-                    if profile:
-                        hbox.pack_start(profile, True, True, 0)
-                self.section.pack_start(hbox, True, True, 0)
-
-        couple_facts = Gtk.HBox()
-        couple_facts.pack_start(self.facts_grid, True, True, 0)
+            self.partner1.add(profile)
+        if partner2:
+            profile = self._get_profile(partner2)
+            if profile:
+                self.partner2.add(profile)
 
         marriage, divorce = get_key_family_events(self.dbstate.db, self.family)
         if marriage:
@@ -119,30 +102,8 @@ class CoupleGrampsFrame(GrampsFrame):
             self.divorced = True
             if self.option(context, "show-divorce"):
                 self.add_event(divorce)
-
-        metadata_section = Gtk.VBox()
-        gramps_id = self.get_gramps_id_label()
-        metadata_section.pack_start(gramps_id, False, False, 0)
-
-        flowbox = self.get_tags_flowbox()
-        if flowbox:
-            metadata_section.pack_start(flowbox, False, False, 0)
-
-        couple_facts.pack_end(metadata_section, False, False, 0)
-
-        self.eventbox = Gtk.EventBox()
-        self.eventbox.add(couple_facts)
-        self.eventbox.connect("button-press-event", self.route_action)
-        self.section.pack_start(self.eventbox, True, True, 0)
         self.enable_drag()
-
-        if partner2 and vertical:
-            profile = self._get_profile(partner2)
-            if profile:
-                self.section.pack_start(profile, True, True, 0)
-
         self.set_css_style()
-        self.show_all()
 
     def _get_profile(self, person):
         if person:

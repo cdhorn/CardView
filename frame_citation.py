@@ -82,7 +82,7 @@ class CitationGrampsFrame(GrampsFrame):
 
     def __init__(self, dbstate, uistate, citation, space, config, router, groups=None, references=[], ref_type=0, ref_desc=""):
         GrampsFrame.__init__(
-            self, dbstate, uistate, router, space, config, citation, "citation"
+            self, dbstate, uistate, router, space, config, citation, "citation", groups=groups
         )
         self.citation = citation
         self.references = references
@@ -91,15 +91,6 @@ class CitationGrampsFrame(GrampsFrame):
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
         self.enable_drag()
-        if self.option(self.context, "show-image"):
-            self.load_image(groups)
-            if self.option(self.context, "show-image-first"):
-                self.body.pack_start(self.image, expand=False, fill=False, padding=0)
-
-        data = Gtk.VBox(vexpand=False)
-        if groups and "data" in groups:
-            groups["data"].add_widget(data)
-        self.body.pack_start(data, False, False, 0)
 
         title = Gtk.Label(
             wrap=True,
@@ -108,57 +99,41 @@ class CitationGrampsFrame(GrampsFrame):
             justify=Gtk.Justification.LEFT,
         )
         title.set_markup("<b>{}</b>".format(self.source.title.replace('&', '&amp;')))
-        data.pack_start(title, True, False, 0)
+        self.title.pack_start(title, True, False, 0)
 
         if self.source.author:
             author = self.make_label(self.source.author)
-            data.pack_start(author, False, False, 0)
+            self.add_fact(author)
 
         if self.citation.page:
             page = self.make_label(self.citation.page)
-            data.pack_start(page, False, False, 0)
+            self.add_fact(page)
 
         if self.option("citation", "show-date"):
             if self.citation.get_date_object():
                 text = glocale.date_displayer.display(self.citation.get_date_object())
                 if text:
-                    data.pack_start(self.make_label(text), False, False, 0)
+                    self.add_fact(self.make_label(text))
         
         if self.option("citation", "show-publisher"):
             if self.source.pubinfo:
                 publisher = self.make_label(self.source.pubinfo)
-                data.pack_start(publisher, False, False, 0)
+                self.add_fact(publisher)
         
-        metadata = Gtk.VBox()
-        if groups and "metadata" in groups:
-            groups["metadata"].add_widget(metadata)
-        self.body.pack_start(metadata, False, False, 0)
-
-        gramps_id = self.get_gramps_id_label()
-        metadata.pack_start(gramps_id, False, False, 0)
-
         if self.option("citation", "show-reference-type"):
             ref_type = self.make_label(CITATION_TYPES[self.ref_type], left=False)
-            metadata.pack_start(ref_type, False, False, 0)
+            self.metadata.pack_start(ref_type, False, False, 0)
 
         if self.option("citation", "show-reference-description"):
             if self.ref_desc:
                 ref_desc = self.make_label(self.ref_desc, left=False)
-                metadata.pack_start(ref_desc, False, False, 0)
+                self.metadata.pack_start(ref_desc, False, False, 0)
         
         if self.option("citation", "show-confidence"):
             confidence = self.make_label(
                 get_confidence(self.citation.confidence), left=False
             )
-            metadata.pack_start(confidence, False, False, 0)
-
-        flowbox = self.get_tags_flowbox()
-        if flowbox:
-            metadata.pack_start(flowbox, False, False, 0)
-
-        if self.option(self.context, "show-image"):
-            if not self.option(self.context, "show-image-first"):
-                self.body.pack_start(self.image, False, False, 0)
+            self.metadata.pack_start(confidence, False, False, 0)
         self.set_css_style()
 
     def get_color_css(self):
