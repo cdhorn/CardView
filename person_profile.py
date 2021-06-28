@@ -152,6 +152,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.active.metadata-attribute-2", "None"),
         ("preferences.profile.person.active.metadata-attribute-3", "None"),
         ("preferences.profile.person.active.metadata-attribute-4", "None"),
+        ("preferences.profile.person.active.metadata-attribute-5", "None"),
         # parent
         ("preferences.profile.person.parent.event-format", 1),
         ("preferences.profile.person.parent.tag-format", 1),
@@ -164,6 +165,11 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.parent.show-baptism", True),
         ("preferences.profile.person.parent.show-burial", True),
         ("preferences.profile.person.parent.show-divorce", True),
+        ("preferences.profile.person.parent.metadata-attribute-1", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-2", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-3", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-4", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-5", "None"),
         # spouse
         ("preferences.profile.person.spouse.event-format", 1),
         ("preferences.profile.person.spouse.tag-format", 1),
@@ -176,6 +182,11 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.spouse.show-baptism", True),
         ("preferences.profile.person.spouse.show-burial", True),
         ("preferences.profile.person.spouse.show-divorce", True),
+        ("preferences.profile.person.spouse.metadata-attribute-1", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-2", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-3", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-4", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-5", "None"),
         # child
         ("preferences.profile.person.child.event-format", 1),
         ("preferences.profile.person.child.tag-format", 1),
@@ -186,6 +197,11 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.child.show-age", False),
         ("preferences.profile.person.child.show-baptism", False),
         ("preferences.profile.person.child.show-burial", False),
+        ("preferences.profile.person.child.metadata-attribute-1", "None"),
+        ("preferences.profile.person.child.metadata-attribute-2", "None"),
+        ("preferences.profile.person.child.metadata-attribute-3", "None"),
+        ("preferences.profile.person.child.metadata-attribute-4", "None"),
+        ("preferences.profile.person.child.metadata-attribute-5", "None"),
         # sibling
         ("preferences.profile.person.sibling.event-format", 1),
         ("preferences.profile.person.sibling.tag-format", 1),
@@ -196,6 +212,11 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.sibling.show-age", False),
         ("preferences.profile.person.sibling.show-baptism", False),
         ("preferences.profile.person.sibling.show-burial", False),
+        ("preferences.profile.person.sibling.metadata-attribute-1", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-2", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-3", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-4", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-5", "None"),
         # timeline
         ("preferences.profile.person.timeline.tag-format", 1),
         ("preferences.profile.person.timeline.tag-width", 10),
@@ -946,6 +967,26 @@ class PersonProfileView(NavigationView):
         grid.set_border_width(12)
         return grid
 
+    def _config_metadata_attributes(self, grid, space, start):
+        """
+        Build metadata custom attribute section.
+        """
+        count = 1
+        row = start
+        while row < start + 5:
+            option = "{}.metadata-attribute-{}".format(space, count)
+            attr_select = AttributeSelector(
+                option, self._config, self.dbstate.db, "Person",
+                tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id")
+            )
+            label = Gtk.Label(
+                halign=Gtk.Align.START, label="{} {}: ".format(_("Metadata attribute"), count)
+            )
+            grid.attach(label, 1, row, 1, 1)
+            grid.attach(attr_select, 2, row, 1, 1)
+            count = count + 1
+            row = row + 1
+
     def layout_panel(self, configdialog):
         """
         Builds layout and styling options section for the configuration dialog
@@ -1058,15 +1099,8 @@ class PersonProfileView(NavigationView):
             grid, _("Show relationship to home person"),
             12, "preferences.profile.person.active.show-relation",
         )
-        attr_select = AttributeSelector(
-            "preferences.profile.person.active.metadata-attribute-1", self._config,
-            self.dbstate.db, "Person"
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Metadata attribute"))
-        )
-        grid.attach(label, 1, 13, 1, 1)
-        grid.attach(attr_select, 2, 13, 1, 1)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.active", 14)
         return _("Person"), grid
 
     def parents_panel(self, configdialog):
@@ -1126,6 +1160,8 @@ class PersonProfileView(NavigationView):
             grid, _("Show divorce or divorce equivalent"),
             12, "preferences.profile.person.parent.show-divorce",
         )
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.parent", 14)
         return _("Parents"), grid
 
     def spouses_panel(self, configdialog):
@@ -1184,6 +1220,8 @@ class PersonProfileView(NavigationView):
             grid, _("Show divorce or divorce equivalent"),
             14, "preferences.profile.person.spouse.show-divorce",
         )
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 15, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 16)
         return _("Spouses"), grid
 
     def children_panel(self, configdialog):
@@ -1233,6 +1271,8 @@ class PersonProfileView(NavigationView):
             grid, _("Show age at death and if selected burial"),
             12, "preferences.profile.person.child.show-age",
         )
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.child", 14)
         return _("Children"), grid
 
     def siblings_panel(self, configdialog):
@@ -1282,6 +1322,8 @@ class PersonProfileView(NavigationView):
             grid, _("Show age at death and if selected burial"),
             12, "preferences.profile.person.sibling.show-age",
         )
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)        
+        self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 14)
         return _("Siblings"), grid
 
     def timeline_panel(self, configdialog):

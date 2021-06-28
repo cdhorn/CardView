@@ -380,7 +380,7 @@ class AttributeSelector(Gtk.ComboBoxText):
     An attribute selector for the configdialog.
     """
 
-    def __init__(self, option, config, db, obj_type):
+    def __init__(self, option, config, db, obj_type, tooltip=None):
         Gtk.ComboBoxText.__init__(self)
         self.option = option
         self.config = config
@@ -395,6 +395,8 @@ class AttributeSelector(Gtk.ComboBoxText):
             current_index = self.attributes.index(current_text)
             self.set_active(current_index)
         self.connect("changed", self.update)
+        if tooltip:
+            self.set_tooltip_text(tooltip)
 
     def update(self, obj):
         current = self.get_active_text()

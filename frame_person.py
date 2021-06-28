@@ -160,6 +160,12 @@ class PersonGrampsFrame(GrampsFrame):
             if text:
                 label = self.make_label(text)
                 self.add_fact(label)
+
+        values = self.get_metadata_attributes()
+        if values:
+            for value in values:
+                label = self.make_label(value, left=False)
+                self.metadata.pack_start(label, False, False, 0)
         self.set_css_style()
 
     def _load_base_facts(self, key_events):
@@ -385,3 +391,18 @@ class PersonGrampsFrame(GrampsFrame):
             return ""
 
         return get_person_color_css(self.obj, self.config, living=self.living, home=self.relation)
+
+    def get_metadata_attributes(self):
+        """
+        Return a list of values for any user defined metadata attributes.
+        """
+        values = []
+        for number in [1, 2, 3, 4, 5]:
+            name = self.option(self.context, "metadata-attribute-{}".format(number))
+            if name and name not in ["None", None, ""]:
+                for attribute in self.obj.get_attribute_list():
+                    if attribute.get_type() == name:
+                        if attribute.get_value():
+                            values.append(attribute.get_value())
+                        break
+        return values
