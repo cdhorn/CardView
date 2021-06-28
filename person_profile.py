@@ -111,7 +111,13 @@ from frame_groups import (
     get_timeline_profiles,
 )
 from frame_person import PersonGrampsFrame
-from frame_utils import ColorSchemeSelector, EventFormatSelector, TagModeSelector
+from frame_utils import (
+    EVENT_DISPLAY_MODES,
+    IMAGE_DISPLAY_MODES,
+    TAG_DISPLAY_MODES,
+    TIMELINE_COLOR_MODES,
+    AttributeSelector
+)
 
 
 class PersonProfileView(NavigationView):
@@ -131,72 +137,69 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.layout.use-color-scheme", True),
         ("preferences.profile.person.layout.use-smaller-detail-font", True),
         ("preferences.profile.person.layout.sort-tags-by-name", False),
+        ("preferences.profile.person.layout.right-to-left", False),
         # active person
-        ("preferences.profile.person.active.event-format", 0),
+        ("preferences.profile.person.active.event-format", 1),
+        ("preferences.profile.person.active.tag-format", 1),
+        ("preferences.profile.person.active.tag-width", 10),
+        ("preferences.profile.person.active.image-mode", 3),
         ("preferences.profile.person.active.show-gender", True),
         ("preferences.profile.person.active.show-age", True),
         ("preferences.profile.person.active.show-baptism", True),
         ("preferences.profile.person.active.show-burial", True),
         ("preferences.profile.person.active.show-relation", True),
-        ("preferences.profile.person.active.show-image", True),
-        ("preferences.profile.person.active.show-image-large", True),
-        ("preferences.profile.person.active.show-image-first", False),
-        ("preferences.profile.person.active.tag-format", 1),
-        ("preferences.profile.person.active.tag-width", 2),
+        ("preferences.profile.person.active.metadata-attribute-1", "None"),
+        ("preferences.profile.person.active.metadata-attribute-2", "None"),
+        ("preferences.profile.person.active.metadata-attribute-3", "None"),
+        ("preferences.profile.person.active.metadata-attribute-4", "None"),
         # parent
-        ("preferences.profile.person.parent.event-format", 0),
+        ("preferences.profile.person.parent.event-format", 1),
+        ("preferences.profile.person.parent.tag-format", 1),
+        ("preferences.profile.person.parent.tag-width", 10),
+        ("preferences.profile.person.parent.image-mode", 1),
         ("preferences.profile.person.parent.show-matrilineal", False),
         ("preferences.profile.person.parent.expand-children", True),
         ("preferences.profile.person.parent.show-gender", True),
-        ("preferences.profile.person.parent.show-age", True),
+        ("preferences.profile.person.parent.show-age", False),
         ("preferences.profile.person.parent.show-baptism", True),
         ("preferences.profile.person.parent.show-burial", True),
         ("preferences.profile.person.parent.show-divorce", True),
-        ("preferences.profile.person.parent.show-image", True),
-        ("preferences.profile.person.parent.show-image-large", False),
-        ("preferences.profile.person.parent.show-image-first", False),
-        ("preferences.profile.person.parent.tag-format", 1),
-        ("preferences.profile.person.parent.tag-width", 2),
         # spouse
-        ("preferences.profile.person.spouse.event-format", 0),
+        ("preferences.profile.person.spouse.event-format", 1),
+        ("preferences.profile.person.spouse.tag-format", 1),
+        ("preferences.profile.person.spouse.tag-width", 10),
+        ("preferences.profile.person.spouse.image-mode", 3),
         ("preferences.profile.person.spouse.expand-children", True),
         ("preferences.profile.person.spouse.show-spouse-only", True),
         ("preferences.profile.person.spouse.show-gender", True),
-        ("preferences.profile.person.spouse.show-age", True),
+        ("preferences.profile.person.spouse.show-age", False),
         ("preferences.profile.person.spouse.show-baptism", True),
         ("preferences.profile.person.spouse.show-burial", True),
         ("preferences.profile.person.spouse.show-divorce", True),
-        ("preferences.profile.person.spouse.show-image", True),
-        ("preferences.profile.person.spouse.show-image-large", False),
-        ("preferences.profile.person.spouse.show-image-first", False),
-        ("preferences.profile.person.spouse.tag-format", 1),
-        ("preferences.profile.person.spouse.tag-width", 2),
         # child
-        ("preferences.profile.person.child.event-format", 0),
-        ("preferences.profile.person.child.number-children", False),
-        ("preferences.profile.person.child.show-gender", True),
-        ("preferences.profile.person.child.show-age", True),
-        ("preferences.profile.person.child.show-baptism", True),
-        ("preferences.profile.person.child.show-burial", True),
-        ("preferences.profile.person.child.show-image", True),
-        ("preferences.profile.person.child.show-image-first", False),
-        ("preferences.profile.person.child.show-image-large", False),
+        ("preferences.profile.person.child.event-format", 1),
         ("preferences.profile.person.child.tag-format", 1),
-        ("preferences.profile.person.child.tag-width", 2),
+        ("preferences.profile.person.child.tag-width", 10),
+        ("preferences.profile.person.child.image-mode", 3),
+        ("preferences.profile.person.child.number-children", True),
+        ("preferences.profile.person.child.show-gender", True),
+        ("preferences.profile.person.child.show-age", False),
+        ("preferences.profile.person.child.show-baptism", False),
+        ("preferences.profile.person.child.show-burial", False),
         # sibling
-        ("preferences.profile.person.sibling.event-format", 0),
-        ("preferences.profile.person.sibling.number-children", False),
-        ("preferences.profile.person.sibling.show-gender", True),
-        ("preferences.profile.person.sibling.show-age", True),
-        ("preferences.profile.person.sibling.show-baptism", True),
-        ("preferences.profile.person.sibling.show-burial", True),
-        ("preferences.profile.person.sibling.show-tags", True),
-        ("preferences.profile.person.sibling.show-image", True),
-        ("preferences.profile.person.sibling.show-image-first", False),
-        ("preferences.profile.person.sibling.show-image-large", False),
+        ("preferences.profile.person.sibling.event-format", 1),
         ("preferences.profile.person.sibling.tag-format", 1),
-        ("preferences.profile.person.sibling.tag-width", 2),
+        ("preferences.profile.person.sibling.tag-width", 10),
+        ("preferences.profile.person.sibling.image-mode", 1),
+        ("preferences.profile.person.sibling.number-children", True),
+        ("preferences.profile.person.sibling.show-gender", True),
+        ("preferences.profile.person.sibling.show-age", False),
+        ("preferences.profile.person.sibling.show-baptism", False),
+        ("preferences.profile.person.sibling.show-burial", False),
         # timeline
+        ("preferences.profile.person.timeline.tag-format", 1),
+        ("preferences.profile.person.timeline.tag-width", 10),
+        ("preferences.profile.person.timeline.image-mode", 1),
         ("preferences.profile.person.timeline.color-scheme", 1),
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-participants", True),
@@ -204,12 +207,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-source-count", True),
         ("preferences.profile.person.timeline.show-citation-count", True),
         ("preferences.profile.person.timeline.show-best-confidence", True),
-        ("preferences.profile.person.timeline.tag-format", 1),
-        ("preferences.profile.person.timeline.tag-width", 2),
         ("preferences.profile.person.timeline.show-age", True),
-        ("preferences.profile.person.timeline.show-image", True),
-        ("preferences.profile.person.timeline.show-image-first", False),
-        ("preferences.profile.person.timeline.show-image-large", False),        
         ("preferences.profile.person.timeline.show-class-vital", True),
         ("preferences.profile.person.timeline.show-class-family", True),
         ("preferences.profile.person.timeline.show-class-religious", True),
@@ -241,16 +239,13 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.timeline.show-family-class-other", False),
         ("preferences.profile.person.timeline.show-family-class-custom", False),
         # citation
+        ("preferences.profile.person.citation.tag-format", 1),
+        ("preferences.profile.person.citation.tag-width", 10),
+        ("preferences.profile.person.citation.image-mode", 1),
         ("preferences.profile.person.citation.sort-by-date", False),
         ("preferences.profile.person.citation.include-indirect", True),
         ("preferences.profile.person.citation.include-family", True),
         ("preferences.profile.person.citation.include-family-indirect", True),
-        ("preferences.profile.person.citation.sort-by-date", False),
-        ("preferences.profile.person.citation.show-image", False),
-        ("preferences.profile.person.citation.show-image-first", False),
-        ("preferences.profile.person.citation.show-image-large", False),
-        ("preferences.profile.person.citation.tag-format", 1),
-        ("preferences.profile.person.citation.tag-width", 2),
         ("preferences.profile.person.citation.show-date", True),
         ("preferences.profile.person.citation.show-publisher", True),
         ("preferences.profile.person.citation.show-reference-type", True),
@@ -947,10 +942,8 @@ class PersonProfileView(NavigationView):
         """
         Gtk.Grid for config panels (tabs).
         """
-        grid = Gtk.Grid()
+        grid = Gtk.Grid(row_spacing=6, column_spacing=6, column_homogeneous=False)
         grid.set_border_width(12)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
         return grid
 
     def layout_panel(self, configdialog):
@@ -960,72 +953,61 @@ class PersonProfileView(NavigationView):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
-            grid,
-            _("Pin active person header so it does not scroll"),
-            1,
-            "preferences.profile.person.layout.pinned-header",
+            grid, _("Pin active person header so it does not scroll"),
+            1, "preferences.profile.person.layout.pinned-header",
+            tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Place spouses & children on left side"),
-            2,
-            "preferences.profile.person.layout.spouses-left",
+            grid, _("Place spouses & children on left side"),
+            2, "preferences.profile.person.layout.spouses-left",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Stack parents & spouses in a single column"),
-            3,
-            "preferences.profile.person.layout.families-stacked",
+            grid, _("Stack parents & spouses in a single column"),
+            3, "preferences.profile.person.layout.families-stacked",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show event timeline"),
-            4,
-            "preferences.profile.person.layout.show-timeline",
+            grid, _("Show event timeline"),
+            4, "preferences.profile.person.layout.show-timeline",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show associated citations"),
-            5,
-            "preferences.profile.person.layout.show-citations",
+            grid, _("Show associated citations"),
+            5, "preferences.profile.person.layout.show-citations",
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
-            grid,
-            _("Use smaller font for detail attributes"),
-            7,
-            "preferences.profile.person.layout.use-smaller-detail-font",
+            grid, _("Use smaller font for detail attributes"),
+            7, "preferences.profile.person.layout.use-smaller-detail-font",
+            tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
-            grid,
-            _("Desired border width"),
-            8,
-            "preferences.profile.person.layout.border-width",
+            grid, _("Desired border width"),
+            8, "preferences.profile.person.layout.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
-            grid,
-            _("Use color schema"),
-            9,
-            "preferences.profile.person.layout.use-color-scheme",
+            grid, _("Enable coloring schemes"),
+            9, "preferences.profile.person.layout.use-color-scheme",
+            tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Sort tags by name not priority"),
-            10,
-            "preferences.profile.person.layout.sort-tags-by-name",
+            grid, _("Right to left"),
+            10, "preferences.profile.person.layout.right-to-left",
+            tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Enable tooltips"),
-            11,
-            "preferences.profile.person.layout.enable-tooltips",
+            grid, _("Sort tags by name not priority"),
+            11, "preferences.profile.person.layout.sort-tags-by-name",
+            tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Enable warnings"),
-            12,
-            "preferences.profile.person.layout.enable-warnings",
+            grid, _("Enable warnings"),
+            12, "preferences.profile.person.layout.enable-warnings",
+            tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Enable tooltips"),
+            13, "preferences.profile.person.layout.enable-tooltips",
+            tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
         return _("Layout"), grid
 
@@ -1034,74 +1016,57 @@ class PersonProfileView(NavigationView):
         Builds active person options section for the configuration dialog
         """
         grid = self.create_grid()        
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        event_format = EventFormatSelector(
-            "preferences.profile.person.active.event-format", self._config
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.person.active.event-format",
+            EVENT_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Event display mode"))
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            2, "preferences.profile.person.active.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(event_format, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.active.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 2, 1, 1)
-        grid.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.active.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            3, "preferences.profile.person.active.tag-width",
+            (1, 20),
         )
-        configdialog.add_checkbox(
-            grid, _("Show image"), 4, "preferences.profile.person.active.show-image"
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            5,
-            "preferences.profile.person.active.show-image-large",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            6,
-            "preferences.profile.person.active.show-image-first",
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            4, "preferences.profile.person.active.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 8, "preferences.profile.person.active.show-gender"
+            grid, _("Show gender"),
+            8, "preferences.profile.person.active.show-gender"
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show baptism if available and not used as birth equivalent"),
-            9,
-            "preferences.profile.person.active.show-baptism",
+            grid, _("Show baptism if available and not used as birth equivalent"),
+            9, "preferences.profile.person.active.show-baptism",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show burial if available and not used as death equivalent"),
-            10,
-            "preferences.profile.person.active.show-burial",
+            grid, _("Show burial if available and not used as death equivalent"),
+            10, "preferences.profile.person.active.show-burial",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show age at death and if selected burial"),
-            11,
-            "preferences.profile.person.active.show-age",
+            grid, _("Show age at death and if selected burial"),
+            11, "preferences.profile.person.active.show-age",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show relationship to home person"),
-            12,
-            "preferences.profile.person.active.show-relation",
+            grid, _("Show relationship to home person"),
+            12, "preferences.profile.person.active.show-relation",
         )
+        attr_select = AttributeSelector(
+            "preferences.profile.person.active.metadata-attribute-1", self._config,
+            self.dbstate.db, "Person"
+        )
+        label = Gtk.Label(
+            halign=Gtk.Align.START, label="{}: ".format(_("Metadata attribute"))
+        )
+        grid.attach(label, 1, 13, 1, 1)
+        grid.attach(attr_select, 2, 13, 1, 1)
         return _("Person"), grid
 
     def parents_panel(self, configdialog):
@@ -1109,85 +1074,57 @@ class PersonProfileView(NavigationView):
         Builds parents options section for the configuration dialog
         """
         grid = self.create_grid()
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        event_format = EventFormatSelector(
-            "preferences.profile.person.parent.event-format", self._config
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.person.parent.event-format",
+            EVENT_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Event display mode"))
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            2, "preferences.profile.person.parent.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(event_format, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.parent.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 2, 1, 1)
-        grid.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.parent.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            3, "preferences.profile.person.parent.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            4, "preferences.profile.person.parent.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid, _("Show image"), 4, "preferences.profile.person.parent.show-image"
+            grid, _("Matrilineal mode (inverts couple)"),
+            5, "preferences.profile.person.parent.show-matrilineal",
+            tooltip=_("Enabling this option will switch the placement of the male and female roles in the couple relationship.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            5,
-            "preferences.profile.person.parent.show-image-large",
+            grid, _("Expand children by default"),
+            6, "preferences.profile.person.parent.expand-children",
+            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
+        )
+        configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show gender"),
+            8, "preferences.profile.person.parent.show-gender"
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            6,
-            "preferences.profile.person.parent.show-image-first",
+            grid, _("Show baptism if available and not used as birth equivalent"),
+            9, "preferences.profile.person.parent.show-baptism",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Matrilineal mode (inverts couple)"),
-            7,
-            "preferences.profile.person.parent.show-matrilineal",
+            grid, _("Show burial if available and not used as birth equivalent"),
+            10, "preferences.profile.person.parent.show-burial",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Expand children by default"),
-            8,
-            "preferences.profile.person.parent.expand-children",
-        )
-        configdialog.add_text(grid, _("Display Attributes"), 9, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"), 10, "preferences.profile.person.parent.show-gender"
+            grid, _("Show age at death and if selected burial"),
+            11, "preferences.profile.person.parent.show-age",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show baptism if available and not used as birth equivalent"),
-            11,
-            "preferences.profile.person.parent.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show burial if available and not used as birth equivalent"),
-            12,
-            "preferences.profile.person.parent.show-burial",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show age at death and if selected burial"),
-            13,
-            "preferences.profile.person.parent.show-age",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show divorce or divorce equivalent"),
-            14,
-            "preferences.profile.person.parent.show-divorce",
+            grid, _("Show divorce or divorce equivalent"),
+            12, "preferences.profile.person.parent.show-divorce",
         )
         return _("Parents"), grid
 
@@ -1196,85 +1133,56 @@ class PersonProfileView(NavigationView):
         Builds spouses options section for the configuration dialog
         """
         grid = self.create_grid()
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        event_format = EventFormatSelector(
-            "preferences.profile.person.spouse.event-format", self._config
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.person.spouse.event-format",
+            EVENT_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}".format(_("Event display mode"))
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            2, "preferences.profile.person.spouse.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(event_format, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.spouse.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 2, 1, 1)
-        grid.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.spouse.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            3, "preferences.profile.person.spouse.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            4, "preferences.profile.person.spouse.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid, _("Show image"), 4, "preferences.profile.person.spouse.show-image"
+            grid, _("Show spouse only"),
+            7, "preferences.profile.person.spouse.show-spouse-only",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            5,
-            "preferences.profile.person.spouse.show-image-large",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            6,
-            "preferences.profile.person.spouse.show-image-first",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show spouse only"),
-            7,
-            "preferences.profile.person.spouse.show-spouse-only",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Expand children by default"),
-            8,
-            "preferences.profile.person.spouse.expand-children",
+            grid, _("Expand children by default"),
+            8, "preferences.profile.person.spouse.expand-children",
+            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
         )
         configdialog.add_text(grid, _("Display Attributes"), 9, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 10, "preferences.profile.person.spouse.show-gender"
+            grid, _("Show gender"),
+            10, "preferences.profile.person.spouse.show-gender"
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show baptism if available and not used as birth equivalent"),
-            11,
-            "preferences.profile.person.spouse.show-baptism",
+            grid, _("Show baptism if available and not used as birth equivalent"),
+            11, "preferences.profile.person.spouse.show-baptism",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show burial if available and not used as death equivalent"),
-            12,
-            "preferences.profile.person.spouse.show-burial",
+            grid, _("Show burial if available and not used as death equivalent"),
+            12, "preferences.profile.person.spouse.show-burial",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show age at death and if selected burial"),
-            13,
-            "preferences.profile.person.spouse.show-age",
+            grid, _("Show age at death and if selected burial"),
+            13, "preferences.profile.person.spouse.show-age",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show divorce or divorce equivalent"),
-            14,
-            "preferences.profile.person.spouse.show-divorce",
+            grid, _("Show divorce or divorce equivalent"),
+            14, "preferences.profile.person.spouse.show-divorce",
         )
         return _("Spouses"), grid
 
@@ -1283,73 +1191,47 @@ class PersonProfileView(NavigationView):
         Builds children options section for the configuration dialog
         """
         grid = self.create_grid()
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        event_format = EventFormatSelector(
-            "preferences.profile.person.child.event-format", self._config
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.person.child.event-format",
+            EVENT_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Event display mode"))
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            2, "preferences.profile.person.child.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(event_format, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.child.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 2, 1, 1)
-        grid.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.child.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            3, "preferences.profile.person.child.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            4, "preferences.profile.person.child.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid, _("Show image"), 4, "preferences.profile.person.child.show-image"
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            5,
-            "preferences.profile.person.child.show-image-large",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            6,
-            "preferences.profile.person.child.show-image-first",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Number children"),
-            7,
-            "preferences.profile.person.child.number-children",
+            grid, _("Number children"),
+            7, "preferences.profile.person.child.number-children",
         )
         configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 9, "preferences.profile.person.child.show-gender"
+            grid, _("Show gender"),
+            9, "preferences.profile.person.child.show-gender"
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show baptism if available and not used as birth equivalent"),
-            10,
-            "preferences.profile.person.child.show-baptism",
+            grid, _("Show baptism if available and not used as birth equivalent"),
+            10, "preferences.profile.person.child.show-baptism",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show burial if available and not used as death equivalent"),
-            11,
-            "preferences.profile.person.child.show-burial",
+            grid, _("Show burial if available and not used as death equivalent"),
+            11, "preferences.profile.person.child.show-burial",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show age at death and if selected burial"),
-            12,
-            "preferences.profile.person.child.show-age",
+            grid, _("Show age at death and if selected burial"),
+            12, "preferences.profile.person.child.show-age",
         )
         return _("Children"), grid
 
@@ -1358,73 +1240,47 @@ class PersonProfileView(NavigationView):
         Builds siblings options section for the configuration dialog
         """
         grid = self.create_grid()
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        event_format = EventFormatSelector(
-            "preferences.profile.person.sibling.event-format", self._config
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.person.sibling.event-format",
+            EVENT_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Event display mode"))
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            2, "preferences.profile.person.sibling.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(event_format, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.sibling.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 2, 1, 1)
-        grid.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.sibling.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            3, "preferences.profile.person.sibling.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            4, "preferences.profile.person.sibling.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid, _("Show image"), 4, "preferences.profile.person.sibling.show-image"
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            5,
-            "preferences.profile.person.sibling.show-image-large",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            6,
-            "preferences.profile.person.sibling.show-image-first",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Number children"),
-            7,
-            "preferences.profile.person.sibling.number-children",
+            grid, _("Number children"),
+            7, "preferences.profile.person.sibling.number-children",
         )
         configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show gender"), 9, "preferences.profile.person.sibling.show-gender"
+            grid, _("Show gender"),
+            9, "preferences.profile.person.sibling.show-gender"
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show baptism if available and not used as birth equivalent"),
-            10,
-            "preferences.profile.person.sibling.show-baptism",
+            grid, _("Show baptism if available and not used as birth equivalent"),
+            10, "preferences.profile.person.sibling.show-baptism",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show burial if available and not used as death equivalent"),
-            11,
-            "preferences.profile.person.sibling.show-burial",
+            grid, _("Show burial if available and not used as death equivalent"),
+            11, "preferences.profile.person.sibling.show-burial",
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show age at death and if selected burial"),
-            12,
-            "preferences.profile.person.sibling.show-age",
+            grid, _("Show age at death and if selected burial"),
+            12, "preferences.profile.person.sibling.show-age",
         )
         return _("Siblings"), grid
 
@@ -1433,276 +1289,218 @@ class PersonProfileView(NavigationView):
         Builds active person timeline options section for the configuration dialog
         """
         grid1 = self.create_grid()
-        grid1.set_column_homogeneous(False)
         configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
-        color_scheme = ColorSchemeSelector(
-            "preferences.profile.person.timeline.color-scheme", self._config
+        configdialog.add_combo(
+            grid1, _("Timeline color scheme"),
+            1, "preferences.profile.person.timeline.color-scheme",
+            TIMELINE_COLOR_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Color scheme to apply"))
+        configdialog.add_combo(
+            grid1, _("Tag display mode"),
+            2, "preferences.profile.person.timeline.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        grid1.attach(label, 1, 1, 1, 1)
-        grid1.attach(color_scheme, 2, 1, 1, 1)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.timeline.tag-format", self._config
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid1.attach(label, 1, 2, 1, 1)
-        grid1.attach(tag_mode, 2, 2, 1, 1)
         configdialog.add_spinner(
-            grid1,
-            _("Maximum tags per line"),
-            3,
-            "preferences.profile.person.timeline.tag-width",
-            (1, 6),
+            grid1, _("Maximum tags per line"),
+            3, "preferences.profile.person.timeline.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid1, _("Image display mode"),
+            4, "preferences.profile.person.timeline.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid1, _("Show age"), 4, "preferences.profile.person.timeline.show-age"
+            grid1, _("Show year and age"),
+            5, "preferences.profile.person.timeline.show-age",
+            tooltip=_("Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated.")
+        )
+        configdialog.add_text(grid1, _("Display Attributes"), 6, bold=True)
+        configdialog.add_checkbox(
+            grid1, _("Show role always not just secondary events"),
+            7, "preferences.profile.person.timeline.show-role-always",
+            tooltip=_("Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events.")
         )
         configdialog.add_checkbox(
-            grid1, _("Show image"), 5, "preferences.profile.person.timeline.show-image"
+            grid1, _("Show description"),
+            8, "preferences.profile.person.timeline.show-description",
+            tooltip=_("Enabling this option will show the event description if one is available.")
         )
         configdialog.add_checkbox(
-            grid1,
-            _("Use large image format"),
-            6,
-            "preferences.profile.person.timeline.show-image-large",
+            grid1, _("Show registered participants if more than one person"),
+            9, "preferences.profile.person.timeline.show-participants",
+            tooltip=_("Enabling this option will show the other participants in shared events.")
         )
         configdialog.add_checkbox(
-            grid1,
-            _("Show image first on left hand side"),
-            7,
-            "preferences.profile.person.timeline.show-image-first",
-        )
-        configdialog.add_text(grid1, _("Display Attributes"), 8, bold=True)
-        configdialog.add_checkbox(
-            grid1,
-            _("Show role always not just secondary events"),
-            9,
-            "preferences.profile.person.timeline.show-role-always",
+            grid1, _("Show source count"),
+            10, "preferences.profile.person.timeline.show-source-count",
+            tooltip=_("Enabling this option will include a count of the number of unique sources cited from in support of the information about the event.")
         )
         configdialog.add_checkbox(
-            grid1,
-            _("Show description"),
-            10,
-            "preferences.profile.person.timeline.show-description",
+            grid1, _("Show citation count"),
+            11, "preferences.profile.person.timeline.show-citation-count",
+            tooltip=_("Enabling this option will include a count of the number of citations in support of the information about the event.")
         )
         configdialog.add_checkbox(
-            grid1,
-            _("Show registered participants if more than one person"),
-            11,
-            "preferences.profile.person.timeline.show-participants",
-        )
-        configdialog.add_checkbox(
-            grid1,
-            _("Show source count"),
-            12,
-            "preferences.profile.person.timeline.show-source-count",
-        )
-        configdialog.add_checkbox(
-            grid1,
-            _("Show citation count"),
-            13,
-            "preferences.profile.person.timeline.show-citation-count",
-        )
-        configdialog.add_checkbox(
-            grid1,
-            _("Show best confidence rating"),
-            14,
-            "preferences.profile.person.timeline.show-best-confidence",
+            grid1, _("Show best confidence rating"),
+            12, "preferences.profile.person.timeline.show-best-confidence",
+            tooltip=_("Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event.")
         )
         grid2 = self.create_grid()
-        grid2.set_column_homogeneous(False)
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
-            grid2,
-            _("Show vital"),
-            1,
-            "preferences.profile.person.timeline.show-class-vital",
+            grid2, _("Show vital"),
+            1, "preferences.profile.person.timeline.show-class-vital",
+            tooltip=_("Enabling this option will show all vital events for the person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show family"),
-            2,
-            "preferences.profile.person.timeline.show-class-family",
+            grid2, _("Show family"),
+            2, "preferences.profile.person.timeline.show-class-family",
+            tooltip=_("Enabling this option will show all family related events for the active person on the timeline. The list of family events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show religious"),
-            3,
-            "preferences.profile.person.timeline.show-class-religious",
+            grid2, _("Show religious"),
+            3, "preferences.profile.person.timeline.show-class-religious",
+            tooltip=_("Enabling this option will show all religious events for the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show vocational"),
-            4,
-            "preferences.profile.person.timeline.show-class-vocational",
+            grid2, _("Show vocational"),
+            4, "preferences.profile.person.timeline.show-class-vocational",
+            tooltip=_("Enabling this option will show all vocational events for the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show academic"),
-            5,
-            "preferences.profile.person.timeline.show-class-academic",
+            grid2, _("Show academic"),
+            5, "preferences.profile.person.timeline.show-class-academic",
+            tooltip=_("Enabling this option will show all academic events for the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show travel"),
-            6,
-            "preferences.profile.person.timeline.show-class-travel",
+            grid2, _("Show travel"),
+            6, "preferences.profile.person.timeline.show-class-travel",
+            tooltip=_("Enabling this option will show all travel events for the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show legal"),
-            7,
-            "preferences.profile.person.timeline.show-class-legal",
+            grid2, _("Show legal"),
+            7, "preferences.profile.person.timeline.show-class-legal",
+            tooltip=_("Enabling this option will show all legal events for the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show residence"),
-            8,
-            "preferences.profile.person.timeline.show-class-residence",
+            grid2, _("Show residence"),
+            8, "preferences.profile.person.timeline.show-class-residence",
+            tooltip=_("Enabling this option will show all residence events for the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show other"),
-            9,
-            "preferences.profile.person.timeline.show-class-other",
+            grid2, _("Show other"),
+            9, "preferences.profile.person.timeline.show-class-other",
+            tooltip=_("Enabling this option will show all other events for the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid2,
-            _("Show custom"),
-            10,
-            "preferences.profile.person.timeline.show-class-custom",
+            grid2, _("Show custom"),
+            10, "preferences.profile.person.timeline.show-class-custom",
+            tooltip=_("Enabling this option will show all user defined custom events for the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor.")
         )
         grid3 = self.create_grid()
-        grid3.set_column_homogeneous(False)
         configdialog.add_text(grid3, _("Relationship Filters"), 0, bold=True)
         configdialog.add_spinner(
-            grid3,
-            _("Generations of ancestors to examine"),
-            1,
-            "preferences.profile.person.timeline.generations-ancestors",
+            grid3, _("Generations of ancestors to examine"),
+            1, "preferences.profile.person.timeline.generations-ancestors",
             (1, 3),
         )
         configdialog.add_spinner(
-            grid3,
-            _("Generations of offspring to examine"),
-            2,
-            "preferences.profile.person.timeline.generations-offspring",
+            grid3, _("Generations of offspring to examine"),
+            2, "preferences.profile.person.timeline.generations-offspring",
             (1, 3),
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for father and grandfathers"),
-            3,
-            "preferences.profile.person.timeline.show-family-father",
+            grid3, _("Include events for father and grandfathers"),
+            3, "preferences.profile.person.timeline.show-family-father",
+            tooltip=_("Enabling this option will include events for fathers, stepfathers, and grandfathers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for mother and grandmothers"),
-            4,
-            "preferences.profile.person.timeline.show-family-mother",
+            grid3, _("Include events for mother and grandmothers"),
+            4, "preferences.profile.person.timeline.show-family-mother",
+            tooltip=_("Enabling this option will include events for mothers, stepmothers, and grandmothers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for brothers and stepbrothers"),
-            5,
-            "preferences.profile.person.timeline.show-family-brother",
+            grid3, _("Include events for brothers and stepbrothers"),
+            5, "preferences.profile.person.timeline.show-family-brother",
+            tooltip=_("Enabling this option will include events for brothers and stepbrothers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for sisters and stepsisters"),
-            6,
-            "preferences.profile.person.timeline.show-family-sister",
+            grid3, _("Include events for sisters and stepsisters"),
+            6, "preferences.profile.person.timeline.show-family-sister",
+            tooltip=_("Enabling this option will include events for sisters and stepsisters of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for wives"),
-            7,
-            "preferences.profile.person.timeline.show-family-wife",
+            grid3, _("Include events for wives"),
+            7, "preferences.profile.person.timeline.show-family-wife",
+            tooltip=_("Enabling this option will include events for the wives of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for husbands"),
-            8,
-            "preferences.profile.person.timeline.show-family-husband",
+            grid3, _("Include events for husbands"),
+            8, "preferences.profile.person.timeline.show-family-husband",
+            tooltip=_("Enabling this option will include events for the husbands of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for sons and grandsons"),
-            9,
-            "preferences.profile.person.timeline.show-family-son",
+            grid3, _("Include events for sons and grandsons"),
+            9, "preferences.profile.person.timeline.show-family-son",
+            tooltip=_("Enabling this option will include events for the sons and grandsons of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         configdialog.add_checkbox(
-            grid3,
-            _("Include events for daughters and granddaughters"),
-            10,
-            "preferences.profile.person.timeline.show-family-daughter",
+            grid3, _("Include events for daughters and granddaughters"),
+            10, "preferences.profile.person.timeline.show-family-daughter",
+            tooltip=_("Enabling this option will include events for the daughters and granddaughters of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion.")
         )
         grid4 = self.create_grid()
-        grid4.set_column_homogeneous(False)
         configdialog.add_text(grid4, _("Relationship Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
-            grid4,
-            _("Show vital"),
-            1,
-            "preferences.profile.person.timeline.show-family-class-vital",
+            grid4, _("Show vital"),
+            1, "preferences.profile.person.timeline.show-family-class-vital",
+            tooltip=_("Enabling this option will show all vital events for the eligible relations of the active person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show family"),
-            2,
-            "preferences.profile.person.timeline.show-family-class-family",
+            grid4, _("Show family"),
+            2, "preferences.profile.person.timeline.show-family-class-family",
+            tooltip=_("Enabling this option will show all family related events for the eligible relations of the active person on the timeline. The list of family events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show religious"),
-            3,
-            "preferences.profile.person.timeline.show-family-class-religious",
+            grid4, _("Show religious"),
+            3, "preferences.profile.person.timeline.show-family-class-religious",
+            tooltip=_("Enabling this option will show all religious related events for the eligible relations of the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show vocational"),
-            4,
-            "preferences.profile.person.timeline.show-family-class-vocational",
+            grid4, _("Show vocational"),
+            4, "preferences.profile.person.timeline.show-family-class-vocational",
+            tooltip=_("Enabling this option will show all vocational related events for the eligible relations of the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show academic"),
-            5,
-            "preferences.profile.person.timeline.show-family-class-academic",
+            grid4, _("Show academic"),
+            5, "preferences.profile.person.timeline.show-family-class-academic",
+            tooltip=_("Enabling this option will show all academic related events for the eligible relations of the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show travel"),
-            6,
-            "preferences.profile.person.timeline.show-family-class-travel",
+            grid4, _("Show travel"),
+            6, "preferences.profile.person.timeline.show-family-class-travel",
+            tooltip=_("Enabling this option will show all travel related events for the eligible relations of the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show legal"),
-            7,
-            "preferences.profile.person.timeline.show-family-class-legal",
+            grid4, _("Show legal"),
+            7, "preferences.profile.person.timeline.show-family-class-legal",
+            tooltip=_("Enabling this option will show all legal related events for the eligible relations of the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show residence"),
-            8,
-            "preferences.profile.person.timeline.show-family-class-residence",
+            grid4, _("Show residence"),
+            8, "preferences.profile.person.timeline.show-family-class-residence",
+            tooltip=_("Enabling this option will show all residence related events for the eligible relations of the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show other"),
-            9,
-            "preferences.profile.person.timeline.show-family-class-other",
+            grid4, _("Show other"),
+            9, "preferences.profile.person.timeline.show-family-class-other",
+            tooltip=_("Enabling this option will show all other events for the eligible relations of the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
-            grid4,
-            _("Show custom"),
-            10,
-            "preferences.profile.person.timeline.show-family-class-custom",
+            grid4, _("Show custom"),
+            10, "preferences.profile.person.timeline.show-family-class-custom",
+            tooltip=_("Enabling this option will show all user defined custom events for the eligible relations of the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor.")
         )
         grid = Gtk.Grid()
         grid.attach(grid1, 0, 0, 1, 1)
@@ -1716,92 +1514,72 @@ class PersonProfileView(NavigationView):
         Builds citations options section for configuration dialog
         """
         grid = self.create_grid()
-        grid.set_column_homogeneous(False)
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        tag_mode = TagModeSelector(
-            "preferences.profile.person.citation.tag-format", self._config
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.person.citation.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        label = Gtk.Label(
-            halign=Gtk.Align.START, label="{}: ".format(_("Tag display mode"))
-        )
-        grid.attach(label, 1, 1, 1, 1)
-        grid.attach(tag_mode, 2, 1, 1, 1)
         configdialog.add_spinner(
-            grid,
-            _("Maximum tags per line"),
-            2,
-            "preferences.profile.person.citation.tag-width",
-            (1, 6),
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.person.citation.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.person.citation.image-mode",
+            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
-            grid, _("Show image"), 3, "preferences.profile.person.citation.show-image"
+            grid, _("Sort citations by date"),
+            4, "preferences.profile.person.citation.sort-by-date",
+            tooltip=_("Enabling this option will sort the citations by date.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Use large image format"),
-            4,
-            "preferences.profile.person.citation.show-image-large",
+            grid, _("Include indirect citations about the person"),
+            5, "preferences.profile.person.citation.include-indirect",
+            tooltip=_("Enabling this option will include citations on nested attributes like names and person associations in addition to the ones directly on the person themselves.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show image first on left hand side"),
-            5,
-            "preferences.profile.person.citation.show-image-first",
+            grid, _("Include citations related to the persons family membership as a child"),
+            6, "preferences.profile.person.citation.include-family",
+            tooltip=_("Enabling this option will include citations related to the membership of the person as a child in other families.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Sort citations by date"),
-            6,
-            "preferences.profile.person.citation.sort-by-date",
+            grid, _("Include citations related to the persons family membership as a head of household"),
+            7, "preferences.profile.person.citation.include-family",
+            tooltip=_("Enabling this option will include citations on the families this person formed with other partners.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Include all person related citations not just primary ones"),
-            7,
-            "preferences.profile.person.citation.include-indirect",
+            grid, _("Include indirect citations related to the persons family membership as a head of household"),
+            8, "preferences.profile.person.citation.include-family-indirect",
+            tooltip=_("Enabling this option will include citations on nested attributes about the families this person formed with other partners.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "preferences.profile.person.citation.show-date",
+            tooltip=_("Enabling this option will show the citation date if it is available.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Include all citations for the persons families as well"),
-            8,
-            "preferences.profile.person.citation.include-family",
+            grid, _("Show publisher"),
+            11, "preferences.profile.person.citation.show-publisher",
+            tooltip=_("Enabling this option will show the publisher information if it is available.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Include all family related citations not just primary ones"),
-            9,
-            "preferences.profile.person.citation.include-family-indirect",
-        )
-        configdialog.add_text(grid, _("Attributes"), 10, bold=True)
-        configdialog.add_checkbox(
-            grid,
-            _("Show date"),
-            11,
-            "preferences.profile.person.citation.show-date",
+            grid, _("Show reference type"),
+            12, "preferences.profile.person.citation.show-reference-type",
+            tooltip=_("Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show publisher"),
-            12,
-            "preferences.profile.person.citation.show-publisher",
+            grid, _("Show reference description"),
+            13, "preferences.profile.person.citation.show-reference-description",
+            tooltip=_("Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth.")
         )
         configdialog.add_checkbox(
-            grid,
-            _("Show reference type"),
-            13,
-            "preferences.profile.person.citation.show-reference-type",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show reference description"),
-            14,
-            "preferences.profile.person.citation.show-reference-description",
-        )
-        configdialog.add_checkbox(
-            grid,
-            _("Show confidence rating"),
-            15,
-            "preferences.profile.person.citation.show-confidence",
+            grid, _("Show confidence rating"),
+            14, "preferences.profile.person.citation.show-confidence",
+            tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
         return _("Citations"), grid
 

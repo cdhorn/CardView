@@ -103,7 +103,7 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_utils import get_gramps_object_type
+from frame_utils import get_attribute_types, get_gramps_object_type
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -295,9 +295,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Construct framework for default layout.
         """
-        if self.option(self.context, "show-image"):
-            self.load_image(self.groups)
-            if self.option(self.context, "show-image-first"):
+        image_mode = self.option(self.context, "image-mode")
+        if image_mode:
+            self.load_image(image_mode)
+            if image_mode in [3, 4]:
                 self.body.pack_start(self.image, expand=False, fill=False, padding=0)
 
         if self.option(self.context, "show-age"):
@@ -326,7 +327,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         tsections.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
         vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
 
-        if self.image and not self.option(self.context, "show-image-first"):
+        if image_mode in [1, 2]:
             self.body.pack_start(self.image, expand=False, fill=False, padding=0)
 
     def build_couple_layout(self):
@@ -371,18 +372,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             data = (self.dnd_type.drag_type, id(self), self.obj.get_handle(), 0)
             sel_data.set(self.dnd_type.atom_drag_type, 8, pickle.dumps(data))
         
-    def load_image(self, groups=None):
+    def load_image(self, image_mode):
         """
         Load primary image for the object if found.
         """
+        large_size = False
+        if image_mode in [2, 4]:
+            large_size = True
         self.image = ImageFrame(
             self.dbstate,
             self.uistate,
             self.obj,
-            size=bool(self.option(self.context, "show-image-large")),
+            size=large_size
         )
-        if groups and "image" in groups:
-            groups["image"].add_widget(self.image)
+        if self.groups and "image" in self.groups:
+            self.groups["image"].add_widget(self.image)
 
     def add_fact(self, fact):
         """
@@ -504,8 +508,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return None
         tag_width = self.option(self.context, "tag-width")
         flowbox = Gtk.FlowBox(
-            min_children_per_line=20,
-            max_children_per_line=20,
+            min_children_per_line=tag_width,
+            max_children_per_line=tag_width,
             orientation=Gtk.Orientation.HORIZONTAL
         )
         tags = []
@@ -677,23 +681,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             text = text[:50]+"..."
         return text
 
-    def _get_attribute_types(self):
-        """
-        Get the available attribute types based on current object type.
-        """
-        if self.obj_type == "Person":
-            return self.dbstate.db.get_person_attribute_types()
-        if self.obj_type == "Family":
-            return self.dbstate.db.get_family_attribute_types()
-        if self.obj_type == "Event":
-            return self.dbstate.db.get_event_attribute_types()
-        if self.obj_type == "Media":
-            return self.dbstate.db.get_media_attribute_types()
-        if self.obj_type == "Source":
-            return self.dbstate.db.get_source_attribute_types()
-        if self.obj_type == "Citation":
-            return self.dbstate.db.get_source_attribute_types()
-        
     def add_attribute(self, obj):
         """
         Add a new attribute.
@@ -702,7 +689,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             attribute = SrcAttribute()
         else:
             attribute = Attribute()
-        attribute_types = self._get_attribute_types()
+        attribute_types = get_attribute_types(self.dbstate.db, self.obj_type)
         try:
             if self.obj_type in ["Source", "Citation"]:
                 EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)
@@ -725,7 +712,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Edit an attribute.
         """
-        attribute_types = self._get_attribute_types()
+        attribute_types = get_attribute_types(self.dbstate.db, self.obj_type)
         try:
             if self.obj_type in ["Source", "Citation"]:
                 EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.edited_attribute)

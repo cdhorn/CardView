@@ -82,23 +82,6 @@ _CONFIDENCE = {
     Citation.CONF_VERY_HIGH: _("Very High"),
 }
 
-EVENT_FORMATS = {
-    0: _("Show life span only and nothing else"),
-    1: _("Single line with place"),
-    2: _("Single line with no place"),
-    3: _("Abbreviated single line with place"),
-    4: _("Abbreviated single line with no place"),
-    5: _("Split line"),
-    6: _("Abbreviated split line"),
-}
-
-COLOR_SCHEMES = {
-    0: _("Person scheme"),
-    1: _("Relationship scheme"),
-    2: _("Event category scheme"),
-    3: _("Evidence confidence scheme")
-}
-
 CONFIDENCE_COLOR_SCHEME = {
     Citation.CONF_VERY_LOW: "very-low",
     Citation.CONF_LOW: "low",
@@ -107,11 +90,38 @@ CONFIDENCE_COLOR_SCHEME = {
     Citation.CONF_VERY_HIGH: "very-high",
 }
 
-TAG_MODES = {
-    0: _("Disabled"),
-    1: _("Show icons"),
-    2: _("Show tag names")
-}
+EVENT_DISPLAY_MODES = [
+    (0, _("Show life span only and nothing else")),
+    (1, _("Single line with place")),
+    (2, _("Single line with no place")),
+    (3, _("Abbreviated single line with place")),
+    (4, _("Abbreviated single line with no place")),
+    (5, _("Split line")),
+    (6, _("Abbreviated split line")),
+]
+
+TAG_DISPLAY_MODES = [
+    (0, _("Disabled")),
+    (1, _("Show icons")),
+    (2, _("Show tag names"))
+]
+
+IMAGE_DISPLAY_MODES = [
+    (0, _("No image displayed")),
+    (1, _("Small image on right")),
+    (2, _("Large image on right")),
+    (3, _("Small image on left")),
+    (4, _("Large image on left")),
+]
+
+TIMELINE_COLOR_MODES = [
+    (0, _("Person scheme")),
+    (1, _("Relationship scheme")),
+    (2, _("Event category scheme")),
+    (3, _("Evidence confidence scheme"))
+]
+
+
 
 
 def get_gramps_object_type(obj):
@@ -348,63 +358,46 @@ class TextLink(Gtk.EventBox):
         self.label.set_markup(self.name.replace('&', '&amp;'))
 
 
-class EventFormatSelector(Gtk.ComboBoxText):
+def get_attribute_types(db, obj_type):
     """
-    An event format selector for the configdialog.
+    Get the available attribute types based on current object type.
+    """
+    if obj_type == "Person":
+        return db.get_person_attribute_types()
+    if obj_type == "Family":
+        return db.get_family_attribute_types()
+    if obj_type == "Event":
+        return db.get_event_attribute_types()
+    if obj_type == "Media":
+        return db.get_media_attribute_types()
+    if obj_type == "Source":
+        return db.get_source_attribute_types()
+    if obj_type == "Citation":
+        return db.get_source_attribute_types()
+
+class AttributeSelector(Gtk.ComboBoxText):
+    """
+    An attribute selector for the configdialog.
     """
 
-    def __init__(self, option, config):
+    def __init__(self, option, config, db, obj_type):
         Gtk.ComboBoxText.__init__(self)
         self.option = option
         self.config = config
-        for key in EVENT_FORMATS:
-            self.append_text(EVENT_FORMATS[key])
-        current = self.config.get(self.option)
-        self.set_active(current)
+        self.attributes = get_attribute_types(db, obj_type)
+        if "None" not in self.attributes:
+            self.attributes.append("None")
+        self.attributes.sort()
+        for attribute_type in self.attributes:
+            self.append_text(attribute_type)
+        current_text = self.config.get(self.option)
+        if current_text:
+            current_index = self.attributes.index(current_text)
+            self.set_active(current_index)
         self.connect("changed", self.update)
 
     def update(self, obj):
-        current = self.get_active()
-        self.config.set(self.option, current)
-
-
-class TagModeSelector(Gtk.ComboBoxText):
-    """
-    A tag display mode selector for the configdialog.
-    """
-
-    def __init__(self, option, config):
-        Gtk.ComboBoxText.__init__(self)
-        self.option = option
-        self.config = config
-        for key in TAG_MODES:
-            self.append_text(TAG_MODES[key])
-        current = self.config.get(self.option)
-        self.set_active(current)
-        self.connect("changed", self.update)
-
-    def update(self, obj):
-        current = self.get_active()
-        self.config.set(self.option, current)
-
-
-class ColorSchemeSelector(Gtk.ComboBoxText):
-    """
-    A color scheme selector for the configdialog.
-    """
-
-    def __init__(self, option, config):
-        Gtk.ComboBoxText.__init__(self)
-        self.option = option
-        self.config = config
-        for key in COLOR_SCHEMES:
-            self.append_text(COLOR_SCHEMES[key])
-        current = self.config.get(self.option)
-        self.set_active(current)
-        self.connect("changed", self.update)
-
-    def update(self, obj):
-        current = self.get_active()
+        current = self.get_active_text()
         self.config.set(self.option, current)
 
 
