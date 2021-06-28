@@ -39,6 +39,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.errors import HandleError
 from gramps.gen.lib import (
     Citation,
     Event,
@@ -53,6 +54,7 @@ from gramps.gen.lib import (
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gui.ddtargets import DdTargets
+from gramps.gui.selectors import SelectorFactory
 
 
 # ------------------------------------------------------------------------
@@ -358,51 +360,6 @@ class TextLink(Gtk.EventBox):
         self.label.set_markup(self.name.replace('&', '&amp;'))
 
 
-def get_attribute_types(db, obj_type):
-    """
-    Get the available attribute types based on current object type.
-    """
-    if obj_type == "Person":
-        return db.get_person_attribute_types()
-    if obj_type == "Family":
-        return db.get_family_attribute_types()
-    if obj_type == "Event":
-        return db.get_event_attribute_types()
-    if obj_type == "Media":
-        return db.get_media_attribute_types()
-    if obj_type == "Source":
-        return db.get_source_attribute_types()
-    if obj_type == "Citation":
-        return db.get_source_attribute_types()
-
-class AttributeSelector(Gtk.ComboBoxText):
-    """
-    An attribute selector for the configdialog.
-    """
-
-    def __init__(self, option, config, db, obj_type, tooltip=None):
-        Gtk.ComboBoxText.__init__(self)
-        self.option = option
-        self.config = config
-        self.attributes = get_attribute_types(db, obj_type)
-        if "None" not in self.attributes:
-            self.attributes.append("None")
-        self.attributes.sort()
-        for attribute_type in self.attributes:
-            self.append_text(attribute_type)
-        current_text = self.config.get(self.option)
-        if current_text:
-            current_index = self.attributes.index(current_text)
-            self.set_active(current_index)
-        self.connect("changed", self.update)
-        if tooltip:
-            self.set_tooltip_text(tooltip)
-
-    def update(self, obj):
-        current = self.get_active_text()
-        self.config.set(self.option, current)
-
-
 def format_color_css(background, border):
     """
     Return a formatted css color string.
@@ -542,3 +499,241 @@ def get_participants(db, event):
                 text = "{}{}{}".format(text, comma, name_displayer.display(person))
                 comma = ", "
     return participants, text
+
+
+def get_config_option(config, option, dbid=None, defaults=None):
+    option_data = config.get(option)
+    if option_data:
+        if dbid:
+            current_option_list = option_data.split(",")
+            for current_option in current_option_list:
+                if ":" in current_option:
+                    option_parts = current_option.split(":")
+                    if len(option_parts) >=3:
+                        if option_parts[2] == dbid:
+                            return option_parts[0], option_parts[1]
+            if defaults:
+                for default_option, default_value in defaults:
+                    if option == default_option:
+                        if isinstance(default_value, str):
+                            option_parts = default_value.split(":")
+                            if len(option_parts) == 1:
+                                return option_parts[0], ""
+                            return option_parts[0], option_parts[1]
+        option_parts = option_data.split(":")
+        if len(option_parts) == 1:
+            return option_parts[0], ""
+        return option_parts[0], option_parts[1]
+    return "", ""
+
+
+def save_config_option(config, option, option_type, option_value="", dbid=None):
+    if dbid:
+        option_list = []
+        option_data = config.get(option)
+        if option_data:
+            current_option_list = option_data.split(",")
+            for current_option in current_option_list:
+                option_parts = current_option.split(":")
+                if len(option_parts) >= 3:
+                    if option_parts[2] != dbid:
+                        option_list.append(current_option)
+        option_list.append("{}:{}:{}".format(option_type, option_value, dbid))
+        config.set(option, ",".join(option_list))
+    else:
+        config.set(option, "{}:{}".format(option_type, option_value))
+
+
+def get_attribute_types(db, obj_type):
+    """
+    Get the available attribute types based on current object type.
+    """
+    if obj_type == "Person":
+        return db.get_person_attribute_types()
+    if obj_type == "Family":
+        return db.get_family_attribute_types()
+    if obj_type == "Event":
+        return db.get_event_attribute_types()
+    if obj_type == "Media":
+        return db.get_media_attribute_types()
+    if obj_type == "Source":
+        return db.get_source_attribute_types()
+    if obj_type == "Citation":
+        return db.get_source_attribute_types()
+
+    
+class AttributeSelector(Gtk.ComboBoxText):
+    """
+    An attribute selector for the configdialog.
+    """
+
+    def __init__(self, option, config, db, obj_type, dbid=False, tooltip=None):
+        Gtk.ComboBoxText.__init__(self)
+        self.option = option
+        self.config = config
+        self.dbid = None
+        if dbid:
+            self.dbid = db.get_dbid()
+
+        self.attributes = get_attribute_types(db, obj_type)
+        if "None" not in self.attributes:
+            self.attributes.append("None")
+        self.attributes.sort()
+        for attribute_type in self.attributes:
+            self.append_text(attribute_type)
+
+        current_type, current_value = get_config_option(self.config, self.option, dbid=self.dbid)
+        if current_value and current_value in self.attributes:
+            current_index = self.attributes.index(current_value)
+            self.set_active(current_index)
+        self.connect("changed", self.update)
+        if tooltip:
+            self.set_tooltip_text(tooltip)
+
+    def update(self, obj):
+        current_value = self.get_active_text()
+        save_config_option(self.config, self.option, "Attribute", current_value, dbid=self.dbid)
+
+
+class FrameFieldSelector(Gtk.HBox):
+    """
+    A custom selector for the user defined fields for the configdialog.
+    """
+
+    def __init__(self, option, config, dbstate, uistate, number, dbid=False, defaults=None, text=None):
+        Gtk.HBox.__init__(self, hexpand=False, spacing=6)
+        self.option = option
+        self.config = config
+        self.dbstate = dbstate
+        self.uistate = uistate
+        self.defaults = defaults
+        self.dbid = None
+        if dbid:
+            self.dbid = self.dbstate.db.get_dbid()
+
+        if text:
+            label_text = "{} {}".format(text, number)
+        else:
+            label_text = "{} {}".format(_("Field"), number)
+        label = Gtk.Label(label=label_text)
+        self.pack_start(label, False, False, 0)
+        self.type_selector = Gtk.ComboBoxText()
+        self.pack_start(self.type_selector, False, False, 0)
+        self.event_selector = Gtk.ComboBoxText()
+        self.event_selector.connect("show", self.hide_selector)
+        self.pack_start(self.event_selector, False, False, 0)
+        self.relation_selector = Gtk.Button()
+        self.relation_selector.connect("show", self.hide_button)
+        self.pack_start(self.relation_selector, False, False, 0)
+
+        self.user_field_types = ["None", "Event", "Relation"]
+        self.user_field_types_lang = [_("None"), _("Event"), _("Relation")]
+        for option in self.user_field_types_lang:
+            self.type_selector.append_text(option)
+
+        user_type, user_value = get_config_option(
+            self.config,
+            self.option,
+            dbid=self.dbid,
+            defaults=self.defaults
+        )
+        if not user_value:
+            user_type = "None"
+        current_index = 0
+        if user_type:
+            current_index = self.user_field_types.index(user_type)
+        self.type_selector.set_active(current_index)
+        self.type_selector.set_tooltip_text(_("User defined fields can be populated with event or relation data at this time. If multiple events of a given type are found only the first will be displayed."))
+
+        event_types = []
+        event_types_lang = []
+        for event_type in EventType().get_standard_names():
+            event_types.append(event_type)
+        for event_type in EventType().get_standard_xml():
+            event_types_lang.append(event_type)
+        for custom_type in self.dbstate.db.get_event_types():
+            event_types.append(custom_type)
+            event_types_lang.append(custom_type)
+        for event_type in event_types_lang:
+            self.event_selector.append_text(event_type)
+
+        if current_index == 1:
+            self.relation_selector.hide()
+            if user_value in event_types:
+                current_index = event_types.index(user_value)
+                self.event_selector.set_active(current_index)
+        elif current_index == 2:
+            self.event_selector.hide()
+            try:
+                person = self.dbstate.db.get_person_from_handle(user_value)
+                name = name_displayer.display(person)
+                self.relation_selector.set_label(name)
+            except HandleError:
+                self.relation_selector.set_label("")
+        else:
+            self.relation_selector.hide()
+            self.event_selector.hide()
+
+        self.type_selector.connect("changed", self.update_type)
+        self.event_selector.connect("changed", self.update_event_choice)
+        self.relation_selector.connect("clicked", self.update_relation_choice)
+
+    def update_type(self, obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        current_type = self.user_field_types[current_index]
+        save_config_option(self.config, self.option, current_type, "", dbid=self.dbid)
+        if current_type == "Event":
+            self.relation_selector.hide()
+            self.event_selector.show()
+        elif current_type == "Relation":
+            self.event_selector.hide()
+            self.relation_selector.show()
+            self.relation_selector.set_label("")
+            self.update_relation_choice()
+        else:
+            self.event_selector.hide()
+            self.relation_selector.hide()
+            self.relation_selector.set_label("")
+
+    def update_event_choice(self, obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        if current_index == 1:
+            current_value = self.event_selector.get_active_text()
+            save_config_option(
+                self.config,
+                self.option,
+                self.user_field_types[current_index],
+                current_value,
+                dbid=self.dbid
+            )
+
+    def update_relation_choice(self, *obj):
+        SelectPerson = SelectorFactory("Person")
+        selector = SelectPerson(
+            self.dbstate, self.uistate, [], _("Select Person")
+        )
+        person = selector.run()
+        if person:
+            name = name_displayer.display(person)
+            self.relation_selector.set_label(name)
+            save_config_option(
+                self.config,
+                self.option,
+                "Relation",
+                person.get_handle(),
+                dbid=self.dbid
+            )
+
+    def hide_button(self, obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types.index(current_type_lang)
+        if current_index != 2:
+            self.relation_selector.hide()
+
+    def hide_selector(self, obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        if current_index != 1:
+            self.event_selector.hide()

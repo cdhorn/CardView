@@ -116,7 +116,8 @@ from frame_utils import (
     IMAGE_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
-    AttributeSelector
+    AttributeSelector,
+    FrameFieldSelector
 )
 
 
@@ -148,6 +149,16 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.active.show-baptism", True),
         ("preferences.profile.person.active.show-burial", True),
         ("preferences.profile.person.active.show-relation", True),
+        ("preferences.profile.person.active.facts-field-1", "Event:Birth"),
+        ("preferences.profile.person.active.facts-field-2", "Event:Baptism"),
+        ("preferences.profile.person.active.facts-field-3", "Event:Death"),
+        ("preferences.profile.person.active.facts-field-4", "Event:Burial"),
+        ("preferences.profile.person.active.facts-field-5", "None"),
+        ("preferences.profile.person.active.extra-field-1", "None"),
+        ("preferences.profile.person.active.extra-field-2", "None"),
+        ("preferences.profile.person.active.extra-field-3", "None"),
+        ("preferences.profile.person.active.extra-field-4", "None"),
+        ("preferences.profile.person.active.extra-field-5", "None"),
         ("preferences.profile.person.active.metadata-attribute-1", "None"),
         ("preferences.profile.person.active.metadata-attribute-2", "None"),
         ("preferences.profile.person.active.metadata-attribute-3", "None"),
@@ -967,23 +978,55 @@ class PersonProfileView(NavigationView):
         grid.set_border_width(12)
         return grid
 
-    def _config_metadata_attributes(self, grid, space, start):
+    def _config_facts_fields(self, grid, space, start_row, start_col=1):
         """
-        Build metadata custom attribute section.
+        Build facts field configuration section.
         """
         count = 1
-        row = start
-        while row < start + 5:
+        row = start_row
+        while row < start_row + 5:
+            option = "{}.facts-field-{}".format(space, count)
+            user_select = FrameFieldSelector(
+                option, self._config, self.dbstate, self.uistate, count,
+                dbid=True, defaults=self.CONFIGSETTINGS, text=_("Facts field")
+            )
+            grid.attach(user_select, start_col, row, 2, 1)
+            count = count + 1
+            row = row + 1
+
+    def _config_extra_fields(self, grid, space, start_row, start_col=1):
+        """
+        Build extra field configuration section.
+        """
+        count = 1
+        row = start_row
+        while row < start_row + 5:
+            option = "{}.extra-field-{}".format(space, count)
+            user_select = FrameFieldSelector(
+                option, self._config, self.dbstate, self.uistate, count,
+                dbid=True, defaults=self.CONFIGSETTINGS, text=_("Extra field")
+            )
+            grid.attach(user_select, start_col, row, 2, 1)
+            count = count + 1
+            row = row + 1
+
+    def _config_metadata_attributes(self, grid, space, start_row, start_col=1):
+        """
+        Build metadata custom attribute configuration section.
+        """
+        count = 1
+        row = start_row
+        while row < start_row + 5:
             option = "{}.metadata-attribute-{}".format(space, count)
             attr_select = AttributeSelector(
-                option, self._config, self.dbstate.db, "Person",
+                option, self._config, self.dbstate.db, "Person", dbid=True,
                 tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id")
             )
             label = Gtk.Label(
                 halign=Gtk.Align.START, label="{} {}: ".format(_("Metadata attribute"), count)
             )
-            grid.attach(label, 1, row, 1, 1)
-            grid.attach(attr_select, 2, row, 1, 1)
+            grid.attach(label, start_col, row, 1, 1)
+            grid.attach(attr_select, start_col + 1, row, 1, 1)
             count = count + 1
             row = row + 1
 
@@ -1078,29 +1121,25 @@ class PersonProfileView(NavigationView):
             4, "preferences.profile.person.active.image-mode",
             IMAGE_DISPLAY_MODES,
         )
-        configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
+        configdialog.add_text(grid, _("Display Attributes"), 5, bold=True)
         configdialog.add_checkbox(
             grid, _("Show gender"),
-            8, "preferences.profile.person.active.show-gender"
-        )
-        configdialog.add_checkbox(
-            grid, _("Show baptism if available and not used as birth equivalent"),
-            9, "preferences.profile.person.active.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show burial if available and not used as death equivalent"),
-            10, "preferences.profile.person.active.show-burial",
+            6, "preferences.profile.person.active.show-gender"
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            11, "preferences.profile.person.active.show-age",
+            7, "preferences.profile.person.active.show-age",
         )
-        configdialog.add_checkbox(
-            grid, _("Show relationship to home person"),
-            12, "preferences.profile.person.active.show-relation",
-        )
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.person.active", 14)
+
+        configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
+        self._config_facts_fields(grid, "preferences.profile.person.active", 9)
+
+        configdialog.add_text(grid, _("Extra Fact Display Fields"), 8, start=3, bold=True)
+        self._config_extra_fields(grid, "preferences.profile.person.active", 9, 3)
+        
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 8, start=5, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, 5)
+
         return _("Person"), grid
 
     def parents_panel(self, configdialog):
