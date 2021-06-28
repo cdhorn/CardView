@@ -333,6 +333,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.citation.image-mode", 1),
         ("preferences.profile.person.citation.sort-by-date", False),
         ("preferences.profile.person.citation.include-indirect", True),
+        ("preferences.profile.person.citation.include-parent-family", True),
         ("preferences.profile.person.citation.include-family", True),
         ("preferences.profile.person.citation.include-family-indirect", True),
         ("preferences.profile.person.citation.show-date", True),
@@ -1658,7 +1659,7 @@ class PersonProfileView(NavigationView):
         )
         configdialog.add_checkbox(
             grid, _("Include citations related to the persons family membership as a child"),
-            6, "preferences.profile.person.citation.include-family",
+            6, "preferences.profile.person.citation.include-parent-family",
             tooltip=_("Enabling this option will include citations related to the membership of the person as a child in other families.")
         )
         configdialog.add_checkbox(
