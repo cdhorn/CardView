@@ -77,7 +77,8 @@ class CoupleGrampsFrame(GrampsFrame):
         parent=None,
         relation=None,
         vertical=True,
-        groups=None
+        groups=None,
+        defaults=None
     ):
         GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, groups=groups)
         self.family = family
@@ -85,11 +86,11 @@ class CoupleGrampsFrame(GrampsFrame):
         self.relation = relation
 
         partner1, partner2 = self._get_parents()
-        profile = self._get_profile(partner1)
+        profile = self._get_profile(partner1, defaults)
         if profile:
             self.partner1.add(profile)
         if partner2:
-            profile = self._get_profile(partner2)
+            profile = self._get_profile(partner2, defaults)
             if profile:
                 self.partner2.add(profile)
 
@@ -105,7 +106,7 @@ class CoupleGrampsFrame(GrampsFrame):
         self.enable_drag()
         self.set_css_style()
 
-    def _get_profile(self, person):
+    def _get_profile(self, person, defaults):
         if person:
             profile = PersonGrampsFrame(
                 self.dbstate,
@@ -116,6 +117,7 @@ class CoupleGrampsFrame(GrampsFrame):
                 self.config,
                 self.router,
                 groups=self.groups,
+                defaults=defaults,
                 family_backlink=self.family.handle
             )
             return profile

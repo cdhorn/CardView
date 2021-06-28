@@ -103,7 +103,7 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_utils import get_attribute_types, get_gramps_object_type
+from frame_utils import get_attribute_types, get_config_option, get_gramps_object_type
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -152,12 +152,13 @@ class GrampsConfig:
     and the various GrampsFrameGroup classes.
     """
 
-    def __init__(self, dbstate, uistate, space, config):
+    def __init__(self, dbstate, uistate, space, config, defaults=None):
         self.dbstate = dbstate
         self.uistate = uistate
         self.space = space
         self.context = ""
         self.config = config
+        self.defaults = defaults
         self.enable_tooltips = self.config.get(
             "{}.layout.enable-tooltips".format(self.space)
         )
@@ -165,12 +166,16 @@ class GrampsConfig:
         if self.config.get("{}.layout.use-smaller-detail-font".format(self.space)):
             self.markup = "<small>{}</small>"
 
-    def option(self, context, name):
+    def option(self, context, name, full=True, keyed=False):
         """
         Fetches an option from the given context in a configuration name space.
         """
+        dbid = None
+        if keyed:
+            dbid = self.dbstate.db.get_dbid()
+        option = "{}.{}.{}".format(self.space, context, name)
         try:
-            return self.config.get("{}.{}.{}".format(self.space, context, name))
+            return get_config_option(self.config, option, full=full, dbid=dbid, defaults=self.defaults)
         except AttributeError:
             return False
 
@@ -236,9 +241,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary Gramps object it exposes.
     """
 
-    def __init__(self, dbstate, uistate, router, space, config, obj, context, vertical=True, groups=None):
+    def __init__(self, dbstate, uistate, router, space, config, obj, context, vertical=True, groups=None, defaults=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        GrampsConfig.__init__(self, dbstate, uistate, space, config)
+        GrampsConfig.__init__(self, dbstate, uistate, space, config, defaults=defaults)
         self.obj = obj
         self.router = router
         self.context = context
@@ -388,103 +393,122 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if self.groups and "image" in self.groups:
             self.groups["image"].add_widget(self.image)
 
-    def add_fact(self, fact):
+    def add_fact(self, fact, label=None, extra=False):
         """
         Add a simple fact.
         """
-        self.facts_grid.attach(fact, 0, self.facts_row, 2, 1)
-        self.facts_row = self.facts_row + 1
+        if not extra:
+            if label:
+                self.facts_grid.attach(label, 0, self.facts_row, 1, 1)
+                self.facts_grid.attach(fact, 1, self.facts_row, 1, 1)
+            else:
+                self.facts_grid.attach(fact, 0, self.facts_row, 2, 1)
+            self.facts_row = self.facts_row + 1
+        else:
+            if label:
+                self.extra_grid.attach(label, 0, self.extra_row, 1, 1)
+                self.extra_grid.attach(fact, 1, self.extra_row, 1, 1)
+            else:
+                self.extra_grid.attach(fact, 0, self.extra_row, 2, 1)
+            self.extra_row = self.extra_row + 1
 
-    def add_extra_fact(self, fact):
-        """
-        Add a simple fact.
-        """
-        self.extra_grid.attach(fact, 0, self.extra_row, 2, 1)
-        self.extra_row = self.extra_row + 1
-
-    def add_event(self, event, reference=None, show_age=False):
+    def add_event(self, event, extra=False, reference=None, show_age=False):
         """
         Adds event information in the requested format to the facts section
         of the object view.
         """
-        if event:
-            age = None
-            if show_age:
-                if reference and reference.date and event and event.date:
-                    span = Span(reference.date, event.date)
-                    if span.is_valid():
-                        precision = global_config.get("preferences.age-display-precision")
-                        age = str(span.format(precision=precision))
-                    if age == "unknown":
-                        age = None
+        if not event:
+            return
 
-            event_format = self.config.get(
-                "{}.{}.event-format".format(self.space, self.context)
+        if not extra:
+            grid = self.facts_grid
+            row = self.facts_row
+        else:
+            grid = self.extra_grid
+            row = self.extra_row
+
+        age = None
+        if show_age:
+            if reference and reference.date and event and event.date:
+                span = Span(reference.date, event.date)
+                if span.is_valid():
+                    precision = global_config.get("preferences.age-display-precision")
+                    age = str(span.format(precision=precision))
+                if age == "unknown":
+                    age = None
+
+        event_format = self.config.get(
+            "{}.{}.event-format".format(self.space, self.context)
+        )
+        if event_format in [3, 4, 6]:
+            name = event.type.get_abbreviation(
+                trans_text=glocale.translation.sgettext
             )
+        else:
+            name = glocale.translation.sgettext(event.type.xml_str())
+
+        date = glocale.date_displayer.display(event.date)
+        place = place_displayer.display_event(self.dbstate.db, event)
+
+        text = ""
+        if event_format in [1, 2, 5]:
+            name_label = self.make_label(name)
+        else:
             if event_format in [3, 4, 6]:
-                name = event.type.get_abbreviation(
-                    trans_text=glocale.translation.sgettext
-                )
-            else:
-                name = glocale.translation.sgettext(event.type.xml_str())
+                text = name
 
-            date = glocale.date_displayer.display(event.date)
-            place = place_displayer.display_event(self.dbstate.db, event)
+        if date:
+            text = "{} {}".format(text, date).strip()
 
-            text = ""
-            if event_format in [1, 2, 5]:
-                name_label = self.make_label(name)
-            else:
-                if event_format in [3, 4, 6]:
-                    text = name
+        if event_format in [1, 3]:
+            if place:
+                text = "{} {} {}".format(text, _("in"), place).strip()
 
+        if reference and age:
+            text = "{} {}".format(text, age)
+
+        if event_format in [1, 2]:
+            text_label = self.make_label(text)
+            grid.attach(name_label, 0, row, 1, 1)
+            grid.attach(text_label, 1, row, 1, 1)
+            row = row + 1
+        elif event_format in [3, 4]:
+            text_label = self.make_label(text)
+            grid.attach(text_label, 0, row, 1, 1)
+            row = self.facts_row + 1
+        elif event_format in [5]:
+            grid.attach(name_label, 0, row, 1, 1)
             if date:
-                text = "{} {}".format(text, date).strip()
-
-            if event_format in [1, 3]:
-                if place:
-                    text = "{} {} {}".format(text, _("in"), place).strip()
-
-            if reference and age:
-                text = "{} {}".format(text, age)
-
-            if event_format in [1, 2]:
-                text_label = self.make_label(text)
-                self.facts_grid.attach(name_label, 0, self.facts_row, 1, 1)
-                self.facts_grid.attach(text_label, 1, self.facts_row, 1, 1)
-                self.facts_row = self.facts_row + 1
-            elif event_format in [3, 4]:
-                text_label = self.make_label(text)
-                self.facts_grid.attach(text_label, 0, self.facts_row, 1, 1)
-                self.facts_row = self.facts_row + 1
-            elif event_format in [5]:
-                self.facts_grid.attach(name_label, 0, self.facts_row, 1, 1)
-                if date:
-                    if reference and age:
-                        date_label = self.make_label("{} {}".format(date, age))
-                    else:
-                        date_label = self.make_label(date)
-                    self.facts_grid.attach(date_label, 1, self.facts_row, 1, 1)
-                    self.facts_row = self.facts_row + 1
-                if place:
+                if reference and age:
+                    date_label = self.make_label("{} {}".format(date, age))
+                else:
+                    date_label = self.make_label(date)
+                grid.attach(date_label, 1, row, 1, 1)
+                row = row + 1
+            if place:
+                place_label = self.make_label(place)
+                grid.attach(place_label, 1, row, 1, 1)
+                row = row + 1
+        elif event_format in [6]:
+            if date:
+                if reference and age:
+                    date_label = self.make_label("{} {} {}".format(name, date, age))
+                else:
+                    date_label = self.make_label("{} {}".format(name, date))
+                grid.attach(date_label, 0, row, 1, 1)
+                row = row + 1
+            if place:
+                if not date:
+                    place_label = self.make_label("{} {}".format(name, place))
+                else:
                     place_label = self.make_label(place)
-                    self.facts_grid.attach(place_label, 1, self.facts_row, 1, 1)
-                    self.facts_row = self.facts_row + 1
-            elif event_format in [6]:
-                if date:
-                    if reference and age:
-                        date_label = self.make_label("{} {} {}".format(name, date, age))
-                    else:
-                        date_label = self.make_label("{} {}".format(name, date))
-                    self.facts_grid.attach(date_label, 0, self.facts_row, 1, 1)
-                    self.facts_row = self.facts_row + 1
-                if place:
-                    if not date:
-                        place_label = self.make_label("{} {}".format(name, place))
-                    else:
-                        place_label = self.make_label(place)
-                    self.facts_grid.attach(place_label, 0, self.facts_row, 1, 1)
-                    self.facts_row = self.facts_row + 1
+                grid.attach(place_label, 0, row, 1, 1)
+                row = row + 1
+
+        if not extra:
+            self.facts_row = row
+        else:
+            self.extra_row = row
 
     def get_gramps_id_label(self):
         """

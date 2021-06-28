@@ -42,7 +42,7 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.db import DbTxn
-from gramps.gen.errors import WindowActiveError
+from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
     EventType,
     Person,
@@ -81,6 +81,9 @@ except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
 
+_BIRTH_EQUIVALENTS = ["Baptism", "Christening"]
+_DEATH_EQUIVALENTS = ["Burial", "Cremation", "Probate"]
+
 
 # ------------------------------------------------------------------------
 #
@@ -104,13 +107,17 @@ class PersonGrampsFrame(GrampsFrame):
         relation=None,
         number=0,
         groups=None,
-        family_backlink=None
+        family_backlink=None,
+        defaults=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context, groups=groups)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context, groups=groups, defaults=defaults)
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink
+        self.event_cache = []
 
+        for event_ref in self.obj.get_primary_event_ref_list():
+            self.event_cache.append(self.dbstate.db.get_event_from_handle(event_ref.ref))
         self.enable_drag()
 
         display_name = name_displayer.display(self.person)
@@ -136,30 +143,11 @@ class PersonGrampsFrame(GrampsFrame):
         name_box.pack_start(name, False, False, 0)
         self.title.pack_start(name_box, True, True, 0)
 
-        key_events = get_key_person_events(
-            self.dbstate.db,
-            self.person,
-            show_baptism=self.option(context, "show-baptism"),
-            show_burial=self.option(context, "show-burial"),
-        )
-        self.living = self._load_base_facts(key_events)
-        if self.living:
-            self.living = probably_alive(self.person, self.dbstate.db)
+        self.living = probably_alive(self.person, self.dbstate.db)
 
-        if self.relation and self.option(context, "show-relation"):
-            text = ""
-            if self.person.handle == self.relation.handle:
-                text = _("Home person")
-            else:
-                text = get_relation(
-                    self.dbstate.db,
-                    self.person,
-                    self.relation,
-                    depth=global_config.get("behavior.generation-depth"),
-                )
-            if text:
-                label = self.make_label(text)
-                self.add_fact(label)
+        self.load_fields("facts-field")
+        if self.context == "active":
+            self.load_fields("extra-field", extra=True)
 
         values = self.get_metadata_attributes()
         if values:
@@ -168,38 +156,134 @@ class PersonGrampsFrame(GrampsFrame):
                 self.metadata.pack_start(label, False, False, 0)
         self.set_css_style()
 
-    def _load_base_facts(self, key_events):
+    def load_fields(self, field_type, extra=False):
         """
-        Load the basic facts about a person.
+        Parse and load a set of facts about a person.
         """
-        living = True
-        if key_events["death"] or key_events["burial"]:
-            living = False
+        key = "{}-skip-birth-alternates".format(field_type)
+        skip_birth_alternates = self.option(self.context, key)
+        key = "{}-skip-death-alternates".format(field_type)
+        skip_death_alternates = self.option(self.context, key)
+        have_birth = False
+        have_death = False
+        for event in self.event_cache:
+            if event.get_type() == "Birth":
+                have_birth = True
+            elif event.get_type() == "Death":
+                have_death = True
 
-        if self.option(self.context, "event-format") == 0:
-            text = format_date_string(key_events["birth"], key_events["death"])
-            label = self.make_label(text)
-            self.facts_grid.attach(label, 0, self.facts_row, 1, 1)
-            self.facts_row = self.facts_row + 1
-            return living
-
-        self.add_event(key_events["birth"])
-        if self.option(self.context, "show-baptism"):
-            self.add_event(key_events["baptism"])
-
-        if key_events["death"] or key_events["burial"]:
-            self.add_event(
-                key_events["death"],
-                reference=key_events["birth"],
-                show_age=self.option(self.context, "show-age"),
+        count = 1
+        while count < 8:
+            option = self.option(
+                self.context,
+                "{}-{}".format(field_type, count),
+                full=False,
+                keyed=True
             )
-            if self.option(self.context, "show-burial"):
-                self.add_event(
-                    key_events["burial"],
-                    reference=key_events["birth"],
-                    show_age=self.option(self.context, "show-age"),
+            if option and option[0] != "None" and len(option) > 1 and option[1]:
+                if len(option) >= 3:
+                    if option[2] == "True":
+                        show_all = True
+                    else:
+                        show_all = False
+                if option[0] == "Event":
+                    self.add_field_for_event(
+                        option[1],
+                        extra=extra,
+                        show_all=show_all,
+                        skip_birth=skip_birth_alternates,
+                        have_birth=have_birth,
+                        skip_death=skip_death_alternates,
+                        have_death=have_death
+                    )
+                elif option[0] == "Fact":
+                    self.add_field_for_fact(option[1], extra=extra, show_all=show_all)
+                elif option[0] == "Relation":
+                    self.add_field_for_relation(option[1], extra=extra)
+            count = count + 1
+
+    def add_field_for_event(self, event_type, extra=False, show_all=False,
+                            skip_birth=False, have_birth=None, skip_death=False, have_death=None):
+        """
+        Find an event and load the data.
+        """
+        for event in self.event_cache:
+            if event.get_type() == event_type:
+                if skip_birth and have_birth:
+                    if event_type in _BIRTH_EQUIVALENTS:
+                        return
+                if skip_death and have_death:
+                    if event_type in _DEATH_EQUIVALENTS:
+                        return
+                self.add_event(event, extra=extra)
+                if not show_all:
+                    return
+
+    def add_field_for_fact(self, event_type, extra=False, show_all=False):
+        """
+        Find an event and load the data.
+        """
+        for event in self.event_cache:
+            if event.get_type() == event_type:
+                if event.get_description():
+                    label = self.make_label(event_type)
+                    fact = self.make_label(event.get_description())
+                    self.add_fact(fact, label=label, extra=extra)
+                    if not show_all:
+                        return
+
+    def add_field_for_relation(self, handle, extra=False):
+        """
+        Calculate a relation and load the fact.
+        """
+        text = ""
+        if self.person.handle == handle:
+            text = _("Home person")
+        else:
+            try:
+                relation = self.dbstate.db.get_person_from_handle(handle)
+                relationship = get_relation(
+                    self.dbstate.db,
+                    self.person,
+                    relation,
+                    depth=global_config.get("behavior.generation-depth"),
                 )
-        return living
+                if relationship:
+                    text = relationship.title()
+                else:
+                    name = name_displayer.display(relation)
+                    text = "{} {}".format(_("Not related to"), name)
+            except HandleError:
+                text = "[{}]".format(_("Missing Person"))
+        if text:
+            label = self.make_label(text)
+            self.add_fact(label, extra=extra)
+
+    def get_metadata_attributes(self):
+        """
+        Return a list of values for any user defined metadata attributes.
+        """
+        values = []
+        number = 1
+        while number <= 8:
+            option = self.option(self.context, "metadata-attribute-{}".format(number), full=False, keyed=True)
+            if option and option[0] == "Attribute" and len(option) >= 2 and option[1]:
+                for attribute in self.obj.get_attribute_list():
+                    if attribute.get_type() == option[1]:
+                        if attribute.get_value():
+                            values.append(attribute.get_value())
+                        break
+            number = number + 1
+        return values
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+            return ""
+
+        return get_person_color_css(self.obj, self.config, living=self.living, home=self.relation)
 
     def add_custom_actions(self):
         """
@@ -382,27 +466,3 @@ class PersonGrampsFrame(GrampsFrame):
             self.dbstate.db.remove_child_from_family(
                 self.person.handle, self.family_backlink
             )
-
-    def get_color_css(self):
-        """
-        Determine color scheme to be used if available."
-        """
-        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
-            return ""
-
-        return get_person_color_css(self.obj, self.config, living=self.living, home=self.relation)
-
-    def get_metadata_attributes(self):
-        """
-        Return a list of values for any user defined metadata attributes.
-        """
-        values = []
-        for number in [1, 2, 3, 4, 5]:
-            name = self.option(self.context, "metadata-attribute-{}".format(number))
-            if name and name not in ["None", None, ""]:
-                for attribute in self.obj.get_attribute_list():
-                    if attribute.get_type() == name:
-                        if attribute.get_value():
-                            values.append(attribute.get_value())
-                        break
-        return values

@@ -79,6 +79,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
         parent=None,
         relation=None,
         children="Children",
+        defaults=None,
     ):
         GrampsFrameList.__init__(self, dbstate, uistate, space, config)
         self.family = family
@@ -115,6 +116,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
                     number=child_number,
                     relation=self.relation,
                     groups=groups,
+                    defaults=defaults,
                     family_backlink=family.handle
                 )
                 self.add_frame(profile)

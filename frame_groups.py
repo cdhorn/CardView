@@ -52,7 +52,7 @@ except ValueError:
 _ = _trans.gettext
 
 
-def get_parent_profiles(dbstate, uistate, person, router, config=None):
+def get_parent_profiles(dbstate, uistate, person, router, config=None, defaults=None):
     """
     Get all the parents and siblings for a person.
     """
@@ -75,6 +75,7 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
             config,
             router,
             relation=person,
+            defaults=defaults
         )
         children = ChildrenGrampsFrameGroup(
             dbstate,
@@ -85,6 +86,7 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
             config,
             router,
             relation=person,
+            defaults=defaults
         )
         if children.number > 0:
             expander = Gtk.Expander(
@@ -113,6 +115,7 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
                 config,
                 router,
                 relation=person,
+                defaults=defaults
             )
             children = ChildrenGrampsFrameGroup(
                 dbstate,
@@ -123,6 +126,7 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
                 config,
                 router,
                 relation=person,
+                defaults=defaults
             )
             if children.number > 0:
                 expander = Gtk.Expander(
@@ -141,7 +145,7 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None):
     return parents
 
 
-def get_spouse_profiles(dbstate, uistate, person, router, config=None):
+def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=None):
     """
     Get all the spouses and children for a person.
     """
@@ -166,6 +170,7 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
             router,
             relation=person,
             parent=person,
+            defaults=defaults
         )
         children = ChildrenGrampsFrameGroup(
             dbstate,
@@ -176,6 +181,7 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None):
             config,
             router,
             relation=person,
+            defaults=defaults
         )
         if children.number > 0:
             expander = Gtk.Expander(

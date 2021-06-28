@@ -149,21 +149,34 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.active.show-baptism", True),
         ("preferences.profile.person.active.show-burial", True),
         ("preferences.profile.person.active.show-relation", True),
-        ("preferences.profile.person.active.facts-field-1", "Event:Birth"),
-        ("preferences.profile.person.active.facts-field-2", "Event:Baptism"),
-        ("preferences.profile.person.active.facts-field-3", "Event:Death"),
-        ("preferences.profile.person.active.facts-field-4", "Event:Burial"),
-        ("preferences.profile.person.active.facts-field-5", "None"),
+        ("preferences.profile.person.active.facts-field-skip-birth-alternates", False),
+        ("preferences.profile.person.active.facts-field-skip-death-alternates", False),
+        ("preferences.profile.person.active.facts-field-1", "Event:Birth:False"),
+        ("preferences.profile.person.active.facts-field-2", "Event:Baptism:False"),
+        ("preferences.profile.person.active.facts-field-3", "Event:Christening:False"),
+        ("preferences.profile.person.active.facts-field-4", "Event:Death:False"),
+        ("preferences.profile.person.active.facts-field-5", "Event:Burial:False"),
+        ("preferences.profile.person.active.facts-field-6", "Event:Cremation:False"),
+        ("preferences.profile.person.active.facts-field-7", "Event:Probate:False"),
+        ("preferences.profile.person.active.facts-field-8", "None"),
+        ("preferences.profile.person.active.extra-field-skip-birth-alternates", False),
+        ("preferences.profile.person.active.extra-field-skip-death-alternates", False),
         ("preferences.profile.person.active.extra-field-1", "None"),
         ("preferences.profile.person.active.extra-field-2", "None"),
         ("preferences.profile.person.active.extra-field-3", "None"),
         ("preferences.profile.person.active.extra-field-4", "None"),
         ("preferences.profile.person.active.extra-field-5", "None"),
+        ("preferences.profile.person.active.extra-field-6", "None"),
+        ("preferences.profile.person.active.extra-field-7", "None"),
+        ("preferences.profile.person.active.extra-field-8", "None"),
         ("preferences.profile.person.active.metadata-attribute-1", "None"),
         ("preferences.profile.person.active.metadata-attribute-2", "None"),
         ("preferences.profile.person.active.metadata-attribute-3", "None"),
         ("preferences.profile.person.active.metadata-attribute-4", "None"),
         ("preferences.profile.person.active.metadata-attribute-5", "None"),
+        ("preferences.profile.person.active.metadata-attribute-6", "None"),
+        ("preferences.profile.person.active.metadata-attribute-7", "None"),
+        ("preferences.profile.person.active.metadata-attribute-8", "None"),
         # parent
         ("preferences.profile.person.parent.event-format", 1),
         ("preferences.profile.person.parent.tag-format", 1),
@@ -173,14 +186,25 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.parent.expand-children", True),
         ("preferences.profile.person.parent.show-gender", True),
         ("preferences.profile.person.parent.show-age", False),
-        ("preferences.profile.person.parent.show-baptism", True),
-        ("preferences.profile.person.parent.show-burial", True),
         ("preferences.profile.person.parent.show-divorce", True),
+        ("preferences.profile.person.parent.facts-field-skip-birth-alternates", True),
+        ("preferences.profile.person.parent.facts-field-skip-death-alternates", True),
+        ("preferences.profile.person.parent.facts-field-1", "Event:Birth:False"),
+        ("preferences.profile.person.parent.facts-field-2", "Event:Baptism:False"),
+        ("preferences.profile.person.parent.facts-field-3", "Event:Christening:False"),
+        ("preferences.profile.person.parent.facts-field-4", "Event:Death:False"),
+        ("preferences.profile.person.parent.facts-field-5", "Event:Burial:False"),
+        ("preferences.profile.person.parent.facts-field-6", "Event:Cremation:False"),
+        ("preferences.profile.person.parent.facts-field-7", "Event:Probate:False"),
+        ("preferences.profile.person.parent.facts-field-8", "None"),
         ("preferences.profile.person.parent.metadata-attribute-1", "None"),
         ("preferences.profile.person.parent.metadata-attribute-2", "None"),
         ("preferences.profile.person.parent.metadata-attribute-3", "None"),
         ("preferences.profile.person.parent.metadata-attribute-4", "None"),
         ("preferences.profile.person.parent.metadata-attribute-5", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-6", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-7", "None"),
+        ("preferences.profile.person.parent.metadata-attribute-8", "None"),
         # spouse
         ("preferences.profile.person.spouse.event-format", 1),
         ("preferences.profile.person.spouse.tag-format", 1),
@@ -190,14 +214,25 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.spouse.show-spouse-only", True),
         ("preferences.profile.person.spouse.show-gender", True),
         ("preferences.profile.person.spouse.show-age", False),
-        ("preferences.profile.person.spouse.show-baptism", True),
-        ("preferences.profile.person.spouse.show-burial", True),
         ("preferences.profile.person.spouse.show-divorce", True),
+        ("preferences.profile.person.spouse.facts-field-skip-birth-alternates", True),
+        ("preferences.profile.person.spouse.facts-field-skip-death-alternates", True),
+        ("preferences.profile.person.spouse.facts-field-1", "Event:Birth:False"),
+        ("preferences.profile.person.spouse.facts-field-2", "Event:Baptism:False"),
+        ("preferences.profile.person.spouse.facts-field-3", "Event:Christening:False"),
+        ("preferences.profile.person.spouse.facts-field-4", "Event:Death:False"),
+        ("preferences.profile.person.spouse.facts-field-5", "Event:Burial:False"),
+        ("preferences.profile.person.spouse.facts-field-6", "Event:Cremation:False"),
+        ("preferences.profile.person.spouse.facts-field-7", "Event:Probate:False"),
+        ("preferences.profile.person.spouse.facts-field-8", "None"),
         ("preferences.profile.person.spouse.metadata-attribute-1", "None"),
         ("preferences.profile.person.spouse.metadata-attribute-2", "None"),
         ("preferences.profile.person.spouse.metadata-attribute-3", "None"),
         ("preferences.profile.person.spouse.metadata-attribute-4", "None"),
         ("preferences.profile.person.spouse.metadata-attribute-5", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-6", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-7", "None"),
+        ("preferences.profile.person.spouse.metadata-attribute-8", "None"),
         # child
         ("preferences.profile.person.child.event-format", 1),
         ("preferences.profile.person.child.tag-format", 1),
@@ -206,13 +241,24 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.child.number-children", True),
         ("preferences.profile.person.child.show-gender", True),
         ("preferences.profile.person.child.show-age", False),
-        ("preferences.profile.person.child.show-baptism", False),
-        ("preferences.profile.person.child.show-burial", False),
+        ("preferences.profile.person.child.facts-field-skip-birth-alternates", True),
+        ("preferences.profile.person.child.facts-field-skip-death-alternates", True),
+        ("preferences.profile.person.child.facts-field-1", "Event:Birth:False"),
+        ("preferences.profile.person.child.facts-field-2", "Event:Baptism:False"),
+        ("preferences.profile.person.child.facts-field-3", "Event:Christening:False"),
+        ("preferences.profile.person.child.facts-field-4", "Event:Death:False"),
+        ("preferences.profile.person.child.facts-field-5", "Event:Burial:False"),
+        ("preferences.profile.person.child.facts-field-6", "Event:Cremation:False"),
+        ("preferences.profile.person.child.facts-field-7", "Event:Probate:False"),
+        ("preferences.profile.person.child.facts-field-8", "None"),
         ("preferences.profile.person.child.metadata-attribute-1", "None"),
         ("preferences.profile.person.child.metadata-attribute-2", "None"),
         ("preferences.profile.person.child.metadata-attribute-3", "None"),
         ("preferences.profile.person.child.metadata-attribute-4", "None"),
         ("preferences.profile.person.child.metadata-attribute-5", "None"),
+        ("preferences.profile.person.child.metadata-attribute-6", "None"),
+        ("preferences.profile.person.child.metadata-attribute-7", "None"),
+        ("preferences.profile.person.child.metadata-attribute-8", "None"),
         # sibling
         ("preferences.profile.person.sibling.event-format", 1),
         ("preferences.profile.person.sibling.tag-format", 1),
@@ -221,13 +267,24 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.sibling.number-children", True),
         ("preferences.profile.person.sibling.show-gender", True),
         ("preferences.profile.person.sibling.show-age", False),
-        ("preferences.profile.person.sibling.show-baptism", False),
-        ("preferences.profile.person.sibling.show-burial", False),
+        ("preferences.profile.person.sibling.facts-field-skip-birth-alternates", True),
+        ("preferences.profile.person.sibling.facts-field-skip-death-alternates", True),
+        ("preferences.profile.person.sibling.facts-field-1", "Event:Birth:False"),
+        ("preferences.profile.person.sibling.facts-field-2", "Event:Baptism:False"),
+        ("preferences.profile.person.sibling.facts-field-3", "Event:Christening:False"),
+        ("preferences.profile.person.sibling.facts-field-4", "Event:Death:False"),
+        ("preferences.profile.person.sibling.facts-field-5", "Event:Burial:False"),
+        ("preferences.profile.person.sibling.facts-field-6", "Event:Cremation:False"),
+        ("preferences.profile.person.sibling.facts-field-7", "Event:Probate:False"),
+        ("preferences.profile.person.sibling.facts-field-8", "None"),
         ("preferences.profile.person.sibling.metadata-attribute-1", "None"),
         ("preferences.profile.person.sibling.metadata-attribute-2", "None"),
         ("preferences.profile.person.sibling.metadata-attribute-3", "None"),
         ("preferences.profile.person.sibling.metadata-attribute-4", "None"),
         ("preferences.profile.person.sibling.metadata-attribute-5", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-6", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-7", "None"),
+        ("preferences.profile.person.sibling.metadata-attribute-8", "None"),
         # timeline
         ("preferences.profile.person.timeline.tag-format", 1),
         ("preferences.profile.person.timeline.tag-width", 10),
@@ -379,27 +436,27 @@ class PersonProfileView(NavigationView):
         self.callman.add_db_signal("event-update", self.redraw)
         self.callman.add_db_signal("event-add", self.redraw)
         self.callman.add_db_signal("event-delete", self.redraw)
-        self.callman.add_db_signal("event-rebuild", self.redraw)
+#        self.callman.add_db_signal("event-rebuild", self.redraw)
         self.callman.add_db_signal("citation-update", self.redraw)
         self.callman.add_db_signal("citation-add", self.redraw)
         self.callman.add_db_signal("citation-delete", self.redraw)
-        self.callman.add_db_signal("citation-rebuild", self.redraw)
+#        self.callman.add_db_signal("citation-rebuild", self.redraw)
         self.callman.add_db_signal("person-update", self.person_update)
         self.callman.add_db_signal("person-add", self.person_update)
         self.callman.add_db_signal("person-delete", self.redraw)
-        self.callman.add_db_signal("person-rebuild", self.person_rebuild)
+#        self.callman.add_db_signal("person-rebuild", self.person_rebuild)
         self.callman.add_db_signal("family-update", self.family_update)
         self.callman.add_db_signal("family-add", self.family_add)
         self.callman.add_db_signal("family-delete", self.family_delete)
-        self.callman.add_db_signal("family-rebuild", self.family_rebuild)
+#        self.callman.add_db_signal("family-rebuild", self.family_rebuild)
         self.callman.add_db_signal("tag-update", self.redraw)
         self.callman.add_db_signal("tag-add", self.redraw)
         self.callman.add_db_signal("tag-delete", self.redraw)
-        self.callman.add_db_signal("tag-rebuild", self.redraw)
+#        self.callman.add_db_signal("tag-rebuild", self.redraw)
         self.callman.add_db_signal("note-update", self.redraw)
         self.callman.add_db_signal("note-add", self.redraw)
         self.callman.add_db_signal("note-delete", self.redraw)
-        self.callman.add_db_signal("note-rebuild", self.redraw)
+#        self.callman.add_db_signal("note-rebuild", self.redraw)
 
     def font_changed(self):
         """
@@ -821,6 +878,7 @@ class PersonProfileView(NavigationView):
             self._config,
             self.callback_router,
             relation=home,
+            defaults=self.CONFIGSETTINGS
         )
 
         body = Gtk.HBox(expand=True, spacing=3)
@@ -831,6 +889,7 @@ class PersonProfileView(NavigationView):
             person,
             router=self.callback_router,
             config=self._config,
+            defaults=self.CONFIGSETTINGS
         )
         if parents is not None:
             parents_box.pack_start(parents, expand=False, fill=False, padding=0)
@@ -842,6 +901,7 @@ class PersonProfileView(NavigationView):
             person,
             router=self.callback_router,
             config=self._config,
+            defaults=self.CONFIGSETTINGS
         )
         if spouses is not None:
             spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
@@ -978,49 +1038,52 @@ class PersonProfileView(NavigationView):
         grid.set_border_width(12)
         return grid
 
-    def _config_facts_fields(self, grid, space, start_row, start_col=1):
+    def _config_facts_fields(self, configdialog, grid, space, start_row, start_col=1, number=8, extra=False):
         """
         Build facts field configuration section.
         """
         count = 1
         row = start_row
-        while row < start_row + 5:
-            option = "{}.facts-field-{}".format(space, count)
+        text = _("Facts field")
+        key = "facts-field"
+        if extra:
+            text = _("Extra field")
+            key = "extra-field"
+        while row < start_row + number:
+            option = "{}.{}-{}".format(space, key, count)
             user_select = FrameFieldSelector(
                 option, self._config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.CONFIGSETTINGS, text=_("Facts field")
+                dbid=True, defaults=self.CONFIGSETTINGS, text=text
             )
             grid.attach(user_select, start_col, row, 2, 1)
             count = count + 1
             row = row + 1
+        option = "{}.{}-skip-birth-alternates".format(space, key)
+        configdialog.add_checkbox(
+            grid, _("Skip birth alternatives if birth found"),
+            row, option, start=start_col,
+            tooltip=_("If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed.")
+        )
+        row = row + 1
+        option = "{}.{}-skip-death-alternates".format(space, key)
+        configdialog.add_checkbox(
+            grid, _("Skip death alternates if death found"),
+            row, option, start=start_col,
+            tooltip=_("If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed.")
+        )
+        row = row + 1
 
-    def _config_extra_fields(self, grid, space, start_row, start_col=1):
-        """
-        Build extra field configuration section.
-        """
-        count = 1
-        row = start_row
-        while row < start_row + 5:
-            option = "{}.extra-field-{}".format(space, count)
-            user_select = FrameFieldSelector(
-                option, self._config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.CONFIGSETTINGS, text=_("Extra field")
-            )
-            grid.attach(user_select, start_col, row, 2, 1)
-            count = count + 1
-            row = row + 1
-
-    def _config_metadata_attributes(self, grid, space, start_row, start_col=1):
+    def _config_metadata_attributes(self, grid, space, start_row, start_col=1, number=8):
         """
         Build metadata custom attribute configuration section.
         """
         count = 1
         row = start_row
-        while row < start_row + 5:
+        while row < start_row + number:
             option = "{}.metadata-attribute-{}".format(space, count)
             attr_select = AttributeSelector(
                 option, self._config, self.dbstate.db, "Person", dbid=True,
-                tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id")
+                tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id.")
             )
             label = Gtk.Label(
                 halign=Gtk.Align.START, label="{} {}: ".format(_("Metadata attribute"), count)
@@ -1130,16 +1193,12 @@ class PersonProfileView(NavigationView):
             grid, _("Show age at death and if selected burial"),
             7, "preferences.profile.person.active.show-age",
         )
-
         configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
-        self._config_facts_fields(grid, "preferences.profile.person.active", 9)
-
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9)
         configdialog.add_text(grid, _("Extra Fact Display Fields"), 8, start=3, bold=True)
-        self._config_extra_fields(grid, "preferences.profile.person.active", 9, 3)
-        
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9, start_col=3, extra=True)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 8, start=5, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, 5)
-
+        self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, start_col=5)
         return _("Person"), grid
 
     def parents_panel(self, configdialog):
@@ -1184,23 +1243,17 @@ class PersonProfileView(NavigationView):
             8, "preferences.profile.person.parent.show-gender"
         )
         configdialog.add_checkbox(
-            grid, _("Show baptism if available and not used as birth equivalent"),
-            9, "preferences.profile.person.parent.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show burial if available and not used as birth equivalent"),
-            10, "preferences.profile.person.parent.show-burial",
-        )
-        configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            11, "preferences.profile.person.parent.show-age",
+            9, "preferences.profile.person.parent.show-age",
         )
         configdialog.add_checkbox(
             grid, _("Show divorce or divorce equivalent"),
-            12, "preferences.profile.person.parent.show-divorce",
+            10, "preferences.profile.person.parent.show-divorce",
         )
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.person.parent", 14)
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.parent", 12)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.parent", 12, start_col=3)
         return _("Parents"), grid
 
     def spouses_panel(self, configdialog):
@@ -1244,23 +1297,17 @@ class PersonProfileView(NavigationView):
             10, "preferences.profile.person.spouse.show-gender"
         )
         configdialog.add_checkbox(
-            grid, _("Show baptism if available and not used as birth equivalent"),
-            11, "preferences.profile.person.spouse.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show burial if available and not used as death equivalent"),
-            12, "preferences.profile.person.spouse.show-burial",
-        )
-        configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            13, "preferences.profile.person.spouse.show-age",
+            11, "preferences.profile.person.spouse.show-age",
         )
         configdialog.add_checkbox(
             grid, _("Show divorce or divorce equivalent"),
-            14, "preferences.profile.person.spouse.show-divorce",
+            12, "preferences.profile.person.spouse.show-divorce",
         )
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 15, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 16)
+        configdialog.add_text(grid, _("Fact Display Fields"), 13, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.spouse", 14)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 14, start_col=3)
         return _("Spouses"), grid
 
     def children_panel(self, configdialog):
@@ -1299,19 +1346,13 @@ class PersonProfileView(NavigationView):
             9, "preferences.profile.person.child.show-gender"
         )
         configdialog.add_checkbox(
-            grid, _("Show baptism if available and not used as birth equivalent"),
-            10, "preferences.profile.person.child.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show burial if available and not used as death equivalent"),
-            11, "preferences.profile.person.child.show-burial",
-        )
-        configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            12, "preferences.profile.person.child.show-age",
+            10, "preferences.profile.person.child.show-age",
         )
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.person.child", 14)
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.child", 12)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.child", 12, start_col=3)
         return _("Children"), grid
 
     def siblings_panel(self, configdialog):
@@ -1350,19 +1391,13 @@ class PersonProfileView(NavigationView):
             9, "preferences.profile.person.sibling.show-gender"
         )
         configdialog.add_checkbox(
-            grid, _("Show baptism if available and not used as birth equivalent"),
-            10, "preferences.profile.person.sibling.show-baptism",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show burial if available and not used as death equivalent"),
-            11, "preferences.profile.person.sibling.show-burial",
-        )
-        configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            12, "preferences.profile.person.sibling.show-age",
+            10, "preferences.profile.person.sibling.show-age",
         )
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, bold=True)        
-        self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 14)
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.person.sibling", 12)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 12, start_col=3)
         return _("Siblings"), grid
 
     def timeline_panel(self, configdialog):
