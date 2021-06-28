@@ -289,8 +289,8 @@ class PersonProfileView(NavigationView):
         # timeline
         ("preferences.profile.person.timeline.tag-format", 1),
         ("preferences.profile.person.timeline.tag-width", 10),
-        ("preferences.profile.person.timeline.image-mode", 1),
-        ("preferences.profile.person.timeline.color-scheme", 1),
+        ("preferences.profile.person.timeline.image-mode", 0),
+        ("preferences.profile.person.timeline.color-scheme", 0),
         ("preferences.profile.person.timeline.show-description", True),
         ("preferences.profile.person.timeline.show-participants", True),
         ("preferences.profile.person.timeline.show-role-always", False),
@@ -331,7 +331,7 @@ class PersonProfileView(NavigationView):
         # citation
         ("preferences.profile.person.citation.tag-format", 1),
         ("preferences.profile.person.citation.tag-width", 10),
-        ("preferences.profile.person.citation.image-mode", 1),
+        ("preferences.profile.person.citation.image-mode", 0),
         ("preferences.profile.person.citation.sort-by-date", False),
         ("preferences.profile.person.citation.include-indirect", True),
         ("preferences.profile.person.citation.include-parent-family", True),
