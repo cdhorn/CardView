@@ -905,6 +905,19 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             for text, note in note_list:
                 removemenu.add(self._menu_item("list-remove", text, self.remove_note, note))
                 menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
+        if self.option("layout", "include-child-notes"):
+                note_list = []
+                for child_obj in self.obj.get_note_child_list():
+                    for handle in child_obj.get_note_list():
+                        note = self.dbstate.db.get_note_from_handle(handle)
+                        text = self._note_option_text(note)
+                        note_list.append((text, note))
+                if len(note_list) > 0:
+                    menu.add(Gtk.SeparatorMenuItem())
+                    menu.add(Gtk.SeparatorMenuItem())
+                    note_list.sort(key=lambda x: x[0])            
+                    for text, note in note_list:
+                        menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
         return self._submenu_item("gramps-notes", _("Notes"), menu)
 
     def _note_option_text(self, note):

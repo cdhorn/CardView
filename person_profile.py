@@ -138,6 +138,7 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.layout.use-color-scheme", True),
         ("preferences.profile.person.layout.use-smaller-detail-font", True),
         ("preferences.profile.person.layout.sort-tags-by-name", False),
+        ("preferences.profile.person.layout.include-child-notes", False),
         ("preferences.profile.person.layout.right-to-left", False),
         # active person
         ("preferences.profile.person.active.event-format", 1),
@@ -1148,13 +1149,18 @@ class PersonProfileView(NavigationView):
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
+            grid, _("Include notes on child objects"),
+            12, "preferences.profile.person.layout.include-child-notes",
+            tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
+        )
+        configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            12, "preferences.profile.person.layout.enable-warnings",
+            13, "preferences.profile.person.layout.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            13, "preferences.profile.person.layout.enable-tooltips",
+            14, "preferences.profile.person.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
         return _("Layout"), grid
