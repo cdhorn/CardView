@@ -770,3 +770,34 @@ class FrameFieldSelector(Gtk.HBox):
         if current_index not in [1, 2]:
             self.event_selector.hide()
             self.event_matches.hide()
+
+class ConfigReset(Gtk.Button):
+    """
+    Class to manage resetting configuration options.
+    """
+
+    def __init__(self, dialog, config, space, defaults, label=None):
+        Gtk.Button.__init__(self, hexpand=False)
+        self.dialog = dialog
+        self.config = config
+        self.space = "{}.".format(space)
+        self.defaults = defaults
+        if label:
+            self.set_label(label)
+        else:
+            self.set_label(_("Reset Page Defaults"))
+        self.connect("clicked", self.reset)
+        self.set_tooltip_text(_("This option will examine a set of options and set any that were changed back to their default value. It may apply to a whole page or in some cases a part of a page. Note if it finds and has to reset any values when done it will close the configuration dialog and you will need to reopen it. Redraw logic has not been implemented yet."))
+
+    def reset(self, obj):
+        option_length = len(self.space)
+        reset_option = False
+        for option, value in self.defaults:
+            if option[:option_length] == self.space:
+                current_value = self.config.get(option)
+                if current_value != value:
+                    print("resetting {}".format(option))
+                    self.config.set(option, value)
+                    reset_option = True
+        if reset_option:
+            self.dialog.done(None, None)

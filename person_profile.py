@@ -118,6 +118,7 @@ from frame_utils import (
     SEX_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
     AttributeSelector,
+    ConfigReset,
     FrameFieldSelector
 )
 
@@ -1161,6 +1162,8 @@ class PersonProfileView(NavigationView):
             14, "preferences.profile.person.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.layout", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
     def active_panel(self, configdialog):
@@ -1204,6 +1207,8 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9, start_col=3, extra=True)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 8, start=5, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, start_col=5)
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.active", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 20, 1, 1)
         return _("Person"), grid
 
     def parents_panel(self, configdialog):
@@ -1259,6 +1264,8 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.parent", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.parent", 12, start_col=3)
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.parent", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
         return _("Parents"), grid
 
     def spouses_panel(self, configdialog):
@@ -1313,6 +1320,8 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.spouse", 14)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 14, start_col=3)
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.spouse", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
         return _("Spouses"), grid
 
     def children_panel(self, configdialog):
@@ -1358,6 +1367,8 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.child", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.child", 12, start_col=3)
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.child", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
         return _("Children"), grid
 
     def siblings_panel(self, configdialog):
@@ -1403,6 +1414,8 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.sibling", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 12, start_col=3)
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.sibling", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
         return _("Siblings"), grid
 
     def timeline_panel(self, configdialog):
@@ -1467,6 +1480,8 @@ class PersonProfileView(NavigationView):
             12, "preferences.profile.person.timeline.show-best-confidence",
             tooltip=_("Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event.")
         )
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.timeline", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid1.attach(reset, 1, 20, 1, 1)
         grid2 = self.create_grid()
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
@@ -1702,6 +1717,8 @@ class PersonProfileView(NavigationView):
             14, "preferences.profile.person.citation.show-confidence",
             tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
+        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.citation", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 20, 1, 1)
         return _("Citations"), grid
 
     def color_panel(self, configdialog):
@@ -1712,9 +1729,11 @@ class PersonProfileView(NavigationView):
         configdialog.add_text(grid, _("See global preferences for option to switch between light and dark color schemes"), 0, bold=True)
         configdialog.add_text(grid, _("The default Gramps person color scheme is also managed under global preferences"), 1, bold=True)
 
-        color_type = {'Confidence': _('Confidence color scheme'),
-                      'Relation': _('Relationship color scheme'),
-                      'Event': _('Event category color scheme')}
+        color_type = [
+            ('Confidence', _('Confidence color scheme'), "preferences.profile.colors.confidence"),
+            ('Relation', _('Relationship color scheme'),"preferences.profile.colors.relations"),
+            ('Event', _('Event category color scheme'), "preferences.profile.colors.events")
+        ]
 
         # for confidence scheme
         bg_very_high_text = _('Background for Very High')
@@ -1839,12 +1858,12 @@ class PersonProfileView(NavigationView):
         # add color settings to scrolled window by groups
         row = 0
         self.colors = {}
-        for key, frame_lbl in color_type.items():
+        for key, frame_lbl, space in color_type:
             group_label = Gtk.Label()
             group_label.set_halign(Gtk.Align.START)
             group_label.set_margin_top(12)
             group_label.set_markup(_('<b>%s</b>') % frame_lbl)
-            colors_grid.attach(group_label, 0, row, 3, 1)
+            colors_grid.attach(group_label, 0, row, 2, 1)
 
             row_added = 0
             for color in color_list:
@@ -1855,7 +1874,6 @@ class PersonProfileView(NavigationView):
                         pref_name, col=color[3])
                     row_added += 1
             row += row_added + 1
-
         return _('Colors'), grid
 
     def add_color(self, grid, label, index, constant, col=0):
