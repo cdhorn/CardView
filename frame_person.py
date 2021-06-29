@@ -119,6 +119,7 @@ class PersonGrampsFrame(GrampsFrame):
         for event_ref in self.obj.get_primary_event_ref_list():
             self.event_cache.append(self.dbstate.db.get_event_from_handle(event_ref.ref))
         self.enable_drag()
+        self.enable_drop()
 
         display_name = name_displayer.display(self.person)
         text = "<b>{}</b>".format(display_name)

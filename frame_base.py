@@ -249,6 +249,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.context = context
         self.vertical = vertical
         self.action_menu = None
+        self.dnd_drop_targets = []
         self.obj_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(self.obj)
 
         if groups:
@@ -376,7 +377,52 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if info == self.dnd_type.app_id:
             data = (self.dnd_type.drag_type, id(self), self.obj.get_handle(), 0)
             sel_data.set(self.dnd_type.atom_drag_type, 8, pickle.dumps(data))
-        
+
+    def enable_drop(self):
+        """
+        Enable self as a drop target.
+        """
+        if self.eventbox:
+            if hasattr(self.obj, "urls"):
+                self.dnd_drop_targets.append(DdTargets.URI_LIST.target())
+                for target in DdTargets.all_text_targets():
+                    self.dnd_drop_targets.append(target)
+                html = Gtk.TargetEntry.new('text/html', 0, 7)
+                self.dnd_drop_targets.append(html)
+                url = Gtk.TargetEntry.new('URL', 0, 8)
+                self.dnd_drop_targets.append(url)
+            if hasattr(self.obj, "note_list"):
+                self.dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+            if hasattr(self.obj, "citation_list"):
+                self.dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            self.eventbox.drag_dest_set(
+                Gtk.DestDefaults.ALL,
+                self.dnd_drop_targets,
+                Gdk.DragAction.COPY
+            )
+            self.eventbox.connect("drag-data-received", self.on_drag_data_received)
+
+    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
+        """
+        Handle dropped data.
+        """
+        if data and data.get_data():
+            try:
+                dnd_type, obj_id, obj_handle, skip = pickle.loads(data.get_data())
+            except pickle.UnpicklingError:
+                self.dropped_text(data.get_data())
+            if id(self) == obj_id:
+                return
+            if DdTargets.CITATION_LINK.drag_type == dnd_type:
+                self.added_citation(obj_handle)
+            elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+                self.added_note(obj_handle)
+
+    def dropped_text(self, data):
+        """
+        Examine and try to handle dropped text in a reasonable manner.
+        """
+            
     def load_image(self, image_mode):
         """
         Load primary image for the object if found.
@@ -830,10 +876,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Add the new or existing citation to the current object.
         """
         if handle:
-            self.obj.add_citation(handle)
-            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Citation to %s") % self.obj_type, self.dbstate.db) as trans:
-                commit_method(self.obj, trans)
+            if self.obj.add_citation(handle):
+                commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+                with DbTxn(_("Add Citation to %s") % self.obj_type, self.dbstate.db) as trans:
+                    commit_method(self.obj, trans)
 
     def add_existing_citation(self, obj):
         """
@@ -945,10 +991,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Add the new or existing note to the current object.
         """
         if handle:
-            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Note to %s") % self.obj_type, self.dbstate.db) as trans:
-                self.obj.add_note(handle)
-                commit_method(self.obj, trans)
+            if self.obj.add_note(handle):
+                commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+                with DbTxn(_("Add Note to %s") % self.obj_type, self.dbstate.db) as trans:
+                    commit_method(self.obj, trans)
 
     def add_existing_note(self, obj):
         """
