@@ -138,10 +138,11 @@ class PersonGrampsFrame(GrampsFrame):
                 use_markup=True, label=self.markup.format("{}. ".format(number))
             )
             name_box.pack_start(label, False, False, 0)
-        if self.option(context, "show-gender"):
-            label = Gtk.Label(label=_GENDERS[self.person.gender])
-            name_box.pack_start(label, False, False, 0)
+        if self.option(context, "sex-mode") == 1:
+            name_box.pack_start(Gtk.Label(label=_GENDERS[self.person.gender]), False, False, 0)
         name_box.pack_start(name, False, False, 0)
+        if self.option(context, "sex-mode") == 2:
+            name_box.pack_start(Gtk.Label(label=_GENDERS[self.person.gender]), False, False, 0)
         self.title.pack_start(name_box, True, True, 0)
 
         self.living = probably_alive(self.person, self.dbstate.db)

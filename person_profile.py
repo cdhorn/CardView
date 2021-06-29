@@ -115,6 +115,7 @@ from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
     AttributeSelector,
     FrameFieldSelector
@@ -142,14 +143,11 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.layout.right-to-left", False),
         # active person
         ("preferences.profile.person.active.event-format", 1),
+        ("preferences.profile.person.active.show-age", True),
+        ("preferences.profile.person.active.sex-mode", 1),
+        ("preferences.profile.person.active.image-mode", 3),
         ("preferences.profile.person.active.tag-format", 1),
         ("preferences.profile.person.active.tag-width", 10),
-        ("preferences.profile.person.active.image-mode", 3),
-        ("preferences.profile.person.active.show-gender", True),
-        ("preferences.profile.person.active.show-age", True),
-        ("preferences.profile.person.active.show-baptism", True),
-        ("preferences.profile.person.active.show-burial", True),
-        ("preferences.profile.person.active.show-relation", True),
         ("preferences.profile.person.active.facts-field-skip-birth-alternates", False),
         ("preferences.profile.person.active.facts-field-skip-death-alternates", False),
         ("preferences.profile.person.active.facts-field-1", "Event:Birth:False"),
@@ -180,13 +178,13 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.active.metadata-attribute-8", "None"),
         # parent
         ("preferences.profile.person.parent.event-format", 1),
+        ("preferences.profile.person.parent.show-age", False),
+        ("preferences.profile.person.parent.sex-mode", 1),
+        ("preferences.profile.person.parent.image-mode", 1),
         ("preferences.profile.person.parent.tag-format", 1),
         ("preferences.profile.person.parent.tag-width", 10),
-        ("preferences.profile.person.parent.image-mode", 1),
         ("preferences.profile.person.parent.show-matrilineal", False),
         ("preferences.profile.person.parent.expand-children", True),
-        ("preferences.profile.person.parent.show-gender", True),
-        ("preferences.profile.person.parent.show-age", False),
         ("preferences.profile.person.parent.show-divorce", True),
         ("preferences.profile.person.parent.facts-field-skip-birth-alternates", True),
         ("preferences.profile.person.parent.facts-field-skip-death-alternates", True),
@@ -208,13 +206,13 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.parent.metadata-attribute-8", "None"),
         # spouse
         ("preferences.profile.person.spouse.event-format", 1),
+        ("preferences.profile.person.spouse.show-age", False),
+        ("preferences.profile.person.spouse.sex-mode", 1),
+        ("preferences.profile.person.spouse.image-mode", 3),
         ("preferences.profile.person.spouse.tag-format", 1),
         ("preferences.profile.person.spouse.tag-width", 10),
-        ("preferences.profile.person.spouse.image-mode", 3),
         ("preferences.profile.person.spouse.expand-children", True),
         ("preferences.profile.person.spouse.show-spouse-only", True),
-        ("preferences.profile.person.spouse.show-gender", True),
-        ("preferences.profile.person.spouse.show-age", False),
         ("preferences.profile.person.spouse.show-divorce", True),
         ("preferences.profile.person.spouse.facts-field-skip-birth-alternates", True),
         ("preferences.profile.person.spouse.facts-field-skip-death-alternates", True),
@@ -236,12 +234,12 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.spouse.metadata-attribute-8", "None"),
         # child
         ("preferences.profile.person.child.event-format", 1),
+        ("preferences.profile.person.child.show-age", False),
+        ("preferences.profile.person.child.sex-mode", 1),
+        ("preferences.profile.person.child.image-mode", 3),
         ("preferences.profile.person.child.tag-format", 1),
         ("preferences.profile.person.child.tag-width", 10),
-        ("preferences.profile.person.child.image-mode", 3),
         ("preferences.profile.person.child.number-children", True),
-        ("preferences.profile.person.child.show-gender", True),
-        ("preferences.profile.person.child.show-age", False),
         ("preferences.profile.person.child.facts-field-skip-birth-alternates", True),
         ("preferences.profile.person.child.facts-field-skip-death-alternates", True),
         ("preferences.profile.person.child.facts-field-1", "Event:Birth:False"),
@@ -262,12 +260,12 @@ class PersonProfileView(NavigationView):
         ("preferences.profile.person.child.metadata-attribute-8", "None"),
         # sibling
         ("preferences.profile.person.sibling.event-format", 1),
+        ("preferences.profile.person.sibling.show-age", False),
+        ("preferences.profile.person.sibling.sex-mode", 1),
+        ("preferences.profile.person.sibling.image-mode", 1),
         ("preferences.profile.person.sibling.tag-format", 1),
         ("preferences.profile.person.sibling.tag-width", 10),
-        ("preferences.profile.person.sibling.image-mode", 1),
         ("preferences.profile.person.sibling.number-children", True),
-        ("preferences.profile.person.sibling.show-gender", True),
-        ("preferences.profile.person.sibling.show-age", False),
         ("preferences.profile.person.sibling.facts-field-skip-birth-alternates", True),
         ("preferences.profile.person.sibling.facts-field-skip-death-alternates", True),
         ("preferences.profile.person.sibling.facts-field-1", "Event:Birth:False"),
@@ -1176,29 +1174,29 @@ class PersonProfileView(NavigationView):
             1, "preferences.profile.person.active.event-format",
             EVENT_DISPLAY_MODES,
         )
-        configdialog.add_combo(
-            grid, _("Tag display mode"),
-            2, "preferences.profile.person.active.tag-format",
-            TAG_DISPLAY_MODES,
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.person.active.show-age", start=3
         )
-        configdialog.add_spinner(
-            grid, _("Maximum tags per line"),
-            3, "preferences.profile.person.active.tag-width",
-            (1, 20),
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.person.active.sex-mode",
+            SEX_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            4, "preferences.profile.person.active.image-mode",
+            3, "preferences.profile.person.active.image-mode",
             IMAGE_DISPLAY_MODES,
         )
-        configdialog.add_text(grid, _("Display Attributes"), 5, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"),
-            6, "preferences.profile.person.active.show-gender"
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "preferences.profile.person.active.tag-format",
+            TAG_DISPLAY_MODES
         )
-        configdialog.add_checkbox(
-            grid, _("Show age at death and if selected burial"),
-            7, "preferences.profile.person.active.show-age",
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "preferences.profile.person.active.tag-width",
+            (1, 20)
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9)
@@ -1219,43 +1217,43 @@ class PersonProfileView(NavigationView):
             1, "preferences.profile.person.parent.event-format",
             EVENT_DISPLAY_MODES,
         )
-        configdialog.add_combo(
-            grid, _("Tag display mode"),
-            2, "preferences.profile.person.parent.tag-format",
-            TAG_DISPLAY_MODES,
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.person.parent.show-age", start=3
         )
-        configdialog.add_spinner(
-            grid, _("Maximum tags per line"),
-            3, "preferences.profile.person.parent.tag-width",
-            (1, 20),
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.person.parent.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Expand children by default"),
+            2, "preferences.profile.person.parent.expand-children", start=3,
+            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            4, "preferences.profile.person.parent.image-mode",
+            3, "preferences.profile.person.parent.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Matrilineal mode (inverts couple)"),
-            5, "preferences.profile.person.parent.show-matrilineal",
+            3, "preferences.profile.person.parent.show-matrilineal", start=3,
             tooltip=_("Enabling this option will switch the placement of the male and female roles in the couple relationship.")
         )
-        configdialog.add_checkbox(
-            grid, _("Expand children by default"),
-            6, "preferences.profile.person.parent.expand-children",
-            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "preferences.profile.person.parent.tag-format",
+            TAG_DISPLAY_MODES,
         )
-        configdialog.add_text(grid, _("Display Attributes"), 7, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"),
-            8, "preferences.profile.person.parent.show-gender"
-        )
-        configdialog.add_checkbox(
-            grid, _("Show age at death and if selected burial"),
-            9, "preferences.profile.person.parent.show-age",
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "preferences.profile.person.parent.tag-width",
+            (1, 20),
         )
         configdialog.add_checkbox(
             grid, _("Show divorce or divorce equivalent"),
-            10, "preferences.profile.person.parent.show-divorce",
+            6, "preferences.profile.person.parent.show-divorce"
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.parent", 12)
@@ -1274,42 +1272,42 @@ class PersonProfileView(NavigationView):
             1, "preferences.profile.person.spouse.event-format",
             EVENT_DISPLAY_MODES,
         )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.person.spouse.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.person.spouse.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Expand children by default"),
+            2, "preferences.profile.person.spouse.expand-children", start=3,
+            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.person.spouse.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.person.spouse.tag-format",
+            4, "preferences.profile.person.spouse.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.person.spouse.tag-width",
+            5, "preferences.profile.person.spouse.tag-width",
             (1, 20),
-        )
-        configdialog.add_combo(
-            grid, _("Image display mode"),
-            4, "preferences.profile.person.spouse.image-mode",
-            IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show spouse only"),
-            7, "preferences.profile.person.spouse.show-spouse-only",
-        )
-        configdialog.add_checkbox(
-            grid, _("Expand children by default"),
-            8, "preferences.profile.person.spouse.expand-children",
-            tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
-        )
-        configdialog.add_text(grid, _("Display Attributes"), 9, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"),
-            10, "preferences.profile.person.spouse.show-gender"
-        )
-        configdialog.add_checkbox(
-            grid, _("Show age at death and if selected burial"),
-            11, "preferences.profile.person.spouse.show-age",
+            6, "preferences.profile.person.spouse.show-spouse-only",
         )
         configdialog.add_checkbox(
             grid, _("Show divorce or divorce equivalent"),
-            12, "preferences.profile.person.spouse.show-divorce",
+            6, "preferences.profile.person.spouse.show-divorce", start=3
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 13, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.spouse", 14)
@@ -1328,33 +1326,33 @@ class PersonProfileView(NavigationView):
             1, "preferences.profile.person.child.event-format",
             EVENT_DISPLAY_MODES,
         )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.person.child.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.person.child.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Number children"),
+            2, "preferences.profile.person.child.number-children", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.person.child.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.person.child.tag-format",
+            4, "preferences.profile.person.child.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.person.child.tag-width",
+            5, "preferences.profile.person.child.tag-width",
             (1, 20),
-        )
-        configdialog.add_combo(
-            grid, _("Image display mode"),
-            4, "preferences.profile.person.child.image-mode",
-            IMAGE_DISPLAY_MODES,
-        )
-        configdialog.add_checkbox(
-            grid, _("Number children"),
-            7, "preferences.profile.person.child.number-children",
-        )
-        configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"),
-            9, "preferences.profile.person.child.show-gender"
-        )
-        configdialog.add_checkbox(
-            grid, _("Show age at death and if selected burial"),
-            10, "preferences.profile.person.child.show-age",
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.child", 12)
@@ -1373,33 +1371,33 @@ class PersonProfileView(NavigationView):
             1, "preferences.profile.person.sibling.event-format",
             EVENT_DISPLAY_MODES,
         )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.person.sibling.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.person.sibling.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Number children"),
+            2, "preferences.profile.person.sibling.number-children", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.person.sibling.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.person.sibling.tag-format",
+            4, "preferences.profile.person.sibling.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.person.sibling.tag-width",
+            5, "preferences.profile.person.sibling.tag-width",
             (1, 20),
-        )
-        configdialog.add_combo(
-            grid, _("Image display mode"),
-            4, "preferences.profile.person.sibling.image-mode",
-            IMAGE_DISPLAY_MODES,
-        )
-        configdialog.add_checkbox(
-            grid, _("Number children"),
-            7, "preferences.profile.person.sibling.number-children",
-        )
-        configdialog.add_text(grid, _("Display Attributes"), 8, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show gender"),
-            9, "preferences.profile.person.sibling.show-gender"
-        )
-        configdialog.add_checkbox(
-            grid, _("Show age at death and if selected burial"),
-            10, "preferences.profile.person.sibling.show-age",
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.sibling", 12)

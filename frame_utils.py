@@ -116,6 +116,12 @@ IMAGE_DISPLAY_MODES = [
     (4, _("Large image on left")),
 ]
 
+SEX_DISPLAY_MODES = [
+    (0, _("No indicator displayed")),
+    (1, _("Indicator to left of name")),
+    (2, _("Indicator to right of name"))
+]
+
 TIMELINE_COLOR_MODES = [
     (0, _("Person scheme")),
     (1, _("Relationship scheme")),
