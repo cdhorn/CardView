@@ -91,6 +91,7 @@ class CitationGrampsFrame(GrampsFrame):
         self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
 
         self.enable_drag()
+        self.enable_drop()
 
         title = Gtk.Label(
             wrap=True,

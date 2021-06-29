@@ -104,6 +104,7 @@ class CoupleGrampsFrame(GrampsFrame):
             if self.option(context, "show-divorce"):
                 self.add_event(divorce)
         self.enable_drag()
+        self.enable_drop()
         self.set_css_style()
 
     def _get_profile(self, person, defaults):

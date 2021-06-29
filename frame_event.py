@@ -109,7 +109,8 @@ class EventGrampsFrame(GrampsFrame):
         self.event_participant = None
 
         self.enable_drag()
-        
+        self.enable_drop()
+
         if self.option(self.context, "show-age"):
             if reference_person:
                 target_person = reference_person
