@@ -66,9 +66,9 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
     def __init__(self, dbstate, uistate, obj, space, config, router):
         GrampsFrameList.__init__(self, dbstate, uistate, space, config)
         self.obj = obj
+        self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
         self.router = router
-        self.obj_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(self.obj)
-        
+
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -96,6 +96,15 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                 self.add_frame(frame)
         self.show_all()
 
+    def save_new_object(self, handle, insert_row):
+        """
+        Add new citation to the list.
+        """
+        if self.obj.add_citation(handle):
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(_("Add Citation to %s") % self.obj_type, self.dbstate.db) as trans:
+                commit_method(self.obj, trans)
+        
     def collect_citations(self):
         """
         Helper to collect the citation data for the current object.

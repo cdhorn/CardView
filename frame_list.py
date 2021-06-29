@@ -70,7 +70,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
     def __init__(self, dbstate, uistate, space, config):
         Gtk.ListBox.__init__(self)
         GrampsConfig.__init__(self, dbstate, uistate, space, config)
-        self.obj_type = None
+        self.managed_obj_type = None
         self.dnd_type = None
         self.dnd_icon = None
         self.row_frames = []
@@ -88,13 +88,13 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         if not isinstance(gramps_frame, GrampsFrame):
             return None
-        if self.obj_type is None and self.dnd_type is None:
-            self.obj_type = gramps_frame.obj_type
+        if self.managed_obj_type is None and self.dnd_type is None:
+            self.managed_obj_type = gramps_frame.obj_type
             self.dnd_type = gramps_frame.dnd_type
             self.drag_dest_set(
                 Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,
                 [self.dnd_type.target()],
-                Gdk.DragAction.COPY
+                Gdk.DragAction.COPY|Gdk.DragAction.MOVE
             )
         self.row_frames.append(gramps_frame)
         row = Gtk.ListBoxRow(selectable=False)
@@ -122,7 +122,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
                     break
                 index = index + 1
             if index >= len(self.row_frames):
-                self.save_new_object(obj_handle)
+                self.save_new_object(obj_handle, self.row_current)
         self.row_previous = 0
         self.row_current = 0
 
@@ -131,7 +131,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         Stub for derived objects to save the reordered list.
         """
         
-    def save_new_object(self, handle):
+    def save_new_object(self, handle, insert_row):
         """
         Stub for derived objects to add an external object to the list.
         """
