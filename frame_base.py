@@ -32,6 +32,7 @@ GrampsFrame
 #
 # ------------------------------------------------------------------------
 import pickle
+import re
 import time
 
 
@@ -383,18 +384,13 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Enable self as a drop target.
         """
         if self.eventbox:
-            if hasattr(self.obj, "urls"):
-                self.dnd_drop_targets.append(DdTargets.URI_LIST.target())
-                for target in DdTargets.all_text_targets():
-                    self.dnd_drop_targets.append(target)
-                html = Gtk.TargetEntry.new('text/html', 0, 7)
-                self.dnd_drop_targets.append(html)
-                url = Gtk.TargetEntry.new('URL', 0, 8)
-                self.dnd_drop_targets.append(url)
-            if hasattr(self.obj, "note_list"):
-                self.dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-            if hasattr(self.obj, "citation_list"):
-                self.dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            self.dnd_drop_targets.append(DdTargets.URI_LIST.target())
+            for target in DdTargets.all_text_targets():
+                self.dnd_drop_targets.append(target)
+            self.dnd_drop_targets.append(Gtk.TargetEntry.new('text/html', 0, 7))
+            self.dnd_drop_targets.append(Gtk.TargetEntry.new('URL', 0, 8))
+            self.dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+            self.dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
             self.eventbox.drag_dest_set(
                 Gtk.DestDefaults.ALL,
                 self.dnd_drop_targets,
@@ -410,7 +406,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             try:
                 dnd_type, obj_id, obj_handle, skip = pickle.loads(data.get_data())
             except pickle.UnpicklingError:
-                self.dropped_text(data.get_data())
+                return self.dropped_text(data.get_data().decode("utf-8"))
             if id(self) == obj_id:
                 return
             if DdTargets.CITATION_LINK.drag_type == dnd_type:
@@ -422,6 +418,16 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
+        added_urls = 0
+        if hasattr(self.obj, "urls"):
+            links = re.findall(r'(?P<url>https?://[^\s]+)', data)
+            if links:
+                for link in links:
+                    self.add_url(None, path=link)
+                    added_urls = added_urls + len(link)
+        if not added_urls or (len(data) > (2 * added_urls)):
+            if hasattr(self.obj, "note_list"):
+                self.add_new_note(None, content=data)
             
     def load_image(self, image_mode):
         """
@@ -976,11 +982,13 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             text = text[:40]+"..."
         return "{}: {}".format(notetype, text)
         
-    def add_new_note(self, obj):
+    def add_new_note(self, obj, content=None):
         """
         Add a new note.
         """
         note = Note()
+        if content:
+            note.set(content)
         try:
             EditNote(self.dbstate, self.uistate, [], note, self.added_note)
         except WindowActiveError:
@@ -1127,11 +1135,16 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 menu.add(self._menu_item("gramps-url", text, self.launch_url, url))
         return self._submenu_item("gramps-url", _("Urls"), menu)
 
-    def add_url(self, obj):
+    def add_url(self, obj, path=None, description=None):
         """
         Add a new url.
         """
         url = Url()
+        url.set_type("Web Home")
+        if path:
+            url.set_path(path)
+        if description:
+            url.set_description(description)
         try:
             EditUrl(self.dbstate, self.uistate, [], "", url, self.added_url)
         except WindowActiveError:
