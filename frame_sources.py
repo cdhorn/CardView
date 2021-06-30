@@ -100,9 +100,16 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
         """
         Add new citation to the list.
         """
-        if self.obj.add_citation(handle):
-            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Citation to %s") % self.obj_type, self.dbstate.db) as trans:
+        citation = self.dbstate.db.get_citation_from_handle()
+        action = "{} {} {} {}".format(
+            _("Added Citation"),
+            citation.get_gramps_id(),
+            _("to"),
+            self.obj.get_gramps_id()
+        )
+        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(action, self.dbstate.db) as trans:
+            if self.obj.add_citation(handle):
                 commit_method(self.obj, trans)
         
     def collect_citations(self):

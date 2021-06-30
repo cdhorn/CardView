@@ -123,6 +123,14 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
                 self.number = self.number + 1
         self.show_all()
 
+    def _save_child_list(self, new_list, comment):
+        """
+        Update and save child list.
+        """
+        with DbTxn(comment, self.dbstate.db) as trans:
+            self.family.set_child_ref_list(new_list)
+            self.dbstate.db.commit_family(self.family, trans)
+
     def save_reordered_list(self):
         """
         Save a reordered list of children.
@@ -133,8 +141,34 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
                 if ref.ref == frame.obj.get_handle():
                     new_list.append(ref)
                     break
+        action = "{} {} {} {}".format(
+            _("Reordered Children"),
+            _("for"),
+            _("Family"),
+            self.family.get_gramps_id()
+        )
+        self._save_child_list(new_list, action)
 
-        with DbTxn(_("Save reordered child list"), self.dbstate.db) as trans:
-            self.family.set_child_ref_list(new_list)
-            self.dbstate.db.commit_family(self.family, trans)
-
+    def save_new_object(self, handle, insert_row):
+        """
+        Add a new child to the list of children.
+        """
+        if self.family.get_father_handle() == handle:
+            return
+        if self.family.get_mother_handle() == handle:
+            return
+        new_list = []
+        for frame in self.row_frames:
+            new_list.append(frame.obj.get_handle())
+        if handle in new_list:
+            return
+        new_list.insert(handle, insert_row)
+        child = self.dbstate.db.get_person_from_handle(handle)
+        action = "{} {} {} {} {}".format(
+            _("Added Child"),
+            child.get_gramps_id(),
+            _("to"),
+            _("Family"),
+            self.family.get_gramps_id()
+        )
+        self._save_child_list(new_list, action)

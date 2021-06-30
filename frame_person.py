@@ -317,7 +317,6 @@ class PersonGrampsFrame(GrampsFrame):
         event = Event()
         ref = EventRef()
         ref.ref = self.person.handle
-
         try:
             EditEventRef(
                 self.dbstate, self.uistate, [], event, ref, self.added_new_person_event
@@ -329,9 +328,17 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Finish adding a new event for a person.
         """
-        with DbTxn(_("Add person event"), self.dbstate.db) as trans:
-            self.person.add_event_ref(reference)
-            self.dbstate.db.commit_person(self.person, trans)
+        event = self.dbstate.db.get_event_from_handle(reference.ref)
+        action = "{} {} {} {} {}".format(
+            _("Added Person"),
+            self.person.get_gramps_id(),
+            _("to"),
+            _("Event"),
+            event.get_gramps_id()
+        )
+        with DbTxn(action, self.dbstate.db) as trans:
+            if self.person.add_event_ref(reference):
+                self.dbstate.db.commit_person(self.person, trans)
 
     def _parents_option(self):
         """
@@ -353,10 +360,9 @@ class PersonGrampsFrame(GrampsFrame):
         Add new parents for the person.
         """
         family = Family()
-        ref = ChildRef()
-        ref.ref = self.person.handle
-        family.add_child_ref(ref)
-
+        child_ref = ChildRef()
+        child_ref.ref = self.person.handle
+        family.add_child_ref(child_ref)
         try:
             EditFamily(self.dbstate, self.uistate, [], family)
         except WindowActiveError:
@@ -396,7 +402,6 @@ class PersonGrampsFrame(GrampsFrame):
             family.set_father_handle(self.person.handle)
         else:
             family.set_mother_handle(self.person.handle)
-
         try:
             EditFamily(self.dbstate, self.uistate, [], family)
         except WindowActiveError:
@@ -441,10 +446,9 @@ class PersonGrampsFrame(GrampsFrame):
                     "Warning",
                     "{}\n\nAre you sure you want to continue?".format(text)
             ):
-                return
-            self.dbstate.db.remove_parent_from_family(
-                self.person.handle, self.family_backlink
-            )
+                self.dbstate.db.remove_parent_from_family(
+                    self.person.handle, self.family_backlink
+                )
  
     def _remove_child_from_family_option(self):
         """
@@ -460,11 +464,10 @@ class PersonGrampsFrame(GrampsFrame):
             person_name = name_displayer.display(self.person)
             family = self.dbstate.db.get_family_from_handle(self.family_backlink)
             family_text = family_name(family, self.dbstate.db)
-            if not self.confirm_action(
+            if self.confirm_action(
                     "Warning",
                     "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
             ):
-                return
-            self.dbstate.db.remove_child_from_family(
-                self.person.handle, self.family_backlink
-            )
+                self.dbstate.db.remove_child_from_family(
+                    self.person.handle, self.family_backlink
+                )

@@ -313,18 +313,34 @@ class EventGrampsFrame(GrampsFrame):
         except WindowActiveError:
             pass
 
-    def update_person_event(self, reference, primary):
+    def update_person_event(self, event_ref, primary):
         """
         Commit person to save an event reference update.
         """
-        with DbTxn(_("Update Person Event Ref"), self.dbstate.db) as trans:
+        event = self.dbstate.db.get_event_from_handle(event_ref.ref)
+        action = "{} {} {} {} {}".format(
+            _("Update Person"),
+            self.event_person.get_gramps_id(),
+            _("Event"),
+            event.get_gramps_id(),
+            _("Reference")
+        )
+        with DbTxn(action, self.dbstate.db) as trans:
             self.dbstate.db.commit_person(self.event_person, trans)
 
-    def update_family_event(self, reference, primary):
+    def update_family_event(self, event_ref, primary):
         """
         Commit family to save an event reference update.
         """
-        with DbTxn(_("Update Family Event Ref"), self.dbstate.db) as trans:
+        event = self.dbstate.db.get_event_from_handle(event_ref.ref)
+        action = "{} {} {} {} {}".format(
+            _("Update Family"),
+            self.event_family.get_gramps_id(),
+            _("Event"),
+            event.get_gramps_id(),
+            _("Reference")
+        )
+        with DbTxn(action, self.dbstate.db) as trans:
             self.dbstate.db.commit_family(self.event_family, trans)
 
     def _participants_option(self):
@@ -386,7 +402,15 @@ class EventGrampsFrame(GrampsFrame):
         Save the event participant to save any update.
         """
         if self.event_participant:
-            with DbTxn(_("Update Person Event Ref"), self.dbstate.db) as trans:
+            event = self.dbstate.db.get_event_from_handle(event_ref.ref)
+            action = "{} {} {} {} {}".format(
+                _("Update Participant"),
+                self.event_family.get_gramps_id(),
+                _("Event"),
+                event.get_gramps_id(),
+                _("Reference")
+            )
+            with DbTxn(action, self.dbstate.db) as trans:
                 self.dbstate.db.commit_person(self.event_participant, trans)
 
     def add_new_participant(self, obj):
@@ -448,6 +472,14 @@ class EventGrampsFrame(GrampsFrame):
             for ref in person.get_event_ref_list():
                 if not event_ref.is_equal(ref):
                     new_list.append(ref)
-            with DbTxn(_("Remove Person Event Ref"), self.dbstate.db) as trans:
+            event = self.dbstate.db.get_event_from_handle(event_ref.ref)
+            action = "{} {} {} {} {}".format(
+                _("Remove Person"),
+                person.get_gramps_id(),
+                _("Event"),
+                event.get_gramps_id(),
+                _("Reference")
+            )                
+            with DbTxn(action, self.dbstate.db) as trans:
                 person.set_event_ref_list(new_list)                
                 self.dbstate.db.commit_person(person, trans)

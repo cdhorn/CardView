@@ -252,6 +252,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.action_menu = None
         self.dnd_drop_targets = []
         self.obj_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(self.obj)
+        self.obj_type_lang = glocale.translation.sgettext(self.obj_type)
 
         if groups:
             self.groups = groups
@@ -761,15 +762,13 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add a new attribute.
         """
-        if self.obj_type in ["Source", "Citation"]:
-            attribute = SrcAttribute()
-        else:
-            attribute = Attribute()
         attribute_types = get_attribute_types(self.dbstate.db, self.obj_type)
         try:
             if self.obj_type in ["Source", "Citation"]:
+                attribute = SrcAttribute()
                 EditSrcAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)
             else:
+                attribute = Attribute()
                 EditAttribute(self.dbstate, self.uistate, [], attribute, "", attribute_types, self.added_attribute)
         except WindowActiveError:
             pass
@@ -779,10 +778,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Save the new attribute to finish adding it.
         """
         if attribute:
+            action = "{} {} {} {} {}".format(
+                _("Added Attribute"),
+                attribute.get_type(),
+                _("to"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Attribute to %s") % self.obj_type, self.dbstate.db) as trans:
-                self.obj.add_attribute(attribute)
-                commit_method(self.obj, trans)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.add_attribute(attribute):
+                    commit_method(self.obj, trans)
 
     def edit_attribute(self, obj, attribute):
         """
@@ -802,8 +808,15 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Save the edited attribute.
         """
         if attribute:
+            action = "{} {} {} {} {}".format(
+                _("Updated Attribute"),
+                attribute.get_type(),
+                _("for"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Updated Attribute for %s") % self.obj_type, self.dbstate.db) as trans:
+            with DbTxn(action, self.dbstate.db) as trans:
                 commit_method(self.obj, trans)
 
     def remove_attribute(self, obj, old_attribute):
@@ -818,14 +831,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
             ):
-                new_list = []
-                for attribute in self.obj.get_attribute_list():
-                    if not attribute.is_equal(old_attribute):
-                        new_list.append(attribute)
+                action = "{} {} {} {} {}".format(
+                    _("Deleted Attribute"),
+                    old_attribute.get_type(),
+                    _("from"),
+                    self.obj_type_lang,
+                    self.obj.get_gramps_id()
+                )
                 commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Remove Attribute from %s") % self.obj_type, self.dbstate.db) as trans:
-                    self.obj.set_attribute_list(new_list)
-                    commit_method(self.obj, trans)
+                with DbTxn(action, self.dbstate.db) as trans:
+                    if self.obj.remove_attribute(old_attribute):
+                        commit_method(self.obj, trans)
     
     def _citations_option(self):
         """
@@ -882,9 +898,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Add the new or existing citation to the current object.
         """
         if handle:
-            if self.obj.add_citation(handle):
-                commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Add Citation to %s") % self.obj_type, self.dbstate.db) as trans:
+            citation = self.dbstate.db.get_citation_from_handle(handle)
+            action = "{} {} {} {} {}".format(
+                _("Added Citation"),
+                citation.get_gramps_id(),
+                _("to"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.add_citation(handle):                
                     commit_method(self.obj, trans)
 
     def add_existing_citation(self, obj):
@@ -931,10 +955,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
             ):
-                self.obj.citation_list.remove(old_citation.get_handle())
+                action = "{} {} {} {} {}".format(
+                    _("Removed Citation"),
+                    old_citation.get_gramps_id(),
+                    _("from"),
+                    self.obj_type_lang,
+                    self.obj.get_gramps_id()
+                )
                 commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Remove Citation from %s") % self.obj_type, self.dbstate.db) as trans:
-                    commit_method(self.obj, trans)
+                with DbTxn(action, self.dbstate.db) as trans:
+                    if self.obj.citation_list.remove(old_citation.get_handle()):
+                        commit_method(self.obj, trans)
 
     def _notes_option(self):
         """
@@ -999,9 +1030,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Add the new or existing note to the current object.
         """
         if handle:
-            if self.obj.add_note(handle):
-                commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Add Note to %s") % self.obj_type, self.dbstate.db) as trans:
+            note = self.dbstate.db.get_note_from_handle(handle)
+            action = "{} {} {} {} {}".format(
+                _("Added Note"),
+                note.get_gramps_id(),
+                _("to"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.add_note(handle):
                     commit_method(self.obj, trans)
 
     def add_existing_note(self, obj):
@@ -1035,10 +1074,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
             ):
-                self.obj.note_list.remove(old_note.get_handle())
+                action = "{} {} {} {} {}".format(
+                    _("Removed Note"),
+                    old_note.get_gramps_id(),
+                    _("from"),
+                    self.obj_type_lang,
+                    self.obj.get_gramps_id()
+                )
                 commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Add Note to %s") % self.obj_type, self.dbstate.db) as trans:
-                    commit_method(self.obj, trans)
+                with DbTxn(action, self.dbstate.db) as trans:
+                    if self.obj.note_list.remove(old_note.get_handle()):
+                        commit_method(self.obj, trans)
 
     def _tags_option(self):
         """
@@ -1095,19 +1141,33 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add the given tag to the current object.
         """
-        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-        with DbTxn(_("Add Tag to %s") % self.obj_type, self.dbstate.db) as trans:
-            self.obj.add_tag(handle)
-            commit_method(self.obj, trans)
+        if handle:
+            action = "{} {} {} {}".format(
+                _("Added Tag"),
+                _("to"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.add_tag(handle):                
+                    commit_method(self.obj, trans)
 
     def remove_tag(self, obj, handle):
         """
         Remove the given tag from the current object."
         """
-        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-        with DbTxn(_("Remove Tag from %s") % self.obj_type, self.dbstate.db) as trans:
-            self.obj.remove_tag(handle)
-            commit_method(self.obj, trans)
+        if handle:
+            action = "{} {} {} {}".format(
+                _("Removed Tag"),
+                _("from"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
+            commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.remove_tag(handle):
+                    commit_method(self.obj, trans)
 
     def _urls_option(self):
         """
@@ -1155,10 +1215,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Save the new url to finish adding it.
         """
         if url:
+            action = "{} {} {} {} {}".format(
+                _("Added Url"),
+                url.get_path(),
+                _("to"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
-                self.obj.add_url(url)
-                commit_method(self.obj, trans)
+            with DbTxn(action, self.dbstate.db) as trans:
+                if self.obj.add_url(url):                
+                    commit_method(self.obj, trans)
 
     def edit_url(self, obj, url):
         """
@@ -1175,8 +1242,15 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Save the edited url.
         """
         if url:
+            action = "{} {} {} {} {}".format(
+                _("Updated Url"),
+                url.get_path(),
+                _("for"),
+                self.obj_type_lang,
+                self.obj.get_gramps_id()
+            )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-            with DbTxn(_("Add Url to %s") % self.obj_type, self.dbstate.db) as trans:
+            with DbTxn(action, self.dbstate.db) as trans:
                 commit_method(self.obj, trans)
 
     def remove_url(self, obj, old_url):
@@ -1193,14 +1267,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
             ):
-                new_list = []
-                for url in self.obj.get_url_list():
-                    if not url.is_equal(old_url):
-                        new_list.append(url)
+                action = "{} {} {} {} {}".format(
+                    _("Deleted Url"),
+                    old_url.get_path(),
+                    _("from"),
+                    self.obj_type_lang,
+                    self.obj.get_gramps_id()
+                )
                 commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-                with DbTxn(_("Delete Url from %s") % self.obj_type, self.dbstate.db) as trans:
-                    self.obj.set_url_list(new_list)
-                    commit_method(self.obj, trans)
+                with DbTxn(action, self.dbstate.db) as trans:
+                    if self.obj.remove_url(old_url):
+                        commit_method(self.obj, trans)
                 
     def launch_url(self, obj, url):
         """
@@ -1238,12 +1315,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Update the privacy indicator for the current object.
         """
+        if mode:
+            text = _("Private")
+        else:
+            text = _("Public")
+        action = "{} {} {} {}".format(
+            _("Made"),
+            self.obj_type_lang,
+            self.obj.get_gramps_id(),
+            text
+        )
         commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-        with DbTxn(
-            _("Change Privacy for %s") % self.obj_type, self.dbstate.db
-        ) as trans:
-            self.obj.set_privacy(mode)
-            commit_method(self.obj, trans)
+        with DbTxn(action, self.dbstate.db) as trans:
+            if self.obj.set_privacy(mode):
+                commit_method(self.obj, trans)
 
     def _add_new_family_event_option(self):
         """
@@ -1259,21 +1344,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         event = Event()
         event.set_type(EventType(EventType.MARRIAGE))
-        ref = EventRef()
-        ref.set_role(EventRoleType(EventRoleType.FAMILY))
+        event_ref = EventRef()
+        event_ref.set_role(EventRoleType(EventRoleType.FAMILY))
         if self.obj_type == "Family":
-            ref.ref = self.obj.handle
+            event_ref.ref = self.obj.handle
         else:
-            ref.ref = self.family_backlink
-
+            event_ref.ref = self.family_backlink
         try:
             EditEventRef(
-                self.dbstate, self.uistate, [], event, ref, self.added_new_family_event
+                self.dbstate, self.uistate, [], event, event_ref, self.added_new_family_event
             )
         except WindowActiveError:
             pass
 
-    def added_new_family_event(self, reference, primary):
+    def added_new_family_event(self, event_ref, primary):
         """
         Finish adding a new event for a family.
         """
@@ -1281,10 +1365,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             family = self.obj
         else:
             family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-
-        with DbTxn(_("Add family event"), self.dbstate.db) as trans:
-            family.add_event_ref(reference)
-            self.dbstate.db.commit_family(family, trans)
+        event = self.dbstate.db.get_event_from_handle(event_ref.ref)
+        action = "{} {} {} {} {}".format(
+            _("Added Event"),
+            event.get_gramps_id(),
+            _("for"),
+            _("Family"),
+            family.get_gramps_id()
+        )
+        with DbTxn(action, self.dbstate.db) as trans:
+            if family.add_event_ref(event_ref):
+                self.dbstate.db.commit_family(family, trans)
 
     def _add_new_child_to_family_option(self):
         """
@@ -1307,7 +1398,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         callback = lambda x: self.added_child(x, handle)
         person = Person()
         name = Name()
-        # the editor requires a surname
         name.add_surname(Surname())
         name.set_primary_surname(0)
         father = self.dbstate.db.get_person_from_handle(family.get_father_handle())
@@ -1330,14 +1420,17 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         ref = ChildRef()
         ref.ref = person.get_handle()
         family = self.dbstate.db.get_family_from_handle(family_handle)
-        family.add_child_ref(ref)
-
-        with DbTxn(_("Add Child to Family"), self.dbstate.db) as trans:
-            # add parentref to child
+        action = "{} {} {} {} {}".format(
+            _("Added Child"),
+            person.get_gramps_id(),
+            _("to"),
+            _("Family"),
+            family.get_gramps_id()
+        )
+        with DbTxn(action, self.dbstate.db) as trans:
+            family.add_child_ref(ref)
             person.add_parent_family_handle(family_handle)
-            # default relationship is used
             self.dbstate.db.commit_person(person, trans)
-            # add child to family
             self.dbstate.db.commit_family(family, trans)
 
     def _add_existing_child_to_family_option(self):
@@ -1362,7 +1455,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         # it only makes sense to skip those who are already in the family
         skip_list = [family.get_father_handle(), family.get_mother_handle()]
         skip_list.extend(x.ref for x in family.get_child_ref_list())
-
         selector = SelectPerson(
             self.dbstate, self.uistate, [], _("Select Child"), skip=skip_list
         )
