@@ -109,11 +109,14 @@ class CoupleGrampsFrame(GrampsFrame):
 
     def _get_profile(self, person, defaults):
         if person:
+            working_context = self.context
+            if working_context == "family":
+                working_context = "people"
             profile = PersonGrampsFrame(
                 self.dbstate,
                 self.uistate,
                 person,
-                self.context,
+                working_context,
                 self.space,
                 self.config,
                 self.router,

@@ -138,7 +138,7 @@ class SourceProfilePage(BaseProfilePage):
                 defaults=self.defaults
             )
             people = Gtk.Expander(expanded=True, use_markup=True)
-            people.set_label("<small><b>{}</b></small>".format(_("People")))
+            people.set_label("<small><b>{}</b></small>".format(_("Referenced People")))
             people.add(people_group)
             people_box = Gtk.VBox(spacing=3)
             people_box.pack_start(people, expand=False, fill=False, padding=0)
@@ -155,7 +155,7 @@ class SourceProfilePage(BaseProfilePage):
                 defaults=self.defaults
             )
             events = Gtk.Expander(expanded=True, use_markup=True)
-            events.set_label("<small><b>{}</b></small>".format(_("Events")))
+            events.set_label("<small><b>{}</b></small>".format(_("Referenced Events")))
             events.add(events_group)
             events_box = Gtk.VBox(spacing=3)
             events_box.pack_start(events, expand=False, fill=False, padding=0)

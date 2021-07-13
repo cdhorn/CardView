@@ -147,23 +147,10 @@ class EventGrampsFrame(GrampsFrame):
             event_person_name = name_displayer.display(event_person)
         participants = []
         participant_string = ""
+
+        text = "<b>{}</b>".format(event_type)
         if (relation_to_reference not in ["self", "", None]):
             text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
-            if self.enable_tooltips:
-                tooltip = "{} {}".format(
-                    _("Click to view"),
-                    event_person_name,
-                )
-            else:
-                tooltip = None
-            name = TextLink(
-                text,
-                "Event",
-                event.get_handle(),
-                self.switch_object,
-                tooltip=tooltip,
-                hexpand=True,
-            )
         elif role and not role.is_primary():
             participant_name = "Unknown"
             participant_handle = ""
@@ -172,29 +159,15 @@ class EventGrampsFrame(GrampsFrame):
                 if participant_event_ref.get_role().is_primary():
                     participant_name = name_displayer.display(participant)
                     participant_handle = participant.get_handle()
-            text = "{} {} {}".format(event_type, _("of"), participant_name)
             if participant_handle:
-                if self.enable_tooltips:
-                    tooltip = "{} {}".format(
-                        _("Click to view"),
-                        participant_name,
-                    )
-                else:
-                    tooltip = None
-                name = TextLink(
-                    text,
-                    "Event",
-                    event.get_handle(),
-                    self.switch_object,
-                    tooltip=tooltip,
-                    hexpand=True,
-                )
-            else:
-                name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
-                name.set_markup("<b>{}</b>".format(event_type))                
-        else:
-            name = Gtk.Label(hexpand=True, halign=Gtk.Align.START, wrap=True)
-            name.set_markup("<b>{}</b>".format(event_type))
+                text = "{} {} {}".format(event_type, _("of"), participant_name)
+        name = TextLink(
+            text,
+            "Event",
+            event.get_handle(),
+            self.switch_object,
+            hexpand=True,
+        )
         self.title.pack_start(name, True, True, 0)
 
         if (

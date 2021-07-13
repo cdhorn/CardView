@@ -44,6 +44,7 @@ from gramps.gen.db import DbTxn
 from frame_event import EventGrampsFrame
 from frame_list import GrampsFrameList
 from frame_person import PersonGrampsFrame
+from frame_couple import CoupleGrampsFrame
 from frame_utils import get_gramps_object_type
 
 try:
@@ -88,6 +89,21 @@ class GenericGrampsFrameGroup(GrampsFrameList):
                     self.config,
                     self.router,
                     groups=groups,
+                    defaults=self.defaults
+                )
+                self.add_frame(frame)
+
+        if obj_type == "Family":
+            for handle in obj_handles:
+                family = dbstate.db.get_family_from_handle(handle)
+                frame = CoupleGrampsFrame(
+                    self.dbstate,
+                    self.uistate,
+                    self.router,
+                    family,
+                    "family",
+                    self.space,
+                    self.config,
                     defaults=self.defaults
                 )
                 self.add_frame(frame)

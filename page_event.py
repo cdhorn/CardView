@@ -30,6 +30,14 @@ Event Profile Page
 
 # -------------------------------------------------------------------------
 #
+# GTK/Gnome modules
+#
+# -------------------------------------------------------------------------
+from gi.repository import Gtk
+
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -42,9 +50,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from frame_event import EventGrampsFrame
+from frame_generic import GenericGrampsFrameGroup
+from frame_groups import get_citation_profiles
 from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
     ConfigReset,
 )
@@ -93,8 +104,77 @@ class EventProfilePage(BaseProfilePage):
             None,
             "active",
         )
-        header.pack_start(self.active_profile, False, False, 0)
-        header.show_all()
+
+        citations_box = Gtk.VBox(spacing=3)
+        citations = get_citation_profiles(
+            self.dbstate,
+            self.uistate,
+            event,
+            self.callback_router,
+            "preferences.profile.event",
+            self.config,
+            sources=False
+        )
+        if citations is not None:
+            citations_box.pack_start(citations, expand=False, fill=False, padding=0)
+
+        people_list = []
+        family_list = []
+        for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(event.get_handle()):
+            if obj_type == "Person" and obj_handle not in people_list:
+                people_list.append(obj_handle)
+            elif obj_type == "Family" and obj_handle not in family_list:
+                family_list.append(obj_handle)
+
+        if people_list:
+            people_group = GenericGrampsFrameGroup(
+                self.dbstate,
+                self.uistate,
+                self.callback_router,
+                "preferences.profile.event",
+                self.config,
+                "Person",
+                people_list,
+                defaults=self.defaults
+            )
+            people = Gtk.Expander(expanded=True, use_markup=True)
+            people.set_label("<small><b>{}</b></small>".format(_("Individual Participants")))
+            people.add(people_group)
+            people_box = Gtk.VBox(spacing=3)
+            people_box.pack_start(people, expand=False, fill=False, padding=0)
+
+        if family_list:
+            family_group = GenericGrampsFrameGroup(
+                self.dbstate,
+                self.uistate,
+                self.callback_router,
+                "preferences.profile.event",
+                self.config,
+                "Family",
+                family_list,
+                defaults=self.defaults
+            )
+            family = Gtk.Expander(expanded=True, use_markup=True)
+            family.set_label("<small><b>{}</b></small>".format(_("Family Participants")))
+            family.add(family_group)
+            family_box = Gtk.VBox(spacing=3)
+            family_box.pack_start(family, expand=False, fill=False, padding=0)
+
+        body = Gtk.HBox(vexpand=False, spacing=3)
+        if citations:
+            body.pack_start(citations_box, True, True, 0)
+        if people_list:
+            body.pack_start(people_box, True, True, 0)
+        if family_list:
+            body.pack_start(family_box, True, True, 0)
+
+        if self.config.get("preferences.profile.event.layout.pinned-header"):
+            header.pack_start(self.active_profile, False, False, 0)
+            header.show_all()
+        else:
+            vbox.pack_start(self.active_profile, False, False, 0)
+        vbox.pack_start(body, False, False, 0)
+        vbox.show_all()
         return True
 
     def layout_panel(self, configdialog):
@@ -183,6 +263,79 @@ class EventProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 20, 1, 1)
         return _("Event"), grid
 
+    def people_panel(self, configdialog):
+        """
+        Builds people options section for the configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.event.people.event-format",
+            EVENT_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.event.people.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.event.people.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.event.people.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "preferences.profile.event.people.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "preferences.profile.event.people.tag-width",
+            (1, 20),
+        )
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.event.people", 12)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.event.people", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.people", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
+        return _("People"), grid
+
+    def family_panel(self, configdialog):
+        """
+        Builds family options section for the configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.event.family.event-format",
+            EVENT_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.event.family.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "preferences.profile.event.family.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "preferences.profile.event.family.tag-width",
+            (1, 20),
+        )
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.family", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
+        return _("Family"), grid
+
     def _get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
@@ -190,6 +343,8 @@ class EventProfilePage(BaseProfilePage):
         return [
             self.layout_panel,
             self.active_panel,
+            self.people_panel,
+            self.family_panel,
         ]
 
     def edit_active(self, *obj):
