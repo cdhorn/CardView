@@ -71,22 +71,21 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
         self,
         dbstate,
         uistate,
+        router,
         family,
         context,
         space,
         config,
-        router,
         parent=None,
         relation=None,
         children="Children",
         defaults=None,
     ):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config)
+        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
         self.family = family
         self.context = context
         self.parent = parent
         self.relation = relation
-        self.router = router
         self.children = children
         self.number = 0
 

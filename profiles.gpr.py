@@ -20,16 +20,16 @@
 #
 
 register(VIEW,
-id = 'personprofile',
-name = _("Person Profile"),
-description = _("A single page person profile view."),
+id = 'profileview',
+name = _("Profile View"),
+description = _("A single page profile view."),
 version = '0.99',
 gramps_target_version = '5.1',
 status = STABLE,
-fname = 'person_profile.py',
+fname = 'profileview.py',
 authors = ["The Gramps Project"],
 authors_email = ["http://gramps-project.org"],
-category = ("People", _("People")),
-viewclass = 'PersonProfileView',
+category = ("Relationships", _("Relationships")),
+viewclass = 'ProfileView',
 order = END,
 )

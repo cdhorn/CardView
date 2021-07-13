@@ -63,11 +63,10 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
     of the cited sources for a given primary Gramps object.
     """
 
-    def __init__(self, dbstate, uistate, obj, space, config, router):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config)
+    def __init__(self, dbstate, uistate, router, obj, space, config):
+        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
-        self.router = router
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),

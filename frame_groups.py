@@ -69,22 +69,22 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None, defaults=
         couple = CoupleGrampsFrame(
             dbstate,
             uistate,
+            router,
             family,
             "parent",
             "preferences.profile.person",
             config,
-            router,
             relation=person,
             defaults=defaults
         )
         children = ChildrenGrampsFrameGroup(
             dbstate,
             uistate,
+            router,
             family,
             "parent",
             "preferences.profile.person",
             config,
-            router,
             relation=person,
             defaults=defaults
         )
@@ -109,22 +109,22 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None, defaults=
             couple = CoupleGrampsFrame(
                 dbstate,
                 uistate,
+                router,
                 family,
                 "parent",
                 "preferences.profile.person",
                 config,
-                router,
                 relation=person,
                 defaults=defaults
             )
             children = ChildrenGrampsFrameGroup(
                 dbstate,
                 uistate,
+                router,
                 family,
                 "parent",
                 "preferences.profile.person",
                 config,
-                router,
                 relation=person,
                 defaults=defaults
             )
@@ -163,11 +163,11 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=
         couple = CoupleGrampsFrame(
             dbstate,
             uistate,
+            router,
             family,
             "spouse",
             "preferences.profile.person",
             config,
-            router,
             relation=person,
             parent=person,
             defaults=defaults
@@ -175,11 +175,11 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=
         children = ChildrenGrampsFrameGroup(
             dbstate,
             uistate,
+            router,
             family,
             "spouse",
             "preferences.profile.person",
             config,
-            router,
             relation=person,
             defaults=defaults
         )
@@ -204,7 +204,7 @@ def get_citation_profiles(dbstate, uistate, obj, router, space, config):
     """
     Get all the cited sources associated with an object.
     """
-    group = SourcesGrampsFrameGroup(dbstate, uistate, obj, space, config, router)
+    group = SourcesGrampsFrameGroup(dbstate, uistate, router, obj, space, config)
     if len(group) == 0:
         return None
 
@@ -223,7 +223,7 @@ def get_timeline_profiles(dbstate, uistate, person, router, config=None):
     Get a timeline view of events in the life of a person.
     """
 
-    group = TimelineGrampsFrameGroup(dbstate, uistate, person, router, config)
+    group = TimelineGrampsFrameGroup(dbstate, uistate, router, person, config)
     if not group.count:
         return None
 

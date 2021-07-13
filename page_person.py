@@ -25,24 +25,15 @@
 #
 
 """
-Person Profile View
+Person Profile Page
 """
-
-# -------------------------------------------------------------------------
-#
-# Set up logging
-#
-# -------------------------------------------------------------------------
-import logging
-_LOG = logging.getLogger("plugin.relview")
-
 
 # -------------------------------------------------------------------------
 #
 # GTK/Gnome modules
 #
 # -------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 
 
 # -------------------------------------------------------------------------
@@ -50,53 +41,11 @@ from gi.repository import Gtk, Gdk
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.config import config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.const import CUSTOM_FILTERS
-from gramps.gen.datehandler import displayer
-from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Person
-from gramps.gui.editors import FilterEditor
 from gramps.gui.uimanager import ActionGroup
-from gramps.gui.views.bookmarks import PersonBookmarks
-from gramps.gui.views.navigationview import NavigationView
 from gramps.gui.widgets.reorderfam import Reorder
-from gramps.gui.widgets import BasicLabel
 
-_ = glocale.translation.sgettext
-ngettext = glocale.translation.ngettext  # else "nearby" comments are ignored
-
-_NAME_START = 0
-_LABEL_START = 0
-_LABEL_STOP = 1
-_DATA_START = _LABEL_STOP
-_DATA_STOP = _DATA_START + 1
-_BTN_START = _DATA_STOP
-_BTN_STOP = _BTN_START + 2
-_PLABEL_START = 1
-_PLABEL_STOP = _PLABEL_START + 1
-_PDATA_START = _PLABEL_STOP
-_PDATA_STOP = _PDATA_START + 2
-_PDTLS_START = _PLABEL_STOP
-_PDTLS_STOP = _PDTLS_START + 2
-_CLABEL_START = _PLABEL_START + 1
-_CLABEL_STOP = _CLABEL_START + 1
-_CDATA_START = _CLABEL_STOP
-_CDATA_STOP = _CDATA_START + 1
-_CDTLS_START = _CDATA_START
-_CDTLS_STOP = _CDTLS_START + 1
-_ALABEL_START = 0
-_ALABEL_STOP = _ALABEL_START + 1
-_ADATA_START = _ALABEL_STOP
-_ADATA_STOP = _ADATA_START + 3
-_SDATA_START = 2
-_SDATA_STOP = 4
-_RETURN = Gdk.keyval_from_name("Return")
-_KP_ENTER = Gdk.keyval_from_name("KP_Enter")
-_SPACE = Gdk.keyval_from_name("space")
-_LEFT_BUTTON = 1
-_RIGHT_BUTTON = 3
 
 # -------------------------------------------------------------------------
 #
@@ -121,753 +70,56 @@ from frame_utils import (
     ConfigReset,
     FrameFieldSelector
 )
+from page_base import BaseProfilePage
+
+_ = glocale.translation.sgettext
+_LEFT_BUTTON = 1
 
 
-class PersonProfileView(NavigationView):
+class PersonProfilePage(BaseProfilePage):
     """
-    Summary view of a person in a navigatable format.
+    Provides the person profile page view with information about the person.
     """
 
-    CONFIGSETTINGS = (
-        ("preferences.profile.person.layout.enable-tooltips", True),
-        ("preferences.profile.person.layout.enable-warnings", True),
-        ("preferences.profile.person.layout.pinned-header", True),
-        ("preferences.profile.person.layout.spouses-left", True),
-        ("preferences.profile.person.layout.families-stacked", False),
-        ("preferences.profile.person.layout.show-timeline", True),
-        ("preferences.profile.person.layout.show-citations", False),
-        ("preferences.profile.person.layout.border-width", 2),
-        ("preferences.profile.person.layout.use-color-scheme", True),
-        ("preferences.profile.person.layout.use-smaller-detail-font", True),
-        ("preferences.profile.person.layout.sort-tags-by-name", False),
-        ("preferences.profile.person.layout.include-child-notes", False),
-        ("preferences.profile.person.layout.right-to-left", False),
-        # active person
-        ("preferences.profile.person.active.event-format", 1),
-        ("preferences.profile.person.active.show-age", True),
-        ("preferences.profile.person.active.sex-mode", 1),
-        ("preferences.profile.person.active.image-mode", 3),
-        ("preferences.profile.person.active.tag-format", 1),
-        ("preferences.profile.person.active.tag-width", 10),
-        ("preferences.profile.person.active.facts-field-skip-birth-alternates", False),
-        ("preferences.profile.person.active.facts-field-skip-death-alternates", False),
-        ("preferences.profile.person.active.facts-field-1", "Event:Birth:False"),
-        ("preferences.profile.person.active.facts-field-2", "Event:Baptism:False"),
-        ("preferences.profile.person.active.facts-field-3", "Event:Christening:False"),
-        ("preferences.profile.person.active.facts-field-4", "Event:Death:False"),
-        ("preferences.profile.person.active.facts-field-5", "Event:Burial:False"),
-        ("preferences.profile.person.active.facts-field-6", "Event:Cremation:False"),
-        ("preferences.profile.person.active.facts-field-7", "Event:Probate:False"),
-        ("preferences.profile.person.active.facts-field-8", "None"),
-        ("preferences.profile.person.active.extra-field-skip-birth-alternates", False),
-        ("preferences.profile.person.active.extra-field-skip-death-alternates", False),
-        ("preferences.profile.person.active.extra-field-1", "None"),
-        ("preferences.profile.person.active.extra-field-2", "None"),
-        ("preferences.profile.person.active.extra-field-3", "None"),
-        ("preferences.profile.person.active.extra-field-4", "None"),
-        ("preferences.profile.person.active.extra-field-5", "None"),
-        ("preferences.profile.person.active.extra-field-6", "None"),
-        ("preferences.profile.person.active.extra-field-7", "None"),
-        ("preferences.profile.person.active.extra-field-8", "None"),
-        ("preferences.profile.person.active.metadata-attribute-1", "None"),
-        ("preferences.profile.person.active.metadata-attribute-2", "None"),
-        ("preferences.profile.person.active.metadata-attribute-3", "None"),
-        ("preferences.profile.person.active.metadata-attribute-4", "None"),
-        ("preferences.profile.person.active.metadata-attribute-5", "None"),
-        ("preferences.profile.person.active.metadata-attribute-6", "None"),
-        ("preferences.profile.person.active.metadata-attribute-7", "None"),
-        ("preferences.profile.person.active.metadata-attribute-8", "None"),
-        # parent
-        ("preferences.profile.person.parent.event-format", 1),
-        ("preferences.profile.person.parent.show-age", False),
-        ("preferences.profile.person.parent.sex-mode", 1),
-        ("preferences.profile.person.parent.image-mode", 1),
-        ("preferences.profile.person.parent.tag-format", 1),
-        ("preferences.profile.person.parent.tag-width", 10),
-        ("preferences.profile.person.parent.show-matrilineal", False),
-        ("preferences.profile.person.parent.expand-children", True),
-        ("preferences.profile.person.parent.show-divorce", True),
-        ("preferences.profile.person.parent.facts-field-skip-birth-alternates", True),
-        ("preferences.profile.person.parent.facts-field-skip-death-alternates", True),
-        ("preferences.profile.person.parent.facts-field-1", "Event:Birth:False"),
-        ("preferences.profile.person.parent.facts-field-2", "Event:Baptism:False"),
-        ("preferences.profile.person.parent.facts-field-3", "Event:Christening:False"),
-        ("preferences.profile.person.parent.facts-field-4", "Event:Death:False"),
-        ("preferences.profile.person.parent.facts-field-5", "Event:Burial:False"),
-        ("preferences.profile.person.parent.facts-field-6", "Event:Cremation:False"),
-        ("preferences.profile.person.parent.facts-field-7", "Event:Probate:False"),
-        ("preferences.profile.person.parent.facts-field-8", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-1", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-2", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-3", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-4", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-5", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-6", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-7", "None"),
-        ("preferences.profile.person.parent.metadata-attribute-8", "None"),
-        # spouse
-        ("preferences.profile.person.spouse.event-format", 1),
-        ("preferences.profile.person.spouse.show-age", False),
-        ("preferences.profile.person.spouse.sex-mode", 1),
-        ("preferences.profile.person.spouse.image-mode", 3),
-        ("preferences.profile.person.spouse.tag-format", 1),
-        ("preferences.profile.person.spouse.tag-width", 10),
-        ("preferences.profile.person.spouse.expand-children", True),
-        ("preferences.profile.person.spouse.show-spouse-only", True),
-        ("preferences.profile.person.spouse.show-divorce", True),
-        ("preferences.profile.person.spouse.facts-field-skip-birth-alternates", True),
-        ("preferences.profile.person.spouse.facts-field-skip-death-alternates", True),
-        ("preferences.profile.person.spouse.facts-field-1", "Event:Birth:False"),
-        ("preferences.profile.person.spouse.facts-field-2", "Event:Baptism:False"),
-        ("preferences.profile.person.spouse.facts-field-3", "Event:Christening:False"),
-        ("preferences.profile.person.spouse.facts-field-4", "Event:Death:False"),
-        ("preferences.profile.person.spouse.facts-field-5", "Event:Burial:False"),
-        ("preferences.profile.person.spouse.facts-field-6", "Event:Cremation:False"),
-        ("preferences.profile.person.spouse.facts-field-7", "Event:Probate:False"),
-        ("preferences.profile.person.spouse.facts-field-8", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-1", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-2", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-3", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-4", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-5", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-6", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-7", "None"),
-        ("preferences.profile.person.spouse.metadata-attribute-8", "None"),
-        # child
-        ("preferences.profile.person.child.event-format", 1),
-        ("preferences.profile.person.child.show-age", False),
-        ("preferences.profile.person.child.sex-mode", 1),
-        ("preferences.profile.person.child.image-mode", 3),
-        ("preferences.profile.person.child.tag-format", 1),
-        ("preferences.profile.person.child.tag-width", 10),
-        ("preferences.profile.person.child.number-children", True),
-        ("preferences.profile.person.child.facts-field-skip-birth-alternates", True),
-        ("preferences.profile.person.child.facts-field-skip-death-alternates", True),
-        ("preferences.profile.person.child.facts-field-1", "Event:Birth:False"),
-        ("preferences.profile.person.child.facts-field-2", "Event:Baptism:False"),
-        ("preferences.profile.person.child.facts-field-3", "Event:Christening:False"),
-        ("preferences.profile.person.child.facts-field-4", "Event:Death:False"),
-        ("preferences.profile.person.child.facts-field-5", "Event:Burial:False"),
-        ("preferences.profile.person.child.facts-field-6", "Event:Cremation:False"),
-        ("preferences.profile.person.child.facts-field-7", "Event:Probate:False"),
-        ("preferences.profile.person.child.facts-field-8", "None"),
-        ("preferences.profile.person.child.metadata-attribute-1", "None"),
-        ("preferences.profile.person.child.metadata-attribute-2", "None"),
-        ("preferences.profile.person.child.metadata-attribute-3", "None"),
-        ("preferences.profile.person.child.metadata-attribute-4", "None"),
-        ("preferences.profile.person.child.metadata-attribute-5", "None"),
-        ("preferences.profile.person.child.metadata-attribute-6", "None"),
-        ("preferences.profile.person.child.metadata-attribute-7", "None"),
-        ("preferences.profile.person.child.metadata-attribute-8", "None"),
-        # sibling
-        ("preferences.profile.person.sibling.event-format", 1),
-        ("preferences.profile.person.sibling.show-age", False),
-        ("preferences.profile.person.sibling.sex-mode", 1),
-        ("preferences.profile.person.sibling.image-mode", 1),
-        ("preferences.profile.person.sibling.tag-format", 1),
-        ("preferences.profile.person.sibling.tag-width", 10),
-        ("preferences.profile.person.sibling.number-children", True),
-        ("preferences.profile.person.sibling.facts-field-skip-birth-alternates", True),
-        ("preferences.profile.person.sibling.facts-field-skip-death-alternates", True),
-        ("preferences.profile.person.sibling.facts-field-1", "Event:Birth:False"),
-        ("preferences.profile.person.sibling.facts-field-2", "Event:Baptism:False"),
-        ("preferences.profile.person.sibling.facts-field-3", "Event:Christening:False"),
-        ("preferences.profile.person.sibling.facts-field-4", "Event:Death:False"),
-        ("preferences.profile.person.sibling.facts-field-5", "Event:Burial:False"),
-        ("preferences.profile.person.sibling.facts-field-6", "Event:Cremation:False"),
-        ("preferences.profile.person.sibling.facts-field-7", "Event:Probate:False"),
-        ("preferences.profile.person.sibling.facts-field-8", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-1", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-2", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-3", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-4", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-5", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-6", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-7", "None"),
-        ("preferences.profile.person.sibling.metadata-attribute-8", "None"),
-        # timeline
-        ("preferences.profile.person.timeline.tag-format", 1),
-        ("preferences.profile.person.timeline.tag-width", 10),
-        ("preferences.profile.person.timeline.image-mode", 0),
-        ("preferences.profile.person.timeline.color-scheme", 0),
-        ("preferences.profile.person.timeline.show-description", True),
-        ("preferences.profile.person.timeline.show-participants", True),
-        ("preferences.profile.person.timeline.show-role-always", False),
-        ("preferences.profile.person.timeline.show-source-count", True),
-        ("preferences.profile.person.timeline.show-citation-count", True),
-        ("preferences.profile.person.timeline.show-best-confidence", True),
-        ("preferences.profile.person.timeline.show-age", True),
-        ("preferences.profile.person.timeline.show-class-vital", True),
-        ("preferences.profile.person.timeline.show-class-family", True),
-        ("preferences.profile.person.timeline.show-class-religious", True),
-        ("preferences.profile.person.timeline.show-class-vocational", True),
-        ("preferences.profile.person.timeline.show-class-academic", True),
-        ("preferences.profile.person.timeline.show-class-travel", True),
-        ("preferences.profile.person.timeline.show-class-legal", True),
-        ("preferences.profile.person.timeline.show-class-residence", True),
-        ("preferences.profile.person.timeline.show-class-other", True),
-        ("preferences.profile.person.timeline.show-class-custom", True),
-        ("preferences.profile.person.timeline.generations-ancestors", 1),
-        ("preferences.profile.person.timeline.generations-offspring", 1),
-        ("preferences.profile.person.timeline.show-family-father", True),
-        ("preferences.profile.person.timeline.show-family-mother", True),
-        ("preferences.profile.person.timeline.show-family-brother", True),
-        ("preferences.profile.person.timeline.show-family-sister", True),
-        ("preferences.profile.person.timeline.show-family-wife", True),
-        ("preferences.profile.person.timeline.show-family-husband", True),
-        ("preferences.profile.person.timeline.show-family-son", True),
-        ("preferences.profile.person.timeline.show-family-daughter", True),
-        ("preferences.profile.person.timeline.show-family-class-vital", False),
-        ("preferences.profile.person.timeline.show-family-class-family", False),
-        ("preferences.profile.person.timeline.show-family-class-religious", False),
-        ("preferences.profile.person.timeline.show-family-class-vocational", False),
-        ("preferences.profile.person.timeline.show-family-class-academic", False),
-        ("preferences.profile.person.timeline.show-family-class-travel", False),
-        ("preferences.profile.person.timeline.show-family-class-legal", False),
-        ("preferences.profile.person.timeline.show-family-class-residence", False),
-        ("preferences.profile.person.timeline.show-family-class-other", False),
-        ("preferences.profile.person.timeline.show-family-class-custom", False),
-        # citation
-        ("preferences.profile.person.citation.tag-format", 1),
-        ("preferences.profile.person.citation.tag-width", 10),
-        ("preferences.profile.person.citation.image-mode", 0),
-        ("preferences.profile.person.citation.sort-by-date", False),
-        ("preferences.profile.person.citation.include-indirect", True),
-        ("preferences.profile.person.citation.include-parent-family", True),
-        ("preferences.profile.person.citation.include-family", True),
-        ("preferences.profile.person.citation.include-family-indirect", True),
-        ("preferences.profile.person.citation.show-date", True),
-        ("preferences.profile.person.citation.show-publisher", True),
-        ("preferences.profile.person.citation.show-reference-type", True),
-        ("preferences.profile.person.citation.show-reference-description", True),
-        ("preferences.profile.person.citation.show-confidence", True),
-        # confidence color scheme
-        ('preferences.profile.colors.confidence.very-high', ["#99c1f1","#304918"]),
-        ('preferences.profile.colors.confidence.high', ["#8ff0a4","#454545"]),
-        ('preferences.profile.colors.confidence.normal', ["#f9f06b","#454545"]),
-        ('preferences.profile.colors.confidence.low', ["#ffbe6f","#454545"]),
-        ('preferences.profile.colors.confidence.very-low', ["#f66161","#454545"]), 
-        ('preferences.profile.colors.confidence.border-very-high', ["#1a5fb4","#000000"]),
-        ('preferences.profile.colors.confidence.border-high', ["#26a269","#000000"]),
-        ('preferences.profile.colors.confidence.border-normal', ["#e5a50a","#000000"]),
-        ('preferences.profile.colors.confidence.border-low', ["#c64600","#000000"]),
-        ('preferences.profile.colors.confidence.border-very-low', ["#a51d2d","#000000"]),
-        # relation color scheme
-        ('preferences.profile.colors.relations.active', ["#bbe68e","#304918"]),
-        ('preferences.profile.colors.relations.spouse', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.father', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.mother', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.brother', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.sister', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.son', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.daughter', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.none', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.relations.border-active', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-father', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-mother', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-brother', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-sister', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-son', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.relations.border-none', ["#cccccc","#000000"]),
-        # event category color scheme
-        ('preferences.profile.colors.events.vital', ["#bbe68e","#304918"]),
-        ('preferences.profile.colors.events.family', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.religious', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.vocational', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.academic', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.travel', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.legal', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.residence', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.other', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.custom', ["#eeeeee","#454545"]),
-        ('preferences.profile.colors.events.border-vital', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-family', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-religious', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-vocational', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-academic', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-travel', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-legal', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-residence', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-other', ["#cccccc","#000000"]),
-        ('preferences.profile.colors.events.border-custom', ["#cccccc","#000000"]),
-    )
-
-    def __init__(self, pdata, dbstate, uistate, nav_group=0):
-        NavigationView.__init__(
-            self,
-            _("Person Profile"),
-            pdata,
-            dbstate,
-            uistate,
-            PersonBookmarks,
-            nav_group,
-        )
-        dbstate.connect("database-changed", self.change_db)
-        uistate.connect("nameformat-changed", self.build_tree)
-        uistate.connect("placeformat-changed", self.build_tree)
-        uistate.connect("font-changed", self.font_changed)
-        uistate.connect("color", self.build_tree)
-        self.redrawing = False
-
+    def __init__(self, dbstate, uistate, config, defaults):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+        self.order_action = None
+        self.family_action = None
+        self.reorder_sensitive = None
         self.child = None
-        self.old_handle = None
+        self.colors = None
+        self.active_profile = None
 
-        self.reorder_sensitive = False
-        self.collapsed_items = {}
+    def obj_type(self):
+        return 'Person'
 
-        self.additional_uis.append(self.additional_ui)
+    def define_actions(self, view):
+        self.order_action = ActionGroup(name='ChangeOrder')
+        self.order_action.add_actions([
+            ('ChangeOrder', self.reorder)])
 
-    def get_handle_from_gramps_id(self, gid):
-        """
-        Returns the handle of the specified object
-        """
-        obj = self.dbstate.db.get_person_from_gramps_id(gid)
-        if obj:
-            return obj.get_handle()
-        return None
+        self.family_action = ActionGroup(name='Family')
+        self.family_action.add_actions([
+            ('AddSpouse', self.add_spouse),
+            ('AddParents', self.add_parents),
+            ('ShareFamily', self.select_parents)])
 
-    def _connect_db_signals(self):
-        """
-        Implement from base class DbGUIElement
-        Register the callbacks we need.
-        """
-        # Add a signal to pick up event changes, bug #1416
-        self.callman.add_db_signal("event-update", self.redraw)
-        self.callman.add_db_signal("event-add", self.redraw)
-        self.callman.add_db_signal("event-delete", self.redraw)
-#        self.callman.add_db_signal("event-rebuild", self.redraw)
-        self.callman.add_db_signal("citation-update", self.redraw)
-        self.callman.add_db_signal("citation-add", self.redraw)
-        self.callman.add_db_signal("citation-delete", self.redraw)
-#        self.callman.add_db_signal("citation-rebuild", self.redraw)
-        self.callman.add_db_signal("person-update", self.person_update)
-        self.callman.add_db_signal("person-add", self.person_update)
-        self.callman.add_db_signal("person-delete", self.redraw)
-#        self.callman.add_db_signal("person-rebuild", self.person_rebuild)
-        self.callman.add_db_signal("family-update", self.family_update)
-        self.callman.add_db_signal("family-add", self.family_add)
-        self.callman.add_db_signal("family-delete", self.family_delete)
-#        self.callman.add_db_signal("family-rebuild", self.family_rebuild)
-        self.callman.add_db_signal("tag-update", self.redraw)
-        self.callman.add_db_signal("tag-add", self.redraw)
-        self.callman.add_db_signal("tag-delete", self.redraw)
-#        self.callman.add_db_signal("tag-rebuild", self.redraw)
-        self.callman.add_db_signal("note-update", self.redraw)
-        self.callman.add_db_signal("note-add", self.redraw)
-        self.callman.add_db_signal("note-delete", self.redraw)
-#        self.callman.add_db_signal("note-rebuild", self.redraw)
+        view._add_action_group(self.order_action)
+        view._add_action_group(self.family_action)
 
-    def font_changed(self):
-        """
-        Handle font change.
-        """
-        self.reload_symbols()
-        self.build_tree()
+    def enable_actions(self, uimanager, person):
+        uimanager.set_actions_visible(self.family_action, True)
+        uimanager.set_actions_visible(self.order_action, True)
 
-    def navigation_type(self):
-        """
-        Object type of the view.
-        """
-        return "Person"
+    def disable_actions(self, uimanager):
+        uimanager.set_actions_visible(self.family_action, False)
+        uimanager.set_actions_visible(self.order_action, False)
 
-    def can_configure(self):
-        """
-        See :class:`~gui.views.pageview.PageView
-        :return: bool
-        """
-        return True
-
-    def goto_handle(self, handle):
-        """
-        Change to new person.
-        """
-        self.change_person(handle)
-
-    def config_update(self, client, cnxn_id, entry, data):
-        """
-        Handle configuration option change.
-        """
-        self.redraw()
-
-    def build_tree(self):
-        """
-        Build the view.
-        """
-        self.redraw()
-
-    def person_update(self, handle_list):
-        """
-        Handle update if person changed.
-        """
-        if self.active:
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def person_rebuild(self):
-        """
-        Large change to person database
-        """
-        if self.active:
-            self.bookmarks.redraw()
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def family_update(self, handle_list):
-        """
-        Handle family update.
-        """
-        if self.active:
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def family_add(self, handle_list):
-        """
-        Handle addition of family.
-        """
-        if self.active:
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def family_delete(self, handle_list):
-        if self.active:
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def family_rebuild(self):
-        if self.active:
-            person = self.get_active()
-            if person:
-                while not self.change_person(person):
-                    pass
-            else:
-                self.change_person(None)
-        else:
-            self.dirty = True
-
-    def change_page(self):
-        NavigationView.change_page(self)
-        self.uistate.clear_filter_results()
-
-    def get_stock(self):
-        """
-        Return the name of the stock icon to use for the display.
-        This assumes that this icon has already been registered with
-        GNOME as a stock icon.
-        """
-        return "gramps-person"
-
-    def get_viewtype_stock(self):
-        """Type of view in category"""
-        return "gramps-person"
-
-    def build_widget(self):
-        """
-        Build the widget that contains the view, see
-        :class:`~gui.views.pageview.PageView
-        """
-        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        container.set_border_width(6)
-        self.header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.child = None
-        self.scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
-        self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.viewport = Gtk.Viewport()
-        self.viewport.add(self.vbox)
-        self.scroll.add(self.viewport)
-        container.pack_start(self.header, False, False, 0)
-        container.pack_end(self.scroll, True, True, 0)
-        return container
-
-    additional_ui = [  # Defines the UI string for UIManager
-        """
-      <placeholder id="CommonGo">
-      <section>
-        <item>
-          <attribute name="action">win.Back</attribute>
-          <attribute name="label" translatable="yes">_Add Bookmark</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.Forward</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Organize Bookmarks...</attribute>
-        </item>
-      </section>
-      <section>
-        <item>
-          <attribute name="action">win.HomePerson</attribute>
-          <attribute name="label" translatable="yes">_Home</attribute>
-        </item>
-      </section>
-      </placeholder>
-""",
-        """
-      <placeholder id='otheredit'>
-        <item>
-          <attribute name="action">win.Edit</attribute>
-          <attribute name="label" translatable="yes">Edit...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddParents</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Add New Parents...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.ShareFamily</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Add Existing Parents...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddSpouse</attribute>
-          <attribute name="label" translatable="yes">Add Partner...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.ChangeOrder</attribute>
-          <attribute name="label" translatable="yes">_Reorder</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.FilterEdit</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Person Filter Editor</attribute>
-        </item>
-      </placeholder>
-""",
-        """
-      <section id="AddEditBook">
-        <item>
-          <attribute name="action">win.AddBook</attribute>
-          <attribute name="label" translatable="yes">_Add Bookmark</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.EditBook</attribute>
-          <attribute name="label" translatable="no">%s...</attribute>
-        </item>
-      </section>
-"""
-        % _("Organize Bookmarks"),  # Following are the Toolbar items
-        """
-    <placeholder id='CommonNavigation'>
-    <child groups='RO'>
-      <object class="GtkToolButton">
-        <property name="icon-name">go-previous</property>
-        <property name="action-name">win.Back</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Go to the previous object in the history</property>
-        <property name="label" translatable="yes">_Back</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RO'>
-      <object class="GtkToolButton">
-        <property name="icon-name">go-next</property>
-        <property name="action-name">win.Forward</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Go to the next object in the history</property>
-        <property name="label" translatable="yes">_Forward</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RO'>
-      <object class="GtkToolButton">
-        <property name="icon-name">go-home</property>
-        <property name="action-name">win.HomePerson</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Go to the default person</property>
-        <property name="label" translatable="yes">_Home</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    </placeholder>
-""",
-        """
-    <placeholder id='BarCommonEdit'>
-    <child groups='RW'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gtk-edit</property>
-        <property name="action-name">win.Edit</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Edit the active person</property>
-        <property name="label" translatable="yes">Edit...</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RW'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-parents-add</property>
-        <property name="action-name">win.AddParents</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Add a new set of parents</property>
-        <property name="label" translatable="yes">Add</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RW'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-parents-open</property>
-        <property name="action-name">win.ShareFamily</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Add person as child to an existing family</property>
-        <property name="label" translatable="yes">Share</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RW'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-spouse</property>
-        <property name="action-name">win.AddSpouse</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Add a new family with person as parent</property>
-        <property name="label" translatable="yes">Partner</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    <child groups='RW'>
-      <object class="GtkToolButton">
-        <property name="icon-name">view-sort-ascending</property>
-        <property name="action-name">win.ChangeOrder</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Change order of parents and families</property>
-        <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
-    </placeholder>
-     """,
-    ]
-
-    def define_actions(self):
-        NavigationView.define_actions(self)
-
-        self.order_action = ActionGroup(name=self.title + "/ChangeOrder")
-        self.order_action.add_actions([("ChangeOrder", self.reorder)])
-
-        self.family_action = ActionGroup(name=self.title + "/Family")
-        self.family_action.add_actions(
-            [
-                ("Edit", self.edit_active, "<PRIMARY>Return"),
-                ("AddSpouse", self.add_spouse),
-                ("AddParents", self.add_parents),
-                ("ShareFamily", self.select_parents),
-            ]
-        )
-
-        self._add_action("FilterEdit", callback=self.filter_editor)
-        self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
-
-        self._add_action_group(self.order_action)
-        self._add_action_group(self.family_action)
-
-        self.uimanager.set_actions_sensitive(self.order_action, self.reorder_sensitive)
-        self.uimanager.set_actions_sensitive(self.family_action, False)
-
-    def filter_editor(self, *obj):
-        try:
-            FilterEditor("Person", CUSTOM_FILTERS, self.dbstate, self.uistate)
-        except WindowActiveError:
-            return
-
-    def change_db(self, db):
-        # reset the connects
-        self._change_db(db)
-        if self.child:
-            list(map(self.vbox.remove, self.vbox.get_children()))
-            list(map(self.header.remove, self.header.get_children()))
-            self.child = None
-        if self.active:
-            self.bookmarks.redraw()
-        self.redraw()
-
-    def redraw(self, *obj):
-        active_person = self.get_active()
-        if active_person:
-            self.change_person(active_person)
-        else:
-            self.change_person(None)
-
-    def change_person(self, obj):
-        self.change_active(obj)
-        try:
-            return self._change_person(obj)
-        except AttributeError as msg:
-            import traceback
-
-            exc = traceback.format_exc()
-            _LOG.error(str(msg) + "\n" + exc)
-            from gramps.gui.dialog import RunDatabaseRepair
-
-            RunDatabaseRepair(str(msg), parent=self.uistate.window)
-            self.redrawing = False
-            return True
-
-    def _change_person(self, obj):
-        if self.redrawing:
-            return False
-        self.redrawing = True
-
-        list(map(self.header.remove, self.header.get_children()))
-        list(map(self.vbox.remove, self.vbox.get_children()))
-
-        person = None
-        if obj:
-            person = self.dbstate.db.get_person_from_handle(obj)
+    def render_page(self, header, vbox, person):
+        list(map(header.remove, header.get_children()))        
+        list(map(vbox.remove, vbox.get_children()))
         if not person:
-            self.uimanager.set_actions_sensitive(self.family_action, False)
-            self.uimanager.set_actions_sensitive(self.order_action, False)
-            self.redrawing = False
             return
-        self.uimanager.set_actions_sensitive(self.family_action, True)
 
         home = self.dbstate.db.get_default_person()
         self.active_profile = PersonGrampsFrame(
@@ -876,10 +128,10 @@ class PersonProfileView(NavigationView):
             person,
             "active",
             "preferences.profile.person",
-            self._config,
+            self.config,
             self.callback_router,
             relation=home,
-            defaults=self.CONFIGSETTINGS
+            defaults=self.defaults
         )
 
         body = Gtk.HBox(expand=True, spacing=3)
@@ -889,8 +141,8 @@ class PersonProfileView(NavigationView):
             self.uistate,
             person,
             router=self.callback_router,
-            config=self._config,
-            defaults=self.CONFIGSETTINGS
+            config=self.config,
+            defaults=self.defaults
         )
         if parents is not None:
             parents_box.pack_start(parents, expand=False, fill=False, padding=0)
@@ -901,25 +153,25 @@ class PersonProfileView(NavigationView):
             self.uistate,
             person,
             router=self.callback_router,
-            config=self._config,
-            defaults=self.CONFIGSETTINGS
+            config=self.config,
+            defaults=self.defaults
         )
         if spouses is not None:
             spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
 
-        if self._config.get("preferences.profile.person.layout.show-timeline"):
+        if self.config.get("preferences.profile.person.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
             timeline = get_timeline_profiles(
                 self.dbstate,
                 self.uistate,
                 person,
                 router=self.callback_router,
-                config=self._config,
+                config=self.config,
             )
             if timeline is not None:
                 timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
 
-        if self._config.get("preferences.profile.person.layout.show-citations"):
+        if self.config.get("preferences.profile.person.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
             citations = get_citation_profiles(
                 self.dbstate,
@@ -927,89 +179,52 @@ class PersonProfileView(NavigationView):
                 person,
                 self.callback_router,
                 "preferences.profile.person",
-                self._config,
+                self.config,
             )
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
-        if self._config.get("preferences.profile.person.layout.families-stacked"):
+        if self.config.get("preferences.profile.person.layout.families-stacked"):
             families_box = Gtk.VBox(spacing=3)
             families_box.pack_start(parents_box, expand=False, fill=False, padding=0)
             families_box.pack_start(spouses_box, expand=False, fill=False, padding=0)
-            if self._config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
-            if self._config.get("preferences.profile.person.layout.show-timeline"):
+            if self.config.get("preferences.profile.person.layout.show-timeline"):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
-            if self._config.get("preferences.profile.person.layout.show-citations"):
+            if self.config.get("preferences.profile.person.layout.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
-            if not self._config.get("preferences.profile.person.layout.spouses-left"):
+            if not self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
         else:
-            if self._config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(spouses_box, expand=True, fill=True, padding=0)
             else:
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
-            if self._config.get("preferences.profile.person.layout.show-timeline"):
+            if self.config.get("preferences.profile.person.layout.show-timeline"):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
-            if self._config.get("preferences.profile.person.layout.show-citations"):
+            if self.config.get("preferences.profile.person.layout.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
-            if self._config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
             else:
                 body.pack_start(spouses_box, expand=True, fill=True, padding=0)
 
-        if self._config.get("preferences.profile.person.layout.pinned-header"):
-            self.header.pack_start(self.active_profile, False, False, 0)
-            self.header.show_all()
+        if self.config.get("preferences.profile.person.layout.pinned-header"):
+            header.pack_start(self.active_profile, False, False, 0)
+            header.show_all()
         else:
-            self.vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(self.active_profile, False, False, 0)
         self.child = body
-        self.vbox.pack_start(self.child, True, True, 0)
-        self.vbox.show_all()
+        vbox.pack_start(self.child, True, True, 0)
+        vbox.show_all()
 
         family_handle_list = person.get_parent_family_handle_list()
         self.reorder_sensitive = len(family_handle_list) > 1
         family_handle_list = person.get_family_handle_list()
         if not self.reorder_sensitive:
             self.reorder_sensitive = len(family_handle_list) > 1
-
-        self.redrawing = False
-        self.uistate.modify_statusbar(self.dbstate)
-        self.uimanager.set_actions_sensitive(self.order_action, self.reorder_sensitive)
-        self.dirty = False
         return True
-
-    def callback_router(self, obj, event, handle, action, data=None):
-        if action == "link-person":
-            self.change_person(handle)            
-        if action == "copy-clipboard":
-            self.copy_to_clipboard(data, [handle])
-
-    def marriage_symbol(self, family, markup=True):
-        if family:
-            father = mother = None
-            hdl1 = family.get_father_handle()
-            if hdl1:
-                father = self.dbstate.db.get_person_from_handle(hdl1).gender
-            hdl2 = family.get_mother_handle()
-            if hdl2:
-                mother = self.dbstate.db.get_person_from_handle(hdl2).gender
-            if father != mother:
-                symbol = self.marr
-            elif father == Person.MALE:
-                symbol = self.homom
-            else:
-                symbol = self.homof
-            if markup:
-                msg = '<span size="12000" >%s</span>' % symbol
-            else:
-                msg = symbol
-        else:
-            msg = ""
-        return msg
-
-    def change_to(self, obj, handle):
-        self.change_active(handle)
 
     def reorder_button_press(self, obj, event, handle):
         if button_activated(event, _LEFT_BUTTON):
@@ -1021,23 +236,6 @@ class PersonProfileView(NavigationView):
                 Reorder(self.dbstate, self.uistate, [], self.get_active())
             except WindowActiveError:
                 pass
-
-    def config_connect(self):
-        """
-        Overwriten from  :class:`~gui.views.pageview.PageView method
-        This method will be called after the ini file is initialized,
-        use it to monitor changes in the ini file
-        """
-        for item in self.CONFIGSETTINGS:
-            self._config.connect(item[0], self.config_update)
-
-    def create_grid(self):
-        """
-        Gtk.Grid for config panels (tabs).
-        """
-        grid = Gtk.Grid(row_spacing=6, column_spacing=6, column_homogeneous=False)
-        grid.set_border_width(12)
-        return grid
 
     def _config_facts_fields(self, configdialog, grid, space, start_row, start_col=1, number=8, extra=False):
         """
@@ -1053,8 +251,8 @@ class PersonProfileView(NavigationView):
         while row < start_row + number:
             option = "{}.{}-{}".format(space, key, count)
             user_select = FrameFieldSelector(
-                option, self._config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.CONFIGSETTINGS, text=text
+                option, self.config, self.dbstate, self.uistate, count,
+                dbid=True, defaults=self.defaults, text=text
             )
             grid.attach(user_select, start_col, row, 2, 1)
             count = count + 1
@@ -1083,7 +281,7 @@ class PersonProfileView(NavigationView):
         while row < start_row + number:
             option = "{}.metadata-attribute-{}".format(space, count)
             attr_select = AttributeSelector(
-                option, self._config, self.dbstate.db, "Person", dbid=True,
+                option, self.config, self.dbstate.db, "Person", dbid=True,
                 tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id.")
             )
             label = Gtk.Label(
@@ -1162,7 +360,7 @@ class PersonProfileView(NavigationView):
             14, "preferences.profile.person.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.layout", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -1207,7 +405,7 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9, start_col=3, extra=True)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 8, start=5, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, start_col=5)
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.active", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.active", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Person"), grid
 
@@ -1264,7 +462,7 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.parent", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.parent", 12, start_col=3)
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.parent", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.parent", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Parents"), grid
 
@@ -1320,7 +518,7 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.spouse", 14)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 13, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 14, start_col=3)
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.spouse", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.spouse", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Spouses"), grid
 
@@ -1367,7 +565,7 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.child", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.child", 12, start_col=3)
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.child", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.child", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Children"), grid
 
@@ -1414,7 +612,7 @@ class PersonProfileView(NavigationView):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.sibling", 12)
         configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 12, start_col=3)
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.sibling", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.sibling", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Siblings"), grid
 
@@ -1480,7 +678,7 @@ class PersonProfileView(NavigationView):
             12, "preferences.profile.person.timeline.show-best-confidence",
             tooltip=_("Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event.")
         )
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.timeline", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.timeline", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid1.attach(reset, 1, 20, 1, 1)
         grid2 = self.create_grid()
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
@@ -1717,7 +915,7 @@ class PersonProfileView(NavigationView):
             14, "preferences.profile.person.citation.show-confidence",
             tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
-        reset = ConfigReset(configdialog, self._config, "preferences.profile.person.citation", defaults=self.CONFIGSETTINGS, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Citations"), grid
 
@@ -1876,52 +1074,9 @@ class PersonProfileView(NavigationView):
             row += row_added + 1
         return _('Colors'), grid
 
-    def add_color(self, grid, label, index, constant, col=0):
-        """
-        Add color chooser widget with label and hex value to the grid.
-        """
-        lwidget = BasicLabel(_("%s: ") % label)  # needed for French
-        colors = self._config.get(constant)
-        if isinstance(colors, list):
-            scheme = config.get('colors.scheme')
-            hexval = colors[scheme]
-        else:
-            hexval = colors
-        color = Gdk.color_parse(hexval)
-        entry = Gtk.ColorButton(color=color)
-        color_hex_label = BasicLabel(hexval)
-        color_hex_label.set_hexpand(True)
-        entry.connect('notify::color', self.update_color, constant,
-                      color_hex_label)
-        grid.attach(lwidget, col, index, 1, 1)
-        grid.attach(entry, col+1, index, 1, 1)
-        grid.attach(color_hex_label, col+2, index, 1, 1)
-        return entry
-
-    def update_color(self, obj, pspec, constant, color_hex_label):
-        """
-        Called on changing some color.
-        Either on programmatically color change.
-        """
-        rgba = obj.get_rgba()
-        hexval = "#%02x%02x%02x" % (int(rgba.red * 255),
-                                    int(rgba.green * 255),
-                                    int(rgba.blue * 255))
-        color_hex_label.set_text(hexval)
-        colors = self._config.get(constant)
-        if isinstance(colors, list):
-            scheme = config.get('colors.scheme')
-            colors[scheme] = hexval
-            self._config.set(constant, colors)
-        else:
-            self._config.set(constant, hexval)
-
     def _get_configure_page_funcs(self):
         """
-        Return a list of functions that create gtk elements to use in the
-        notebook pages of the Configure dialog
-
-        :return: list of functions
+        Return the list of functions for generating the configuration dialog notebook pages.
         """
         return [
             self.layout_panel,

@@ -138,9 +138,13 @@ class EventGrampsFrame(GrampsFrame):
                     )
                     self.age.pack_start(label, False, False, 0)
 
-        role = self.event_ref.get_role()
+        if event_ref:
+            role = self.event_ref.get_role()
+        else:
+            role = None
         event_type = glocale.translation.sgettext(event.type.xml_str())
-        event_person_name = name_displayer.display(event_person)
+        if event_person:
+            event_person_name = name_displayer.display(event_person)
         participants = []
         participant_string = ""
         if (relation_to_reference not in ["self", "", None]):
@@ -154,13 +158,13 @@ class EventGrampsFrame(GrampsFrame):
                 tooltip = None
             name = TextLink(
                 text,
-                event_person.get_handle(),
-                self.router,
-                "link-person",
+                "Event",
+                event.get_handle(),
+                self.switch_object,
                 tooltip=tooltip,
                 hexpand=True,
             )
-        elif not role.is_primary():
+        elif role and not role.is_primary():
             participant_name = "Unknown"
             participant_handle = ""
             participants, participant_string = get_participants(self.dbstate.db, event)
@@ -179,9 +183,9 @@ class EventGrampsFrame(GrampsFrame):
                     tooltip = None
                 name = TextLink(
                     text,
-                    participant_handle,
-                    self.router,
-                    "link-person",
+                    "Event",
+                    event.get_handle(),
+                    self.switch_object,
                     tooltip=tooltip,
                     hexpand=True,
                 )
@@ -283,7 +287,10 @@ class EventGrampsFrame(GrampsFrame):
         if scheme == 3:
             return get_confidence_color_css(self.confidence, self.config)
 
-        living = probably_alive(self.event_person, self.dbstate.db)
+        if self.event_person:
+            living = probably_alive(self.event_person, self.dbstate.db)
+        else:
+            living = False
         return get_person_color_css(self.event_person, self.config, living=living)
 
     def add_custom_actions(self):

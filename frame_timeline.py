@@ -69,12 +69,12 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         self,
         dbstate,
         uistate,
-        person,
         router,
+        person,
         config=None,
         space="preferences.profile.person",
     ):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config)
+        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
         self.count = 0
         self.categories = []
         self.relations = []

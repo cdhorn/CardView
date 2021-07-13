@@ -49,6 +49,7 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
@@ -153,9 +154,10 @@ class GrampsConfig:
     and the various GrampsFrameGroup classes.
     """
 
-    def __init__(self, dbstate, uistate, space, config, defaults=None):
+    def __init__(self, dbstate, uistate, router, space, config, defaults=None):
         self.dbstate = dbstate
         self.uistate = uistate
+        self.router = router
         self.space = space
         self.context = ""
         self.config = config
@@ -230,6 +232,12 @@ class GrampsConfig:
             return True
         return False
 
+    def switch_object(self, obj, event, obj_type, handle):
+        """
+        Change active object for the view.
+        """
+        self.router('object-changed', (obj_type, handle))
+
 
 # ------------------------------------------------------------------------
 #
@@ -244,9 +252,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
 
     def __init__(self, dbstate, uistate, router, space, config, obj, context, vertical=True, groups=None, defaults=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        GrampsConfig.__init__(self, dbstate, uistate, space, config, defaults=defaults)
+        GrampsConfig.__init__(self, dbstate, uistate, router, space, config, defaults=defaults)
         self.obj = obj
-        self.router = router
         self.context = context
         self.vertical = vertical
         self.action_menu = None
@@ -705,7 +712,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Change active person for the view.
         """
-        self.router(None, None, handle, "link-person")
+        self.router('object-changed', ("Person", handle))
 
     def _edit_object_option(self):
         """
@@ -1150,8 +1157,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
             with DbTxn(action, self.dbstate.db) as trans:
-                if self.obj.add_tag(handle):                
-                    commit_method(self.obj, trans)
+                self.obj.add_tag(handle)
+                commit_method(self.obj, trans)
 
     def remove_tag(self, obj, handle):
         """
@@ -1224,8 +1231,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             )
             commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
             with DbTxn(action, self.dbstate.db) as trans:
-                if self.obj.add_url(url):                
-                    commit_method(self.obj, trans)
+                self.obj.add_url(url)
+                commit_method(self.obj, trans)
 
     def edit_url(self, obj, url):
         """
@@ -1301,7 +1308,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Copy current object to the clipboard.
         """
-        self.router(None, None, self.obj.get_handle(), "copy-clipboard", self.obj_type)
+        self.router('copy-to-clipboard', (self.obj_type, self.obj.get_handle()))
 
     def _change_privacy_option(self):
         """
@@ -1327,8 +1334,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(action, self.dbstate.db) as trans:
-            if self.obj.set_privacy(mode):
-                commit_method(self.obj, trans)
+            self.obj.set_privacy(mode)
+            commit_method(self.obj, trans)
 
     def _add_new_family_event_option(self):
         """

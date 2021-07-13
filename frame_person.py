@@ -130,7 +130,7 @@ class PersonGrampsFrame(GrampsFrame):
         else:
             tooltip = None
         name = TextLink(
-            text, self.person.handle, self.router, "link-person", tooltip=tooltip
+            text, "Person", self.person.handle, self.switch_object, tooltip=tooltip
         )
         name_box = Gtk.HBox(spacing=2)
         if number:

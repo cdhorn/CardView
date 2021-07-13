@@ -343,7 +343,7 @@ class TextLink(Gtk.EventBox):
     """
 
     def __init__(
-        self, name, handle=None, callback=None, action=None, tooltip=None, hexpand=False
+            self, name, obj_type=None, handle=None, callback=None, tooltip=None, hexpand=False
     ):
         Gtk.EventBox.__init__(self)
         self.label = Gtk.Label(hexpand=hexpand, halign=Gtk.Align.START, wrap=True)
@@ -351,7 +351,7 @@ class TextLink(Gtk.EventBox):
         self.add(self.label)
         self.name = name
         if callback:
-            self.connect("button-press-event", callback, handle, action)
+            self.connect("button-press-event", callback, obj_type, handle)
             self.connect("enter-notify-event", self.enter)
             self.connect("leave-notify-event", self.leave)
         if tooltip:

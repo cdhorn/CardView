@@ -67,9 +67,9 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
     actions related to the list.
     """
 
-    def __init__(self, dbstate, uistate, space, config):
+    def __init__(self, dbstate, uistate, space, config, router=None):
         Gtk.ListBox.__init__(self)
-        GrampsConfig.__init__(self, dbstate, uistate, space, config)
+        GrampsConfig.__init__(self, dbstate, uistate, router, space, config)
         self.managed_obj_type = None
         self.dnd_type = None
         self.dnd_icon = None
