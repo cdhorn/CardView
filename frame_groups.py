@@ -200,7 +200,7 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=
     return spouses
 
 
-def get_citation_profiles(dbstate, uistate, obj, router, space, config):
+def get_citation_profiles(dbstate, uistate, obj, router, space, config, sources=True):
     """
     Get all the cited sources associated with an object.
     """
@@ -208,11 +208,17 @@ def get_citation_profiles(dbstate, uistate, obj, router, space, config):
     if len(group) == 0:
         return None
 
-    sources = Gtk.Expander(expanded=True, use_markup=True)
-    if len(group) == 1:
-        text = _("Cited Source")
+    if sources:
+        if len(group) == 1:
+            text = _("Cited Source")
+        else:
+            text = _("Cited Sources")
     else:
-        text = _("Cited Sources")
+        if len(group) == 1:
+            text = _("Citation")
+        else:
+            text = _("Citations")
+    sources = Gtk.Expander(expanded=True, use_markup=True)
     sources.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     sources.add(group)
     return sources

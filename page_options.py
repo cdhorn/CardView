@@ -22,6 +22,64 @@ Profile Options
 """
 
 CONFIGSETTINGS = (
+    ######################################################################
+    # Additional Color Schemes
+    ######################################################################
+    # Confidence Color Scheme
+    ('preferences.profile.colors.confidence.very-high', ["#99c1f1","#304918"]),
+    ('preferences.profile.colors.confidence.high', ["#8ff0a4","#454545"]),
+    ('preferences.profile.colors.confidence.normal', ["#f9f06b","#454545"]),
+    ('preferences.profile.colors.confidence.low', ["#ffbe6f","#454545"]),
+    ('preferences.profile.colors.confidence.very-low', ["#f66161","#454545"]),
+    ('preferences.profile.colors.confidence.border-very-high', ["#1a5fb4","#000000"]),
+    ('preferences.profile.colors.confidence.border-high', ["#26a269","#000000"]),
+    ('preferences.profile.colors.confidence.border-normal', ["#e5a50a","#000000"]),
+    ('preferences.profile.colors.confidence.border-low', ["#c64600","#000000"]),
+    ('preferences.profile.colors.confidence.border-very-low', ["#a51d2d","#000000"]),
+    # Relationship Color Scheme
+    ('preferences.profile.colors.relations.active', ["#bbe68e","#304918"]),
+    ('preferences.profile.colors.relations.spouse', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.father', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.mother', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.brother', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.sister', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.son', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.daughter', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.none', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.relations.border-active', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-father', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-mother', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-brother', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-sister', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-son', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.relations.border-none', ["#cccccc","#000000"]),
+    # Event Category Color Scheme
+    ('preferences.profile.colors.events.vital', ["#bbe68e","#304918"]),
+    ('preferences.profile.colors.events.family', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.religious', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.vocational', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.academic', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.travel', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.legal', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.residence', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.other', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.custom', ["#eeeeee","#454545"]),
+    ('preferences.profile.colors.events.border-vital', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-family', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-religious', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-vocational', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-academic', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-travel', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-legal', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-residence', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-other', ["#cccccc","#000000"]),
+    ('preferences.profile.colors.events.border-custom', ["#cccccc","#000000"]),
+    ######################################################################
+    # Person Page Options
+    ######################################################################
+    # Layout
     ("preferences.profile.person.layout.enable-tooltips", True),
     ("preferences.profile.person.layout.enable-warnings", True),
     ("preferences.profile.person.layout.pinned-header", True),
@@ -35,7 +93,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.layout.sort-tags-by-name", False),
     ("preferences.profile.person.layout.include-child-notes", False),
     ("preferences.profile.person.layout.right-to-left", False),
-    # active person
+    # Active Person
     ("preferences.profile.person.active.event-format", 1),
     ("preferences.profile.person.active.show-age", True),
     ("preferences.profile.person.active.sex-mode", 1),
@@ -70,7 +128,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.active.metadata-attribute-6", "None"),
     ("preferences.profile.person.active.metadata-attribute-7", "None"),
     ("preferences.profile.person.active.metadata-attribute-8", "None"),
-    # parent
+    # Parents
     ("preferences.profile.person.parent.event-format", 1),
     ("preferences.profile.person.parent.show-age", False),
     ("preferences.profile.person.parent.sex-mode", 1),
@@ -98,7 +156,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.parent.metadata-attribute-6", "None"),
     ("preferences.profile.person.parent.metadata-attribute-7", "None"),
     ("preferences.profile.person.parent.metadata-attribute-8", "None"),
-    # spouse
+    # Spouses
     ("preferences.profile.person.spouse.event-format", 1),
     ("preferences.profile.person.spouse.show-age", False),
     ("preferences.profile.person.spouse.sex-mode", 1),
@@ -126,7 +184,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.spouse.metadata-attribute-6", "None"),
     ("preferences.profile.person.spouse.metadata-attribute-7", "None"),
     ("preferences.profile.person.spouse.metadata-attribute-8", "None"),
-    # child
+    # Children
     ("preferences.profile.person.child.event-format", 1),
     ("preferences.profile.person.child.show-age", False),
     ("preferences.profile.person.child.sex-mode", 1),
@@ -152,7 +210,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.child.metadata-attribute-6", "None"),
     ("preferences.profile.person.child.metadata-attribute-7", "None"),
     ("preferences.profile.person.child.metadata-attribute-8", "None"),
-    # sibling
+    # Siblings
     ("preferences.profile.person.sibling.event-format", 1),
     ("preferences.profile.person.sibling.show-age", False),
     ("preferences.profile.person.sibling.sex-mode", 1),
@@ -178,7 +236,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.sibling.metadata-attribute-6", "None"),
     ("preferences.profile.person.sibling.metadata-attribute-7", "None"),
     ("preferences.profile.person.sibling.metadata-attribute-8", "None"),
-    # timeline
+    # Person Timeline
     ("preferences.profile.person.timeline.tag-format", 1),
     ("preferences.profile.person.timeline.tag-width", 10),
     ("preferences.profile.person.timeline.image-mode", 0),
@@ -220,7 +278,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.timeline.show-family-class-residence", False),
     ("preferences.profile.person.timeline.show-family-class-other", False),
     ("preferences.profile.person.timeline.show-family-class-custom", False),
-    # citation
+    # Supporting Citations
     ("preferences.profile.person.citation.tag-format", 1),
     ("preferences.profile.person.citation.tag-width", 10),
     ("preferences.profile.person.citation.image-mode", 0),
@@ -234,59 +292,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.citation.show-reference-type", True),
     ("preferences.profile.person.citation.show-reference-description", True),
     ("preferences.profile.person.citation.show-confidence", True),
-    # confidence color scheme
-    ('preferences.profile.colors.confidence.very-high', ["#99c1f1","#304918"]),
-    ('preferences.profile.colors.confidence.high', ["#8ff0a4","#454545"]),
-    ('preferences.profile.colors.confidence.normal', ["#f9f06b","#454545"]),
-    ('preferences.profile.colors.confidence.low', ["#ffbe6f","#454545"]),
-    ('preferences.profile.colors.confidence.very-low', ["#f66161","#454545"]),
-    ('preferences.profile.colors.confidence.border-very-high', ["#1a5fb4","#000000"]),
-    ('preferences.profile.colors.confidence.border-high', ["#26a269","#000000"]),
-    ('preferences.profile.colors.confidence.border-normal', ["#e5a50a","#000000"]),
-    ('preferences.profile.colors.confidence.border-low', ["#c64600","#000000"]),
-    ('preferences.profile.colors.confidence.border-very-low', ["#a51d2d","#000000"]),
-    # relation color scheme
-    ('preferences.profile.colors.relations.active', ["#bbe68e","#304918"]),
-    ('preferences.profile.colors.relations.spouse', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.father', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.mother', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.brother', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.sister', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.son', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.daughter', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.none', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.relations.border-active', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-spouse', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-father', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-mother', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-brother', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-sister', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-son', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-daughter', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.relations.border-none', ["#cccccc","#000000"]),
-    # event category color scheme
-    ('preferences.profile.colors.events.vital', ["#bbe68e","#304918"]),
-    ('preferences.profile.colors.events.family', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.religious', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.vocational', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.academic', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.travel', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.legal', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.residence', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.other', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.custom', ["#eeeeee","#454545"]),
-    ('preferences.profile.colors.events.border-vital', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-family', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-religious', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-vocational', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-academic', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-travel', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-legal', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-residence', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-other', ["#cccccc","#000000"]),
-    ('preferences.profile.colors.events.border-custom', ["#cccccc","#000000"]),
-
-    # event layout options
+    ######################################################################
+    # Event Page Options
+    ######################################################################
+    # Layout
     ("preferences.profile.event.layout.enable-tooltips", True),
     ("preferences.profile.event.layout.enable-warnings", True),
     ("preferences.profile.event.layout.pinned-header", True),
@@ -296,13 +305,15 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.layout.sort-tags-by-name", False),
     ("preferences.profile.event.layout.include-child-notes", False),
     ("preferences.profile.event.layout.right-to-left", False),
-    # active event
+    # Active Event
     ("preferences.profile.event.active.event-format", 1),
     ("preferences.profile.event.active.image-mode", 3),
     ("preferences.profile.event.active.tag-format", 1),
     ("preferences.profile.event.active.tag-width", 10),
-
-    # source layout options
+    ######################################################################
+    # Source Page Options
+    ######################################################################
+    # Layout
     ("preferences.profile.source.layout.enable-tooltips", True),
     ("preferences.profile.source.layout.enable-warnings", True),
     ("preferences.profile.source.layout.pinned-header", True),
@@ -312,9 +323,56 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.layout.sort-tags-by-name", False),
     ("preferences.profile.source.layout.include-child-notes", False),
     ("preferences.profile.source.layout.right-to-left", False),
-    # active source
+    # Active Source
     ("preferences.profile.source.active.event-format", 1),
     ("preferences.profile.source.active.image-mode", 3),
     ("preferences.profile.source.active.tag-format", 1),
     ("preferences.profile.source.active.tag-width", 10),
+    # Source Citations
+    ("preferences.profile.source.citation.tag-format", 1),
+    ("preferences.profile.source.citation.tag-width", 10),
+    ("preferences.profile.source.citation.image-mode", 0),
+    ("preferences.profile.source.citation.sort-by-date", False),
+    ("preferences.profile.source.citation.show-date", True),
+    ("preferences.profile.source.citation.show-publisher", True),
+    ("preferences.profile.source.citation.show-reference-type", True),
+    ("preferences.profile.source.citation.show-reference-description", True),
+    ("preferences.profile.source.citation.show-confidence", True),
+    # People Referenced
+    ("preferences.profile.source.people.event-format", 1),
+    ("preferences.profile.source.people.show-age", False),
+    ("preferences.profile.source.people.sex-mode", 1),
+    ("preferences.profile.source.people.image-mode", 1),
+    ("preferences.profile.source.people.tag-format", 1),
+    ("preferences.profile.source.people.tag-width", 10),
+    ("preferences.profile.source.people.facts-field-skip-birth-alternates", True),
+    ("preferences.profile.source.people.facts-field-skip-death-alternates", True),
+    ("preferences.profile.source.people.facts-field-1", "Event:Birth:False"),
+    ("preferences.profile.source.people.facts-field-2", "Event:Baptism:False"),
+    ("preferences.profile.source.people.facts-field-3", "Event:Christening:False"),
+    ("preferences.profile.source.people.facts-field-4", "Event:Death:False"),
+    ("preferences.profile.source.people.facts-field-5", "Event:Burial:False"),
+    ("preferences.profile.source.people.facts-field-6", "Event:Cremation:False"),
+    ("preferences.profile.source.people.facts-field-7", "Event:Probate:False"),
+    ("preferences.profile.source.people.facts-field-8", "None"),
+    ("preferences.profile.source.people.metadata-attribute-1", "None"),
+    ("preferences.profile.source.people.metadata-attribute-2", "None"),
+    ("preferences.profile.source.people.metadata-attribute-3", "None"),
+    ("preferences.profile.source.people.metadata-attribute-4", "None"),
+    ("preferences.profile.source.people.metadata-attribute-5", "None"),
+    ("preferences.profile.source.people.metadata-attribute-6", "None"),
+    ("preferences.profile.source.people.metadata-attribute-7", "None"),
+    ("preferences.profile.source.people.metadata-attribute-8", "None"),
+    # Events Referenced
+    ("preferences.profile.source.events.tag-format", 1),
+    ("preferences.profile.source.events.tag-width", 10),
+    ("preferences.profile.source.events.image-mode", 0),
+    ("preferences.profile.source.events.color-scheme", 0),
+    ("preferences.profile.source.events.show-description", True),
+    ("preferences.profile.source.events.show-participants", True),
+    ("preferences.profile.source.events.show-role-always", False),
+    ("preferences.profile.source.events.show-source-count", True),
+    ("preferences.profile.source.events.show-citation-count", True),
+    ("preferences.profile.source.events.show-best-confidence", True),
+
 )

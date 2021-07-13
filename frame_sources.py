@@ -117,7 +117,7 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
         """
         citation_list = []
         self.extract_citations(0, self.obj_type, citation_list, None, [self.obj])
-        
+
         if self.option("citation", "include-indirect"):
             if self.obj_type == "Person":
                 self.extract_citations(1, _("Primary Name"), citation_list, None, [self.obj.primary_name])
@@ -149,8 +149,15 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                             for handle in child_ref.get_citation_list():
                                 citation = self.dbstate.db.get_citation_from_handle(handle)
                                 citation_list.append((citation, [child_ref], 1, _("Parent Family Child")))
-        return citation_list
 
+        if self.obj_type == "Source":
+            for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(self.obj.get_handle()):
+                if obj_type == "Citation":
+                    citation = self.dbstate.db.get_citation_from_handle(obj_handle)
+                    citation_list.append((citation, [self.obj], 0, obj_type))
+            
+        return citation_list
+                                          
     def extract_citations(self, ref_type, ref_desc, citation_list, query_method=None, obj_list=[]):
         """
         Helper to extract a set of citations from an object.

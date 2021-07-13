@@ -30,6 +30,14 @@ Source Profile Page
 
 # -------------------------------------------------------------------------
 #
+# GTK/Gnome modules
+#
+# -------------------------------------------------------------------------
+from gi.repository import Gtk
+
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -41,10 +49,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from frame_generic import GenericGrampsFrameGroup
+from frame_groups import get_citation_profiles
 from frame_source import SourceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
     ConfigReset,
 )
@@ -89,8 +100,81 @@ class SourceProfilePage(BaseProfilePage):
             self.callback_router,
             defaults=self.defaults,
         )
-        header.pack_start(self.active_profile, False, False, 0)
-        header.show_all()
+
+        citations_box = Gtk.VBox(spacing=3)
+        citations = get_citation_profiles(
+            self.dbstate,
+            self.uistate,
+            source,
+            self.callback_router,
+            "preferences.profile.source",
+            self.config,
+            sources=False
+        )
+        if citations is not None:
+            citations_box.pack_start(citations, expand=False, fill=False, padding=0)
+
+        people_list = []
+        events_list = []
+        for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(source.get_handle()):
+            if obj_type == "Citation":
+                for sub_obj_type, sub_obj_handle in self.dbstate.db.find_backlink_handles(obj_handle):
+                    if sub_obj_type == "Person":
+                        if sub_obj_handle not in people_list:
+                            people_list.append(sub_obj_handle)
+                    elif sub_obj_type == "Event":
+                        if sub_obj_handle not in events_list:
+                            events_list.append(sub_obj_handle)
+
+        if people_list:
+            people_group = GenericGrampsFrameGroup(
+                self.dbstate,
+                self.uistate,
+                self.callback_router,
+                "preferences.profile.source",
+                self.config,
+                "Person",
+                people_list,
+                defaults=self.defaults
+            )
+            people = Gtk.Expander(expanded=True, use_markup=True)
+            people.set_label("<small><b>{}</b></small>".format(_("People")))
+            people.add(people_group)
+            people_box = Gtk.VBox(spacing=3)
+            people_box.pack_start(people, expand=False, fill=False, padding=0)
+
+        if events_list:
+            events_group = GenericGrampsFrameGroup(
+                self.dbstate,
+                self.uistate,
+                self.callback_router,
+                "preferences.profile.source",
+                self.config,
+                "Event",
+                events_list,
+                defaults=self.defaults
+            )
+            events = Gtk.Expander(expanded=True, use_markup=True)
+            events.set_label("<small><b>{}</b></small>".format(_("Events")))
+            events.add(events_group)
+            events_box = Gtk.VBox(spacing=3)
+            events_box.pack_start(events, expand=False, fill=False, padding=0)
+
+        body = Gtk.HBox(vexpand=False, spacing=3)
+        if citations:
+            body.pack_start(citations_box, True, True, 0)
+        if people_list:
+            body.pack_start(people_box, True, True, 0)
+        if events_list:
+            body.pack_start(events_box, True, True, 0)
+
+        if self.config.get("preferences.profile.source.layout.pinned-header"):
+            header.pack_start(self.active_profile, False, False, 0)
+            header.show_all()
+        else:
+            vbox.pack_start(self.active_profile, False, False, 0)
+        vbox.pack_start(body, False, False, 0)
+        vbox.show_all()
         return True
 
     def layout_panel(self, configdialog):
@@ -179,6 +263,105 @@ class SourceProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
 
+    def citations_panel(self, configdialog):
+        """
+        Builds citations options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.source.citation.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.source.citation.tag-width",
+            (1, 20),
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.source.citation.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort citations by date"),
+            4, "preferences.profile.source.citation.sort-by-date",
+            tooltip=_("Enabling this option will sort the citations by date.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "preferences.profile.source.citation.show-date",
+            tooltip=_("Enabling this option will show the citation date if it is available.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show publisher"),
+            11, "preferences.profile.source.citation.show-publisher",
+            tooltip=_("Enabling this option will show the publisher information if it is available.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show reference type"),
+            12, "preferences.profile.source.citation.show-reference-type",
+            tooltip=_("Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show reference description"),
+            13, "preferences.profile.source.citation.show-reference-description",
+            tooltip=_("Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show confidence rating"),
+            14, "preferences.profile.source.citation.show-confidence",
+            tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
+        )
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 20, 1, 1)
+        return _("Citations"), grid
+
+    def people_panel(self, configdialog):
+        """
+        Builds people options section for the configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "preferences.profile.source.people.event-format",
+            EVENT_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "preferences.profile.source.people.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "preferences.profile.source.people.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "preferences.profile.source.people.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "preferences.profile.source.people.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "preferences.profile.source.people.tag-width",
+            (1, 20),
+        )
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "preferences.profile.source.people", 12)
+        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.source.people", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
+        return _("People"), grid
+    
     def _get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
@@ -186,6 +369,8 @@ class SourceProfilePage(BaseProfilePage):
         return [
             self.layout_panel,
             self.active_panel,
+            self.citations_panel,
+            self.people_panel,
         ]
 
     def edit_active(self, *obj):

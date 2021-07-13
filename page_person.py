@@ -237,61 +237,6 @@ class PersonProfilePage(BaseProfilePage):
             except WindowActiveError:
                 pass
 
-    def _config_facts_fields(self, configdialog, grid, space, start_row, start_col=1, number=8, extra=False):
-        """
-        Build facts field configuration section.
-        """
-        count = 1
-        row = start_row
-        text = _("Facts field")
-        key = "facts-field"
-        if extra:
-            text = _("Extra field")
-            key = "extra-field"
-        while row < start_row + number:
-            option = "{}.{}-{}".format(space, key, count)
-            user_select = FrameFieldSelector(
-                option, self.config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.defaults, text=text
-            )
-            grid.attach(user_select, start_col, row, 2, 1)
-            count = count + 1
-            row = row + 1
-        option = "{}.{}-skip-birth-alternates".format(space, key)
-        configdialog.add_checkbox(
-            grid, _("Skip birth alternatives if birth found"),
-            row, option, start=start_col,
-            tooltip=_("If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed.")
-        )
-        row = row + 1
-        option = "{}.{}-skip-death-alternates".format(space, key)
-        configdialog.add_checkbox(
-            grid, _("Skip death alternates if death found"),
-            row, option, start=start_col,
-            tooltip=_("If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed.")
-        )
-        row = row + 1
-
-    def _config_metadata_attributes(self, grid, space, start_row, start_col=1, number=8):
-        """
-        Build metadata custom attribute configuration section.
-        """
-        count = 1
-        row = start_row
-        while row < start_row + number:
-            option = "{}.metadata-attribute-{}".format(space, count)
-            attr_select = AttributeSelector(
-                option, self.config, self.dbstate.db, "Person", dbid=True,
-                tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id.")
-            )
-            label = Gtk.Label(
-                halign=Gtk.Align.START, label="{} {}: ".format(_("Metadata attribute"), count)
-            )
-            grid.attach(label, start_col, row, 1, 1)
-            grid.attach(attr_select, start_col + 1, row, 1, 1)
-            count = count + 1
-            row = row + 1
-
     def layout_panel(self, configdialog):
         """
         Builds layout and styling options section for the configuration dialog
