@@ -114,14 +114,14 @@ class BaseProfilePage(Callback):
         option = "{}.{}-skip-birth-alternates".format(space, key)
         configdialog.add_checkbox(
             grid, _("Skip birth alternatives if birth found"),
-            row, option, start=start_col,
+            row, option, start=start_col, stop=start_col+1,
             tooltip=_("If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed.")
         )
         row = row + 1
         option = "{}.{}-skip-death-alternates".format(space, key)
         configdialog.add_checkbox(
             grid, _("Skip death alternates if death found"),
-            row, option, start=start_col,
+            row, option, start=start_col, stop=start_col+1,
             tooltip=_("If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed.")
         )
         row = row + 1
