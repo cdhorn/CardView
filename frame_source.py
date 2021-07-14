@@ -22,6 +22,7 @@
 SourceGrampsFrame.
 """
 
+
 # ------------------------------------------------------------------------
 #
 # GTK modules
@@ -83,8 +84,7 @@ class SourceGrampsFrame(GrampsFrame):
         self.enable_drag()
         self.enable_drop()
         
-        text = "<b>{}</b>".format(self.source.title.replace('&', '&amp;'))
-        title = TextLink(text, "Source", self.source.get_handle(), self.switch_object)
+        title = TextLink(self.source.title, "Source", self.source.get_handle(), self.switch_object, bold=True)
         self.title.pack_start(title, True, False, 0)
 
         if self.source.get_author():

@@ -26,6 +26,14 @@ Frame utility functions and classes.
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from html import escape
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -343,13 +351,15 @@ class TextLink(Gtk.EventBox):
     """
 
     def __init__(
-            self, name, obj_type=None, handle=None, callback=None, tooltip=None, hexpand=False
+            self, name, obj_type=None, handle=None, callback=None, tooltip=None, hexpand=False, bold=True
     ):
         Gtk.EventBox.__init__(self)
+        self.name = escape(name)
+        if bold:
+            self.name = "<b>{}</b>".format(self.name)
         self.label = Gtk.Label(hexpand=hexpand, halign=Gtk.Align.START, wrap=True)
-        self.label.set_markup(name.replace('&', '&amp;'))
+        self.label.set_markup(self.name)
         self.add(self.label)
-        self.name = name
         if callback:
             self.connect("button-press-event", callback, obj_type, handle)
             self.connect("enter-notify-event", self.enter)
@@ -358,10 +368,10 @@ class TextLink(Gtk.EventBox):
             self.set_tooltip_text(tooltip)
 
     def enter(self, obj, event):
-        self.label.set_markup("<u>{}</u>".format(self.name.replace('&', '&amp;')))
+        self.label.set_markup("<u>{}</u>".format(self.name))
 
     def leave(self, obj, event):
-        self.label.set_markup(self.name.replace('&', '&amp;'))
+        self.label.set_markup(self.name)
 
 
 def format_color_css(background, border):

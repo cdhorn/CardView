@@ -122,7 +122,6 @@ class PersonGrampsFrame(GrampsFrame):
         self.enable_drop()
 
         display_name = name_displayer.display(self.person)
-        text = "<b>{}</b>".format(display_name)
         if self.enable_tooltips:
             tooltip = "{} {} {}".format(
                 _("Click to view"), display_name, _("or right click to select edit.")
@@ -130,7 +129,7 @@ class PersonGrampsFrame(GrampsFrame):
         else:
             tooltip = None
         name = TextLink(
-            text, "Person", self.person.handle, self.switch_object, tooltip=tooltip
+            display_name, "Person", self.person.handle, self.switch_object, tooltip=tooltip, bold=True
         )
         name_box = Gtk.HBox(spacing=2)
         if number:

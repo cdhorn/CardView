@@ -148,7 +148,7 @@ class EventGrampsFrame(GrampsFrame):
         participants = []
         participant_string = ""
 
-        text = "<b>{}</b>".format(event_type)
+        text = event_type
         if (relation_to_reference not in ["self", "", None]):
             text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
         elif role and not role.is_primary():
@@ -167,6 +167,7 @@ class EventGrampsFrame(GrampsFrame):
             event.get_handle(),
             self.switch_object,
             hexpand=True,
+            bold=True
         )
         self.title.pack_start(name, True, True, 0)
 

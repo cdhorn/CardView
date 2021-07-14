@@ -31,6 +31,7 @@ GrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
+from html import escape
 import pickle
 import re
 import time
@@ -198,7 +199,7 @@ class GrampsConfig:
                 halign=Gtk.Align.END,
                 wrap=True,
             )
-        label.set_markup(self.markup.format(text.replace('&', '&amp;')))
+        label.set_markup(self.markup.format(escape(text)))
         return label
 
     def confirm_action(self, title, message):
