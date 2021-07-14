@@ -129,11 +129,11 @@ class CoupleGrampsFrame(GrampsFrame):
 
     def _get_parents(self):
         father = None
-        if self.family.father_handle:
-            father = self.dbstate.db.get_person_from_handle(self.family.father_handle)
+        if self.family.get_father_handle():
+            father = self.dbstate.db.get_person_from_handle(self.family.get_father_handle())
         mother = None
-        if self.family.mother_handle:
-            mother = self.dbstate.db.get_person_from_handle(self.family.mother_handle)
+        if self.family.get_mother_handle():
+            mother = self.dbstate.db.get_person_from_handle(self.family.get_mother_handle())
 
         partner1 = father
         partner2 = mother
@@ -145,7 +145,7 @@ class CoupleGrampsFrame(GrampsFrame):
             and self.parent
             and self.option(self.context, "show-spouse-only")
         ):
-            if partner1.handle == self.parent.handle:
+            if partner1 and partner1.handle == self.parent.handle or not partner1:
                 partner1 = partner2
             partner2 = None
         return partner1, partner2
