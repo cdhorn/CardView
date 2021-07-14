@@ -121,7 +121,6 @@ class PersonProfilePage(BaseProfilePage):
         if not person:
             return
 
-        home = self.dbstate.db.get_default_person()
         self.active_profile = PersonGrampsFrame(
             self.dbstate,
             self.uistate,
@@ -130,7 +129,6 @@ class PersonProfilePage(BaseProfilePage):
             "preferences.profile.person",
             self.config,
             self.callback_router,
-            relation=home,
             defaults=self.defaults
         )
 

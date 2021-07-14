@@ -66,10 +66,10 @@ MRU_BTM = '</section>'
 
 #------------------------------------------------------------------------------
 #
-# NavigationView
+# ENavigationView
 #
 #------------------------------------------------------------------------------
-class NavigationView(PageView):
+class ENavigationView(PageView):
     """
     The NavigationView class is the base class for all Data Views that require
     navigation functionalilty. Views that need bookmarks and forward/backward
@@ -541,7 +541,6 @@ class History(Callback):
         self.mru = []
         self.index = -1
         self.lock = False
-        self.clear()
 
         dbstate.connect('database-changed', self.connect_signals)
         self.signal_map = {}
@@ -574,11 +573,6 @@ class History(Callback):
         self.mru = []
         self.index = -1
         self.lock = False
-
-        if self.dbstate.is_open():
-            initial_person = self.dbstate.db.find_initial_person()
-            if initial_person:
-                self.push(('Person', initial_person.get_handle()))
 
     def push(self, item):
         """

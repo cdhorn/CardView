@@ -42,8 +42,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
-from enavigationview import NavigationView
+from enavigationview import ENavigationView
 
+from frame_utils import get_config_option, save_config_option
 from page_options import CONFIGSETTINGS
 from page_person import PersonProfilePage
 from page_event import EventProfilePage
@@ -52,7 +53,7 @@ from page_source import SourceProfilePage
 _ = glocale.translation.sgettext
 
 
-class ProfileView(NavigationView):
+class ProfileView(ENavigationView):
     """
     View showing a textual representation of the relationships and events of
     the active person.
@@ -61,7 +62,7 @@ class ProfileView(NavigationView):
     CONFIGSETTINGS = CONFIGSETTINGS
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
-        NavigationView.__init__(self, _('Profile'),
+        ENavigationView.__init__(self, _('Profile'),
                                       pdata, dbstate, uistate,
                                       PersonBookmarks,
                                       nav_group)
@@ -71,9 +72,10 @@ class ProfileView(NavigationView):
         self.child = None
         self.scroll = None
         self.viewport = None
-        self.dirty = None
+        self.dirty = False
         self.redrawing = False
-        self.active_type = 'Person'
+        self.active_type = None
+        self.loaded = False
 
         dbstate.connect('database-changed', self.change_db)
         uistate.connect('nameformat-changed', self.build_tree)
@@ -85,7 +87,7 @@ class ProfileView(NavigationView):
         self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
-
+        
     def _add_page(self, page):
         page.connect('object-changed', self.object_changed)
         page.connect('copy-to-clipboard', self.clipboard_copy)
@@ -151,7 +153,7 @@ class ProfileView(NavigationView):
         self.redraw()
 
     def change_page(self):
-        NavigationView.change_page(self)
+        ENavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
     def get_stock(self):
@@ -392,7 +394,7 @@ class ProfileView(NavigationView):
      ''']
 
     def define_actions(self):
-        NavigationView.define_actions(self)
+        ENavigationView.define_actions(self)
         for page in self.pages.values():
             page.define_actions(self)
 
@@ -418,9 +420,10 @@ class ProfileView(NavigationView):
         self.redraw()
 
     def redraw(self, *obj):
-        active_person = self.get_active()
-        if active_person:
-            self.change_object(active_person)
+        self.dirty = True
+        active_object = self.get_active()
+        if active_object:
+            self.change_object(active_object)
         else:
             self.change_object(None)
 
@@ -431,15 +434,35 @@ class ProfileView(NavigationView):
         self.change_active((obj_type, handle))
         self.change_object((obj_type, handle))
 
-    def change_object(self, obj_tuple):
-        if obj_tuple is None:
-            return False
+    def _clear_change(self):
+        list(map(self.header.remove, self.header.get_children()))
+        list(map(self.vbox.remove, self.vbox.get_children()))
+        return False
 
+    def change_object(self, obj_tuple):
         if self.redrawing:
             return False
-        self.redrawing = True
 
+        if obj_tuple is None:
+            if not self.active_page and not self.loaded:
+                return self._clear_change()
+            dbid = self.dbstate.db.get_dbid()
+            if not dbid:
+                return self._clear_change()
+            try:
+                obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
+                if not obj_tuple:
+                    initial_person = self.dbstate.db.find_initial_person()
+                    if initial_person:
+                        obj_tuple = ('Person', initial_person.get_handle())
+                    else:
+                        return self._clear_change()
+            except ValueError:
+                return self._clear_change()
+            self.loaded = True
         obj_type, handle, = obj_tuple
+
+        self.redrawing = True
         if obj_type == 'Person':
             obj = self.dbstate.db.get_person_from_handle(handle)
         elif obj_type == 'Event':
@@ -450,11 +473,8 @@ class ProfileView(NavigationView):
             self.redrawing = False
             return False
 
-        for page in self.pages.values():
-            page.disable_actions(self.uimanager)
-
         page = self.pages[obj_type]
-
+        page.render_page(self.header, self.vbox, obj)
         page.enable_actions(self.uimanager, obj)
         self.uimanager.update_menu()
 
@@ -468,10 +488,14 @@ class ProfileView(NavigationView):
                 tooltip = _('Edit the active source')
             edit_button.set_tooltip_text(tooltip)
 
-        page.render_page(self.header, self.vbox, obj)
-        self.redrawing = False
         self.uistate.modify_statusbar(self.dbstate)
+        self.redrawing = False
         self.dirty = False
+
+        if self.loaded:
+            dbid = self.dbstate.db.get_dbid()
+            save_config_option(self._config, "preferences.profile.active.last_object", obj_type, handle, dbid=dbid)
+
         self.active_page = page
         return True
 
@@ -479,18 +503,18 @@ class ProfileView(NavigationView):
         """
         Called when the page is displayed.
         """
-        NavigationView.set_active(self)
+        ENavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
     def set_inactive(self):
         """
         Called when the page is no longer displayed.
         """
-        NavigationView.set_inactive(self)
+        ENavigationView.set_inactive(self)
         self.uistate.viewmanager.tags.tag_disable()
 
     def selected_handles(self):
-        return [self.get_active()[1]]
+        return [self.get_active()]
 
     def add_tag(self, trans, object_handle, tag_handle):
         """
