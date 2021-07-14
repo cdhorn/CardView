@@ -459,7 +459,9 @@ class ProfileView(ENavigationView):
                         return self._clear_change()
             except ValueError:
                 return self._clear_change()
+            self.history.push(tuple(obj_tuple))
             self.loaded = True
+            return False
         obj_type, handle, = obj_tuple
 
         self.redrawing = True
