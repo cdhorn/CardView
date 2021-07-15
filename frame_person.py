@@ -202,6 +202,8 @@ class PersonGrampsFrame(GrampsFrame):
                     )
                 elif option[0] == "Fact":
                     self.add_field_for_fact(option[1], extra=extra, show_all=show_all)
+                elif option[0] == "Attribute":
+                    self.add_field_for_attribute(option[1], extra=extra, show_all=show_all)
                 elif option[0] == "Relation":
                     self.add_field_for_relation(option[1], extra=extra)
             count = count + 1
@@ -230,8 +232,21 @@ class PersonGrampsFrame(GrampsFrame):
         for event in self.event_cache:
             if event.get_type().xml_str() == event_type:
                 if event.get_description():
-                    label = self.make_label(event_type)
+                    label = self.make_label(str(event.get_type()))
                     fact = self.make_label(event.get_description())
+                    self.add_fact(fact, label=label, extra=extra)
+                    if not show_all:
+                        return
+
+    def add_field_for_attribute(self, attribute_type, extra=False, show_all=False):
+        """
+        Find an attribute and load the data.
+        """
+        for attribute in self.obj.get_attribute_list():
+            if attribute.get_type().xml_str() == attribute_type:
+                if attribute.get_value():
+                    label = self.make_label(str(attribute.get_type()))
+                    fact = self.make_label(attribute.get_value())
                     self.add_fact(fact, label=label, extra=extra)
                     if not show_all:
                         return

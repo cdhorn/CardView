@@ -720,9 +720,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Build the edit option.
         """
         if self.obj_type == "Person":
-            name = _("Edit %s") % name_displayer.display(self.obj)
+            name = "{} {}".format(_("Edit"), name_displayer.display(self.obj))
         else:
-            name = _("Edit {}".format(self.obj_type.lower()))
+            name = "{} {}".format(_("Edit"), self.obj_type.lower())
         return self._menu_item("gtk-edit", name, self.edit_object)
 
     def edit_object(self, skip, obj=None, obj_type=None):

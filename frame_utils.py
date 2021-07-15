@@ -671,7 +671,7 @@ class FrameFieldSelector(Gtk.HBox):
     A custom selector for the user defined fields for the configdialog.
     """
 
-    def __init__(self, option, config, dbstate, uistate, number, dbid=False, defaults=None, text=None):
+    def __init__(self, option, config, dbstate, uistate, number, dbid=False, defaults=None, text=None, relation=True, obj_type="Person"):
         Gtk.HBox.__init__(self, hexpand=False, spacing=6)
         self.option = option
         self.config = config
@@ -691,25 +691,36 @@ class FrameFieldSelector(Gtk.HBox):
         self.type_selector = Gtk.ComboBoxText()
         self.pack_start(self.type_selector, False, False, 0)
         self.event_selector = Gtk.ComboBoxText()
-        self.event_selector.connect("show", self.hide_selector)
+        self.event_selector.connect("show", self.hide_event_selector)
         self.pack_start(self.event_selector, False, False, 0)
-        self.event_matches = Gtk.CheckButton(label=_("All"))
-        self.event_matches.connect("show", self.hide_selector)
-        self.pack_start(self.event_matches, False, False, 0)
+        self.attribute_selector = Gtk.ComboBoxText()
+        self.attribute_selector.connect("show", self.hide_attribute_selector)
+        self.pack_start(self.attribute_selector, False, False, 0)
+        self.all_matches = Gtk.CheckButton(label=_("All"))
+        self.all_matches.connect("show", self.hide_event_selector)
+        self.pack_start(self.all_matches, False, False, 0)
         self.relation_selector = Gtk.Button()
         self.relation_selector.connect("show", self.hide_button)
         self.pack_start(self.relation_selector, False, False, 0)
 
-        self.user_field_types = ["None", "Event", "Fact", "Relation"]
-        self.user_field_types_lang = [_("None"), _("Event"), _("Fact"), _("Relation")]
+        self.user_field_types = ["None", "Event", "Fact", "Attribute", "Relation"]
+        self.user_field_types_lang = [_("None"), _("Event"), _("Fact"), _("Attribute"), _("Relation")]
+        if not relation:
+            del self.user_field_types_lang[-1]
         for option in self.user_field_types_lang:
             self.type_selector.append_text(option)
 
-        self.attribute_etoi, self.attribute_itoe = get_attribute_maps(self.dbstate.db, "Person")
+        self.attribute_etoi, self.attribute_itoe = get_attribute_maps(self.dbstate.db, obj_type)
         self.attribute_names = sorted(self.attribute_itoe.keys())
+        for attribute_type in self.attribute_names:
+            self.attribute_selector.append_text(attribute_type)
 
         self.event_etoi, self.event_itoe = get_event_maps(self.dbstate.db)
         self.event_names = sorted(self.event_itoe.keys())
+        for event_type in self.event_names:
+            self.event_selector.append_text(event_type)
+
+        self.all_matches.set_tooltip_text(_("Enabling this option will enable the display of all records found. This is generally undesirable for most things, but can sometimes be useful if for example someone held multiple occupations and you wanted that information available at a glance."))
 
         user_type = "None"
         user_value = ""
@@ -728,21 +739,22 @@ class FrameFieldSelector(Gtk.HBox):
                     user_option = True
         current_index = self.user_field_types.index(user_type)
         self.type_selector.set_active(current_index)
-        self.type_selector.set_tooltip_text(_("All person facts displayed are user configurable and they may be populated with event, fact or relation data in a number of different combinations. Not all combinations may make sense, but this mechanism allows the user to tailor the view to their needs. Note fact and event types are the same, the difference between them is that for an event the date and place are displayed while for a fact the event description is displayed. So a baptism is an event while an occupation can be thought of as a fact."))
-
-        for event_type in self.event_names:
-            self.event_selector.append_text(event_type)
-        self.event_matches.set_tooltip_text(_("Enabling this option will enable the display of all matching event or fact types found. This is generally undesirable for most things, but in the active person header may be useful if they held multiple occupations and you wanted that information available at a glance."))
+        self.type_selector.set_tooltip_text(_("All person or family facts displayed are user configurable and they may be populated with event, fact, attribute or relation data in a number of different combinations. Not all combinations may make sense, but this mechanism allows the user to tailor the view to their needs. Note fact and event types are the same, the difference between them is that for an event the date and place are displayed while for a fact the event description is displayed. So a baptism is an event while an occupation can be thought of as a fact."))
 
         if current_index in [1, 2]:
-            self.relation_selector.hide()
+            self.hide_selectors(event=False, all=False)
             if self.event_etoi[user_value] in self.event_names:
                 current_index = self.event_names.index(self.event_etoi[user_value])
                 self.event_selector.set_active(current_index)
-                self.event_matches.set_active(user_option)
+                self.all_matches.set_active(user_option)
         elif current_index == 3:
-            self.event_selector.hide()
-            self.event_matches.hide()
+            self.hide_selectors(attribute=False, all=False)
+            if self.attribute_etoi[user_value] in self.attribute_names:
+                current_index = self.attribute_names.index(self.attribute_etoi[user_value])
+                self.attribute_selector.set_active(current_index)
+                self.all_matches.set_active(user_option)
+        elif current_index == 4:
+            self.hide_selectors(relation=False)
             try:
                 person = self.dbstate.db.get_person_from_handle(user_value)
                 name = name_displayer.display(person)
@@ -750,14 +762,23 @@ class FrameFieldSelector(Gtk.HBox):
             except HandleError:
                 self.relation_selector.set_label("")
         else:
-            self.relation_selector.hide()
-            self.event_selector.hide()
-            self.event_matches.hide()
+            self.hide_selectors()
 
         self.type_selector.connect("changed", self.update_type)
         self.event_selector.connect("changed", self.update_event_choice)
-        self.event_matches.connect("toggled", self.update_event_choice)
+        self.all_matches.connect("toggled", self.update_all_choice)
+        self.attribute_selector.connect("changed", self.update_attribute_choice)
         self.relation_selector.connect("clicked", self.update_relation_choice)
+
+    def hide_selectors(self, event=True, attribute=True, relation=True, all=True):
+        if event:
+            self.event_selector.hide()
+        if relation:
+            self.relation_selector.hide()
+        if attribute:
+            self.attribute_selector.hide()
+        if all:
+            self.all_matches.hide()
 
     def update_type(self, obj):
         current_type_lang = self.type_selector.get_active_text()
@@ -765,32 +786,36 @@ class FrameFieldSelector(Gtk.HBox):
         current_type = self.user_field_types[current_index]
         save_config_option(self.config, self.option, current_type, "", dbid=self.dbid)
         if current_type in ["Event", "Fact"]:
-            self.relation_selector.hide()
+            self.hide_selectors(event=False, all=False)
             current_index = self.event_names.index(self.event_etoi["Unknown"])
             self.event_selector.set_active(current_index)
             self.event_matches.set_active(False)
             self.event_selector.show()
-            self.event_matches.show()
+            self.all_matches.show()
             self.update_event_choice()
+        elif current_type == "Attribute":
+            self.hide_selectors(attribute=False, all=False)
+            current_index = self.attribute_names.index(self.attribute_etoi["None"])
+            self.attribute_selector.set_active(current_index)
+            self.attribute_selector.show()
+            self.all_matches.show()
+            self.update_attribute_choice()
         elif current_type == "Relation":
-            self.event_selector.hide()
-            self.event_matches.hide()
+            self.hide_selectors(relation=False)
             self.relation_selector.set_label("")
             self.relation_selector.show()
             self.update_relation_choice()
         else:
-            self.event_selector.hide()
-            self.event_matches.hide()
-            self.event_matches.set_active(False)
-            self.relation_selector.hide()
+            self.all_matches.set_active(False)
             self.relation_selector.set_label("")
+            self.hide_selectors()
 
     def update_event_choice(self, *obj):
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
         if current_index in [1, 2]:
             current_value = self.event_selector.get_active_text()
-            if self.event_matches.get_active():
+            if self.all_matches.get_active():
                 current_option = "True"
             else:
                 current_option = "False"
@@ -799,6 +824,31 @@ class FrameFieldSelector(Gtk.HBox):
                 self.option,
                 self.user_field_types[current_index],
                 "{}:{}".format(self.event_itoe[current_value], current_option),
+                dbid=self.dbid
+            )
+
+    def update_all_choice(self, *obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        if current_index in [1, 2]:
+            self.update_event_choice()
+        elif current_index == 3:
+            self.update_attribute_choice()
+
+    def update_attribute_choice(self, *obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        if current_index == 3:
+            current_value = self.attribute_selector.get_active_text()
+            if self.all_matches.get_active():
+                current_option = "True"
+            else:
+                current_option = "False"
+            save_config_option(
+                self.config,
+                self.option,
+                self.user_field_types[current_index],
+                "{}:{}".format(self.attribute_itoe[current_value], current_option),
                 dbid=self.dbid
             )
 
@@ -822,15 +872,25 @@ class FrameFieldSelector(Gtk.HBox):
     def hide_button(self, obj):
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 3:
+        if current_index != 4:
             self.relation_selector.hide()
 
-    def hide_selector(self, obj):
+    def hide_event_selector(self, obj):
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
         if current_index not in [1, 2]:
             self.event_selector.hide()
-            self.event_matches.hide()
+            if current_index != 3:
+                self.all_matches.hide()
+
+    def hide_attribute_selector(self, obj):
+        current_type_lang = self.type_selector.get_active_text()
+        current_index = self.user_field_types_lang.index(current_type_lang)
+        if current_index != 3:
+            self.attribute_selector.hide()
+            if current_index not in [1, 2]:
+                self.all_matches.hide()
+
 
 class ConfigReset(Gtk.Button):
     """
