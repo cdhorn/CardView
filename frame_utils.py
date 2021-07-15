@@ -683,9 +683,9 @@ class FrameFieldSelector(Gtk.HBox):
             self.dbid = self.dbstate.db.get_dbid()
 
         if text:
-            label_text = "{} {}".format(text, number)
+            label_text = "{} {}:".format(text, number)
         else:
-            label_text = "{} {}".format(_("Field"), number)
+            label_text = "{} {}:".format(_("Field"), number)
         label = Gtk.Label(label=label_text)
         self.pack_start(label, False, False, 0)
         self.type_selector = Gtk.ComboBoxText()

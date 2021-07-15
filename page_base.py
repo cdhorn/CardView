@@ -97,16 +97,14 @@ class BaseProfilePage(Callback):
         """
         count = 1
         row = start_row
-        text = _("Facts field")
         key = "facts-field"
         if extra:
-            text = _("Extra field")
             key = "extra-field"
         while row < start_row + number:
             option = "{}.{}-{}".format(space, key, count)
             user_select = FrameFieldSelector(
                 option, self.config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.defaults, text=text
+                dbid=True, defaults=self.defaults
             )
             grid.attach(user_select, start_col, row, 2, 1)
             count = count + 1
@@ -126,20 +124,20 @@ class BaseProfilePage(Callback):
         )
         row = row + 1
 
-    def _config_metadata_attributes(self, grid, space, start_row, start_col=1, number=8):
+    def _config_metadata_attributes(self, grid, space, start_row, start_col=1, number=8, obj_type="Person"):
         """
-        Build metadata custom attribute configuration section.
+        Build metadata display field configuration section.
         """
         count = 1
         row = start_row
         while row < start_row + number:
             option = "{}.metadata-attribute-{}".format(space, count)
             attr_select = AttributeSelector(
-                option, self.config, self.dbstate.db, "Person", dbid=True,
-                tooltip=_("This option allows you to select the name of a custom user defined attribute about the person. The value of the attribute, if one is found, will then be displayed in the metadata section of the user frame beneath the Gramps Id.")
+                option, self.config, self.dbstate.db, obj_type, dbid=True,
+                tooltip=_("This option allows you to select the name of an attribute. The value of the attribute, if one is found, will then be displayed in the metadata section of the frame beneath the Gramps Id.")
             )
             label = Gtk.Label(
-                halign=Gtk.Align.START, label="{} {}: ".format(_("Metadata attribute"), count)
+                halign=Gtk.Align.START, label="{} {}: ".format(_("Field"), count)
             )
             grid.attach(label, start_col, row, 1, 1)
             grid.attach(attr_select, start_col + 1, row, 1, 1)

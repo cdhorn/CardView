@@ -356,7 +356,7 @@ class SourceProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
         self._config_facts_fields(configdialog, grid, "preferences.profile.source.people", 12)
-        configdialog.add_text(grid, _("Metadata Display Custom Attributes"), 11, start=3, bold=True)
+        configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.source.people", 12, start_col=3)
         reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
