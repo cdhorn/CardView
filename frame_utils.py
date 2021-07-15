@@ -49,6 +49,7 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import HandleError
 from gramps.gen.lib import (
+    AttributeType,
     Citation,
     Event,
     EventType,
@@ -574,8 +575,63 @@ def get_attribute_types(db, obj_type):
         return db.get_source_attribute_types()
     if obj_type == "Citation":
         return db.get_source_attribute_types()
+    return []
 
-    
+
+def get_attribute_maps(db, obj_type):
+    """
+    Return forward and reverse language mappings for attribute types.
+    """
+    etoi = {}
+    itoe = {}
+    inames = []
+    enames = []
+    for attribute_type in AttributeType().get_standard_names():
+        inames.append(attribute_type)
+    for attribute_type in AttributeType().get_standard_xml():
+        enames.append(attribute_type)
+    while len(enames) > 0:
+        etoi.update({enames[0]: inames[0]})
+        itoe.update({inames[0]: enames[0]})
+        del enames[0]
+        del inames[0]
+
+    for attribute in get_attribute_types(db, obj_type):
+        etoi.update({attribute: attribute})
+        itoe.update({attribute: attribute})
+    if "None" not in etoi:
+        etoi.update({"None": _("None")})
+        itoe.update({_("None"): "None"})
+    return etoi, itoe
+
+
+def get_event_maps(db):
+    """
+    Return forward and reverse language mappings for event types.
+    """
+    etoi = {}
+    itoe = {}
+    inames = []
+    enames = []
+    for event_type in EventType().get_standard_names():
+        inames.append(event_type)
+    for event_type in EventType().get_standard_xml():
+        enames.append(event_type)
+    while len(enames) > 0:
+        etoi.update({enames[0]: inames[0]})
+        itoe.update({inames[0]: enames[0]})
+        del enames[0]
+        del inames[0]
+
+    for event in db.get_event_types():
+        etoi.update({event: event})
+        itoe.update({event: event})
+    if "None" not in etoi:
+        etoi.update({"None": _("None")})
+        itoe.update({_("None"): "None"})
+    return etoi, itoe
+
+
 class AttributeSelector(Gtk.ComboBoxText):
     """
     An attribute selector for the configdialog.
@@ -589,19 +645,17 @@ class AttributeSelector(Gtk.ComboBoxText):
         if dbid:
             self.dbid = db.get_dbid()
 
-        self.attributes = get_attribute_types(db, obj_type)
-        if "None" not in self.attributes:
-            self.attributes.append("None")
-        self.attributes.sort()
-        for attribute_type in self.attributes:
+        self.etoi, self.itoe = get_attribute_maps(db, obj_type)
+        attribute_names = sorted(self.itoe.keys())
+        for attribute_type in attribute_names:
             self.append_text(attribute_type)
 
         current_option = get_config_option(self.config, self.option, dbid=self.dbid)
         current_value = "None"
         if current_option and len(current_option) >= 2:
             current_value = current_option[1]
-        if current_value in self.attributes:
-            current_index = self.attributes.index(current_value)
+        if current_value in self.etoi:
+            current_index = attribute_names.index(self.etoi[current_value])
         self.set_active(current_index)
         self.connect("changed", self.update)
         if tooltip:
@@ -609,7 +663,7 @@ class AttributeSelector(Gtk.ComboBoxText):
 
     def update(self, obj):
         current_value = self.get_active_text()
-        save_config_option(self.config, self.option, "Attribute", current_value, dbid=self.dbid)
+        save_config_option(self.config, self.option, "Attribute", self.itoe[current_value], dbid=self.dbid)
 
 
 class FrameFieldSelector(Gtk.HBox):
@@ -651,6 +705,12 @@ class FrameFieldSelector(Gtk.HBox):
         for option in self.user_field_types_lang:
             self.type_selector.append_text(option)
 
+        self.attribute_etoi, self.attribute_itoe = get_attribute_maps(self.dbstate.db, "Person")
+        self.attribute_names = sorted(self.attribute_itoe.keys())
+
+        self.event_etoi, self.event_itoe = get_event_maps(self.dbstate.db)
+        self.event_names = sorted(self.event_itoe.keys())
+
         user_type = "None"
         user_value = ""
         user_option = False
@@ -670,23 +730,14 @@ class FrameFieldSelector(Gtk.HBox):
         self.type_selector.set_active(current_index)
         self.type_selector.set_tooltip_text(_("All person facts displayed are user configurable and they may be populated with event, fact or relation data in a number of different combinations. Not all combinations may make sense, but this mechanism allows the user to tailor the view to their needs. Note fact and event types are the same, the difference between them is that for an event the date and place are displayed while for a fact the event description is displayed. So a baptism is an event while an occupation can be thought of as a fact."))
 
-        self.event_types = []
-        self.event_types_lang = []
-        for event_type in EventType().get_standard_names():
-            self.event_types.append(event_type)
-        for event_type in EventType().get_standard_xml():
-            self.event_types_lang.append(event_type)
-        for custom_type in self.dbstate.db.get_event_types():
-            self.event_types.append(custom_type)
-            self.event_types_lang.append(custom_type)
-        for event_type in self.event_types_lang:
+        for event_type in self.event_names:
             self.event_selector.append_text(event_type)
         self.event_matches.set_tooltip_text(_("Enabling this option will enable the display of all matching event or fact types found. This is generally undesirable for most things, but in the active person header may be useful if they held multiple occupations and you wanted that information available at a glance."))
 
         if current_index in [1, 2]:
             self.relation_selector.hide()
-            if user_value in self.event_types:
-                current_index = self.event_types.index(user_value)
+            if self.event_etoi[user_value] in self.event_names:
+                current_index = self.event_names.index(self.event_etoi[user_value])
                 self.event_selector.set_active(current_index)
                 self.event_matches.set_active(user_option)
         elif current_index == 3:
@@ -715,7 +766,7 @@ class FrameFieldSelector(Gtk.HBox):
         save_config_option(self.config, self.option, current_type, "", dbid=self.dbid)
         if current_type in ["Event", "Fact"]:
             self.relation_selector.hide()
-            current_index = self.event_types.index("Unknown")
+            current_index = self.event_names.index(self.event_etoi["Unknown"])
             self.event_selector.set_active(current_index)
             self.event_matches.set_active(False)
             self.event_selector.show()
@@ -747,7 +798,7 @@ class FrameFieldSelector(Gtk.HBox):
                 self.config,
                 self.option,
                 self.user_field_types[current_index],
-                "{}:{}".format(current_value, current_option),
+                "{}:{}".format(self.event_itoe[current_value], current_option),
                 dbid=self.dbid
             )
 
@@ -770,7 +821,7 @@ class FrameFieldSelector(Gtk.HBox):
 
     def hide_button(self, obj):
         current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types.index(current_type_lang)
+        current_index = self.user_field_types_lang.index(current_type_lang)
         if current_index != 3:
             self.relation_selector.hide()
 

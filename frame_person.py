@@ -150,6 +150,9 @@ class PersonGrampsFrame(GrampsFrame):
         if self.context == "active":
             self.load_fields("extra-field", extra=True)
 
+        while len(self.event_cache) > 0:
+            del self.event_cache[0]
+
         values = self.get_metadata_attributes()
         if values:
             for value in values:
@@ -168,9 +171,9 @@ class PersonGrampsFrame(GrampsFrame):
         have_birth = False
         have_death = False
         for event in self.event_cache:
-            if event.get_type() == "Birth":
+            if event.get_type().xml_str() == "Birth":
                 have_birth = True
-            elif event.get_type() == "Death":
+            elif event.get_type().xml_str() == "Death":
                 have_death = True
 
         count = 1
@@ -209,7 +212,7 @@ class PersonGrampsFrame(GrampsFrame):
         Find an event and load the data.
         """
         for event in self.event_cache:
-            if event.get_type() == event_type:
+            if event.get_type().xml_str() == event_type:
                 if skip_birth and have_birth:
                     if event_type in _BIRTH_EQUIVALENTS:
                         return
@@ -225,7 +228,7 @@ class PersonGrampsFrame(GrampsFrame):
         Find an event and load the data.
         """
         for event in self.event_cache:
-            if event.get_type() == event_type:
+            if event.get_type().xml_str() == event_type:
                 if event.get_description():
                     label = self.make_label(event_type)
                     fact = self.make_label(event.get_description())
@@ -270,7 +273,7 @@ class PersonGrampsFrame(GrampsFrame):
             option = self.option(self.context, "metadata-attribute-{}".format(number), full=False, keyed=True)
             if option and option[0] == "Attribute" and len(option) >= 2 and option[1]:
                 for attribute in self.obj.get_attribute_list():
-                    if attribute.get_type() == option[1]:
+                    if attribute.get_type().xml_str() == option[1]:
                         if attribute.get_value():
                             values.append(attribute.get_value())
                         break
