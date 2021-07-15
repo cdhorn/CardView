@@ -72,7 +72,7 @@ class ProfileView(ENavigationView):
         self.child = None
         self.scroll = None
         self.viewport = None
-        self.dirty = False
+        self.dirty = True
         self.redrawing = False
         self.active_type = None
         self.loaded = False
@@ -87,7 +87,7 @@ class ProfileView(ENavigationView):
         self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
-        
+
     def _add_page(self, page):
         page.connect('object-changed', self.object_changed)
         page.connect('copy-to-clipboard', self.clipboard_copy)
@@ -423,9 +423,28 @@ class ProfileView(ENavigationView):
         self.dirty = True
         active_object = self.get_active()
         if active_object:
-            self.change_object(active_object)
-        else:
-            self.change_object(None)
+            return self.change_object(active_object)
+        last = self._get_last()
+        if last:
+            self.history.push(tuple(last))
+            self.loaded = True
+            return self.change_object(last)
+        self.change_object(None)
+
+    def _get_last(self):
+        dbid = self.dbstate.db.get_dbid()
+        if not dbid:
+            return None
+        try:
+            obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
+        except ValueError:
+            return None
+        if not obj_tuple:
+            initial_person = self.dbstate.db.find_initial_person()
+            if not initial_person:
+                return None
+            obj_tuple = ('Person', initial_person.get_handle())
+        return obj_tuple
 
     def clipboard_copy(self, data, handle):
         return self.copy_to_clipboard(data, [handle])
@@ -444,20 +463,8 @@ class ProfileView(ENavigationView):
             return False
 
         if obj_tuple is None:
-            if not self.active_page and not self.loaded:
-                return self._clear_change()
-            dbid = self.dbstate.db.get_dbid()
-            if not dbid:
-                return self._clear_change()
-            try:
-                obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
-                if not obj_tuple:
-                    initial_person = self.dbstate.db.find_initial_person()
-                    if initial_person:
-                        obj_tuple = ('Person', initial_person.get_handle())
-                    else:
-                        return self._clear_change()
-            except ValueError:
+            obj_tuple = self._get_last()
+            if not obj_tuple:
                 return self._clear_change()
             self.history.push(tuple(obj_tuple))
             self.loaded = True
