@@ -303,6 +303,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.build_default_layout()
 
         self.metadata.pack_start(self.get_gramps_id_label(), expand=False, fill=False, padding=0)
+        values = self.get_metadata_attributes()
+        if values:
+            for value in values:
+                label = self.make_label(value, left=False)
+                self.metadata.pack_start(label, False, False, 0)
+
         flowbox = self.get_tags_flowbox()
         if flowbox:
             self.tags.pack_start(flowbox, expand=True, fill=True, padding=0)
@@ -575,7 +581,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build the label for a gramps id including lock icon if object marked private.
         """
-        label = Gtk.Label(use_markup=True, label=self.markup.format(self.obj.gramps_id.replace('&', '&amp;')))
+        label = Gtk.Label(use_markup=True, label=self.markup.format(escape(self.obj.gramps_id)))
         hbox = Gtk.HBox()
         hbox.pack_end(label, False, False, 0)
         if self.obj.private:
@@ -630,14 +636,31 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         flowbox.show_all()
         return flowbox
 
+    def get_metadata_attributes(self):
+        """
+        Return a list of values for any user defined metadata attributes.
+        """
+        values = []
+        number = 1
+        while number <= 8:
+            option = self.option(self.context, "metadata-attribute-{}".format(number), full=False, keyed=True)
+            if option and option[0] == "Attribute" and len(option) >= 2 and option[1]:
+                for attribute in self.obj.get_attribute_list():
+                    if attribute.get_type().xml_str() == option[1]:
+                        if attribute.get_value():
+                            values.append(attribute.get_value())
+                        break
+            number = number + 1
+        return values
+
     def route_action(self, obj, event):
         """
         Route the action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
             self.build_action_menu(obj, event)
-        elif button_activated(event, _LEFT_BUTTON):
-            self.build_view_menu(obj, event)
+        elif not button_activated(event, _LEFT_BUTTON):
+            self.switch_object(None, None, self.obj_type, self.obj.get_handle())
 
     def build_action_menu(self, obj, event):
         """

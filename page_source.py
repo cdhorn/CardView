@@ -259,6 +259,8 @@ class SourceProfilePage(BaseProfilePage):
             5, "preferences.profile.source.active.tag-width",
             (1, 20)
         )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.source.active", 16, start_col=1, number=4, obj_type="Source")
         reset = ConfigReset(configdialog, self.config, "preferences.profile.source.active", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
@@ -315,8 +317,10 @@ class SourceProfilePage(BaseProfilePage):
             14, "preferences.profile.source.citation.show-confidence",
             tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.source.citation", 16, start_col=1, number=4, obj_type="Citation")
         reset = ConfigReset(configdialog, self.config, "preferences.profile.source.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
-        grid.attach(reset, 1, 20, 1, 1)
+        grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
     def people_panel(self, configdialog):

@@ -152,12 +152,6 @@ class PersonGrampsFrame(GrampsFrame):
 
         while len(self.event_cache) > 0:
             del self.event_cache[0]
-
-        values = self.get_metadata_attributes()
-        if values:
-            for value in values:
-                label = self.make_label(value, left=False)
-                self.metadata.pack_start(label, False, False, 0)
         self.set_css_style()
 
     def load_fields(self, field_type, extra=False):
@@ -277,23 +271,6 @@ class PersonGrampsFrame(GrampsFrame):
         if text:
             label = self.make_label(text)
             self.add_fact(label, extra=extra)
-
-    def get_metadata_attributes(self):
-        """
-        Return a list of values for any user defined metadata attributes.
-        """
-        values = []
-        number = 1
-        while number <= 8:
-            option = self.option(self.context, "metadata-attribute-{}".format(number), full=False, keyed=True)
-            if option and option[0] == "Attribute" and len(option) >= 2 and option[1]:
-                for attribute in self.obj.get_attribute_list():
-                    if attribute.get_type().xml_str() == option[1]:
-                        if attribute.get_value():
-                            values.append(attribute.get_value())
-                        break
-            number = number + 1
-        return values
 
     def get_color_css(self):
         """

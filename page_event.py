@@ -259,6 +259,8 @@ class EventProfilePage(BaseProfilePage):
             5, "preferences.profile.event.active.tag-width",
             (1, 20)
         )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.event.active", 12, start_col=1, number=4, obj_type="Event")
         reset = ConfigReset(configdialog, self.config, "preferences.profile.event.active", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Event"), grid
@@ -332,6 +334,8 @@ class EventProfilePage(BaseProfilePage):
             5, "preferences.profile.event.family.tag-width",
             (1, 20),
         )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.event.family", 12, start_col=1, number=4, obj_type="Family")
         reset = ConfigReset(configdialog, self.config, "preferences.profile.event.family", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Family"), grid

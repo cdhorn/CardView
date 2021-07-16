@@ -252,6 +252,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.timeline.show-citation-count", True),
     ("preferences.profile.person.timeline.show-best-confidence", True),
     ("preferences.profile.person.timeline.show-age", True),
+    ("preferences.profile.person.timeline.metadata-attribute-1", "None"),
+    ("preferences.profile.person.timeline.metadata-attribute-2", "None"),
+    ("preferences.profile.person.timeline.metadata-attribute-3", "None"),
+    ("preferences.profile.person.timeline.metadata-attribute-4", "None"),
     ("preferences.profile.person.timeline.show-class-vital", True),
     ("preferences.profile.person.timeline.show-class-family", True),
     ("preferences.profile.person.timeline.show-class-religious", True),
@@ -296,6 +300,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.citation.show-reference-type", True),
     ("preferences.profile.person.citation.show-reference-description", True),
     ("preferences.profile.person.citation.show-confidence", True),
+    ("preferences.profile.person.citation.metadata-attribute-1", "None"),
+    ("preferences.profile.person.citation.metadata-attribute-2", "None"),
+    ("preferences.profile.person.citation.metadata-attribute-3", "None"),
+    ("preferences.profile.person.citation.metadata-attribute-4", "None"),
     ######################################################################
     # Event Page Options
     ######################################################################
@@ -314,6 +322,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.active.image-mode", 3),
     ("preferences.profile.event.active.tag-format", 1),
     ("preferences.profile.event.active.tag-width", 10),
+    ("preferences.profile.event.active.metadata-attribute-1", "None"),
+    ("preferences.profile.event.active.metadata-attribute-2", "None"),
+    ("preferences.profile.event.active.metadata-attribute-3", "None"),
+    ("preferences.profile.event.active.metadata-attribute-4", "None"),
     # Individual Participants
     ("preferences.profile.event.people.event-format", 1),
     ("preferences.profile.event.people.show-age", False),
@@ -344,6 +356,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.family.image-mode", 1),
     ("preferences.profile.event.family.tag-format", 1),
     ("preferences.profile.event.family.tag-width", 10),
+    ("preferences.profile.event.family.metadata-attribute-1", "None"),
+    ("preferences.profile.event.family.metadata-attribute-2", "None"),
+    ("preferences.profile.event.family.metadata-attribute-3", "None"),
+    ("preferences.profile.event.family.metadata-attribute-4", "None"),
     ######################################################################
     # Source Page Options
     ######################################################################
@@ -362,6 +378,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.active.image-mode", 3),
     ("preferences.profile.source.active.tag-format", 1),
     ("preferences.profile.source.active.tag-width", 10),
+    ("preferences.profile.source.active.metadata-attribute-1", "None"),
+    ("preferences.profile.source.active.metadata-attribute-2", "None"),
+    ("preferences.profile.source.active.metadata-attribute-3", "None"),
+    ("preferences.profile.source.active.metadata-attribute-4", "None"),
     # Source Citations
     ("preferences.profile.source.citation.tag-format", 1),
     ("preferences.profile.source.citation.tag-width", 10),
@@ -372,6 +392,10 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.citation.show-reference-type", True),
     ("preferences.profile.source.citation.show-reference-description", True),
     ("preferences.profile.source.citation.show-confidence", True),
+    ("preferences.profile.source.citation.metadata-attribute-1", "None"),
+    ("preferences.profile.source.citation.metadata-attribute-2", "None"),
+    ("preferences.profile.source.citation.metadata-attribute-3", "None"),
+    ("preferences.profile.source.citation.metadata-attribute-4", "None"),
     # People Referenced
     ("preferences.profile.source.people.event-format", 1),
     ("preferences.profile.source.people.show-age", False),
@@ -408,5 +432,9 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.events.show-source-count", True),
     ("preferences.profile.source.events.show-citation-count", True),
     ("preferences.profile.source.events.show-best-confidence", True),
+    ("preferences.profile.source.events.metadata-attribute-1", "None"),
+    ("preferences.profile.source.events.metadata-attribute-2", "None"),
+    ("preferences.profile.source.events.metadata-attribute-3", "None"),
+    ("preferences.profile.source.events.metadata-attribute-4", "None"),
 
 )
