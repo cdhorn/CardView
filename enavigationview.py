@@ -497,7 +497,7 @@ class ENavigationView(PageView):
                     match_primary_mask(event.get_state())):
                     self.call_copy()
                     return True
-        return super(NavigationView, self).key_press_handler(widget, event)
+        return super(ENavigationView, self).key_press_handler(widget, event)
 
     def call_copy(self):
         """
