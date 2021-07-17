@@ -54,10 +54,11 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from frame_base import button_activated
 from frame_groups import (
-    get_parent_profiles,
-    get_spouse_profiles,
-    get_citation_profiles,
-    get_timeline_profiles,
+    get_citation_group,
+    get_media_group,
+    get_parents_group,
+    get_spouses_group,
+    get_timeline_group,
 )
 from frame_person import PersonGrampsFrame
 from frame_utils import (
@@ -134,7 +135,7 @@ class PersonProfilePage(BaseProfilePage):
 
         body = Gtk.HBox(expand=True, spacing=3)
         parents_box = Gtk.VBox(spacing=3)
-        parents = get_parent_profiles(
+        parents = get_parents_group(
             self.dbstate,
             self.uistate,
             person,
@@ -146,7 +147,7 @@ class PersonProfilePage(BaseProfilePage):
             parents_box.pack_start(parents, expand=False, fill=False, padding=0)
 
         spouses_box = Gtk.VBox(spacing=3)
-        spouses = get_spouse_profiles(
+        spouses = get_spouses_group(
             self.dbstate,
             self.uistate,
             person,
@@ -159,7 +160,7 @@ class PersonProfilePage(BaseProfilePage):
 
         if self.config.get("preferences.profile.person.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
-            timeline = get_timeline_profiles(
+            timeline = get_timeline_group(
                 self.dbstate,
                 self.uistate,
                 person,
@@ -171,7 +172,7 @@ class PersonProfilePage(BaseProfilePage):
 
         if self.config.get("preferences.profile.person.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
-            citations = get_citation_profiles(
+            citations = get_citation_group(
                 self.dbstate,
                 self.uistate,
                 person,
@@ -181,6 +182,19 @@ class PersonProfilePage(BaseProfilePage):
             )
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
+
+        if self.config.get("preferences.profile.person.layout.show-media"):
+            media_box = Gtk.VBox(spacing=3)
+            media = get_media_group(
+                self.dbstate,
+                self.uistate,
+                person,
+                self.callback_router,
+                "preferences.profile.person",
+                self.config,
+            )
+            if media is not None:
+                media_box.pack_start(media, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.person.layout.families-stacked"):
             families_box = Gtk.VBox(spacing=3)
@@ -192,6 +206,8 @@ class PersonProfilePage(BaseProfilePage):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
+            if self.config.get("preferences.profile.person.layout.show-media"):
+                body.pack_start(media_box, expand=True, fill=True, padding=0)
             if not self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
         else:
@@ -203,6 +219,8 @@ class PersonProfilePage(BaseProfilePage):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
+            if self.config.get("preferences.profile.person.layout.show-media"):
+                body.pack_start(media_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
             else:
@@ -866,6 +884,39 @@ class PersonProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
+    def media_panel(self, configdialog):
+        """
+        Builds media options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.person.media.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.person.media.tag-width",
+            (1, 20),
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort media by date"),
+            4, "preferences.profile.person.media.sort-by-date",
+            tooltip=_("Enabling this option will sort the media by date.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "preferences.profile.person.media.show-date",
+            tooltip=_("Enabling this option will show the media date if it is available.")
+        )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.person.media", 16, start_col=1, number=4, obj_type="Media")
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.media", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Media"), grid
+
     def color_panel(self, configdialog):
         """
         Add the tab to set defaults colors for graph boxes.
@@ -1035,6 +1086,7 @@ class PersonProfilePage(BaseProfilePage):
             self.children_panel,
             self.timeline_panel,
             self.citations_panel,
+            self.media_panel,
         ]
 
     def edit_active(self, *obj):

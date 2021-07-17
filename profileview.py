@@ -123,6 +123,10 @@ class ProfileView(ENavigationView):
         self.callman.add_db_signal('citation-add',    self.redraw)
         self.callman.add_db_signal('citation-delete', self.redraw)
         self.callman.add_db_signal('citation-rebuild', self.redraw)
+        self.callman.add_db_signal('media-update', self.redraw)
+        self.callman.add_db_signal('media-add',    self.redraw)
+        self.callman.add_db_signal('media-delete', self.redraw)
+        self.callman.add_db_signal('media-rebuild', self.redraw)
 
     def navigation_type(self):
         return self.active_type

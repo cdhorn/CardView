@@ -50,7 +50,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citation_profiles
+from frame_groups import get_citation_group
 from frame_source import SourceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -102,7 +102,7 @@ class SourceProfilePage(BaseProfilePage):
         )
 
         citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_profiles(
+        citations = get_citation_group(
             self.dbstate,
             self.uistate,
             source,

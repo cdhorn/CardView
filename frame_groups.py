@@ -40,10 +40,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_sources import SourcesGrampsFrameGroup
 from frame_children import ChildrenGrampsFrameGroup
-from frame_timeline import TimelineGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
+from frame_media import MediaGrampsFrameGroup
+from frame_sources import SourcesGrampsFrameGroup
+from frame_timeline import TimelineGrampsFrameGroup
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -52,11 +53,10 @@ except ValueError:
 _ = _trans.gettext
 
 
-def get_parent_profiles(dbstate, uistate, person, router, config=None, defaults=None):
+def get_parents_group(dbstate, uistate, person, router, config=None, defaults=None):
     """
     Get all the parents and siblings for a person.
     """
-
     parents = None
     primary_handle = person.get_main_parents_family_handle()
     if primary_handle:
@@ -144,12 +144,10 @@ def get_parent_profiles(dbstate, uistate, person, router, config=None, defaults=
             elements.add(couple)
     return parents
 
-
-def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=None):
+def get_spouses_group(dbstate, uistate, person, router, config=None, defaults=None):
     """
     Get all the spouses and children for a person.
     """
-
     spouses = None
     for handle in person.family_list:
         if spouses is None:
@@ -199,8 +197,7 @@ def get_spouse_profiles(dbstate, uistate, person, router, config=None, defaults=
         elements.pack_start(couple, True, True, 0)
     return spouses
 
-
-def get_citation_profiles(dbstate, uistate, obj, router, space, config, sources=True):
+def get_citation_group(dbstate, uistate, obj, router, space, config, sources=True):
     """
     Get all the cited sources associated with an object.
     """
@@ -209,31 +206,53 @@ def get_citation_profiles(dbstate, uistate, obj, router, space, config, sources=
         return None
 
     if sources:
+        text = _("Cited Sources")
         if len(group) == 1:
             text = _("Cited Source")
-        else:
-            text = _("Cited Sources")
     else:
+        text = _("Citations")
         if len(group) == 1:
             text = _("Citation")
-        else:
-            text = _("Citations")
+
     sources = Gtk.Expander(expanded=True, use_markup=True)
     sources.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     sources.add(group)
     return sources
 
-
-def get_timeline_profiles(dbstate, uistate, obj, router, config=None, space="preferences.profile.person"):
+def get_timeline_group(dbstate, uistate, obj, router, config=None, space="preferences.profile.person", title=None):
     """
-    Get a timeline view of events in the life of a person.
+    Get a timeline of events associated with an object.
     """
-
     group = TimelineGrampsFrameGroup(dbstate, uistate, router, obj, config=config, space=space)
     if not group.count:
         return None
 
+    text = _("Timeline Events")
+    if len(group) == 1:
+        text = _("Timeline Event")
+    if title:
+        text = title
+
     timeline = Gtk.Expander(expanded=True, use_markup=True)
-    timeline.set_label("<small><b>{}</b></small>".format(_("Timeline")))
+    timeline.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     timeline.add(group)
     return timeline
+
+def get_media_group(dbstate, uistate, obj, router, space, config, title=None):
+    """
+    Get all the media items associated with an object.
+    """
+    group = MediaGrampsFrameGroup(dbstate, uistate, router, obj, space, config)
+    if len(group) == 0:
+        return None
+
+    text = _("Media Items")
+    if len(group) == 1:
+        text = _("Media Item")
+    if title:
+        text = title
+
+    media = Gtk.Expander(expanded=True, use_markup=True)
+    media.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    media.add(group)
+    return media

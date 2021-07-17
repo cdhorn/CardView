@@ -62,6 +62,8 @@ from gramps.gui.editors import (
     EditEvent,
     EditEventRef,
     EditFamily,
+    EditMedia,
+    EditMediaRef,
     EditNote,
     EditPerson,
     EditPlace,
@@ -79,6 +81,7 @@ from gramps.gen.lib import (
     EventRoleType,
     EventType,
     Family,
+    Media,
     Name,
     Note,
     Person,
@@ -118,6 +121,7 @@ _EDITORS = {
     "Citation": EditCitation,
     "Event": EditEvent,
     "Family": EditFamily,
+    "Media": EditMedia,
     "Note": EditNote,
     "Person": EditPerson,
     "Place": EditPlace,
@@ -1509,21 +1513,29 @@ class ImageFrame(Gtk.Frame):
         Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
         self.dbstate = dbstate
         self.uistate = uistate
-        media = obj.get_media_list()
-        if media:
-            thumbnail = self.get_thumbnail(media[0], size)
+        if isinstance(obj, Media):
+            thumbnail = self.get_thumbnail(obj, None, size)
+            self.add(thumbnail)
+            return
+        if obj.get_media_list():
+            thumbnail = self.get_thumbnail(None, obj.get_media_list()[0], size)
             if thumbnail:
                 self.add(thumbnail)
 
-    def get_thumbnail(self, media_ref, size):
+    def get_thumbnail(self, media, media_ref, size):
         """
         Get the thumbnail image.
         """
-        mobj = self.dbstate.db.get_media_from_handle(media_ref.ref)
+        mobj = media
+        if not mobj:
+            mobj = self.dbstate.db.get_media_from_handle(media_ref.ref)
         if mobj and mobj.get_mime_type()[0:5] == "image":
+            rectangle=None
+            if media_ref:
+                media_ref.get_rectangle()
             pixbuf = get_thumbnail_image(
                 media_path_full(self.dbstate.db, mobj.get_path()),
-                rectangle=media_ref.get_rectangle(),
+                rectangle=rectangle,
                 size=size,
             )
             image = Gtk.Image()

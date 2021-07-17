@@ -54,10 +54,9 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from frame_base import button_activated
 from frame_groups import (
-    get_parent_profiles,
-    get_spouse_profiles,
-    get_citation_profiles,
-    get_timeline_profiles,
+    get_citation_group,
+    get_media_group,
+    get_timeline_group,
 )
 from frame_person import PersonGrampsFrame
 from frame_couple import CoupleGrampsFrame
@@ -184,7 +183,7 @@ class FamilyProfilePage(BaseProfilePage):
         gbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3)
         if self.config.get("preferences.profile.family.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
-            timeline = get_timeline_profiles(
+            timeline = get_timeline_group(
                 self.dbstate,
                 self.uistate,
                 family,
@@ -198,7 +197,7 @@ class FamilyProfilePage(BaseProfilePage):
             
         if self.config.get("preferences.profile.family.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
-            citations = get_citation_profiles(
+            citations = get_citation_group(
                 self.dbstate,
                 self.uistate,
                 family,

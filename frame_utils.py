@@ -54,6 +54,7 @@ from gramps.gen.lib import (
     Event,
     EventType,
     Family,
+    Media,
     Note,
     Person,
     Place,
@@ -160,6 +161,8 @@ def get_gramps_object_type(obj):
         return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
     elif isinstance(obj, Note):
         return "Note", DdTargets.NOTE_LINK, 'gramps-notes'
+    elif isinstance(obj, Media):
+        return "Media", DdTargets.MEDIAOBJ, 'gramps-media'
     
 def format_date_string(event1, event2):
     """
