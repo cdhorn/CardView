@@ -224,12 +224,12 @@ def get_citation_profiles(dbstate, uistate, obj, router, space, config, sources=
     return sources
 
 
-def get_timeline_profiles(dbstate, uistate, person, router, config=None):
+def get_timeline_profiles(dbstate, uistate, obj, router, config=None, space="preferences.profile.person"):
     """
     Get a timeline view of events in the life of a person.
     """
 
-    group = TimelineGrampsFrameGroup(dbstate, uistate, router, person, config)
+    group = TimelineGrampsFrameGroup(dbstate, uistate, router, obj, config=config, space=space)
     if not group.count:
         return None
 

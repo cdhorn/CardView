@@ -59,6 +59,7 @@ from frame_utils import (
     get_event_category_color_css,
     get_key_person_events,
     get_participants,
+    get_relation,
     get_person_color_css,
     get_relationship_color_css,
     TextLink,
@@ -116,27 +117,30 @@ class EventGrampsFrame(GrampsFrame):
                 target_person = reference_person
             else:
                 target_person = event_person
-            key_events = get_key_person_events(
-                self.dbstate.db, target_person, birth_only=True
-            )
-            birth = key_events["birth"]
+            try:
+                key_events = get_key_person_events(
+                    self.dbstate.db, target_person, birth_only=True
+                )
+                birth = key_events["birth"]
 
-            if birth and birth.date and event.date:
-                span = Span(birth.date, event.date)
-                if span.is_valid():
-                    year = event.date.get_year()
-                    if birth.handle == event.handle:
-                        text = "<b>{}</b>".format(year)
-                    else:
-                        precision = global_config.get("preferences.age-display-precision")
-                        age = str(span.format(precision=precision).strip("()"))
-                        text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
-                    label = Gtk.Label(
-                        label=self.markup.format(text),
-                        use_markup=True,
-                        justify=Gtk.Justification.CENTER,
-                    )
-                    self.age.pack_start(label, False, False, 0)
+                if birth and birth.date and event.date:
+                    span = Span(birth.date, event.date)
+                    if span.is_valid():
+                        year = event.date.get_year()
+                        if birth.handle == event.handle:
+                            text = "<b>{}</b>".format(year)
+                        else:
+                            precision = global_config.get("preferences.age-display-precision")
+                            age = str(span.format(precision=precision).strip("()"))
+                            text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                        label = Gtk.Label(
+                            label=self.markup.format(text),
+                            use_markup=True,
+                            justify=Gtk.Justification.CENTER,
+                        )
+                        self.age.pack_start(label, False, False, 0)
+            except AttributeError:
+                pass
 
         if event_ref:
             role = self.event_ref.get_role()
@@ -155,7 +159,7 @@ class EventGrampsFrame(GrampsFrame):
             participant_name = "Unknown"
             participant_handle = ""
             participants, participant_string = get_participants(self.dbstate.db, event)
-            for participant, participant_event_ref in participants:
+            for participant_type, participant, participant_event_ref in participants:
                 if participant_event_ref.get_role().is_primary():
                     participant_name = name_displayer.display(participant)
                     participant_handle = participant.get_handle()
@@ -343,11 +347,12 @@ class EventGrampsFrame(GrampsFrame):
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             participant_list = []
-            for person, event_ref in participants:
-                name = name_displayer.display(person)
-                role = str(event_ref.get_role())
-                text = "{}: {}".format(role, name)
-                participant_list.append((text, person, event_ref))
+            for obj_type, obj, event_ref in participants:
+                if obj_type == "Person":
+                    name = name_displayer.display(obj)
+                    role = str(event_ref.get_role())
+                    text = "{}: {}".format(role, name)
+                    participant_list.append((text, obj, event_ref))
             participant_list.sort(key=lambda x: x[0])
             for (text, person, event_ref) in participant_list:
                 handle = person.get_handle()

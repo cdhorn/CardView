@@ -45,6 +45,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from frame_event import EventGrampsFrame
 from frame_list import GrampsFrameList
+from frame_utils import get_gramps_object_type
 from timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 
 try:
@@ -70,11 +71,13 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         dbstate,
         uistate,
         router,
-        person,
+        obj,
         config=None,
         space="preferences.profile.person",
     ):
         GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
+        self.obj = obj
+        self.obj_type, skip1, skip2 = get_gramps_object_type(obj)
         self.count = 0
         self.categories = []
         self.relations = []
@@ -86,11 +89,18 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         self.timeline = Timeline(
             self.dbstate.db, events=self.categories, relatives=self.relations, relative_events=self.relation_categories
         )
-        self.timeline.set_person(
-            person.handle,
-            ancestors=self.ancestors,
-            offspring=self.offspring,
-        )
+        if self.obj_type == "Person":
+            self.timeline.set_person(
+                obj.get_handle(),
+                ancestors=self.ancestors,
+                offspring=self.offspring,
+            )
+        elif self.obj_type == "Family":
+            self.timeline.set_family(
+                obj.get_handle(),
+                ancestors=self.ancestors,
+                offspring=self.offspring,
+            )
 
         groups = {
             "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -105,7 +115,7 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
                 self.space,
                 self.config,
                 router,
-                person,
+                obj,
                 event,
                 event_ref,
                 event_person,
@@ -127,16 +137,18 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
                 "{}.timeline.show-class-{}".format(self.space, category)
             ):
                 self.categories.append(category)
-            if self.config.get(
-                "{}.timeline.show-family-class-{}".format(self.space, category)
-            ):
-                self.relation_categories.append(category)
+            if self.obj_type == "Person":
+                if self.config.get(
+                        "{}.timeline.show-family-class-{}".format(self.space, category)
+                ):
+                    self.relation_categories.append(category)
 
-        for relation in RELATIVES:
-            if self.config.get(
-                "{}.timeline.show-family-{}".format(self.space, relation)
-            ):
-                self.relations.append(relation)
+        if self.obj_type == "Person":
+            for relation in RELATIVES:
+                if self.config.get(
+                        "{}.timeline.show-family-{}".format(self.space, relation)
+                ):
+                    self.relations.append(relation)
 
         self.ancestors = self.config.get(
             "{}.timeline.generations-ancestors".format(self.space)

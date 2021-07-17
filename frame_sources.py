@@ -118,8 +118,8 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
         citation_list = []
         self.extract_citations(0, self.obj_type, citation_list, None, [self.obj])
 
-        if self.option("citation", "include-indirect"):
-            if self.obj_type == "Person":
+        if self.obj_type == "Person":
+            if self.option("citation", "include-indirect"):
                 self.extract_citations(1, _("Primary Name"), citation_list, None, [self.obj.primary_name])
                 self.extract_citations(1, _("Media"), citation_list, self.obj.get_media_list)
                 self.extract_citations(1, _("Alternate Name"), citation_list, self.obj.get_alternate_names)
@@ -129,19 +129,14 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                 self.extract_citations(1, _("Association"), citation_list, self.obj.get_person_ref_list)
                 self.extract_citations(1, _("Event"), citation_list, self.obj.get_event_ref_list)
                 
-        if self.option("citation", "include-family"):
-            for family_handle in self.obj.get_family_handle_list():
-                family = self.dbstate.db.get_family_from_handle(family_handle)
-                self.extract_citations(0, "Family", citation_list, None, [family])
-                if self.option("citation", "include-family-indirect"):
-                    self.extract_citations(1, _("Family Media"), citation_list, family.get_media_list)
-                    self.extract_citations(1, _("Family Attribute"), citation_list, family.get_attribute_list)
-                    self.extract_citations(1, _("Family LDS Event"), citation_list, family.get_lds_ord_list)
-                    self.extract_citations(1, _("Family Child"), citation_list, family.get_child_ref_list)
-                    self.extract_citations(1, _("Family Event"), citation_list, family.get_event_ref_list)
+            if self.option("citation", "include-family"):
+                for family_handle in self.obj.get_family_handle_list():
+                    family = self.dbstate.db.get_family_from_handle(family_handle)
+                    self.extract_citations(0, "Family", citation_list, None, [family])
+                    if self.option("citation", "include-family-indirect"):
+                        self.extract_family_indirect_citations(citation_list, family)
 
-        if self.option("citation", "include-parent-family"):
-            if self.obj_type == "Person":
+            if self.option("citation", "include-parent-family"):
                 for family_handle in self.obj.get_parent_family_handle_list():
                     family = self.dbstate.db.get_family_from_handle(family_handle)
                     for child_ref in family.get_child_ref_list():
@@ -149,6 +144,10 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                             for handle in child_ref.get_citation_list():
                                 citation = self.dbstate.db.get_citation_from_handle(handle)
                                 citation_list.append((citation, [child_ref], 1, _("Parent Family Child")))
+
+        if self.obj_type == "Family":
+            if self.option("citation", "include-indirect"):
+                self.extract_family_indirect_citations(citation_list, self.obj)
 
         if self.obj_type == "Source":
             for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(self.obj.get_handle()):
@@ -171,3 +170,11 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
                 for handle in item.get_citation_list():
                     citation = self.dbstate.db.get_citation_from_handle(handle)
                     citation_list.append((citation, [item], ref_type, ref_desc))
+
+    def extract_family_indirect_citations(self, citation_list, family):
+        self.extract_citations(1, _("Family Media"), citation_list, family.get_media_list)
+        self.extract_citations(1, _("Family Attribute"), citation_list, family.get_attribute_list)
+        self.extract_citations(1, _("Family LDS Event"), citation_list, family.get_lds_ord_list)
+        self.extract_citations(1, _("Family Child"), citation_list, family.get_child_ref_list)
+        self.extract_citations(1, _("Family Event"), citation_list, family.get_event_ref_list)
+                    

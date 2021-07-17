@@ -47,6 +47,7 @@ from enavigationview import ENavigationView
 from frame_utils import get_config_option, save_config_option
 from page_options import CONFIGSETTINGS
 from page_person import PersonProfilePage
+from page_family import FamilyProfilePage
 from page_event import EventProfilePage
 from page_source import SourceProfilePage
 
@@ -83,6 +84,7 @@ class ProfileView(ENavigationView):
 
         self.pages = {}
         self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(FamilyProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self.active_page = None
@@ -117,6 +119,10 @@ class ProfileView(ENavigationView):
         self.callman.add_db_signal('source-add',    self.redraw)
         self.callman.add_db_signal('source-delete', self.redraw)
         self.callman.add_db_signal('source-rebuild', self.redraw)
+        self.callman.add_db_signal('citation-update', self.redraw)
+        self.callman.add_db_signal('citation-add',    self.redraw)
+        self.callman.add_db_signal('citation-delete', self.redraw)
+        self.callman.add_db_signal('citation-rebuild', self.redraw)
 
     def navigation_type(self):
         return self.active_type
@@ -474,6 +480,8 @@ class ProfileView(ENavigationView):
         self.redrawing = True
         if obj_type == 'Person':
             obj = self.dbstate.db.get_person_from_handle(handle)
+        elif obj_type == 'Family':
+            obj = self.dbstate.db.get_family_from_handle(handle)
         elif obj_type == 'Event':
             obj = self.dbstate.db.get_event_from_handle(handle)
         elif obj_type == 'Source':
@@ -491,6 +499,8 @@ class ProfileView(ENavigationView):
         if edit_button:
             if obj_type == 'Person':
                 tooltip = _('Edit the active person')
+            elif obj_type == 'Family':
+                tooltip = _('Edit the active family')
             elif obj_type == 'Event':
                 tooltip = _('Edit the active event')
             elif obj_type == 'Source':

@@ -557,13 +557,13 @@ class Timeline:
                 for child in family.child_ref_list:
                     if child.ref not in self.cached_people:
                         self.add_relative(child.ref, offspring=offspring)
-        else:
-            if family.father_handle:
-                self.add_person(family.father_handle)
-            if family.mother_handle:
-                self.add_person(family.mother_handle)
-            for child in family.child_ref_list:
-                self.add_person(child.ref)
+            return
+        if family.father_handle:
+            self.add_person(family.father_handle)
+        if family.mother_handle:
+            self.add_person(family.mother_handle)
+        for child in family.child_ref_list:
+            self.add_person(child.ref)
 
     def set_family(
         self,
@@ -574,7 +574,6 @@ class Timeline:
         """
         Generate a family timeline.
         """
-        self._dump()
         self.timeline = []
         self.timeline_type = "family"
         self.cached_people = {}

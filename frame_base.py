@@ -296,11 +296,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
 
         if isinstance(self.obj, Family):
             self.add(self.frame)
-            self.build_couple_layout()
         else:
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
-            self.build_default_layout()
+        self.build_layout()
 
         self.metadata.pack_start(self.get_gramps_id_label(), expand=False, fill=False, padding=0)
         values = self.get_metadata_attributes()
@@ -313,7 +312,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if flowbox:
             self.tags.pack_start(flowbox, expand=True, fill=True, padding=0)
 
-    def build_default_layout(self):
+    def build_layout(self):
         """
         Construct framework for default layout.
         """
@@ -351,25 +350,6 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
 
         if image_mode in [1, 2]:
             self.body.pack_start(self.image, expand=False, fill=False, padding=0)
-
-    def build_couple_layout(self):
-        """
-        Construct framework for couple layout.
-        """
-        vcontent = Gtk.VBox(spacing=3)
-        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        if self.vertical:
-            self.partner1 = Gtk.HBox(hexpand=True)
-            vcontent.pack_start(self.partner1, expand=True, fill=True, padding=0)
-            hcontent = Gtk.HBox(hexpand=True)
-            self.eventbox.add(hcontent)
-            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
-            vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
-            self.partner2 = Gtk.HBox(hexpand=True)
-            vcontent.pack_start(self.partner2, expand=True, fill=True, padding=0)
 
     def enable_drag(self):
         """

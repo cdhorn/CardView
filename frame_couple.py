@@ -80,17 +80,17 @@ class CoupleGrampsFrame(GrampsFrame):
         groups=None,
         defaults=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, groups=groups)
+        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, groups=groups, vertical=vertical)
         self.family = family
         self.parent = parent
         self.relation = relation
 
-        partner1, partner2 = self._get_parents()
-        profile = self._get_profile(partner1, defaults)
+        self.parent1, self.parent2 = self._get_parents()
+        profile = self._get_profile(self.parent1, defaults)
         if profile:
             self.partner1.add(profile)
-        if partner2:
-            profile = self._get_profile(partner2, defaults)
+        if self.parent2:
+            profile = self._get_profile(self.parent2, defaults)
             if profile:
                 self.partner2.add(profile)
 
@@ -106,6 +106,50 @@ class CoupleGrampsFrame(GrampsFrame):
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+    def build_layout(self):
+        """
+        Construct framework for couple layout, overrides base class.
+        """
+        vcontent = Gtk.VBox(spacing=3)
+        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        if self.vertical:
+            self.partner1 = Gtk.HBox(hexpand=True)
+            vcontent.pack_start(self.partner1, expand=True, fill=True, padding=0)
+            dcontent = Gtk.VBox()
+            self.eventbox.add(dcontent)
+            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
+            hcontent = Gtk.HBox(hexpand=True)
+            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+            dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+            dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+            self.partner2 = Gtk.HBox(hexpand=True)
+            vcontent.pack_start(self.partner2, expand=True, fill=True, padding=0)
+        else:
+            group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+            partners = Gtk.HBox(hexpand=True, spacing=3)
+            vcontent.pack_start(partners, expand=True, fill=True, padding=0)
+            self.partner1 = Gtk.HBox(hexpand=True)
+            group.add_widget(self.partner1)
+            if self.groups and 'partner1' in self.groups:
+                self.groups['partner1'].add_widget(self.partner1)
+            partners.pack_start(self.partner1, expand=True, fill=True, padding=0)
+            self.partner2 = Gtk.HBox(hexpand=True)
+            group.add_widget(self.partner2)
+            if self.groups and 'partner2' in self.groups:
+                self.groups['partner2'].add_widget(self.partner2)
+            partners.pack_start(self.partner2, expand=True, fill=True, padding=0)
+            dcontent = Gtk.VBox()
+            self.eventbox.add(dcontent)
+            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
+            hcontent = Gtk.HBox(hexpand=True)
+            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
+            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+            dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+            dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
 
     def _get_profile(self, person, defaults):
         if person:

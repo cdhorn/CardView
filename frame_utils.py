@@ -62,6 +62,7 @@ from gramps.gen.lib import (
 )
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
+from gramps.gen.utils.db import family_name
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.selectors import SelectorFactory
 
@@ -494,14 +495,13 @@ def get_participants(db, event):
     """
     Get all of the participants related to an event.
     Returns people and also a descriptive string.
-    We eventually need to handle family but defer for moment.
     """
     participants = []
     text = ""
     comma = ""
     result_list = list(
         db.find_backlink_handles(event.handle,
-                                 include_classes=['Person'])
+                                 include_classes=['Person', 'Family'])
     )
     people = set([x[1] for x in result_list if x[0] == 'Person'])
     for handle in people:
@@ -510,8 +510,19 @@ def get_participants(db, event):
             continue
         for event_ref in person.get_event_ref_list():
             if event.handle == event_ref.ref:
-                participants.append((person, event_ref))
+                participants.append(('Person', person, event_ref))
                 text = "{}{}{}".format(text, comma, name_displayer.display(person))
+                comma = ", "
+    family = set([x[1] for x in result_list if x[0] == 'Family'])
+    for handle in family:
+        family = db.get_family_from_handle(handle)
+        if not family:
+            continue
+        for event_ref in family.get_event_ref_list():
+            if event.handle == event_ref.ref:
+                participants.append(('Family', family, event_ref))
+                family_text = family_name(family, db)
+                text = "{}{}{}".format(text, comma, family_text)
                 comma = ", "
     return participants, text
 
