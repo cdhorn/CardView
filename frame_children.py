@@ -44,7 +44,6 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsConfig
 from frame_list import GrampsFrameList
 from frame_person import PersonGrampsFrame
 
@@ -67,68 +66,49 @@ _ = _trans.gettext
 #
 # ------------------------------------------------------------------------
 class ChildrenGrampsFrameGroup(GrampsFrameList):
-    def __init__(
-        self,
-        dbstate,
-        uistate,
-        router,
-        family,
-        context,
-        space,
-        config,
-        parent=None,
-        relation=None,
-        children="Children",
-        defaults=None,
-    ):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
-        self.family = family
-        self.context = context
-        self.parent = parent
-        self.relation = relation
-        self.children = children
-        self.number = 0
+    """
+    A container for managing a list of children for a given family.
+    """
 
-        context = "child"
-        if self.context == "parent":
-            context = "sibling"
+    def __init__(self, grstate, context, family, relation=None):
+        GrampsFrameList.__init__(self, grstate)
+        self.family = family
+
+        working_context = context
+        if working_context == "parent":
+            working_context = "sibling"
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
+        child_number = 0
         for ref in self.family.get_child_ref_list():
             if ref:
-                child = self.dbstate.db.get_person_from_handle(ref.ref)
-                child_number = self.number + 1
-                if not self.option(context, "number-children"):
+                child = grstate.dbstate.db.get_person_from_handle(ref.ref)
+                child_number = child_number + 1
+                if not self.option(working_context, "number-children"):
                     child_number = 0
                 profile = PersonGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
+                    grstate,
+                    working_context,
                     child,
-                    context,
-                    self.space,
-                    self.config,
-                    self.router,
                     number=child_number,
-                    relation=self.relation,
+                    relation=relation,
                     groups=groups,
-                    defaults=defaults,
                     family_backlink=family.handle
                 )
                 self.add_frame(profile)
-                self.number = self.number + 1
         self.show_all()
 
     def _save_child_list(self, new_list, comment):
         """
         Update and save child list.
         """
-        with DbTxn(comment, self.dbstate.db) as trans:
+        with DbTxn(comment, self.grstate.dbstate.db) as trans:
             self.family.set_child_ref_list(new_list)
-            self.dbstate.db.commit_family(self.family, trans)
+            self.grstate.dbstate.db.commit_family(self.family, trans)
 
     def save_reordered_list(self):
         """
@@ -162,7 +142,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
         if handle in new_list:
             return
         new_list.insert(handle, insert_row)
-        child = self.dbstate.db.get_person_from_handle(handle)
+        child = self.grstate.dbstate.db.get_person_from_handle(handle)
         action = "{} {} {} {} {}".format(
             _("Added Child"),
             child.get_gramps_id(),

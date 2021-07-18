@@ -19,16 +19,8 @@
 #
 
 """
-ImageGrampsFrame.
+ImageGrampsFrame
 """
-
-# ------------------------------------------------------------------------
-#
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
 
 # ------------------------------------------------------------------------
 #
@@ -43,10 +35,8 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import PlaceDisplay
-from gramps.gen.lib import Citation
 
 
 # ------------------------------------------------------------------------
@@ -54,7 +44,7 @@ from gramps.gen.lib import Citation
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_class import GrampsFrame
 from frame_utils import TextLink
 
 
@@ -83,23 +73,25 @@ class ImageGrampsFrame(GrampsFrame):
     The ImageGrampsFrame exposes the image and some facts about Media.
     """
 
-    def __init__(self, dbstate, uistate, media, space, config, router, groups=None, references=[], ref_type=0, ref_desc=""):
-        GrampsFrame.__init__(
-            self, dbstate, uistate, router, space, config, media, "media", groups=groups
+    def __init__(self, grstate, media, groups=None):
+        GrampsFrame.__init__(self, grstate, "media", media, groups=groups)
+
+        title = TextLink(
+            media.get_description(),
+            "Media",
+            media.get_handle(),
+            self.switch_object,
+            bold=True
         )
-        self.media = media
-
-        self.enable_drag()
-
-        title = TextLink(self.media.get_description(), "Media", self.media.get_handle(), self.switch_object, bold=True)
         self.title.pack_start(title, True, False, 0)
 
         if self.option("media", "show-date"):
-            if self.media.get_date_object():
-                text = glocale.date_displayer.display(self.media.get_date_object())
+            if media.get_date_object():
+                text = glocale.date_displayer.display(media.get_date_object())
                 if text:
                     self.add_fact(self.make_label(text))
-        
+
+        self.enable_drag()
         self.set_css_style()
 
     def build_layout(self):

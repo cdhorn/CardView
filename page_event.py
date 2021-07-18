@@ -49,6 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from frame_base import GrampsState
 from frame_event import EventGrampsFrame
 from frame_generic import GenericGrampsFrameGroup
 from frame_groups import get_citation_group, get_media_group
@@ -90,31 +91,23 @@ class EventProfilePage(BaseProfilePage):
         if not event:
             return
 
+        grstate = GrampsState(
+            self.dbstate, self.uistate, self.callback_router,
+            "preferences.profile.event", self.config, self.defaults
+        )
         self.active_profile = EventGrampsFrame(
-            self.dbstate,
-            self.uistate,
-            "preferences.profile.event",
-            self.config,
-            self.callback_router,
+            grstate,
+            "active",
             None,
             event,
             None,
             None,
             None,
             None,
-            "active",
         )
 
         citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_group(
-            self.dbstate,
-            self.uistate,
-            event,
-            self.callback_router,
-            "preferences.profile.event",
-            self.config,
-            sources=False
-        )
+        citations = get_citation_group(grstate, event)
         if citations is not None:
             citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
@@ -127,16 +120,7 @@ class EventProfilePage(BaseProfilePage):
                 family_list.append(obj_handle)
 
         if people_list:
-            people_group = GenericGrampsFrameGroup(
-                self.dbstate,
-                self.uistate,
-                self.callback_router,
-                "preferences.profile.event",
-                self.config,
-                "Person",
-                people_list,
-                defaults=self.defaults
-            )
+            people_group = GenericGrampsFrameGroup(grstate, "Person", people_list)
             people = Gtk.Expander(expanded=True, use_markup=True)
             people.set_label("<small><b>{}</b></small>".format(_("Individual Participants")))
             people.add(people_group)
@@ -144,16 +128,7 @@ class EventProfilePage(BaseProfilePage):
             people_box.pack_start(people, expand=False, fill=False, padding=0)
 
         if family_list:
-            family_group = GenericGrampsFrameGroup(
-                self.dbstate,
-                self.uistate,
-                self.callback_router,
-                "preferences.profile.event",
-                self.config,
-                "Family",
-                family_list,
-                defaults=self.defaults
-            )
+            family_group = GenericGrampsFrameGroup(grstate, "Family", family_list)
             family = Gtk.Expander(expanded=True, use_markup=True)
             family.set_label("<small><b>{}</b></small>".format(_("Family Participants")))
             family.add(family_group)
@@ -167,6 +142,13 @@ class EventProfilePage(BaseProfilePage):
             body.pack_start(people_box, True, True, 0)
         if family_list:
             body.pack_start(family_box, True, True, 0)
+
+        if self.config.get("preferences.profile.event.layout.show-media"):
+            media_box = Gtk.VBox(spacing=3)
+            media = get_media_group(grstate, event)
+            if media is not None:
+                media_box.pack_start(media, expand=False, fill=False, padding=0)
+            body.pack_start(media_box, True, True, 0)
 
         if self.config.get("preferences.profile.event.layout.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
@@ -184,8 +166,12 @@ class EventProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
+            grid, _("Show associated media"),
+            1, "preferences.profile.event.layout.show-media",
+        )        
+        configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            1, "preferences.profile.event.layout.pinned-header",
+            2, "preferences.profile.event.layout.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
@@ -340,6 +326,39 @@ class EventProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 30, 1, 1)
         return _("Family"), grid
 
+    def media_panel(self, configdialog):
+        """
+        Builds media options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.event.media.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.event.media.tag-width",
+            (1, 20),
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort media by date"),
+            4, "preferences.profile.event.media.sort-by-date",
+            tooltip=_("Enabling this option will sort the media by date.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "preferences.profile.event.media.show-date",
+            tooltip=_("Enabling this option will show the media date if it is available.")
+        )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.event.media", 16, start_col=1, number=4, obj_type="Media")
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.media", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Media"), grid
+
     def _get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
@@ -349,6 +368,7 @@ class EventProfilePage(BaseProfilePage):
             self.active_panel,
             self.people_panel,
             self.family_panel,
+            self.media_panel,
         ]
 
     def edit_active(self, *obj):

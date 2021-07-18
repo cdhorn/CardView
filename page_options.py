@@ -323,6 +323,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.family.layout.enable-warnings", True),
     ("preferences.profile.family.layout.show-timeline", True),
     ("preferences.profile.family.layout.show-citations", False),
+    ("preferences.profile.family.layout.show-media", False),
     ("preferences.profile.family.layout.border-width", 2),
     ("preferences.profile.family.layout.use-color-scheme", True),
     ("preferences.profile.family.layout.use-smaller-detail-font", True),
@@ -454,10 +455,22 @@ CONFIGSETTINGS = (
     ("preferences.profile.family.citation.metadata-attribute-2", "None"),
     ("preferences.profile.family.citation.metadata-attribute-3", "None"),
     ("preferences.profile.family.citation.metadata-attribute-4", "None"),
+    # Media
+    ("preferences.profile.family.media.tag-format", 1),
+    ("preferences.profile.family.media.tag-width", 10),
+    ("preferences.profile.family.media.image-mode", 2),
+    ("preferences.profile.family.media.sort-by-date", False),
+    ("preferences.profile.family.media.show-date", True),
+    ("preferences.profile.family.media.metadata-attribute-1", "None"),
+    ("preferences.profile.family.media.metadata-attribute-2", "None"),
+    ("preferences.profile.family.media.metadata-attribute-3", "None"),
+    ("preferences.profile.family.media.metadata-attribute-4", "None"),
     ######################################################################
     # Event Page Options
     ######################################################################
     # Layout
+    ("preferences.profile.event.layout.show-citations", False),
+    ("preferences.profile.event.layout.show-media", False),
     ("preferences.profile.event.layout.enable-tooltips", True),
     ("preferences.profile.event.layout.enable-warnings", True),
     ("preferences.profile.event.layout.pinned-header", True),
@@ -510,6 +523,16 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.family.metadata-attribute-2", "None"),
     ("preferences.profile.event.family.metadata-attribute-3", "None"),
     ("preferences.profile.event.family.metadata-attribute-4", "None"),
+    # Media
+    ("preferences.profile.event.media.tag-format", 1),
+    ("preferences.profile.event.media.tag-width", 10),
+    ("preferences.profile.event.media.image-mode", 2),
+    ("preferences.profile.event.media.sort-by-date", False),
+    ("preferences.profile.event.media.show-date", True),
+    ("preferences.profile.event.media.metadata-attribute-1", "None"),
+    ("preferences.profile.event.media.metadata-attribute-2", "None"),
+    ("preferences.profile.event.media.metadata-attribute-3", "None"),
+    ("preferences.profile.event.media.metadata-attribute-4", "None"),
     ######################################################################
     # Source Page Options
     ######################################################################

@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+"""
+MediaGrampsFrameGroup
+"""
 
 # ------------------------------------------------------------------------
 #
@@ -63,8 +66,8 @@ class MediaGrampsFrameGroup(GrampsFrameList):
     of the media items for a given primary Gramps object.
     """
 
-    def __init__(self, dbstate, uistate, router, obj, space, config):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
+    def __init__(self, grstate, obj):
+        GrampsFrameList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
 
@@ -74,41 +77,37 @@ class MediaGrampsFrameGroup(GrampsFrameList):
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
         media_list = self.collect_media()
-        
+
         if media_list:
             if self.option("media", "sort-by-date"):
                 media_list.sort(key=lambda x: x[0].get_date_object().get_sort_value())
 
             for media, references, ref_type, ref_desc in media_list:
                 frame = ImageGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
+                    grstate,
                     media,
-                    self.space,
-                    self.config,
-                    self.router,
                     groups=groups,
                 )
                 self.add_frame(frame)
         self.show_all()
 
-    # Needs to be media ref not media
+    # Revisit probably needs to be media ref not media
     def save_new_object(self, handle, insert_row):
         """
         Add new media to the list.
         """
-        media = self.dbstate.db.get_media_from_handle()
+        media = self.grstate.dbstate.db.get_media_from_handle()
         action = "{} {} {} {}".format(
             _("Added Media"),
             media.get_gramps_id(),
             _("to"),
             self.obj.get_gramps_id()
         )
-        commit_method = self.dbstate.db.method("commit_%s", self.obj_type)
-        with DbTxn(action, self.dbstate.db) as trans:
+        commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(action, self.grstate.dbstate.db) as trans:
             if self.obj.add_media(handle):
                 commit_method(self.obj, trans)
-        
+
     def collect_media(self):
         """
         Helper to collect the media for the current object.
@@ -116,17 +115,17 @@ class MediaGrampsFrameGroup(GrampsFrameList):
         media_list = []
         self.extract_media(0, self.obj_type, media_list, None, [self.obj])
         return media_list
-                                          
-    def extract_media(self, ref_type, ref_desc, media_list, query_method=None, obj_list=[]):
+
+    def extract_media(self, ref_type, ref_desc, media_list, query_method=None, obj_list=None):
         """
         Helper to extract a set of media references from an object.
         """
         if query_method:
             data = query_method()
         else:
-            data = obj_list
+            data = obj_list or []
         for item in data:
             if hasattr(item, "media_list"):
                 for media_ref in item.get_media_list():
-                    media = self.dbstate.db.get_media_from_handle(media_ref.ref)
+                    media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
                     media_list.append((media, [item], ref_type, ref_desc))

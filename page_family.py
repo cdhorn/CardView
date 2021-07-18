@@ -52,8 +52,9 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from frame_base import button_activated
+from frame_base import GrampsState, button_activated
 from frame_groups import (
+    get_children_group,
     get_citation_group,
     get_media_group,
     get_timeline_group,
@@ -115,21 +116,16 @@ class FamilyProfilePage(BaseProfilePage):
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
-    def _get_primary_parents(self, person, groups):
+    def _get_primary_parents(self, grstate, person, groups):
         if person:
             primary_handle = person.get_main_parents_family_handle()
             if primary_handle:
                 family = self.dbstate.db.get_family_from_handle(primary_handle)
                 return CoupleGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
-                    self.callback_router,
-                    family,
+                    grstate,
                     "parent",
-                    "preferences.profile.family",
-                    self.config,
+                    family,
                     relation=person,
-                    defaults=self.defaults
                 )
         return None
             
@@ -153,23 +149,22 @@ class FamilyProfilePage(BaseProfilePage):
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        
+
+        grstate = GrampsState(
+            self.dbstate, self.uistate, self.callback_router,
+            "preferences.profile.family", self.config, self.defaults
+        )
         self.active_profile = CoupleGrampsFrame(
-            self.dbstate,
-            self.uistate,
-            self.callback_router,
-            family,
+            grstate,
             "active",
-            "preferences.profile.family",
-            self.config,
+            family,
             groups=groups,
-            defaults=self.defaults,
             vertical=False
         )
 
         pbox = Gtk.HBox(vexpand=False, hexpand=True, spacing=3, margin_bottom=3)
-        p1parents = self._get_primary_parents(self.active_profile.parent1, p1groups)
-        p2parents = self._get_primary_parents(self.active_profile.parent2, p2groups)
+        p1parents = self._get_primary_parents(grstate, self.active_profile.parent1, p1groups)
+        p2parents = self._get_primary_parents(grstate, self.active_profile.parent2, p2groups)
         if p1parents:
             groups['partner1'].add_widget(p1parents)
             pbox.pack_start(p1parents, expand=True, fill=True, padding=0)
@@ -181,33 +176,32 @@ class FamilyProfilePage(BaseProfilePage):
         vbox.pack_start(self.active_profile, expand=True, fill=True, padding=0)
 
         gbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3)
+        children_box = Gtk.VBox(spacing=3)
+        children = get_children_group(grstate, family)
+        if children is not None:
+            children_box.pack_start(children, expand=False, fill=False, padding=0)
+        gbox.pack_start(children_box, expand=False, fill=False, padding=0)
+
         if self.config.get("preferences.profile.family.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
-            timeline = get_timeline_group(
-                self.dbstate,
-                self.uistate,
-                family,
-                router=self.callback_router,
-                config=self.config,
-                space="preferences.profile.family"
-            )
+            timeline = get_timeline_group(grstate, family)
             if timeline is not None:
                 timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
             gbox.pack_start(timeline_box, expand=False, fill=False, padding=0)
             
         if self.config.get("preferences.profile.family.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
-            citations = get_citation_group(
-                self.dbstate,
-                self.uistate,
-                family,
-                self.callback_router,
-                "preferences.profile.family",
-                self.config,
-            )
+            citations = get_citation_group(grstate, family)
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
             gbox.pack_start(citations_box, expand=True, fill=True, padding=0)
+
+        if self.config.get("preferences.profile.family.layout.show-media"):
+            media_box = Gtk.VBox(spacing=3)
+            media = get_media_group(grstate, family)
+            if media is not None:
+                media_box.pack_start(media, expand=False, fill=False, padding=0)
+            gbox.pack_start(media_box, expand=True, fill=True, padding=0)
 
         vbox.pack_start(gbox, True, True, 0)
         vbox.show_all()
@@ -238,45 +232,49 @@ class FamilyProfilePage(BaseProfilePage):
             grid, _("Show associated citations"),
             5, "preferences.profile.family.layout.show-citations",
         )
-        configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show associated media"),
+            6, "preferences.profile.family.layout.show-media",
+        )
+        configdialog.add_text(grid, _("Styling Options"), 7, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.family.layout.use-smaller-detail-font",
+            8, "preferences.profile.family.layout.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.family.layout.border-width",
+            9, "preferences.profile.family.layout.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.family.layout.use-color-scheme",
+            10, "preferences.profile.family.layout.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Right to left"),
-            10, "preferences.profile.family.layout.right-to-left",
+            11, "preferences.profile.family.layout.right-to-left",
             tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.family.layout.sort-tags-by-name",
+            12, "preferences.profile.family.layout.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            12, "preferences.profile.family.layout.include-child-notes",
+            13, "preferences.profile.family.layout.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.family.layout.enable-warnings",
+            14, "preferences.profile.family.layout.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.family.layout.enable-tooltips",
+            15, "preferences.profile.family.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
         reset = ConfigReset(configdialog, self.config, "preferences.profile.family.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
@@ -631,6 +629,39 @@ class FamilyProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
+    def media_panel(self, configdialog):
+        """
+        Builds media options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.family.media.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.family.media.tag-width",
+            (1, 20),
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort media by date"),
+            4, "preferences.profile.family.media.sort-by-date",
+            tooltip=_("Enabling this option will sort the media by date.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "preferences.profile.family.media.show-date",
+            tooltip=_("Enabling this option will show the media date if it is available.")
+        )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.family.media", 16, start_col=1, number=4, obj_type="Media")
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.media", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Media"), grid
+
     def color_panel(self, configdialog):
         """
         Add the tab to set defaults colors for graph boxes.
@@ -798,6 +829,7 @@ class FamilyProfilePage(BaseProfilePage):
             self.children_panel,
             self.timeline_panel,
             self.citations_panel,
+            self.media_panel,
         ]
 
     def edit_active(self, *obj):

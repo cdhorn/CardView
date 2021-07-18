@@ -19,7 +19,7 @@
 #
 
 """
-GrampsFrameList.
+GrampsFrameList
 """
 
 # ------------------------------------------------------------------------
@@ -35,15 +35,7 @@ import pickle
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk, GdkPixbuf
-
-
-# ------------------------------------------------------------------------
-#
-# Gramps modules
-#
-# ------------------------------------------------------------------------
-from gramps.gui.ddtargets import DdTargets
+from gi.repository import Gtk, Gdk
 
 
 # ------------------------------------------------------------------------
@@ -51,8 +43,8 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsConfig, GrampsFrame
-from frame_utils import get_gramps_object_type
+from frame_base import GrampsConfig
+from frame_class import GrampsFrame
 
 
 # ------------------------------------------------------------------------
@@ -63,13 +55,13 @@ from frame_utils import get_gramps_object_type
 class GrampsFrameList(Gtk.ListBox, GrampsConfig):
     """
     The GrampsFrameList class provides the core methods for managing a
-    list of GrampsFrame objects. It primarily supports drag and drop 
+    list of GrampsFrame objects. It primarily supports drag and drop
     actions related to the list.
     """
 
-    def __init__(self, dbstate, uistate, space, config, router=None):
+    def __init__(self, grstate):
         Gtk.ListBox.__init__(self)
-        GrampsConfig.__init__(self, dbstate, uistate, router, space, config)
+        GrampsConfig.__init__(self, grstate)
         self.managed_obj_type = None
         self.dnd_type = None
         self.dnd_icon = None
@@ -86,20 +78,19 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         Add a GrampsFrame object.
         """
-        if not isinstance(gramps_frame, GrampsFrame):
-            return None
-        if self.managed_obj_type is None and self.dnd_type is None:
-            self.managed_obj_type = gramps_frame.obj_type
-            self.dnd_type = gramps_frame.dnd_type
-            self.drag_dest_set(
-                Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,
-                [self.dnd_type.target()],
-                Gdk.DragAction.COPY|Gdk.DragAction.MOVE
-            )
-        self.row_frames.append(gramps_frame)
-        row = Gtk.ListBoxRow(selectable=False)
-        row.add(self.row_frames[-1])
-        self.add(row)
+        if isinstance(gramps_frame, GrampsFrame):
+            if self.managed_obj_type is None and self.dnd_type is None:
+                self.managed_obj_type = gramps_frame.obj_type
+                self.dnd_type = gramps_frame.dnd_type
+                self.drag_dest_set(
+                    Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,
+                    [self.dnd_type.target()],
+                    Gdk.DragAction.COPY|Gdk.DragAction.MOVE
+                )
+            self.row_frames.append(gramps_frame)
+            row = Gtk.ListBoxRow(selectable=False)
+            row.add(self.row_frames[-1])
+            self.add(row)
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
         """
@@ -130,12 +121,12 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         Stub for derived objects to save the reordered list.
         """
-        
+
     def save_new_object(self, handle, insert_row):
         """
         Stub for derived objects to add an external object to the list.
         """
-        
+
     def on_drag_motion(self, widget, context, x, y, time):
         """
         Update the view while a user drag and drop is underway.
@@ -185,7 +176,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
             context.remove_provider(self.row_current_provider)
             self.row_current_provider = None
         self.row_frames[self.row_current].set_css_style()
-        
+
     def set_dnd_css(self, row, top):
         """
         Set custom CSS for the drag and drop view.

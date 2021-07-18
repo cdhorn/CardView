@@ -52,7 +52,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from frame_base import button_activated
+from frame_base import GrampsState, button_activated
 from frame_groups import (
     get_citation_group,
     get_media_group,
@@ -122,77 +122,38 @@ class PersonProfilePage(BaseProfilePage):
         if not person:
             return
 
-        self.active_profile = PersonGrampsFrame(
-            self.dbstate,
-            self.uistate,
-            person,
-            "active",
-            "preferences.profile.person",
-            self.config,
-            self.callback_router,
-            defaults=self.defaults
+        grstate = GrampsState(
+            self.dbstate, self.uistate, self.callback_router,
+            "preferences.profile.person", self.config, self.defaults
         )
+        self.active_profile = PersonGrampsFrame(grstate, "active", person)
 
         body = Gtk.HBox(expand=True, spacing=3)
         parents_box = Gtk.VBox(spacing=3)
-        parents = get_parents_group(
-            self.dbstate,
-            self.uistate,
-            person,
-            router=self.callback_router,
-            config=self.config,
-            defaults=self.defaults
-        )
+        parents = get_parents_group(grstate, person)
         if parents is not None:
             parents_box.pack_start(parents, expand=False, fill=False, padding=0)
 
         spouses_box = Gtk.VBox(spacing=3)
-        spouses = get_spouses_group(
-            self.dbstate,
-            self.uistate,
-            person,
-            router=self.callback_router,
-            config=self.config,
-            defaults=self.defaults
-        )
+        spouses = get_spouses_group(grstate, person)
         if spouses is not None:
             spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.person.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
-            timeline = get_timeline_group(
-                self.dbstate,
-                self.uistate,
-                person,
-                router=self.callback_router,
-                config=self.config,
-            )
+            timeline = get_timeline_group(grstate, person)
             if timeline is not None:
                 timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.person.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
-            citations = get_citation_group(
-                self.dbstate,
-                self.uistate,
-                person,
-                self.callback_router,
-                "preferences.profile.person",
-                self.config,
-            )
+            citations = get_citation_group(grstate, person)
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.person.layout.show-media"):
             media_box = Gtk.VBox(spacing=3)
-            media = get_media_group(
-                self.dbstate,
-                self.uistate,
-                person,
-                self.callback_router,
-                "preferences.profile.person",
-                self.config,
-            )
+            media = get_media_group(grstate, person)
             if media is not None:
                 media_box.pack_start(media, expand=False, fill=False, padding=0)
 

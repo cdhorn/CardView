@@ -19,34 +19,15 @@
 #
 
 """
-CitationGrampsFrame.
+CitationGrampsFrame
 """
-
-# ------------------------------------------------------------------------
-#
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-
-# ------------------------------------------------------------------------
-#
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
 
 # ------------------------------------------------------------------------
 #
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.place import PlaceDisplay
-from gramps.gen.lib import Citation
 
 
 # ------------------------------------------------------------------------
@@ -54,23 +35,15 @@ from gramps.gen.lib import Citation
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
-from frame_utils import _CONFIDENCE, get_confidence, get_confidence_color_css, TextLink
+from frame_class import GrampsFrame
+from frame_utils import get_confidence, get_confidence_color_css, TextLink
 
-
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
 
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
-
-pd = PlaceDisplay()
 
 CITATION_TYPES = {
     0: _("Direct"),
@@ -88,63 +61,52 @@ class CitationGrampsFrame(GrampsFrame):
     The CitationGrampsFrame exposes some of the basic facts about a Citation.
     """
 
-    def __init__(self, dbstate, uistate, citation, space, config, router, groups=None, references=[], ref_type=0, ref_desc=""):
-        GrampsFrame.__init__(
-            self, dbstate, uistate, router, space, config, citation, "citation", groups=groups
-        )
-        self.citation = citation
-        self.references = references
-        self.ref_type = ref_type
-        self.ref_desc = ref_desc
-        self.source = self.dbstate.db.get_source_from_handle(citation.source_handle)
+    def __init__(self, grstate, context, citation, groups=None, reference=None):
+        GrampsFrame.__init__(self, grstate, "citation", citation, groups=groups)
+        source = grstate.dbstate.db.get_source_from_handle(citation.source_handle)
+
+        title = TextLink(source.title, "Source", source.get_handle(), self.switch_object, bold=True)
+        self.title.pack_start(title, True, False, 0)
+
+        if source.author:
+            self.add_fact(self.make_label(source.author))
+
+        if citation.page:
+            self.add_fact(self.make_label(citation.page))
+
+        if self.option("citation", "show-date"):
+            if citation.get_date_object():
+                text = glocale.date_displayer.display(citation.get_date_object())
+                if text:
+                    self.add_fact(self.make_label(text))
+
+        if self.option("citation", "show-publisher"):
+            if source.pubinfo:
+                self.add_fact(self.make_label(source.pubinfo))
+
+        if self.option("citation", "show-reference-type"):
+            if reference and reference[1]:
+                label = self.make_label(CITATION_TYPES[reference[1]], left=False)
+                self.metadata.pack_start(label, False, False, 0)
+
+        if self.option("citation", "show-reference-description"):
+            if reference and reference[2]:
+                label = self.make_label(reference[2], left=False)
+                self.metadata.pack_start(label, False, False, 0)
+
+        if self.option("citation", "show-confidence"):
+            label = self.make_label(get_confidence(citation.confidence), left=False)
+            self.metadata.pack_start(label, False, False, 0)
 
         self.enable_drag()
         self.enable_drop()
-
-        title = TextLink(self.source.title, "Source", self.source.get_handle(), self.switch_object, bold=True)
-        self.title.pack_start(title, True, False, 0)
-
-        if self.source.author:
-            author = self.make_label(self.source.author)
-            self.add_fact(author)
-
-        if self.citation.page:
-            page = self.make_label(self.citation.page)
-            self.add_fact(page)
-
-        if self.option("citation", "show-date"):
-            if self.citation.get_date_object():
-                text = glocale.date_displayer.display(self.citation.get_date_object())
-                if text:
-                    self.add_fact(self.make_label(text))
-        
-        if self.option("citation", "show-publisher"):
-            if self.source.pubinfo:
-                publisher = self.make_label(self.source.pubinfo)
-                self.add_fact(publisher)
-        
-        if self.option("citation", "show-reference-type"):
-            ref_type = self.make_label(CITATION_TYPES[self.ref_type], left=False)
-            self.metadata.pack_start(ref_type, False, False, 0)
-
-        if self.option("citation", "show-reference-description"):
-            if self.ref_desc:
-                ref_desc = self.make_label(self.ref_desc, left=False)
-                self.metadata.pack_start(ref_desc, False, False, 0)
-        
-        if self.option("citation", "show-confidence"):
-            confidence = self.make_label(
-                get_confidence(self.citation.confidence), left=False
-            )
-            self.metadata.pack_start(confidence, False, False, 0)
         self.set_css_style()
 
     def get_color_css(self):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+        if not self.option("layout", "use-color-scheme"):
             return ""
 
-        return get_confidence_color_css(self.obj.confidence, self.config)
-
+        return get_confidence_color_css(self.obj.confidence, self.grstate.config)

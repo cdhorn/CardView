@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+"""
+Routines to prepare object groups
+"""
 
 # ------------------------------------------------------------------------
 #
@@ -53,9 +56,65 @@ except ValueError:
 _ = _trans.gettext
 
 
-def get_parents_group(dbstate, uistate, person, router, config=None, defaults=None):
+def get_generic_group(grstate, obj, framegroup, title_plural, title_single, expanded=True):
     """
-    Get all the parents and siblings for a person.
+    Get the group associated with a simple object.
+    """
+    group = framegroup(grstate, obj)
+    if len(group) == 0:
+        return None
+
+    text = title_plural
+    if len(group) == 1:
+        text = title_single
+
+    content = Gtk.Expander(expanded=expanded, use_markup=True)
+    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.add(group)
+    return content
+
+def get_children_group(grstate, family, context="child", title_plural=_("Children"), title_single=_("Child"), person=None, expanded=True):
+    """
+    Get the group for all the children in a family unit.
+    """
+    group = ChildrenGrampsFrameGroup(grstate, context, family, relation=person)
+    if len(group) == 0:
+        return None
+
+    text = title_plural
+    if len(group) == 1:
+        text = title_single
+
+    content = Gtk.Expander(expanded=expanded, use_markup=True)
+    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.add(group)
+    return content
+
+def get_family_unit(grstate, family, context="family", relation=None, vertical=None):
+    """
+    Get the group for a family unit.
+    """
+    couple = CoupleGrampsFrame(
+        grstate,
+        context,
+        family,
+        relation=relation,
+    )
+    expanded=grstate.config.get("{}.{}.expand-children".format(grstate.space, context))
+    title_plural = _("Children")
+    title_single = _("Child")
+    if context == "parent":
+        title_plural = _("Siblings")
+        title_single = _("Sibling")
+
+    children = get_children_group(grstate, family, context, title_plural, title_single, person=relation, expanded=expanded)
+    if len(children) > 0:
+        couple.pack_start(children, expand=True, fill=True, padding=0)
+    return couple
+
+def get_parents_group(grstate, person):
+    """
+    Get the group for all the parents and siblings of a person.
     """
     parents = None
     primary_handle = person.get_main_parents_family_handle()
@@ -64,89 +123,20 @@ def get_parents_group(dbstate, uistate, person, router, config=None, defaults=No
         parents.set_label("<small><b>{}</b></small>".format(_("Parents and Siblings")))
         elements = Gtk.VBox(spacing=6)
         parents.add(elements)
-
-        family = dbstate.db.get_family_from_handle(primary_handle)
-        couple = CoupleGrampsFrame(
-            dbstate,
-            uistate,
-            router,
-            family,
-            "parent",
-            "preferences.profile.person",
-            config,
-            relation=person,
-            defaults=defaults
-        )
-        children = ChildrenGrampsFrameGroup(
-            dbstate,
-            uistate,
-            router,
-            family,
-            "parent",
-            "preferences.profile.person",
-            config,
-            relation=person,
-            defaults=defaults
-        )
-        if children.number > 0:
-            expander = Gtk.Expander(
-                expand=True,
-                use_markup=True,
-                expanded=config.get(
-                    "preferences.profile.person.parent.expand-children"
-                ),
-            )
-            expander.add(children)
-            expander.set_label(
-                "<b><small>{} {}</small></b>".format(children.number, _("Siblings"))
-            )
-            couple.pack_start(expander, expand=True, fill=True, padding=0)
-        elements.add(couple)
+        family = grstate.dbstate.db.get_family_from_handle(primary_handle)
+        group = get_family_unit(grstate, family, "parent", relation=person)
+        elements.add(group)
 
     for handle in person.parent_family_list:
         if handle != primary_handle:
-            family = dbstate.db.get_family_from_handle(handle)
-            couple = CoupleGrampsFrame(
-                dbstate,
-                uistate,
-                router,
-                family,
-                "parent",
-                "preferences.profile.person",
-                config,
-                relation=person,
-                defaults=defaults
-            )
-            children = ChildrenGrampsFrameGroup(
-                dbstate,
-                uistate,
-                router,
-                family,
-                "parent",
-                "preferences.profile.person",
-                config,
-                relation=person,
-                defaults=defaults
-            )
-            if children.number > 0:
-                expander = Gtk.Expander(
-                    expand=True,
-                    use_markup=True,
-                    expanded=config.get(
-                        "preferences.profile.person.parent.expand-children"
-                    ),
-                )
-                expander.add(children)
-                expander.set_label(
-                    "<b><small>{} {}</small></b>".format(children.number, _("Siblings"))
-                )
-                couple.pack_start(expander, expand=True, fill=True, padding=0)
-            elements.add(couple)
+            family = grstate.dbstate.db.get_family_from_handle(handle)
+            group = get_family_unit(grstate, family, "parent", relation=person)
+            elements.add(group)
     return parents
 
-def get_spouses_group(dbstate, uistate, person, router, config=None, defaults=None):
+def get_spouses_group(grstate, person):
     """
-    Get all the spouses and children for a person.
+    Get the group for all the spouses and children of a person.
     """
     spouses = None
     for handle in person.family_list:
@@ -157,102 +147,41 @@ def get_spouses_group(dbstate, uistate, person, router, config=None, defaults=No
             )
             elements = Gtk.VBox(spacing=6)
             spouses.add(elements)
-        family = dbstate.db.get_family_from_handle(handle)
-        couple = CoupleGrampsFrame(
-            dbstate,
-            uistate,
-            router,
-            family,
-            "spouse",
-            "preferences.profile.person",
-            config,
-            relation=person,
-            parent=person,
-            defaults=defaults
-        )
-        children = ChildrenGrampsFrameGroup(
-            dbstate,
-            uistate,
-            router,
-            family,
-            "spouse",
-            "preferences.profile.person",
-            config,
-            relation=person,
-            defaults=defaults
-        )
-        if children.number > 0:
-            expander = Gtk.Expander(
-                expand=True,
-                use_markup=True,
-                expanded=config.get(
-                    "preferences.profile.person.spouse.expand-children"
-                ),
-            )
-            expander.add(children)
-            expander.set_label(
-                "<b><small>{} {}</small></b>".format(children.number, _("Children"))
-            )
-            couple.pack_start(expander, expand=True, fill=True, padding=0)
-        elements.pack_start(couple, True, True, 0)
+        family = grstate.dbstate.db.get_family_from_handle(handle)
+        group = get_family_unit(grstate, family, "spouse", relation=person)
+        elements.add(group)
     return spouses
 
-def get_citation_group(dbstate, uistate, obj, router, space, config, sources=True):
+def get_citation_group(grstate, obj, sources=True):
     """
-    Get all the cited sources associated with an object.
+    Get the group for all the cited sources associated with an object.
     """
-    group = SourcesGrampsFrameGroup(dbstate, uistate, router, obj, space, config)
-    if len(group) == 0:
-        return None
-
     if sources:
-        text = _("Cited Sources")
-        if len(group) == 1:
-            text = _("Cited Source")
+        title_plural = _("Cited Sources")
+        title_single = _("Cited Source")
     else:
-        text = _("Citations")
-        if len(group) == 1:
-            text = _("Citation")
+        title_plural = _("Citations")
+        title_single = _("Citation")
 
-    sources = Gtk.Expander(expanded=True, use_markup=True)
-    sources.set_label("<small><b>{} {}</b></small>".format(len(group), text))
-    sources.add(group)
-    return sources
+    return get_generic_group(
+        grstate, obj, SourcesGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )
 
-def get_timeline_group(dbstate, uistate, obj, router, config=None, space="preferences.profile.person", title=None):
+def get_timeline_group(grstate, obj, title_plural=_("Timeline Events"), title_single=_("Timeline Event")):
     """
-    Get a timeline of events associated with an object.
+    Get the group of timeline events associated with an object.
     """
-    group = TimelineGrampsFrameGroup(dbstate, uistate, router, obj, config=config, space=space)
-    if not group.count:
-        return None
+    return get_generic_group(
+        grstate, obj, TimelineGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )
 
-    text = _("Timeline Events")
-    if len(group) == 1:
-        text = _("Timeline Event")
-    if title:
-        text = title
-
-    timeline = Gtk.Expander(expanded=True, use_markup=True)
-    timeline.set_label("<small><b>{} {}</b></small>".format(len(group), text))
-    timeline.add(group)
-    return timeline
-
-def get_media_group(dbstate, uistate, obj, router, space, config, title=None):
+def get_media_group(grstate, obj, title_plural=_("Media Items"), title_single=_("Media Item")):
     """
-    Get all the media items associated with an object.
+    Get the group of media items associated with an object.
     """
-    group = MediaGrampsFrameGroup(dbstate, uistate, router, obj, space, config)
-    if len(group) == 0:
-        return None
-
-    text = _("Media Items")
-    if len(group) == 1:
-        text = _("Media Item")
-    if title:
-        text = title
-
-    media = Gtk.Expander(expanded=True, use_markup=True)
-    media.set_label("<small><b>{} {}</b></small>".format(len(group), text))
-    media.add(group)
-    return media
+    return get_generic_group(
+        grstate, obj, MediaGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )

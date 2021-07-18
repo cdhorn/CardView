@@ -66,19 +66,10 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
     that may also optionally include events for close family if choosen.
     """
 
-    def __init__(
-        self,
-        dbstate,
-        uistate,
-        router,
-        obj,
-        config=None,
-        space="preferences.profile.person",
-    ):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
+    def __init__(self, grstate, obj):
+        GrampsFrameList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, skip1, skip2 = get_gramps_object_type(obj)
-        self.count = 0
         self.categories = []
         self.relations = []
         self.relation_categories = []
@@ -87,7 +78,10 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
 
         self.prepare_timeline_filters()
         self.timeline = Timeline(
-            self.dbstate.db, events=self.categories, relatives=self.relations, relative_events=self.relation_categories
+            grstate.dbstate.db,
+            events=self.categories,
+            relatives=self.relations,
+            relative_events=self.relation_categories,
         )
         if self.obj_type == "Person":
             self.timeline.set_person(
@@ -110,11 +104,8 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         }
         for event, event_ref, event_person, event_family, relation, category in self.timeline.events():
             event_frame = EventGrampsFrame(
-                self.dbstate,
-                self.uistate,
-                self.space,
-                self.config,
-                router,
+                grstate,
+                "timeline",
                 obj,
                 event,
                 event_ref,
@@ -125,7 +116,6 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
                 groups=groups,
             )
             self.add_frame(event_frame)
-            self.count = self.count + 1
         self.show_all()
 
     def prepare_timeline_filters(self):
@@ -133,27 +123,16 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         Parse and prepare filter groups.
         """
         for category in EVENT_CATEGORIES:
-            if self.config.get(
-                "{}.timeline.show-class-{}".format(self.space, category)
-            ):
+            if self.option("timeline", "show-class-{}".format(category)):
                 self.categories.append(category)
             if self.obj_type == "Person":
-                if self.config.get(
-                        "{}.timeline.show-family-class-{}".format(self.space, category)
-                ):
+                if self.option("timeline", "show-family-class-{}".format(category)):
                     self.relation_categories.append(category)
 
         if self.obj_type == "Person":
             for relation in RELATIVES:
-                if self.config.get(
-                        "{}.timeline.show-family-{}".format(self.space, relation)
-                ):
+                if self.option("timeline", "show-family-{}".format(relation)):
                     self.relations.append(relation)
 
-        self.ancestors = self.config.get(
-            "{}.timeline.generations-ancestors".format(self.space)
-        )
-
-        self.offspring = self.config.get(
-            "{}.timeline.generations-offspring".format(self.space)
-        )
+        self.ancestors = self.option("timeline", "generations-ancestors")
+        self.offspring = self.option("timeline", "generations-offspring")

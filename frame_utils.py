@@ -147,23 +147,23 @@ def get_gramps_object_type(obj):
     """
     if isinstance(obj, Person):
         return "Person", DdTargets.PERSON_LINK, 'gramps-person'
-    elif isinstance(obj, Family):
+    if isinstance(obj, Family):
         return "Family", DdTargets.FAMILY_LINK, 'gramps-family'
-    elif isinstance(obj, Event):
+    if isinstance(obj, Event):
         return "Event", DdTargets.EVENT, 'gramps-event'
-    elif isinstance(obj, Place):
+    if isinstance(obj, Place):
         return "Place", DdTargets.PLACE_LINK, 'gramps-place'
-    elif isinstance(obj, Source):
+    if isinstance(obj, Source):
         return "Source", DdTargets.SOURCE_LINK, 'gramps-source'
-    elif isinstance(obj, Citation):
+    if isinstance(obj, Citation):
         return "Citation", DdTargets.CITATION_LINK, 'gramps-citation'
-    elif isinstance(obj, Repository):
-        return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
-    elif isinstance(obj, Note):
+    if isinstance(obj, Note):
         return "Note", DdTargets.NOTE_LINK, 'gramps-notes'
-    elif isinstance(obj, Media):
+    if isinstance(obj, Media):
         return "Media", DdTargets.MEDIAOBJ, 'gramps-media'
-    
+    if isinstance(obj, Repository):
+        return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
+
 def format_date_string(event1, event2):
     """
     Format a simple one line date string.
@@ -448,7 +448,7 @@ def get_person_color_css(person, config, living=False, home=None):
     """
     if not person:
         return ""
-        
+
     if person.gender == Person.MALE:
         key = "male"
     elif person.gender == Person.FEMALE:
@@ -531,6 +531,9 @@ def get_participants(db, event):
 
 
 def get_config_option(config, option, full=False, dbid=None, defaults=None):
+    """
+    Extract a compound config option.
+    """
     try:
         option_data = config.get(option)
     except AttributeError:
@@ -557,6 +560,9 @@ def get_config_option(config, option, full=False, dbid=None, defaults=None):
 
 
 def save_config_option(config, option, option_type, option_value="", dbid=None):
+    """
+    Save a compound config option.
+    """
     if dbid:
         option_list = []
         option_data = config.get(option)
@@ -664,7 +670,7 @@ class AttributeSelector(Gtk.ComboBoxText):
         for attribute_type in attribute_names:
             self.append_text(attribute_type)
 
-        current_option = get_config_option(self.config, self.option, dbid=self.dbid)
+        current_option = get_config_option(config, option, dbid=self.dbid)
         current_value = "None"
         if current_option and len(current_option) >= 2:
             current_value = current_option[1]

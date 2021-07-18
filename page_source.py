@@ -49,6 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
 from frame_groups import get_citation_group
 from frame_source import SourceGrampsFrame
@@ -90,27 +91,14 @@ class SourceProfilePage(BaseProfilePage):
         if not source:
             return
 
-        self.active_profile = SourceGrampsFrame(
-            self.dbstate,
-            self.uistate,
-            source,
-            "active",
-            "preferences.profile.source",
-            self.config,
-            self.callback_router,
-            defaults=self.defaults,
+        grstate = GrampsState(
+            self.dbstate, self.uistate, self.callback_router,
+            "preferences.profile.source", self.config, self.defaults
         )
+        self.active_profile = SourceGrampsFrame(grstate, "active", source)
 
         citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_group(
-            self.dbstate,
-            self.uistate,
-            source,
-            self.callback_router,
-            "preferences.profile.source",
-            self.config,
-            sources=False
-        )
+        citations = get_citation_group(grstate, source, sources=False)
         if citations is not None:
             citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
@@ -127,16 +115,7 @@ class SourceProfilePage(BaseProfilePage):
                             events_list.append(sub_obj_handle)
 
         if people_list:
-            people_group = GenericGrampsFrameGroup(
-                self.dbstate,
-                self.uistate,
-                self.callback_router,
-                "preferences.profile.source",
-                self.config,
-                "Person",
-                people_list,
-                defaults=self.defaults
-            )
+            people_group = GenericGrampsFrameGroup(grstate, "Person", people_list)
             people = Gtk.Expander(expanded=True, use_markup=True)
             people.set_label("<small><b>{}</b></small>".format(_("Referenced People")))
             people.add(people_group)
@@ -144,16 +123,7 @@ class SourceProfilePage(BaseProfilePage):
             people_box.pack_start(people, expand=False, fill=False, padding=0)
 
         if events_list:
-            events_group = GenericGrampsFrameGroup(
-                self.dbstate,
-                self.uistate,
-                self.callback_router,
-                "preferences.profile.source",
-                self.config,
-                "Event",
-                events_list,
-                defaults=self.defaults
-            )
+            events_group = GenericGrampsFrameGroup(grstate, "Event", events_list)
             events = Gtk.Expander(expanded=True, use_markup=True)
             events.set_label("<small><b>{}</b></small>".format(_("Referenced Events")))
             events.add(events_group)

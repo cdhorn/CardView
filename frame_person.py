@@ -65,7 +65,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_class import GrampsFrame
 from frame_utils import (
     _GENDERS,
     format_date_string,
@@ -97,39 +97,31 @@ class PersonGrampsFrame(GrampsFrame):
 
     def __init__(
         self,
-        dbstate,
-        uistate,
-        person,
+        grstate,
         context,
-        space,
-        config,
-        router,
+        person,
         relation=None,
         number=0,
         groups=None,
         family_backlink=None,
-        defaults=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, person, context, groups=groups, defaults=defaults)
+        GrampsFrame.__init__(self, grstate, context, person, groups=groups)
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink
-        self.event_cache = []
 
-        for event_ref in self.obj.get_primary_event_ref_list():
-            self.event_cache.append(self.dbstate.db.get_event_from_handle(event_ref.ref))
         self.enable_drag()
         self.enable_drop()
 
-        display_name = name_displayer.display(self.person)
-        if self.enable_tooltips:
+        display_name = name_displayer.display(person)
+        if self.option("layout", "enable_tooltips"):
             tooltip = "{} {} {}".format(
                 _("Click to view"), display_name, _("or right click to select edit.")
             )
         else:
             tooltip = None
         name = TextLink(
-            display_name, "Person", self.person.handle, self.switch_object, tooltip=tooltip, bold=True
+            display_name, "Person", person.handle, self.switch_object, tooltip=tooltip, bold=True
         )
         name_box = Gtk.HBox(spacing=2)
         if number:
@@ -138,23 +130,26 @@ class PersonGrampsFrame(GrampsFrame):
             )
             name_box.pack_start(label, False, False, 0)
         if self.option(context, "sex-mode") == 1:
-            name_box.pack_start(Gtk.Label(label=_GENDERS[self.person.gender]), False, False, 0)
+            name_box.pack_start(Gtk.Label(label=_GENDERS[person.gender]), False, False, 0)
         name_box.pack_start(name, False, False, 0)
         if self.option(context, "sex-mode") == 2:
-            name_box.pack_start(Gtk.Label(label=_GENDERS[self.person.gender]), False, False, 0)
+            name_box.pack_start(Gtk.Label(label=_GENDERS[person.gender]), False, False, 0)
         self.title.pack_start(name_box, True, True, 0)
 
-        self.living = probably_alive(self.person, self.dbstate.db)
+        self.living = probably_alive(person, grstate.dbstate.db)
 
-        self.load_fields("facts-field")
+        event_cache = []
+        for event_ref in self.obj.get_primary_event_ref_list():
+            event_cache.append(grstate.dbstate.db.get_event_from_handle(event_ref.ref))
+
+        self.load_fields(event_cache, "facts-field")
         if self.context == "active":
-            self.load_fields("extra-field", extra=True)
+            self.load_fields(event_cache, "extra-field", extra=True)
 
-        while len(self.event_cache) > 0:
-            del self.event_cache[0]
+        del event_cache
         self.set_css_style()
 
-    def load_fields(self, field_type, extra=False):
+    def load_fields(self, event_cache, field_type, extra=False):
         """
         Parse and load a set of facts about a person.
         """
@@ -164,7 +159,7 @@ class PersonGrampsFrame(GrampsFrame):
         skip_death_alternates = self.option(self.context, key)
         have_birth = False
         have_death = False
-        for event in self.event_cache:
+        for event in event_cache:
             if event.get_type().xml_str() == "Birth":
                 have_birth = True
             elif event.get_type().xml_str() == "Death":
@@ -186,6 +181,7 @@ class PersonGrampsFrame(GrampsFrame):
                         show_all = False
                 if option[0] == "Event":
                     self.add_field_for_event(
+                        event_cache,
                         option[1],
                         extra=extra,
                         show_all=show_all,
@@ -195,19 +191,19 @@ class PersonGrampsFrame(GrampsFrame):
                         have_death=have_death
                     )
                 elif option[0] == "Fact":
-                    self.add_field_for_fact(option[1], extra=extra, show_all=show_all)
+                    self.add_field_for_fact(event_cache, option[1], extra=extra, show_all=show_all)
                 elif option[0] == "Attribute":
                     self.add_field_for_attribute(option[1], extra=extra, show_all=show_all)
                 elif option[0] == "Relation":
                     self.add_field_for_relation(option[1], extra=extra)
             count = count + 1
 
-    def add_field_for_event(self, event_type, extra=False, show_all=False,
+    def add_field_for_event(self, event_cache, event_type, extra=False, show_all=False,
                             skip_birth=False, have_birth=None, skip_death=False, have_death=None):
         """
         Find an event and load the data.
         """
-        for event in self.event_cache:
+        for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if skip_birth and have_birth:
                     if event_type in _BIRTH_EQUIVALENTS:
@@ -219,11 +215,11 @@ class PersonGrampsFrame(GrampsFrame):
                 if not show_all:
                     return
 
-    def add_field_for_fact(self, event_type, extra=False, show_all=False):
+    def add_field_for_fact(self, event_cache, event_type, extra=False, show_all=False):
         """
         Find an event and load the data.
         """
-        for event in self.event_cache:
+        for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if event.get_description():
                     label = self.make_label(str(event.get_type()))
@@ -254,9 +250,9 @@ class PersonGrampsFrame(GrampsFrame):
             text = _("Home person")
         else:
             try:
-                relation = self.dbstate.db.get_person_from_handle(handle)
+                relation = self.grstate.dbstate.db.get_person_from_handle(handle)
                 relationship = get_relation(
-                    self.dbstate.db,
+                    self.grstate.dbstate.db,
                     self.person,
                     relation,
                     depth=global_config.get("behavior.generation-depth"),
@@ -276,10 +272,10 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+        if not self.option("layout", "use-color-scheme"):
             return ""
 
-        return get_person_color_css(self.obj, self.config, living=self.living, home=self.relation)
+        return get_person_color_css(self.obj, self.grstate.config, living=self.living, home=self.relation)
 
     def add_custom_actions(self):
         """
@@ -313,7 +309,7 @@ class PersonGrampsFrame(GrampsFrame):
         ref.ref = self.person.handle
         try:
             EditEventRef(
-                self.dbstate, self.uistate, [], event, ref, self.added_new_person_event
+                self.grstate.dbstate, self.grstate.uistate, [], event, ref, self.added_new_person_event
             )
         except WindowActiveError:
             pass
@@ -322,7 +318,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Finish adding a new event for a person.
         """
-        event = self.dbstate.db.get_event_from_handle(reference.ref)
+        event = self.grstate.dbstate.db.get_event_from_handle(reference.ref)
         action = "{} {} {} {} {}".format(
             _("Added Person"),
             self.person.get_gramps_id(),
@@ -330,9 +326,9 @@ class PersonGrampsFrame(GrampsFrame):
             _("Event"),
             event.get_gramps_id()
         )
-        with DbTxn(action, self.dbstate.db) as trans:
+        with DbTxn(action, self.grstate.dbstate.db) as trans:
             if self.person.add_event_ref(reference):
-                self.dbstate.db.commit_person(self.person, trans)
+                self.grstate.dbstate.db.commit_person(self.person, trans)
 
     def _parents_option(self):
         """
@@ -344,8 +340,8 @@ class PersonGrampsFrame(GrampsFrame):
         if self.obj.parent_family_list:
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.parent_family_list:
-                family = self.dbstate.db.get_family_from_handle(handle)
-                family_text = family_name(family, self.dbstate.db)
+                family = self.grstate.dbstate.db.get_family_from_handle(handle)
+                family_text = family_name(family, self.grstate.dbstate.db)
                 menu.add(self._menu_item("gramps-parents", family_text, self.edit_object, family, "Family"))
         return self._submenu_item("gramps-parents", _("Parents"), menu)
 
@@ -358,7 +354,7 @@ class PersonGrampsFrame(GrampsFrame):
         child_ref.ref = self.person.handle
         family.add_child_ref(child_ref)
         try:
-            EditFamily(self.dbstate, self.uistate, [], family)
+            EditFamily(self.grstate.dbstate, self.grstate.uistate, [], family)
         except WindowActiveError:
             pass
 
@@ -368,10 +364,10 @@ class PersonGrampsFrame(GrampsFrame):
         """
         SelectFamily = SelectorFactory("Family")
         skip = set(self.person.get_family_handle_list())
-        dialog = SelectFamily(self.dbstate, self.uistate, skip=skip)
+        dialog = SelectFamily(self.grstate.dbstate, self.grstate.uistate, skip=skip)
         family = dialog.run()
         if family:
-            self.dbstate.db.add_child_to_family(family, self.person)
+            self.grstate.dbstate.db.add_child_to_family(family, self.person)
 
     def _partners_option(self):
         """
@@ -382,8 +378,8 @@ class PersonGrampsFrame(GrampsFrame):
         if self.obj.family_list:
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.family_list:
-                family = self.dbstate.db.get_family_from_handle(handle)
-                family_text = family_name(family, self.dbstate.db)
+                family = self.grstate.dbstate.db.get_family_from_handle(handle)
+                family_text = family_name(family, self.grstate.dbstate.db)
                 menu.add(self._menu_item("gramps-spouse", family_text, self.edit_object, family, "Family"))
         return self._submenu_item("gramps-spouse", _("Spouses"), menu)
 
@@ -397,7 +393,7 @@ class PersonGrampsFrame(GrampsFrame):
         else:
             family.set_mother_handle(self.person.handle)
         try:
-            EditFamily(self.dbstate, self.uistate, [], family)
+            EditFamily(self.grstate.dbstate, self.grstate.uistate, [], family)
         except WindowActiveError:
             pass
 
@@ -420,7 +416,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         if self.family_backlink:
             person_name = name_displayer.display(self.person)
-            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
+            family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
             father_handle = family.get_father_handle()
             mother_handle = family.get_mother_handle()
             partner_handle = None
@@ -431,7 +427,7 @@ class PersonGrampsFrame(GrampsFrame):
                 if father_handle:
                     partner_handle = father_handle
             if partner_handle:
-                partner = self.dbstate.db.get_person_from_handle(partner_handle)
+                partner = self.grstate.dbstate.db.get_person_from_handle(partner_handle)
                 partner_name = name_displayer.display(partner)
                 text = "You are about to remove {} as the partner of {} and a parent of this family.".format(person_name, partner_name)
             else:
@@ -440,7 +436,7 @@ class PersonGrampsFrame(GrampsFrame):
                     "Warning",
                     "{}\n\nAre you sure you want to continue?".format(text)
             ):
-                self.dbstate.db.remove_parent_from_family(
+                self.grstate.dbstate.db.remove_parent_from_family(
                     self.person.handle, self.family_backlink
                 )
  
@@ -456,12 +452,12 @@ class PersonGrampsFrame(GrampsFrame):
         """
         if self.family_backlink:
             person_name = name_displayer.display(self.person)
-            family = self.dbstate.db.get_family_from_handle(self.family_backlink)
-            family_text = family_name(family, self.dbstate.db)
+            family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
+            family_text = family_name(family, self.grstate.dbstate.db)
             if self.confirm_action(
                     "Warning",
                     "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
             ):
-                self.dbstate.db.remove_child_from_family(
+                self.grstate.dbstate.db.remove_child_from_family(
                     self.person.handle, self.family_backlink
                 )

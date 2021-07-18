@@ -44,7 +44,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsFrame
+from frame_class import GrampsFrame
 from frame_person import PersonGrampsFrame
 from frame_utils import get_family_color_css, get_key_family_events
 
@@ -67,34 +67,29 @@ class CoupleGrampsFrame(GrampsFrame):
 
     def __init__(
         self,
-        dbstate,
-        uistate,
-        router,
-        family,
+        grstate,
         context,
-        space,
-        config,
+        family,
         parent=None,
         relation=None,
         vertical=True,
         groups=None,
-        defaults=None
     ):
-        GrampsFrame.__init__(self, dbstate, uistate, router, space, config, family, context, groups=groups, vertical=vertical)
+        GrampsFrame.__init__(self, grstate, context, family, groups=groups, vertical=vertical)
         self.family = family
         self.parent = parent
         self.relation = relation
 
         self.parent1, self.parent2 = self._get_parents()
-        profile = self._get_profile(self.parent1, defaults)
+        profile = self._get_profile(self.parent1)
         if profile:
             self.partner1.add(profile)
         if self.parent2:
-            profile = self._get_profile(self.parent2, defaults)
+            profile = self._get_profile(self.parent2)
             if profile:
                 self.partner2.add(profile)
 
-        marriage, divorce = get_key_family_events(self.dbstate.db, self.family)
+        marriage, divorce = get_key_family_events(grstate.dbstate.db, self.family)
         if marriage:
             self.add_event(marriage)
 
@@ -151,21 +146,16 @@ class CoupleGrampsFrame(GrampsFrame):
             dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
             dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
 
-    def _get_profile(self, person, defaults):
+    def _get_profile(self, person):
         if person:
             working_context = self.context
             if working_context == "family":
                 working_context = "people"
             profile = PersonGrampsFrame(
-                self.dbstate,
-                self.uistate,
+                self.grstate,
+                working_context,                
                 person,
-                working_context,
-                self.space,
-                self.config,
-                self.router,
                 groups=self.groups,
-                defaults=defaults,
                 family_backlink=self.family.handle
             )
             return profile
@@ -174,10 +164,10 @@ class CoupleGrampsFrame(GrampsFrame):
     def _get_parents(self):
         father = None
         if self.family.get_father_handle():
-            father = self.dbstate.db.get_person_from_handle(self.family.get_father_handle())
+            father = self.grstate.dbstate.db.get_person_from_handle(self.family.get_father_handle())
         mother = None
         if self.family.get_mother_handle():
-            mother = self.dbstate.db.get_person_from_handle(self.family.get_mother_handle())
+            mother = self.grstate.dbstate.db.get_person_from_handle(self.family.get_mother_handle())
 
         partner1 = father
         partner2 = mother
@@ -208,7 +198,7 @@ class CoupleGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.config.get("preferences.profile.person.layout.use-color-scheme"):
+        if not self.option("layout", "use-color-scheme"):
             return ""
 
-        return get_family_color_css(self.obj, self.config, divorced=self.divorced)
+        return get_family_color_css(self.obj, self.grstate.config, divorced=self.divorced)

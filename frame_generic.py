@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+"""
+GenericGrampsFrameGroup
+"""
 
 # ------------------------------------------------------------------------
 #
@@ -29,15 +32,6 @@ from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
-#
-# ------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -45,13 +39,6 @@ from frame_event import EventGrampsFrame
 from frame_list import GrampsFrameList
 from frame_person import PersonGrampsFrame
 from frame_couple import CoupleGrampsFrame
-from frame_utils import get_gramps_object_type
-
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
 
 
 # ------------------------------------------------------------------------
@@ -65,9 +52,8 @@ class GenericGrampsFrameGroup(GrampsFrameList):
     set of generic frames for a list of primary Gramps objects.
     """
 
-    def __init__(self, dbstate, uistate, router, space, config, obj_type, obj_handles, defaults=None):
-        GrampsFrameList.__init__(self, dbstate, uistate, space, config, router=router)
-        self.defaults = defaults
+    def __init__(self, grstate, obj_type, obj_handles):
+        GrampsFrameList.__init__(self, grstate)
         self.obj_type = obj_type
         self.obj_handles = obj_handles
 
@@ -79,51 +65,29 @@ class GenericGrampsFrameGroup(GrampsFrameList):
 
         if obj_type == "Person":
             for handle in obj_handles:
-                person = self.dbstate.db.get_person_from_handle(handle)
-                frame = PersonGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
-                    person,
-                    "people",
-                    self.space,
-                    self.config,
-                    self.router,
-                    groups=groups,
-                    defaults=self.defaults
-                )
+                person = grstate.dbstate.db.get_person_from_handle(handle)
+                frame = PersonGrampsFrame(grstate, "people", person, groups=groups)
                 self.add_frame(frame)
 
         if obj_type == "Family":
             for handle in obj_handles:
-                family = dbstate.db.get_family_from_handle(handle)
-                frame = CoupleGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
-                    self.router,
-                    family,
-                    "family",
-                    self.space,
-                    self.config,
-                    defaults=self.defaults
-                )
+                family = grstate.dbstate.db.get_family_from_handle(handle)
+                frame = CoupleGrampsFrame(grstate, "family", family)
                 self.add_frame(frame)
 
         if obj_type == "Event":
             for handle in obj_handles:
-                event = self.dbstate.db.get_event_from_handle(handle)
+                event = grstate.dbstate.db.get_event_from_handle(handle)
                 frame = EventGrampsFrame(
-                    self.dbstate,
-                    self.uistate,
-                    self.space,
-                    self.config,
-                    self.router,
+                    grstate,
+                    "events",
                     None,
                     event,
                     None,
                     None,
                     None,
                     None,
-                    "events"
+                    groups=groups
                 )
                 self.add_frame(frame)
 
