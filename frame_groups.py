@@ -47,7 +47,7 @@ from frame_children import ChildrenGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
 from frame_media import MediaGrampsFrameGroup
 from frame_repositories import RepositoriesGrampsFrameGroup
-from frame_sources import SourcesGrampsFrameGroup
+from frame_citations import CitationsGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
 
 try:
@@ -153,7 +153,7 @@ def get_spouses_group(grstate, person):
         elements.add(group)
     return spouses
 
-def get_citation_group(grstate, obj, sources=True):
+def get_citations_group(grstate, obj, sources=True):
     """
     Get the group for all the cited sources associated with an object.
     """
@@ -165,7 +165,7 @@ def get_citation_group(grstate, obj, sources=True):
         title_single = _("Citation")
 
     return get_generic_group(
-        grstate, obj, SourcesGrampsFrameGroup,
+        grstate, obj, CitationsGrampsFrameGroup,
         title_plural, title_single, expanded=True
     )
 

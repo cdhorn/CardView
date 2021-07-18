@@ -52,7 +52,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from frame_base import GrampsState
 from frame_event import EventGrampsFrame
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citation_group, get_media_group
+from frame_groups import get_citations_group, get_media_group
 from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
@@ -107,7 +107,7 @@ class EventProfilePage(BaseProfilePage):
         )
 
         citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_group(grstate, event)
+        citations = get_citations_group(grstate, event)
         if citations is not None:
             citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 

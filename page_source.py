@@ -51,7 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citation_group, get_repositories_group
+from frame_groups import get_citations_group, get_repositories_group
 from frame_source import SourceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -103,7 +103,7 @@ class SourceProfilePage(BaseProfilePage):
             repositories_box.pack_start(repositories, expand=False, fill=False, padding=0)
 
         citations_box = Gtk.VBox(spacing=3)
-        citations = get_citation_group(grstate, source, sources=False)
+        citations = get_citations_group(grstate, source, sources=False)
         if citations is not None:
             citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 

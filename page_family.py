@@ -55,7 +55,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 from frame_base import GrampsState, button_activated
 from frame_groups import (
     get_children_group,
-    get_citation_group,
+    get_citations_group,
     get_media_group,
     get_timeline_group,
 )
@@ -191,7 +191,7 @@ class FamilyProfilePage(BaseProfilePage):
             
         if self.config.get("preferences.profile.family.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
-            citations = get_citation_group(grstate, family)
+            citations = get_citations_group(grstate, family)
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
             gbox.pack_start(citations_box, expand=True, fill=True, padding=0)

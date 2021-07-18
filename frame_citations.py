@@ -19,7 +19,7 @@
 #
 
 """
-SourcesGrampsFrameGroup
+CitationsGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -57,13 +57,13 @@ _ = _trans.gettext
 
 # ------------------------------------------------------------------------
 #
-# SourcesGrampsFrameGroup class
+# CitationsGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class SourcesGrampsFrameGroup(GrampsFrameList):
+class CitationsGrampsFrameGroup(GrampsFrameList):
     """
-    The SourcesGrampsFrameGroup class provides a container for managing all
-    of the cited sources for a given primary Gramps object.
+    The CitationsGrampsFrameGroup class provides a container for viewing and
+    managing all of the citations associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, obj):

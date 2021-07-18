@@ -51,7 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citation_group
+from frame_groups import get_citations_group
 from frame_repository import RepositoryGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
