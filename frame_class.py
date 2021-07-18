@@ -549,7 +549,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.action_menu = Gtk.Menu()
             self.action_menu.append(self._edit_object_option())
             self.add_custom_actions()
-            self.action_menu.append(self._attributes_option())
+            if hasattr(self.obj, "attribute_list"):
+                self.action_menu.append(self._attributes_option())
             if hasattr(self.obj, "citation_list"):
                 self.action_menu.append(self._citations_option())
             if hasattr(self.obj, "note_list"):

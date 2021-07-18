@@ -46,6 +46,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from frame_children import ChildrenGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
 from frame_media import MediaGrampsFrameGroup
+from frame_repositories import RepositoriesGrampsFrameGroup
 from frame_sources import SourcesGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
 
@@ -183,5 +184,14 @@ def get_media_group(grstate, obj, title_plural=_("Media Items"), title_single=_(
     """
     return get_generic_group(
         grstate, obj, MediaGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )
+
+def get_repositories_group(grstate, obj, title_plural=_("Repositories"), title_single=_("Repository")):
+    """
+    Get the group of repositories associated with an object.
+    """
+    return get_generic_group(
+        grstate, obj, RepositoriesGrampsFrameGroup,
         title_plural, title_single, expanded=True
     )

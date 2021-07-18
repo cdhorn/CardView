@@ -51,7 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citation_group
+from frame_groups import get_citation_group, get_repositories_group
 from frame_source import SourceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -97,6 +97,11 @@ class SourceProfilePage(BaseProfilePage):
         )
         self.active_profile = SourceGrampsFrame(grstate, "active", source)
 
+        repositories_box = Gtk.VBox(spacing=3)
+        repositories = get_repositories_group(grstate, source)
+        if repositories is not None:
+            repositories_box.pack_start(repositories, expand=False, fill=False, padding=0)
+
         citations_box = Gtk.VBox(spacing=3)
         citations = get_citation_group(grstate, source, sources=False)
         if citations is not None:
@@ -131,6 +136,8 @@ class SourceProfilePage(BaseProfilePage):
             events_box.pack_start(events, expand=False, fill=False, padding=0)
 
         body = Gtk.HBox(vexpand=False, spacing=3)
+        if repositories:
+            body.pack_start(repositories_box, True, True, 0)
         if citations:
             body.pack_start(citations_box, True, True, 0)
         if people_list:
@@ -234,6 +241,42 @@ class SourceProfilePage(BaseProfilePage):
         reset = ConfigReset(configdialog, self.config, "preferences.profile.source.active", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
+
+    def repositories_panel(self, configdialog):
+        """
+        Builds repositories options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "preferences.profile.source.repository.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "preferences.profile.source.repository.tag-width",
+            (1, 20),
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show call number"),
+            10, "preferences.profile.source.repository.show-call-number",
+            tooltip=_("Enabling this option will show the source call number at the repository if it is available.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show media type"),
+            11, "preferences.profile.source.repository.show-media-type",
+            tooltip=_("Enabling this option will show the source media type at the repository if it is available.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Show repository type"),
+            12, "preferences.profile.source.repository.show-repository-type",
+            tooltip=_("Enabling this option will show the repository type if it is available.")
+        )
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.repository", defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Repositories"), grid
 
     def citations_panel(self, configdialog):
         """
@@ -343,6 +386,7 @@ class SourceProfilePage(BaseProfilePage):
         return [
             self.layout_panel,
             self.active_panel,
+            self.repositories_panel,            
             self.citations_panel,
             self.people_panel,
         ]

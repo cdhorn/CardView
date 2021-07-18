@@ -50,6 +50,7 @@ from page_person import PersonProfilePage
 from page_family import FamilyProfilePage
 from page_event import EventProfilePage
 from page_source import SourceProfilePage
+from page_repository import RepositoryProfilePage
 
 _ = glocale.translation.sgettext
 
@@ -85,8 +86,9 @@ class ProfileView(ENavigationView):
         self.pages = {}
         self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(FamilyProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(RepositoryProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
 
@@ -99,34 +101,14 @@ class ProfileView(ENavigationView):
         """
         Register the callbacks we need.
         """
-        self.callman.add_db_signal('person-add', self.redraw)
-        self.callman.add_db_signal('person-update', self.redraw)
-        self.callman.add_db_signal('person-delete', self.redraw)
-        self.callman.add_db_signal('person-rebuild', self.redraw)
-        self.callman.add_db_signal('family-update', self.redraw)
-        self.callman.add_db_signal('family-add',    self.redraw)
-        self.callman.add_db_signal('family-delete', self.redraw)
-        self.callman.add_db_signal('family-rebuild', self.redraw)
-        self.callman.add_db_signal('event-add', self.redraw)
-        self.callman.add_db_signal('event-update', self.redraw)
-        self.callman.add_db_signal('event-delete', self.redraw)
-        self.callman.add_db_signal('event-rebuild', self.redraw)
-        self.callman.add_db_signal('place-add', self.redraw)
-        self.callman.add_db_signal('place-update', self.redraw)
-        self.callman.add_db_signal('place-delete', self.redraw)
-        self.callman.add_db_signal('place-rebuild', self.redraw)
-        self.callman.add_db_signal('source-update', self.redraw)
-        self.callman.add_db_signal('source-add',    self.redraw)
-        self.callman.add_db_signal('source-delete', self.redraw)
-        self.callman.add_db_signal('source-rebuild', self.redraw)
-        self.callman.add_db_signal('citation-update', self.redraw)
-        self.callman.add_db_signal('citation-add',    self.redraw)
-        self.callman.add_db_signal('citation-delete', self.redraw)
-        self.callman.add_db_signal('citation-rebuild', self.redraw)
-        self.callman.add_db_signal('media-update', self.redraw)
-        self.callman.add_db_signal('media-add',    self.redraw)
-        self.callman.add_db_signal('media-delete', self.redraw)
-        self.callman.add_db_signal('media-rebuild', self.redraw)
+        for obj in [
+            "person", "family", "event", "place", "source",
+            "citation", "media", "repository"
+        ]:
+            self.callman.add_db_signal('{}-add'.format(obj), self.redraw)
+            self.callman.add_db_signal('{}-update'.format(obj), self.redraw)
+            self.callman.add_db_signal('{}-delete'.format(obj), self.redraw)
+            self.callman.add_db_signal('{}-rebuild'.format(obj), self.redraw)
 
     def navigation_type(self):
         return self.active_type
@@ -490,6 +472,8 @@ class ProfileView(ENavigationView):
             obj = self.dbstate.db.get_event_from_handle(handle)
         elif obj_type == 'Source':
             obj = self.dbstate.db.get_source_from_handle(handle)
+        elif obj_type == 'Repository':
+            obj = self.dbstate.db.get_repository_from_handle(handle)
         else:
             self.redrawing = False
             return False
@@ -509,6 +493,8 @@ class ProfileView(ENavigationView):
                 tooltip = _('Edit the active event')
             elif obj_type == 'Source':
                 tooltip = _('Edit the active source')
+            elif obj_type == 'Repository':
+                tooltip = _('Edit the active repository')
             edit_button.set_tooltip_text(tooltip)
 
         self.uistate.modify_statusbar(self.dbstate)

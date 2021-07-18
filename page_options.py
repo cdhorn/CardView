@@ -555,6 +555,12 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.active.metadata-attribute-2", "None"),
     ("preferences.profile.source.active.metadata-attribute-3", "None"),
     ("preferences.profile.source.active.metadata-attribute-4", "None"),
+    # Repositories
+    ("preferences.profile.source.repository.tag-format", 1),
+    ("preferences.profile.source.repository.tag-width", 10),
+    ("preferences.profile.source.repository.show-call-number", True),
+    ("preferences.profile.source.repository.show-media-type", True),
+    ("preferences.profile.source.repository.show-repository-type", True),
     # Source Citations
     ("preferences.profile.source.citation.tag-format", 1),
     ("preferences.profile.source.citation.tag-width", 10),
@@ -609,5 +615,23 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.events.metadata-attribute-2", "None"),
     ("preferences.profile.source.events.metadata-attribute-3", "None"),
     ("preferences.profile.source.events.metadata-attribute-4", "None"),
-
+    ######################################################################
+    # Repository Page Options
+    ######################################################################
+    # Layout
+    ("preferences.profile.repository.layout.enable-tooltips", True),
+    ("preferences.profile.repository.layout.enable-warnings", True),
+    ("preferences.profile.repository.layout.pinned-header", True),
+    ("preferences.profile.repository.layout.border-width", 2),
+    ("preferences.profile.repository.layout.use-color-scheme", True),
+    ("preferences.profile.repository.layout.use-smaller-detail-font", True),
+    ("preferences.profile.repository.layout.sort-tags-by-name", False),
+    ("preferences.profile.repository.layout.include-child-notes", False),
+    ("preferences.profile.repository.layout.right-to-left", False),
+    # Active Repository
+    ("preferences.profile.repository.active.tag-format", 1),
+    ("preferences.profile.repository.active.tag-width", 10),
+    # Sources
+    ("preferences.profile.repository.source.tag-format", 1),
+    ("preferences.profile.repository.source.tag-width", 10),
 )

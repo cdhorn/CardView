@@ -48,11 +48,6 @@ from frame_list import GrampsFrameList
 from frame_person import PersonGrampsFrame
 
 
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
