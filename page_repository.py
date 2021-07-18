@@ -51,7 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citations_group
+from frame_groups import get_sources_group
 from frame_repository import RepositoryGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -97,14 +97,14 @@ class RepositoryProfilePage(BaseProfilePage):
         )
         self.active_profile = RepositoryGrampsFrame(grstate, "active", repository)
 
-#        sources_box = Gtk.VBox(spacing=3)
-#        sources = get_sources_group(grstate, repository)
-#        if sources is not None:
-#            sources_box.pack_start(sources, expand=False, fill=False, padding=0)
+        sources_box = Gtk.VBox(spacing=3)
+        sources = get_sources_group(grstate, repository)
+        if sources is not None:
+            sources_box.pack_start(sources, expand=False, fill=False, padding=0)
 
         body = Gtk.HBox(vexpand=False, spacing=3)
-#        if sources:
-#            body.pack_start(sources_box, True, True, 0)
+        if sources:
+            body.pack_start(sources_box, True, True, 0)
 
         if self.config.get("preferences.profile.repository.layout.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
