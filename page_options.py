@@ -632,6 +632,11 @@ CONFIGSETTINGS = (
     ("preferences.profile.repository.active.tag-format", 1),
     ("preferences.profile.repository.active.tag-width", 10),
     # Sources
+    ("preferences.profile.repository.source.image-mode", 3),
     ("preferences.profile.repository.source.tag-format", 1),
     ("preferences.profile.repository.source.tag-width", 10),
+    ("preferences.profile.repository.source.metadata-attribute-1", "None"),
+    ("preferences.profile.repository.source.metadata-attribute-2", "None"),
+    ("preferences.profile.repository.source.metadata-attribute-3", "None"),
+    ("preferences.profile.repository.source.metadata-attribute-4", "None"),
 )

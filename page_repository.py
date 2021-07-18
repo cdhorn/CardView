@@ -198,16 +198,23 @@ class RepositoryProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
+            grid, _("Image display mode"),
+            1, "preferences.profile.repository.source.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )        
+        configdialog.add_combo(
             grid, _("Tag display mode"),
-            1, "preferences.profile.repository.sources.tag-format",
+            2, "preferences.profile.repository.source.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            2, "preferences.profile.repository.sources.tag-width",
+            3, "preferences.profile.repository.source.tag-width",
             (1, 20),
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.sources", defaults=self.defaults, label=_("Reset Page Defaults"))
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "preferences.profile.repository.source", 16, start_col=1, number=4, obj_type="Sources")
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.source", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 
