@@ -25,7 +25,7 @@
 #
 
 """
-Repository Profile Page
+Note Profile Page
 """
 
 # -------------------------------------------------------------------------
@@ -50,9 +50,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
-from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_notes_group, get_sources_group
-from frame_repository import RepositoryGrampsFrame
+from frame_groups import get_references_group
+from frame_note import NoteGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
@@ -65,16 +64,16 @@ from page_base import BaseProfilePage
 _ = glocale.translation.sgettext
 
 
-class RepositoryProfilePage(BaseProfilePage):
+class NoteProfilePage(BaseProfilePage):
     """
-    Provides the repository profile page view with information about the repository.
+    Provides the note profile page view with information about the note.
     """
 
     def __init__(self, dbstate, uistate, config, defaults):
         BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
 
     def obj_type(self):
-        return 'Repository'
+        return 'Note'
 
     def define_actions(self, view):
         return
@@ -85,34 +84,26 @@ class RepositoryProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, repository):
+    def render_page(self, header, vbox, note):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not repository:
+        if not note:
             return
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.repository", self.config, self.defaults
+            "preferences.profile.note", self.config, self.defaults
         )
-        self.active_profile = RepositoryGrampsFrame(grstate, "active", repository)
+        self.active_profile = NoteGrampsFrame(grstate, "active", note)
 
         body = Gtk.HBox(vexpand=False, spacing=3)
+        rbox = Gtk.VBox(spacing=3)
+        references = get_references_group(grstate, note)
+        if references is not None:
+            rbox.pack_start(references, expand=True, fill=True, padding=0)
+            body.pack_start(rbox, expand=True, fill=True, padding=0)
 
-        sources = get_sources_group(grstate, repository)
-        if sources is not None:
-            sources_box = Gtk.VBox(spacing=3)
-            sources_box.pack_start(sources, expand=False, fill=False, padding=0)
-            body.pack_start(sources_box, expand=True, fill=True, padding=0)
-            
-        if self.config.get("preferences.profile.repository.layout.show-notes"):
-            notes = get_notes_group(grstate, repository)
-            if notes is not None:
-                notes_box = Gtk.VBox(spacing=3)
-                notes_box.pack_start(notes, expand=False, fill=False, padding=0)
-                body.pack_start(notes_box, expand=True, fill=True, padding=0)
-
-        if self.config.get("preferences.profile.repository.layout.pinned-header"):
+        if self.config.get("preferences.profile.note.layout.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -128,78 +119,69 @@ class RepositoryProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
-            grid, _("Show associated notes"),
-            1, "preferences.profile.repository.layout.show-notes",
-        )        
-        configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            2, "preferences.profile.repository.layout.pinned-header",
+            2, "preferences.profile.note.layout.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.repository.layout.use-smaller-detail-font",
+            7, "preferences.profile.note.layout.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.repository.layout.border-width",
+            8, "preferences.profile.note.layout.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.repository.layout.use-color-scheme",
+            9, "preferences.profile.note.layout.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Right to left"),
-            10, "preferences.profile.repository.layout.right-to-left",
+            10, "preferences.profile.note.layout.right-to-left",
             tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.repository.layout.sort-tags-by-name",
+            11, "preferences.profile.note.layout.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
-            grid, _("Include notes on child objects"),
-            12, "preferences.profile.repository.layout.include-child-notes",
-            tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
-        )
-        configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.repository.layout.enable-warnings",
+            13, "preferences.profile.note.layout.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.repository.layout.enable-tooltips",
+            14, "preferences.profile.note.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
     def active_panel(self, configdialog):
         """
-        Builds active repository options section for the configuration dialog
+        Builds active note options section for the configuration dialog
         """
         grid = self.create_grid()
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.repository.active.tag-format",
+            4, "preferences.profile.note.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.repository.active.tag-width",
+            5, "preferences.profile.note.active.tag-width",
             (1, 20)
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.active", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
-        return _("Repository"), grid
+        return _("Note"), grid
 
     def sources_panel(self, configdialog):
         """
@@ -209,27 +191,24 @@ class RepositoryProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Image display mode"),
-            1, "preferences.profile.repository.source.image-mode",
+            1, "preferences.profile.note.source.image-mode",
             IMAGE_DISPLAY_MODES,
         )        
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.repository.source.tag-format",
+            2, "preferences.profile.note.source.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.repository.source.tag-width",
+            3, "preferences.profile.note.source.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.repository.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.source", defaults=self.defaults, label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "preferences.profile.note.source", 16, start_col=1, number=4, obj_type="Sources")
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.source", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
-
-    def notes_panel(self, configdialog):
-        return self._notes_panel(configdialog, "preferences.profile.repository")
 
     def _get_configure_page_funcs(self):
         """
@@ -238,8 +217,6 @@ class RepositoryProfilePage(BaseProfilePage):
         return [
             self.layout_panel,
             self.active_panel,
-            self.sources_panel,
-            self.notes_panel,
         ]
 
     def edit_active(self, *obj):

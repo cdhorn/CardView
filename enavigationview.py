@@ -97,7 +97,7 @@ class ENavigationView(PageView):
         self.history = History(self.dbstate)
 
         self.hist = {}
-        for hist_type in ('Person', 'Family', 'Event', 'Place', 'Source', 'Repository'):
+        for hist_type in ('Person', 'Family', 'Event', 'Place', 'Note', 'Source', 'Repository'):
             self.hist[hist_type] = self.uistate.get_history(hist_type)
             self.hist[hist_type].connect('active-changed', self.sync(hist_type))
 

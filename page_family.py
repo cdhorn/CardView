@@ -181,35 +181,35 @@ class FamilyProfilePage(BaseProfilePage):
         children = get_children_group(grstate, family)
         if children is not None:
             children_box.pack_start(children, expand=False, fill=False, padding=0)
-        gbox.pack_start(children_box, expand=False, fill=False, padding=0)
+            gbox.pack_start(children_box, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.family.layout.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
             timeline = get_timeline_group(grstate, family)
             if timeline is not None:
                 timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
-            gbox.pack_start(timeline_box, expand=False, fill=False, padding=0)
+                gbox.pack_start(timeline_box, expand=False, fill=False, padding=0)
             
         if self.config.get("preferences.profile.family.layout.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
             citations = get_citations_group(grstate, family)
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
-            gbox.pack_start(citations_box, expand=True, fill=True, padding=0)
+                gbox.pack_start(citations_box, expand=True, fill=True, padding=0)
 
         if self.config.get("preferences.profile.family.layout.show-notes"):
             notes_box = Gtk.VBox(spacing=3)
             notes = get_notes_group(grstate, family)
             if notes is not None:
                 notes_box.pack_start(notes, expand=False, fill=False, padding=0)
-            gbox.pack_start(notes_box, expand=True, fill=True, padding=0)
+                gbox.pack_start(notes_box, expand=True, fill=True, padding=0)
 
         if self.config.get("preferences.profile.family.layout.show-media"):
             media_box = Gtk.VBox(spacing=3)
             media = get_media_group(grstate, family)
             if media is not None:
                 media_box.pack_start(media, expand=False, fill=False, padding=0)
-            gbox.pack_start(media_box, expand=True, fill=True, padding=0)
+                gbox.pack_start(media_box, expand=True, fill=True, padding=0)
 
         vbox.pack_start(gbox, True, True, 0)
         vbox.show_all()

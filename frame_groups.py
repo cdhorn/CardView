@@ -46,6 +46,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from frame_children import ChildrenGrampsFrameGroup
 from frame_citations import CitationsGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
+from frame_generic import GenericGrampsFrameGroup
 from frame_media import MediaGrampsFrameGroup
 from frame_notes import NotesGrampsFrameGroup
 from frame_repositories import RepositoriesGrampsFrameGroup
@@ -207,7 +208,7 @@ def get_sources_group(grstate, obj, title_plural=_("Sources"), title_single=_("S
         title_plural, title_single, expanded=True
     )
 
-def get_notes_group(grstate, obj, title_plural=_("Notes"), title_single=_("Notes")):
+def get_notes_group(grstate, obj, title_plural=_("Notes"), title_single=_("Note")):
     """
     Get the group of notes associated with an object.
     """
@@ -215,3 +216,23 @@ def get_notes_group(grstate, obj, title_plural=_("Notes"), title_single=_("Notes
         grstate, obj, NotesGrampsFrameGroup,
         title_plural, title_single, expanded=True
     )
+
+def get_references_group(grstate, obj, title_plural=_("References"), title_single=_("Reference")):
+    """
+    Get the group of objects that reference the given object.
+    """
+    tuple_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+    print(str(tuple_list))
+    if not tuple_list:
+        return None
+
+    group = GenericGrampsFrameGroup(grstate, "Tuples", tuple_list)
+
+    text = title_plural
+    if len(group) == 1:
+        text = title_single
+
+    content = Gtk.Expander(expanded=True, use_markup=True)
+    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.add(group)
+    return content

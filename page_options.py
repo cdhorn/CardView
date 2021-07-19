@@ -670,4 +670,21 @@ CONFIGSETTINGS = (
     # Note
     ("preferences.profile.repository.note.tag-format", 1),
     ("preferences.profile.repository.note.tag-width", 10),
+    ######################################################################
+    # Note Page Options
+    ######################################################################
+    # Layout
+    ("preferences.profile.note.layout.enable-tooltips", True),
+    ("preferences.profile.note.layout.enable-warnings", True),
+    ("preferences.profile.note.layout.pinned-header", True),
+    ("preferences.profile.note.layout.border-width", 2),
+    ("preferences.profile.note.layout.use-color-scheme", True),
+    ("preferences.profile.note.layout.use-smaller-detail-font", True),
+    ("preferences.profile.note.layout.sort-tags-by-name", False),
+    ("preferences.profile.note.layout.right-to-left", False),
+    # Active Note
+    ("preferences.profile.note.active.tag-format", 1),
+    ("preferences.profile.note.active.tag-width", 10),
+    # For Reference Group Objects may need a plethora of options, need
+    # to reconsider this.
 )
