@@ -186,7 +186,10 @@ class EventGrampsFrame(GrampsFrame):
         if self.option(context, "show-description"):
             text = event.get_description()
             if not text:
-                text = "{} {} {}".format(event_type, _("of"), event_person_name)
+                if event_person:
+                    text = "{} {} {}".format(event_type, _("of"), event_person_name)
+                else:
+                    text = "{}".format(event_type)
             self.add_fact(self.make_label(text))
 
         if self.option(context, "show-participants"):
