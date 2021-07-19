@@ -35,10 +35,15 @@ from gi.repository import Gtk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_event import EventGrampsFrame
-from frame_list import GrampsFrameList
-from frame_person import PersonGrampsFrame
 from frame_couple import CoupleGrampsFrame
+from frame_event import EventGrampsFrame
+from frame_image import ImageGrampsFrame
+from frame_list import GrampsFrameList
+from frame_note import NoteGrampsFrame
+from frame_person import PersonGrampsFrame
+from frame_place import PlaceGrampsFrame
+from frame_source import SourceGrampsFrame
+from frame_repository import RepositoryGrampsFrame
 
 
 # ------------------------------------------------------------------------
@@ -57,38 +62,53 @@ class GenericGrampsFrameGroup(GrampsFrameList):
         self.obj_type = obj_type
         self.obj_handles = obj_handles
 
+        if obj_type == 'Tuples':
+            tuple_list = obj_handles
+        else:
+            tuple_list = [(obj_type, x) for x in obj_handles]
+
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
 
-        if obj_type == "Person":
-            for handle in obj_handles:
-                person = grstate.dbstate.db.get_person_from_handle(handle)
-                frame = PersonGrampsFrame(grstate, "people", person, groups=groups)
-                self.add_frame(frame)
-
-        if obj_type == "Family":
-            for handle in obj_handles:
-                family = grstate.dbstate.db.get_family_from_handle(handle)
-                frame = CoupleGrampsFrame(grstate, "family", family)
-                self.add_frame(frame)
-
-        if obj_type == "Event":
-            for handle in obj_handles:
-                event = grstate.dbstate.db.get_event_from_handle(handle)
+        for obj_type, obj_handle in tuple_list:
+            if obj_type == "Person":
+                obj = grstate.dbstate.db.get_person_from_handle(obj_handle)
+                frame = PersonGrampsFrame(grstate, "people", obj, groups=groups)
+            elif obj_type == "Family":
+                obj = grstate.dbstate.db.get_family_from_handle(obj_handle)
+                frame = CoupleGrampsFrame(grstate, "family", obj)
+            elif obj_type == "Event":
+                obj = grstate.dbstate.db.get_event_from_handle(obj_handle)
                 frame = EventGrampsFrame(
                     grstate,
                     "events",
                     None,
-                    event,
+                    obj,
                     None,
                     None,
                     None,
                     None,
                     groups=groups
                 )
-                self.add_frame(frame)
-
+            elif obj_type == "Place":
+                obj = grstate.dbstate.db.get_family_from_handle(obj_handle)
+                frame = PlaceGrampsFrame(grstate, "place", obj)
+            elif obj_type == "Media":
+                obj = grstate.dbstate.db.get_media_from_handle(obj_handle)
+                frame = ImageGrampsFrame(grstate, "media", obj)
+            elif obj_type == "Note":
+                obj = grstate.dbstate.db.get_note_from_handle(obj_handle)
+                frame = NoteGrampsFrame(grstate, "note", obj)
+            elif obj_type == "Source":
+                obj = grstate.dbstate.db.get_source_from_handle(obj_handle)
+                frame = SourceGrampsFrame(grstate, "source", obj)
+            elif obj_type == "Repository":
+                obj = grstate.dbstate.db.get_repository_from_handle(obj_handle)
+                frame = RepositoryGrampsFrame(grstate, "repository", obj)
+            else:
+                continue
+            self.add_frame(frame)
         self.show_all()
