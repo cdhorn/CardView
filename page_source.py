@@ -51,7 +51,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citations_group, get_repositories_group
+from frame_groups import (
+    get_citations_group,
+    get_media_group,
+    get_notes_group,
+    get_repositories_group
+)
 from frame_source import SourceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -107,6 +112,18 @@ class SourceProfilePage(BaseProfilePage):
         if citations is not None:
             citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
+        if self.config.get("preferences.profile.source.layout.show-media"):
+            media_box = Gtk.VBox(spacing=3)
+            media = get_media_group(grstate, source)
+            if media is not None:
+                media_box.pack_start(media, expand=False, fill=False, padding=0)
+
+        if self.config.get("preferences.profile.source.layout.show-notes"):
+            notes_box = Gtk.VBox(spacing=3)
+            notes = get_notes_group(grstate, source)
+            if notes is not None:
+                notes_box.pack_start(notes, expand=False, fill=False, padding=0)
+
         people_list = []
         events_list = []
         for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(source.get_handle()):
@@ -140,6 +157,10 @@ class SourceProfilePage(BaseProfilePage):
             body.pack_start(repositories_box, True, True, 0)
         if citations:
             body.pack_start(citations_box, True, True, 0)
+        if self.config.get("preferences.profile.source.layout.show-notes") and notes:
+            body.pack_start(notes_box, True, True, 0)
+        if self.config.get("preferences.profile.source.layout.show-media") and media:
+            body.pack_start(media_box, True, True, 0)
         if people_list:
             body.pack_start(people_box, True, True, 0)
         if events_list:
@@ -161,8 +182,16 @@ class SourceProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
+            grid, _("Show associated notes"),
+            1, "preferences.profile.source.layout.show-notes",
+        )
+        configdialog.add_checkbox(
+            grid, _("Show associated media"),
+            2, "preferences.profile.source.layout.show-media",
+        )        
+        configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            1, "preferences.profile.source.layout.pinned-header",
+            3, "preferences.profile.source.layout.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
@@ -378,6 +407,12 @@ class SourceProfilePage(BaseProfilePage):
         reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
+
+    def notes_panel(self, configdialog):
+        return self._notes_panel(configdialog, "preferences.profile.source")
+
+    def media_panel(self, configdialog):
+        return self._media_panel(configdialog, "preferences.profile.source")
     
     def _get_configure_page_funcs(self):
         """
@@ -388,6 +423,8 @@ class SourceProfilePage(BaseProfilePage):
             self.active_panel,
             self.repositories_panel,            
             self.citations_panel,
+            self.notes_panel,
+            self.media_panel,
             self.people_panel,
         ]
 

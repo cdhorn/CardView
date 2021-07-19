@@ -328,6 +328,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.family.layout.show-timeline", True),
     ("preferences.profile.family.layout.show-citations", False),
     ("preferences.profile.family.layout.show-media", False),
+    ("preferences.profile.family.layout.show-notes", False),
     ("preferences.profile.family.layout.border-width", 2),
     ("preferences.profile.family.layout.use-color-scheme", True),
     ("preferences.profile.family.layout.use-smaller-detail-font", True),
@@ -469,12 +470,16 @@ CONFIGSETTINGS = (
     ("preferences.profile.family.media.metadata-attribute-2", "None"),
     ("preferences.profile.family.media.metadata-attribute-3", "None"),
     ("preferences.profile.family.media.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.family.note.tag-format", 1),
+    ("preferences.profile.family.note.tag-width", 10),
     ######################################################################
     # Event Page Options
     ######################################################################
     # Layout
     ("preferences.profile.event.layout.show-citations", False),
     ("preferences.profile.event.layout.show-media", False),
+    ("preferences.profile.event.layout.show-notes", False),
     ("preferences.profile.event.layout.enable-tooltips", True),
     ("preferences.profile.event.layout.enable-warnings", True),
     ("preferences.profile.event.layout.pinned-header", True),
@@ -537,10 +542,15 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.media.metadata-attribute-2", "None"),
     ("preferences.profile.event.media.metadata-attribute-3", "None"),
     ("preferences.profile.event.media.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.event.note.tag-format", 1),
+    ("preferences.profile.event.note.tag-width", 10),
     ######################################################################
     # Source Page Options
     ######################################################################
     # Layout
+    ("preferences.profile.source.layout.show-media", False),
+    ("preferences.profile.source.layout.show-notes", True),
     ("preferences.profile.source.layout.enable-tooltips", True),
     ("preferences.profile.source.layout.enable-warnings", True),
     ("preferences.profile.source.layout.pinned-header", True),
@@ -619,10 +629,24 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.events.metadata-attribute-2", "None"),
     ("preferences.profile.source.events.metadata-attribute-3", "None"),
     ("preferences.profile.source.events.metadata-attribute-4", "None"),
+    # Media
+    ("preferences.profile.source.media.tag-format", 1),
+    ("preferences.profile.source.media.tag-width", 10),
+    ("preferences.profile.source.media.image-mode", 2),
+    ("preferences.profile.source.media.sort-by-date", False),
+    ("preferences.profile.source.media.show-date", True),
+    ("preferences.profile.source.media.metadata-attribute-1", "None"),
+    ("preferences.profile.source.media.metadata-attribute-2", "None"),
+    ("preferences.profile.source.media.metadata-attribute-3", "None"),
+    ("preferences.profile.source.media.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.source.note.tag-format", 1),
+    ("preferences.profile.source.note.tag-width", 10),
     ######################################################################
     # Repository Page Options
     ######################################################################
     # Layout
+    ("preferences.profile.repository.layout.show-notes", True),
     ("preferences.profile.repository.layout.enable-tooltips", True),
     ("preferences.profile.repository.layout.enable-warnings", True),
     ("preferences.profile.repository.layout.pinned-header", True),
@@ -643,4 +667,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.repository.source.metadata-attribute-2", "None"),
     ("preferences.profile.repository.source.metadata-attribute-3", "None"),
     ("preferences.profile.repository.source.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.repository.note.tag-format", 1),
+    ("preferences.profile.repository.note.tag-width", 10),
 )

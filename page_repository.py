@@ -51,7 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_sources_group
+from frame_groups import get_notes_group, get_sources_group
 from frame_repository import RepositoryGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -105,6 +105,11 @@ class RepositoryProfilePage(BaseProfilePage):
         body = Gtk.HBox(vexpand=False, spacing=3)
         if sources:
             body.pack_start(sources_box, True, True, 0)
+            
+        if self.config.get("preferences.profile.repository.layout.show-notes"):
+            notes = get_notes_group(grstate, repository)
+            if notes is not None:
+                body.pack_start(notes, expand=False, fill=False, padding=0)
 
         if self.config.get("preferences.profile.repository.layout.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
@@ -122,8 +127,12 @@ class RepositoryProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
+            grid, _("Show associated notes"),
+            1, "preferences.profile.repository.layout.show-notes",
+        )        
+        configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            1, "preferences.profile.repository.layout.pinned-header",
+            2, "preferences.profile.repository.layout.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
@@ -218,6 +227,9 @@ class RepositoryProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 
+    def notes_panel(self, configdialog):
+        return self._notes_panel(configdialog, "preferences.profile.repository")
+
     def _get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
@@ -226,6 +238,7 @@ class RepositoryProfilePage(BaseProfilePage):
             self.layout_panel,
             self.active_panel,
             self.sources_panel,
+            self.notes_panel,
         ]
 
     def edit_active(self, *obj):

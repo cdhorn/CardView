@@ -53,7 +53,9 @@ from gramps.gui.widgets import BasicLabel
 #
 # -------------------------------------------------------------------------
 from frame_utils import (
+    TAG_DISPLAY_MODES,
     AttributeSelector,
+    ConfigReset,
     FrameFieldSelector
 )
 
@@ -143,6 +145,59 @@ class BaseProfilePage(Callback):
             grid.attach(attr_select, start_col + 1, row, 1, 1)
             count = count + 1
             row = row + 1
+
+    def _media_panel(self, configdialog, space):
+        """
+        Builds media options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "{}.media.tag-format".format(space),
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "{}.media.tag-width".format(space),
+            (1, 20),
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort media by date"),
+            4, "{}.media.sort-by-date".format(space),
+            tooltip=_("Enabling this option will sort the media by date.")
+        )
+        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show date"),
+            10, "{}.media.show-date".format(space),
+            tooltip=_("Enabling this option will show the media date if it is available.")
+        )
+        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
+        self._config_metadata_attributes(grid, "{}.media".format(space), 16, start_col=1, number=4, obj_type="Media")
+        reset = ConfigReset(configdialog, self.config, "{}.media".format(space), defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Media"), grid
+
+    def _notes_panel(self, configdialog, space):
+        """
+        Builds note options section for configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            1, "{}.note.tag-format".format(space),
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            2, "{}.note.tag-width".format(space),
+            (1, 20),
+        )
+        reset = ConfigReset(configdialog, self.config, "{}.note".format(space), defaults=self.defaults, label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 25, 1, 1)
+        return _("Notes"), grid
     
     def add_color(self, grid, label, index, constant, col=0):
         """
