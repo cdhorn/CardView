@@ -56,6 +56,7 @@ from frame_base import GrampsState, button_activated
 from frame_groups import (
     get_citations_group,
     get_media_group,
+    get_notes_group,
     get_parents_group,
     get_spouses_group,
     get_timeline_group,
@@ -157,6 +158,12 @@ class PersonProfilePage(BaseProfilePage):
             if media is not None:
                 media_box.pack_start(media, expand=False, fill=False, padding=0)
 
+        if self.config.get("preferences.profile.person.layout.show-notes"):
+            notes_box = Gtk.VBox(spacing=3)
+            notes = get_notes_group(grstate, person)
+            if notes is not None:
+                notes_box.pack_start(notes, expand=False, fill=False, padding=0)
+
         if self.config.get("preferences.profile.person.layout.families-stacked"):
             families_box = Gtk.VBox(spacing=3)
             families_box.pack_start(parents_box, expand=False, fill=False, padding=0)
@@ -169,6 +176,8 @@ class PersonProfilePage(BaseProfilePage):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.show-media"):
                 body.pack_start(media_box, expand=True, fill=True, padding=0)
+            if self.config.get("preferences.profile.person.layout.show-notes"):
+                body.pack_start(notes_box, expand=True, fill=True, padding=0)
             if not self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
         else:
@@ -182,6 +191,8 @@ class PersonProfilePage(BaseProfilePage):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.show-media"):
                 body.pack_start(media_box, expand=True, fill=True, padding=0)
+            if self.config.get("preferences.profile.person.layout.show-notes"):
+                body.pack_start(notes_box, expand=True, fill=True, padding=0)
             if self.config.get("preferences.profile.person.layout.spouses-left"):
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
             else:
@@ -241,45 +252,53 @@ class PersonProfilePage(BaseProfilePage):
             grid, _("Show associated citations"),
             5, "preferences.profile.person.layout.show-citations",
         )
-        configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Show associated notes"),
+            6, "preferences.profile.person.layout.show-notes",
+        )
+        configdialog.add_checkbox(
+            grid, _("Show associated media"),
+            7, "preferences.profile.person.layout.show-media",
+        )
+        configdialog.add_text(grid, _("Styling Options"), 8, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.person.layout.use-smaller-detail-font",
+            9, "preferences.profile.person.layout.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.person.layout.border-width",
+            10, "preferences.profile.person.layout.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.person.layout.use-color-scheme",
+            11, "preferences.profile.person.layout.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Right to left"),
-            10, "preferences.profile.person.layout.right-to-left",
+            12, "preferences.profile.person.layout.right-to-left",
             tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.person.layout.sort-tags-by-name",
+            13, "preferences.profile.person.layout.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            12, "preferences.profile.person.layout.include-child-notes",
+            14, "preferences.profile.person.layout.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.person.layout.enable-warnings",
+            15, "preferences.profile.person.layout.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.person.layout.enable-tooltips",
+            16, "preferences.profile.person.layout.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
         reset = ConfigReset(configdialog, self.config, "preferences.profile.person.layout", defaults=self.defaults, label=_("Reset Page Defaults"))

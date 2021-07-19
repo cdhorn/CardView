@@ -47,6 +47,7 @@ from frame_children import ChildrenGrampsFrameGroup
 from frame_citations import CitationsGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
 from frame_media import MediaGrampsFrameGroup
+from frame_notes import NotesGrampsFrameGroup
 from frame_repositories import RepositoriesGrampsFrameGroup
 from frame_sources import SourcesGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
@@ -203,5 +204,14 @@ def get_sources_group(grstate, obj, title_plural=_("Sources"), title_single=_("S
     """
     return get_generic_group(
         grstate, obj, SourcesGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )
+
+def get_notes_group(grstate, obj, title_plural=_("Notes"), title_single=_("Notes")):
+    """
+    Get the group of notes associated with an object.
+    """
+    return get_generic_group(
+        grstate, obj, NotesGrampsFrameGroup,
         title_plural, title_single, expanded=True
     )

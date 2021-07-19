@@ -92,6 +92,7 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.layout.show-timeline", True),
     ("preferences.profile.person.layout.show-citations", False),
     ("preferences.profile.person.layout.show-media", True),
+    ("preferences.profile.person.layout.show-notes", True),
     ("preferences.profile.person.layout.border-width", 2),
     ("preferences.profile.person.layout.use-color-scheme", True),
     ("preferences.profile.person.layout.use-smaller-detail-font", True),
@@ -315,6 +316,9 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.media.metadata-attribute-2", "None"),
     ("preferences.profile.person.media.metadata-attribute-3", "None"),
     ("preferences.profile.person.media.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.person.note.tag-format", 1),
+    ("preferences.profile.person.note.tag-width", 10),
     ######################################################################
     # Family Page Options
     ######################################################################

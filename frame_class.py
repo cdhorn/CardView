@@ -1205,7 +1205,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Copy current object to the clipboard.
         """
-        self.router('copy-to-clipboard', (self.obj_type, self.obj.get_handle()))
+        self.grstate.router('copy-to-clipboard', (self.obj_type, self.obj.get_handle()))
 
     def _change_privacy_option(self):
         """
