@@ -65,6 +65,7 @@ from gramps.gui.editors import (
     EditNote,
     EditPerson,
     EditPlace,
+    EditRepository,
     EditSource,
     EditSrcAttribute,
     EditUrl
@@ -118,6 +119,7 @@ _EDITORS = {
     "Note": EditNote,
     "Person": EditPerson,
     "Place": EditPlace,
+    "Repository": EditRepository,
     "Source": EditSource,
 }
 

@@ -48,16 +48,6 @@ from gi.repository import Gtk, Gdk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gui.editors import (
-    EditCitation,
-    EditEvent,
-    EditFamily,
-    EditMedia,
-    EditNote,
-    EditPerson,
-    EditPlace,
-    EditSource,
-)
 from gramps.gen.lib import Media
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_image
@@ -76,17 +66,6 @@ try:
 except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
-
-_EDITORS = {
-    "Citation": EditCitation,
-    "Event": EditEvent,
-    "Family": EditFamily,
-    "Media": EditMedia,
-    "Note": EditNote,
-    "Person": EditPerson,
-    "Place": EditPlace,
-    "Source": EditSource,
-}
 
 _RETURN = Gdk.keyval_from_name("Return")
 _KP_ENTER = Gdk.keyval_from_name("KP_Enter")
