@@ -65,7 +65,7 @@ def get_generic_group(grstate, obj, framegroup, title_plural, title_single, expa
     Get the group associated with a simple object.
     """
     group = framegroup(grstate, obj)
-    if len(group) == 0:
+    if not group or len(group) == 0:
         return None
 
     text = title_plural
@@ -82,7 +82,7 @@ def get_children_group(grstate, family, context="child", title_plural=_("Childre
     Get the group for all the children in a family unit.
     """
     group = ChildrenGrampsFrameGroup(grstate, context, family, relation=person)
-    if len(group) == 0:
+    if not group or len(group) == 0:
         return None
 
     text = title_plural
@@ -112,7 +112,7 @@ def get_family_unit(grstate, family, context="family", relation=None, vertical=N
         title_single = _("Sibling")
 
     children = get_children_group(grstate, family, context, title_plural, title_single, person=relation, expanded=expanded)
-    if len(children) > 0:
+    if children and len(children) > 0:
         couple.pack_start(children, expand=True, fill=True, padding=0)
     return couple
 
