@@ -37,6 +37,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 #-------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
@@ -548,6 +549,10 @@ class ProfileView(ENavigationView):
         self.active_page = page
         self.uistate.status.pop(self.uistate.status_id)
         name, _obj = navigation_label(self.dbstate.db, obj_type, obj.get_handle())
+        if obj_type == 'Person' and global_config.get('interface.statusbar') > 1:
+            relation = self.uistate.display_relationship(self.dbstate, obj.get_handle())
+            if relation:
+                name = "{} ({})".format(name, relation.strip())
         self.uistate.status.push(self.uistate.status_id, name)
         return True
 
