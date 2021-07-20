@@ -73,8 +73,8 @@ class ImageGrampsFrame(GrampsFrame):
     The ImageGrampsFrame exposes the image and some facts about Media.
     """
 
-    def __init__(self, grstate, media, groups=None):
-        GrampsFrame.__init__(self, grstate, "media", media, groups=groups)
+    def __init__(self, grstate, context, media, groups=None):
+        GrampsFrame.__init__(self, grstate, context, media, groups=groups)
 
         title = TextLink(
             media.get_description(),

@@ -85,6 +85,7 @@ class MediaGrampsFrameGroup(GrampsFrameList):
             for media, references, ref_type, ref_desc in media_list:
                 frame = ImageGrampsFrame(
                     grstate,
+                    "media",
                     media,
                     groups=groups,
                 )

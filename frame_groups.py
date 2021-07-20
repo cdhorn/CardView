@@ -222,7 +222,6 @@ def get_references_group(grstate, obj, title_plural=_("References"), title_singl
     Get the group of objects that reference the given object.
     """
     tuple_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
-    print(str(tuple_list))
     if not tuple_list:
         return None
 

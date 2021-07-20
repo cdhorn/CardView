@@ -47,6 +47,12 @@ from gramps.gen.display.place import displayer as place_displayer
 from frame_class import GrampsFrame
 from frame_utils import TextLink
 
+try:
+    _trans = glocale.get_addon_translator(__file__)
+except ValueError:
+    _trans = glocale.translation
+_ = _trans.gettext
+
 
 # ------------------------------------------------------------------------
 #
@@ -67,16 +73,18 @@ class PlaceGrampsFrame(GrampsFrame):
         )
         self.title.pack_start(title, True, False, 0)
 
-        if place.get_latitude():
-            self.add_fact(self.make_label(place.get_latitude()))
-        if place.get_longitude():
-            self.add_fact(self.make_label(place.get_longitude()))
-
-        if place.type:
-            text = glocale.translation.sgettext(place.type.xml_str())
+        if place.get_type():
+            text = glocale.translation.sgettext(place.get_type().xml_str())
             if text:
                 self.add_fact(self.make_label(text))
             
+        if place.get_latitude():
+            text = "{}: {}".format(_("Latitude"), place.get_latitude())
+            self.add_fact(self.make_label(text))
+        if place.get_longitude():
+            text = "{}: {}".format(_("Longitude"), place.get_longitude())
+            self.add_fact(self.make_label(text))
+
         if place.get_code():
             label = self.make_label(place.get_code(), left=False)
             self.metadata.pack_start(label, False, False, 0)

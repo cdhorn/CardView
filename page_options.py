@@ -643,6 +643,97 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.note.tag-format", 1),
     ("preferences.profile.source.note.tag-width", 10),
     ######################################################################
+    # Citation Page Options
+    ######################################################################
+    # Layout
+    ("preferences.profile.citation.layout.show-media", False),
+    ("preferences.profile.citation.layout.show-notes", True),
+    ("preferences.profile.citation.layout.enable-tooltips", True),
+    ("preferences.profile.citation.layout.enable-warnings", True),
+    ("preferences.profile.citation.layout.pinned-header", True),
+    ("preferences.profile.citation.layout.border-width", 2),
+    ("preferences.profile.citation.layout.use-color-scheme", True),
+    ("preferences.profile.citation.layout.use-smaller-detail-font", True),
+    ("preferences.profile.citation.layout.sort-tags-by-name", False),
+    ("preferences.profile.citation.layout.include-child-notes", False),
+    ("preferences.profile.citation.layout.right-to-left", False),
+    # Active Citation
+    ("preferences.profile.citation.active.tag-format", 1),
+    ("preferences.profile.citation.active.tag-width", 10),
+    ("preferences.profile.citation.active.image-mode", 0),
+    ("preferences.profile.citation.active.sort-by-date", False),
+    ("preferences.profile.citation.active.show-date", True),
+    ("preferences.profile.citation.active.show-publisher", True),
+    ("preferences.profile.citation.active.show-reference-type", True),
+    ("preferences.profile.citation.active.show-reference-description", True),
+    ("preferences.profile.citation.active.show-confidence", True),
+    ("preferences.profile.citation.active.metadata-attribute-1", "None"),
+    ("preferences.profile.citation.active.metadata-attribute-2", "None"),
+    ("preferences.profile.citation.active.metadata-attribute-3", "None"),
+    ("preferences.profile.citation.active.metadata-attribute-4", "None"),
+    # Source
+    ("preferences.profile.citation.source.event-format", 1),
+    ("preferences.profile.citation.source.image-mode", 3),
+    ("preferences.profile.citation.source.tag-format", 1),
+    ("preferences.profile.citation.source.tag-width", 10),
+    ("preferences.profile.citation.source.metadata-attribute-1", "None"),
+    ("preferences.profile.citation.source.metadata-attribute-2", "None"),
+    ("preferences.profile.citation.source.metadata-attribute-3", "None"),
+    ("preferences.profile.citation.source.metadata-attribute-4", "None"),
+    # People Referenced
+    ("preferences.profile.citation.people.event-format", 1),
+    ("preferences.profile.citation.people.show-age", False),
+    ("preferences.profile.citation.people.sex-mode", 1),
+    ("preferences.profile.citation.people.image-mode", 1),
+    ("preferences.profile.citation.people.tag-format", 1),
+    ("preferences.profile.citation.people.tag-width", 10),
+    ("preferences.profile.citation.people.facts-field-skip-birth-alternates", True),
+    ("preferences.profile.citation.people.facts-field-skip-death-alternates", True),
+    ("preferences.profile.citation.people.facts-field-1", "Event:Birth:False"),
+    ("preferences.profile.citation.people.facts-field-2", "Event:Baptism:False"),
+    ("preferences.profile.citation.people.facts-field-3", "Event:Christening:False"),
+    ("preferences.profile.citation.people.facts-field-4", "Event:Death:False"),
+    ("preferences.profile.citation.people.facts-field-5", "Event:Burial:False"),
+    ("preferences.profile.citation.people.facts-field-6", "Event:Cremation:False"),
+    ("preferences.profile.citation.people.facts-field-7", "Event:Probate:False"),
+    ("preferences.profile.citation.people.facts-field-8", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-1", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-2", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-3", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-4", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-5", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-6", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-7", "None"),
+    ("preferences.profile.citation.people.metadata-attribute-8", "None"),
+    # Events Referenced
+    ("preferences.profile.citation.events.tag-format", 1),
+    ("preferences.profile.citation.events.tag-width", 10),
+    ("preferences.profile.citation.events.image-mode", 0),
+    ("preferences.profile.citation.events.color-scheme", 0),
+    ("preferences.profile.citation.events.show-description", True),
+    ("preferences.profile.citation.events.show-participants", True),
+    ("preferences.profile.citation.events.show-role-always", False),
+    ("preferences.profile.citation.events.show-source-count", True),
+    ("preferences.profile.citation.events.show-citation-count", True),
+    ("preferences.profile.citation.events.show-best-confidence", True),
+    ("preferences.profile.citation.events.metadata-attribute-1", "None"),
+    ("preferences.profile.citation.events.metadata-attribute-2", "None"),
+    ("preferences.profile.citation.events.metadata-attribute-3", "None"),
+    ("preferences.profile.citation.events.metadata-attribute-4", "None"),
+    # Media
+    ("preferences.profile.citation.media.tag-format", 1),
+    ("preferences.profile.citation.media.tag-width", 10),
+    ("preferences.profile.citation.media.image-mode", 2),
+    ("preferences.profile.citation.media.sort-by-date", False),
+    ("preferences.profile.citation.media.show-date", True),
+    ("preferences.profile.citation.media.metadata-attribute-1", "None"),
+    ("preferences.profile.citation.media.metadata-attribute-2", "None"),
+    ("preferences.profile.citation.media.metadata-attribute-3", "None"),
+    ("preferences.profile.citation.media.metadata-attribute-4", "None"),
+    # Note
+    ("preferences.profile.citation.note.tag-format", 1),
+    ("preferences.profile.citation.note.tag-width", 10),
+    ######################################################################
     # Repository Page Options
     ######################################################################
     # Layout
@@ -687,4 +778,38 @@ CONFIGSETTINGS = (
     ("preferences.profile.note.active.tag-width", 10),
     # For Reference Group Objects may need a plethora of options, need
     # to reconsider this.
+    ######################################################################
+    # Media Page Options
+    ######################################################################
+    # Layout
+    ("preferences.profile.media.layout.enable-tooltips", True),
+    ("preferences.profile.media.layout.enable-warnings", True),
+    ("preferences.profile.media.layout.pinned-header", True),
+    ("preferences.profile.media.layout.border-width", 2),
+    ("preferences.profile.media.layout.use-color-scheme", True),
+    ("preferences.profile.media.layout.use-smaller-detail-font", True),
+    ("preferences.profile.media.layout.sort-tags-by-name", False),
+    ("preferences.profile.media.layout.right-to-left", False),
+    # Active Media
+    ("preferences.profile.media.active.tag-format", 1),
+    ("preferences.profile.media.active.tag-width", 10),
+    # For Reference Group Objects may need a plethora of options, need
+    # to reconsider this.    
+    ######################################################################
+    # Place Page Options
+    ######################################################################
+    # Layout
+    ("preferences.profile.place.layout.enable-tooltips", True),
+    ("preferences.profile.place.layout.enable-warnings", True),
+    ("preferences.profile.place.layout.pinned-header", True),
+    ("preferences.profile.place.layout.border-width", 2),
+    ("preferences.profile.place.layout.use-color-scheme", True),
+    ("preferences.profile.place.layout.use-smaller-detail-font", True),
+    ("preferences.profile.place.layout.sort-tags-by-name", False),
+    ("preferences.profile.place.layout.right-to-left", False),
+    # Active Place
+    ("preferences.profile.place.active.tag-format", 1),
+    ("preferences.profile.place.active.tag-width", 10),
+    # For Reference Group Objects may need a plethora of options, need
+    # to reconsider this.    
 )

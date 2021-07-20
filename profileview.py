@@ -49,7 +49,10 @@ from page_options import CONFIGSETTINGS
 from page_person import PersonProfilePage
 from page_family import FamilyProfilePage
 from page_event import EventProfilePage
+from page_media import MediaProfilePage
 from page_note import NoteProfilePage
+from page_place import PlaceProfilePage
+from page_citation import CitationProfilePage
 from page_source import SourceProfilePage
 from page_repository import RepositoryProfilePage
 
@@ -75,10 +78,14 @@ class ProfileView(ENavigationView):
         self.child = None
         self.scroll = None
         self.viewport = None
-        self.dirty = True
+        self.dirty = False
         self.redrawing = False
         self.active_type = None
-        self.loaded = False
+        
+        self.passed_uistate = uistate
+        self.passed_navtype = None
+        if uistate.viewmanager.active_page:
+            self.passed_navtype = uistate.viewmanager.active_page.navigation_type()
 
         dbstate.connect('database-changed', self.change_db)
         uistate.connect('nameformat-changed', self.build_tree)
@@ -88,9 +95,12 @@ class ProfileView(ENavigationView):
         self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(FamilyProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(CitationProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(RepositoryProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(MediaProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self._add_page(NoteProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(PlaceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
 
@@ -147,9 +157,30 @@ class ProfileView(ENavigationView):
         self.redraw()
 
     def change_page(self):
+        if not self.history.history:
+            if self.passed_uistate and self.passed_navtype:
+                self.seed_history()
         ENavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
+    def seed_history(self):
+        """
+        A nasty hack that attempts to seed our history cache with last object
+        using the uistate copy as the views may be using divergent history
+        navigation classes.
+        """
+        if not self.passed_uistate.history_lookup:
+            return
+        for navobj in self.passed_uistate.history_lookup:
+            objtype, navtype = navobj
+            if objtype == self.passed_navtype:
+                objhist = self.passed_uistate.history_lookup[navobj]
+                if objhist and objhist.present():
+                    handle = objhist.present()
+                    lastobj = (objtype, handle)
+                    self.history.push(lastobj)
+                    return
+        
     def get_stock(self):
         """
         Return the name of the stock icon to use for the display.
@@ -417,28 +448,9 @@ class ProfileView(ENavigationView):
         self.dirty = True
         active_object = self.get_active()
         if active_object:
-            return self.change_object(active_object)
-        last = self._get_last()
-        if last:
-            self.history.push(tuple(last))
-            self.loaded = True
-            return self.change_object(last)
-        self.change_object(None)
-
-    def _get_last(self):
-        dbid = self.dbstate.db.get_dbid()
-        if not dbid:
-            return None
-        try:
-            obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
-        except ValueError:
-            return None
-        if not obj_tuple:
-            initial_person = self.dbstate.db.find_initial_person()
-            if not initial_person:
-                return None
-            obj_tuple = ('Person', initial_person.get_handle())
-        return obj_tuple
+            self.change_object(active_object)
+        else:
+            self.change_object(None)        
 
     def clipboard_copy(self, data, handle):
         return self.copy_to_clipboard(data, [handle])
@@ -453,34 +465,16 @@ class ProfileView(ENavigationView):
         return False
 
     def change_object(self, obj_tuple):
+        if not obj_tuple:
+            return False
+
         if self.redrawing:
             return False
 
-        if obj_tuple is None:
-            obj_tuple = self._get_last()
-            if not obj_tuple:
-                return self._clear_change()
-            self.history.push(tuple(obj_tuple))
-            self.loaded = True
-            return False
         obj_type, handle, = obj_tuple
-
+        query_method = self.dbstate.db.method("get_%s_from_handle", obj_type)
+        obj = query_method(handle)
         self.redrawing = True
-        if obj_type == 'Person':
-            obj = self.dbstate.db.get_person_from_handle(handle)
-        elif obj_type == 'Family':
-            obj = self.dbstate.db.get_family_from_handle(handle)
-        elif obj_type == 'Event':
-            obj = self.dbstate.db.get_event_from_handle(handle)
-        elif obj_type == 'Note':
-            obj = self.dbstate.db.get_note_from_handle(handle)
-        elif obj_type == 'Source':
-            obj = self.dbstate.db.get_source_from_handle(handle)
-        elif obj_type == 'Repository':
-            obj = self.dbstate.db.get_repository_from_handle(handle)
-        else:
-            self.redrawing = False
-            return False
 
         page = self.pages[obj_type]
         page.render_page(self.header, self.vbox, obj)
@@ -497,6 +491,12 @@ class ProfileView(ENavigationView):
                 tooltip = _('Edit the active event')
             elif obj_type == 'Note':
                 tooltip = _('Edit the active note')
+            elif obj_type == 'Media':
+                tooltip = _('Edit the active media')
+            elif obj_type == 'Place':
+                tooltip = _('Edit the active place')
+            elif obj_type == 'Citation':
+                tooltip = _('Edit the active citation')
             elif obj_type == 'Source':
                 tooltip = _('Edit the active source')
             elif obj_type == 'Repository':
@@ -506,11 +506,6 @@ class ProfileView(ENavigationView):
         self.uistate.modify_statusbar(self.dbstate)
         self.redrawing = False
         self.dirty = False
-
-        if self.loaded:
-            dbid = self.dbstate.db.get_dbid()
-            save_config_option(self._config, "preferences.profile.active.last_object", obj_type, handle, dbid=dbid)
-
         self.active_page = page
         return True
 

@@ -35,6 +35,7 @@ from gi.repository import Gtk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_citation import CitationGrampsFrame
 from frame_couple import CoupleGrampsFrame
 from frame_event import EventGrampsFrame
 from frame_image import ImageGrampsFrame
@@ -94,7 +95,7 @@ class GenericGrampsFrameGroup(GrampsFrameList):
                     groups=groups
                 )
             elif obj_type == "Place":
-                obj = grstate.dbstate.db.get_family_from_handle(obj_handle)
+                obj = grstate.dbstate.db.get_place_from_handle(obj_handle)
                 frame = PlaceGrampsFrame(grstate, "place", obj)
             elif obj_type == "Media":
                 obj = grstate.dbstate.db.get_media_from_handle(obj_handle)
@@ -105,6 +106,9 @@ class GenericGrampsFrameGroup(GrampsFrameList):
             elif obj_type == "Source":
                 obj = grstate.dbstate.db.get_source_from_handle(obj_handle)
                 frame = SourceGrampsFrame(grstate, "source", obj)
+            elif obj_type == "Citation":
+                obj = grstate.dbstate.db.get_citation_from_handle(obj_handle)
+                frame = SourceGrampsFrame(grstate, "citation", obj)
             elif obj_type == "Repository":
                 obj = grstate.dbstate.db.get_repository_from_handle(obj_handle)
                 frame = RepositoryGrampsFrame(grstate, "repository", obj)

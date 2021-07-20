@@ -97,7 +97,7 @@ class ENavigationView(PageView):
         self.history = History(self.dbstate)
 
         self.hist = {}
-        for hist_type in ('Person', 'Family', 'Event', 'Place', 'Note', 'Source', 'Repository'):
+        for hist_type in ('Person', 'Family', 'Event', 'Place', 'Media', 'Note', 'Citation', 'Source', 'Repository'):
             self.hist[hist_type] = self.uistate.get_history(hist_type)
             self.hist[hist_type].connect('active-changed', self.sync(hist_type))
 
@@ -552,6 +552,12 @@ class History(Callback):
         self.signal_map['event-rebuild'] = self.history_changed
         self.signal_map['place-delete'] = self.place_removed
         self.signal_map['place-rebuild'] = self.history_changed
+        self.signal_map['media-delete'] = self.media_removed
+        self.signal_map['media-rebuild'] = self.history_changed
+        self.signal_map['note-delete'] = self.note_removed
+        self.signal_map['note-rebuild'] = self.history_changed
+        self.signal_map['citation-delete'] = self.citation_removed
+        self.signal_map['citation-rebuild'] = self.history_changed
         self.signal_map['source-delete'] = self.source_removed
         self.signal_map['source-rebuild'] = self.history_changed
         self.signal_map['repository-delete'] = self.repository_removed
@@ -659,6 +665,15 @@ class History(Callback):
 
     def place_removed(self, handle_list):
         self.handles_removed('Place', handle_list)
+
+    def media_removed(self, handle_list):
+        self.handles_removed('Media', handle_list)
+
+    def note_removed(self, handle_list):
+        self.handles_removed('Note', handle_list)
+
+    def citation_removed(self, handle_list):
+        self.handles_removed('Citation', handle_list)
 
     def source_removed(self, handle_list):
         self.handles_removed('Source', handle_list)
