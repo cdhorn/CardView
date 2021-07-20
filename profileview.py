@@ -81,7 +81,8 @@ class ProfileView(ENavigationView):
         self.dirty = False
         self.redrawing = False
         self.active_type = None
-        
+
+        self.loaded = False
         self.passed_uistate = uistate
         self.passed_navtype = None
         if uistate.viewmanager.active_page:
@@ -158,19 +159,23 @@ class ProfileView(ENavigationView):
 
     def change_page(self):
         if not self.history.history:
-            if self.passed_uistate and self.passed_navtype:
-                self.seed_history()
+            obj_tuple = self._get_last()
+            if obj_tuple:
+                self.history.push(tuple(obj_tuple))
+                self.loaded = True
+            elif self.passed_uistate and self.passed_navtype:
+                self.loaded = self.seed_history()
         ENavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
     def seed_history(self):
         """
-        A nasty hack that attempts to seed our history cache with last object
+        A hack that attempts to seed our history cache with last object
         using the uistate copy as the views may be using divergent history
         navigation classes.
         """
         if not self.passed_uistate.history_lookup:
-            return
+            return False
         for navobj in self.passed_uistate.history_lookup:
             objtype, navtype = navobj
             if objtype == self.passed_navtype:
@@ -179,7 +184,8 @@ class ProfileView(ENavigationView):
                     handle = objhist.present()
                     lastobj = (objtype, handle)
                     self.history.push(lastobj)
-                    return
+                    return True
+        return False
         
     def get_stock(self):
         """
@@ -450,7 +456,22 @@ class ProfileView(ENavigationView):
         if active_object:
             self.change_object(active_object)
         else:
-            self.change_object(None)        
+            self.change_object(None)
+
+    def _get_last(self):
+        dbid = self.dbstate.db.get_dbid()
+        if not dbid:
+            return None
+        try:
+            obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
+        except ValueError:
+            return None
+        if not obj_tuple:
+            initial_person = self.dbstate.db.find_initial_person()
+            if not initial_person:
+                return None
+            obj_tuple = ('Person', initial_person.get_handle())
+        return obj_tuple
 
     def clipboard_copy(self, data, handle):
         return self.copy_to_clipboard(data, [handle])
@@ -465,10 +486,15 @@ class ProfileView(ENavigationView):
         return False
 
     def change_object(self, obj_tuple):
-        if not obj_tuple:
+        if self.redrawing:
             return False
 
-        if self.redrawing:
+        if not obj_tuple:
+            obj_tuple = self._get_last()
+            if not obj_tuple:
+                return self._clear_change()
+            self.history.push(tuple(obj_tuple))
+            self.loaded = True
             return False
 
         obj_type, handle, = obj_tuple
@@ -506,6 +532,15 @@ class ProfileView(ENavigationView):
         self.uistate.modify_statusbar(self.dbstate)
         self.redrawing = False
         self.dirty = False
+        if self.loaded:
+            dbid = self.dbstate.db.get_dbid()
+            save_config_option(
+                self._config,
+                "preferences.profile.active.last_object",
+                obj_type,
+                handle,
+                dbid=dbid
+            )
         self.active_page = page
         return True
 
