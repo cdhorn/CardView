@@ -40,6 +40,7 @@ from gi.repository import Gtk
 from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
+from gramps.gen.utils.db import navigation_label
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 from enavigationview import ENavigationView
@@ -483,6 +484,9 @@ class ProfileView(ENavigationView):
     def _clear_change(self):
         list(map(self.header.remove, self.header.get_children()))
         list(map(self.vbox.remove, self.vbox.get_children()))
+        if not self.dbstate.is_open():
+            self.uistate.status.pop(self.uistate.status_id)
+            self.uistate.status.push(self.uistate.status_id, _("No active object"))
         return False
 
     def change_object(self, obj_tuple):
@@ -542,6 +546,9 @@ class ProfileView(ENavigationView):
                 dbid=dbid
             )
         self.active_page = page
+        self.uistate.status.pop(self.uistate.status_id)
+        name, _obj = navigation_label(self.dbstate.db, obj_type, obj.get_handle())
+        self.uistate.status.push(self.uistate.status_id, name)
         return True
 
     def set_active(self):
