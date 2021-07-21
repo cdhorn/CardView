@@ -623,7 +623,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             name = "{} {}".format(_("Edit"), self.obj_type.lower())
         return self._menu_item("gtk-edit", name, self.edit_object)
 
-    def edit_object(self, skip, obj=None, obj_type=None):
+    def edit_object(self, skip=None, obj=None, obj_type=None):
         """
         Launch the desired editor based on object type defaulting to the managed object.
         """
