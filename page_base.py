@@ -85,6 +85,23 @@ class BaseProfilePage(Callback):
         """
         self.emit(signal, payload)
 
+    def edit_active(self, *obj):
+        """
+        Edit the active page object.
+        """
+        if self.active_profile:
+            self.active_profile.edit_object()
+
+    def add_tag(self, trans, object_handle, tag_handle):
+        """
+        Add a tag to the active page object.
+        """
+        if self.active_profile:
+            if self.active_profile.obj.get_handle() == object_handle[1]:
+                self.active_profile.obj.add_tag(tag_handle)
+                commit_method = self.dbstate.db.method("commit_%s", self.active_profile.obj_type)
+                commit_method(self.active_profile.obj, trans)
+
     def create_grid(self):
         """
         Generate grid for config panels.

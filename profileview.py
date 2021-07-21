@@ -507,6 +507,9 @@ class ProfileView(ENavigationView):
         obj = query_method(handle)
         self.redrawing = True
 
+        if self.active_page:
+            self.active_page.disable_actions(self.uimanager)
+
         page = self.pages[obj_type]
         page.render_page(self.header, self.vbox, obj)
         page.enable_actions(self.uimanager, obj)

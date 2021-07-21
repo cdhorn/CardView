@@ -241,11 +241,3 @@ class RepositoryProfilePage(BaseProfilePage):
             self.sources_panel,
             self.notes_panel,
         ]
-
-    def edit_active(self, *obj):
-        if self.active_profile:
-            self.active_profile.edit_object()
-
-    def add_tag(self, trans, object_handle, tag_handle):
-        if self.active_profile:
-            self.active_profile.add_tag(trans, object_handle, tag_handle)

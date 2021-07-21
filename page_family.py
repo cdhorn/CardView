@@ -96,26 +96,13 @@ class FamilyProfilePage(BaseProfilePage):
         return 'Family'
 
     def define_actions(self, view):
-        self.order_action = ActionGroup(name='ChangeOrder')
-        self.order_action.add_actions([
-            ('ChangeOrder', self.reorder)])
-
-        self.family_action = ActionGroup(name='Family')
-        self.family_action.add_actions([
-            ('AddSpouse', self.add_spouse),
-            ('AddParents', self.add_parents),
-            ('ShareFamily', self.select_parents)])
-
-        view._add_action_group(self.order_action)
-        view._add_action_group(self.family_action)
+        return
 
     def enable_actions(self, uimanager, person):
-        uimanager.set_actions_visible(self.family_action, True)
-        uimanager.set_actions_visible(self.order_action, True)
+        return
 
     def disable_actions(self, uimanager):
-        uimanager.set_actions_visible(self.family_action, False)
-        uimanager.set_actions_visible(self.order_action, False)
+        return
 
     def _get_primary_parents(self, grstate, person, groups):
         if person:
@@ -214,17 +201,6 @@ class FamilyProfilePage(BaseProfilePage):
         vbox.pack_start(gbox, True, True, 0)
         vbox.show_all()
         return True
-
-    def reorder_button_press(self, obj, event, handle):
-        if button_activated(event, _LEFT_BUTTON):
-            self.reorder(obj)
-
-    def reorder(self, *obj):
-        if self.get_active():
-            try:
-                Reorder(self.dbstate, self.uistate, [], self.get_active())
-            except WindowActiveError:
-                pass
 
     def layout_panel(self, configdialog):
         """
@@ -823,23 +799,3 @@ class FamilyProfilePage(BaseProfilePage):
             self.notes_panel,
             self.media_panel,
         ]
-
-    def edit_active(self, *obj):
-        if self.active_profile:
-            self.active_profile.edit_object()
-
-    def add_spouse(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_new_spouse()
-
-    def select_parents(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_parents(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_new_parents()
-
-    def add_tag(self, trans, object_handle, tag_handle):
-        if self.active_profile:
-            self.active_profile.add_tag(trans, object_handle, tag_handle)

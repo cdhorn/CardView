@@ -219,9 +219,9 @@ class PersonProfilePage(BaseProfilePage):
             self.reorder(obj)
 
     def reorder(self, *obj):
-        if self.get_active():
+        if self.active_profile:
             try:
-                Reorder(self.dbstate, self.uistate, [], self.get_active())
+                Reorder(self.dbstate, self.uistate, [], self.active_profile.obj.get_handle())
             except WindowActiveError:
                 pass
 
@@ -1069,10 +1069,6 @@ class PersonProfilePage(BaseProfilePage):
             self.media_panel,
         ]
 
-    def edit_active(self, *obj):
-        if self.active_profile:
-            self.active_profile.edit_object()
-
     def add_spouse(self, *obj):
         if self.active_profile:
             self.active_profile.add_new_spouse()
@@ -1084,7 +1080,3 @@ class PersonProfilePage(BaseProfilePage):
     def add_parents(self, *obj):
         if self.active_profile:
             self.active_profile.add_new_parents()
-
-    def add_tag(self, trans, object_handle, tag_handle):
-        if self.active_profile:
-            self.active_profile.add_tag(trans, object_handle, tag_handle)
