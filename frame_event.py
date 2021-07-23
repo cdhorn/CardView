@@ -252,7 +252,7 @@ class EventGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("layout", "use-color-scheme"):
+        if not self.option("page", "use-color-scheme"):
             return ""
 
         scheme = self.option(self.context, "color-scheme")

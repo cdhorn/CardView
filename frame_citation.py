@@ -106,7 +106,7 @@ class CitationGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("layout", "use-color-scheme"):
+        if not self.option("page", "use-color-scheme"):
             return ""
 
         return get_confidence_color_css(self.obj.confidence, self.grstate.config)

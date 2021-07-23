@@ -123,7 +123,7 @@ class GrampsConfig:
         self.grstate = grstate
         self.context = ""
         self.markup = "{}"
-        if self.grstate.config.get("{}.layout.use-smaller-detail-font".format(self.grstate.space)):
+        if self.grstate.config.get("{}.page.use-smaller-detail-font".format(self.grstate.space)):
             self.markup = "<small>{}</small>"
 
     def option(self, context, name, full=True, keyed=False):
@@ -163,7 +163,7 @@ class GrampsConfig:
         If enabled display message and confirm a user requested action.
         """
         if not self.grstate.config.get(
-            "{}.layout.enable-warnings".format(self.grstate.space)
+            "{}.page.enable-warnings".format(self.grstate.space)
         ):
             return True
         dialog = Gtk.Dialog(parent=self.grstate.uistate.window)

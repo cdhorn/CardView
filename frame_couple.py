@@ -198,7 +198,7 @@ class CoupleGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("layout", "use-color-scheme"):
+        if not self.option("page", "use-color-scheme"):
             return ""
 
         return get_family_color_css(self.obj, self.grstate.config, divorced=self.divorced)

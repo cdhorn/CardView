@@ -486,7 +486,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         for handle in self.obj.get_tag_list():
             tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
             tags.append(tag)
-        if self.option("layout", "sort-tags-by-name"):
+        if self.option("page", "sort-tags-by-name"):
             tags.sort(key = lambda x: x.name)
         else:
             tags.sort(key = lambda x: x.priority)
@@ -894,7 +894,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             for text, note in note_list:
                 removemenu.add(self._menu_item("list-remove", text, self.remove_note, note))
                 menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
-        if self.option("layout", "include-child-notes"):
+        if self.option("page", "include-child-notes"):
                 note_list = []
                 for child_obj in self.obj.get_note_child_list():
                     for handle in child_obj.get_note_list():
@@ -1006,7 +1006,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             else:
                 tag_add_list.append(tag)
         for tag_list in [tag_add_list, tag_remove_list]:
-            if self.option("layout", "sort-tags-by-name"):
+            if self.option("page", "sort-tags-by-name"):
                 tag_list.sort(key = lambda x: x.name)
             else:
                 tag_list.sort(key = lambda x: x.priority)
@@ -1372,7 +1372,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Apply some simple styling to the frame of the current object.
         """
-        border = self.option("layout", "border-width")
+        border = self.option("page", "border-width")
         color = self.get_color_css()
         css = ".frame {{ border-width: {}px; {} }}".format(border, color)
         css = css.encode("utf-8")

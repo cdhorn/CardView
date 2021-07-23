@@ -114,7 +114,7 @@ class PersonGrampsFrame(GrampsFrame):
         self.enable_drop()
 
         display_name = name_displayer.display(person)
-        if self.option("layout", "enable_tooltips"):
+        if self.option("page", "enable_tooltips"):
             tooltip = "{} {} {}".format(
                 _("Click to view"), display_name, _("or right click to select edit.")
             )
@@ -272,7 +272,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("layout", "use-color-scheme"):
+        if not self.option("page", "use-color-scheme"):
             return ""
 
         return get_person_color_css(self.obj, self.grstate.config, living=self.living, home=self.relation)

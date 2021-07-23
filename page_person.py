@@ -140,65 +140,65 @@ class PersonProfilePage(BaseProfilePage):
         if spouses is not None:
             spouses_box.pack_start(spouses, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.show-timeline"):
+        if self.config.get("preferences.profile.person.page.show-timeline"):
             timeline_box = Gtk.VBox(spacing=3)
             timeline = get_timeline_group(grstate, person)
             if timeline is not None:
                 timeline_box.pack_start(timeline, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.show-citations"):
+        if self.config.get("preferences.profile.person.page.show-citations"):
             citations_box = Gtk.VBox(spacing=3)
             citations = get_citations_group(grstate, person)
             if citations is not None:
                 citations_box.pack_start(citations, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.show-media"):
+        if self.config.get("preferences.profile.person.page.show-media"):
             media_box = Gtk.VBox(spacing=3)
             media = get_media_group(grstate, person)
             if media is not None:
                 media_box.pack_start(media, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.show-notes"):
+        if self.config.get("preferences.profile.person.page.show-notes"):
             notes_box = Gtk.VBox(spacing=3)
             notes = get_notes_group(grstate, person)
             if notes is not None:
                 notes_box.pack_start(notes, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.families-stacked"):
+        if self.config.get("preferences.profile.person.page.families-stacked"):
             families_box = Gtk.VBox(spacing=3)
             families_box.pack_start(parents_box, expand=False, fill=False, padding=0)
             families_box.pack_start(spouses_box, expand=False, fill=False, padding=0)
-            if self.config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.page.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-timeline"):
+            if self.config.get("preferences.profile.person.page.show-timeline"):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-citations"):
+            if self.config.get("preferences.profile.person.page.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-media"):
+            if self.config.get("preferences.profile.person.page.show-media"):
                 body.pack_start(media_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-notes"):
+            if self.config.get("preferences.profile.person.page.show-notes"):
                 body.pack_start(notes_box, expand=True, fill=True, padding=0)
-            if not self.config.get("preferences.profile.person.layout.spouses-left"):
+            if not self.config.get("preferences.profile.person.page.spouses-left"):
                 body.pack_start(families_box, expand=True, fill=True, padding=0)
         else:
-            if self.config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.page.spouses-left"):
                 body.pack_start(spouses_box, expand=True, fill=True, padding=0)
             else:
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-timeline"):
+            if self.config.get("preferences.profile.person.page.show-timeline"):
                 body.pack_start(timeline_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-citations"):
+            if self.config.get("preferences.profile.person.page.show-citations"):
                 body.pack_start(citations_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-media"):
+            if self.config.get("preferences.profile.person.page.show-media"):
                 body.pack_start(media_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.show-notes"):
+            if self.config.get("preferences.profile.person.page.show-notes"):
                 body.pack_start(notes_box, expand=True, fill=True, padding=0)
-            if self.config.get("preferences.profile.person.layout.spouses-left"):
+            if self.config.get("preferences.profile.person.page.spouses-left"):
                 body.pack_start(parents_box, expand=True, fill=True, padding=0)
             else:
                 body.pack_start(spouses_box, expand=True, fill=True, padding=0)
 
-        if self.config.get("preferences.profile.person.layout.pinned-header"):
+        if self.config.get("preferences.profile.person.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -233,75 +233,75 @@ class PersonProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active person header so it does not scroll"),
-            1, "preferences.profile.person.layout.pinned-header",
+            1, "preferences.profile.person.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
             grid, _("Place spouses & children on left side"),
-            2, "preferences.profile.person.layout.spouses-left",
+            2, "preferences.profile.person.page.spouses-left",
         )
         configdialog.add_checkbox(
             grid, _("Stack parents & spouses in a single column"),
-            3, "preferences.profile.person.layout.families-stacked",
+            3, "preferences.profile.person.page.families-stacked",
         )
         configdialog.add_checkbox(
             grid, _("Show event timeline"),
-            4, "preferences.profile.person.layout.show-timeline",
+            4, "preferences.profile.person.page.show-timeline",
         )
         configdialog.add_checkbox(
             grid, _("Show associated citations"),
-            5, "preferences.profile.person.layout.show-citations",
+            5, "preferences.profile.person.page.show-citations",
         )
         configdialog.add_checkbox(
             grid, _("Show associated notes"),
-            6, "preferences.profile.person.layout.show-notes",
+            6, "preferences.profile.person.page.show-notes",
         )
         configdialog.add_checkbox(
             grid, _("Show associated media"),
-            7, "preferences.profile.person.layout.show-media",
+            7, "preferences.profile.person.page.show-media",
         )
         configdialog.add_text(grid, _("Styling Options"), 8, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            9, "preferences.profile.person.layout.use-smaller-detail-font",
+            9, "preferences.profile.person.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            10, "preferences.profile.person.layout.border-width",
+            10, "preferences.profile.person.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            11, "preferences.profile.person.layout.use-color-scheme",
+            11, "preferences.profile.person.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Right to left"),
-            12, "preferences.profile.person.layout.right-to-left",
+            12, "preferences.profile.person.page.right-to-left",
             tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            13, "preferences.profile.person.layout.sort-tags-by-name",
+            13, "preferences.profile.person.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            14, "preferences.profile.person.layout.include-child-notes",
+            14, "preferences.profile.person.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            15, "preferences.profile.person.layout.enable-warnings",
+            15, "preferences.profile.person.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            16, "preferences.profile.person.layout.enable-tooltips",
+            16, "preferences.profile.person.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.page", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 

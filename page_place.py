@@ -103,7 +103,7 @@ class PlaceProfilePage(BaseProfilePage):
             rbox.pack_start(references, expand=True, fill=True, padding=0)
             body.pack_start(rbox, expand=True, fill=True, padding=0)
 
-        if self.config.get("preferences.profile.place.layout.pinned-header"):
+        if self.config.get("preferences.profile.place.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -120,46 +120,46 @@ class PlaceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active place header so it does not scroll"),
-            2, "preferences.profile.place.layout.pinned-header",
+            2, "preferences.profile.place.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.place.layout.use-smaller-detail-font",
+            7, "preferences.profile.place.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.place.layout.border-width",
+            8, "preferences.profile.place.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.place.layout.use-color-scheme",
+            9, "preferences.profile.place.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Right to left"),
-            10, "preferences.profile.place.layout.right-to-left",
+            10, "preferences.profile.place.page.right-to-left",
             tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.place.layout.sort-tags-by-name",
+            11, "preferences.profile.place.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.place.layout.enable-warnings",
+            13, "preferences.profile.place.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.place.layout.enable-tooltips",
+            14, "preferences.profile.place.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.place.layout", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.place.page", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
