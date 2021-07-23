@@ -231,11 +231,6 @@ class CitationProfilePage(BaseProfilePage):
         grid = self.create_grid()
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
-            grid, _("Event display format"),
-            1, "preferences.profile.citation.active.event-format",
-            EVENT_DISPLAY_MODES,
-        )
-        configdialog.add_combo(
             grid, _("Image display mode"),
             3, "preferences.profile.citation.active.image-mode",
             IMAGE_DISPLAY_MODES,
@@ -291,64 +286,6 @@ class CitationProfilePage(BaseProfilePage):
         reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.repository", defaults=self.defaults, label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Repositories"), grid
-
-    def citations_panel(self, configdialog):
-        """
-        Builds citations options section for configuration dialog
-        """
-        grid = self.create_grid()
-        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        configdialog.add_combo(
-            grid, _("Tag display mode"),
-            1, "preferences.profile.citation.citation.tag-format",
-            TAG_DISPLAY_MODES,
-        )
-        configdialog.add_spinner(
-            grid, _("Maximum tags per line"),
-            2, "preferences.profile.citation.citation.tag-width",
-            (1, 20),
-        )
-        configdialog.add_combo(
-            grid, _("Image display mode"),
-            3, "preferences.profile.citation.citation.image-mode",
-            IMAGE_DISPLAY_MODES,
-        )
-        configdialog.add_checkbox(
-            grid, _("Sort citations by date"),
-            4, "preferences.profile.citation.citation.sort-by-date",
-            tooltip=_("Enabling this option will sort the citations by date.")
-        )
-        configdialog.add_text(grid, _("Attributes"), 9, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show date"),
-            10, "preferences.profile.citation.citation.show-date",
-            tooltip=_("Enabling this option will show the citation date if it is available.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Show publisher"),
-            11, "preferences.profile.citation.citation.show-publisher",
-            tooltip=_("Enabling this option will show the publisher information if it is available.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Show reference type"),
-            12, "preferences.profile.citation.citation.show-reference-type",
-            tooltip=_("Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Show reference description"),
-            13, "preferences.profile.citation.citation.show-reference-description",
-            tooltip=_("Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Show confidence rating"),
-            14, "preferences.profile.citation.citation.show-confidence",
-            tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
-        )
-        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.citation.citation", 16, start_col=1, number=4, obj_type="Citation")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
-        grid.attach(reset, 1, 25, 1, 1)
-        return _("Citations"), grid
 
     def people_panel(self, configdialog):
         """
@@ -407,7 +344,6 @@ class CitationProfilePage(BaseProfilePage):
             self.layout_panel,
             self.active_panel,
             self.repositories_panel,            
-            self.citations_panel,
             self.notes_panel,
             self.media_panel,
             self.people_panel,
