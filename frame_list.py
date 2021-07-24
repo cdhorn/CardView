@@ -99,20 +99,28 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         self.reset_dnd_css()
         if data and data.get_data():
             dnd_type, obj_id, obj_handle, skip = pickle.loads(data.get_data())
-            index = 0
+            source_index = 0
             for frame in self.row_frames:
                 if frame.obj.get_handle() == obj_handle:
-                    if self.row_current != index:
-                        row_moving = self.get_row_at_index(index)
-                        frame_moving = self.row_frames[index]
-                        self.remove(row_moving)
-                        self.row_frames.remove(frame_moving)
+                    if self.row_current == source_index:
+                        break
+                    row_moving = self.get_row_at_index(source_index)
+                    frame_moving = self.row_frames[source_index]
+                    self.remove(row_moving)
+                    self.row_frames.remove(frame_moving)
+                    if self.row_current < source_index:
                         self.insert(row_moving, self.row_current)
                         self.row_frames.insert(self.row_current, frame_moving)
-                        self.save_reordered_list()
+                    elif self.row_current == self.row_previous:
+                        self.add(row_moving)
+                        self.row_frames.append(frame_moving)
+                    elif self.row_current > source_index:
+                        self.insert(row_moving, self.row_current - 1)
+                        self.row_frames.insert(self.row_current - 1, frame_moving)
+                    self.save_reordered_list()
                     break
-                index = index + 1
-            if index >= len(self.row_frames):
+                source_index = source_index + 1
+            if source_index >= len(self.row_frames):
                 self.save_new_object(obj_handle, self.row_current)
         self.row_previous = 0
         self.row_current = 0
@@ -134,7 +142,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         self.reset_dnd_css()
         current_row = self.get_row_at_y(y)
         allocation = current_row.get_allocation()
-        if (y < allocation.y + allocation.height/2):
+        if y < allocation.y + allocation.height/2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1
             if self.row_previous < 0:
