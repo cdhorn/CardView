@@ -530,7 +530,7 @@ def get_participants(db, event):
     return participants, text
 
 
-def get_config_option(config, option, full=False, dbid=None, defaults=None):
+def get_config_option(config, option, full=False, dbid=None):
     """
     Extract a compound config option.
     """
@@ -549,12 +549,10 @@ def get_config_option(config, option, full=False, dbid=None, defaults=None):
                 option_parts = current_option.split(":")
                 if option_parts[0] == dbid:
                     return option_parts[1:]
-        if defaults:
-            for default_option, default_value in defaults:
-                if option == default_option:
-                    if isinstance(default_value, str):
-                        option_parts = default_value.split(":")
-                        return option_parts
+        default_value = config.get_default(option)
+        if isinstance(default_value, str):
+            option_parts = default_value.split(":")
+            return option_parts
         return []
     return option_data.split(":")
 
@@ -691,13 +689,12 @@ class FrameFieldSelector(Gtk.HBox):
     A custom selector for the user defined fields for the configdialog.
     """
 
-    def __init__(self, option, config, dbstate, uistate, number, dbid=False, defaults=None, text=None, relation=True, obj_type="Person"):
+    def __init__(self, option, config, dbstate, uistate, number, dbid=False, text=None, relation=True, obj_type="Person"):
         Gtk.HBox.__init__(self, hexpand=False, spacing=6)
         self.option = option
         self.config = config
         self.dbstate = dbstate
         self.uistate = uistate
-        self.defaults = defaults
         self.dbid = None
         if dbid:
             self.dbid = self.dbstate.db.get_dbid()
@@ -749,7 +746,6 @@ class FrameFieldSelector(Gtk.HBox):
             self.config,
             self.option,
             dbid=self.dbid,
-            defaults=self.defaults
         )
         if current_option and current_option[0] != "None":
             user_type = current_option[0]
@@ -917,28 +913,36 @@ class ConfigReset(Gtk.Button):
     Class to manage resetting configuration options.
     """
 
-    def __init__(self, dialog, config, space, defaults, label=None):
+    def __init__(self, dialog, config, space, label=None):
         Gtk.Button.__init__(self, hexpand=False)
         self.dialog = dialog
         self.config = config
-        self.space = "{}.".format(space)
-        self.defaults = defaults
+        self.space = space
         if label:
             self.set_label(label)
         else:
             self.set_label(_("Reset Page Defaults"))
-        self.connect("clicked", self.reset)
+        self.connect("clicked", self.reset_option_space)
         self.set_tooltip_text(_("This option will examine a set of options and set any that were changed back to their default value. It may apply to a whole page or in some cases a part of a page. Note if it finds and has to reset any values when done it will close the configuration dialog and you will need to reopen it. Redraw logic has not been implemented yet."))
 
-    def reset(self, obj):
-        option_length = len(self.space)
+    def reset_option_space(self, obj):
         reset_option = False
-        for option, value in self.defaults:
-            if option[:option_length] == self.space:
-                current_value = self.config.get(option)
-                if current_value != value:
-                    print("resetting {}".format(option))
-                    self.config.set(option, value)
-                    reset_option = True
+        options = self.get_option_space()
+        for option in options:
+            current_value = self.config.get(option)
+            default_value = self.config.get_default(option)
+            if current_value != default_value:
+                self.config.set(option, default_value)
+                reset_option = True
         if reset_option:
             self.dialog.done(None, None)
+
+    def get_option_space(self):
+        settings = self.config.get_section_settings("preferences")
+        prefix = self.space.replace("preferences.", "")
+        prefix_length = len(prefix)
+        options = []
+        for setting in settings:
+            if setting[:prefix_length] == prefix:
+                options.append("preferences.{}".format(setting))
+        return options

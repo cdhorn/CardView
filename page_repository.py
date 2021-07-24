@@ -70,8 +70,8 @@ class RepositoryProfilePage(BaseProfilePage):
     Provides the repository profile page view with information about the repository.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
         return 'Repository'
@@ -93,7 +93,7 @@ class RepositoryProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.repository", self.config, self.defaults
+            "preferences.profile.repository", self.config,
         )
         self.active_profile = RepositoryGrampsFrame(grstate, "active", repository)
 
@@ -177,7 +177,7 @@ class RepositoryProfilePage(BaseProfilePage):
             14, "preferences.profile.repository.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -197,7 +197,7 @@ class RepositoryProfilePage(BaseProfilePage):
             5, "preferences.profile.repository.active.tag-width",
             (1, 20)
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Repository"), grid
 
@@ -224,7 +224,7 @@ class RepositoryProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.repository.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.source", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.source", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 

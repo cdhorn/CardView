@@ -72,12 +72,11 @@ class BaseProfilePage(Callback):
         'copy-to-clipboard' : (str, str),
     }
 
-    def __init__(self, dbstate, uistate, config, defaults):
+    def __init__(self, dbstate, uistate, config):
         Callback.__init__(self)
         self.dbstate = dbstate
         self.uistate = uistate
         self.config = config
-        self.defaults = defaults
 
     def callback_router(self, signal, payload):
         """
@@ -102,6 +101,7 @@ class BaseProfilePage(Callback):
                 commit_method = self.dbstate.db.method("commit_%s", self.active_profile.obj_type)
                 commit_method(self.active_profile.obj, trans)
 
+                
     def create_grid(self):
         """
         Generate grid for config panels.
@@ -122,8 +122,7 @@ class BaseProfilePage(Callback):
         while row < start_row + number:
             option = "{}.{}-{}".format(space, key, count)
             user_select = FrameFieldSelector(
-                option, self.config, self.dbstate, self.uistate, count,
-                dbid=True, defaults=self.defaults
+                option, self.config, self.dbstate, self.uistate, count, dbid=True,
             )
             grid.attach(user_select, start_col, row, 2, 1)
             count = count + 1
@@ -192,7 +191,7 @@ class BaseProfilePage(Callback):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "{}.media".format(space), 16, start_col=1, number=4, obj_type="Media")
-        reset = ConfigReset(configdialog, self.config, "{}.media".format(space), defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "{}.media".format(space), label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Media"), grid
 
@@ -212,7 +211,7 @@ class BaseProfilePage(Callback):
             2, "{}.note.tag-width".format(space),
             (1, 20),
         )
-        reset = ConfigReset(configdialog, self.config, "{}.note".format(space), defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "{}.note".format(space), label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Notes"), grid
     

@@ -95,15 +95,15 @@ class ProfileView(ENavigationView):
         uistate.connect('placeformat-changed', self.build_tree)
 
         self.pages = {}
-        self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(FamilyProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(CitationProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(RepositoryProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(MediaProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(NoteProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
-        self._add_page(PlaceProfilePage(self.dbstate, self.uistate, self._config, self.CONFIGSETTINGS))
+        self._add_page(PersonProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(FamilyProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(EventProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(CitationProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(SourceProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(RepositoryProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(MediaProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(NoteProfilePage(self.dbstate, self.uistate, self._config))
+        self._add_page(PlaceProfilePage(self.dbstate, self.uistate, self._config))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
 

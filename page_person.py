@@ -83,8 +83,8 @@ class PersonProfilePage(BaseProfilePage):
     Provides the person profile page view with information about the person.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
         self.order_action = None
         self.family_action = None
         self.reorder_sensitive = None
@@ -125,7 +125,7 @@ class PersonProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.person", self.config, self.defaults
+            "preferences.profile.person", self.config
         )
         self.active_profile = PersonGrampsFrame(grstate, "active", person)
 
@@ -301,7 +301,7 @@ class PersonProfilePage(BaseProfilePage):
             16, "preferences.profile.person.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -346,7 +346,7 @@ class PersonProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.active", 9, start_col=3, extra=True)
         configdialog.add_text(grid, _("Metadata Display Fields"), 8, start=5, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.active", 9, start_col=5)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Person"), grid
 
@@ -403,7 +403,7 @@ class PersonProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.parent", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.parent", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.parent", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.parent", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Parents"), grid
 
@@ -459,7 +459,7 @@ class PersonProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.spouse", 14)
         configdialog.add_text(grid, _("Metadata Display Fields"), 13, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.spouse", 14, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.spouse", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.spouse", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Spouses"), grid
 
@@ -506,7 +506,7 @@ class PersonProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.child", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.child", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.child", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.child", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Children"), grid
 
@@ -553,7 +553,7 @@ class PersonProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.person.sibling", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.sibling", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.sibling", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.sibling", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Siblings"), grid
 
@@ -621,7 +621,7 @@ class PersonProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid1, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid1, "preferences.profile.person.timeline", 16, start_col=1, number=4, obj_type="Event")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.timeline", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.timeline", label=_("Reset Page Defaults"))
         grid1.attach(reset, 1, 25, 1, 1)
         grid2 = self.create_grid()
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
@@ -860,7 +860,7 @@ class PersonProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.citation", 16, start_col=1, number=4, obj_type="Citation")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.citation", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
@@ -893,7 +893,7 @@ class PersonProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.person.media", 16, start_col=1, number=4, obj_type="Media")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.media", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.person.media", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Media"), grid
 

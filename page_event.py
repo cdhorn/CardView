@@ -70,8 +70,8 @@ class EventProfilePage(BaseProfilePage):
     Provides the event profile page view with information about the event.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
         return 'Event'
@@ -93,7 +93,7 @@ class EventProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.event", self.config, self.defaults
+            "preferences.profile.event", self.config,
         )
         self.active_profile = EventGrampsFrame(
             grstate,
@@ -223,7 +223,7 @@ class EventProfilePage(BaseProfilePage):
             14, "preferences.profile.event.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -255,7 +255,7 @@ class EventProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.event.active", 12, start_col=1, number=4, obj_type="Event")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Event"), grid
 
@@ -298,7 +298,7 @@ class EventProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.event.people", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.event.people", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.people", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.people", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
 
@@ -330,7 +330,7 @@ class EventProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.event.family", 12, start_col=1, number=4, obj_type="Family")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.family", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.family", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Family"), grid
 

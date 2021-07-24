@@ -75,8 +75,8 @@ class SourceProfilePage(BaseProfilePage):
     Provides the source profile page view with information about the source.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
         return 'Source'
@@ -98,7 +98,7 @@ class SourceProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.source", self.config, self.defaults
+            "preferences.profile.source", self.config,
         )
         self.active_profile = SourceGrampsFrame(grstate, "active", source)
 
@@ -235,7 +235,7 @@ class SourceProfilePage(BaseProfilePage):
             14, "preferences.profile.source.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -267,7 +267,7 @@ class SourceProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.source.active", 16, start_col=1, number=4, obj_type="Source")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
 
@@ -303,7 +303,7 @@ class SourceProfilePage(BaseProfilePage):
             12, "preferences.profile.source.repository.show-repository-type",
             tooltip=_("Enabling this option will show the repository type if it is available.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.repository", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.repository", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Repositories"), grid
 
@@ -361,7 +361,7 @@ class SourceProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.source.citation", 16, start_col=1, number=4, obj_type="Citation")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.citation", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.citation", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
@@ -404,7 +404,7 @@ class SourceProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.source.people", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.source.people", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
 

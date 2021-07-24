@@ -69,8 +69,8 @@ class NoteProfilePage(BaseProfilePage):
     Provides the note profile page view with information about the note.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
         return 'Note'
@@ -92,7 +92,7 @@ class NoteProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.note", self.config, self.defaults
+            "preferences.profile.note", self.config,
         )
         self.active_profile = NoteGrampsFrame(grstate, "active", note)
 
@@ -159,7 +159,7 @@ class NoteProfilePage(BaseProfilePage):
             14, "preferences.profile.note.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -179,7 +179,7 @@ class NoteProfilePage(BaseProfilePage):
             5, "preferences.profile.note.active.tag-width",
             (1, 20)
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Note"), grid
 
@@ -206,7 +206,7 @@ class NoteProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.note.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.source", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.note.source", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 

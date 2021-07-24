@@ -76,8 +76,8 @@ class CitationProfilePage(BaseProfilePage):
     Provides the citation profile page view with information about the citation.
     """
 
-    def __init__(self, dbstate, uistate, config, defaults):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, defaults)
+    def __init__(self, dbstate, uistate, config):
+        BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
         return 'Citation'
@@ -99,7 +99,7 @@ class CitationProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.citation", self.config, self.defaults
+            "preferences.profile.citation", self.config,
         )
         self.active_profile = CitationGrampsFrame(grstate, "active", citation)
 
@@ -220,7 +220,7 @@ class CitationProfilePage(BaseProfilePage):
             14, "preferences.profile.citation.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.page", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Layout"), grid
 
@@ -247,7 +247,7 @@ class CitationProfilePage(BaseProfilePage):
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.citation.active", 16, start_col=1, number=4, obj_type="Source")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.active", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
 
@@ -283,7 +283,7 @@ class CitationProfilePage(BaseProfilePage):
             12, "preferences.profile.citation.repository.show-repository-type",
             tooltip=_("Enabling this option will show the repository type if it is available.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.repository", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.repository", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Repositories"), grid
 
@@ -326,7 +326,7 @@ class CitationProfilePage(BaseProfilePage):
         self._config_facts_fields(configdialog, grid, "preferences.profile.citation.people", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
         self._config_metadata_attributes(grid, "preferences.profile.citation.people", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.people", defaults=self.defaults, label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.people", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
 

@@ -96,15 +96,14 @@ class GrampsState:
     A simple class to encapsulate the underlying state for the page view.
     """
 
-    __slots__ = 'dbstate', 'uistate', 'router', 'space', 'config', 'defaults'
+    __slots__ = 'dbstate', 'uistate', 'router', 'space', 'config'
 
-    def __init__(self, dbstate, uistate, router, space, config, defaults=None):
+    def __init__(self, dbstate, uistate, router, space, config):
         self.dbstate = dbstate
         self.uistate = uistate
         self.router = router
         self.space = space
         self.config = config
-        self.defaults = defaults
 
 
 # ------------------------------------------------------------------------
@@ -135,7 +134,7 @@ class GrampsConfig:
             dbid = self.grstate.dbstate.db.get_dbid()
         option = "{}.{}.{}".format(self.grstate.space, context, name)
         try:
-            return get_config_option(self.grstate.config, option, full=full, dbid=dbid, defaults=self.grstate.defaults)
+            return get_config_option(self.grstate.config, option, full=full, dbid=dbid)
         except AttributeError:
             return False
 
