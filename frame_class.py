@@ -104,6 +104,8 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # ------------------------------------------------------------------------
 from frame_base import GrampsConfig, GrampsImageViewFrame
 from frame_utils import get_attribute_types, get_config_option, get_gramps_object_type
+from page_layout import ProfileViewLayout
+
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -537,9 +539,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Route the action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
-            self.build_action_menu(obj, event)
+            if event.state & Gdk.ModifierType.CONTROL_MASK:
+                self.layout_editor()
+            else:
+                self.build_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.obj_type, self.obj.get_handle())
+
+    def layout_editor(self):
+        """
+        Launch page layout editor.
+        """
+        try:
+            ProfileViewLayout(self.grstate.uistate, self.grstate.config, self.obj_type)
+        except WindowActiveError:
+            pass
 
     def build_action_menu(self, obj, event):
         """
