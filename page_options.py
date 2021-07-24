@@ -85,7 +85,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.person.layout.tabbed", False),
-    ("preferences.profile.person.layout.columns", "parent,timeline,citation,spouse"),
+    ("preferences.profile.person.layout.groups", "parent,timeline,citation,note,media,spouse"),
     ("preferences.profile.person.layout.parent.visible", True),
     ("preferences.profile.person.layout.parent.stacked", False),
     ("preferences.profile.person.layout.spouse.visible", True),
@@ -339,7 +339,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.family.layout.tabbed", False),
-    ("preferences.profile.family.layout.columns", "child,timeline,citation"),
+    ("preferences.profile.family.layout.groups", "child,timeline,citation,note,media"),
     ("preferences.profile.family.layout.child.visible", True),
     ("preferences.profile.family.layout.child.stacked", False),
     ("preferences.profile.family.layout.timeline.visible", True),
@@ -506,7 +506,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.event.layout.tabbed", False),
-    ("preferences.profile.event.layout.columns", "people,family,note,media"),
+    ("preferences.profile.event.layout.groups", "people,family,citation,note,media"),
     ("preferences.profile.event.layout.people.visible", True),
     ("preferences.profile.event.layout.people.stacked", False),
     ("preferences.profile.event.layout.family.visible", True),
@@ -591,17 +591,17 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.source.layout.tabbed", False),
-    ("preferences.profile.source.layout.columns", "repository,citation,note"),
-    ("preferences.profile.source.layout.people.visible", True),
-    ("preferences.profile.source.layout.people.stacked", False),
-    ("preferences.profile.source.layout.event.visible", True),
-    ("preferences.profile.source.layout.event.stacked", False),
+    ("preferences.profile.source.layout.groups", "repository,citation,note,people,event,media"),
     ("preferences.profile.source.layout.repository.visible", True),
     ("preferences.profile.source.layout.repository.stacked", False),
     ("preferences.profile.source.layout.citation.visible", True),
     ("preferences.profile.source.layout.citation.stacked", False),
     ("preferences.profile.source.layout.note.visible", False),
     ("preferences.profile.source.layout.note.stacked", False),
+    ("preferences.profile.source.layout.people.visible", True),
+    ("preferences.profile.source.layout.people.stacked", False),
+    ("preferences.profile.source.layout.event.visible", True),
+    ("preferences.profile.source.layout.event.stacked", False),
     ("preferences.profile.source.layout.media.visible", False),
     ("preferences.profile.source.layout.media.stacked", False),
     # Old Layout
@@ -703,7 +703,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.citation.layout.tabbed", False),
-    ("preferences.profile.citation.layout.columns", "people,event,note"),
+    ("preferences.profile.citation.layout.groups", "people,event,note,media"),
     ("preferences.profile.citation.layout.people.visible", True),
     ("preferences.profile.citation.layout.people.stacked", False),
     ("preferences.profile.citation.layout.event.visible", True),
@@ -811,7 +811,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.repository.layout.tabbed", False),
-    ("preferences.profile.repository.layout.columns", "source,note"),
+    ("preferences.profile.repository.layout.groups", "source,note"),
     ("preferences.profile.repository.layout.source.visible", True),
     ("preferences.profile.repository.layout.source.stacked", False),
     ("preferences.profile.repository.layout.note.visible", False),
@@ -846,7 +846,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.note.layout.tabbed", False),
-    ("preferences.profile.note.layout.columns", "reference"),
+    ("preferences.profile.note.layout.groups", "reference"),
     ("preferences.profile.note.layout.reference.visible", True),
     ("preferences.profile.note.layout.reference.stacked", False),
     # Old Layout
@@ -868,7 +868,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.media.layout.tabbed", False),
-    ("preferences.profile.media.layout.columns", "reference"),
+    ("preferences.profile.media.layout.groups", "reference"),
     ("preferences.profile.media.layout.reference.visible", True),
     ("preferences.profile.media.layout.reference.stacked", False),
     # Old Layout
@@ -890,7 +890,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout
     ("preferences.profile.place.layout.tabbed", False),
-    ("preferences.profile.place.layout.columns", "reference"),
+    ("preferences.profile.place.layout.groups", "reference"),
     ("preferences.profile.place.layout.reference.visible", True),
     ("preferences.profile.place.layout.reference.stacked", False),
     # Old Layout
