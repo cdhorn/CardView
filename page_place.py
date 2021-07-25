@@ -50,7 +50,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
-from frame_groups import get_references_group
+from frame_groups import (
+    get_citations_group,
+    get_media_group,
+    get_notes_group,
+    get_references_group
+)
 from frame_place import PlaceGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -96,12 +101,18 @@ class PlaceProfilePage(BaseProfilePage):
         )
         self.active_profile = PlaceGrampsFrame(grstate, "active", place)
 
-        body = Gtk.HBox(vexpand=False, spacing=3)
-        rbox = Gtk.VBox(spacing=3)
-        references = get_references_group(grstate, place)
-        if references is not None:
-            rbox.pack_start(references, expand=True, fill=True, padding=0)
-            body.pack_start(rbox, expand=True, fill=True, padding=0)
+        groups = self.config.get("preferences.profile.place.layout.groups").split(",")
+        obj_groups = {}
+
+        if "reference" in groups:
+            obj_groups.update({"reference": get_references_group(grstate, place)})
+        if "citation" in groups:
+            obj_groups.update({"citation": get_citations_group(grstate, place)})
+        if "note" in groups:
+            obj_groups.update({"note": get_notes_group(grstate, place)})
+        if "media" in groups:
+            obj_groups.update({"media": get_media_group(grstate, place)})
+        body = self.render_group_view(obj_groups)
 
         if self.config.get("preferences.profile.place.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
@@ -112,18 +123,17 @@ class PlaceProfilePage(BaseProfilePage):
         vbox.show_all()
         return True
 
-    def layout_panel(self, configdialog):
+    def page_panel(self, configdialog):
         """
-        Builds layout and styling options section for the configuration dialog
+        Builds page and styling options section for the configuration dialog
         """
         grid = self.create_grid()
-        configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
+        configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active place header so it does not scroll"),
             2, "preferences.profile.place.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
-        configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
             7, "preferences.profile.place.page.use-smaller-detail-font",
@@ -161,7 +171,7 @@ class PlaceProfilePage(BaseProfilePage):
         )
         reset = ConfigReset(configdialog, self.config, "preferences.profile.place.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
-        return _("Layout"), grid
+        return _("Page"), grid
 
     def active_panel(self, configdialog):
         """
@@ -183,38 +193,25 @@ class PlaceProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 20, 1, 1)
         return _("Media"), grid
 
-    def sources_panel(self, configdialog):
+    def media_panel(self, configdialog):
         """
-        Builds sources options section for configuration dialog
+        Builds media options section for configuration dialog
         """
-        grid = self.create_grid()
-        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        configdialog.add_combo(
-            grid, _("Image display mode"),
-            1, "preferences.profile.place.source.image-mode",
-            IMAGE_DISPLAY_MODES,
-        )        
-        configdialog.add_combo(
-            grid, _("Tag display mode"),
-            2, "preferences.profile.place.source.tag-format",
-            TAG_DISPLAY_MODES,
-        )
-        configdialog.add_spinner(
-            grid, _("Maximum tags per line"),
-            3, "preferences.profile.place.source.tag-width",
-            (1, 20),
-        )
-        configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.place.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.place.source", label=_("Reset Page Defaults"))
-        grid.attach(reset, 1, 25, 1, 1)
-        return _("Sources"), grid
+        return self._media_panel(configdialog, "preferences.profile.place")
+
+    def notes_panel(self, configdialog):
+        """
+        Builds notes options section for configuration dialog
+        """
+        return self._notes_panel(configdialog, "preferences.profile.place")
 
     def _get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
         """
         return [
-            self.layout_panel,
+            self.page_panel,
             self.active_panel,
+            self.notes_panel,
+            self.media_panel
         ]

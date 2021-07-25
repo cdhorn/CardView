@@ -103,54 +103,41 @@ class CitationProfilePage(BaseProfilePage):
         )
         self.active_profile = CitationGrampsFrame(grstate, "active", citation)
 
-        if self.config.get("preferences.profile.citation.page.show-media"):
-            media_box = Gtk.VBox(spacing=3)
-            media = get_media_group(grstate, citation)
-            if media is not None:
-                media_box.pack_start(media, expand=False, fill=False, padding=0)
 
-        if self.config.get("preferences.profile.citation.page.show-notes"):
-            notes_box = Gtk.VBox(spacing=3)
-            notes = get_notes_group(grstate, citation)
-            if notes is not None:
-                notes_box.pack_start(notes, expand=False, fill=False, padding=0)
+        groups = self.config.get("preferences.profile.citation.layout.groups").split(",")
+        obj_groups = {}
 
+        if "note" in groups:
+            obj_groups.update({"note": get_notes_group(grstate, citation)})
+        if "media" in groups:
+            obj_groups.update({"media": get_media_group(grstate, citation)})
+        
         people_list = []
         events_list = []
-        for sub_obj_type, sub_obj_handle in self.dbstate.db.find_backlink_handles(citation.get_handle()):
-            if sub_obj_type == "Person":
-                if sub_obj_handle not in people_list:
-                    people_list.append(sub_obj_handle)
-                elif sub_obj_type == "Event":
-                    if sub_obj_handle not in events_list:
-                        events_list.append(sub_obj_handle)
+        if "people" in groups or "event" in groups:
+            for sub_obj_type, sub_obj_handle in self.dbstate.db.find_backlink_handles(citation.get_handle()):
+                if sub_obj_type == "Person":
+                    if sub_obj_handle not in people_list:
+                        people_list.append(sub_obj_handle)
+                    elif sub_obj_type == "Event":
+                        if sub_obj_handle not in events_list:
+                            events_list.append(sub_obj_handle)
 
         if people_list:
             people_group = GenericGrampsFrameGroup(grstate, "Person", people_list)
             people = Gtk.Expander(expanded=True, use_markup=True)
             people.set_label("<small><b>{}</b></small>".format(_("Referenced People")))
             people.add(people_group)
-            people_box = Gtk.VBox(spacing=3)
-            people_box.pack_start(people, expand=False, fill=False, padding=0)
+            obj_groups.update({"people": people})
 
         if events_list:
             events_group = GenericGrampsFrameGroup(grstate, "Event", events_list)
             events = Gtk.Expander(expanded=True, use_markup=True)
             events.set_label("<small><b>{}</b></small>".format(_("Referenced Events")))
             events.add(events_group)
-            events_box = Gtk.VBox(spacing=3)
-            events_box.pack_start(events, expand=False, fill=False, padding=0)
+            obj_groups.update({"event": events})
 
-        body = Gtk.HBox(vexpand=False, spacing=3)
-        if self.config.get("preferences.profile.citation.page.show-notes") and notes:
-            body.pack_start(notes_box, True, True, 0)
-        if self.config.get("preferences.profile.citation.page.show-media") and media:
-            body.pack_start(media_box, True, True, 0)
-        if people_list:
-            body.pack_start(people_box, True, True, 0)
-        if events_list:
-            body.pack_start(events_box, True, True, 0)
-
+        body = self.render_group_view(obj_groups)
         if self.config.get("preferences.profile.citation.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
@@ -160,26 +147,17 @@ class CitationProfilePage(BaseProfilePage):
         vbox.show_all()
         return True
 
-    def layout_panel(self, configdialog):
+    def page_panel(self, configdialog):
         """
-        Builds layout and styling options section for the configuration dialog
+        Builds page and styling options section for the configuration dialog
         """
         grid = self.create_grid()
-        configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Show associated notes"),
-            1, "preferences.profile.citation.page.show-notes",
-        )
-        configdialog.add_checkbox(
-            grid, _("Show associated media"),
-            2, "preferences.profile.citation.page.show-media",
-        )        
+        configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
             3, "preferences.profile.citation.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
-        configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
             7, "preferences.profile.citation.page.use-smaller-detail-font",
@@ -194,11 +172,6 @@ class CitationProfilePage(BaseProfilePage):
             grid, _("Enable coloring schemes"),
             9, "preferences.profile.citation.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Right to left"),
-            10, "preferences.profile.citation.page.right-to-left",
-            tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
@@ -222,7 +195,7 @@ class CitationProfilePage(BaseProfilePage):
         )
         reset = ConfigReset(configdialog, self.config, "preferences.profile.citation.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
-        return _("Layout"), grid
+        return _("Page"), grid
 
     def active_panel(self, configdialog):
         """
@@ -341,7 +314,7 @@ class CitationProfilePage(BaseProfilePage):
         Return the list of functions for generating the configuration dialog notebook pages.
         """
         return [
-            self.layout_panel,
+            self.page_panel,
             self.active_panel,
             self.repositories_panel,            
             self.notes_panel,

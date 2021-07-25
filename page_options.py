@@ -83,7 +83,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Person Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.person.layout.tabbed", False),
     ("preferences.profile.person.layout.groups", "parent,timeline,citation,note,media,spouse"),
     ("preferences.profile.person.layout.parent.visible", True),
@@ -98,22 +98,15 @@ CONFIGSETTINGS = (
     ("preferences.profile.person.layout.note.stacked", False),
     ("preferences.profile.person.layout.media.visible", False),
     ("preferences.profile.person.layout.media.stacked", False),
-    # Old Layout
+    # Page Options
     ("preferences.profile.person.page.enable-tooltips", True),
     ("preferences.profile.person.page.enable-warnings", True),
     ("preferences.profile.person.page.pinned-header", True),
-    ("preferences.profile.person.page.spouses-left", True),
-    ("preferences.profile.person.page.families-stacked", False),
-    ("preferences.profile.person.page.show-timeline", True),
-    ("preferences.profile.person.page.show-citations", False),
-    ("preferences.profile.person.page.show-media", True),
-    ("preferences.profile.person.page.show-notes", True),
     ("preferences.profile.person.page.border-width", 2),
     ("preferences.profile.person.page.use-color-scheme", True),
     ("preferences.profile.person.page.use-smaller-detail-font", True),
     ("preferences.profile.person.page.sort-tags-by-name", False),
     ("preferences.profile.person.page.include-child-notes", False),
-    ("preferences.profile.person.page.right-to-left", False),
     # Active Person
     ("preferences.profile.person.active.event-format", 1),
     ("preferences.profile.person.active.show-age", True),
@@ -337,7 +330,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Family Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.family.layout.tabbed", False),
     ("preferences.profile.family.layout.groups", "child,timeline,citation,note,media"),
     ("preferences.profile.family.layout.child.visible", True),
@@ -346,23 +339,18 @@ CONFIGSETTINGS = (
     ("preferences.profile.family.layout.timeline.stacked", False),
     ("preferences.profile.family.layout.citation.visible", True),
     ("preferences.profile.family.layout.citation.stacked", False),
-    ("preferences.profile.family.layout.note.visible", False),
+    ("preferences.profile.family.layout.note.visible", True),
     ("preferences.profile.family.layout.note.stacked", False),
-    ("preferences.profile.family.layout.media.visible", False),
+    ("preferences.profile.family.layout.media.visible", True),
     ("preferences.profile.family.layout.media.stacked", False),
-    # Old Layout
+    # Page Options
     ("preferences.profile.family.page.enable-tooltips", True),
     ("preferences.profile.family.page.enable-warnings", True),
-    ("preferences.profile.family.page.show-timeline", True),
-    ("preferences.profile.family.page.show-citations", False),
-    ("preferences.profile.family.page.show-media", False),
-    ("preferences.profile.family.page.show-notes", False),
     ("preferences.profile.family.page.border-width", 2),
     ("preferences.profile.family.page.use-color-scheme", True),
     ("preferences.profile.family.page.use-smaller-detail-font", True),
     ("preferences.profile.family.page.sort-tags-by-name", False),
     ("preferences.profile.family.page.include-child-notes", False),
-    ("preferences.profile.family.page.right-to-left", False),
     # Active Family
     ("preferences.profile.family.active.event-format", 1),
     ("preferences.profile.family.active.show-age", True),
@@ -504,7 +492,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Event Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.event.layout.tabbed", False),
     ("preferences.profile.event.layout.groups", "people,family,citation,note,media"),
     ("preferences.profile.event.layout.people.visible", True),
@@ -513,14 +501,11 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.layout.family.stacked", False),
     ("preferences.profile.event.layout.citation.visible", True),
     ("preferences.profile.event.layout.citation.stacked", False),
-    ("preferences.profile.event.layout.note.visible", False),
+    ("preferences.profile.event.layout.note.visible", True),
     ("preferences.profile.event.layout.note.stacked", False),
-    ("preferences.profile.event.layout.media.visible", False),
+    ("preferences.profile.event.layout.media.visible", True),
     ("preferences.profile.event.layout.media.stacked", False),
-    # Old Layout
-    ("preferences.profile.event.page.show-citations", False),
-    ("preferences.profile.event.page.show-media", False),
-    ("preferences.profile.event.page.show-notes", False),
+    # Page Options
     ("preferences.profile.event.page.enable-tooltips", True),
     ("preferences.profile.event.page.enable-warnings", True),
     ("preferences.profile.event.page.pinned-header", True),
@@ -529,7 +514,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.event.page.use-smaller-detail-font", True),
     ("preferences.profile.event.page.sort-tags-by-name", False),
     ("preferences.profile.event.page.include-child-notes", False),
-    ("preferences.profile.event.page.right-to-left", False),
     # Active Event
     ("preferences.profile.event.active.event-format", 1),
     ("preferences.profile.event.active.image-mode", 3),
@@ -589,24 +573,22 @@ CONFIGSETTINGS = (
     ######################################################################
     # Source Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.source.layout.tabbed", False),
     ("preferences.profile.source.layout.groups", "repository,citation,note,people,event,media"),
     ("preferences.profile.source.layout.repository.visible", True),
     ("preferences.profile.source.layout.repository.stacked", False),
     ("preferences.profile.source.layout.citation.visible", True),
     ("preferences.profile.source.layout.citation.stacked", False),
-    ("preferences.profile.source.layout.note.visible", False),
+    ("preferences.profile.source.layout.note.visible", True),
     ("preferences.profile.source.layout.note.stacked", False),
     ("preferences.profile.source.layout.people.visible", True),
     ("preferences.profile.source.layout.people.stacked", False),
     ("preferences.profile.source.layout.event.visible", True),
     ("preferences.profile.source.layout.event.stacked", False),
-    ("preferences.profile.source.layout.media.visible", False),
+    ("preferences.profile.source.layout.media.visible", True),
     ("preferences.profile.source.layout.media.stacked", False),
-    # Old Layout
-    ("preferences.profile.source.page.show-media", False),
-    ("preferences.profile.source.page.show-notes", True),
+    # Page Options
     ("preferences.profile.source.page.enable-tooltips", True),
     ("preferences.profile.source.page.enable-warnings", True),
     ("preferences.profile.source.page.pinned-header", True),
@@ -615,7 +597,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.source.page.use-smaller-detail-font", True),
     ("preferences.profile.source.page.sort-tags-by-name", False),
     ("preferences.profile.source.page.include-child-notes", False),
-    ("preferences.profile.source.page.right-to-left", False),
     # Active Source
     ("preferences.profile.source.active.event-format", 1),
     ("preferences.profile.source.active.image-mode", 3),
@@ -701,20 +682,18 @@ CONFIGSETTINGS = (
     ######################################################################
     # Citation Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.citation.layout.tabbed", False),
     ("preferences.profile.citation.layout.groups", "people,event,note,media"),
     ("preferences.profile.citation.layout.people.visible", True),
     ("preferences.profile.citation.layout.people.stacked", False),
     ("preferences.profile.citation.layout.event.visible", True),
     ("preferences.profile.citation.layout.event.stacked", False),
-    ("preferences.profile.citation.layout.note.visible", False),
+    ("preferences.profile.citation.layout.note.visible", True),
     ("preferences.profile.citation.layout.note.stacked", False),
-    ("preferences.profile.citation.layout.media.visible", False),
+    ("preferences.profile.citation.layout.media.visible", True),
     ("preferences.profile.citation.layout.media.stacked", False),
-    # Old Layout
-    ("preferences.profile.citation.page.show-media", False),
-    ("preferences.profile.citation.page.show-notes", True),
+    # Page Options
     ("preferences.profile.citation.page.enable-tooltips", True),
     ("preferences.profile.citation.page.enable-warnings", True),
     ("preferences.profile.citation.page.pinned-header", True),
@@ -723,7 +702,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.citation.page.use-smaller-detail-font", True),
     ("preferences.profile.citation.page.sort-tags-by-name", False),
     ("preferences.profile.citation.page.include-child-notes", False),
-    ("preferences.profile.citation.page.right-to-left", False),
     # Active Citation
     ("preferences.profile.citation.active.tag-format", 1),
     ("preferences.profile.citation.active.tag-width", 10),
@@ -809,15 +787,14 @@ CONFIGSETTINGS = (
     ######################################################################
     # Repository Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.repository.layout.tabbed", False),
     ("preferences.profile.repository.layout.groups", "source,note"),
     ("preferences.profile.repository.layout.source.visible", True),
     ("preferences.profile.repository.layout.source.stacked", False),
-    ("preferences.profile.repository.layout.note.visible", False),
+    ("preferences.profile.repository.layout.note.visible", True),
     ("preferences.profile.repository.layout.note.stacked", False),
-    # Old Layout
-    ("preferences.profile.repository.page.show-notes", True),
+    # Page Options
     ("preferences.profile.repository.page.enable-tooltips", True),
     ("preferences.profile.repository.page.enable-warnings", True),
     ("preferences.profile.repository.page.pinned-header", True),
@@ -826,7 +803,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.repository.page.use-smaller-detail-font", True),
     ("preferences.profile.repository.page.sort-tags-by-name", False),
     ("preferences.profile.repository.page.include-child-notes", False),
-    ("preferences.profile.repository.page.right-to-left", False),
     # Active Repository
     ("preferences.profile.repository.active.tag-format", 1),
     ("preferences.profile.repository.active.tag-width", 10),
@@ -844,12 +820,12 @@ CONFIGSETTINGS = (
     ######################################################################
     # Note Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.note.layout.tabbed", False),
     ("preferences.profile.note.layout.groups", "reference"),
     ("preferences.profile.note.layout.reference.visible", True),
     ("preferences.profile.note.layout.reference.stacked", False),
-    # Old Layout
+    # Page Options
     ("preferences.profile.note.page.enable-tooltips", True),
     ("preferences.profile.note.page.enable-warnings", True),
     ("preferences.profile.note.page.pinned-header", True),
@@ -857,7 +833,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.note.page.use-color-scheme", True),
     ("preferences.profile.note.page.use-smaller-detail-font", True),
     ("preferences.profile.note.page.sort-tags-by-name", False),
-    ("preferences.profile.note.page.right-to-left", False),
     # Active Note
     ("preferences.profile.note.active.tag-format", 1),
     ("preferences.profile.note.active.tag-width", 10),
@@ -866,12 +841,16 @@ CONFIGSETTINGS = (
     ######################################################################
     # Media Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.media.layout.tabbed", False),
-    ("preferences.profile.media.layout.groups", "reference"),
+    ("preferences.profile.media.layout.groups", "citation,note,reference"),
+    ("preferences.profile.media.layout.citation.visible", True),
+    ("preferences.profile.media.layout.citation.stacked", False),
+    ("preferences.profile.media.layout.note.visible", True),
+    ("preferences.profile.media.layout.note.stacked", False),
     ("preferences.profile.media.layout.reference.visible", True),
     ("preferences.profile.media.layout.reference.stacked", False),
-    # Old Layout
+    # Page Options
     ("preferences.profile.media.page.enable-tooltips", True),
     ("preferences.profile.media.page.enable-warnings", True),
     ("preferences.profile.media.page.pinned-header", True),
@@ -879,7 +858,6 @@ CONFIGSETTINGS = (
     ("preferences.profile.media.page.use-color-scheme", True),
     ("preferences.profile.media.page.use-smaller-detail-font", True),
     ("preferences.profile.media.page.sort-tags-by-name", False),
-    ("preferences.profile.media.page.right-to-left", False),
     # Active Media
     ("preferences.profile.media.active.tag-format", 1),
     ("preferences.profile.media.active.tag-width", 10),
@@ -888,12 +866,18 @@ CONFIGSETTINGS = (
     ######################################################################
     # Place Page Options
     ######################################################################
-    # Layout
+    # Layout Options
     ("preferences.profile.place.layout.tabbed", False),
-    ("preferences.profile.place.layout.groups", "reference"),
+    ("preferences.profile.place.layout.groups", "citation,note,media,reference"),
+    ("preferences.profile.place.layout.citation.visible", True),
+    ("preferences.profile.place.layout.citation.stacked", False),
+    ("preferences.profile.place.layout.note.visible", True),
+    ("preferences.profile.place.layout.note.stacked", False),
+    ("preferences.profile.place.layout.media.visible", True),
+    ("preferences.profile.place.layout.media.stacked", False),
     ("preferences.profile.place.layout.reference.visible", True),
     ("preferences.profile.place.layout.reference.stacked", False),
-    # Old Layout
+    # Page Options
     ("preferences.profile.place.page.enable-tooltips", True),
     ("preferences.profile.place.page.enable-warnings", True),
     ("preferences.profile.place.page.pinned-header", True),
@@ -905,6 +889,19 @@ CONFIGSETTINGS = (
     # Active Place
     ("preferences.profile.place.active.tag-format", 1),
     ("preferences.profile.place.active.tag-width", 10),
+    # Note
+    ("preferences.profile.place.note.tag-format", 1),
+    ("preferences.profile.place.note.tag-width", 10),
+    # Media
+    ("preferences.profile.place.media.tag-format", 1),
+    ("preferences.profile.place.media.tag-width", 10),
+    ("preferences.profile.place.media.image-mode", 2),
+    ("preferences.profile.place.media.sort-by-date", False),
+    ("preferences.profile.place.media.show-date", True),
+    ("preferences.profile.place.media.metadata-attribute-1", "None"),
+    ("preferences.profile.place.media.metadata-attribute-2", "None"),
+    ("preferences.profile.place.media.metadata-attribute-3", "None"),
+    ("preferences.profile.place.media.metadata-attribute-4", "None"),
     # For Reference Group Objects may need a plethora of options, need
     # to reconsider this.    
 )

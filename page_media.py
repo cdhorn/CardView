@@ -50,7 +50,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from frame_base import GrampsState
-from frame_groups import get_references_group
+from frame_groups import (
+    get_citations_group,
+    get_notes_group,
+    get_references_group,
+)
 from frame_image import ImageGrampsFrame
 from frame_utils import (
     EVENT_DISPLAY_MODES,
@@ -96,13 +100,17 @@ class MediaProfilePage(BaseProfilePage):
         )
         self.active_profile = ImageGrampsFrame(grstate, "active", media)
 
-        body = Gtk.HBox(vexpand=False, spacing=3)
-        rbox = Gtk.VBox(spacing=3)
-        references = get_references_group(grstate, media)
-        if references is not None:
-            rbox.pack_start(references, expand=True, fill=True, padding=0)
-            body.pack_start(rbox, expand=True, fill=True, padding=0)
+        groups = self.config.get("preferences.profile.media.layout.groups").split(",")
+        obj_groups = {}
 
+        if "citation" in groups:
+            obj_groups.update({"citation": get_citations_group(grstate, media)})
+        if "note" in groups:
+            obj_groups.update({"note": get_notes_group(grstate, media)})
+        if "reference" in groups:
+            obj_groups.update({"reference": get_references_group(grstate, media)})
+
+        body = self.render_group_view(obj_groups)
         if self.config.get("preferences.profile.media.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
@@ -112,18 +120,17 @@ class MediaProfilePage(BaseProfilePage):
         vbox.show_all()
         return True
 
-    def layout_panel(self, configdialog):
+    def page_panel(self, configdialog):
         """
-        Builds layout and styling options section for the configuration dialog
+        Builds page and styling options section for the configuration dialog
         """
         grid = self.create_grid()
-        configdialog.add_text(grid, _("Layout Options"), 0, bold=True)
+        configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active media header so it does not scroll"),
             2, "preferences.profile.media.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
-        configdialog.add_text(grid, _("Styling Options"), 6, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
             7, "preferences.profile.media.page.use-smaller-detail-font",
@@ -138,11 +145,6 @@ class MediaProfilePage(BaseProfilePage):
             grid, _("Enable coloring schemes"),
             9, "preferences.profile.media.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Right to left"),
-            10, "preferences.profile.media.page.right-to-left",
-            tooltip=_("TBD TODO. If implemented this would modify the frame layout and right justify text fields which might provide a nicer view for those who read right to left like Hebrew, Arabic and Persian.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
@@ -161,7 +163,7 @@ class MediaProfilePage(BaseProfilePage):
         )
         reset = ConfigReset(configdialog, self.config, "preferences.profile.media.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
-        return _("Layout"), grid
+        return _("Page"), grid
 
     def active_panel(self, configdialog):
         """
@@ -215,6 +217,6 @@ class MediaProfilePage(BaseProfilePage):
         Return the list of functions for generating the configuration dialog notebook pages.
         """
         return [
-            self.layout_panel,
+            self.page_panel,
             self.active_panel,
         ]
