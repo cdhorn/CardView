@@ -103,6 +103,8 @@ class CitationProfilePage(BaseProfilePage):
         )
         self.active_profile = CitationGrampsFrame(grstate, "active", citation)
 
+        source = self.dbstate.db.get_source_from_handle(self.active_profile.obj.source_handle)
+        source_frame = SourceGrampsFrame(grstate, "source", source)
 
         groups = self.config.get("preferences.profile.citation.layout.groups").split(",")
         obj_groups = {}
@@ -138,11 +140,14 @@ class CitationProfilePage(BaseProfilePage):
             obj_groups.update({"event": events})
 
         body = self.render_group_view(obj_groups)
+        hbox = Gtk.VBox()
+        hbox.pack_start(source_frame, True, True, 0)
+        hbox.pack_start(self.active_profile, True, True, 0)
         if self.config.get("preferences.profile.citation.page.pinned-header"):
-            header.pack_start(self.active_profile, False, False, 0)
+            header.pack_start(hbox, False, False, 0)
             header.show_all()
         else:
-            vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(hbox, False, False, 0)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
         return True

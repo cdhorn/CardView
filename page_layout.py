@@ -58,7 +58,7 @@ LABELS = {
     "citation": _("Citations"),
     "media": _("Media"),
     "note": _("Notes"),
-    "spouse": _("Spouse"),
+    "spouse": _("Spouses"),
     "repository": _("Repositories"),
     "place": _("Places"),
     "event": _("Events"),
