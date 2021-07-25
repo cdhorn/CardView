@@ -264,9 +264,19 @@ class BaseProfilePage(Callback):
             row + 4, "options.global.sort-tags-by-name",
             tooltip=_("Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
+        configdialog.add_spinner(
+            grid, _("Maximum citations per group"),
+            row + 5, "options.global.max-citations-per-group",
+            (1, 500),
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum references per group"),
+            row + 6, "options.global.max-references-per-group",
+            (1, 500),
+        )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            row + 5, "options.global.enable-warnings",
+            row + 7, "options.global.enable-warnings",
             tooltip=_("Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
 

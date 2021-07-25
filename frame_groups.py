@@ -217,19 +217,40 @@ def get_notes_group(grstate, obj, title_plural=_("Notes"), title_single=_("Note"
         title_plural, title_single, expanded=True
     )
 
-def get_references_group(grstate, obj, title_plural=_("References"), title_single=_("Reference")):
+def get_references_group(grstate, obj, title_plural=_("References"), title_single=_("Reference"), maximum=0, obj_types=None, obj_list=None):
     """
     Get the group of objects that reference the given object.
     """
-    tuple_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
-    if not tuple_list:
+    if not obj_list:
+        obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+    if not obj_list:
         return None
 
-    group = GenericGrampsFrameGroup(grstate, "Tuples", tuple_list)
+    total = 0
+    tuple_list = []
+    if not obj_types:
+        for obj in obj_list:
+            tuple_list.append(obj)
+            total = total + 1
+    else:
+        for obj_type, handle in obj_list:
+            if obj_type in obj_types:
+                tuple_list.append((obj_type, handle))
+                total = total + 1
 
+    not_shown = 0
+    if not maximum:
+        maximum = grstate.config.get("options.global.max-references-per-group")
+    if total > maximum:
+        not_shown = total - maximum
+        tuple_list = tuple_list[:maximum]
+
+    group = GenericGrampsFrameGroup(grstate, "Tuples", tuple_list)
     text = title_plural
     if len(group) == 1:
         text = title_single
+    if not_shown:
+        text = "{} ({} {})".format(text, not_shown, _("Not Shown"))
 
     content = Gtk.Expander(expanded=True, use_markup=True)
     content.set_label("<small><b>{} {}</b></small>".format(len(group), text))

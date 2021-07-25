@@ -87,6 +87,8 @@ CONFIGSETTINGS = (
     ("options.global.border-width", 2),
     ("options.global.link-citation-title-to-source", True),
     ("options.global.sort-tags-by-name", False),
+    ("options.global.max-citations-per-group", 100),
+    ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
     ######################################################################
@@ -681,11 +683,9 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.citation.layout.tabbed", False),
-    ("options.citation.layout.groups", "people,event,note,media"),
-    ("options.citation.layout.people.visible", True),
-    ("options.citation.layout.people.stacked", False),
-    ("options.citation.layout.event.visible", True),
-    ("options.citation.layout.event.stacked", False),
+    ("options.citation.layout.groups", "reference,note,media"),
+    ("options.citation.layout.reference.visible", True),
+    ("options.citation.layout.reference.stacked", False),
     ("options.citation.layout.note.visible", True),
     ("options.citation.layout.note.stacked", False),
     ("options.citation.layout.media.visible", True),

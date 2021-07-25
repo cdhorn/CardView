@@ -70,6 +70,7 @@ class CitationsGrampsFrameGroup(GrampsFrameList):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.maximum = grstate.config.get("options.global.max-citations-per-group")
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -153,6 +154,8 @@ class CitationsGrampsFrameGroup(GrampsFrameList):
                 if obj_type == "Citation":
                     citation = self.grstate.dbstate.db.get_citation_from_handle(obj_handle)
                     citation_list.append((citation, [self.obj], 0, obj_type))
+                    if len(citation_list) >= self.maximum:
+                        break
 
         return citation_list
 
@@ -170,6 +173,8 @@ class CitationsGrampsFrameGroup(GrampsFrameList):
                 for handle in item.get_citation_list():
                     citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
                     citation_list.append((citation, [item], ref_type, ref_desc))
+                    if len(citation_list) >= self.maximum:
+                        break
 
     def extract_family_indirect_citations(self, citation_list, family):
         """

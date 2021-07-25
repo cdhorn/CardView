@@ -52,7 +52,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from frame_base import GrampsState
 from frame_event import EventGrampsFrame
 from frame_generic import GenericGrampsFrameGroup
-from frame_groups import get_citations_group, get_media_group, get_notes_group
+from frame_groups import (
+    get_citations_group,
+    get_media_group,
+    get_notes_group,
+    get_references_group
+)
 from frame_utils import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
@@ -122,23 +127,28 @@ class EventProfilePage(BaseProfilePage):
         if "people" in groups or "family" in groups:
             for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(event.get_handle()):
                 if obj_type == "Person" and obj_handle not in people_list:
-                    people_list.append(obj_handle)
+                    people_list.append(("Person", obj_handle))
                 elif obj_type == "Family" and obj_handle not in family_list:
-                    family_list.append(obj_handle)
+                    family_list.append(("Family", obj_handle))
 
         if people_list:
-            people_group = GenericGrampsFrameGroup(grstate, "Person", people_list)
-            people = Gtk.Expander(expanded=True, use_markup=True)
-            people.set_label("<small><b>{}</b></small>".format(_("Individual Participants")))
-            people.add(people_group)
-            obj_groups.update({"people": people})
-
+            obj_groups.update(
+                {"people": get_references_group(
+                    grstate, None,
+                    title_plural=_("Individual Participants"),
+                    title_single=_("Individial Participants"),
+                    obj_list=people_list)
+                 }
+            )
         if family_list:
-            family_group = GenericGrampsFrameGroup(grstate, "Family", family_list)
-            family = Gtk.Expander(expanded=True, use_markup=True)
-            family.set_label("<small><b>{}</b></small>".format(_("Family Participants")))
-            family.add(family_group)
-            obj_groups.update({"family": family})
+            obj_groups.update(
+                {"family": get_references_group(
+                    grstate, None,
+                    title_plural=_("Family Participants"),
+                    title_single=_("Family Participants"),
+                    obj_list=family_list)
+                 }
+            )
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.event.page.pinned-header"):

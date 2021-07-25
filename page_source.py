@@ -55,6 +55,7 @@ from frame_groups import (
     get_citations_group,
     get_media_group,
     get_notes_group,
+    get_references_group,
     get_repositories_group
 )
 from frame_source import SourceGrampsFrame
@@ -123,24 +124,29 @@ class SourceProfilePage(BaseProfilePage):
                     for sub_obj_type, sub_obj_handle in self.dbstate.db.find_backlink_handles(obj_handle):
                         if sub_obj_type == "Person":
                             if sub_obj_handle not in people_list:
-                                people_list.append(sub_obj_handle)
+                                people_list.append(("Person", sub_obj_handle))
                         elif sub_obj_type == "Event":
                             if sub_obj_handle not in events_list:
-                                events_list.append(sub_obj_handle)
+                                events_list.append(("Event", sub_obj_handle))
 
         if people_list:
-            people_group = GenericGrampsFrameGroup(grstate, "Person", people_list)
-            people = Gtk.Expander(expanded=True, use_markup=True)
-            people.set_label("<small><b>{}</b></small>".format(_("Referenced People")))
-            people.add(people_group)
-            obj_groups.update({"people": people})
-
+            obj_groups.update(
+                {"people": get_references_group(
+                    grstate, None,
+                    title_plural=_("Referenced People"),
+                    title_single=_("Referenced People"),
+                    obj_list=people_list)
+                 }
+            )
         if events_list:
-            events_group = GenericGrampsFrameGroup(grstate, "Event", events_list)
-            events = Gtk.Expander(expanded=True, use_markup=True)
-            events.set_label("<small><b>{}</b></small>".format(_("Referenced Events")))
-            events.add(events_group)
-            obj_groups.update({"event": events})
+            obj_groups.update(
+                {"event": get_references_group(
+                    grstate, None,
+                    title_plural=_("Referenced Events"),
+                    title_single=_("Referenced Events"),
+                    obj_list=events_list)
+                 }
+            )            
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.source.page.pinned-header"):
