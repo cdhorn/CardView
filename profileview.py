@@ -550,6 +550,7 @@ class ProfileView(ENavigationView):
                 dbid=dbid
             )
         self.active_page = page
+        self.active_type = obj_type
         self.uistate.status.pop(self.uistate.status_id)
         name, _obj = navigation_label(self.dbstate.db, obj_type, obj.get_handle())
         if obj_type == 'Person' and global_config.get('interface.statusbar') > 1:

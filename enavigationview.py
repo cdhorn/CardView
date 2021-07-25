@@ -508,9 +508,10 @@ class ENavigationView(PageView):
         creates it. The copy is handled through the drag and drop
         system.
         """
-        nav_type = self.navigation_type()
         handles = self.selected_handles()
-        return self.copy_to_clipboard(nav_type, handles)
+        if handles:
+            obj_type, handle = handles[0]
+        return self.copy_to_clipboard(obj_type, [handle])
 
 def make_callback(func, handle):
     """
