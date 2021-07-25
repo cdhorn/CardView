@@ -132,7 +132,7 @@ class ProfilePageLayout(Gtk.VBox):
         Gtk.VBox.__init__(self, spacing=6, margin=12)
         self.config = config
         self.obj_type, self.obj_type_lang = tab
-        self.space = "preferences.profile.{}.layout".format(self.obj_type.lower())
+        self.space = "options.{}.layout".format(self.obj_type.lower())
         self.revert = []
         self.draw()
 
@@ -198,14 +198,14 @@ class ProfilePageLayout(Gtk.VBox):
         """
         Extract all available groups for an object view.
         """
-        settings = self.config.get_section_settings("preferences")
-        prefix = "profile.{}.layout".format(obj_type.lower())
+        settings = self.config.get_section_settings("options")
+        prefix = "{}.layout".format(obj_type.lower())
         prefix_length = len(prefix)
         groups = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
                 if 'visible' in setting:
-                    groups.append(setting.split(".")[3])
+                    groups.append(setting.split(".")[2])
         return groups
 
     def apply_changes(self, *obj):
@@ -237,6 +237,7 @@ class ProfilePageLayout(Gtk.VBox):
         if self.revert:
             self.config.save()
             self.undo.set_visible(True)
+        self.draw()
 
     def apply_defaults(self, *obj):
         """
@@ -266,7 +267,7 @@ class ProfilePageLayout(Gtk.VBox):
             self.config.set(option, self.config.get_default(option))
         if self.revert:
             self.config.save()
-            self.draw()
+        self.draw()
 
     def undo_hide(self, *obj):
         """

@@ -93,11 +93,11 @@ class RepositoryProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.repository", self.config,
+            "options.repository", self.config,
         )
         self.active_profile = RepositoryGrampsFrame(grstate, "active", repository)
 
-        groups = self.config.get("preferences.profile.repository.layout.groups").split(",")
+        groups = self.config.get("options.repository.layout.groups").split(",")
         obj_groups = {}
 
         if "source" in groups:
@@ -106,7 +106,7 @@ class RepositoryProfilePage(BaseProfilePage):
             obj_groups.update({"note": get_notes_group(grstate, repository)})
 
         body = self.render_group_view(obj_groups)
-        if self.config.get("preferences.profile.repository.page.pinned-header"):
+        if self.config.get("options.repository.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -123,45 +123,45 @@ class RepositoryProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            2, "preferences.profile.repository.page.pinned-header",
+            2, "options.repository.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.repository.page.use-smaller-detail-font",
+            7, "options.repository.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.repository.page.border-width",
+            8, "options.repository.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.repository.page.use-color-scheme",
+            9, "options.repository.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.repository.page.sort-tags-by-name",
+            11, "options.repository.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            12, "preferences.profile.repository.page.include-child-notes",
+            12, "options.repository.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.repository.page.enable-warnings",
+            13, "options.repository.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.repository.page.enable-tooltips",
+            14, "options.repository.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.page", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.repository.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid
 
@@ -173,15 +173,15 @@ class RepositoryProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.repository.active.tag-format",
+            4, "options.repository.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.repository.active.tag-width",
+            5, "options.repository.active.tag-width",
             (1, 20)
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.active", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.repository.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Repository"), grid
 
@@ -193,27 +193,27 @@ class RepositoryProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Image display mode"),
-            1, "preferences.profile.repository.source.image-mode",
+            1, "options.repository.source.image-mode",
             IMAGE_DISPLAY_MODES,
         )        
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.repository.source.tag-format",
+            2, "options.repository.source.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.repository.source.tag-width",
+            3, "options.repository.source.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.repository.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.repository.source", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.repository.source", 16, start_col=1, number=4, obj_type="Sources")
+        reset = ConfigReset(configdialog, self.config, "options.repository.source", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 
     def notes_panel(self, configdialog):
-        return self._notes_panel(configdialog, "preferences.profile.repository")
+        return self._notes_panel(configdialog, "options.repository")
 
     def _get_configure_page_funcs(self):
         """

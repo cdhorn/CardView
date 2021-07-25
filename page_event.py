@@ -93,7 +93,7 @@ class EventProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.event", self.config,
+            "options.event", self.config,
         )
         self.active_profile = EventGrampsFrame(
             grstate,
@@ -106,7 +106,7 @@ class EventProfilePage(BaseProfilePage):
             None,
         )
 
-        groups = self.config.get("preferences.profile.event.layout.groups").split(",")
+        groups = self.config.get("options.event.layout.groups").split(",")
         obj_groups = {}
 
         if "citation" in groups:
@@ -140,7 +140,7 @@ class EventProfilePage(BaseProfilePage):
             obj_groups.update({"family": family})
 
         body = self.render_group_view(obj_groups)
-        if self.config.get("preferences.profile.event.page.pinned-header"):
+        if self.config.get("options.event.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -157,45 +157,45 @@ class EventProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            3, "preferences.profile.event.page.pinned-header",
+            3, "options.event.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.event.page.use-smaller-detail-font",
+            7, "options.event.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.event.page.border-width",
+            8, "options.event.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.event.page.use-color-scheme",
+            9, "options.event.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.event.page.sort-tags-by-name",
+            11, "options.event.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            12, "preferences.profile.event.page.include-child-notes",
+            12, "options.event.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.event.page.enable-warnings",
+            13, "options.event.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.event.page.enable-tooltips",
+            14, "options.event.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.page", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.event.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid
 
@@ -207,27 +207,27 @@ class EventProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.event.active.event-format",
+            1, "options.event.active.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.event.active.image-mode",
+            3, "options.event.active.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.event.active.tag-format",
+            4, "options.event.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.event.active.tag-width",
+            5, "options.event.active.tag-width",
             (1, 20)
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.event.active", 12, start_col=1, number=4, obj_type="Event")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.active", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.event.active", 12, start_col=1, number=4, obj_type="Event")
+        reset = ConfigReset(configdialog, self.config, "options.event.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Event"), grid
 
@@ -239,38 +239,38 @@ class EventProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.event.people.event-format",
+            1, "options.event.people.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            1, "preferences.profile.event.people.show-age", start=3
+            1, "options.event.people.show-age", start=3
         )
         configdialog.add_combo(
             grid, _("Sex display mode"),
-            2, "preferences.profile.event.people.sex-mode",
+            2, "options.event.people.sex-mode",
             SEX_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.event.people.image-mode",
+            3, "options.event.people.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.event.people.tag-format",
+            4, "options.event.people.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.event.people.tag-width",
+            5, "options.event.people.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
-        self._config_facts_fields(configdialog, grid, "preferences.profile.event.people", 12)
+        self._config_facts_fields(configdialog, grid, "options.event.people", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.event.people", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.people", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.event.people", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "options.event.people", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
 
@@ -282,27 +282,27 @@ class EventProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.event.family.event-format",
+            1, "options.event.family.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.event.family.image-mode",
+            3, "options.event.family.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.event.family.tag-format",
+            4, "options.event.family.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.event.family.tag-width",
+            5, "options.event.family.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.event.family", 12, start_col=1, number=4, obj_type="Family")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.event.family", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.event.family", 12, start_col=1, number=4, obj_type="Family")
+        reset = ConfigReset(configdialog, self.config, "options.event.family", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Family"), grid
 
@@ -310,13 +310,13 @@ class EventProfilePage(BaseProfilePage):
         """
         Builds media options section for configuration dialog
         """
-        return self._media_panel(configdialog, "preferences.profile.event")
+        return self._media_panel(configdialog, "options.event")
 
     def notes_panel(self, configdialog):
         """
         Builds notes options section for configuration dialog
         """
-        return self._notes_panel(configdialog, "preferences.profile.event")
+        return self._notes_panel(configdialog, "options.event")
 
     def _get_configure_page_funcs(self):
         """

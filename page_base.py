@@ -106,7 +106,7 @@ class BaseProfilePage(Callback):
         """
         Identify group view type and call method to render it.
         """
-        space = "preferences.profile.{}.layout".format(self.obj_type().lower())
+        space = "options.{}.layout".format(self.obj_type().lower())
         groups = self.config.get("{}.groups".format(space)).split(",")        
         if self.config.get("{}.tabbed".format(space)):
             return self.render_tabbed_group(obj_groups, space, groups)
@@ -300,9 +300,9 @@ class BaseProfilePage(Callback):
         configdialog.add_text(grid, _("The default Gramps person color scheme is also managed under global preferences"), 1, bold=True)
 
         color_type = [
-            ('Confidence', _('Confidence color scheme'), "preferences.profile.colors.confidence"),
-            ('Relation', _('Relationship color scheme'),"preferences.profile.colors.relations"),
-            ('Event', _('Event category color scheme'), "preferences.profile.colors.events")
+            ('Confidence', _('Confidence color scheme'), "options.colors.confidence"),
+            ('Relation', _('Relationship color scheme'),"options.colors.relations"),
+            ('Event', _('Event category color scheme'), "options.colors.events")
         ]
 
         # for confidence scheme
@@ -362,58 +362,58 @@ class BaseProfilePage(Callback):
         # color label, config constant, group grid row, column, color type
         color_list = [
             # for confidence scheme
-            (bg_very_high_text, 'preferences.profile.colors.confidence.very-high', 1, 1, 'Confidence'),
-            (bg_high_text, 'preferences.profile.colors.confidence.high', 2, 1, 'Confidence'),
-            (bg_normal_text, 'preferences.profile.colors.confidence.normal', 3, 1, 'Confidence'),
-            (bg_low_text, 'preferences.profile.colors.confidence.low', 4, 1, 'Confidence'),
-            (bg_very_low_text, 'preferences.profile.colors.confidence.very-low', 5, 1, 'Confidence'),
-            (brd_very_high_text, 'preferences.profile.colors.confidence.border-very-high', 1, 4, 'Confidence'),
-            (brd_high_text, 'preferences.profile.colors.confidence.border-high', 2, 4, 'Confidence'),
-            (brd_normal_text, 'preferences.profile.colors.confidence.border-normal', 3, 4, 'Confidence'),
-            (brd_low_text, 'preferences.profile.colors.confidence.border-low', 4, 4, 'Confidence'),
-            (brd_very_low_text, 'preferences.profile.colors.confidence.border-very-low', 5, 4, 'Confidence'),
+            (bg_very_high_text, 'options.colors.confidence.very-high', 1, 1, 'Confidence'),
+            (bg_high_text, 'options.colors.confidence.high', 2, 1, 'Confidence'),
+            (bg_normal_text, 'options.colors.confidence.normal', 3, 1, 'Confidence'),
+            (bg_low_text, 'options.colors.confidence.low', 4, 1, 'Confidence'),
+            (bg_very_low_text, 'options.colors.confidence.very-low', 5, 1, 'Confidence'),
+            (brd_very_high_text, 'options.colors.confidence.border-very-high', 1, 4, 'Confidence'),
+            (brd_high_text, 'options.colors.confidence.border-high', 2, 4, 'Confidence'),
+            (brd_normal_text, 'options.colors.confidence.border-normal', 3, 4, 'Confidence'),
+            (brd_low_text, 'options.colors.confidence.border-low', 4, 4, 'Confidence'),
+            (brd_very_low_text, 'options.colors.confidence.border-very-low', 5, 4, 'Confidence'),
 
             # for relation scheme
-            (bg_active, 'preferences.profile.colors.relations.active', 1, 1, 'Relation'),
-            (bg_spouse, 'preferences.profile.colors.relations.spouse', 2, 1, 'Relation'),
-            (bg_father, 'preferences.profile.colors.relations.father', 3, 1, 'Relation'),
-            (bg_mother, 'preferences.profile.colors.relations.mother', 4, 1, 'Relation'),
-            (bg_brother, 'preferences.profile.colors.relations.brother', 5, 1, 'Relation'),
-            (bg_sister, 'preferences.profile.colors.relations.sister', 6, 1, 'Relation'),
-            (bg_son, 'preferences.profile.colors.relations.son', 7, 1, 'Relation'),
-            (bg_daughter, 'preferences.profile.colors.relations.daughter', 8, 1, 'Relation'),
-            (bg_none, 'preferences.profile.colors.relations.none', 9, 1, 'Relation'),
-            (brd_active, 'preferences.profile.colors.relations.border-active', 1, 4, 'Relation'),
-            (brd_spouse, 'preferences.profile.colors.relations.border-spouse', 2, 4, 'Relation'),
-            (brd_father, 'preferences.profile.colors.relations.border-father', 3, 4, 'Relation'),
-            (brd_mother, 'preferences.profile.colors.relations.border-mother', 4, 4, 'Relation'),
-            (brd_brother, 'preferences.profile.colors.relations.border-brother', 5, 4, 'Relation'),
-            (brd_sister, 'preferences.profile.colors.relations.border-sister', 6, 4, 'Relation'),
-            (brd_son, 'preferences.profile.colors.relations.border-son', 7, 4, 'Relation'),
-            (brd_daughter, 'preferences.profile.colors.relations.border-daughter', 8, 4, 'Relation'),
-            (brd_none, 'preferences.profile.colors.relations.border-none', 9, 4, 'Relation'),
+            (bg_active, 'options.colors.relations.active', 1, 1, 'Relation'),
+            (bg_spouse, 'options.colors.relations.spouse', 2, 1, 'Relation'),
+            (bg_father, 'options.colors.relations.father', 3, 1, 'Relation'),
+            (bg_mother, 'options.colors.relations.mother', 4, 1, 'Relation'),
+            (bg_brother, 'options.colors.relations.brother', 5, 1, 'Relation'),
+            (bg_sister, 'options.colors.relations.sister', 6, 1, 'Relation'),
+            (bg_son, 'options.colors.relations.son', 7, 1, 'Relation'),
+            (bg_daughter, 'options.colors.relations.daughter', 8, 1, 'Relation'),
+            (bg_none, 'options.colors.relations.none', 9, 1, 'Relation'),
+            (brd_active, 'options.colors.relations.border-active', 1, 4, 'Relation'),
+            (brd_spouse, 'options.colors.relations.border-spouse', 2, 4, 'Relation'),
+            (brd_father, 'options.colors.relations.border-father', 3, 4, 'Relation'),
+            (brd_mother, 'options.colors.relations.border-mother', 4, 4, 'Relation'),
+            (brd_brother, 'options.colors.relations.border-brother', 5, 4, 'Relation'),
+            (brd_sister, 'options.colors.relations.border-sister', 6, 4, 'Relation'),
+            (brd_son, 'options.colors.relations.border-son', 7, 4, 'Relation'),
+            (brd_daughter, 'options.colors.relations.border-daughter', 8, 4, 'Relation'),
+            (brd_none, 'options.colors.relations.border-none', 9, 4, 'Relation'),
 
             # for event category scheme
-            (bg_vital, 'preferences.profile.colors.events.vital', 1, 1, 'Event'),
-            (bg_family, 'preferences.profile.colors.events.family', 2, 1, 'Event'),
-            (bg_religious, 'preferences.profile.colors.events.religious', 3, 1, 'Event'),
-            (bg_vocational, 'preferences.profile.colors.events.vocational', 4, 1, 'Event'),
-            (bg_academic, 'preferences.profile.colors.events.academic', 5, 1, 'Event'),
-            (bg_travel, 'preferences.profile.colors.events.travel', 6, 1, 'Event'),
-            (bg_legal, 'preferences.profile.colors.events.legal', 7, 1, 'Event'),
-            (bg_residence, 'preferences.profile.colors.events.residence', 8, 1, 'Event'),
-            (bg_other, 'preferences.profile.colors.events.other', 9, 1, 'Event'),
-            (bg_custom, 'preferences.profile.colors.events.custom', 10, 1, 'Event'),
-            (brd_vital, 'preferences.profile.colors.events.border-vital', 1, 4, 'Event'),
-            (brd_family, 'preferences.profile.colors.events.border-family', 2, 4, 'Event'),
-            (brd_religious, 'preferences.profile.colors.events.border-religious', 3, 4, 'Event'),
-            (brd_vocational, 'preferences.profile.colors.events.border-vocational', 4, 4, 'Event'),
-            (brd_academic, 'preferences.profile.colors.events.border-academic', 5, 4, 'Event'),
-            (brd_travel, 'preferences.profile.colors.events.border-travel', 6, 4, 'Event'),
-            (brd_legal, 'preferences.profile.colors.events.border-legal', 7, 4, 'Event'),
-            (brd_residence, 'preferences.profile.colors.events.border-residence', 8, 4, 'Event'),
-            (brd_other, 'preferences.profile.colors.events.border-other', 9, 4, 'Event'),
-            (brd_custom, 'preferences.profile.colors.events.border-custom', 10, 4, 'Event'),
+            (bg_vital, 'options.colors.events.vital', 1, 1, 'Event'),
+            (bg_family, 'options.colors.events.family', 2, 1, 'Event'),
+            (bg_religious, 'options.colors.events.religious', 3, 1, 'Event'),
+            (bg_vocational, 'options.colors.events.vocational', 4, 1, 'Event'),
+            (bg_academic, 'options.colors.events.academic', 5, 1, 'Event'),
+            (bg_travel, 'options.colors.events.travel', 6, 1, 'Event'),
+            (bg_legal, 'options.colors.events.legal', 7, 1, 'Event'),
+            (bg_residence, 'options.colors.events.residence', 8, 1, 'Event'),
+            (bg_other, 'options.colors.events.other', 9, 1, 'Event'),
+            (bg_custom, 'options.colors.events.custom', 10, 1, 'Event'),
+            (brd_vital, 'options.colors.events.border-vital', 1, 4, 'Event'),
+            (brd_family, 'options.colors.events.border-family', 2, 4, 'Event'),
+            (brd_religious, 'options.colors.events.border-religious', 3, 4, 'Event'),
+            (brd_vocational, 'options.colors.events.border-vocational', 4, 4, 'Event'),
+            (brd_academic, 'options.colors.events.border-academic', 5, 4, 'Event'),
+            (brd_travel, 'options.colors.events.border-travel', 6, 4, 'Event'),
+            (brd_legal, 'options.colors.events.border-legal', 7, 4, 'Event'),
+            (brd_residence, 'options.colors.events.border-residence', 8, 4, 'Event'),
+            (brd_other, 'options.colors.events.border-other', 9, 4, 'Event'),
+            (brd_custom, 'options.colors.events.border-custom', 10, 4, 'Event'),
             ]
 
         # prepare scrolled window for colors settings

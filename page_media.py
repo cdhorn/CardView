@@ -96,11 +96,11 @@ class MediaProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.media", self.config
+            "options.media", self.config
         )
         self.active_profile = ImageGrampsFrame(grstate, "active", media)
 
-        groups = self.config.get("preferences.profile.media.layout.groups").split(",")
+        groups = self.config.get("options.media.layout.groups").split(",")
         obj_groups = {}
 
         if "citation" in groups:
@@ -111,7 +111,7 @@ class MediaProfilePage(BaseProfilePage):
             obj_groups.update({"reference": get_references_group(grstate, media)})
 
         body = self.render_group_view(obj_groups)
-        if self.config.get("preferences.profile.media.page.pinned-header"):
+        if self.config.get("options.media.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -128,40 +128,40 @@ class MediaProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active media header so it does not scroll"),
-            2, "preferences.profile.media.page.pinned-header",
+            2, "options.media.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.media.page.use-smaller-detail-font",
+            7, "options.media.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.media.page.border-width",
+            8, "options.media.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.media.page.use-color-scheme",
+            9, "options.media.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.media.page.sort-tags-by-name",
+            11, "options.media.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.media.page.enable-warnings",
+            13, "options.media.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.media.page.enable-tooltips",
+            14, "options.media.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.media.page", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.media.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid
 
@@ -173,15 +173,15 @@ class MediaProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.media.active.tag-format",
+            4, "options.media.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.media.active.tag-width",
+            5, "options.media.active.tag-width",
             (1, 20)
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.media.active", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.media.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Media"), grid
 
@@ -193,22 +193,22 @@ class MediaProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Image display mode"),
-            1, "preferences.profile.media.source.image-mode",
+            1, "options.media.source.image-mode",
             IMAGE_DISPLAY_MODES,
         )        
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            2, "preferences.profile.media.source.tag-format",
+            2, "options.media.source.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            3, "preferences.profile.media.source.tag-width",
+            3, "options.media.source.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.media.source", 16, start_col=1, number=4, obj_type="Sources")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.media.source", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.media.source", 16, start_col=1, number=4, obj_type="Sources")
+        reset = ConfigReset(configdialog, self.config, "options.media.source", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Sources"), grid
 

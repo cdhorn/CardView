@@ -98,11 +98,11 @@ class SourceProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.source", self.config,
+            "options.source", self.config,
         )
         self.active_profile = SourceGrampsFrame(grstate, "active", source)
 
-        groups = self.config.get("preferences.profile.source.layout.groups").split(",")
+        groups = self.config.get("options.source.layout.groups").split(",")
         obj_groups = {}
 
         if "repository" in groups:
@@ -142,7 +142,7 @@ class SourceProfilePage(BaseProfilePage):
             obj_groups.update({"event": events})
 
         body = self.render_group_view(obj_groups)
-        if self.config.get("preferences.profile.source.page.pinned-header"):
+        if self.config.get("options.source.page.pinned-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
@@ -159,45 +159,45 @@ class SourceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Page Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid, _("Pin active source header so it does not scroll"),
-            3, "preferences.profile.source.page.pinned-header",
+            3, "options.source.page.pinned-header",
             tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
         )
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            7, "preferences.profile.source.page.use-smaller-detail-font",
+            7, "options.source.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            8, "preferences.profile.source.page.border-width",
+            8, "options.source.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            9, "preferences.profile.source.page.use-color-scheme",
+            9, "options.source.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            11, "preferences.profile.source.page.sort-tags-by-name",
+            11, "options.source.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            12, "preferences.profile.source.page.include-child-notes",
+            12, "options.source.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            13, "preferences.profile.source.page.enable-warnings",
+            13, "options.source.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            14, "preferences.profile.source.page.enable-tooltips",
+            14, "options.source.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.page", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.source.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid
 
@@ -209,27 +209,27 @@ class SourceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.source.active.event-format",
+            1, "options.source.active.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.source.active.image-mode",
+            3, "options.source.active.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.source.active.tag-format",
+            4, "options.source.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.source.active.tag-width",
+            5, "options.source.active.tag-width",
             (1, 20)
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.source.active", 16, start_col=1, number=4, obj_type="Source")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.active", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.source.active", 16, start_col=1, number=4, obj_type="Source")
+        reset = ConfigReset(configdialog, self.config, "options.source.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Source"), grid
 
@@ -241,31 +241,31 @@ class SourceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            1, "preferences.profile.source.repository.tag-format",
+            1, "options.source.repository.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            2, "preferences.profile.source.repository.tag-width",
+            2, "options.source.repository.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Attributes"), 9, bold=True)
         configdialog.add_checkbox(
             grid, _("Show call number"),
-            10, "preferences.profile.source.repository.show-call-number",
+            10, "options.source.repository.show-call-number",
             tooltip=_("Enabling this option will show the source call number at the repository if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show media type"),
-            11, "preferences.profile.source.repository.show-media-type",
+            11, "options.source.repository.show-media-type",
             tooltip=_("Enabling this option will show the source media type at the repository if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show repository type"),
-            12, "preferences.profile.source.repository.show-repository-type",
+            12, "options.source.repository.show-repository-type",
             tooltip=_("Enabling this option will show the repository type if it is available.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.repository", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.source.repository", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Repositories"), grid
 
@@ -277,53 +277,53 @@ class SourceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            1, "preferences.profile.source.citation.tag-format",
+            1, "options.source.citation.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            2, "preferences.profile.source.citation.tag-width",
+            2, "options.source.citation.tag-width",
             (1, 20),
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.source.citation.image-mode",
+            3, "options.source.citation.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Sort citations by date"),
-            4, "preferences.profile.source.citation.sort-by-date",
+            4, "options.source.citation.sort-by-date",
             tooltip=_("Enabling this option will sort the citations by date.")
         )
         configdialog.add_text(grid, _("Attributes"), 9, bold=True)
         configdialog.add_checkbox(
             grid, _("Show date"),
-            10, "preferences.profile.source.citation.show-date",
+            10, "options.source.citation.show-date",
             tooltip=_("Enabling this option will show the citation date if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show publisher"),
-            11, "preferences.profile.source.citation.show-publisher",
+            11, "options.source.citation.show-publisher",
             tooltip=_("Enabling this option will show the publisher information if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show reference type"),
-            12, "preferences.profile.source.citation.show-reference-type",
+            12, "options.source.citation.show-reference-type",
             tooltip=_("Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association.")
         )
         configdialog.add_checkbox(
             grid, _("Show reference description"),
-            13, "preferences.profile.source.citation.show-reference-description",
+            13, "options.source.citation.show-reference-description",
             tooltip=_("Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth.")
         )
         configdialog.add_checkbox(
             grid, _("Show confidence rating"),
-            14, "preferences.profile.source.citation.show-confidence",
+            14, "options.source.citation.show-confidence",
             tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.source.citation", 16, start_col=1, number=4, obj_type="Citation")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.citation", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.source.citation", 16, start_col=1, number=4, obj_type="Citation")
+        reset = ConfigReset(configdialog, self.config, "options.source.citation", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
@@ -335,46 +335,46 @@ class SourceProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.source.people.event-format",
+            1, "options.source.people.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            1, "preferences.profile.source.people.show-age", start=3
+            1, "options.source.people.show-age", start=3
         )
         configdialog.add_combo(
             grid, _("Sex display mode"),
-            2, "preferences.profile.source.people.sex-mode",
+            2, "options.source.people.sex-mode",
             SEX_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.source.people.image-mode",
+            3, "options.source.people.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.source.people.tag-format",
+            4, "options.source.people.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.source.people.tag-width",
+            5, "options.source.people.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
-        self._config_facts_fields(configdialog, grid, "preferences.profile.source.people", 12)
+        self._config_facts_fields(configdialog, grid, "options.source.people", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.source.people", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.source.people", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.source.people", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "options.source.people", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("People"), grid
 
     def notes_panel(self, configdialog):
-        return self._notes_panel(configdialog, "preferences.profile.source")
+        return self._notes_panel(configdialog, "options.source")
 
     def media_panel(self, configdialog):
-        return self._media_panel(configdialog, "preferences.profile.source")
+        return self._media_panel(configdialog, "options.source")
     
     def _get_configure_page_funcs(self):
         """

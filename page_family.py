@@ -140,7 +140,7 @@ class FamilyProfilePage(BaseProfilePage):
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router,
-            "preferences.profile.family", self.config, 
+            "options.family", self.config, 
         )
         self.active_profile = CoupleGrampsFrame(
             grstate,
@@ -163,7 +163,7 @@ class FamilyProfilePage(BaseProfilePage):
         vbox.pack_start(pbox, expand=True, fill=True, padding=0)
         vbox.pack_start(self.active_profile, expand=True, fill=True, padding=0)
 
-        groups = self.config.get("preferences.profile.family.layout.groups").split(",")
+        groups = self.config.get("options.family.layout.groups").split(",")
         obj_groups = {}
 
         if "child" in groups:
@@ -190,40 +190,40 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Styling Options"), 8, bold=True)
         configdialog.add_checkbox(
             grid, _("Use smaller font for detail attributes"),
-            9, "preferences.profile.family.page.use-smaller-detail-font",
+            9, "options.family.page.use-smaller-detail-font",
             tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
         )
         configdialog.add_spinner(
             grid, _("Desired border width"),
-            10, "preferences.profile.family.page.border-width",
+            10, "options.family.page.border-width",
             (0, 5),
         )
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
-            11, "preferences.profile.family.page.use-color-scheme",
+            11, "options.family.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
             grid, _("Sort tags by name not priority"),
-            13, "preferences.profile.family.page.sort-tags-by-name",
+            13, "options.family.page.sort-tags-by-name",
             tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
         )
         configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            14, "preferences.profile.family.page.include-child-notes",
+            14, "options.family.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
         configdialog.add_checkbox(
             grid, _("Enable warnings"),
-            15, "preferences.profile.family.page.enable-warnings",
+            15, "options.family.page.enable-warnings",
             tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
         )
         configdialog.add_checkbox(
             grid, _("Enable tooltips"),
-            16, "preferences.profile.family.page.enable-tooltips",
+            16, "options.family.page.enable-tooltips",
             tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
         )
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.page", label=_("Reset Page Defaults"))
+        reset = ConfigReset(configdialog, self.config, "options.family.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid
 
@@ -235,38 +235,38 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.family.active.event-format",
+            1, "options.family.active.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            1, "preferences.profile.family.active.show-age", start=3
+            1, "options.family.active.show-age", start=3
         )
         configdialog.add_combo(
             grid, _("Sex display mode"),
-            2, "preferences.profile.family.active.sex-mode",
+            2, "options.family.active.sex-mode",
             SEX_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.family.active.image-mode",
+            3, "options.family.active.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.family.active.tag-format",
+            4, "options.family.active.tag-format",
             TAG_DISPLAY_MODES
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.family.active.tag-width",
+            5, "options.family.active.tag-width",
             (1, 20)
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
-        self._config_facts_fields(configdialog, grid, "preferences.profile.family.active", 9)
+        self._config_facts_fields(configdialog, grid, "options.family.active", 9)
         configdialog.add_text(grid, _("Metadata Display Fields"), 8, start=5, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.family.active", 9, start_col=5)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.active", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.family.active", 9, start_col=5)
+        reset = ConfigReset(configdialog, self.config, "options.family.active", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Person"), grid
 
@@ -278,52 +278,52 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.family.parent.event-format",
+            1, "options.family.parent.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            1, "preferences.profile.family.parent.show-age", start=3
+            1, "options.family.parent.show-age", start=3
         )
         configdialog.add_combo(
             grid, _("Sex display mode"),
-            2, "preferences.profile.family.parent.sex-mode",
+            2, "options.family.parent.sex-mode",
             SEX_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Expand children by default"),
-            2, "preferences.profile.family.parent.expand-children", start=3,
+            2, "options.family.parent.expand-children", start=3,
             tooltip=_("Enabling this option will automatically expand the list of children when the page is rendered.")
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.family.parent.image-mode",
+            3, "options.family.parent.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Matrilineal mode (inverts couple)"),
-            3, "preferences.profile.family.parent.show-matrilineal", start=3,
+            3, "options.family.parent.show-matrilineal", start=3,
             tooltip=_("Enabling this option will switch the placement of the male and female roles in the couple relationship.")
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.family.parent.tag-format",
+            4, "options.family.parent.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.family.parent.tag-width",
+            5, "options.family.parent.tag-width",
             (1, 20),
         )
         configdialog.add_checkbox(
             grid, _("Show divorce or divorce equivalent"),
-            6, "preferences.profile.family.parent.show-divorce"
+            6, "options.family.parent.show-divorce"
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
-        self._config_facts_fields(configdialog, grid, "preferences.profile.family.parent", 12)
+        self._config_facts_fields(configdialog, grid, "options.family.parent", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.family.parent", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.parent", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.family.parent", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "options.family.parent", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Parents"), grid
 
@@ -335,42 +335,42 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Event display format"),
-            1, "preferences.profile.family.child.event-format",
+            1, "options.family.child.event-format",
             EVENT_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Show age at death and if selected burial"),
-            1, "preferences.profile.family.child.show-age", start=3
+            1, "options.family.child.show-age", start=3
         )
         configdialog.add_combo(
             grid, _("Sex display mode"),
-            2, "preferences.profile.family.child.sex-mode",
+            2, "options.family.child.sex-mode",
             SEX_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Number children"),
-            2, "preferences.profile.family.child.number-children", start=3
+            2, "options.family.child.number-children", start=3
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.family.child.image-mode",
+            3, "options.family.child.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            4, "preferences.profile.family.child.tag-format",
+            4, "options.family.child.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            5, "preferences.profile.family.child.tag-width",
+            5, "options.family.child.tag-width",
             (1, 20),
         )
         configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
-        self._config_facts_fields(configdialog, grid, "preferences.profile.family.child", 12)
+        self._config_facts_fields(configdialog, grid, "options.family.child", 12)
         configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.family.child", 12, start_col=3)
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.child", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.family.child", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "options.family.child", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 30, 1, 1)
         return _("Children"), grid
 
@@ -382,114 +382,114 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid1, _("Timeline color scheme"),
-            1, "preferences.profile.family.timeline.color-scheme",
+            1, "options.family.timeline.color-scheme",
             TIMELINE_COLOR_MODES,
         )
         configdialog.add_combo(
             grid1, _("Tag display mode"),
-            2, "preferences.profile.family.timeline.tag-format",
+            2, "options.family.timeline.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid1, _("Maximum tags per line"),
-            3, "preferences.profile.family.timeline.tag-width",
+            3, "options.family.timeline.tag-width",
             (1, 20),
         )
         configdialog.add_combo(
             grid1, _("Image display mode"),
-            4, "preferences.profile.family.timeline.image-mode",
+            4, "options.family.timeline.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid1, _("Show year and age"),
-            5, "preferences.profile.family.timeline.show-age",
+            5, "options.family.timeline.show-age",
             tooltip=_("Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated.")
         )
         configdialog.add_text(grid1, _("Display Attributes"), 6, bold=True)
         configdialog.add_checkbox(
             grid1, _("Show role always not just secondary events"),
-            7, "preferences.profile.family.timeline.show-role-always",
+            7, "options.family.timeline.show-role-always",
             tooltip=_("Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events.")
         )
         configdialog.add_checkbox(
             grid1, _("Show description"),
-            8, "preferences.profile.family.timeline.show-description",
+            8, "options.family.timeline.show-description",
             tooltip=_("Enabling this option will show the event description if one is available.")
         )
         configdialog.add_checkbox(
             grid1, _("Show registered participants if more than one person"),
-            9, "preferences.profile.family.timeline.show-participants",
+            9, "options.family.timeline.show-participants",
             tooltip=_("Enabling this option will show the other participants in shared events.")
         )
         configdialog.add_checkbox(
             grid1, _("Show source count"),
-            10, "preferences.profile.family.timeline.show-source-count",
+            10, "options.family.timeline.show-source-count",
             tooltip=_("Enabling this option will include a count of the number of unique sources cited from in support of the information about the event.")
         )
         configdialog.add_checkbox(
             grid1, _("Show citation count"),
-            11, "preferences.profile.family.timeline.show-citation-count",
+            11, "options.family.timeline.show-citation-count",
             tooltip=_("Enabling this option will include a count of the number of citations in support of the information about the event.")
         )
         configdialog.add_checkbox(
             grid1, _("Show best confidence rating"),
-            12, "preferences.profile.family.timeline.show-best-confidence",
+            12, "options.family.timeline.show-best-confidence",
             tooltip=_("Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event.")
         )
         configdialog.add_text(grid1, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid1, "preferences.profile.family.timeline", 16, start_col=1, number=4, obj_type="Event")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.timeline", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid1, "options.family.timeline", 16, start_col=1, number=4, obj_type="Event")
+        reset = ConfigReset(configdialog, self.config, "options.family.timeline", label=_("Reset Page Defaults"))
         grid1.attach(reset, 1, 25, 1, 1)
         grid2 = self.create_grid()
         configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
         configdialog.add_checkbox(
             grid2, _("Show vital"),
-            1, "preferences.profile.family.timeline.show-class-vital",
+            1, "options.family.timeline.show-class-vital",
             tooltip=_("Enabling this option will show all vital events for the person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others.")
         )
         configdialog.add_checkbox(
             grid2, _("Show family"),
-            2, "preferences.profile.family.timeline.show-class-family",
+            2, "options.family.timeline.show-class-family",
             tooltip=_("Enabling this option will show all family related events for the active person on the timeline. The list of family events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show religious"),
-            3, "preferences.profile.family.timeline.show-class-religious",
+            3, "options.family.timeline.show-class-religious",
             tooltip=_("Enabling this option will show all religious events for the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show vocational"),
-            4, "preferences.profile.family.timeline.show-class-vocational",
+            4, "options.family.timeline.show-class-vocational",
             tooltip=_("Enabling this option will show all vocational events for the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show academic"),
-            5, "preferences.profile.family.timeline.show-class-academic",
+            5, "options.family.timeline.show-class-academic",
             tooltip=_("Enabling this option will show all academic events for the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show travel"),
-            6, "preferences.profile.family.timeline.show-class-travel",
+            6, "options.family.timeline.show-class-travel",
             tooltip=_("Enabling this option will show all travel events for the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show legal"),
-            7, "preferences.profile.family.timeline.show-class-legal",
+            7, "options.family.timeline.show-class-legal",
             tooltip=_("Enabling this option will show all legal events for the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show residence"),
-            8, "preferences.profile.family.timeline.show-class-residence",
+            8, "options.family.timeline.show-class-residence",
             tooltip=_("Enabling this option will show all residence events for the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show other"),
-            9, "preferences.profile.family.timeline.show-class-other",
+            9, "options.family.timeline.show-class-other",
             tooltip=_("Enabling this option will show all other events for the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor.")
         )
         configdialog.add_checkbox(
             grid2, _("Show custom"),
-            10, "preferences.profile.family.timeline.show-class-custom",
+            10, "options.family.timeline.show-class-custom",
             tooltip=_("Enabling this option will show all user defined custom events for the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor.")
         )
         grid = Gtk.Grid()
@@ -505,73 +505,73 @@ class FamilyProfilePage(BaseProfilePage):
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            1, "preferences.profile.family.citation.tag-format",
+            1, "options.family.citation.tag-format",
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            2, "preferences.profile.family.citation.tag-width",
+            2, "options.family.citation.tag-width",
             (1, 20),
         )
         configdialog.add_combo(
             grid, _("Image display mode"),
-            3, "preferences.profile.family.citation.image-mode",
+            3, "options.family.citation.image-mode",
             IMAGE_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid, _("Sort citations by date"),
-            4, "preferences.profile.family.citation.sort-by-date",
+            4, "options.family.citation.sort-by-date",
             tooltip=_("Enabling this option will sort the citations by date.")
         )
         configdialog.add_checkbox(
             grid, _("Include indirect citations about the person"),
-            5, "preferences.profile.family.citation.include-indirect",
+            5, "options.family.citation.include-indirect",
             tooltip=_("Enabling this option will include citations on nested attributes like names and person associations in addition to the ones directly on the person themselves.")
         )
         configdialog.add_checkbox(
             grid, _("Include citations related to the persons family membership as a child"),
-            6, "preferences.profile.family.citation.include-parent-family",
+            6, "options.family.citation.include-parent-family",
             tooltip=_("Enabling this option will include citations related to the membership of the person as a child in other families.")
         )
         configdialog.add_checkbox(
             grid, _("Include citations related to the persons family membership as a head of household"),
-            7, "preferences.profile.family.citation.include-family",
+            7, "options.family.citation.include-family",
             tooltip=_("Enabling this option will include citations on the families this person formed with other partners.")
         )
         configdialog.add_checkbox(
             grid, _("Include indirect citations related to the persons family membership as a head of household"),
-            8, "preferences.profile.family.citation.include-family-indirect",
+            8, "options.family.citation.include-family-indirect",
             tooltip=_("Enabling this option will include citations on nested attributes about the families this person formed with other partners.")
         )
         configdialog.add_text(grid, _("Attributes"), 9, bold=True)
         configdialog.add_checkbox(
             grid, _("Show date"),
-            10, "preferences.profile.family.citation.show-date",
+            10, "options.family.citation.show-date",
             tooltip=_("Enabling this option will show the citation date if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show publisher"),
-            11, "preferences.profile.family.citation.show-publisher",
+            11, "options.family.citation.show-publisher",
             tooltip=_("Enabling this option will show the publisher information if it is available.")
         )
         configdialog.add_checkbox(
             grid, _("Show reference type"),
-            12, "preferences.profile.family.citation.show-reference-type",
+            12, "options.family.citation.show-reference-type",
             tooltip=_("Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association.")
         )
         configdialog.add_checkbox(
             grid, _("Show reference description"),
-            13, "preferences.profile.family.citation.show-reference-description",
+            13, "options.family.citation.show-reference-description",
             tooltip=_("Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth.")
         )
         configdialog.add_checkbox(
             grid, _("Show confidence rating"),
-            14, "preferences.profile.family.citation.show-confidence",
+            14, "options.family.citation.show-confidence",
             tooltip=_("Enabling this option will display the user selected confidence level for the citation.")
         )
         configdialog.add_text(grid, _("Metadata Display Fields"), 15, start=1, bold=True)
-        self._config_metadata_attributes(grid, "preferences.profile.family.citation", 16, start_col=1, number=4, obj_type="Citation")
-        reset = ConfigReset(configdialog, self.config, "preferences.profile.family.citation", label=_("Reset Page Defaults"))
+        self._config_metadata_attributes(grid, "options.family.citation", 16, start_col=1, number=4, obj_type="Citation")
+        reset = ConfigReset(configdialog, self.config, "options.family.citation", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 25, 1, 1)
         return _("Citations"), grid
 
@@ -579,13 +579,13 @@ class FamilyProfilePage(BaseProfilePage):
         """
         Builds media options section for configuration dialog
         """
-        return self._media_panel(configdialog, "preferences.profile.family")
+        return self._media_panel(configdialog, "options.family")
 
     def notes_panel(self, configdialog):
         """
         Builds notes options section for configuration dialog
         """
-        return self._notes_panel(configdialog, "preferences.profile.family")
+        return self._notes_panel(configdialog, "options.family")
 
     def _get_configure_page_funcs(self):
         """

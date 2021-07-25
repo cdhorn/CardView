@@ -400,8 +400,8 @@ def get_confidence_color_css(index, config):
         return ""
 
     key = CONFIDENCE_COLOR_SCHEME[index]
-    background = config.get("preferences.profile.colors.confidence.{}".format(key))
-    border = config.get("preferences.profile.colors.confidence.border-{}".format(key))
+    background = config.get("options.colors.confidence.{}".format(key))
+    border = config.get("options.colors.confidence.border-{}".format(key))
     return format_color_css(background, border)
 
 
@@ -425,8 +425,8 @@ def get_relationship_color_css(index, config):
                 key = relative
                 break
 
-    background = config.get("preferences.profile.colors.relations.{}".format(key))
-    border = config.get("preferences.profile.colors.relations.border-{}".format(key))
+    background = config.get("options.colors.relations.{}".format(key))
+    border = config.get("options.colors.relations.border-{}".format(key))
     return format_color_css(background, border)
 
 
@@ -437,8 +437,8 @@ def get_event_category_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("preferences.profile.colors.events.{}".format(index))
-    border = config.get("preferences.profile.colors.events.border-{}".format(index))
+    background = config.get("options.colors.events.{}".format(index))
+    border = config.get("options.colors.events.border-{}".format(index))
     return format_color_css(background, border)
 
 
@@ -938,11 +938,11 @@ class ConfigReset(Gtk.Button):
             self.dialog.done(None, None)
 
     def get_option_space(self):
-        settings = self.config.get_section_settings("preferences")
-        prefix = self.space.replace("preferences.", "")
+        settings = self.config.get_section_settings("options")
+        prefix = self.space.replace("options.", "")
         prefix_length = len(prefix)
         options = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
-                options.append("preferences.{}".format(setting))
+                options.append("options.{}".format(setting))
         return options

@@ -161,12 +161,13 @@ class ProfileView(ENavigationView):
 
     def change_page(self):
         if not self.history.history:
-            obj_tuple = self._get_last()
-            if obj_tuple:
-                self.history.push(tuple(obj_tuple))
-                self.loaded = True
-            elif self.passed_uistate and self.passed_navtype:
+            if self.passed_uistate and self.passed_navtype:
                 self.loaded = self.seed_history()
+            if not self.loaded:
+                obj_tuple = self._get_last()
+                if obj_tuple:
+                    self.history.push(tuple(obj_tuple))
+                    self.loaded = True
         ENavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
@@ -465,10 +466,10 @@ class ProfileView(ENavigationView):
         if not dbid:
             return None
         try:
-            obj_tuple = get_config_option(self._config, "preferences.profile.active.last_object", dbid=dbid)
+            obj_tuple = get_config_option(self._config, "options.active.last_object", dbid=dbid)
         except ValueError:
             return None
-        if not obj_tuple:
+        if not obj_tuple or len(obj_tuple) != 2:
             initial_person = self.dbstate.db.find_initial_person()
             if not initial_person:
                 return None
@@ -544,7 +545,7 @@ class ProfileView(ENavigationView):
             dbid = self.dbstate.db.get_dbid()
             save_config_option(
                 self._config,
-                "preferences.profile.active.last_object",
+                "options.active.last_object",
                 obj_type,
                 handle,
                 dbid=dbid
