@@ -36,6 +36,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib import StyledText
 from gramps.gui.widgets import StyledTextBuffer
 
 
@@ -46,6 +47,12 @@ from gramps.gui.widgets import StyledTextBuffer
 # ------------------------------------------------------------------------
 from frame_class import GrampsFrame
 from frame_utils import TextLink
+
+try:
+    _trans = glocale.get_addon_translator(__file__)
+except ValueError:
+    _trans = glocale.translation
+_ = _trans.gettext
 
 
 # ------------------------------------------------------------------------
@@ -62,14 +69,40 @@ class NoteGrampsFrame(GrampsFrame):
         self.text_view = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False)
         GrampsFrame.__init__(self, grstate, context, note, groups=groups)
 
+        preview_mode = self.option(context, "preview_mode")
+        preview_lines = self.option(context, "preview_lines")
+
         styled_text_buffer = StyledTextBuffer()
-        styled_text_buffer.set_text(note.get_styledtext())
+        text = note.get_styledtext()
+        if preview_mode:
+            lines = text.split("\n")[:preview_lines]
+            new_lines = []
+            count = 1
+            last = len(lines)
+            for line in lines:
+                new_text = StyledText()
+                if count != last:
+                    new_text = new_text.join([line, "\n"])
+                else:
+                    new_text = line
+                new_lines.append(new_text)
+                count = count + 1
+            text = StyledText()
+            text = text.join(new_lines)
+
+        styled_text_buffer.set_text(text)
         self.text_view.set_buffer(styled_text_buffer)
 
+        text = ""
         if note.type:
             text = glocale.translation.sgettext(note.type.xml_str())
+        if preview_mode:
             if text:
-                self.add_fact(self.make_label(text))
+                text = "{} ({})".format(text, _("Preview Mode"))
+            else:
+                text = "{}".format(_("Preview Mode"))
+        if text:
+            self.add_fact(self.make_label(text))
 
         self.enable_drag()
         self.enable_drop()
