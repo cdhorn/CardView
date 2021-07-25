@@ -47,7 +47,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError
+from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
     AttributeType,
     Citation,
@@ -73,6 +73,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from page_layout import ProfileViewLayout
 from timeline import EVENT_CATEGORIES, RELATIVES
 
 try:
@@ -946,3 +947,23 @@ class ConfigReset(Gtk.Button):
             if setting[:prefix_length] == prefix:
                 options.append("options.{}".format(setting))
         return options
+
+class LayoutEditorButton(Gtk.Button):
+    """
+    Class to launch the layout editor.
+    """
+
+    def __init__(self, uistate, config, obj_type):
+        Gtk.Button.__init__(self, hexpand=False)
+        self.uistate = uistate
+        self.config = config
+        self.obj_type = obj_type
+        self.set_label(_("Layout Editor"))
+        self.connect("clicked", self.launch_editor)
+        self.set_tooltip_text(_("This will launch the page layout editor, which can also be launched by Ctrl-Right clicking in the fact section of any framed object."))
+
+    def launch_editor(self, obj):
+        try:
+            ProfileViewLayout(self.uistate, self.config, self.obj_type)
+        except WindowActiveError:
+            pass

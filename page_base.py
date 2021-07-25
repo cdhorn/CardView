@@ -238,6 +238,38 @@ class BaseProfilePage(Callback):
             count = count + 1
             row = row + 1
 
+    def _config_global_options(self, configdialog, grid, start_row, start_col=1):
+        """
+        Build global option configuration section.
+        """
+        row = start_row
+        configdialog.add_text(grid, _("Global Options"), row, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Use smaller font for details"),
+            row + 1, "options.global.use-smaller-detail-font",
+            tooltip=_("Indicates whether to use a smaller font for the details than used for the title.")
+        )
+        configdialog.add_spinner(
+            grid, _("Desired border width"),
+            row + 2, "options.global.border-width",
+            (0, 5),
+        )
+        configdialog.add_checkbox(
+            grid, _("Link citation title to source page"),
+            row + 3, "options.global.link-citation-title-to-source",
+            tooltip=_("Indicates whether the source title link in a citation record links to the source page instead of the citation page.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Sort tags by name not priority"),
+            row + 4, "options.global.sort-tags-by-name",
+            tooltip=_("Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool.")
+        )
+        configdialog.add_checkbox(
+            grid, _("Enable warnings"),
+            row + 5, "options.global.enable-warnings",
+            tooltip=_("Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
+        )
+
     def _media_panel(self, configdialog, space):
         """
         Builds media options section for configuration dialog
@@ -277,14 +309,24 @@ class BaseProfilePage(Callback):
         """
         grid = self.create_grid()
         configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid, _("Enable preview mode"),
+            1, "{}.note.preview-mode".format(space),
+            tooltip=_("Indicates only a portion of the full note should be displayed.")
+        )
+        configdialog.add_spinner(
+            grid, _("Number of lines to preview"),
+            2, "{}.note.preview-lines".format(space),
+            (0, 8),
+        )
         configdialog.add_combo(
             grid, _("Tag display mode"),
-            1, "{}.note.tag-format".format(space),
+            3, "{}.note.tag-format".format(space),
             TAG_DISPLAY_MODES,
         )
         configdialog.add_spinner(
             grid, _("Maximum tags per line"),
-            2, "{}.note.tag-width".format(space),
+            4, "{}.note.tag-width".format(space),
             (1, 20),
         )
         reset = ConfigReset(configdialog, self.config, "{}.note".format(space), label=_("Reset Page Defaults"))

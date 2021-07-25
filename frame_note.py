@@ -69,8 +69,8 @@ class NoteGrampsFrame(GrampsFrame):
         self.text_view = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False)
         GrampsFrame.__init__(self, grstate, context, note, groups=groups)
 
-        preview_mode = self.option(context, "preview_mode")
-        preview_lines = self.option(context, "preview_lines")
+        preview_mode = self.option(context, "preview-mode")
+        preview_lines = self.option(context, "preview-lines")
 
         styled_text_buffer = StyledTextBuffer()
         text = note.get_styledtext()

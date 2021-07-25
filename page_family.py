@@ -70,7 +70,8 @@ from frame_utils import (
     TIMELINE_COLOR_MODES,
     AttributeSelector,
     ConfigReset,
-    FrameFieldSelector
+    FrameFieldSelector,
+    LayoutEditorButton
 )
 from page_base import BaseProfilePage
 
@@ -187,42 +188,20 @@ class FamilyProfilePage(BaseProfilePage):
         Builds styling and page options section for the configuration dialog
         """
         grid = self.create_grid()
-        configdialog.add_text(grid, _("Styling Options"), 8, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Use smaller font for detail attributes"),
-            9, "options.family.page.use-smaller-detail-font",
-            tooltip=_("Enabling this option uses a smaller font for all the detailed information than used for the title.")
-        )
-        configdialog.add_spinner(
-            grid, _("Desired border width"),
-            10, "options.family.page.border-width",
-            (0, 5),
-        )
+        self._config_global_options(configdialog, grid, 0)
+        configdialog.add_text(grid, _("Page Options"), 10, bold=True)
         configdialog.add_checkbox(
             grid, _("Enable coloring schemes"),
             11, "options.family.page.use-color-scheme",
             tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
         )
         configdialog.add_checkbox(
-            grid, _("Sort tags by name not priority"),
-            13, "options.family.page.sort-tags-by-name",
-            tooltip=_("Enabling this option will sort tags by name before displaying them. By default they sort by the priority in which they are organized in the tag organization tool.")
-        )
-        configdialog.add_checkbox(
             grid, _("Include notes on child objects"),
-            14, "options.family.page.include-child-notes",
+            12, "options.family.page.include-child-notes",
             tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
         )
-        configdialog.add_checkbox(
-            grid, _("Enable warnings"),
-            15, "options.family.page.enable-warnings",
-            tooltip=_("Enabling this will raise a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Enable tooltips"),
-            16, "options.family.page.enable-tooltips",
-            tooltip=_("TBD TODO. If implemented some tooltips may be added to the view as an aid for new Gramps users which would quickly become annoying so this would turn them off for experienced users.")
-        )
+        editor = LayoutEditorButton(self.uistate, self.config, "Family")
+        grid.attach(editor, 1, 19, 1, 1)
         reset = ConfigReset(configdialog, self.config, "options.family.page", label=_("Reset Page Defaults"))
         grid.attach(reset, 1, 20, 1, 1)
         return _("Page"), grid

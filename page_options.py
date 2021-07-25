@@ -81,6 +81,15 @@ CONFIGSETTINGS = (
     ('options.colors.events.border-other', ["#cccccc","#000000"]),
     ('options.colors.events.border-custom', ["#cccccc","#000000"]),
     ######################################################################
+    # Global Options
+    ######################################################################
+    ("options.global.use-smaller-detail-font", True),
+    ("options.global.border-width", 2),
+    ("options.global.link-citation-title-to-source", True),
+    ("options.global.sort-tags-by-name", False),
+    ("options.global.enable-warnings", True),
+    ("options.global.enable-tooltips", True),
+    ######################################################################
     # Person Page Options
     ######################################################################
     # Layout Options
@@ -99,13 +108,8 @@ CONFIGSETTINGS = (
     ("options.person.layout.media.visible", False),
     ("options.person.layout.media.stacked", False),
     # Page Options
-    ("options.person.page.enable-tooltips", True),
-    ("options.person.page.enable-warnings", True),
     ("options.person.page.pinned-header", True),
-    ("options.person.page.border-width", 2),
     ("options.person.page.use-color-scheme", True),
-    ("options.person.page.use-smaller-detail-font", True),
-    ("options.person.page.sort-tags-by-name", False),
     ("options.person.page.include-child-notes", False),
     # Active Person
     ("options.person.active.event-format", 1),
@@ -325,6 +329,8 @@ CONFIGSETTINGS = (
     ("options.person.media.metadata-attribute-3", "None"),
     ("options.person.media.metadata-attribute-4", "None"),
     # Note
+    ("options.person.note.preview-mode", True),
+    ("options.person.note.preview-lines", 4),
     ("options.person.note.tag-format", 1),
     ("options.person.note.tag-width", 10),
     ######################################################################
@@ -344,12 +350,7 @@ CONFIGSETTINGS = (
     ("options.family.layout.media.visible", True),
     ("options.family.layout.media.stacked", False),
     # Page Options
-    ("options.family.page.enable-tooltips", True),
-    ("options.family.page.enable-warnings", True),
-    ("options.family.page.border-width", 2),
     ("options.family.page.use-color-scheme", True),
-    ("options.family.page.use-smaller-detail-font", True),
-    ("options.family.page.sort-tags-by-name", False),
     ("options.family.page.include-child-notes", False),
     # Active Family
     ("options.family.active.event-format", 1),
@@ -487,6 +488,8 @@ CONFIGSETTINGS = (
     ("options.family.media.metadata-attribute-3", "None"),
     ("options.family.media.metadata-attribute-4", "None"),
     # Note
+    ("options.family.note.preview-mode", True),
+    ("options.family.note.preview-lines", 4),
     ("options.family.note.tag-format", 1),
     ("options.family.note.tag-width", 10),
     ######################################################################
@@ -506,13 +509,8 @@ CONFIGSETTINGS = (
     ("options.event.layout.media.visible", True),
     ("options.event.layout.media.stacked", False),
     # Page Options
-    ("options.event.page.enable-tooltips", True),
-    ("options.event.page.enable-warnings", True),
     ("options.event.page.pinned-header", True),
-    ("options.event.page.border-width", 2),
     ("options.event.page.use-color-scheme", True),
-    ("options.event.page.use-smaller-detail-font", True),
-    ("options.event.page.sort-tags-by-name", False),
     ("options.event.page.include-child-notes", False),
     # Active Event
     ("options.event.active.event-format", 1),
@@ -568,6 +566,8 @@ CONFIGSETTINGS = (
     ("options.event.media.metadata-attribute-3", "None"),
     ("options.event.media.metadata-attribute-4", "None"),
     # Note
+    ("options.event.note.preview-mode", True),
+    ("options.event.note.preview-lines", 4),
     ("options.event.note.tag-format", 1),
     ("options.event.note.tag-width", 10),
     ######################################################################
@@ -589,13 +589,8 @@ CONFIGSETTINGS = (
     ("options.source.layout.media.visible", True),
     ("options.source.layout.media.stacked", False),
     # Page Options
-    ("options.source.page.enable-tooltips", True),
-    ("options.source.page.enable-warnings", True),
     ("options.source.page.pinned-header", True),
-    ("options.source.page.border-width", 2),
     ("options.source.page.use-color-scheme", True),
-    ("options.source.page.use-smaller-detail-font", True),
-    ("options.source.page.sort-tags-by-name", False),
     ("options.source.page.include-child-notes", False),
     # Active Source
     ("options.source.active.event-format", 1),
@@ -677,6 +672,8 @@ CONFIGSETTINGS = (
     ("options.source.media.metadata-attribute-3", "None"),
     ("options.source.media.metadata-attribute-4", "None"),
     # Note
+    ("options.source.note.preview-mode", True),
+    ("options.source.note.preview-lines", 4),
     ("options.source.note.tag-format", 1),
     ("options.source.note.tag-width", 10),
     ######################################################################
@@ -694,13 +691,8 @@ CONFIGSETTINGS = (
     ("options.citation.layout.media.visible", True),
     ("options.citation.layout.media.stacked", False),
     # Page Options
-    ("options.citation.page.enable-tooltips", True),
-    ("options.citation.page.enable-warnings", True),
     ("options.citation.page.pinned-header", True),
-    ("options.citation.page.border-width", 2),
     ("options.citation.page.use-color-scheme", True),
-    ("options.citation.page.use-smaller-detail-font", True),
-    ("options.citation.page.sort-tags-by-name", False),
     ("options.citation.page.include-child-notes", False),
     # Active Citation
     ("options.citation.active.tag-format", 1),
@@ -782,6 +774,8 @@ CONFIGSETTINGS = (
     ("options.citation.media.metadata-attribute-3", "None"),
     ("options.citation.media.metadata-attribute-4", "None"),
     # Note
+    ("options.citation.note.preview-mode", True),
+    ("options.citation.note.preview-lines", 4),
     ("options.citation.note.tag-format", 1),
     ("options.citation.note.tag-width", 10),
     ######################################################################
@@ -795,13 +789,8 @@ CONFIGSETTINGS = (
     ("options.repository.layout.note.visible", True),
     ("options.repository.layout.note.stacked", False),
     # Page Options
-    ("options.repository.page.enable-tooltips", True),
-    ("options.repository.page.enable-warnings", True),
     ("options.repository.page.pinned-header", True),
-    ("options.repository.page.border-width", 2),
     ("options.repository.page.use-color-scheme", True),
-    ("options.repository.page.use-smaller-detail-font", True),
-    ("options.repository.page.sort-tags-by-name", False),
     ("options.repository.page.include-child-notes", False),
     # Active Repository
     ("options.repository.active.tag-format", 1),
@@ -815,6 +804,8 @@ CONFIGSETTINGS = (
     ("options.repository.source.metadata-attribute-3", "None"),
     ("options.repository.source.metadata-attribute-4", "None"),
     # Note
+    ("options.repository.note.preview-mode", True),
+    ("options.repository.note.preview-lines", 4),
     ("options.repository.note.tag-format", 1),
     ("options.repository.note.tag-width", 10),
     ######################################################################
@@ -826,14 +817,11 @@ CONFIGSETTINGS = (
     ("options.note.layout.reference.visible", True),
     ("options.note.layout.reference.stacked", False),
     # Page Options
-    ("options.note.page.enable-tooltips", True),
-    ("options.note.page.enable-warnings", True),
     ("options.note.page.pinned-header", True),
-    ("options.note.page.border-width", 2),
     ("options.note.page.use-color-scheme", True),
-    ("options.note.page.use-smaller-detail-font", True),
-    ("options.note.page.sort-tags-by-name", False),
     # Active Note
+    ("options.note.active.preview-mode", False),
+    ("options.note.active.preview-lines", 4),
     ("options.note.active.tag-format", 1),
     ("options.note.active.tag-width", 10),
     # For Reference Group Objects may need a plethora of options, need
@@ -851,16 +839,16 @@ CONFIGSETTINGS = (
     ("options.media.layout.reference.visible", True),
     ("options.media.layout.reference.stacked", False),
     # Page Options
-    ("options.media.page.enable-tooltips", True),
-    ("options.media.page.enable-warnings", True),
     ("options.media.page.pinned-header", True),
-    ("options.media.page.border-width", 2),
     ("options.media.page.use-color-scheme", True),
-    ("options.media.page.use-smaller-detail-font", True),
-    ("options.media.page.sort-tags-by-name", False),
     # Active Media
     ("options.media.active.tag-format", 1),
     ("options.media.active.tag-width", 10),
+    # Note
+    ("options.media.note.preview-mode", True),
+    ("options.media.note.preview-lines", 4),
+    ("options.media.note.tag-format", 1),
+    ("options.media.note.tag-width", 10),
     # For Reference Group Objects may need a plethora of options, need
     # to reconsider this.    
     ######################################################################
@@ -878,18 +866,14 @@ CONFIGSETTINGS = (
     ("options.place.layout.reference.visible", True),
     ("options.place.layout.reference.stacked", False),
     # Page Options
-    ("options.place.page.enable-tooltips", True),
-    ("options.place.page.enable-warnings", True),
     ("options.place.page.pinned-header", True),
-    ("options.place.page.border-width", 2),
     ("options.place.page.use-color-scheme", True),
-    ("options.place.page.use-smaller-detail-font", True),
-    ("options.place.page.sort-tags-by-name", False),
-    ("options.place.page.right-to-left", False),
     # Active Place
     ("options.place.active.tag-format", 1),
     ("options.place.active.tag-width", 10),
     # Note
+    ("options.place.note.preview-mode", True),
+    ("options.place.note.preview-lines", 4),
     ("options.place.note.tag-format", 1),
     ("options.place.note.tag-width", 10),
     # Media

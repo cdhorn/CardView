@@ -65,7 +65,10 @@ class CitationGrampsFrame(GrampsFrame):
         GrampsFrame.__init__(self, grstate, "citation", citation, groups=groups)
         source = grstate.dbstate.db.get_source_from_handle(citation.source_handle)
 
-        title = TextLink(source.title, "Source", source.get_handle(), self.switch_object, bold=True)
+        if grstate.config.get("options.global.link-citation-title-to-source"):
+            title = TextLink(source.title, "Source", source.get_handle(), self.switch_object, bold=True)
+        else:
+            title = TextLink(source.title, "Citation", citation.get_handle(), self.switch_object, bold=True)
         self.title.pack_start(title, True, False, 0)
 
         if source.author:

@@ -488,7 +488,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         for handle in self.obj.get_tag_list():
             tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
             tags.append(tag)
-        if self.option("page", "sort-tags-by-name"):
+        if self.grstate.config.get("options.global.sort-tags-by-name"):
             tags.sort(key = lambda x: x.name)
         else:
             tags.sort(key = lambda x: x.priority)
@@ -1386,7 +1386,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Apply some simple styling to the frame of the current object.
         """
-        border = self.option("page", "border-width")
+        border = self.grstate.config.get("options.global.border-width")
         color = self.get_color_css()
         css = ".frame {{ border-width: {}px; {} }}".format(border, color)
         css = css.encode("utf-8")
