@@ -480,7 +480,7 @@ class ProfileRowLayout(Gtk.Frame):
         """
         Apply some simple styling to the frame of the current object.
         """
-        css = ".frame { border-width: 2px; }"
+        css = ".frame { border-width: 0px; }"
         css = css.encode("utf-8")
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
