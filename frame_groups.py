@@ -43,6 +43,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_base import GrampsFrameGroupExpander
 from frame_children import ChildrenGrampsFrameGroup
 from frame_citations import CitationsGrampsFrameGroup
 from frame_couple import CoupleGrampsFrame
@@ -68,11 +69,15 @@ def get_generic_group(grstate, obj, framegroup, title_plural, title_single, expa
     if not group or len(group) == 0:
         return None
 
+    hideable = False
+    if hasattr(group, "hideable"):
+        hideable = group.hideable
+
     text = title_plural
     if len(group) == 1:
         text = title_single
 
-    content = Gtk.Expander(expanded=expanded, use_markup=True)
+    content = GrampsFrameGroupExpander(grstate, expanded=expanded, use_markup=True, hidable=hideable)
     content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     content.add(group)
     return content
@@ -89,7 +94,7 @@ def get_children_group(grstate, family, context="child", title_plural=_("Childre
     if len(group) == 1:
         text = title_single
 
-    content = Gtk.Expander(expanded=expanded, use_markup=True)
+    content = GrampsFrameGroupExpander(grstate, expanded=expanded, use_markup=True, hidable=False)
     content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     content.add(group)
     return content
@@ -123,7 +128,8 @@ def get_parents_group(grstate, person):
     parents = None
     primary_handle = person.get_main_parents_family_handle()
     if primary_handle:
-        parents = Gtk.Expander(expanded=True, use_markup=True)
+        hideable = grstate.config.get("{}.layout.parent.hideable".format(grstate.space))
+        parents = GrampsFrameGroupExpander(grstate, expanded=True, use_markup=True, hidable=hideable)
         parents.set_label("<small><b>{}</b></small>".format(_("Parents and Siblings")))
         elements = Gtk.VBox(spacing=6)
         parents.add(elements)
@@ -145,7 +151,8 @@ def get_spouses_group(grstate, person):
     spouses = None
     for handle in person.family_list:
         if spouses is None:
-            spouses = Gtk.Expander(expanded=True, use_markup=True)
+            hideable = grstate.config.get("{}.layout.spouse.hideable".format(grstate.space))
+            spouses = GrampsFrameGroupExpander(grstate, expanded=True, use_markup=True, hidable=hideable)
             spouses.set_label(
                 "<small><b>{}</b></small>".format(_("Spouses and Children"))
             )
@@ -252,7 +259,7 @@ def get_references_group(grstate, obj, title_plural=_("References"), title_singl
     if not_shown:
         text = "{} ({} {})".format(text, not_shown, _("Not Shown"))
 
-    content = Gtk.Expander(expanded=True, use_markup=True)
+    content = GrampsFrameGroupExpander(grstate, expanded=True, use_markup=True, hidable=True)
     content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     content.add(group)
     return content

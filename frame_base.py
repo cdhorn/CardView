@@ -247,3 +247,30 @@ class GrampsImageViewFrame(Gtk.Frame):
         """
         photo_path = media_path_full(self.grstate.dbstate.db, photo.get_path())
         open_file_with_default_application(photo_path, self.grstate.uistate)
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsFrameGroupExpander class
+#
+# ------------------------------------------------------------------------
+class GrampsFrameGroupExpander(Gtk.Expander):
+    """
+    A simple class for managing collapse of a GrampsFrameGroup object.
+    """
+
+    def __init__(self, grstate, expanded=True, use_markup=True, hidable=False):
+        Gtk.Expander.__init__(self, expanded=expanded, use_markup=use_markup, hexpand=True)
+        self.set_resize_toplevel(True)
+        self.hidable = hidable
+        self.grstate = grstate
+        self.connect("activate", self.collapse)
+
+    def set_hidable(self, hidable):
+        self.hidable = hidable
+
+    def collapse(self, obj):
+        if self.get_expanded() and self.hidable:
+            child = self.get_child()
+            list(map(child.remove, child.get_children()))
+            self.grstate.router('remove-self', self)

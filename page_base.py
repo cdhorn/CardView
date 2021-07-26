@@ -78,12 +78,32 @@ class BaseProfilePage(Callback):
         self.dbstate = dbstate
         self.uistate = uistate
         self.config = config
+        self.container = None
 
     def callback_router(self, signal, payload):
         """
         Emit signal on behalf of a managed object.
         """
+        if signal == 'remove-self':
+            return self.remove_widget(payload)
         self.emit(signal, payload)
+
+    def remove_widget(self, widget):
+        for child in self.container.get_children():
+            if child == widget:
+                self.container.remove(widget)
+                return True
+            if isinstance(child, Gtk.Box):
+                for grandchild in child.get_children():
+                    if grandchild == widget:
+                        child.remove(widget)
+                        self.container.remove(child)
+                        return True
+                    if isinstance(grandchild, Gtk.Box):
+                        for ggrandchild in grandchild.get_children():
+                            if ggrandchild == widget:
+                                grandchild.remove(widget)
+                                return True
 
     def edit_active(self, *obj):
         """
@@ -118,7 +138,7 @@ class BaseProfilePage(Callback):
         """
         gbox = None
         title = ""
-        container = Gtk.HBox(spacing=3)
+        self.container = Gtk.HBox(spacing=3)
         for group in groups:
             if group not in obj_groups or not obj_groups[group]:
                 continue
@@ -133,10 +153,10 @@ class BaseProfilePage(Callback):
                 title = "{} & {}".format(title, LABELS[group])
             if not self.config.get("{}.{}.stacked".format(space, group)):
                 label = Gtk.Label(label=title)
-                container.pack_start(gbox, expand=True, fill=True, padding=0)
+                self.container.pack_start(gbox, expand=True, fill=True, padding=0)
                 gbox = None
                 title = ""
-        return container
+        return self.container
 
     def render_tabbed_group(self, obj_groups, space, groups):
         """

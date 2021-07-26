@@ -64,6 +64,7 @@ class NotesGrampsFrameGroup(GrampsFrameList):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.hideable = self.option("layout.note", "hideable")
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
