@@ -75,7 +75,8 @@ class TimelineGrampsFrameGroup(GrampsFrameList):
         self.relation_categories = []
         self.ancestors = 1
         self.offspring = 1
-        self.hideable = self.option("layout.timeline", "hideable")
+        if not self.option("layout", "tabbed"):
+            self.hideable = self.option("layout.timeline", "hideable")
 
         self.prepare_timeline_filters()
         self.timeline = Timeline(

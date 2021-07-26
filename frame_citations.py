@@ -71,8 +71,9 @@ class CitationsGrampsFrameGroup(GrampsFrameList):
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
         self.maximum = grstate.config.get("options.global.max-citations-per-group")
-        self.hideable = self.option("layout.citation", "hideable")
-
+        if not self.option("layout", "tabbed"):
+            self.hideable = self.option("layout.citation", "hideable")
+            
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),

@@ -70,7 +70,8 @@ class RepositoriesGrampsFrameGroup(GrampsFrameList):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
-        self.hideable = self.option("layout.repositories", "hideable")
+        if not self.option("layout", "tabbed"):
+            self.hideable = self.option("layout.repository", "hideable")
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
