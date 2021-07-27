@@ -457,6 +457,49 @@ class PersonProfilePage(BaseProfilePage):
         grid.attach(reset, 1, 30, 1, 1)
         return _("Siblings"), grid
 
+    def associations_panel(self, configdialog):
+        """
+        Builds associations options section for the configuration dialog
+        """
+        grid = self.create_grid()
+        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+        configdialog.add_combo(
+            grid, _("Event display format"),
+            1, "options.person.association.event-format",
+            EVENT_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid, _("Show age at death and if selected burial"),
+            1, "options.person.association.show-age", start=3
+        )
+        configdialog.add_combo(
+            grid, _("Sex display mode"),
+            2, "options.person.association.sex-mode",
+            SEX_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Image display mode"),
+            3, "options.person.association.image-mode",
+            IMAGE_DISPLAY_MODES,
+        )
+        configdialog.add_combo(
+            grid, _("Tag display mode"),
+            4, "options.person.association.tag-format",
+            TAG_DISPLAY_MODES,
+        )
+        configdialog.add_spinner(
+            grid, _("Maximum tags per line"),
+            5, "options.person.association.tag-width",
+            (1, 20),
+        )
+        configdialog.add_text(grid, _("Fact Display Fields"), 11, bold=True)
+        self._config_facts_fields(configdialog, grid, "options.person.association", 12)
+        configdialog.add_text(grid, _("Metadata Display Fields"), 11, start=3, bold=True)
+        self._config_metadata_attributes(grid, "options.person.association", 12, start_col=3)
+        reset = ConfigReset(configdialog, self.config, "options.person.association", label=_("Reset Page Defaults"))
+        grid.attach(reset, 1, 30, 1, 1)
+        return _("Associations"), grid
+    
     def timeline_panel(self, configdialog):
         """
         Builds active person timeline options section for the configuration dialog
@@ -788,6 +831,7 @@ class PersonProfilePage(BaseProfilePage):
             self.siblings_panel,
             self.spouses_panel,
             self.children_panel,
+            self.associations_panel,
             self.timeline_panel,
             self.citations_panel,
             self.notes_panel,
