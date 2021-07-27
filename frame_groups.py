@@ -43,6 +43,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_associations import AssociationsGrampsFrameGroup
 from frame_base import GrampsFrameGroupExpander
 from frame_children import ChildrenGrampsFrameGroup
 from frame_citations import CitationsGrampsFrameGroup
@@ -263,3 +264,12 @@ def get_references_group(grstate, obj, title_plural=_("References"), title_singl
     content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
     content.add(group)
     return content
+
+def get_associations_group(grstate, obj, title_plural=_("Associations"), title_single=_("Association")):
+    """
+    Get the group of associations associated with a person.
+    """
+    return get_generic_group(
+        grstate, obj, AssociationsGrampsFrameGroup,
+        title_plural, title_single, expanded=True
+    )

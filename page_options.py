@@ -96,13 +96,16 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.person.layout.tabbed", False),
-    ("options.person.layout.groups", "parent,timeline,citation,note,media,spouse"),
+    ("options.person.layout.groups", "parent,timeline,citation,note,media,associations,spouse"),
     ("options.person.layout.parent.visible", True),
     ("options.person.layout.parent.stacked", False),
     ("options.person.layout.parent.hideable", False),
     ("options.person.layout.spouse.visible", True),
     ("options.person.layout.spouse.stacked", False),
     ("options.person.layout.spouse.hideable", False),
+    ("options.person.layout.association.visible", True),
+    ("options.person.layout.association.stacked", False),
+    ("options.person.layout.association.hideable", False),
     ("options.person.layout.timeline.visible", True),
     ("options.person.layout.timeline.stacked", False),
     ("options.person.layout.timeline.hideable", False),

@@ -54,6 +54,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from frame_base import GrampsState, button_activated
 from frame_groups import (
+    get_associations_group,
     get_citations_group,
     get_media_group,
     get_notes_group,
@@ -137,6 +138,8 @@ class PersonProfilePage(BaseProfilePage):
             obj_groups.update({"parent": get_parents_group(grstate, person)})
         if "spouse" in groups:
             obj_groups.update({"spouse": get_spouses_group(grstate, person)})
+        if "association" in groups:
+            obj_groups.update({"association": get_associations_group(grstate, person)})
         if "timeline" in groups:
             obj_groups.update({"timeline": get_timeline_group(grstate, person)})
         if "citation" in groups:
