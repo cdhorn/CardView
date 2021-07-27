@@ -45,8 +45,7 @@ from gramps.gen.db import DbTxn
 #
 # ------------------------------------------------------------------------
 from frame_list import GrampsFrameList
-from frame_person import PersonGrampsFrame
-
+from frame_child import ChildGrampsFrame
 
 try:
     _trans = glocale.get_addon_translator(__file__)
@@ -79,16 +78,17 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
         child_number = 0
-        for ref in self.family.get_child_ref_list():
-            if ref:
-                child = grstate.dbstate.db.get_person_from_handle(ref.ref)
+        for child_ref in self.family.get_child_ref_list():
+            if child_ref:
+                child = grstate.dbstate.db.get_person_from_handle(child_ref.ref)
                 child_number = child_number + 1
                 if not self.option(working_context, "number-children"):
                     child_number = 0
-                profile = PersonGrampsFrame(
+                profile = ChildGrampsFrame(
                     grstate,
                     working_context,
                     child,
+                    child_ref,
                     number=child_number,
                     relation=relation,
                     groups=groups,

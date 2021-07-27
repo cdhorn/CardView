@@ -100,12 +100,13 @@ class PersonGrampsFrame(GrampsFrame):
         grstate,
         context,
         person,
+        obj_ref=None,
         relation=None,
         number=0,
         groups=None,
         family_backlink=None,
     ):
-        GrampsFrame.__init__(self, grstate, context, person, groups=groups)
+        GrampsFrame.__init__(self, grstate, context, person, obj_ref=obj_ref, groups=groups)
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink

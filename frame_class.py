@@ -155,11 +155,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary Gramps object it exposes.
     """
 
-    def __init__(self, grstate, context, obj, vertical=True, groups=None):
+    def __init__(self, grstate, context, obj, obj_ref=None, vertical=True, groups=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate)
         self.context = context
         self.obj = obj
+        self.obj_ref = obj_ref
         self.vertical = vertical
         self.action_menu = None
         self.dnd_drop_targets = []
@@ -173,12 +174,35 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             }
+
         self.body = Gtk.HBox(hexpand=True, margin=3)
-        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.frame.add(self.body)
         self.eventbox = Gtk.EventBox()
         self.eventbox.connect("button-press-event", self.route_action)
+        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        if not obj_ref:
+            self.frame.add(self.body)
+            if isinstance(self.obj, Family):
+                self.add(self.frame)
+            else:
+                self.eventbox.add(self.frame)
+                self.add(self.eventbox)
+        else:
+            self.eventbox.add(self.body)
+            self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+            self.ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END)
+            if "ref" in self.groups:
+                self.groups["ref"].add_widget(self.ref_body)
+            self.ref_eventbox = Gtk.EventBox()
+            self.ref_eventbox.add(self.ref_body)
+            self.ref_frame.add(self.ref_eventbox)
+            view_obj = Gtk.HBox(hexpand=True)
+            view_obj.pack_start(self.eventbox, True, True, 0)
+            view_obj.pack_start(self.ref_frame, True, True, 0)
+            self.frame.add(view_obj)
+            self.add(self.frame)
+            self.ref_body.pack_start(self.get_ref_label(), expand=False, fill=False, padding=0)
 
         self.image = None
         self.age = None
@@ -198,13 +222,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.partner1 = None
         self.partner2 = None
 
-        if isinstance(self.obj, Family):
-            self.add(self.frame)
-        else:
-            self.eventbox.add(self.frame)
-            self.add(self.eventbox)
         self.build_layout()
-
         self.metadata.pack_start(self.get_gramps_id_label(), expand=False, fill=False, padding=0)
         values = self.get_metadata_attributes()
         if values:
@@ -466,6 +484,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         hbox = Gtk.HBox()
         hbox.pack_end(label, False, False, 0)
         if self.obj.private:
+            image = Gtk.Image()
+            image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            hbox.pack_end(image, False, False, 0)
+        return hbox
+
+    def get_ref_label(self):
+        """
+        Build the label for a reference with lock icon if object marked private.
+        """
+        hbox = Gtk.HBox()
+        image = Gtk.Image()
+        image.set_from_icon_name("stock_link", Gtk.IconSize.BUTTON)
+        hbox.pack_end(image, False, False, 0)
+        if self.obj_ref.private:
             image = Gtk.Image()
             image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
             hbox.pack_end(image, False, False, 0)
