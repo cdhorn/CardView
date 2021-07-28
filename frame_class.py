@@ -600,15 +600,24 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             if hasattr(self.obj, "attribute_list"):
                 self.action_menu.append(self._attributes_option())
             if hasattr(self.obj, "citation_list"):
-                self.action_menu.append(self._citations_option())
+                self.action_menu.append(
+                    self._citations_option(
+                        self.obj, self.add_new_citation, self.add_existing_citation, self.remove_citation
+                    )
+                )
             if hasattr(self.obj, "note_list"):
-                self.action_menu.append(self._notes_option())
+                self.action_menu.append(
+                    self._notes_option(
+                        self.obj, self.add_new_note, self.add_existing_note, self.remove_note
+                    )
+                )
             if hasattr(self.obj, "tag_list"):
                 self.action_menu.append(self._tags_option())
             if hasattr(self.obj, "urls"):
                 self.action_menu.append(self._urls_option())
             self.action_menu.append(self._copy_to_clipboard_option())
             self.action_menu.append(self._change_privacy_option())
+            self.action_menu.add(Gtk.SeparatorMenuItem())
             if self.obj.change:
                 text = "{} {}".format(
                     _("Last changed"),
@@ -617,6 +626,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             else:
                 text = _("Never changed")
             label = Gtk.MenuItem(label=text)
+            label.set_sensitive(False)
             self.action_menu.append(label)
 
             self.action_menu.show_all()
@@ -795,26 +805,26 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     if self.obj.remove_attribute(old_attribute):
                         commit_method(self.obj, trans)
 
-    def _citations_option(self):
+    def _citations_option(self, obj, add_new_citation, add_existing_citation, remove_citation):
         """
         Build the citations submenu.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("list-add", _("Add a new citation"), self.add_new_citation))
-        menu.add(self._menu_item("list-add", _("Add an existing citation"), self.add_existing_citation))
-        if len(self.obj.get_citation_list()) > 0:
+        menu.add(self._menu_item("list-add", _("Add a new citation"), add_new_citation))
+        menu.add(self._menu_item("list-add", _("Add an existing citation"), add_existing_citation))
+        if len(obj.get_citation_list()) > 0:
             removemenu = Gtk.Menu()
             menu.add(self._submenu_item("gramps-citation", _("Remove a citation"), removemenu))
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             citation_list = []
-            for handle in self.obj.get_citation_list():
+            for handle in obj.get_citation_list():
                 citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
                 text = self._citation_option_text(citation)
                 citation_list.append((text, citation))
             citation_list.sort(key=lambda x: x[0])
             for text, citation in citation_list:
-                removemenu.add(self._menu_item("list-remove", text, self.remove_citation, citation))
+                removemenu.add(self._menu_item("list-remove", text, remove_citation, citation))
                 menu.add(self._menu_item("gramps-citation", text, self.edit_citation, citation))
         return self._submenu_item("gramps-citation", _("Citations"), menu)
 
@@ -919,30 +929,30 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     if self.obj.citation_list.remove(old_citation.get_handle()):
                         commit_method(self.obj, trans)
 
-    def _notes_option(self):
+    def _notes_option(self, obj, add_new_note, add_existing_note, remove_note, no_children=False):
         """
         Build the notes submenu.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("list-add", _("Add a new note"), self.add_new_note))
-        menu.add(self._menu_item("list-add", _("Add an existing note"), self.add_existing_note))
-        if len(self.obj.get_note_list()) > 0:
+        menu.add(self._menu_item("list-add", _("Add a new note"), add_new_note))
+        menu.add(self._menu_item("list-add", _("Add an existing note"), add_existing_note))
+        if len(obj.get_note_list()) > 0:
             removemenu = Gtk.Menu()
             menu.add(self._submenu_item("gramps-notes", _("Remove a note"), removemenu))
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             note_list = []
-            for handle in self.obj.get_note_list():
+            for handle in obj.get_note_list():
                 note = self.grstate.dbstate.db.get_note_from_handle(handle)
                 text = self._note_option_text(note)
                 note_list.append((text, note))
             note_list.sort(key=lambda x: x[0])
             for text, note in note_list:
-                removemenu.add(self._menu_item("list-remove", text, self.remove_note, note))
+                removemenu.add(self._menu_item("list-remove", text, remove_note, note))
                 menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
-        if self.option("page", "include-child-notes"):
+        if self.option("page", "include-child-notes") and not no_children:
                 note_list = []
-                for child_obj in self.obj.get_note_child_list():
+                for child_obj in obj.get_note_child_list():
                     for handle in child_obj.get_note_list():
                         note = self.grstate.dbstate.db.get_note_from_handle(handle)
                         text = self._note_option_text(note)
