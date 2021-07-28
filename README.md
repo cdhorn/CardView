@@ -24,19 +24,19 @@ You can navigate using the titles of the framed objects which are links.  You ca
 
 Right clicking on any frame will present a drop down action menu. Some of the available actions will vary based on the context of the object, so options for the active person in the header may differ from those for a parent or spouse or child or event or cited source. A large number of them are common to all objects.
 
-Note in some contexts, such as children, the frame will contain two objects, the top level person object for the child and the child reference tracking their membership in a specific family. The drop down action menu for the reference object will contain operations that apply to the reference.
+Note in some contexts, such as children, the frame will contain two objects, the top level person object for the child and the child reference tracking their membership in a specific family. The drop down action menu for the reference object will contain operations that apply to the reference not the primary object.
 
 Holding down ctrl and right clicking will open the layout editor. The default mode is single page, with various object groups beneath the header record. This is designed for large high resolution displays. You can stack one group on top of another if needed, set which groups will render, and also choose which will hide when collapsed. If collapsed you can not reopen them, but you can click the active header to force it to reload the page and they will appear again. There is now also a tabbed mode selection which will be more similar though not exactly the same as in the Combined View. In that mode stacking places groups side by side in the same tab and the hide option is ignored.
 
 Be aware that many of the configuration options in the configuration dialog for the view are unique to the object type on the page when the configuration editor is opened. So options set when on a person page are different from those set when on an event or a citation page for example.  At first this level of granularity seemed a good idea, however there are so many it is becoming unmanageable so some consideration is being given to changing the setup.
 
-Make note of the ability to customize the displayed data in most of the frames as well if you choose. For people you can choose which events, facts, and attributes to display as well as chosoe to display additional relationship calculations. Note these user customizable field options are generally stored per tree as things like custom events or attributes may differ across trees.
+Make note of the ability to customize the displayed data in most of the frames as well if you choose. For people you can choose which events, facts, and attributes to display as well as choose to display additional relationship calculations. Note these user customizable field options are generally stored per tree as things like custom events or attributes may differ across trees.
 
 Some drag and drop functionality has been implemented. You can reorder children in a family, drag blocks of text from a browser page and drop it on an object to create a note, or drag the url for a page and drop it on an object that has url support to add it. Note Firefox works fine, mileage may vary with other browsers.
 
 ## Bug Reports and Feature Requests
 
-At the present time these can be submitted on Github.
+At the present time these can be submitted on Github. I am particulary interested in any ideas for alternate page layouts for objects that might work better than what I have come up with so far.
 
 ## History
 
