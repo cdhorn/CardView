@@ -266,7 +266,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
             ):
-                if self.obj_ref.citation_list.remove(old_citation.get_handle()):
+                if self.obj_ref.remove_citation_references([old_citation.get_handle()]):
                     action = "{} {} {} {} {}".format(
                         _("Removed Citation"),
                         old_citation.get_gramps_id(),
@@ -327,7 +327,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("Warning"),
                 "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
             ):
-                if self.obj_ref.note_list.remove(old_note.get_handle()):
+                if self.obj_ref.remove_note(old_note.get_handle()):
                     action = "{} {} {} {} {}".format(
                         _("Removed Note"),
                         old_note.get_gramps_id(),
