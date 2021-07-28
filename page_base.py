@@ -191,8 +191,13 @@ class BaseProfilePage(Callback):
                     obox.add(sbox)
                     in_stack = False
             if not in_stack:
+                scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+                scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+                viewport = Gtk.Viewport()
+                viewport.add(obox)
+                scroll.add(viewport)
                 label = Gtk.Label(label=title)
-                container.append_page(obox, tab_label=label)
+                container.append_page(scroll, tab_label=label)
                 sbox = None
                 title = ""
         return container
