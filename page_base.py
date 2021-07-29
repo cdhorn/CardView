@@ -84,26 +84,7 @@ class BaseProfilePage(Callback):
         """
         Emit signal on behalf of a managed object.
         """
-        if signal == 'remove-self':
-            return self.remove_widget(payload)
         self.emit(signal, payload)
-
-    def remove_widget(self, widget):
-        for child in self.container.get_children():
-            if child == widget:
-                self.container.remove(widget)
-                return True
-            if isinstance(child, Gtk.Box):
-                for grandchild in child.get_children():
-                    if grandchild == widget:
-                        child.remove(widget)
-                        self.container.remove(child)
-                        return True
-                    if isinstance(grandchild, Gtk.Box):
-                        for ggrandchild in grandchild.get_children():
-                            if ggrandchild == widget:
-                                grandchild.remove(widget)
-                                return True
 
     def edit_active(self, *obj):
         """
@@ -138,6 +119,7 @@ class BaseProfilePage(Callback):
         """
         gbox = None
         title = ""
+        scrolled = self.config.get("{}.scrolled".format(space))
         self.container = Gtk.HBox(spacing=3)
         for group in groups:
             if group not in obj_groups or not obj_groups[group]:
@@ -153,9 +135,18 @@ class BaseProfilePage(Callback):
                 title = "{} & {}".format(title, LABELS[group])
             if not self.config.get("{}.{}.stacked".format(space, group)):
                 label = Gtk.Label(label=title)
-                self.container.pack_start(gbox, expand=True, fill=True, padding=0)
+                if scrolled:
+                    self.container.pack_start(self._scrolled(gbox), expand=True, fill=True, padding=0)
+                else:
+                    self.container.pack_start(gbox, expand=True, fill=True, padding=0)
                 gbox = None
                 title = ""
+        if gbox and title:
+            label = Gtk.Label(label=title)
+            if scrolled:
+                self.container.pack_start(self.scrolled(gbox), expand=True, fill=True, padding=0)
+            else:
+                self.container.pack_start(gbox, expand=True, fill=True, padding=0)
         return self.container
 
     def render_tabbed_group(self, obj_groups, space, groups):
@@ -191,18 +182,20 @@ class BaseProfilePage(Callback):
                     obox.add(sbox)
                     in_stack = False
             if not in_stack:
-                scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
-                scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-                viewport = Gtk.Viewport()
-                viewport.add(obox)
-                scroll.add(viewport)
                 label = Gtk.Label(label=title)
-                container.append_page(scroll, tab_label=label)
+                container.append_page(self._scrolled(obox), tab_label=label)
                 sbox = None
                 title = ""
         return container
 
-    
+    def _scrolled(self, widget):
+        scroll = Gtk.ScrolledWindow(hexpand=False, vexpand=True)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        viewport = Gtk.Viewport()
+        viewport.add(widget)
+        scroll.add(viewport)
+        return scroll
+
     def create_grid(self):
         """
         Generate grid for config panels.

@@ -274,4 +274,14 @@ class GrampsFrameGroupExpander(Gtk.Expander):
             if self.get_expanded() and self.hidable:
                 child = self.get_child()
                 list(map(child.remove, child.get_children()))
-                self.grstate.router('remove-self', self)
+                parent = self.get_parent()
+                if not self.grstate.config.get("{}.layout.scrolled".format(self.grstate.space)):
+                    parent.remove(self)
+                else:
+                    gparent = parent.get_parent()
+                    ggparent = gparent.get_parent()
+                    gggparent = ggparent.get_parent()
+                    parent.remove(self)
+                    gparent.remove(parent)
+                    ggparent.remove(gparent)
+                    gggparent.remove(ggparent)

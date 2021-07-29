@@ -151,8 +151,13 @@ class ProfilePageLayout(Gtk.VBox):
         option = "{}.tabbed".format(self.space)
         self.tabbed = Gtk.CheckButton(label=_("Tabbed Mode"))
         self.tabbed.set_active(self.config.get(option))
+        self.tabbed.connect("clicked", self.toggle_mode)
         self.pack_start(self.tabbed, False, False, 6)
-
+        option = "{}.scrolled".format(self.space)
+        self.scrolled = Gtk.CheckButton(label=_("Scrolled Mode"))
+        self.scrolled.set_active(self.config.get(option))
+        self.pack_start(self.scrolled, False, False, 6)
+            
         self.columns = ProfileColumnLayout()
         current_groups = self.config.get("{}.groups".format(self.space))
         current_groups = self.get_valid_layout_groups(self.obj_type, current_groups.split(","))
@@ -181,6 +186,10 @@ class ProfilePageLayout(Gtk.VBox):
         box.pack_end(defaults, False, False, 0)
         self.pack_end(box, False, False, 0)
         self.show_all()
+        if self.tabbed.get_active():
+            self.scrolled.set_visible(False)
+            for row in self.columns.rows:
+                row.hideable.set_visible(False)
 
     def get_valid_layout_groups(self, obj_type, current_groups):
         """
@@ -219,6 +228,10 @@ class ProfilePageLayout(Gtk.VBox):
         if self.config.get(option) != self.tabbed.get_active():
             self.revert.append((option, self.config.get(option)))
             self.config.set(option, self.tabbed.get_active())
+        option = "{}.scrolled".format(self.space)
+        if self.config.get(option) != self.scrolled.get_active():
+            self.revert.append((option, self.config.get(option)))
+            self.config.set(option, self.scrolled.get_active())
 
         columns = []
         for row in self.columns.rows:
@@ -253,6 +266,10 @@ class ProfilePageLayout(Gtk.VBox):
         option = "{}.tabbed".format(self.space)
         if self.config.get_default(option) != self.tabbed.get_active():
             self.revert.append((option, self.tabbed.get_active()))
+            self.config.set(option, self.config.get_default(option))
+        option = "{}.scrolled".format(self.space)
+        if self.config.get_default(option) != self.scrolled.get_active():
+            self.revert.append((option, self.scrolled.get_active()))
             self.config.set(option, self.config.get_default(option))
 
         columns = []
@@ -296,6 +313,20 @@ class ProfilePageLayout(Gtk.VBox):
             self.config.save()
             self.revert = []
             self.draw()
+
+    def toggle_mode(self, *obj):
+        """
+        Toggle option visibility based on mode.
+        """
+        if self.tabbed.get_active():
+            self.scrolled.set_visible(False)
+            for row in self.columns.rows:
+                row.hideable.set_visible(False)
+        else:
+            self.scrolled.set_visible(True)
+            for row in self.columns.rows:
+                row.hideable.set_visible(True)
+        self.tabbed.set_inconsistent(False)
 
 
 class ProfileColumnLayout(Gtk.ListBox):

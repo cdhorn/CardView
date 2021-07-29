@@ -96,6 +96,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.person.layout.tabbed", False),
+    ("options.person.layout.scrolled", False),
     ("options.person.layout.groups", "parent,timeline,citation,note,media,associations,spouse"),
     ("options.person.layout.parent.visible", True),
     ("options.person.layout.parent.stacked", False),
@@ -374,6 +375,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.family.layout.tabbed", False),
+    ("options.family.layout.scrolled", False),
     ("options.family.layout.groups", "child,timeline,citation,note,media"),
     ("options.family.layout.child.visible", True),
     ("options.family.layout.child.stacked", False),
@@ -538,6 +540,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.event.layout.tabbed", False),
+    ("options.event.layout.scrolled", False),
     ("options.event.layout.groups", "people,family,citation,note,media"),
     ("options.event.layout.people.visible", True),
     ("options.event.layout.people.stacked", False),
@@ -621,6 +624,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.source.layout.tabbed", False),
+    ("options.source.layout.scrolled", False),
     ("options.source.layout.groups", "repository,citation,note,people,event,media"),
     ("options.source.layout.repository.visible", True),
     ("options.source.layout.repository.stacked", False),
@@ -733,6 +737,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.citation.layout.tabbed", False),
+    ("options.citation.layout.scrolled", False),
     ("options.citation.layout.groups", "reference,note,media"),
     ("options.citation.layout.reference.visible", True),
     ("options.citation.layout.reference.stacked", False),
@@ -836,6 +841,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.repository.layout.tabbed", False),
+    ("options.repository.layout.scrolled", False),
     ("options.repository.layout.groups", "source,note"),
     ("options.repository.layout.source.visible", True),
     ("options.repository.layout.source.stacked", False),
@@ -868,6 +874,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.note.layout.tabbed", False),
+    ("options.note.layout.scrolled", False),
     ("options.note.layout.groups", "reference"),
     ("options.note.layout.reference.visible", True),
     ("options.note.layout.reference.stacked", False),
@@ -887,6 +894,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.media.layout.tabbed", False),
+    ("options.media.layout.scrolled", False),
     ("options.media.layout.groups", "citation,note,reference"),
     ("options.media.layout.citation.visible", True),
     ("options.media.layout.citation.stacked", False),
@@ -915,6 +923,7 @@ CONFIGSETTINGS = (
     ######################################################################
     # Layout Options
     ("options.place.layout.tabbed", False),
+    ("options.place.layout.scrolled", False),
     ("options.place.layout.groups", "citation,note,media,reference"),
     ("options.place.layout.citation.visible", True),
     ("options.place.layout.citation.stacked", False),
