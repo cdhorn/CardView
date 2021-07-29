@@ -147,7 +147,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             )
             action_menu.append(self._change_ref_privacy_option())
             action_menu.add(Gtk.SeparatorMenuItem())
-            label = Gtk.MenuItem(label=_("Child reference"))
+            label = Gtk.MenuItem(label=_("Person reference"))
             label.set_sensitive(False)
             action_menu.append(label)
             
