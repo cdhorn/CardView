@@ -162,9 +162,9 @@ class PersonGrampsFrame(GrampsFrame):
         have_death = False
         for event in event_cache:
             if event.get_type().xml_str() == "Birth":
-                have_birth = True
+                have_birth = event
             elif event.get_type().xml_str() == "Death":
-                have_death = True
+                have_death = event
 
         count = 1
         while count < 8:
@@ -204,6 +204,7 @@ class PersonGrampsFrame(GrampsFrame):
         """
         Find an event and load the data.
         """
+        show_age = self.option(self.context, "show-age")
         for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if skip_birth and have_birth:
@@ -212,7 +213,7 @@ class PersonGrampsFrame(GrampsFrame):
                 if skip_death and have_death:
                     if event_type in _DEATH_EQUIVALENTS:
                         return
-                self.add_event(event, extra=extra)
+                self.add_event(event, extra=extra, reference=have_birth, show_age=show_age)
                 if not show_all:
                     return
 
