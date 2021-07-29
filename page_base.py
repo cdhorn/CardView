@@ -128,7 +128,7 @@ class BaseProfilePage(Callback):
                 continue
             if not gbox:
                 gbox = Gtk.VBox(spacing=3)
-            gbox.pack_start(obj_groups[group], expand=True, fill=True, padding=0)
+            gbox.pack_start(obj_groups[group], expand=False, fill=True, padding=0)
             if not title:
                 title = LABELS[group]
             else:
@@ -136,17 +136,17 @@ class BaseProfilePage(Callback):
             if not self.config.get("{}.{}.stacked".format(space, group)):
                 label = Gtk.Label(label=title)
                 if scrolled:
-                    self.container.pack_start(self._scrolled(gbox), expand=True, fill=True, padding=0)
+                    self.container.pack_start(self._scrolled(gbox), expand=False, fill=True, padding=0)
                 else:
-                    self.container.pack_start(gbox, expand=True, fill=True, padding=0)
+                    self.container.pack_start(gbox, expand=False, fill=True, padding=0)
                 gbox = None
                 title = ""
         if gbox and title:
             label = Gtk.Label(label=title)
             if scrolled:
-                self.container.pack_start(self.scrolled(gbox), expand=True, fill=True, padding=0)
+                self.container.pack_start(self._scrolled(gbox), expand=True, fill=True, padding=0)
             else:
-                self.container.pack_start(gbox, expand=True, fill=True, padding=0)
+                self.container.pack_start(gbox, expand=False, fill=True, padding=0)
         return self.container
 
     def render_tabbed_group(self, obj_groups, space, groups):
