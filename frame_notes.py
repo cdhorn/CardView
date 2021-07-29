@@ -80,6 +80,7 @@ class NotesGrampsFrameGroup(GrampsFrameList):
                 note,
                 groups=groups,
             )
+            frame.set_size_request(220, -1)
             self.add_frame(frame)
         self.show_all()
 
