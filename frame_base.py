@@ -270,7 +270,8 @@ class GrampsFrameGroupExpander(Gtk.Expander):
         self.hidable = hidable
 
     def collapse(self, obj):
-        if self.get_expanded() and self.hidable:
-            child = self.get_child()
-            list(map(child.remove, child.get_children()))
-            self.grstate.router('remove-self', self)
+        if not self.grstate.config.get("{}.layout.tabbed".format(self.grstate.space)):
+            if self.get_expanded() and self.hidable:
+                child = self.get_child()
+                list(map(child.remove, child.get_children()))
+                self.grstate.router('remove-self', self)
