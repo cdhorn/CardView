@@ -45,7 +45,7 @@ from gramps.gui.widgets import StyledTextBuffer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
 try:
@@ -60,14 +60,14 @@ _ = _trans.gettext
 # NoteGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class NoteGrampsFrame(GrampsFrame):
+class NoteGrampsFrame(PrimaryGrampsFrame):
     """
     The NoteGrampsFrame exposes some of the basic facts about a Note.
     """
 
     def __init__(self, grstate, context, note, groups=None):
         self.text_view = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False)
-        GrampsFrame.__init__(self, grstate, context, note, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, note, groups=groups)
 
         preview_mode = self.option(context, "preview-mode")
         preview_lines = self.option(context, "preview-lines")

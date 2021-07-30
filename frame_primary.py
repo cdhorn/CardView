@@ -23,7 +23,7 @@
 #
 
 """
-GrampsFrame
+PrimaryGrampsFrame
 """
 
 # ------------------------------------------------------------------------
@@ -146,13 +146,13 @@ def button_activated(event, mouse_button):
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrame class
+# PrimaryGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class GrampsFrame(Gtk.VBox, GrampsConfig):
+class PrimaryGrampsFrame(Gtk.VBox, GrampsConfig):
     """
-    The GrampsFrame class provides core methods for constructing the view
-    and working with the primary Gramps object it exposes.
+    The PrimaryGrampsFrame class provides core methods for constructing the
+    view and working with the primary Gramps object it exposes.
     """
 
     def __init__(self, grstate, context, obj, obj_ref=None, vertical=True, groups=None):
@@ -926,7 +926,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 )
                 commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
                 with DbTxn(action, self.grstate.dbstate.db) as trans:
-                    if self.obj.citation_list.remove(old_citation.get_handle()):
+                    if self.obj.remove_citation_references([old_citation.get_handle()]):
                         commit_method(self.obj, trans)
 
     def _notes_option(self, obj, add_new_note, add_existing_note, remove_note, no_children=False):
@@ -1045,7 +1045,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 )
                 commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
                 with DbTxn(action, self.grstate.dbstate.db) as trans:
-                    if self.obj.note_list.remove(old_note.get_handle()):
+                    if self.obj.remove_note(old_note.get_handle()):
                         commit_method(self.obj, trans)
 
     def _tags_option(self):

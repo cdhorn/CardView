@@ -54,6 +54,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from frame_base import GrampsState, button_activated
 from frame_groups import (
+    get_addresses_group,
     get_associations_group,
     get_citations_group,
     get_media_group,
@@ -148,6 +149,8 @@ class PersonProfilePage(BaseProfilePage):
             obj_groups.update({"note": get_notes_group(grstate, person)})
         if "media" in groups:
             obj_groups.update({"media": get_media_group(grstate, person)})
+        if "address" in groups:
+            obj_groups.update({"address": get_addresses_group(grstate, person)})
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.person.page.pinned-header"):

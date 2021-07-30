@@ -67,7 +67,8 @@ LABELS = {
     "family": _("Families"),
     "child": _("Children"),
     "source": _("Sources"),
-    "association": _("Associations")
+    "association": _("Associations"),
+    "address": _("Addresses")
 }
 
 PAGES = [

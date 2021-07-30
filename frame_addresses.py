@@ -19,7 +19,7 @@
 #
 
 """
-PlaceGrampsFrame
+AddressesGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -36,7 +36,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.place import displayer as place_displayer
+from gramps.gen.db import DbTxn
 
 
 # ------------------------------------------------------------------------
@@ -44,51 +44,41 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_primary import PrimaryGrampsFrame
-from frame_utils import TextLink
-
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
+from frame_address import AddressGrampsFrame
+from frame_list import GrampsFrameList
+from frame_utils import get_gramps_object_type
 
 # ------------------------------------------------------------------------
 #
-# PlaceGrampsFrame Class
+# AddressesGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class PlaceGrampsFrame(PrimaryGrampsFrame):
+class AddressesGrampsFrameGroup(GrampsFrameList):
     """
-    The PlaceGrampsFrame exposes some of the basic facts about a Place.
+    The AddressesGrampsFrameGroup class provides a container for managing
+    all of the associations a person has with other people.
     """
 
-    def __init__(self, grstate, context, place, groups=None):
-        PrimaryGrampsFrame.__init__(self, grstate, context, place, groups=groups)
+    def __init__(self, grstate, obj):
+        GrampsFrameList.__init__(self, grstate)
+        self.obj = obj
+        self.obj_type, skip, skip = get_gramps_object_type(obj)
+        if not self.option("layout", "tabbed"):
+            self.hideable = self.option("layout.address", "hideable")
 
-        place_name = place_displayer.display(grstate.dbstate.db, place)
-        title = TextLink(
-            place_name, "Place", place.get_handle(), self.switch_object, bold=True
-        )
-        self.title.pack_start(title, True, False, 0)
+        groups = {
+            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        }
 
-        if place.get_type():
-            text = glocale.translation.sgettext(place.get_type().xml_str())
-            if text:
-                self.add_fact(self.make_label(text))
-            
-        if place.get_latitude():
-            text = "{}: {}".format(_("Latitude"), place.get_latitude())
-            self.add_fact(self.make_label(text))
-        if place.get_longitude():
-            text = "{}: {}".format(_("Longitude"), place.get_longitude())
-            self.add_fact(self.make_label(text))
+        for address in obj.get_address_list():
+            frame = AddressGrampsFrame(
+                grstate,
+                "address",
+                obj,
+                address,
+                groups=groups,
+            )
+            self.add_frame(frame)
+        self.show_all()
 
-        if place.get_code():
-            label = self.make_label(place.get_code(), left=False)
-            self.metadata.pack_start(label, False, False, 0)
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()

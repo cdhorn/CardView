@@ -35,7 +35,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import get_confidence, get_confidence_color_css, TextLink
 
 
@@ -56,13 +56,13 @@ CITATION_TYPES = {
 # CitationGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class CitationGrampsFrame(GrampsFrame):
+class CitationGrampsFrame(PrimaryGrampsFrame):
     """
     The CitationGrampsFrame exposes some of the basic facts about a Citation.
     """
 
     def __init__(self, grstate, context, citation, groups=None, reference=None):
-        GrampsFrame.__init__(self, grstate, "citation", citation, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, "citation", citation, groups=groups)
         source = grstate.dbstate.db.get_source_from_handle(citation.source_handle)
 
         if grstate.config.get("options.global.link-citation-title-to-source"):

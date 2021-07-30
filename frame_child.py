@@ -53,7 +53,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import _LEFT_BUTTON, _RIGHT_BUTTON, button_activated
+from frame_primary import _LEFT_BUTTON, _RIGHT_BUTTON, button_activated
 from frame_person import PersonGrampsFrame
 from frame_utils import (
     _GENDERS,

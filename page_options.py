@@ -97,7 +97,7 @@ CONFIGSETTINGS = (
     # Layout Options
     ("options.person.layout.tabbed", False),
     ("options.person.layout.scrolled", False),
-    ("options.person.layout.groups", "parent,timeline,citation,note,media,associations,spouse"),
+    ("options.person.layout.groups", "parent,timeline,citation,note,address,media,association,spouse"),
     ("options.person.layout.parent.visible", True),
     ("options.person.layout.parent.stacked", False),
     ("options.person.layout.parent.hideable", False),
@@ -116,6 +116,9 @@ CONFIGSETTINGS = (
     ("options.person.layout.note.visible", False),
     ("options.person.layout.note.stacked", False),
     ("options.person.layout.note.hideable", False),
+    ("options.person.layout.address.visible", False),
+    ("options.person.layout.address.stacked", False),
+    ("options.person.layout.address.hideable", False),
     ("options.person.layout.media.visible", False),
     ("options.person.layout.media.stacked", False),
     ("options.person.layout.media.hideable", False),

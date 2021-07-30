@@ -44,7 +44,7 @@ from gramps.gen.display.place import PlaceDisplay
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
 
@@ -68,13 +68,13 @@ pd = PlaceDisplay()
 # ImageGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class ImageGrampsFrame(GrampsFrame):
+class ImageGrampsFrame(PrimaryGrampsFrame):
     """
     The ImageGrampsFrame exposes the image and some facts about Media.
     """
 
     def __init__(self, grstate, context, media, groups=None):
-        GrampsFrame.__init__(self, grstate, context, media, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, media, groups=groups)
 
         title = TextLink(
             media.get_description(),

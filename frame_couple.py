@@ -44,7 +44,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_person import PersonGrampsFrame
 from frame_utils import get_family_color_css, get_key_family_events
 
@@ -60,7 +60,7 @@ _ = _trans.gettext
 # CoupleGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class CoupleGrampsFrame(GrampsFrame):
+class CoupleGrampsFrame(PrimaryGrampsFrame):
     """
     The CoupleGrampsFrame exposes some of the basic information about a Couple.
     """
@@ -75,7 +75,7 @@ class CoupleGrampsFrame(GrampsFrame):
         vertical=True,
         groups=None,
     ):
-        GrampsFrame.__init__(self, grstate, context, family, groups=groups, vertical=vertical)
+        PrimaryGrampsFrame.__init__(self, grstate, context, family, groups=groups, vertical=vertical)
         self.family = family
         self.parent = parent
         self.relation = relation

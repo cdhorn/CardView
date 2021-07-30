@@ -44,7 +44,8 @@ from gi.repository import Gtk, Gdk
 #
 # ------------------------------------------------------------------------
 from frame_base import GrampsConfig
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
+from frame_secondary import SecondaryGrampsFrame
 
 
 # ------------------------------------------------------------------------
@@ -79,9 +80,12 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         Add a GrampsFrame object.
         """
-        if isinstance(gramps_frame, GrampsFrame):
+        if isinstance(gramps_frame, PrimaryGrampsFrame) or isinstance(gramps_frame, SecondaryGrampsFrame):
             if self.managed_obj_type is None and self.dnd_type is None:
-                self.managed_obj_type = gramps_frame.obj_type
+                if hasattr(gramps_frame, "obj_type"):
+                    self.managed_obj_type = gramps_frame.obj_type
+                else:
+                    self.managed_obj_type = gramps_frame.secondary_type
                 self.dnd_type = gramps_frame.dnd_type
                 self.drag_dest_set(
                     Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,

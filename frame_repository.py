@@ -35,7 +35,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
 
@@ -51,13 +51,13 @@ _ = _trans.gettext
 # RepositoryGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class RepositoryGrampsFrame(GrampsFrame):
+class RepositoryGrampsFrame(PrimaryGrampsFrame):
     """
     The RepositoryGrampsFrame exposes some of the basic facts about a Repository.
     """
 
     def __init__(self, grstate, context, repository, repo_ref=None, groups=None):
-        GrampsFrame.__init__(self, grstate, context, repository, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, repository, groups=groups)
 
         title = TextLink(
             repository.name, "Repository", repository.get_handle(), self.switch_object, bold=True

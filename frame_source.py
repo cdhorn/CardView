@@ -27,7 +27,7 @@ SourceGrampsFrame.
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
 
@@ -36,13 +36,13 @@ from frame_utils import TextLink
 # SourceGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class SourceGrampsFrame(GrampsFrame):
+class SourceGrampsFrame(PrimaryGrampsFrame):
     """
     The SourceGrampsFrame exposes some of the basic facts about a Source.
     """
 
     def __init__(self, grstate, context, source, groups=None):
-        GrampsFrame.__init__(self, grstate, context, source, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, source, groups=groups)
 
         title = TextLink(
             source.title, "Source", source.get_handle(), self.switch_object, bold=True

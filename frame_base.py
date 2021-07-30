@@ -138,7 +138,7 @@ class GrampsConfig:
         except AttributeError:
             return False
 
-    def make_label(self, text, left=True):
+    def make_label(self, data, left=True):
         """
         Simple helper to prepare a label.
         """
@@ -154,8 +154,21 @@ class GrampsConfig:
                 halign=Gtk.Align.END,
                 wrap=True,
             )
+        text = data or ""
         label.set_markup(self.markup.format(escape(text)))
         return label
+
+    def get_labels(self, text1, text2, left=True, group1=None, group2=None):
+        """
+        Simple helper to prepare two labels.
+        """
+        label1 = self.make_label(text1, left=left)
+        if group1:
+            group1.add_widget(label1)
+        label2 = self.make_label(text2, left=left)
+        if group2:
+            group2.add_widget(label2)
+        return label1, label2
 
     def confirm_action(self, title, message):
         """

@@ -65,7 +65,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import GrampsFrame
+from frame_primary import PrimaryGrampsFrame
 from frame_utils import (
     _GENDERS,
     format_date_string,
@@ -90,7 +90,7 @@ _DEATH_EQUIVALENTS = ["Burial", "Cremation", "Probate"]
 # PersonGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class PersonGrampsFrame(GrampsFrame):
+class PersonGrampsFrame(PrimaryGrampsFrame):
     """
     The PersonGrampsFrame exposes some of the basic facts about a Person.
     """
@@ -106,7 +106,7 @@ class PersonGrampsFrame(GrampsFrame):
         groups=None,
         family_backlink=None,
     ):
-        GrampsFrame.__init__(self, grstate, context, person, obj_ref=obj_ref, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, person, obj_ref=obj_ref, groups=groups)
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink

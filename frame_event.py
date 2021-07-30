@@ -52,7 +52,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_class import _EDITORS, GrampsFrame
+from frame_primary import _EDITORS, PrimaryGrampsFrame
 from frame_utils import (
     get_confidence,
     get_confidence_color_css,
@@ -77,7 +77,7 @@ _ = _trans.gettext
 # EventGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class EventGrampsFrame(GrampsFrame):
+class EventGrampsFrame(PrimaryGrampsFrame):
     """
     The EventGrampsFrame exposes some of the basic facts about an Event.
     """
@@ -95,7 +95,7 @@ class EventGrampsFrame(GrampsFrame):
         category=None,
         groups=None,
     ):
-        GrampsFrame.__init__(self, grstate, context, event, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, context, event, groups=groups)
         self.event = event
         self.event_ref = event_ref
         self.event_category = category

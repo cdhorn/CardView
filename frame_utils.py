@@ -49,12 +49,14 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
+    Address,
     AttributeType,
     Citation,
     Event,
     EventType,
     Family,
     Media,
+    Name,
     Note,
     Person,
     Place,
@@ -144,7 +146,7 @@ TIMELINE_COLOR_MODES = [
 
 def get_gramps_object_type(obj):
     """
-    Return information for a primary Gramps object.
+    Return information for primary and some secondary Gramps objects.
     """
     if isinstance(obj, Person):
         return "Person", DdTargets.PERSON_LINK, 'gramps-person'
@@ -164,6 +166,14 @@ def get_gramps_object_type(obj):
         return "Media", DdTargets.MEDIAOBJ, 'gramps-media'
     if isinstance(obj, Repository):
         return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
+    if isinstance(obj, Address):
+        return "Address", DdTargets.ADDRESS, 'gramps-address'
+    if isinstance(obj, Name):
+        return "Name", DdTargets.NAME, 'gramps-person'
+    if isinstance(obj, ChildRef):
+        return "ChildRef", DdTargets.CHILDREF, 'stock_link'
+    if isinstance(obj, PersonRef):
+        return "PersonRef", DdTargets.PERSONREF, 'stock_link'
 
 def format_date_string(event1, event2):
     """
