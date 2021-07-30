@@ -186,6 +186,9 @@ class BaseProfilePage(Callback):
                 container.append_page(self._scrolled(obox), tab_label=label)
                 sbox = None
                 title = ""
+        if obox and title:
+            label = Gtk.Label(label=title)
+            container.append_page(self._scrolled(obox), tab_label=label)
         return container
 
     def _scrolled(self, widget):
