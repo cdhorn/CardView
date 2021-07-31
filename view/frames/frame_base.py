@@ -50,10 +50,9 @@ from gi.repository import Gtk, Gdk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gui.editors import (
-    EditAddress,
     EditCitation,
-    EditName,
     EditNote,
 )
 from gramps.gen.errors import WindowActiveError
@@ -71,9 +70,15 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsConfig
+from .frame_classes import GrampsConfig, GrampsObject
 from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_utils import button_activated, get_gramps_object_type
+from .frame_utils import (
+    button_activated,
+    citation_option_text,
+    menu_item,
+    note_option_text,
+    submenu_item
+)
 from ..pages.page_layout import ProfileViewLayout
 
 _ = glocale.translation.sgettext
@@ -90,74 +95,109 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary and secondary Gramps objects it helps expose.
     """
 
-    def __init__(self, grstate, context, primary_obj, secondary_obj=None, groups=None):
+    def __init__(
+        self, grstate, context, primary_obj, secondary_obj=None
+    ):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate)
         self.context = context
-        self.primary_obj = primary_obj
-        self.primary_type, skip1, skip2 = get_gramps_object_type(primary_obj)
-        self.secondary_obj = secondary_obj
-        self.secondary_type, self.dnd_type, self.dnd_icon = get_gramps_object_type(secondary_obj)
+        self.primary = GrampsObject(primary_obj)
+        self.focus = self.primary
+        self.has_reference = False
+        self.secondary = None
+        if secondary_obj:
+            self.secondary = GrampsObject(secondary_obj)
+            if self.secondary.is_reference:
+                self.has_reference = True
+            else:
+                self.focus = self.secondary
         self.dnd_drop_targets = []
-        self.obj_type_lang = glocale.translation.sgettext(self.secondary_type)
         self.action_menu = None
 
         self.eventbox = Gtk.EventBox()
-        self.eventbox.connect("button-press-event", self.route_action)        
+        self.eventbox.connect("button-press-event", self.route_action)
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.facts_grid = Gtk.Grid(row_spacing=2, column_spacing=6, halign=Gtk.Align.START, hexpand=False)
+        self.facts_grid = Gtk.Grid(
+            row_spacing=2,
+            column_spacing=6,
+            halign=Gtk.Align.START,
+            hexpand=False,
+        )
         self.facts_row = 0
-        
 
     def enable_drag(self):
         """
         Enable self as a drag source.
         """
         if self.eventbox:
-            self.eventbox.drag_source_set(Gdk.ModifierType.BUTTON1_MASK,
-                                          [], Gdk.DragAction.COPY)
+            self.eventbox.drag_source_set(
+                Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.COPY
+            )
             target_list = Gtk.TargetList.new([])
-            target_list.add(self.dnd_type.atom_drag_type,
-                            self.dnd_type.target_flags,
-                            self.dnd_type.app_id)
+            target_list.add(
+                self.focus.dnd_type.atom_drag_type,
+                self.focus.dnd_type.target_flags,
+                self.focus.dnd_type.app_id,
+            )
             self.eventbox.drag_source_set_target_list(target_list)
-            self.eventbox.drag_source_set_icon_name(self.dnd_icon)
-            self.eventbox.connect('drag_data_get', self.drag_data_get)
+            self.eventbox.drag_source_set_icon_name(self.focus.dnd_icon)
+            self.eventbox.connect("drag_data_get", self.drag_data_get)
 
-    def drag_data_get(self, widget, context, sel_data, info, time):
+    def drag_data_get(
+        self, _dummy_widget, _dummy_context, data, info, _dummy_time
+    ):
         """
         Return requested data.
         """
-        if info == self.dnd_type.app_id:
-            data = (self.dnd_type.drag_type, id(self), self.obj.get_handle(), 0)
-            sel_data.set(self.dnd_type.atom_drag_type, 8, pickle.dumps(data))
+        if info == self.focus.dnd_type.app_id:
+            returned_data = (
+                self.focus.dnd_type.drag_type,
+                id(self),
+                self.focus.obj.get_handle(),
+                0,
+            )
+            data.set(
+                self.focus.dnd_type.atom_drag_type,
+                8,
+                pickle.dumps(returned_data),
+            )
 
     def enable_drop(self):
         """
-        Enable self as a drop target.
+        Enable self as a basic drop target, override in derived classes as
+        needed.
         """
         if self.eventbox:
             self.dnd_drop_targets.append(DdTargets.URI_LIST.target())
             for target in DdTargets.all_text_targets():
                 self.dnd_drop_targets.append(target)
-            self.dnd_drop_targets.append(Gtk.TargetEntry.new('text/html', 0, 7))
-            self.dnd_drop_targets.append(Gtk.TargetEntry.new('URL', 0, 8))
+            self.dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+            self.dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
             self.dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
             self.dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
             self.eventbox.drag_dest_set(
-                Gtk.DestDefaults.ALL,
-                self.dnd_drop_targets,
-                Gdk.DragAction.COPY
+                Gtk.DestDefaults.ALL, self.dnd_drop_targets, Gdk.DragAction.COPY
             )
-            self.eventbox.connect("drag-data-received", self.on_drag_data_received)
+            self.eventbox.connect("drag-data-received", self.drag_data_received)
 
-    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
+    def drag_data_received(
+        self,
+        _dummy_widget,
+        _dummy_context,
+        _dummy_x,
+        _dummy_y,
+        data,
+        _dummy_info,
+        _dummy_time,
+    ):
         """
-        Handle dropped data.
+        Handle dropped data, override in derived classes as needed.
         """
         if data and data.get_data():
             try:
-                dnd_type, obj_id, obj_handle, skip = pickle.loads(data.get_data())
+                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
+                    data.get_data()
+                )
             except pickle.UnpicklingError:
                 return self.dropped_text(data.get_data().decode("utf-8"))
             if id(self) == obj_id:
@@ -171,22 +211,16 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data:
-            if hasattr(self.secondary_obj, "note_list"):
+        added_urls = 0
+        if hasattr(self.focus.obj, "urls"):
+            links = re.findall(r"(?P<url>https?://[^\s]+)", data)
+            if links:
+                for link in links:
+                    self.add_url(None, path=link)
+                    added_urls = added_urls + len(link)
+        if not added_urls or (len(data) > (2 * added_urls)):
+            if hasattr(self.focus.obj, "note_list"):
                 self.add_new_note(None, content=data)
-
-    def add_fact(self, fact, label=None, row=None, column=0, stop=1):
-        """
-        Add a simple fact.
-        """
-        row_number = row or self.facts_row
-        if label:
-            self.facts_grid.attach(label, column, row_number, stop, 1)
-            self.facts_grid.attach(fact, column + 1, row_number, stop, 1)
-        else:
-            self.facts_grid.attach(fact, column, row_number, stop + 1, 1)
-        if row is None:
-            self.facts_row = self.facts_row + 1
 
     def route_action(self, obj, event):
         """
@@ -198,98 +232,67 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             else:
                 self.build_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(None, None, self.primary_type, self.primary_obj.get_handle())
+            self.switch_object(
+                None, None, self.focus.obj_type, self.focus.obj.get_handle()
+            )
 
     def layout_editor(self):
         """
         Launch page layout editor.
         """
         try:
-            ProfileViewLayout(self.grstate.uistate, self.grstate.config, self.primary_type)
+            ProfileViewLayout(
+                self.grstate.uistate, self.grstate.config, self.primary_type
+            )
         except WindowActiveError:
             pass
 
     def build_action_menu(self, obj, event):
         """
-        Build the action menu for a right click. First action will always be edit,
-        then any custom actions of the derived children, then the global actions
-        supported for all objects enabled for them.
-        """
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            self.action_menu = Gtk.Menu()
-            self.action_menu.append(self._edit_secondary_object_option())
-            self.add_custom_actions()
-            if hasattr(self.secondary_obj, "citation_list"):
-                self.action_menu.append(
-                    self._citations_option(
-                        self.secondary_obj, self.add_new_citation, self.add_existing_citation, self.remove_citation
-                    )
-                )
-            if hasattr(self.secondary_obj, "note_list"):
-                self.action_menu.append(
-                    self._notes_option(
-                        self.secondary_obj, self.add_new_note, self.add_existing_note, self.remove_note
-                    )
-                )
-            self.action_menu.append(self._change_privacy_option())
-            self.action_menu.show_all()
-            if Gtk.get_minor_version() >= 22:
-                self.action_menu.popup_at_pointer(event)
-            else:
-                self.action_menu.popup(None, None, None, None, event.button, event.time)
-
-    def add_custom_actions(self):
-        """
-        For derived objects to inject their own actions into the menu.
+        Build the action menu for a right click, should be defined in
+        derived classes.
         """
 
-    def _menu_item(self, icon, label, callback, data1=None, data2=None):
-        """
-        Helper for constructing a menu item.
-        """
-        image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
-        if data2 is not None:
-            item.connect("activate", callback, data1, data2)
-        elif data1 is not None:
-            item.connect("activate", callback, data1)
-        else:
-            item.connect("activate", callback)
-        return item
-
-    def _submenu_item(self, icon, label, menu):
-        """
-        Helper for constructing a submenu item.
-        """
-        image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
-        item.set_submenu(menu)
-        return item
-
-    def _edit_secondary_object_option(self):
+    def _edit_object_option(self):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), self.secondary_type.lower())
-        return self._menu_item("gtk-edit", name, self.edit_secondary_object)
+        if self.secondary:
+            name = "{} {}".format(_("Edit"), self.secondary.obj_lang.lower())
+            return menu_item("gtk-edit", name, self.edit_secondary_object)
+        if self.primary.obj_type == "Person":
+            name = "{} {}".format(
+                _("Edit"), name_displayer.display(self.primary.obj)
+            )
+        else:
+            name = "{} {}".format(_("Edit"), self.primary.obj_lang.lower())
+        return menu_item("gtk-edit", name, self.edit_primary_object)
 
-    def edit_primary_object(self, skip=None, obj=None, obj_type=None):
+    def edit_primary_object(self, _dummy_var1=None, obj=None, obj_type=None):
         """
-        Launch the desired editor based on object type defaulting to the managed object.
+        Launch the desired editor for a primary object.
         """
-        obj = obj or self.primary_obj
-        obj_type = obj_type or self.primary_type
+        obj = obj or self.primary.obj
+        obj_type = obj_type or self.primary.obj_type
         try:
-            _EDITORS[obj_type](self.grstate.dbstate, self.grstate.uistate, [], obj)
+            _EDITORS[obj_type](
+                self.grstate.dbstate, self.grstate.uistate, [], obj
+            )
         except WindowActiveError:
             pass
 
-    def edit_secondary_object(self, skip=None):
+    def edit_secondary_object(self, _dummy_var1=None):
         """
-        Launch the desired editor based on object type defaulting to the managed object.
+        Launch the desired editor for a secondary object.
         """
         try:
-            _EDITORS[self.secondary_type](self.grstate.dbstate, self.grstate.uistate, [], self.secondary_obj, self.save_object)
+            _EDITORS[self.secondary.obj_type](
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.secondary.obj,
+                self.save_object,
+            )
         except WindowActiveError:
             pass
 
@@ -301,64 +304,105 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return
         action = "{} {} {} {} {}".format(
             _("Edited"),
-            glocale.translation.sgettext(self.secondary_type),
+            self.secondary.obj_lang,
             _("for"),
-            glocale.translation.sgettext(self.primary_type),
-            self.primary_obj.get_gramps_id()
+            self.primary.obj_lang,
+            self.primary.obj.get_gramps_id(),
         )
         if action_text:
             action = action_text
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.primary_type)
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.primary.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            commit_method(self.primary_obj, trans)
+            commit_method(self.primary.obj, trans)
 
-    def _citations_option(self, obj, add_new_citation, add_existing_citation, remove_citation):
+    def _commit_message(self, action, obj_type, obj, preposition):
+        """
+        Construct a commit message string.
+        """
+        if self.secondary:
+            return "{} {} {} {} {} {} {} {}".format(
+                action,
+                obj_type,
+                obj.get_gramps_id(),
+                preposition,
+                self.secondary.obj_lang,
+                _("for"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+        return "{} {} {} {} {} {}".format(
+            action,
+            obj_type,
+            obj.get_gramps_id(),
+            preposition,
+            self.primary.obj_lang,
+            self.primary.obj.get_gramps_id(),
+        )
+
+    def _citations_option(
+        self, obj, add_new_citation, add_existing_citation, remove_citation
+    ):
         """
         Build the citations submenu.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("list-add", _("Add a new citation"), add_new_citation))
-        menu.add(self._menu_item("list-add", _("Add an existing citation"), add_existing_citation))
+        menu.add(
+            menu_item(
+                "list-add", _("Add a new citation"), add_new_citation
+            )
+        )
+        menu.add(
+            menu_item(
+                "list-add", _("Add an existing citation"), add_existing_citation
+            )
+        )
         if len(obj.get_citation_list()) > 0:
             removemenu = Gtk.Menu()
-            menu.add(self._submenu_item("gramps-citation", _("Remove a citation"), removemenu))
+            menu.add(
+                submenu_item(
+                    "gramps-citation", _("Remove a citation"), removemenu
+                )
+            )
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             citation_list = []
             for handle in obj.get_citation_list():
-                citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
-                text = self._citation_option_text(citation)
+                citation = self.grstate.dbstate.db.get_citation_from_handle(
+                    handle
+                )
+                text = citation_option_text(self.grstate.dbstate.db, citation)
                 citation_list.append((text, citation))
             citation_list.sort(key=lambda x: x[0])
             for text, citation in citation_list:
-                removemenu.add(self._menu_item("list-remove", text, remove_citation, citation))
-                menu.add(self._menu_item("gramps-citation", text, self.edit_citation, citation))
-        return self._submenu_item("gramps-citation", _("Citations"), menu)
+                removemenu.add(
+                    menu_item(
+                        "list-remove", text, remove_citation, citation
+                    )
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-citation", text, self.edit_citation, citation
+                    )
+                )
+        return submenu_item("gramps-citation", _("Citations"), menu)
 
-    def _citation_option_text(self, citation):
-        """
-        Helper to build citation description string.
-        """
-        if citation.source_handle:
-            source = self.grstate.dbstate.db.get_source_from_handle(citation.source_handle)
-            if source.get_title():
-                text = source.get_title()
-            else:
-                text = "[{}]".format(_("Missing Source"))
-        if citation.page:
-            text = "{}: {}".format(text, citation.page)
-        else:
-            text = "{}: [{}]".format(text, _("Missing Page"))
-        return text
-
-    def add_new_citation(self, obj):
+    def add_new_citation(self, _dummy_obj):
         """
         Add a new citation.
         """
         citation = Citation()
         source = Source()
         try:
-            EditCitation(self.grstate.dbstate, self.grstate.uistate, [], citation, source, self.added_citation)
+            EditCitation(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                citation,
+                source,
+                self.added_citation,
+            )
         except WindowActiveError:
             pass
 
@@ -366,125 +410,147 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.secondary_obj.add_citation(handle):
+        if handle and self.focus.obj.add_citation(handle):
             citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
-            action = "{} {} {} {} {} {} {}".format(
-                _("Added Citation"),
-                citation.get_gramps_id(),
-                _("to"),
-                glocale.translation.sgettext(self.secondary_type),
-                _("for"),
-                glocale.translation.sgettext(self.primary_type),
-                self.primary_obj.get_gramps_id()
+            action = self._commit_message(
+                _("Added"), _("Citation"), citation, _("to")
             )
-            self.save_object(self.secondary_obj, action_text=action)
+            self.save_object(self.focus.obj, action_text=action)
 
-    def add_existing_citation(self, obj):
+    def add_existing_citation(self, _dummy_obj):
         """
         Add an existing citation.
         """
-        select_citation = SelectorFactory('Citation')
-        selector = select_citation(self.grstate.dbstate, self.grstate.uistate, [])
+        select_citation = SelectorFactory("Citation")
+        selector = select_citation(
+            self.grstate.dbstate, self.grstate.uistate, []
+        )
         selection = selector.run()
         if selection:
             if isinstance(selection, Source):
                 try:
-                    EditCitation(self.grstate.dbstate, self.grstate.uistate, [],
-                                 Citation(), selection,
-                                 callback=self.added_citation)
+                    EditCitation(
+                        self.grstate.dbstate,
+                        self.grstate.uistate,
+                        [],
+                        Citation(),
+                        selection,
+                        callback=self.added_citation,
+                    )
                 except WindowActiveError:
                     pass
             elif isinstance(selection, Citation):
                 try:
-                    EditCitation(self.grstate.dbstate, self.grstate.uistate, [],
-                                 selection, callback=self.added_citation)
+                    EditCitation(
+                        self.grstate.dbstate,
+                        self.grstate.uistate,
+                        [],
+                        selection,
+                        callback=self.added_citation,
+                    )
                 except WindowActiveError:
                     pass
             else:
                 raise ValueError("Selection must be either source or citation")
 
-    def edit_citation(self, obj, citation):
+    def edit_citation(self, _dummy_obj, citation):
         """
         Edit a citation.
         """
         self.edit_primary_object(None, citation, "Citation")
 
-    def remove_citation(self, obj, old_citation):
+    def remove_citation(self, _dummy_obj, citation):
         """
         Remove the given citation from the current object.
         """
-        if not old_citation:
+        if not citation:
             return
-        text = self._citation_option_text(old_citation)
-        prefix = _("You are about to remove the following citation from this object:")
-        extra = _("Note this only removes the reference and does not delete the actual citation. " \
-                  "The citation could be added back unless permanently deleted elsewhere.")
+        text = citation_option_text(self.grstate.dbstate.db, citation)
+        prefix = _(
+            "You are about to remove the following citation from this object:"
+        )
+        extra = _(
+            "This removes the reference but does not delete the citation."
+        )
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
+            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {} {}".format(
-                _("Removed Citation"),
-                old_citation.get_gramps_id(),
-                _("from"),
-                glocale.translation.sgettext(self.secondary_type),
-                _("for"),
-                glocale.translation.sgettext(self.primary_type),
-                self.primary_obj.get_gramps_id()
+            action = self._commit_message(
+                _("Removed"), _("Citation"), citation, _("from")
             )
-            commit_method = self.grstate.dbstate.db.method("commit_%s", self.primary_type)
+            commit_method = self.grstate.dbstate.db.method(
+                "commit_%s", self.primary.obj_type
+            )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.secondary_obj.remove_citation_references([old_citation.get_handle()])
-                commit_method(self.primary_obj, trans)
+                self.focus.obj.remove_citation_references(
+                    [citation.get_handle()]
+                )
+                commit_method(self.primary.obj, trans)
 
-    def _notes_option(self, obj, add_new_note, add_existing_note, remove_note, no_children=False):
+    def _notes_option(
+        self,
+        obj,
+        add_new_note,
+        add_existing_note,
+        remove_note,
+        no_children=False,
+    ):
         """
         Build the notes submenu.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("list-add", _("Add a new note"), add_new_note))
-        menu.add(self._menu_item("list-add", _("Add an existing note"), add_existing_note))
+        menu.add(menu_item("list-add", _("Add a new note"), add_new_note))
+        menu.add(
+            menu_item(
+                "list-add", _("Add an existing note"), add_existing_note
+            )
+        )
         if len(obj.get_note_list()) > 0:
             removemenu = Gtk.Menu()
-            menu.add(self._submenu_item("gramps-notes", _("Remove a note"), removemenu))
+            menu.add(
+                submenu_item(
+                    "gramps-notes", _("Remove a note"), removemenu
+                )
+            )
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             note_list = []
             for handle in obj.get_note_list():
                 note = self.grstate.dbstate.db.get_note_from_handle(handle)
-                text = self._note_option_text(note)
+                text = note_option_text(note)
                 note_list.append((text, note))
             note_list.sort(key=lambda x: x[0])
             for text, note in note_list:
-                removemenu.add(self._menu_item("list-remove", text, remove_note, note))
-                menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
+                removemenu.add(
+                    menu_item("list-remove", text, remove_note, note)
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-notes", text, self.edit_note, note.handle
+                    )
+                )
         if self.option("page", "include-child-notes") and not no_children:
-                note_list = []
-                for child_obj in obj.get_note_child_list():
-                    for handle in child_obj.get_note_list():
-                        note = self.grstate.dbstate.db.get_note_from_handle(handle)
-                        text = self._note_option_text(note)
-                        note_list.append((text, note))
-                if len(note_list) > 0:
-                    menu.add(Gtk.SeparatorMenuItem())
-                    menu.add(Gtk.SeparatorMenuItem())
-                    note_list.sort(key=lambda x: x[0])
-                    for text, note in note_list:
-                        menu.add(self._menu_item("gramps-notes", text, self.edit_note, note.handle))
-        return self._submenu_item("gramps-notes", _("Notes"), menu)
+            note_list = []
+            for child_obj in obj.get_note_child_list():
+                for handle in child_obj.get_note_list():
+                    note = self.grstate.dbstate.db.get_note_from_handle(handle)
+                    text = note_option_text(note)
+                    note_list.append((text, note))
+            if len(note_list) > 0:
+                menu.add(Gtk.SeparatorMenuItem())
+                menu.add(Gtk.SeparatorMenuItem())
+                note_list.sort(key=lambda x: x[0])
+                for text, note in note_list:
+                    menu.add(
+                        menu_item(
+                            "gramps-notes", text, self.edit_note, note.handle
+                        )
+                    )
+        return submenu_item("gramps-notes", _("Notes"), menu)
 
-    def _note_option_text(self, note):
-        """
-        Helper to build note description string.
-        """
-        notetype = str(note.get_type())
-        text = note.get()[:50].replace('\n', ' ')
-        if len(text) > 40:
-            text = text[:40]+"..."
-        return "{}: {}".format(notetype, text)
-
-    def add_new_note(self, obj, content=None):
+    def add_new_note(self, _dummy_obj, content=None):
         """
         Add a new note.
         """
@@ -492,7 +558,13 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if content:
             note.set(content)
         try:
-            EditNote(self.grstate.dbstate, self.grstate.uistate, [], note, self.added_note)
+            EditNote(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                note,
+                self.added_note,
+            )
         except WindowActiveError:
             pass
 
@@ -500,93 +572,97 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary_obj.add_note(handle):
+        if handle and self.focus.obj.add_note(handle):
             note = self.grstate.dbstate.db.get_note_from_handle(handle)
-            action = "{} {} {} {} {} {} {}".format(
-                _("Added Note"),
-                note.get_gramps_id(),
-                _("to"),
-                glocale.translation.sgettext(self.secondary_type),
-                _("for"),
-                glocale.translation.sgettext(self.primary_type),
-                self.primary_obj.get_gramps_id()
-            )
-            self.save_object(self.secondary_obj, action_text=action)
+            action = self._commit_message(_("Added"), _("Note"), note, _("to"))
+            self.save_object(self.focus.obj, action_text=action)
 
-    def add_existing_note(self, obj):
+    def add_existing_note(self, _dummy_obj):
         """
         Add an existing note.
         """
-        select_note = SelectorFactory('Note')
+        select_note = SelectorFactory("Note")
         selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
         selection = selector.run()
         if selection:
             self.added_note(selection.handle)
 
-    def edit_note(self, obj, handle):
+    def edit_note(self, _dummy_obj, handle):
         """
         Edit a note.
         """
         note = self.grstate.dbstate.db.get_note_from_handle(handle)
         self.edit_primary_object(None, note, "Note")
 
-    def remove_note(self, obj, old_note):
+    def remove_note(self, _dummy_obj, note):
         """
         Remove the given note from the current object.
         """
-        if not old_note:
+        if not note:
             return
-        text = self._note_option_text(old_note)
-        prefix = _("You are about to remove the following note from this object:")
-        extra = _("Note this only removes the reference and does not delete the actual note. " \
-                  "The note could be added back unless permanently deleted elsewhere.")
+        text = note_option_text(note)
+        prefix = _(
+            "You are about to remove the following note from this object:"
+        )
+        extra = _(
+            "This removes the reference but does not delete the note."
+        )
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
+            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {} {}".format(
-                _("Removed Note"),
-                old_note.get_gramps_id(),
-                _("from"),
-                glocale.translation.sgettext(self.secondary_type),
-                _("for"),
-                glocale.translation.sgettext(self.primary_type),
-                self.primary_obj.get_gramps_id()
+            action = self._commit_message(
+                _("Removed"), _("Note"), note, _("from")
             )
-            commit_method = self.grstate.dbstate.db.method("commit_%s", self.primary_type)
+            commit_method = self.grstate.dbstate.db.method(
+                "commit_%s", self.primary.obj_type
+            )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.secondary_obj.remove_note(old_note.get_handle())
-                commit_method(self.primary_obj, trans)
+                self.focus.obj.remove_note(note.get_handle())
+                commit_method(self.primary.obj, trans)
 
     def _change_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary_obj.get_privacy():
-            return self._menu_item("gramps-unlock", _("Make public"), self.change_privacy, False)
-        return self._menu_item("gramps-lock", _("Make private"), self.change_privacy, True)
+        if self.focus.obj.get_privacy():
+            return menu_item(
+                "gramps-unlock", _("Make public"), self.change_privacy, False
+            )
+        return menu_item(
+            "gramps-lock", _("Make private"), self.change_privacy, True
+        )
 
-    def change_privacy(self, obj, mode):
+    def change_privacy(self, _dummy_obj, mode):
         """
         Update the privacy indicator for the current object.
         """
+        text = _("Public")
         if mode:
             text = _("Private")
+        if self.secondary:
+            action = "{} {} {} {} {} {}".format(
+                _("Made"),
+                self.secondary.obj_lang,
+                _("for"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+                text,
+            )
         else:
-            text = _("Public")
-        action = "{} {} {} {} {} {}".format(
-            _("Made"),
-            glocale.translation.sgettext(self.secondary_type),
-            _("for"),
-            glocale.translation.sgettext(self.primary_type),
-            self.primary_obj.get_gramps_id(),
-            text,
+            action = "{} {} {} {}".format(
+                _("Made"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+                text,
+            )
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.primary.obj_type
         )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.primary_type)
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.secondary_obj.set_privacy(mode)
-            commit_method(self.primary_obj, trans)
+            self.focus.obj.set_privacy(mode)
+            commit_method(self.primary.obj, trans)
 
     def set_css_style(self):
         """

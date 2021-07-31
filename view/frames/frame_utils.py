@@ -648,3 +648,64 @@ class LayoutEditorButton(Gtk.Button):
             ProfileViewLayout(self.uistate, self.config, self.obj_type)
         except WindowActiveError:
             pass
+
+
+def note_option_text(note):
+    """
+    Helper to build note description string.
+    """
+    notetype = str(note.get_type())
+    text = note.get()[:50].replace("\n", " ")
+    if len(text) > 40:
+        text = text[:40] + "..."
+    return "{}: {}".format(notetype, text)
+
+
+def citation_option_text(db, citation):
+    """
+    Helper to build citation description string.
+    """
+    if citation.source_handle:
+        source = db.get_source_from_handle(
+            citation.source_handle
+        )
+        if source.get_title():
+            text = source.get_title()
+        else:
+            text = "[{}]".format(_("Missing Source"))
+    if citation.page:
+        text = "{}: {}".format(text, citation.page)
+    else:
+        text = "{}: [{}]".format(text, _("Missing Page"))
+    return text
+
+
+def menu_item(icon, label, callback, data1=None, data2=None):
+    """
+    Helper for constructing a menu item.
+    """
+    image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
+    item = Gtk.ImageMenuItem(
+        always_show_image=True, image=image, label=label
+    )
+    if data2 is not None:
+        item.connect("activate", callback, data1, data2)
+    elif data1 is not None:
+        item.connect("activate", callback, data1)
+    else:
+        item.connect("activate", callback)
+    return item
+
+
+def submenu_item(icon, label, menu):
+    """
+    Helper for constructing a submenu item.
+    """
+    image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
+    item = Gtk.ImageMenuItem(
+        always_show_image=True, image=image, label=label
+    )
+    item.set_submenu(menu)
+    return item
+
+    

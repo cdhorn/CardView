@@ -19,7 +19,7 @@
 #
 
 """
-Module containing the profile view.
+Module containing the profile view objects.
 """
 
 __all__ = [

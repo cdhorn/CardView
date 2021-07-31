@@ -82,11 +82,19 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         if isinstance(gramps_frame, (PrimaryGrampsFrame, SecondaryGrampsFrame)):
             if self.managed_obj_type is None and self.dnd_type is None:
-                if hasattr(gramps_frame, "obj_type"):
-                    self.managed_obj_type = gramps_frame.obj_type
+                if hasattr(gramps_frame, "primary"):
+                    if gramps_frame.secondary:
+                        self.managed_obj_type = gramps_frame.secondary.obj_type
+                        self.dnd_type = gramps_frame.secondary.dnd_type
+                    else:
+                        self.managed_obj_type = gramps_frame.primary.obj_type
+                        self.dnd_type = gramps_frame.primary.dnd_type
                 else:
-                    self.managed_obj_type = gramps_frame.secondary_type
-                self.dnd_type = gramps_frame.dnd_type
+                    if hasattr(gramps_frame, "obj_type"):
+                        self.managed_obj_type = gramps_frame.obj_type
+                    else:
+                        self.managed_obj_type = gramps_frame.secondary_type
+                    self.dnd_type = gramps_frame.dnd_type
                 self.drag_dest_set(
                     Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
                     [self.dnd_type.target()],
