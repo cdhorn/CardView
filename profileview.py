@@ -44,19 +44,19 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
-from enavigationview import ENavigationView
 
-from frame_utils import get_config_option, save_config_option
-from page_options import CONFIGSETTINGS
-from page_person import PersonProfilePage
-from page_family import FamilyProfilePage
-from page_event import EventProfilePage
-from page_media import MediaProfilePage
-from page_note import NoteProfilePage
-from page_place import PlaceProfilePage
-from page_citation import CitationProfilePage
-from page_source import SourceProfilePage
-from page_repository import RepositoryProfilePage
+from enavigationview import ENavigationView
+from view.frames.frame_utils import get_config_option, save_config_option
+from view.pages.page_options import CONFIGSETTINGS
+from view.pages.page_person import PersonProfilePage
+from view.pages.page_family import FamilyProfilePage
+from view.pages.page_event import EventProfilePage
+from view.pages.page_media import MediaProfilePage
+from view.pages.page_note import NoteProfilePage
+from view.pages.page_place import PlaceProfilePage
+from view.pages.page_citation import CitationProfilePage
+from view.pages.page_source import SourceProfilePage
+from view.pages.page_repository import RepositoryProfilePage
 
 _ = glocale.translation.sgettext
 

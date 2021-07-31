@@ -6,11 +6,11 @@ This is still in a development phase as I toy around with it but far enough alon
 
 HOWEVER, be sure to backup your tree or even better use a copy of it if exploring the functionality.
 
-Note a number of the ini configuration file options have changed format a few times now.  If you have trouble and suspect that may be the cause it is best to remove the Relationships_profileview.ini and let it be recreated.
+Note a number of the ini configuration file options have changed format a few times now.  If you have trouble and suspect that may be the cause it is best to remove the `Relationships_profileview.ini` and let it be recreated.
 
 ## Installation
         
-As a Gramps plugin it can simply be installed by creating a plugin subdirectory ~/.gramps/gramps51/plugins/ProfileView and copying the files into place.
+As a Gramps plugin it can be installed by creating a plugin subdirectory `~/.gramps/gramps51/plugins/ProfileView` and copying or cloning the full contents of this repository into place.
 
 ## Usage Notes
 
