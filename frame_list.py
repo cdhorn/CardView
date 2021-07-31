@@ -80,7 +80,7 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         """
         Add a GrampsFrame object.
         """
-        if isinstance(gramps_frame, PrimaryGrampsFrame) or isinstance(gramps_frame, SecondaryGrampsFrame):
+        if isinstance(gramps_frame, (PrimaryGrampsFrame, SecondaryGrampsFrame)):
             if self.managed_obj_type is None and self.dnd_type is None:
                 if hasattr(gramps_frame, "obj_type"):
                     self.managed_obj_type = gramps_frame.obj_type
@@ -88,22 +88,33 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
                     self.managed_obj_type = gramps_frame.secondary_type
                 self.dnd_type = gramps_frame.dnd_type
                 self.drag_dest_set(
-                    Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,
+                    Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
                     [self.dnd_type.target()],
-                    Gdk.DragAction.COPY|Gdk.DragAction.MOVE
+                    Gdk.DragAction.COPY | Gdk.DragAction.MOVE,
                 )
             self.row_frames.append(gramps_frame)
             row = Gtk.ListBoxRow(selectable=False)
             row.add(self.row_frames[-1])
             self.add(row)
 
-    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
+    def on_drag_data_received(
+        self,
+        _dummy_widget,
+        _dummy_drag_context,
+        _dummy_x,
+        _dummy_y,
+        data,
+        _dummy_info,
+        _dummy_time,
+    ):
         """
         Extract the data and handle any required actions.
         """
         self.reset_dnd_css()
         if data and data.get_data():
-            dnd_type, obj_id, obj_handle, skip = pickle.loads(data.get_data())
+            dummy_dnd_type, dummy_obj_id, obj_handle, dummy_var1 = pickle.loads(
+                data.get_data()
+            )
             source_index = 0
             for frame in self.row_frames:
                 if frame.obj.get_handle() == obj_handle:
@@ -121,7 +132,9 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
                         self.row_frames.append(frame_moving)
                     elif self.row_current > source_index:
                         self.insert(row_moving, self.row_current - 1)
-                        self.row_frames.insert(self.row_current - 1, frame_moving)
+                        self.row_frames.insert(
+                            self.row_current - 1, frame_moving
+                        )
                     self.save_reordered_list()
                     break
                 source_index = source_index + 1
@@ -140,14 +153,16 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         Stub for derived objects to add an external object to the list.
         """
 
-    def on_drag_motion(self, widget, context, x, y, time):
+    def on_drag_motion(
+        self, _dummy_widget, _dummy_context, _dummy_x, y, _dummy_time
+    ):
         """
         Update the view while a user drag and drop is underway.
         """
         self.reset_dnd_css()
         current_row = self.get_row_at_y(y)
         allocation = current_row.get_allocation()
-        if y < allocation.y + allocation.height/2:
+        if y < allocation.y + allocation.height / 2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1
             if self.row_previous < 0:
@@ -159,17 +174,29 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
                 self.row_current = len(self) - 1
 
         if self.row_current == 0 and self.row_previous == 0:
-            self.row_current_provider = self.set_dnd_css(self.row_frames[self.row_current], top=True)
+            self.row_current_provider = self.set_dnd_css(
+                self.row_frames[self.row_current], top=True
+            )
         elif self.row_current == self.row_previous:
-            self.row_current_provider = self.set_dnd_css(self.row_frames[self.row_current], top=False)
+            self.row_current_provider = self.set_dnd_css(
+                self.row_frames[self.row_current], top=False
+            )
         elif self.row_current > self.row_previous:
-            self.row_previous_provider = self.set_dnd_css(self.row_frames[self.row_previous], top=False)
-            self.row_current_provider = self.set_dnd_css(self.row_frames[self.row_current], top=True)
+            self.row_previous_provider = self.set_dnd_css(
+                self.row_frames[self.row_previous], top=False
+            )
+            self.row_current_provider = self.set_dnd_css(
+                self.row_frames[self.row_current], top=True
+            )
         else:
-            self.row_previous_provider = self.set_dnd_css(self.row_frames[self.row_previous], top=True)
-            self.row_current_provider = self.set_dnd_css(self.row_frames[self.row_current], top=False)
+            self.row_previous_provider = self.set_dnd_css(
+                self.row_frames[self.row_previous], top=True
+            )
+            self.row_current_provider = self.set_dnd_css(
+                self.row_frames[self.row_current], top=False
+            )
 
-    def on_drag_leave(self, *obj):
+    def on_drag_leave(self, *_dummy_obj):
         """
         Reset custom CSS if drag no longer in focus.
         """
@@ -195,9 +222,13 @@ class GrampsFrameList(Gtk.ListBox, GrampsConfig):
         Set custom CSS for the drag and drop view.
         """
         if top:
-            css = ".frame { border-top-width: 3px; border-top-color: #4e9a06; }".encode("utf-8")
+            css = ".frame { border-top-width: 3px; border-top-color: #4e9a06; }".encode(
+                "utf-8"
+            )
         else:
-            css = ".frame { border-bottom-width: 3px; border-bottom-color: #4e9a06; }".encode("utf-8")
+            css = ".frame { border-bottom-width: 3px; border-bottom-color: #4e9a06; }".encode(
+                "utf-8"
+            )
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
         context = row.get_style_context()

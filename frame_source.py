@@ -42,10 +42,16 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, context, source, groups=None):
-        PrimaryGrampsFrame.__init__(self, grstate, context, source, groups=groups)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, source, groups=groups
+        )
 
         title = TextLink(
-            source.title, "Source", source.get_handle(), self.switch_object, bold=True
+            source.title,
+            "Source",
+            source.get_handle(),
+            self.switch_object,
+            bold=True,
         )
         self.title.pack_start(title, True, False, 0)
 

@@ -44,19 +44,15 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
-    EventType,
     Person,
     Family,
     Event,
     ChildRef,
     EventRef,
-    EventRoleType,
-    Name,
-    Surname,
 )
 from gramps.gen.utils.alive import probably_alive
-from gramps.gen.utils.db import family_name, preset_name
-from gramps.gui.editors import EditPerson, EditFamily, EditEventRef
+from gramps.gen.utils.db import family_name
+from gramps.gui.editors import EditFamily, EditEventRef
 from gramps.gui.selectors import SelectorFactory
 
 
@@ -68,8 +64,6 @@ from gramps.gui.selectors import SelectorFactory
 from frame_const import _BIRTH_EQUIVALENTS, _DEATH_EQUIVALENTS, _GENDERS
 from frame_primary import PrimaryGrampsFrame
 from frame_utils import (
-    format_date_string,
-    get_key_person_events,
     get_person_color_css,
     get_relation,
     TextLink,
@@ -99,7 +93,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         groups=None,
         family_backlink=None,
     ):
-        PrimaryGrampsFrame.__init__(self, grstate, context, person, obj_ref=obj_ref, groups=groups)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, person, obj_ref=obj_ref, groups=groups
+        )
         self.person = person
         self.relation = relation
         self.family_backlink = family_backlink
@@ -110,12 +106,19 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         display_name = name_displayer.display(person)
         if self.option("page", "enable_tooltips"):
             tooltip = "{} {} {}".format(
-                _("Click to view"), display_name, _("or right click to select edit.")
+                _("Click to view"),
+                display_name,
+                _("or right click to select edit."),
             )
         else:
             tooltip = None
         name = TextLink(
-            display_name, "Person", person.handle, self.switch_object, tooltip=tooltip, bold=True
+            display_name,
+            "Person",
+            person.handle,
+            self.switch_object,
+            tooltip=tooltip,
+            bold=True,
         )
         name_box = Gtk.HBox(spacing=2)
         if number:
@@ -124,17 +127,23 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             )
             name_box.pack_start(label, False, False, 0)
         if self.option(context, "sex-mode") == 1:
-            name_box.pack_start(Gtk.Label(label=_GENDERS[person.gender]), False, False, 0)
+            name_box.pack_start(
+                Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
+            )
         name_box.pack_start(name, False, False, 0)
         if self.option(context, "sex-mode") == 2:
-            name_box.pack_start(Gtk.Label(label=_GENDERS[person.gender]), False, False, 0)
+            name_box.pack_start(
+                Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
+            )
         self.title.pack_start(name_box, True, True, 0)
 
         self.living = probably_alive(person, grstate.dbstate.db)
 
         event_cache = []
         for event_ref in self.obj.get_primary_event_ref_list():
-            event_cache.append(grstate.dbstate.db.get_event_from_handle(event_ref.ref))
+            event_cache.append(
+                grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+            )
 
         self.load_fields(event_cache, "facts-field")
         if self.context == "active":
@@ -165,14 +174,14 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 self.context,
                 "{}-{}".format(field_type, count),
                 full=False,
-                keyed=True
+                keyed=True,
             )
             if option and option[0] != "None" and len(option) > 1 and option[1]:
                 if len(option) >= 3:
-                    if option[2] == "True":
-                        show_all = True
-                    else:
-                        show_all = False
+                    show_all = bool(option[2] == "True")
+#                        show_all = True
+#                    else:
+#                        show_all = False
                 if option[0] == "Event":
                     self.add_field_for_event(
                         event_cache,
@@ -182,18 +191,31 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                         skip_birth=skip_birth_alternates,
                         have_birth=have_birth,
                         skip_death=skip_death_alternates,
-                        have_death=have_death
+                        have_death=have_death,
                     )
                 elif option[0] == "Fact":
-                    self.add_field_for_fact(event_cache, option[1], extra=extra, show_all=show_all)
+                    self.add_field_for_fact(
+                        event_cache, option[1], extra=extra, show_all=show_all
+                    )
                 elif option[0] == "Attribute":
-                    self.add_field_for_attribute(option[1], extra=extra, show_all=show_all)
+                    self.add_field_for_attribute(
+                        option[1], extra=extra, show_all=show_all
+                    )
                 elif option[0] == "Relation":
                     self.add_field_for_relation(option[1], extra=extra)
             count = count + 1
 
-    def add_field_for_event(self, event_cache, event_type, extra=False, show_all=False,
-                            skip_birth=False, have_birth=None, skip_death=False, have_death=None):
+    def add_field_for_event(
+        self,
+        event_cache,
+        event_type,
+        extra=False,
+        show_all=False,
+        skip_birth=False,
+        have_birth=None,
+        skip_death=False,
+        have_death=None,
+    ):
         """
         Find an event and load the data.
         """
@@ -206,11 +228,15 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 if skip_death and have_death:
                     if event_type in _DEATH_EQUIVALENTS:
                         return
-                self.add_event(event, extra=extra, reference=have_birth, show_age=show_age)
+                self.add_event(
+                    event, extra=extra, reference=have_birth, show_age=show_age
+                )
                 if not show_all:
                     return
 
-    def add_field_for_fact(self, event_cache, event_type, extra=False, show_all=False):
+    def add_field_for_fact(
+        self, event_cache, event_type, extra=False, show_all=False
+    ):
         """
         Find an event and load the data.
         """
@@ -223,7 +249,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                     if not show_all:
                         return
 
-    def add_field_for_attribute(self, attribute_type, extra=False, show_all=False):
+    def add_field_for_attribute(
+        self, attribute_type, extra=False, show_all=False
+    ):
         """
         Find an attribute and load the data.
         """
@@ -245,7 +273,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             text = _("Home person")
         else:
             try:
-                relation = self.grstate.dbstate.db.get_person_from_handle(handle)
+                relation = self.grstate.dbstate.db.get_person_from_handle(
+                    handle
+                )
                 relationship = get_relation(
                     self.grstate.dbstate.db,
                     self.person,
@@ -270,7 +300,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if not self.option("page", "use-color-scheme"):
             return ""
 
-        return get_person_color_css(self.obj, self.grstate.config, living=self.living, home=self.relation)
+        return get_person_color_css(
+            self.obj,
+            living=self.living,
+            home=self.relation,
+        )
 
     def add_custom_actions(self):
         """
@@ -293,9 +327,13 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Build menu item for adding a new event for a person.
         """
-        return self._menu_item("gramps-event", _("Add a new person event"), self.add_new_person_event)
+        return self._menu_item(
+            "gramps-event",
+            _("Add a new person event"),
+            self.add_new_person_event,
+        )
 
-    def add_new_person_event(self, obj):
+    def add_new_person_event(self, _dummy_obj):
         """
         Add a new event for a person.
         """
@@ -304,12 +342,17 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         ref.ref = self.person.handle
         try:
             EditEventRef(
-                self.grstate.dbstate, self.grstate.uistate, [], event, ref, self.added_new_person_event
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                event,
+                ref,
+                self.added_new_person_event,
             )
         except WindowActiveError:
             pass
 
-    def added_new_person_event(self, reference, primary):
+    def added_new_person_event(self, reference, _dummy_primary):
         """
         Finish adding a new event for a person.
         """
@@ -319,7 +362,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             self.person.get_gramps_id(),
             _("to"),
             _("Event"),
-            event.get_gramps_id()
+            event.get_gramps_id(),
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             if self.person.add_event_ref(reference):
@@ -330,17 +373,37 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         Build menu option for managing parents.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("gramps-parents-add", _("Add a new set of parents"), self.add_new_parents))
-        menu.add(self._menu_item("gramps-parents-open", _("Add as child to an existing family"), self.add_existing_parents))
+        menu.add(
+            self._menu_item(
+                "gramps-parents-add",
+                _("Add a new set of parents"),
+                self.add_new_parents,
+            )
+        )
+        menu.add(
+            self._menu_item(
+                "gramps-parents-open",
+                _("Add as child to an existing family"),
+                self.add_existing_parents,
+            )
+        )
         if self.obj.parent_family_list:
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.parent_family_list:
                 family = self.grstate.dbstate.db.get_family_from_handle(handle)
                 family_text = family_name(family, self.grstate.dbstate.db)
-                menu.add(self._menu_item("gramps-parents", family_text, self.edit_object, family, "Family"))
+                menu.add(
+                    self._menu_item(
+                        "gramps-parents",
+                        family_text,
+                        self.edit_object,
+                        family,
+                        "Family",
+                    )
+                )
         return self._submenu_item("gramps-parents", _("Parents"), menu)
 
-    def add_new_parents(self, *obj):
+    def add_new_parents(self, *_dummy_obj):
         """
         Add new parents for the person.
         """
@@ -353,13 +416,15 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         except WindowActiveError:
             pass
 
-    def add_existing_parents(self, *obj):
+    def add_existing_parents(self, *_dummy_obj):
         """
         Add existing parents for the person.
         """
-        SelectFamily = SelectorFactory("Family")
+        select_family = SelectorFactory("Family")
         skip = set(self.person.get_family_handle_list())
-        dialog = SelectFamily(self.grstate.dbstate, self.grstate.uistate, skip=skip)
+        dialog = select_family(
+            self.grstate.dbstate, self.grstate.uistate, skip=skip
+        )
         family = dialog.run()
         if family:
             self.grstate.dbstate.db.add_child_to_family(family, self.person)
@@ -369,16 +434,30 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         Build menu option for managing partners.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("gramps-spouse", _("Add as parent of new family"), self.add_new_family))
+        menu.add(
+            self._menu_item(
+                "gramps-spouse",
+                _("Add as parent of new family"),
+                self.add_new_family,
+            )
+        )
         if self.obj.family_list:
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.obj.family_list:
                 family = self.grstate.dbstate.db.get_family_from_handle(handle)
                 family_text = family_name(family, self.grstate.dbstate.db)
-                menu.add(self._menu_item("gramps-spouse", family_text, self.edit_object, family, "Family"))
+                menu.add(
+                    self._menu_item(
+                        "gramps-spouse",
+                        family_text,
+                        self.edit_object,
+                        family,
+                        "Family",
+                    )
+                )
         return self._submenu_item("gramps-spouse", _("Spouses"), menu)
 
-    def add_new_family(self, *obj):
+    def add_new_family(self, *_dummy_obj):
         """
         Add person as head of a new family.
         """
@@ -392,7 +471,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         except WindowActiveError:
             pass
 
-    def _remove_as_parent_from_family_option(self, spouse=False):
+    def _remove_as_parent_from_family_option(self):
         """
         Build menu item for removing as parent from a family.
         """
@@ -405,13 +484,15 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         item.connect("activate", self.remove_as_parent_from_family)
         return item
 
-    def remove_as_parent_from_family(self, obj):
+    def remove_as_parent_from_family(self, _dummy_obj):
         """
         Remove a parent from a family.
         """
         if self.family_backlink:
             person_name = name_displayer.display(self.person)
-            family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
+            family = self.grstate.dbstate.db.get_family_from_handle(
+                self.family_backlink
+            )
             father_handle = family.get_father_handle()
             mother_handle = family.get_mother_handle()
             partner_handle = None
@@ -422,36 +503,53 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 if father_handle:
                     partner_handle = father_handle
             if partner_handle:
-                partner = self.grstate.dbstate.db.get_person_from_handle(partner_handle)
+                partner = self.grstate.dbstate.db.get_person_from_handle(
+                    partner_handle
+                )
                 partner_name = name_displayer.display(partner)
-                text = "You are about to remove {} as the partner of {} and a parent of this family.".format(person_name, partner_name)
+                text = "You are about to remove {} as the partner of {} " \
+                    "and a parent of this family.".format(
+                    person_name, partner_name
+                )
             else:
-                text = "You are about to remove {} as a parent of this family.".format(person_name)
+                text = "You are about to remove {} as a parent of this " \
+                    "family.".format(
+                    person_name
+                )
             if not self.confirm_action(
-                    "Warning",
-                    "{}\n\nAre you sure you want to continue?".format(text)
+                "Warning",
+                "{}\n\nAre you sure you want to continue?".format(text),
             ):
                 self.grstate.dbstate.db.remove_parent_from_family(
                     self.person.handle, self.family_backlink
                 )
- 
+
     def _remove_child_from_family_option(self):
         """
         Build menu item for removing child from a family.
         """
-        return self._menu_item("list-remove", _("Remove child from this family"), self.remove_child_from_family)
+        return self._menu_item(
+            "list-remove",
+            _("Remove child from this family"),
+            self.remove_child_from_family,
+        )
 
-    def remove_child_from_family(self, obj):
+    def remove_child_from_family(self, _dummy_obj):
         """
         Remove a child from the family.
         """
         if self.family_backlink:
             person_name = name_displayer.display(self.person)
-            family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
+            family = self.grstate.dbstate.db.get_family_from_handle(
+                self.family_backlink
+            )
             family_text = family_name(family, self.grstate.dbstate.db)
             if self.confirm_action(
-                    "Warning",
-                    "You are about to remove {} from the family of {}.\n\nAre you sure you want to continue?".format(person_name, family_text)
+                "Warning",
+                "You are about to remove {} from the family of {}.\n\n" \
+                "Are you sure you want to continue?".format(
+                    person_name, family_text
+                ),
             ):
                 self.grstate.dbstate.db.remove_child_from_family(
                     self.person.handle, self.family_backlink

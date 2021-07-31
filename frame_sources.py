@@ -36,7 +36,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 
 
 # ------------------------------------------------------------------------
@@ -65,7 +64,7 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
     def __init__(self, grstate, obj):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
-        self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
             self.hideable = self.option("layout.source", "hideable")
 
@@ -76,11 +75,18 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
         }
         sources_list = []
         if self.obj_type == "Repository":
-            for obj_type, obj_handle in grstate.dbstate.db.find_backlink_handles(self.obj.get_handle()):
+            for (
+                obj_type,
+                obj_handle,
+            ) in grstate.dbstate.db.find_backlink_handles(
+                self.obj.get_handle()
+            ):
                 if obj_type == "Source":
-                    source = self.grstate.dbstate.db.get_source_from_handle(obj_handle)
+                    source = self.grstate.dbstate.db.get_source_from_handle(
+                        obj_handle
+                    )
                     sources_list.append(source)
-        
+
         if sources_list:
             for source in sources_list:
                 frame = SourceGrampsFrame(
@@ -97,4 +103,3 @@ class SourcesGrampsFrameGroup(GrampsFrameList):
         """
         Add new source to the repository.
         """
-        pass

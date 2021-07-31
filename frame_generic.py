@@ -58,15 +58,15 @@ class GenericGrampsFrameGroup(GrampsFrameList):
     set of generic frames for a list of primary Gramps objects.
     """
 
-    def __init__(self, grstate, obj_type, obj_handles):
+    def __init__(self, grstate, frame_obj_type, frame_obj_handles):
         GrampsFrameList.__init__(self, grstate)
-        self.obj_type = obj_type
-        self.obj_handles = obj_handles
+        self.obj_type = frame_obj_type
+        self.obj_handles = frame_obj_handles
 
-        if obj_type == 'Tuples':
-            tuple_list = obj_handles
+        if frame_obj_type == "Tuples":
+            tuple_list = frame_obj_handles
         else:
-            tuple_list = [(obj_type, x) for x in obj_handles]
+            tuple_list = [(frame_obj_type, x) for x in frame_obj_handles]
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -92,7 +92,7 @@ class GenericGrampsFrameGroup(GrampsFrameList):
                     None,
                     None,
                     None,
-                    groups=groups
+                    groups=groups,
                 )
             elif obj_type == "Place":
                 obj = grstate.dbstate.db.get_place_from_handle(obj_handle)
@@ -108,7 +108,7 @@ class GenericGrampsFrameGroup(GrampsFrameList):
                 frame = SourceGrampsFrame(grstate, "source", obj)
             elif obj_type == "Citation":
                 obj = grstate.dbstate.db.get_citation_from_handle(obj_handle)
-                frame = SourceGrampsFrame(grstate, "citation", obj)
+                frame = CitationGrampsFrame(grstate, "citation", obj)
             elif obj_type == "Repository":
                 obj = grstate.dbstate.db.get_repository_from_handle(obj_handle)
                 frame = RepositoryGrampsFrame(grstate, "repository", obj)

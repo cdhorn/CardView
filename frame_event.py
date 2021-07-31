@@ -39,7 +39,12 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Event, EventRef, EventType, EventRoleType, Span, Person
+from gramps.gen.lib import (
+    EventRef,
+    EventRoleType,
+    Span,
+    Person,
+)
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
@@ -59,7 +64,6 @@ from frame_utils import (
     get_event_category_color_css,
     get_key_person_events,
     get_participants,
-    get_relation,
     get_person_color_css,
     get_relationship_color_css,
     TextLink,
@@ -91,7 +95,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         category=None,
         groups=None,
     ):
-        PrimaryGrampsFrame.__init__(self, grstate, context, event, groups=groups)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, event, groups=groups
+        )
         self.event = event
         self.event_ref = event_ref
         self.event_category = category
@@ -120,9 +126,15 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                         if birth.handle == event.handle:
                             text = "<b>{}</b>".format(year)
                         else:
-                            precision = global_config.get("preferences.age-display-precision")
-                            age = str(span.format(precision=precision).strip("()"))
-                            text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                            precision = global_config.get(
+                                "preferences.age-display-precision"
+                            )
+                            age = str(
+                                span.format(precision=precision).strip("()")
+                            )
+                            text = "<b>{}</b>\n{}".format(
+                                year, age.replace(", ", ",\n")
+                            )
                         label = Gtk.Label(
                             label=self.markup.format(text),
                             use_markup=True,
@@ -143,13 +155,21 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         participant_string = ""
 
         text = event_type
-        if (relation_to_reference not in ["self", "", None]):
-            text = "{} {} {}".format(event_type, _("of"), relation_to_reference.title())
+        if relation_to_reference not in ["self", "", None]:
+            text = "{} {} {}".format(
+                event_type, _("of"), relation_to_reference.title()
+            )
         elif role and not role.is_primary():
             participant_name = "Unknown"
             participant_handle = ""
-            participants, participant_string = get_participants(grstate.dbstate.db, event)
-            for participant_type, participant, participant_event_ref in participants:
+            participants, participant_string = get_participants(
+                grstate.dbstate.db, event
+            )
+            for (
+                dummy_var1,
+                participant,
+                participant_event_ref,
+            ) in participants:
                 if participant_event_ref.get_role().is_primary():
                     participant_name = name_displayer.display(participant)
                     participant_handle = participant.get_handle()
@@ -161,14 +181,13 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             event.get_handle(),
             self.switch_object,
             hexpand=True,
-            bold=True
+            bold=True,
         )
         self.title.pack_start(name, True, True, 0)
 
         if (
-                (role and not role.is_primary() and not role.is_family()) or
-                self.option(context, "show-role-always")
-        ):
+            role and not role.is_primary() and not role.is_family()
+        ) or self.option(context, "show-role-always"):
             self.add_fact(self.make_label(str(role)))
 
         date = glocale.date_displayer.display(event.date)
@@ -183,16 +202,24 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             text = event.get_description()
             if not text:
                 if event_person:
-                    text = "{} {} {}".format(event_type, _("of"), event_person_name)
+                    text = "{} {} {}".format(
+                        event_type, _("of"), event_person_name
+                    )
                 else:
                     text = "{}".format(event_type)
             self.add_fact(self.make_label(text))
 
         if self.option(context, "show-participants"):
             if not participants:
-                participants, participant_string = get_participants(grstate.dbstate.db, event)
+                participants, participant_string = get_participants(
+                    grstate.dbstate.db, event
+                )
             if participant_string and len(participants) > 1:
-                self.add_fact(self.make_label("Participants {}".format(participant_string)))
+                self.add_fact(
+                    self.make_label(
+                        "Participants {}".format(participant_string)
+                    )
+                )
 
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""
@@ -211,7 +238,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
-            
+
     def get_quality_labels(self):
         """
         Generate textual description for confidence, source and citation counts.
@@ -220,7 +247,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         citations = len(self.event.citation_list)
         if self.event.citation_list:
             for handle in self.event.citation_list:
-                citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
+                citation = self.grstate.dbstate.db.get_citation_from_handle(
+                    handle
+                )
                 if citation.source_handle not in sources:
                     sources.append(citation.source_handle)
                 if citation.confidence > self.confidence:
@@ -253,17 +282,25 @@ class EventGrampsFrame(PrimaryGrampsFrame):
 
         scheme = self.option(self.context, "color-scheme")
         if scheme == 1:
-            return get_relationship_color_css(self.relation_to_reference, self.grstate.config)
+            return get_relationship_color_css(
+                self.relation_to_reference, self.grstate.config
+            )
         if scheme == 2:
-            return get_event_category_color_css(self.event_category, self.grstate.config)
+            return get_event_category_color_css(
+                self.event_category, self.grstate.config
+            )
         if scheme == 3:
-            return get_confidence_color_css(self.confidence, self.grstate.config)
+            return get_confidence_color_css(
+                self.confidence, self.grstate.config
+            )
 
         if self.event_person:
             living = probably_alive(self.event_person, self.grstate.dbstate.db)
         else:
             living = False
-        return get_person_color_css(self.event_person, self.grstate.config, living=living)
+        return get_person_color_css(
+            self.event_person, living=living
+        )
 
     def add_custom_actions(self):
         """
@@ -271,7 +308,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         self.action_menu.append(self._participants_option())
 
-    def edit_self(self, *obj):
+    def edit_self(self, *_dummy_obj):
         """
         Launch the desired editor based on object type.
         """
@@ -282,17 +319,24 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 callback = self.update_person_event
             try:
                 EditEventRef(
-                    self.grstate.dbstate, self.grstate.uistate, [], self.event, self.event_ref, callback
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    self.event,
+                    self.event_ref,
+                    callback,
                 )
             except WindowActiveError:
                 pass
             return
         try:
-            _EDITORS[self.obj_type](self.grstate.dbstate, self.grstate.uistate, [], self.obj)
+            _EDITORS[self.obj_type](
+                self.grstate.dbstate, self.grstate.uistate, [], self.obj
+            )
         except WindowActiveError:
             pass
 
-    def update_person_event(self, event_ref, primary):
+    def update_person_event(self, event_ref, _dummy_var1):
         """
         Commit person to save an event reference update.
         """
@@ -302,12 +346,12 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             self.event_person.get_gramps_id(),
             _("Event"),
             event.get_gramps_id(),
-            _("Reference")
+            _("Reference"),
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.grstate.dbstate.db.commit_person(self.event_person, trans)
 
-    def update_family_event(self, event_ref, primary):
+    def update_family_event(self, event_ref, _dummy_var1):
         """
         Commit family to save an event reference update.
         """
@@ -317,7 +361,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             self.event_family.get_gramps_id(),
             _("Event"),
             event.get_gramps_id(),
-            _("Reference")
+            _("Reference"),
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.grstate.dbstate.db.commit_family(self.event_family, trans)
@@ -327,16 +371,38 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         Build participants option menu.
         """
         menu = Gtk.Menu()
-        menu.add(self._menu_item("gramps-person", _("Add a new person as a participant"), self.add_new_participant))
-        menu.add(self._menu_item("gramps-person", _("Add an existing person as a participant"), self.add_existing_participant))
+        menu.add(
+            self._menu_item(
+                "gramps-person",
+                _("Add a new person as a participant"),
+                self.add_new_participant,
+            )
+        )
+        menu.add(
+            self._menu_item(
+                "gramps-person",
+                _("Add an existing person as a participant"),
+                self.add_existing_participant,
+            )
+        )
         participants, text = get_participants(self.grstate.dbstate.db, self.obj)
         if len(participants) > 1:
             gotomenu = Gtk.Menu()
-            menu.add(self._submenu_item("gramps-person", _("Go to a participant"), gotomenu))
+            menu.add(
+                self._submenu_item(
+                    "gramps-person", _("Go to a participant"), gotomenu
+                )
+            )
             editmenu = Gtk.Menu()
-            menu.add(self._submenu_item("gramps-person", _("Edit a participant"), editmenu))
+            menu.add(
+                self._submenu_item(
+                    "gramps-person", _("Edit a participant"), editmenu
+                )
+            )
             removemenu = Gtk.Menu()
-            removesubmenu = self._submenu_item("gramps-person", _("Remove a participant"), removemenu)
+            removesubmenu = self._submenu_item(
+                "gramps-person", _("Remove a participant"), removemenu
+            )
             menu.add(removesubmenu)
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
@@ -351,17 +417,45 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             for (text, person, event_ref) in participant_list:
                 handle = person.get_handle()
                 if not self.event_person.handle == handle:
-                    gotomenu.add(self._menu_item("gramps-person", text, self.goto_person, handle))
-                    editmenu.add(self._menu_item("gramps-person", text, self.edit_object, person, "Person"))
+                    gotomenu.add(
+                        self._menu_item(
+                            "gramps-person", text, self.goto_person, handle
+                        )
+                    )
+                    editmenu.add(
+                        self._menu_item(
+                            "gramps-person",
+                            text,
+                            self.edit_object,
+                            person,
+                            "Person",
+                        )
+                    )
                 if not event_ref.get_role().is_primary():
-                    removemenu.add(self._menu_item("list-remove", text, self.remove_participant, person, event_ref))
-                if not self.event_person.handle == handle:                    
-                    menu.add(self._menu_item("gramps-person", text, self.edit_participant, person, event_ref))
+                    removemenu.add(
+                        self._menu_item(
+                            "list-remove",
+                            text,
+                            self.remove_participant,
+                            person,
+                            event_ref,
+                        )
+                    )
+                if not self.event_person.handle == handle:
+                    menu.add(
+                        self._menu_item(
+                            "gramps-person",
+                            text,
+                            self.edit_participant,
+                            person,
+                            event_ref,
+                        )
+                    )
             if len(removemenu) == 0:
                 removesubmenu.destroy()
         return self._submenu_item("gramps-person", _("Participants"), menu)
 
-    def edit_participant(self, obj, person, event_ref):
+    def edit_participant(self, _dummy_obj, person, event_ref):
         """
         Edit the event participant refererence.
         """
@@ -372,7 +466,12 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         try:
             self.event_participant = person
             EditEventRef(
-                self.grstate.dbstate, self.grstate.uistate, [], self.event, event_ref, callback
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.event,
+                event_ref,
+                callback,
             )
         except WindowActiveError:
             pass
@@ -388,12 +487,14 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 self.event_family.get_gramps_id(),
                 _("Event"),
                 event.get_gramps_id(),
-                _("Reference")
+                _("Reference"),
             )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.grstate.dbstate.db.commit_person(self.event_participant, trans)
+                self.grstate.dbstate.db.commit_person(
+                    self.event_participant, trans
+                )
 
-    def add_new_participant(self, obj):
+    def add_new_participant(self, _dummy_obj):
         """
         Add a new person as participant to an event.
         """
@@ -406,13 +507,13 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             EditPerson(self.grstate.dbstate, self.grstate.uistate, [], person)
         except WindowActiveError:
             pass
-    
-    def add_existing_participant(self, obj):
+
+    def add_existing_participant(self, _dummy_obj):
         """
         Add an existing person as participant to an event.
         """
-        SelectPerson = SelectorFactory('Person')
-        dialog = SelectPerson(self.grstate.dbstate, self.grstate.uistate)
+        select_person = SelectorFactory("Person")
+        dialog = select_person(self.grstate.dbstate, self.grstate.uistate)
         person = dialog.run()
         if person:
             event_ref = EventRef()
@@ -428,25 +529,34 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             self.event_participant = person
             try:
                 EditEventRef(
-                    self.grstate.dbstate, self.grstate.uistate, [], self.event, event_ref, callback
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    self.event,
+                    event_ref,
+                    callback,
                 )
             except WindowActiveError:
                 pass
 
-    def remove_participant(self, obj, person, event_ref):
+    def remove_participant(self, _dummy_obj, person, event_ref):
         """
         Remove a participant from an event.
         """
         name = name_displayer.display(person)
         role = str(event_ref.get_role())
-        text = "{}: {}".format(role, name)        
-        prefix = _("You are about to remove the following participant from this event:")
-        extra = _("Note this only removes the reference and does not delete the event or the participant. " \
-                  "The participant can be added back at a later time.")
+        text = "{}: {}".format(role, name)
+        prefix = _(
+            "You are about to remove the following participant from this event:"
+        )
+        extra = _(
+            "Note this does not delete the event or the participant. You can "
+            "also use the undo option under edit if you change your mind later."
+        )
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-                _("Warning"),
-                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
+            _("Warning"),
+            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
             new_list = []
             for ref in person.get_event_ref_list():
@@ -458,8 +568,8 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 person.get_gramps_id(),
                 _("Event"),
                 event.get_gramps_id(),
-                _("Reference")
-            )                
+                _("Reference"),
+            )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                person.set_event_ref_list(new_list)                
+                person.set_event_ref_list(new_list)
                 self.grstate.dbstate.db.commit_person(person, trans)

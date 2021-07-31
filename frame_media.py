@@ -65,7 +65,7 @@ class MediaGrampsFrameGroup(GrampsFrameList):
     def __init__(self, grstate, obj):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
-        self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
             self.hideable = self.option("layout.media", "hideable")
 
@@ -78,9 +78,16 @@ class MediaGrampsFrameGroup(GrampsFrameList):
 
         if media_list:
             if self.option("media", "sort-by-date"):
-                media_list.sort(key=lambda x: x[0].get_date_object().get_sort_value())
+                media_list.sort(
+                    key=lambda x: x[0].get_date_object().get_sort_value()
+                )
 
-            for media, references, ref_type, ref_desc in media_list:
+            for (
+                media,
+                dummy_references,
+                dummy_ref_type,
+                dummy_ref_desc,
+            ) in media_list:
                 frame = ImageGrampsFrame(
                     grstate,
                     "media",
@@ -100,9 +107,11 @@ class MediaGrampsFrameGroup(GrampsFrameList):
             _("Added Media"),
             media.get_gramps_id(),
             _("to"),
-            self.obj.get_gramps_id()
+            self.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             if self.obj.add_media(handle):
                 commit_method(self.obj, trans)
@@ -115,7 +124,9 @@ class MediaGrampsFrameGroup(GrampsFrameList):
         self.extract_media(0, self.obj_type, media_list, None, [self.obj])
         return media_list
 
-    def extract_media(self, ref_type, ref_desc, media_list, query_method=None, obj_list=None):
+    def extract_media(
+        self, ref_type, ref_desc, media_list, query_method=None, obj_list=None
+    ):
         """
         Helper to extract a set of media references from an object.
         """
@@ -126,5 +137,7 @@ class MediaGrampsFrameGroup(GrampsFrameList):
         for item in data:
             if hasattr(item, "media_list"):
                 for media_ref in item.get_media_list():
-                    media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
+                    media = self.grstate.dbstate.db.get_media_from_handle(
+                        media_ref.ref
+                    )
                     media_list.append((media, [item], ref_type, ref_desc))

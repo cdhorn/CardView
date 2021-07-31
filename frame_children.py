@@ -88,7 +88,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
                     number=child_number,
                     relation=relation,
                     groups=groups,
-                    family_backlink=family.handle
+                    family_backlink=family.handle,
                 )
                 self.add_frame(profile)
         self.show_all()
@@ -115,7 +115,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
             _("Reordered Children"),
             _("for"),
             _("Family"),
-            self.family.get_gramps_id()
+            self.family.get_gramps_id(),
         )
         self._save_child_list(new_list, action)
 
@@ -139,6 +139,6 @@ class ChildrenGrampsFrameGroup(GrampsFrameList):
             child.get_gramps_id(),
             _("to"),
             _("Family"),
-            self.family.get_gramps_id()
+            self.family.get_gramps_id(),
         )
         self._save_child_list(new_list, action)

@@ -36,7 +36,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 
 
 # ------------------------------------------------------------------------
@@ -65,7 +64,7 @@ class RepositoriesGrampsFrameGroup(GrampsFrameList):
     def __init__(self, grstate, obj):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
-        self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
             self.hideable = self.option("layout.repository", "hideable")
 
@@ -77,12 +76,16 @@ class RepositoriesGrampsFrameGroup(GrampsFrameList):
 
         repository_list = []
         for repo_ref in obj.get_reporef_list():
-            repository = grstate.dbstate.db.get_repository_from_handle(repo_ref.ref)
+            repository = grstate.dbstate.db.get_repository_from_handle(
+                repo_ref.ref
+            )
             repository_list.append((repository, repo_ref))
 
         if repository_list:
             if self.option("repositories", "sort-by-date"):
-                repository_list.sort(key=lambda x: x[0][0].get_date_object().get_sort_value())
+                repository_list.sort(
+                    key=lambda x: x[0][0].get_date_object().get_sort_value()
+                )
 
             for repository, repo_ref in repository_list:
                 frame = RepositoryGrampsFrame(

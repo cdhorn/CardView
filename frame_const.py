@@ -26,18 +26,10 @@ Frame constants
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-
-# ------------------------------------------------------------------------
-#
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
+from gi.repository import Gdk
 
 
 # ------------------------------------------------------------------------
@@ -45,14 +37,11 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.editors import (
     EditAddress,
-    EditAttribute,
     EditCitation,
     EditEvent,
-    EditEventRef,
     EditFamily,
     EditMedia,
     EditName,
@@ -61,30 +50,11 @@ from gramps.gui.editors import (
     EditPlace,
     EditRepository,
     EditSource,
-    EditSrcAttribute,
-    EditUrl
 )
-from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
-    Address,
-    AttributeType,
     Citation,
-    Event,
-    EventType,
-    Family,
-    Media,
-    Name,
-    Note,
     Person,
-    Place,
-    Repository,
-    Source,
 )
-from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.relationship import get_relationship_calculator
-from gramps.gen.utils.db import family_name
-from gramps.gui.ddtargets import DdTargets
-from gramps.gui.selectors import SelectorFactory
 
 
 # ------------------------------------------------------------------------
@@ -92,9 +62,6 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-#from page_layout import ProfileViewLayout
-#from timeline import EVENT_CATEGORIES, RELATIVES
-
 _ = glocale.translation.sgettext
 
 
@@ -110,16 +77,9 @@ _GENDERS = {
     Person.UNKNOWN: "\u2650",
 }
 
-_BIRTH_EQUIVALENTS = [
-    "Baptism",
-    "Christening"
-]
+_BIRTH_EQUIVALENTS = ["Baptism", "Christening"]
 
-_DEATH_EQUIVALENTS = [
-    "Burial",
-    "Cremation",
-    "Probate"
-]
+_DEATH_EQUIVALENTS = ["Burial", "Cremation", "Probate"]
 
 _CONFIDENCE = {
     Citation.CONF_VERY_LOW: _("Very Low"),
@@ -129,10 +89,7 @@ _CONFIDENCE = {
     Citation.CONF_VERY_HIGH: _("Very High"),
 }
 
-CITATION_TYPES = {
-    0: _("Direct"),
-    1: _("Indirect")
-}
+CITATION_TYPES = {0: _("Direct"), 1: _("Indirect")}
 
 CONFIDENCE_COLOR_SCHEME = {
     Citation.CONF_VERY_LOW: "very-low",
@@ -155,7 +112,7 @@ EVENT_DISPLAY_MODES = [
 TAG_DISPLAY_MODES = [
     (0, _("Disabled")),
     (1, _("Show icons")),
-    (2, _("Show tag names"))
+    (2, _("Show tag names")),
 ]
 
 IMAGE_DISPLAY_MODES = [
@@ -169,14 +126,14 @@ IMAGE_DISPLAY_MODES = [
 SEX_DISPLAY_MODES = [
     (0, _("No indicator displayed")),
     (1, _("Indicator to left of name")),
-    (2, _("Indicator to right of name"))
+    (2, _("Indicator to right of name")),
 ]
 
 TIMELINE_COLOR_MODES = [
     (0, _("Person scheme")),
     (1, _("Relationship scheme")),
     (2, _("Event category scheme")),
-    (3, _("Evidence confidence scheme"))
+    (3, _("Evidence confidence scheme")),
 ]
 
 _EDITORS = {
@@ -210,7 +167,7 @@ LABELS = {
     "child": _("Children"),
     "source": _("Sources"),
     "association": _("Associations"),
-    "address": _("Addresses")
+    "address": _("Addresses"),
 }
 
 # For layout editor

@@ -32,15 +32,6 @@ from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
-#
-# ------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -63,7 +54,7 @@ class NotesGrampsFrameGroup(GrampsFrameList):
     def __init__(self, grstate, obj):
         GrampsFrameList.__init__(self, grstate)
         self.obj = obj
-        self.obj_type, discard1, discard2 = get_gramps_object_type(obj)
+        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
             self.hideable = self.option("layout.note", "hideable")
 

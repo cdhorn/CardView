@@ -35,7 +35,6 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 
@@ -71,7 +70,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         vertical=True,
         groups=None,
     ):
-        PrimaryGrampsFrame.__init__(self, grstate, context, family, groups=groups, vertical=vertical)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, family, groups=groups, vertical=vertical
+        )
         self.family = family
         self.parent = parent
         self.relation = relation
@@ -85,7 +86,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             if profile:
                 self.partner2.add(profile)
 
-        marriage, divorce = get_key_family_events(grstate.dbstate.db, self.family)
+        marriage, divorce = get_key_family_events(
+            grstate.dbstate.db, self.family
+        )
         if marriage:
             self.add_event(marriage)
 
@@ -106,39 +109,63 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
         if self.vertical:
             self.partner1 = Gtk.HBox(hexpand=True)
-            vcontent.pack_start(self.partner1, expand=True, fill=True, padding=0)
+            vcontent.pack_start(
+                self.partner1, expand=True, fill=True, padding=0
+            )
             dcontent = Gtk.VBox()
             self.eventbox.add(dcontent)
-            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
+            vcontent.pack_start(
+                self.eventbox, expand=True, fill=True, padding=0
+            )
             hcontent = Gtk.HBox(hexpand=True)
-            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+            hcontent.pack_start(
+                self.facts_grid, expand=True, fill=True, padding=0
+            )
+            hcontent.pack_start(
+                self.extra_grid, expand=True, fill=True, padding=0
+            )
+            hcontent.pack_start(
+                self.metadata, expand=True, fill=True, padding=0
+            )
             dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
             dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
             self.partner2 = Gtk.HBox(hexpand=True)
-            vcontent.pack_start(self.partner2, expand=True, fill=True, padding=0)
+            vcontent.pack_start(
+                self.partner2, expand=True, fill=True, padding=0
+            )
         else:
             group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
             partners = Gtk.HBox(hexpand=True, spacing=3)
             vcontent.pack_start(partners, expand=True, fill=True, padding=0)
             self.partner1 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner1)
-            if self.groups and 'partner1' in self.groups:
-                self.groups['partner1'].add_widget(self.partner1)
-            partners.pack_start(self.partner1, expand=True, fill=True, padding=0)
+            if self.groups and "partner1" in self.groups:
+                self.groups["partner1"].add_widget(self.partner1)
+            partners.pack_start(
+                self.partner1, expand=True, fill=True, padding=0
+            )
             self.partner2 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner2)
-            if self.groups and 'partner2' in self.groups:
-                self.groups['partner2'].add_widget(self.partner2)
-            partners.pack_start(self.partner2, expand=True, fill=True, padding=0)
+            if self.groups and "partner2" in self.groups:
+                self.groups["partner2"].add_widget(self.partner2)
+            partners.pack_start(
+                self.partner2, expand=True, fill=True, padding=0
+            )
             dcontent = Gtk.VBox()
             self.eventbox.add(dcontent)
-            vcontent.pack_start(self.eventbox, expand=True, fill=True, padding=0)
+            vcontent.pack_start(
+                self.eventbox, expand=True, fill=True, padding=0
+            )
             hcontent = Gtk.HBox(hexpand=True)
-            hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
-            hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
+            hcontent.pack_start(
+                self.facts_grid, expand=True, fill=True, padding=0
+            )
+            hcontent.pack_start(
+                self.extra_grid, expand=True, fill=True, padding=0
+            )
+            hcontent.pack_start(
+                self.metadata, expand=True, fill=True, padding=0
+            )
             dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
             dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
 
@@ -149,10 +176,10 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 working_context = "people"
             profile = PersonGrampsFrame(
                 self.grstate,
-                working_context,                
+                working_context,
                 person,
                 groups=self.groups,
-                family_backlink=self.family.handle
+                family_backlink=self.family.handle,
             )
             return profile
         return None
@@ -160,10 +187,14 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
     def _get_parents(self):
         father = None
         if self.family.get_father_handle():
-            father = self.grstate.dbstate.db.get_person_from_handle(self.family.get_father_handle())
+            father = self.grstate.dbstate.db.get_person_from_handle(
+                self.family.get_father_handle()
+            )
         mother = None
         if self.family.get_mother_handle():
-            mother = self.grstate.dbstate.db.get_person_from_handle(self.family.get_mother_handle())
+            mother = self.grstate.dbstate.db.get_person_from_handle(
+                self.family.get_mother_handle()
+            )
 
         partner1 = father
         partner2 = mother
@@ -175,7 +206,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             and self.parent
             and self.option(self.context, "show-spouse-only")
         ):
-            if partner1 and partner1.handle == self.parent.handle or not partner1:
+            if (
+                partner1
+                and partner1.handle == self.parent.handle
+                or not partner1
+            ):
                 partner1 = partner2
             partner2 = None
         return partner1, partner2
@@ -197,4 +232,6 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         if not self.option("page", "use-color-scheme"):
             return ""
 
-        return get_family_color_css(self.obj, self.grstate.config, divorced=self.divorced)
+        return get_family_color_css(
+            self.obj, divorced=self.divorced
+        )

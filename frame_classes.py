@@ -39,7 +39,7 @@ from html import escape
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 
 
 # ------------------------------------------------------------------------
@@ -74,7 +74,7 @@ class GrampsState:
     A simple class to encapsulate the underlying state for the page view.
     """
 
-    __slots__ = 'dbstate', 'uistate', 'router', 'space', 'config'
+    __slots__ = "dbstate", "uistate", "router", "space", "config"
 
     def __init__(self, dbstate, uistate, router, space, config):
         self.dbstate = dbstate
@@ -112,7 +112,9 @@ class GrampsConfig:
             dbid = self.grstate.dbstate.db.get_dbid()
         option = "{}.{}.{}".format(self.grstate.space, context, name)
         try:
-            return get_config_option(self.grstate.config, option, full=full, dbid=dbid)
+            return get_config_option(
+                self.grstate.config, option, full=full, dbid=dbid
+            )
         except AttributeError:
             return False
 
@@ -167,7 +169,7 @@ class GrampsConfig:
             justify=Gtk.Justification.CENTER,
             use_markup=True,
             wrap=True,
-            label=message
+            label=message,
         )
         dialog.vbox.add(label)
         dialog.show_all()
@@ -177,11 +179,11 @@ class GrampsConfig:
             return True
         return False
 
-    def switch_object(self, obj, event, obj_type, handle):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, handle):
         """
         Change active object for the view.
         """
-        self.grstate.router('object-changed', (obj_type, handle))
+        self.grstate.router("object-changed", (obj_type, handle))
 
 
 # ------------------------------------------------------------------------
@@ -215,7 +217,7 @@ class GrampsImageViewFrame(Gtk.Frame):
         if not mobj:
             mobj = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
         if mobj and mobj.get_mime_type()[0:5] == "image":
-            rectangle=None
+            rectangle = None
             if media_ref:
                 media_ref.get_rectangle()
             pixbuf = get_thumbnail_image(
@@ -251,22 +253,34 @@ class GrampsFrameGroupExpander(Gtk.Expander):
     """
 
     def __init__(self, grstate, expanded=True, use_markup=True, hidable=False):
-        Gtk.Expander.__init__(self, expanded=expanded, use_markup=use_markup, hexpand=True)
+        Gtk.Expander.__init__(
+            self, expanded=expanded, use_markup=use_markup, hexpand=True
+        )
         self.set_resize_toplevel(True)
         self.hidable = hidable
         self.grstate = grstate
         self.connect("activate", self.collapse)
 
     def set_hidable(self, hidable):
+        """
+        Set the hideable attribute.
+        """
         self.hidable = hidable
 
-    def collapse(self, obj):
-        if not self.grstate.config.get("{}.layout.tabbed".format(self.grstate.space)):
+    def collapse(self, _dummy_obj):
+        """
+        Handle removing the frame on collapse if needed.
+        """
+        if not self.grstate.config.get(
+            "{}.layout.tabbed".format(self.grstate.space)
+        ):
             if self.get_expanded() and self.hidable:
                 child = self.get_child()
                 list(map(child.remove, child.get_children()))
                 parent = self.get_parent()
-                if not self.grstate.config.get("{}.layout.scrolled".format(self.grstate.space)):
+                if not self.grstate.config.get(
+                    "{}.layout.scrolled".format(self.grstate.space)
+                ):
                     parent.remove(self)
                 else:
                     gparent = parent.get_parent()

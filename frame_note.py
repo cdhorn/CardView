@@ -46,7 +46,6 @@ from gramps.gui.widgets import StyledTextBuffer
 #
 # ------------------------------------------------------------------------
 from frame_primary import PrimaryGrampsFrame
-from frame_utils import TextLink
 
 _ = glocale.translation.sgettext
 
@@ -62,7 +61,9 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, context, note, groups=None):
-        self.text_view = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False)
+        self.text_view = Gtk.TextView(
+            wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False
+        )
         PrimaryGrampsFrame.__init__(self, grstate, context, note, groups=groups)
 
         preview_mode = self.option(context, "preview-mode")
@@ -116,4 +117,3 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
         vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
         vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
-

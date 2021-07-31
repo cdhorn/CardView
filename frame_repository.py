@@ -48,14 +48,23 @@ _ = glocale.translation.sgettext
 # ------------------------------------------------------------------------
 class RepositoryGrampsFrame(PrimaryGrampsFrame):
     """
-    The RepositoryGrampsFrame exposes some of the basic facts about a Repository.
+    The RepositoryGrampsFrame exposes some of the basic facts about a
+    Repository.
     """
 
-    def __init__(self, grstate, context, repository, repo_ref=None, groups=None):
-        PrimaryGrampsFrame.__init__(self, grstate, context, repository, groups=groups)
+    def __init__(
+        self, grstate, context, repository, repo_ref=None, groups=None
+    ):
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, repository, groups=groups
+        )
 
         title = TextLink(
-            repository.name, "Repository", repository.get_handle(), self.switch_object, bold=True
+            repository.name,
+            "Repository",
+            repository.get_handle(),
+            self.switch_object,
+            bold=True,
         )
         self.title.pack_start(title, True, False, 0)
 
@@ -83,12 +92,16 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         if repo_ref:
             if self.option(context, "show-call-number"):
                 if repo_ref.call_number:
-                    text = "{}: {}".format(_("Call number"), repo_ref.call_number)
+                    text = "{}: {}".format(
+                        _("Call number"), repo_ref.call_number
+                    )
                     self.add_fact(self.make_label(text))
 
             if self.option(context, "show-media-type"):
                 if repo_ref.media_type:
-                    text = glocale.translation.sgettext(repo_ref.media_type.xml_str())
+                    text = glocale.translation.sgettext(
+                        repo_ref.media_type.xml_str()
+                    )
                     if text:
                         text = "{}: {}".format(_("Media type"), text)
                     self.add_fact(self.make_label(text))

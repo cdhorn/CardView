@@ -60,14 +60,16 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, context, media, groups=None):
-        PrimaryGrampsFrame.__init__(self, grstate, context, media, groups=groups)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, media, groups=groups
+        )
 
         title = TextLink(
             media.get_description(),
             "Media",
             media.get_handle(),
             self.switch_object,
-            bold=True
+            bold=True,
         )
         self.title.pack_start(title, True, False, 0)
 

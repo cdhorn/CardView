@@ -74,9 +74,7 @@ from frame_groups import (
 from frame_person import PersonGrampsFrame
 from frame_utils import (
     button_activated,
-    AttributeSelector,
     ConfigReset,
-    FrameFieldSelector,
     LayoutEditorButton
 )
 from page_base import BaseProfilePage

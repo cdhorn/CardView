@@ -104,9 +104,9 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # ------------------------------------------------------------------------
 from frame_classes import GrampsConfig, GrampsImageViewFrame
 from frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from frame_selectors import get_attribute_types
 from frame_utils import (
     button_activated,
-    get_attribute_types,
     get_config_option,
     get_gramps_object_type
 )

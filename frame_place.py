@@ -24,14 +24,6 @@ PlaceGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -61,11 +53,17 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, context, place, groups=None):
-        PrimaryGrampsFrame.__init__(self, grstate, context, place, groups=groups)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, context, place, groups=groups
+        )
 
         place_name = place_displayer.display(grstate.dbstate.db, place)
         title = TextLink(
-            place_name, "Place", place.get_handle(), self.switch_object, bold=True
+            place_name,
+            "Place",
+            place.get_handle(),
+            self.switch_object,
+            bold=True,
         )
         self.title.pack_start(title, True, False, 0)
 
@@ -73,7 +71,7 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
             text = glocale.translation.sgettext(place.get_type().xml_str())
             if text:
                 self.add_fact(self.make_label(text))
-            
+
         if place.get_latitude():
             text = "{}: {}".format(_("Latitude"), place.get_latitude())
             self.add_fact(self.make_label(text))

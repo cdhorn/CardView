@@ -24,34 +24,10 @@ AddressGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-
-# ------------------------------------------------------------------------
-#
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Citation, Note, Source
-from gramps.gen.lib.const import IDENTICAL
-from gramps.gen.utils.alive import probably_alive
-from gramps.gui.editors import EditCitation, EditNote, EditPersonRef
-from gramps.gui.selectors import SelectorFactory
 
 
 # ------------------------------------------------------------------------
@@ -59,13 +35,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_const import _GENDERS, _LEFT_BUTTON, _RIGHT_BUTTON
 from frame_secondary import SecondaryGrampsFrame
-from frame_utils import (
-    button_activated,    
-    get_person_color_css,
-    TextLink,
-)
 
 _ = glocale.translation.sgettext
 
@@ -88,7 +58,9 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         address,
         groups=None,
     ):
-        SecondaryGrampsFrame.__init__(self, grstate, context, obj, address, groups=groups)
+        SecondaryGrampsFrame.__init__(
+            self, grstate, context, obj, address, groups=groups
+        )
         if address.street:
             self.add_fact(self.make_label(address.street))
         if address.locality:

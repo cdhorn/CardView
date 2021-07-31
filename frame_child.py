@@ -24,14 +24,6 @@ ChildGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-
-# ------------------------------------------------------------------------
-#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -49,7 +41,6 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Note, Source
 from gramps.gen.lib.const import IDENTICAL
-from gramps.gen.utils.alive import probably_alive
 from gramps.gui.editors import EditChildRef, EditCitation, EditNote
 from gramps.gui.selectors import SelectorFactory
 
@@ -59,13 +50,9 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_const import _GENDERS, _LEFT_BUTTON, _RIGHT_BUTTON
+from frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from frame_person import PersonGrampsFrame
-from frame_utils import (
-    button_activated,
-    get_person_color_css,
-    TextLink,
-)
+from frame_utils import button_activated
 
 _ = glocale.translation.sgettext
 
@@ -89,31 +76,45 @@ class ChildGrampsFrame(PersonGrampsFrame):
         relation=None,
         number=0,
         groups=None,
-        family_backlink=None
+        family_backlink=None,
     ):
         PersonGrampsFrame.__init__(
-            self, grstate, context, child, obj_ref=child_ref,
-            relation=relation, number=number, groups=groups,
-            family_backlink=family_backlink
+            self,
+            grstate,
+            context,
+            child,
+            obj_ref=child_ref,
+            relation=relation,
+            number=number,
+            groups=groups,
+            family_backlink=family_backlink,
         )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         if child_ref.get_father_relation():
-                reltype = child_ref.get_father_relation()
-                hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-                hbox.pack_end(self.make_label(_("Father"), left=False), False, False, 0)
-                self.ref_body.pack_start(hbox, False, False, 0)
-                hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-                hbox.pack_end(self.make_label(str(reltype), left=False), False, False, 0)
-                self.ref_body.pack_start(hbox, False, False, 0)
-    
+            reltype = child_ref.get_father_relation()
+            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
+            hbox.pack_end(
+                self.make_label(_("Father"), left=False), False, False, 0
+            )
+            self.ref_body.pack_start(hbox, False, False, 0)
+            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
+            hbox.pack_end(
+                self.make_label(str(reltype), left=False), False, False, 0
+            )
+            self.ref_body.pack_start(hbox, False, False, 0)
+
         if child_ref.get_mother_relation():
             reltype = child_ref.get_mother_relation()
             hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(self.make_label(_("Mother"), left=False), False, False, 0)
+            hbox.pack_end(
+                self.make_label(_("Mother"), left=False), False, False, 0
+            )
             self.ref_body.pack_start(hbox, False, False, 0)
             hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(self.make_label(str(reltype), left=False), False, False, 0)
+            hbox.pack_end(
+                self.make_label(str(reltype), left=False), False, False, 0
+            )
             self.ref_body.pack_start(hbox, False, False, 0)
 
     def route_ref_action(self, obj, event):
@@ -128,7 +129,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.obj_type, self.obj.get_handle())
 
-    def build_ref_action_menu(self, obj, event):
+    def build_ref_action_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click on a reference object.
         """
@@ -137,15 +138,19 @@ class ChildGrampsFrame(PersonGrampsFrame):
             action_menu.append(self._edit_child_ref_option())
             action_menu.append(
                 self._citations_option(
-                    self.obj_ref, self.add_new_ref_citation,
-                    self.add_existing_ref_citation, self.remove_ref_citation
+                    self.obj_ref,
+                    self.add_new_ref_citation,
+                    self.add_existing_ref_citation,
+                    self.remove_ref_citation,
                 )
             )
             action_menu.append(
                 self._notes_option(
-                    self.obj_ref, self.add_new_ref_note,
-                    self.add_existing_ref_note, self.remove_ref_note,
-                    no_children=True
+                    self.obj_ref,
+                    self.add_new_ref_note,
+                    self.add_existing_ref_note,
+                    self.remove_ref_note,
+                    no_children=True,
                 )
             )
             action_menu.append(self._change_ref_privacy_option())
@@ -153,12 +158,14 @@ class ChildGrampsFrame(PersonGrampsFrame):
             label = Gtk.MenuItem(label=_("Child reference"))
             label.set_sensitive(False)
             action_menu.append(label)
-            
+
             action_menu.show_all()
             if Gtk.get_minor_version() >= 22:
                 action_menu.popup_at_pointer(event)
             else:
-                action_menu.popup(None, None, None, None, event.button, event.time)
+                action_menu.popup(
+                    None, None, None, None, event.button, event.time
+                )
 
     def _edit_child_ref_option(self):
         """
@@ -167,13 +174,20 @@ class ChildGrampsFrame(PersonGrampsFrame):
         name = "{} {}".format(_("Edit"), name_displayer.display(self.obj))
         return self._menu_item("gtk-edit", name, self.edit_child_ref)
 
-    def edit_child_ref(self, skip=None, obj=None, obj_type=None):
+    def edit_child_ref(self, *_dummy_obj):
         """
         Launch the editor.
         """
         try:
             name = name_displayer.display(self.obj)
-            EditChildRef(name, self.grstate.dbstate, self.grstate.uistate, [], self.obj_ref, self.save_child_ref)
+            EditChildRef(
+                name,
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.obj_ref,
+                self.save_child_ref,
+            )
         except WindowActiveError:
             pass
 
@@ -182,7 +196,9 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Save the edited object.
         """
         if child_ref:
-            family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
+            family = self.grstate.dbstate.db.get_family_from_handle(
+                self.family_backlink
+            )
             child_ref_list = []
             for ref in family.get_child_ref_list():
                 if child_ref.ref == ref.ref:
@@ -196,7 +212,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 self.obj.get_gramps_id(),
                 _("for"),
                 _("Family"),
-                family.get_gramps_id()
+                family.get_gramps_id(),
             )
             if action_text:
                 action = action_text
@@ -204,14 +220,21 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 family.set_child_ref_list(child_ref_list)
                 self.grstate.dbstate.db.commit_family(family, trans)
 
-    def add_new_ref_citation(self, obj):
+    def add_new_ref_citation(self, _dummy_obj):
         """
         Add a new citation.
         """
         citation = Citation()
         source = Source()
         try:
-            EditCitation(self.grstate.dbstate, self.grstate.uistate, [], citation, source, self.added_ref_citation)
+            EditCitation(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                citation,
+                source,
+                self.added_ref_citation,
+            )
         except WindowActiveError:
             pass
 
@@ -226,59 +249,79 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 citation.get_gramps_id(),
                 _("to"),
                 _("ChildRef"),
-                self.obj.get_gramps_id()
+                self.obj.get_gramps_id(),
             )
             self.save_child_ref(self.obj_ref, action_text=action)
 
-    def add_existing_ref_citation(self, obj):
+    def add_existing_ref_citation(self, _dummy_obj):
         """
         Add an existing citation.
         """
-        select_citation = SelectorFactory('Citation')
-        selector = select_citation(self.grstate.dbstate, self.grstate.uistate, [])
+        select_citation = SelectorFactory("Citation")
+        selector = select_citation(
+            self.grstate.dbstate, self.grstate.uistate, []
+        )
         selection = selector.run()
         if selection:
             if isinstance(selection, Source):
                 try:
-                    EditCitation(self.grstate.dbstate, self.grstate.uistate, [],
-                                 Citation(), selection,
-                                 callback=self.added_ref_citation)
+                    EditCitation(
+                        self.grstate.dbstate,
+                        self.grstate.uistate,
+                        [],
+                        Citation(),
+                        selection,
+                        callback=self.added_ref_citation,
+                    )
                 except WindowActiveError:
                     pass
             elif isinstance(selection, Citation):
                 try:
-                    EditCitation(self.grstate.dbstate, self.grstate.uistate, [],
-                                 selection, callback=self.added_ref_citation)
+                    EditCitation(
+                        self.grstate.dbstate,
+                        self.grstate.uistate,
+                        [],
+                        selection,
+                        callback=self.added_ref_citation,
+                    )
                 except WindowActiveError:
                     pass
             else:
                 raise ValueError("Selection must be either source or citation")
 
-    def remove_ref_citation(self, obj, old_citation):
+    def remove_ref_citation(self, _dummy_obj, old_citation):
         """
         Remove the given citation from the current object.
         """
         if old_citation:
             text = self._citation_option_text(old_citation)
-            prefix = _("You are about to remove the following citation from this object:")
-            extra = _("Note this only removes the reference and does not delete the actual citation. " \
-                      "The citation could be added back unless permanently deleted elsewhere.")
+            prefix = _(
+                "You are about to remove the following citation from this object:"
+            )
+            extra = _(
+                "Note this does not delete the citation. You can also use the undo"
+                "option under edit if you change your mind later."
+            )
             confirm = _("Are you sure you want to continue?")
             if self.confirm_action(
                 _("Warning"),
-                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
+                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(
+                    prefix, text, extra, confirm
+                ),
             ):
-                if self.obj_ref.remove_citation_references([old_citation.get_handle()]):
+                if self.obj_ref.remove_citation_references(
+                    [old_citation.get_handle()]
+                ):
                     action = "{} {} {} {} {}".format(
                         _("Removed Citation"),
                         old_citation.get_gramps_id(),
                         _("from"),
                         _("ChildRef"),
-                        self.obj.get_gramps_id()
+                        self.obj.get_gramps_id(),
                     )
                     self.save_child_ref(self.obj_ref, action_text=action)
 
-    def add_new_ref_note(self, obj, content=None):
+    def add_new_ref_note(self, _dummy_obj, content=None):
         """
         Add a new note.
         """
@@ -286,7 +329,13 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if content:
             note.set(content)
         try:
-            EditNote(self.grstate.dbstate, self.grstate.uistate, [], note, self.added_ref_note)
+            EditNote(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                note,
+                self.added_ref_note,
+            )
         except WindowActiveError:
             pass
 
@@ -301,33 +350,39 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 note.get_gramps_id(),
                 _("to"),
                 _("ChildRef"),
-                self.obj.get_gramps_id()
+                self.obj.get_gramps_id(),
             )
             self.save_child_ref(self.obj_ref, action_text=action)
 
-    def add_existing_ref_note(self, obj):
+    def add_existing_ref_note(self, _dummy_obj):
         """
         Add an existing note.
         """
-        select_note = SelectorFactory('Note')
+        select_note = SelectorFactory("Note")
         selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
         selection = selector.run()
         if selection:
             self.added_ref_note(selection.handle)
 
-    def remove_ref_note(self, obj, old_note):
+    def remove_ref_note(self, _dummy_obj, old_note):
         """
         Remove the given note from the current object.
         """
         if old_note:
             text = self._note_option_text(old_note)
-            prefix = _("You are about to remove the following note from this object:")
-            extra = _("Note this only removes the reference and does not delete the actual note. " \
-                      "The note could be added back unless permanently deleted elsewhere.")
+            prefix = _(
+                "You are about to remove the following note from this object:"
+            )
+            extra = _(
+                "Note this does not delete the note. You can also use the undo"
+                "option under the edit menu if you change your mind later."
+            )
             confirm = _("Are you sure you want to continue?")
             if self.confirm_action(
                 _("Warning"),
-                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm)
+                "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(
+                    prefix, text, extra, confirm
+                ),
             ):
                 if self.obj_ref.remove_note(old_note.get_handle()):
                     action = "{} {} {} {} {}".format(
@@ -335,7 +390,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                         old_note.get_gramps_id(),
                         _("from"),
                         _("ChildRef"),
-                        self.obj.get_gramps_id()
+                        self.obj.get_gramps_id(),
                     )
                     self.save_child_ref(self.obj_ref, action_text=action)
 
@@ -344,14 +399,23 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Build privacy option based on current object state.
         """
         if self.obj_ref.private:
-            return self._menu_item("gramps-unlock", _("Make public"), self.change_ref_privacy, False)
-        return self._menu_item("gramps-lock", _("Make private"), self.change_ref_privacy, True)
+            return self._menu_item(
+                "gramps-unlock",
+                _("Make public"),
+                self.change_ref_privacy,
+                False,
+            )
+        return self._menu_item(
+            "gramps-lock", _("Make private"), self.change_ref_privacy, True
+        )
 
-    def change_ref_privacy(self, obj, mode):
+    def change_ref_privacy(self, _dummy_obj, mode):
         """
         Update the privacy indicator for the current object.
         """
-        family = self.grstate.dbstate.db.get_family_from_handle(self.family_backlink)
+        family = self.grstate.dbstate.db.get_family_from_handle(
+            self.family_backlink
+        )
         if mode:
             text = _("Private")
         else:
@@ -364,7 +428,6 @@ class ChildGrampsFrame(PersonGrampsFrame):
             family.get_gramps_id(),
             text,
         )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             for child_ref in family.get_child_ref_list():
                 if child_ref.ref == self.obj_ref.ref:

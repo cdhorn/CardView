@@ -70,9 +70,7 @@ from frame_groups import (
 from frame_person import PersonGrampsFrame
 from frame_couple import CoupleGrampsFrame
 from frame_utils import (
-    AttributeSelector,
     ConfigReset,
-    FrameFieldSelector,
     LayoutEditorButton
 )
 from page_base import BaseProfilePage

@@ -37,7 +37,7 @@ from html import escape
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
 
 
 # ------------------------------------------------------------------------
@@ -47,10 +47,10 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError, WindowActiveError
+from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
     Address,
-    AttributeType,
+    ChildRef,
     Citation,
     Event,
     EventType,
@@ -59,6 +59,7 @@ from gramps.gen.lib import (
     Name,
     Note,
     Person,
+    PersonRef,
     Place,
     Repository,
     Source,
@@ -67,7 +68,6 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.db import family_name
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.selectors import SelectorFactory
 
 
 # ------------------------------------------------------------------------
@@ -81,14 +81,9 @@ from frame_const import (
     _RETURN,
     _SPACE,
     CONFIDENCE_COLOR_SCHEME,
-    EVENT_DISPLAY_MODES,
-    TAG_DISPLAY_MODES,
-    IMAGE_DISPLAY_MODES,
-    SEX_DISPLAY_MODES,
-    TIMELINE_COLOR_MODES,
 )
 from page_layout import ProfileViewLayout
-from timeline import EVENT_CATEGORIES, RELATIVES
+from timeline import RELATIVES
 
 _ = glocale.translation.sgettext
 
@@ -98,42 +93,46 @@ def button_activated(event, mouse_button):
     Test if specific button press happened.
     """
     return (
-        event.type == Gdk.EventType.BUTTON_PRESS and event.button == mouse_button
+        event.type == Gdk.EventType.BUTTON_PRESS
+        and event.button == mouse_button
     ) or (
         event.type == Gdk.EventType.KEY_PRESS
         and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
     )
+
 
 def get_gramps_object_type(obj):
     """
     Return information for primary and some secondary Gramps objects.
     """
     if isinstance(obj, Person):
-        return "Person", DdTargets.PERSON_LINK, 'gramps-person'
+        return "Person", DdTargets.PERSON_LINK, "gramps-person"
     if isinstance(obj, Family):
-        return "Family", DdTargets.FAMILY_LINK, 'gramps-family'
+        return "Family", DdTargets.FAMILY_LINK, "gramps-family"
     if isinstance(obj, Event):
-        return "Event", DdTargets.EVENT, 'gramps-event'
+        return "Event", DdTargets.EVENT, "gramps-event"
     if isinstance(obj, Place):
-        return "Place", DdTargets.PLACE_LINK, 'gramps-place'
+        return "Place", DdTargets.PLACE_LINK, "gramps-place"
     if isinstance(obj, Source):
-        return "Source", DdTargets.SOURCE_LINK, 'gramps-source'
+        return "Source", DdTargets.SOURCE_LINK, "gramps-source"
     if isinstance(obj, Citation):
-        return "Citation", DdTargets.CITATION_LINK, 'gramps-citation'
+        return "Citation", DdTargets.CITATION_LINK, "gramps-citation"
     if isinstance(obj, Note):
-        return "Note", DdTargets.NOTE_LINK, 'gramps-notes'
+        return "Note", DdTargets.NOTE_LINK, "gramps-notes"
     if isinstance(obj, Media):
-        return "Media", DdTargets.MEDIAOBJ, 'gramps-media'
+        return "Media", DdTargets.MEDIAOBJ, "gramps-media"
     if isinstance(obj, Repository):
-        return "Repository", DdTargets.REPO_LINK, 'gramps-repository'
+        return "Repository", DdTargets.REPO_LINK, "gramps-repository"
     if isinstance(obj, Address):
-        return "Address", DdTargets.ADDRESS, 'gramps-address'
+        return "Address", DdTargets.ADDRESS, "gramps-address"
     if isinstance(obj, Name):
-        return "Name", DdTargets.NAME, 'gramps-person'
+        return "Name", DdTargets.NAME, "gramps-person"
     if isinstance(obj, ChildRef):
-        return "ChildRef", DdTargets.CHILDREF, 'stock_link'
+        return "ChildRef", DdTargets.CHILDREF, "stock_link"
     if isinstance(obj, PersonRef):
-        return "PersonRef", DdTargets.PERSONREF, 'stock_link'
+        return "PersonRef", DdTargets.PERSONREF, "stock_link"
+    return "", None, ""
+
 
 def format_date_string(event1, event2):
     """
@@ -165,7 +164,9 @@ def get_relation(db, person, relation, depth=15):
     calc.set_depth(depth)
     result = calc.get_one_relationship(db, base_person, person, extra_info=True)
     if result[0]:
-        return "{} {} {}".format(result[0].capitalize(), _("of"), base_person_name)
+        return "{} {} {}".format(
+            result[0].capitalize(), _("of"), base_person_name
+        )
     return None
 
 
@@ -327,13 +328,22 @@ class TextLink(Gtk.EventBox):
     """
 
     def __init__(
-            self, name, obj_type=None, handle=None, callback=None, tooltip=None, hexpand=False, bold=True
+        self,
+        name,
+        obj_type=None,
+        handle=None,
+        callback=None,
+        tooltip=None,
+        hexpand=False,
+        bold=True,
     ):
         Gtk.EventBox.__init__(self)
         self.name = escape(name)
         if bold:
             self.name = "<b>{}</b>".format(self.name)
-        self.label = Gtk.Label(hexpand=hexpand, halign=Gtk.Align.START, wrap=True)
+        self.label = Gtk.Label(
+            hexpand=hexpand, halign=Gtk.Align.START, wrap=True
+        )
         self.label.set_markup(self.name)
         self.add(self.label)
         if callback:
@@ -343,10 +353,16 @@ class TextLink(Gtk.EventBox):
         if tooltip:
             self.set_tooltip_text(tooltip)
 
-    def enter(self, obj, event):
+    def enter(self, _dummy_obj, _dummy_event):
+        """
+        Cursor entered so highlight.
+        """
         self.label.set_markup("<u>{}</u>".format(self.name))
 
-    def leave(self, obj, event):
+    def leave(self, _dummy_obj, _dummy_event):
+        """
+        Cursor left so reset.
+        """
         self.label.set_markup(self.name)
 
 
@@ -413,7 +429,7 @@ def get_event_category_color_css(index, config):
     return format_color_css(background, border)
 
 
-def get_person_color_css(person, config, living=False, home=None):
+def get_person_color_css(person, living=False, home=None):
     """
     Return css color string based on person information.
     """
@@ -439,7 +455,7 @@ def get_person_color_css(person, config, living=False, home=None):
     return format_color_css(background, border)
 
 
-def get_family_color_css(family, config, divorced=False):
+def get_family_color_css(family, divorced=False):
     """
     Return css color string based on family information.
     """
@@ -459,9 +475,7 @@ def get_family_color_css(family, config, divorced=False):
             4: "",
             99: "-divorced",
         }
-        background = global_config.get(
-            "colors.family{}".format(values[key])
-        )
+        background = global_config.get("colors.family{}".format(values[key]))
     return format_color_css(background, border)
 
 
@@ -474,27 +488,30 @@ def get_participants(db, event):
     text = ""
     comma = ""
     result_list = list(
-        db.find_backlink_handles(event.handle,
-                                 include_classes=['Person', 'Family'])
+        db.find_backlink_handles(
+            event.handle, include_classes=["Person", "Family"]
+        )
     )
-    people = set([x[1] for x in result_list if x[0] == 'Person'])
+    people = set([x[1] for x in result_list if x[0] == "Person"])
     for handle in people:
         person = db.get_person_from_handle(handle)
         if not person:
             continue
         for event_ref in person.get_event_ref_list():
             if event.handle == event_ref.ref:
-                participants.append(('Person', person, event_ref))
-                text = "{}{}{}".format(text, comma, name_displayer.display(person))
+                participants.append(("Person", person, event_ref))
+                text = "{}{}{}".format(
+                    text, comma, name_displayer.display(person)
+                )
                 comma = ", "
-    family = set([x[1] for x in result_list if x[0] == 'Family'])
+    family = set([x[1] for x in result_list if x[0] == "Family"])
     for handle in family:
         family = db.get_family_from_handle(handle)
         if not family:
             continue
         for event_ref in family.get_event_ref_list():
             if event.handle == event_ref.ref:
-                participants.append(('Family', family, event_ref))
+                participants.append(("Family", family, event_ref))
                 family_text = family_name(family, db)
                 text = "{}{}{}".format(text, comma, family_text)
                 comma = ", "
@@ -548,337 +565,6 @@ def save_config_option(config, option, option_type, option_value="", dbid=None):
         config.set(option, "{}:{}".format(option_type, option_value))
 
 
-def get_attribute_types(db, obj_type):
-    """
-    Get the available attribute types based on current object type.
-    """
-    if obj_type == "Person":
-        return db.get_person_attribute_types()
-    if obj_type == "Family":
-        return db.get_family_attribute_types()
-    if obj_type == "Event":
-        return db.get_event_attribute_types()
-    if obj_type == "Media":
-        return db.get_media_attribute_types()
-    if obj_type == "Source":
-        return db.get_source_attribute_types()
-    if obj_type == "Citation":
-        return db.get_source_attribute_types()
-    return []
-
-
-def get_attribute_maps(db, obj_type):
-    """
-    Return forward and reverse language mappings for attribute types.
-    """
-    etoi = {}
-    itoe = {}
-    inames = []
-    enames = []
-    for attribute_type in AttributeType().get_standard_names():
-        inames.append(attribute_type)
-    for attribute_type in AttributeType().get_standard_xml():
-        enames.append(attribute_type)
-    while len(enames) > 0:
-        etoi.update({enames[0]: inames[0]})
-        itoe.update({inames[0]: enames[0]})
-        del enames[0]
-        del inames[0]
-
-    for attribute in get_attribute_types(db, obj_type):
-        etoi.update({attribute: attribute})
-        itoe.update({attribute: attribute})
-    if "None" not in etoi:
-        etoi.update({"None": _("None")})
-        itoe.update({_("None"): "None"})
-    return etoi, itoe
-
-
-def get_event_maps(db):
-    """
-    Return forward and reverse language mappings for event types.
-    """
-    etoi = {}
-    itoe = {}
-    inames = []
-    enames = []
-    for event_type in EventType().get_standard_names():
-        inames.append(event_type)
-    for event_type in EventType().get_standard_xml():
-        enames.append(event_type)
-    while len(enames) > 0:
-        etoi.update({enames[0]: inames[0]})
-        itoe.update({inames[0]: enames[0]})
-        del enames[0]
-        del inames[0]
-
-    for event in db.get_event_types():
-        etoi.update({event: event})
-        itoe.update({event: event})
-    if "None" not in etoi:
-        etoi.update({"None": _("None")})
-        itoe.update({_("None"): "None"})
-    return etoi, itoe
-
-
-class AttributeSelector(Gtk.ComboBoxText):
-    """
-    An attribute selector for the configdialog.
-    """
-
-    def __init__(self, option, config, db, obj_type, dbid=False, tooltip=None):
-        Gtk.ComboBoxText.__init__(self)
-        self.option = option
-        self.config = config
-        self.dbid = None
-        if dbid:
-            self.dbid = db.get_dbid()
-
-        self.etoi, self.itoe = get_attribute_maps(db, obj_type)
-        attribute_names = sorted(self.itoe.keys())
-        for attribute_type in attribute_names:
-            self.append_text(attribute_type)
-
-        current_option = get_config_option(config, option, dbid=self.dbid)
-        current_value = "None"
-        if current_option and len(current_option) >= 2:
-            current_value = current_option[1]
-        if current_value in self.etoi:
-            current_index = attribute_names.index(self.etoi[current_value])
-        self.set_active(current_index)
-        self.connect("changed", self.update)
-        if tooltip:
-            self.set_tooltip_text(tooltip)
-
-    def update(self, obj):
-        current_value = self.get_active_text()
-        save_config_option(self.config, self.option, "Attribute", self.itoe[current_value], dbid=self.dbid)
-
-
-class FrameFieldSelector(Gtk.HBox):
-    """
-    A custom selector for the user defined fields for the configdialog.
-    """
-
-    def __init__(self, option, config, dbstate, uistate, number, dbid=False, text=None, relation=True, obj_type="Person"):
-        Gtk.HBox.__init__(self, hexpand=False, spacing=6)
-        self.option = option
-        self.config = config
-        self.dbstate = dbstate
-        self.uistate = uistate
-        self.dbid = None
-        if dbid:
-            self.dbid = self.dbstate.db.get_dbid()
-
-        if text:
-            label_text = "{} {}:".format(text, number)
-        else:
-            label_text = "{} {}:".format(_("Field"), number)
-        label = Gtk.Label(label=label_text)
-        self.pack_start(label, False, False, 0)
-        self.type_selector = Gtk.ComboBoxText()
-        self.pack_start(self.type_selector, False, False, 0)
-        self.event_selector = Gtk.ComboBoxText()
-        self.event_selector.connect("show", self.hide_event_selector)
-        self.pack_start(self.event_selector, False, False, 0)
-        self.attribute_selector = Gtk.ComboBoxText()
-        self.attribute_selector.connect("show", self.hide_attribute_selector)
-        self.pack_start(self.attribute_selector, False, False, 0)
-        self.all_matches = Gtk.CheckButton(label=_("All"))
-        self.all_matches.connect("show", self.hide_event_selector)
-        self.pack_start(self.all_matches, False, False, 0)
-        self.relation_selector = Gtk.Button()
-        self.relation_selector.connect("show", self.hide_button)
-        self.pack_start(self.relation_selector, False, False, 0)
-
-        self.user_field_types = ["None", "Event", "Fact", "Attribute", "Relation"]
-        self.user_field_types_lang = [_("None"), _("Event"), _("Fact"), _("Attribute"), _("Relation")]
-        if not relation:
-            del self.user_field_types_lang[-1]
-        for option in self.user_field_types_lang:
-            self.type_selector.append_text(option)
-
-        self.attribute_etoi, self.attribute_itoe = get_attribute_maps(self.dbstate.db, obj_type)
-        self.attribute_names = sorted(self.attribute_itoe.keys())
-        for attribute_type in self.attribute_names:
-            self.attribute_selector.append_text(attribute_type)
-
-        self.event_etoi, self.event_itoe = get_event_maps(self.dbstate.db)
-        self.event_names = sorted(self.event_itoe.keys())
-        for event_type in self.event_names:
-            self.event_selector.append_text(event_type)
-
-        self.all_matches.set_tooltip_text(_("Enabling this option will enable the display of all records found. This is generally undesirable for most things, but can sometimes be useful if for example someone held multiple occupations and you wanted that information available at a glance."))
-
-        user_type = "None"
-        user_value = ""
-        user_option = False
-        current_option = get_config_option(
-            self.config,
-            self.option,
-            dbid=self.dbid,
-        )
-        if current_option and current_option[0] != "None":
-            user_type = current_option[0]
-            user_value = current_option[1]
-            if len(current_option) >= 3:
-                if current_option[2] == "True":
-                    user_option = True
-        current_index = self.user_field_types.index(user_type)
-        self.type_selector.set_active(current_index)
-        self.type_selector.set_tooltip_text(_("All person or family facts displayed are user configurable and they may be populated with event, fact, attribute or relation data in a number of different combinations. Not all combinations may make sense, but this mechanism allows the user to tailor the view to their needs. Note fact and event types are the same, the difference between them is that for an event the date and place are displayed while for a fact the event description is displayed. So a baptism is an event while an occupation can be thought of as a fact."))
-
-        if current_index in [1, 2]:
-            self.hide_selectors(event=False, all=False)
-            if self.event_etoi[user_value] in self.event_names:
-                current_index = self.event_names.index(self.event_etoi[user_value])
-                self.event_selector.set_active(current_index)
-                self.all_matches.set_active(user_option)
-        elif current_index == 3:
-            self.hide_selectors(attribute=False, all=False)
-            if self.attribute_etoi[user_value] in self.attribute_names:
-                current_index = self.attribute_names.index(self.attribute_etoi[user_value])
-                self.attribute_selector.set_active(current_index)
-                self.all_matches.set_active(user_option)
-        elif current_index == 4:
-            self.hide_selectors(relation=False)
-            try:
-                person = self.dbstate.db.get_person_from_handle(user_value)
-                name = name_displayer.display(person)
-                self.relation_selector.set_label(name)
-            except HandleError:
-                self.relation_selector.set_label("")
-        else:
-            self.hide_selectors()
-
-        self.type_selector.connect("changed", self.update_type)
-        self.event_selector.connect("changed", self.update_event_choice)
-        self.all_matches.connect("toggled", self.update_all_choice)
-        self.attribute_selector.connect("changed", self.update_attribute_choice)
-        self.relation_selector.connect("clicked", self.update_relation_choice)
-
-    def hide_selectors(self, event=True, attribute=True, relation=True, all=True):
-        if event:
-            self.event_selector.hide()
-        if relation:
-            self.relation_selector.hide()
-        if attribute:
-            self.attribute_selector.hide()
-        if all:
-            self.all_matches.hide()
-
-    def update_type(self, obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        current_type = self.user_field_types[current_index]
-        save_config_option(self.config, self.option, current_type, "", dbid=self.dbid)
-        if current_type in ["Event", "Fact"]:
-            self.hide_selectors(event=False, all=False)
-            current_index = self.event_names.index(self.event_etoi["Unknown"])
-            self.event_selector.set_active(current_index)
-            self.event_matches.set_active(False)
-            self.event_selector.show()
-            self.all_matches.show()
-            self.update_event_choice()
-        elif current_type == "Attribute":
-            self.hide_selectors(attribute=False, all=False)
-            current_index = self.attribute_names.index(self.attribute_etoi["None"])
-            self.attribute_selector.set_active(current_index)
-            self.attribute_selector.show()
-            self.all_matches.show()
-            self.update_attribute_choice()
-        elif current_type == "Relation":
-            self.hide_selectors(relation=False)
-            self.relation_selector.set_label("")
-            self.relation_selector.show()
-            self.update_relation_choice()
-        else:
-            self.all_matches.set_active(False)
-            self.relation_selector.set_label("")
-            self.hide_selectors()
-
-    def update_event_choice(self, *obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [1, 2]:
-            current_value = self.event_selector.get_active_text()
-            if self.all_matches.get_active():
-                current_option = "True"
-            else:
-                current_option = "False"
-            save_config_option(
-                self.config,
-                self.option,
-                self.user_field_types[current_index],
-                "{}:{}".format(self.event_itoe[current_value], current_option),
-                dbid=self.dbid
-            )
-
-    def update_all_choice(self, *obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [1, 2]:
-            self.update_event_choice()
-        elif current_index == 3:
-            self.update_attribute_choice()
-
-    def update_attribute_choice(self, *obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index == 3:
-            current_value = self.attribute_selector.get_active_text()
-            if self.all_matches.get_active():
-                current_option = "True"
-            else:
-                current_option = "False"
-            save_config_option(
-                self.config,
-                self.option,
-                self.user_field_types[current_index],
-                "{}:{}".format(self.attribute_itoe[current_value], current_option),
-                dbid=self.dbid
-            )
-
-    def update_relation_choice(self, *obj):
-        SelectPerson = SelectorFactory("Person")
-        selector = SelectPerson(
-            self.dbstate, self.uistate, [], _("Select Person")
-        )
-        person = selector.run()
-        if person:
-            name = name_displayer.display(person)
-            self.relation_selector.set_label(name)
-            save_config_option(
-                self.config,
-                self.option,
-                "Relation",
-                person.get_handle(),
-                dbid=self.dbid
-            )
-
-    def hide_button(self, obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 4:
-            self.relation_selector.hide()
-
-    def hide_event_selector(self, obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index not in [1, 2]:
-            self.event_selector.hide()
-            if current_index != 3:
-                self.all_matches.hide()
-
-    def hide_attribute_selector(self, obj):
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 3:
-            self.attribute_selector.hide()
-            if current_index not in [1, 2]:
-                self.all_matches.hide()
-
-
 class ConfigReset(Gtk.Button):
     """
     Class to manage resetting configuration options.
@@ -894,9 +580,21 @@ class ConfigReset(Gtk.Button):
         else:
             self.set_label(_("Reset Page Defaults"))
         self.connect("clicked", self.reset_option_space)
-        self.set_tooltip_text(_("This option will examine a set of options and set any that were changed back to their default value. It may apply to a whole page or in some cases a part of a page. Note if it finds and has to reset any values when done it will close the configuration dialog and you will need to reopen it. Redraw logic has not been implemented yet."))
+        self.set_tooltip_text(
+            _(
+                "This option will examine a set of options and set any "
+                "that were changed back to their default value. It may "
+                "apply to a whole page or in some cases a part of a page. "
+                "Note if it finds and has to reset any values when done "
+                "it will close the configuration dialog and you will need "
+                "to reopen it. Redraw logic has not been implemented yet."
+            )
+        )
 
-    def reset_option_space(self, obj):
+    def reset_option_space(self, _dummy_obj):
+        """
+        Reset any options that changed in a given space.
+        """
         reset_option = False
         options = self.get_option_space()
         for option in options:
@@ -909,6 +607,9 @@ class ConfigReset(Gtk.Button):
             self.dialog.done(None, None)
 
     def get_option_space(self):
+        """
+        Get all the options available in a given space.
+        """
         settings = self.config.get_section_settings("options")
         prefix = self.space.replace("options.", "")
         prefix_length = len(prefix)
@@ -917,6 +618,7 @@ class ConfigReset(Gtk.Button):
             if setting[:prefix_length] == prefix:
                 options.append("options.{}".format(setting))
         return options
+
 
 class LayoutEditorButton(Gtk.Button):
     """
@@ -930,9 +632,18 @@ class LayoutEditorButton(Gtk.Button):
         self.obj_type = obj_type
         self.set_label(_("Layout Editor"))
         self.connect("clicked", self.launch_editor)
-        self.set_tooltip_text(_("This will launch the page layout editor, which can also be launched by Ctrl-Right clicking in the fact section of any framed object."))
+        self.set_tooltip_text(
+            _(
+                "This will launch the page layout editor, which can also "
+                "be launched by Ctrl-Right clicking in the fact section "
+                "of any framed object."
+            )
+        )
 
-    def launch_editor(self, obj):
+    def launch_editor(self, _dummy_obj):
+        """
+        Launch the layout editor.
+        """
         try:
             ProfileViewLayout(self.uistate, self.config, self.obj_type)
         except WindowActiveError:

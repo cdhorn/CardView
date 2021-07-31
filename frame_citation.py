@@ -37,11 +37,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from frame_const import CITATION_TYPES
 from frame_primary import PrimaryGrampsFrame
-from frame_utils import (
-    get_confidence,
-    get_confidence_color_css,
-    TextLink
-)
+from frame_utils import get_confidence, get_confidence_color_css, TextLink
 
 _ = glocale.translation.sgettext
 
@@ -57,13 +53,29 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, context, citation, groups=None, reference=None):
-        PrimaryGrampsFrame.__init__(self, grstate, "citation", citation, groups=groups)
-        source = grstate.dbstate.db.get_source_from_handle(citation.source_handle)
+        PrimaryGrampsFrame.__init__(
+            self, grstate, "citation", citation, groups=groups
+        )
+        source = grstate.dbstate.db.get_source_from_handle(
+            citation.source_handle
+        )
 
         if grstate.config.get("options.global.link-citation-title-to-source"):
-            title = TextLink(source.title, "Source", source.get_handle(), self.switch_object, bold=True)
+            title = TextLink(
+                source.title,
+                "Source",
+                source.get_handle(),
+                self.switch_object,
+                bold=True,
+            )
         else:
-            title = TextLink(source.title, "Citation", citation.get_handle(), self.switch_object, bold=True)
+            title = TextLink(
+                source.title,
+                "Citation",
+                citation.get_handle(),
+                self.switch_object,
+                bold=True,
+            )
         self.title.pack_start(title, True, False, 0)
 
         if source.author:
@@ -74,7 +86,9 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
 
         if self.option("citation", "show-date"):
             if citation.get_date_object():
-                text = glocale.date_displayer.display(citation.get_date_object())
+                text = glocale.date_displayer.display(
+                    citation.get_date_object()
+                )
                 if text:
                     self.add_fact(self.make_label(text))
 
@@ -84,7 +98,9 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
 
         if self.option("citation", "show-reference-type"):
             if reference and reference[1]:
-                label = self.make_label(CITATION_TYPES[reference[1]], left=False)
+                label = self.make_label(
+                    CITATION_TYPES[reference[1]], left=False
+                )
                 self.metadata.pack_start(label, False, False, 0)
 
         if self.option("citation", "show-reference-description"):
@@ -93,7 +109,9 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 self.metadata.pack_start(label, False, False, 0)
 
         if self.option("citation", "show-confidence"):
-            label = self.make_label(get_confidence(citation.confidence), left=False)
+            label = self.make_label(
+                get_confidence(citation.confidence), left=False
+            )
             self.metadata.pack_start(label, False, False, 0)
 
         self.enable_drag()
@@ -107,4 +125,6 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         if not self.option("page", "use-color-scheme"):
             return ""
 
-        return get_confidence_color_css(self.obj.confidence, self.grstate.config)
+        return get_confidence_color_css(
+            self.obj.confidence, self.grstate.config
+        )
