@@ -38,8 +38,25 @@ from gi.repository import Gdk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib import (
+    Address,
+    ChildRef,
+    Citation,
+    Event,
+    Family,
+    Media,
+    Name,
+    Note,
+    Person,
+    PersonRef,
+    Place,
+    Source,
+    Repository,
+)
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
     EditAddress,
+    EditChildRef,
     EditCitation,
     EditEvent,
     EditFamily,
@@ -47,13 +64,10 @@ from gramps.gui.editors import (
     EditName,
     EditNote,
     EditPerson,
+    EditPersonRef,
     EditPlace,
     EditRepository,
     EditSource,
-)
-from gramps.gen.lib import (
-    Citation,
-    Person,
 )
 
 
@@ -149,6 +163,113 @@ _EDITORS = {
     "Repository": EditRepository,
     "Source": EditSource,
 }
+
+GRAMPS_OBJECTS = [
+    (
+        Event,
+        EditEvent,
+        "Event",
+        _("Event"),
+        DdTargets.EVENT,
+        "gramps-event"
+    ),
+    (
+        Citation,
+        EditCitation,
+        "Citation",
+        _("Citation"),
+        DdTargets.CITATION_LINK,
+        "gramps-citation",
+    ),
+    (
+        Source,
+        EditSource,
+        "Source",
+        _("Source"),
+        DdTargets.SOURCE_LINK,
+        "gramps-source",
+    ),
+    (
+        Place,
+        EditPlace,
+        "Place",
+        _("Place"),
+        DdTargets.PLACE_LINK,
+        "gramps-place",
+    ),
+    (
+        Note,
+        EditNote,
+        "Note",
+        _("Note"),
+        DdTargets.NOTE_LINK,
+        "gramps-notes"
+    ),
+    (
+        Person,
+        EditPerson,
+        "Person",
+        _("Person"),
+        DdTargets.PERSON_LINK,
+        "gramps-person",
+    ),
+    (
+        Family,
+        EditFamily,
+        "Family",
+        _("Family"),
+        DdTargets.FAMILY_LINK,
+        "gramps-family",
+    ),
+    (
+        Media,
+        EditMedia,
+        "Media",
+        _("Media"),
+        DdTargets.MEDIAOBJ,
+        "gramps-media"
+    ),
+    (
+        Repository,
+        EditRepository,
+        "Repository",
+        _("Repository"),
+        DdTargets.REPO_LINK,
+        "gramps-repository",
+    ),
+    (
+        Address,
+        EditAddress,
+        "Address",
+        _("Address"),
+        DdTargets.ADDRESS,
+        "gramps-address",
+    ),
+    (
+        Name,
+        EditName,
+        "Name",
+        _("Name"),
+        DdTargets.NAME,
+        "gramps-person"
+    ),
+    (
+        ChildRef,
+        EditChildRef,
+        "ChildRef",
+        _("ChildRef"),
+        DdTargets.CHILDREF,
+        "stock_link",
+    ),
+    (
+        PersonRef,
+        EditPersonRef,
+        "PersonRef",
+        _("PersonRef"),
+        DdTargets.PERSONREF,
+        "stock_link",
+    ),
+]
 
 # For layout editor
 LABELS = {

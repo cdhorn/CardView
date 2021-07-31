@@ -59,6 +59,7 @@ from gramps.gui.utils import open_file_with_default_application
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from .frame_const import GRAMPS_OBJECTS
 from .frame_utils import get_config_option
 
 _ = glocale.translation.sgettext
@@ -82,6 +83,44 @@ class GrampsState:
         self.router = router
         self.space = space
         self.config = config
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsObject class
+#
+# ------------------------------------------------------------------------
+class GrampsObject:
+    """
+    A simple class to encapsulate information about a Gramps object.
+    """
+
+    __slots__ = "obj", "obj_edit", "obj_type", "obj_lang", "dnd_type", "dnd_icon", "is_reference"
+
+    def __init__(self, obj):
+        self.obj = obj
+        self.obj_edit = None
+        self.obj_type = None
+        self.obj_lang = None
+        self.dnd_type = None
+        self.dnd_icon = None
+        self.is_reference = False
+
+        for obj_type in GRAMPS_OBJECTS:
+            if isinstance(obj, obj_type[0]):
+                (dummy_var1,
+                 self.obj_edit,
+                 self.obj_type,
+                 self.obj_lang,
+                 self.dnd_type,
+                 self.dnd_icon) = obj_type
+                break
+
+        if not self.obj_type:
+            raise AttributeError
+
+        if self.obj_type and "Ref" in self.obj_type:
+            self.is_reference = True
 
 
 # ------------------------------------------------------------------------
