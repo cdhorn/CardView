@@ -48,11 +48,7 @@ from gramps.gui.widgets import StyledTextBuffer
 from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

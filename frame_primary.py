@@ -102,46 +102,17 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsConfig, GrampsImageViewFrame
-from frame_utils import get_attribute_types, get_config_option, get_gramps_object_type
+from frame_classes import GrampsConfig, GrampsImageViewFrame
+from frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from frame_utils import (
+    button_activated,
+    get_attribute_types,
+    get_config_option,
+    get_gramps_object_type
+)
 from page_layout import ProfileViewLayout
 
-
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-_EDITORS = {
-    "Citation": EditCitation,
-    "Event": EditEvent,
-    "Family": EditFamily,
-    "Media": EditMedia,
-    "Note": EditNote,
-    "Person": EditPerson,
-    "Place": EditPlace,
-    "Repository": EditRepository,
-    "Source": EditSource,
-}
-
-_RETURN = Gdk.keyval_from_name("Return")
-_KP_ENTER = Gdk.keyval_from_name("KP_Enter")
-_SPACE = Gdk.keyval_from_name("space")
-_LEFT_BUTTON = 1
-_RIGHT_BUTTON = 3
-
-
-def button_activated(event, mouse_button):
-    """
-    Test if specific button press happened.
-    """
-    return (
-        event.type == Gdk.EventType.BUTTON_PRESS and event.button == mouse_button
-    ) or (
-        event.type == Gdk.EventType.KEY_PRESS
-        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
-    )
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

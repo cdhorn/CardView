@@ -35,20 +35,15 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_const import CITATION_TYPES
 from frame_primary import PrimaryGrampsFrame
-from frame_utils import get_confidence, get_confidence_color_css, TextLink
+from frame_utils import (
+    get_confidence,
+    get_confidence_color_css,
+    TextLink
+)
 
-
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-CITATION_TYPES = {
-    0: _("Direct"),
-    1: _("Indirect")
-}
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

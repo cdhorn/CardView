@@ -52,13 +52,12 @@ from gramps.gui.widgets import BasicLabel
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from frame_const import TAG_DISPLAY_MODES, LABELS
 from frame_utils import (
-    TAG_DISPLAY_MODES,
     AttributeSelector,
     ConfigReset,
     FrameFieldSelector
 )
-from page_layout import LABELS
 
 _ = glocale.translation.sgettext
 

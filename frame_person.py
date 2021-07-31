@@ -65,9 +65,9 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_const import _BIRTH_EQUIVALENTS, _DEATH_EQUIVALENTS, _GENDERS
 from frame_primary import PrimaryGrampsFrame
 from frame_utils import (
-    _GENDERS,
     format_date_string,
     get_key_person_events,
     get_person_color_css,
@@ -75,14 +75,7 @@ from frame_utils import (
     TextLink,
 )
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-_BIRTH_EQUIVALENTS = ["Baptism", "Christening"]
-_DEATH_EQUIVALENTS = ["Burial", "Cremation", "Probate"]
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

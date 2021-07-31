@@ -52,7 +52,15 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from frame_base import GrampsState, button_activated
+from frame_classes import GrampsState
+from frame_const import (
+    _LEFT_BUTTON,
+    EVENT_DISPLAY_MODES,
+    IMAGE_DISPLAY_MODES,
+    TAG_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,
+    TIMELINE_COLOR_MODES,
+)    
 from frame_groups import (
     get_addresses_group,
     get_associations_group,
@@ -65,11 +73,7 @@ from frame_groups import (
 )
 from frame_person import PersonGrampsFrame
 from frame_utils import (
-    EVENT_DISPLAY_MODES,
-    IMAGE_DISPLAY_MODES,
-    TAG_DISPLAY_MODES,
-    SEX_DISPLAY_MODES,
-    TIMELINE_COLOR_MODES,
+    button_activated,
     AttributeSelector,
     ConfigReset,
     FrameFieldSelector,
@@ -78,7 +82,6 @@ from frame_utils import (
 from page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
-_LEFT_BUTTON = 1
 
 
 class PersonProfilePage(BaseProfilePage):

@@ -49,14 +49,16 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from frame_base import GrampsState
-from frame_groups import get_references_group
-from frame_note import NoteGrampsFrame
-from frame_utils import (
+from frame_classes import GrampsState
+from frame_const import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
+)    
+from frame_groups import get_references_group
+from frame_note import NoteGrampsFrame
+from frame_utils import (
     ConfigReset,
     LayoutEditorButton
 )

@@ -43,7 +43,7 @@ from gi.repository import Gtk, Gdk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import GrampsConfig
+from frame_classes import GrampsConfig
 from frame_primary import PrimaryGrampsFrame
 from frame_secondary import SecondaryGrampsFrame
 

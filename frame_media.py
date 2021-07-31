@@ -48,11 +48,7 @@ from frame_image import ImageGrampsFrame
 from frame_list import GrampsFrameList
 from frame_utils import get_gramps_object_type
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

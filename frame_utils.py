@@ -21,7 +21,7 @@
 #
 
 """
-Frame utility functions and classes.
+Frame utility functions and classes
 """
 
 # ------------------------------------------------------------------------
@@ -75,74 +75,34 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_const import (
+    _CONFIDENCE,
+    _KP_ENTER,
+    _RETURN,
+    _SPACE,
+    CONFIDENCE_COLOR_SCHEME,
+    EVENT_DISPLAY_MODES,
+    TAG_DISPLAY_MODES,
+    IMAGE_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,
+    TIMELINE_COLOR_MODES,
+)
 from page_layout import ProfileViewLayout
 from timeline import EVENT_CATEGORIES, RELATIVES
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
+_ = glocale.translation.sgettext
 
-_GENDERS = {
-    Person.MALE: "\u2642",
-    Person.FEMALE: "\u2640",
-    Person.UNKNOWN: "\u2650",
-}
 
-_CONFIDENCE = {
-    Citation.CONF_VERY_LOW: _("Very Low"),
-    Citation.CONF_LOW: _("Low"),
-    Citation.CONF_NORMAL: _("Normal"),
-    Citation.CONF_HIGH: _("High"),
-    Citation.CONF_VERY_HIGH: _("Very High"),
-}
-
-CONFIDENCE_COLOR_SCHEME = {
-    Citation.CONF_VERY_LOW: "very-low",
-    Citation.CONF_LOW: "low",
-    Citation.CONF_NORMAL: "normal",
-    Citation.CONF_HIGH: "high",
-    Citation.CONF_VERY_HIGH: "very-high",
-}
-
-EVENT_DISPLAY_MODES = [
-    (0, _("Show life span only and nothing else")),
-    (1, _("Single line with place")),
-    (2, _("Single line with no place")),
-    (3, _("Abbreviated single line with place")),
-    (4, _("Abbreviated single line with no place")),
-    (5, _("Split line")),
-    (6, _("Abbreviated split line")),
-]
-
-TAG_DISPLAY_MODES = [
-    (0, _("Disabled")),
-    (1, _("Show icons")),
-    (2, _("Show tag names"))
-]
-
-IMAGE_DISPLAY_MODES = [
-    (0, _("No image displayed")),
-    (1, _("Small image on right")),
-    (2, _("Large image on right")),
-    (3, _("Small image on left")),
-    (4, _("Large image on left")),
-]
-
-SEX_DISPLAY_MODES = [
-    (0, _("No indicator displayed")),
-    (1, _("Indicator to left of name")),
-    (2, _("Indicator to right of name"))
-]
-
-TIMELINE_COLOR_MODES = [
-    (0, _("Person scheme")),
-    (1, _("Relationship scheme")),
-    (2, _("Event category scheme")),
-    (3, _("Evidence confidence scheme"))
-]
-
+def button_activated(event, mouse_button):
+    """
+    Test if specific button press happened.
+    """
+    return (
+        event.type == Gdk.EventType.BUTTON_PRESS and event.button == mouse_button
+    ) or (
+        event.type == Gdk.EventType.KEY_PRESS
+        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
+    )
 
 def get_gramps_object_type(obj):
     """

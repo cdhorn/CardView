@@ -48,6 +48,7 @@ from frame_address import AddressGrampsFrame
 from frame_list import GrampsFrameList
 from frame_utils import get_gramps_object_type
 
+
 # ------------------------------------------------------------------------
 #
 # AddressesGrampsFrameGroup class

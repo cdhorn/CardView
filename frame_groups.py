@@ -45,9 +45,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from frame_addresses import AddressesGrampsFrameGroup
 from frame_associations import AssociationsGrampsFrameGroup
-from frame_base import GrampsFrameGroupExpander
 from frame_children import ChildrenGrampsFrameGroup
 from frame_citations import CitationsGrampsFrameGroup
+from frame_classes import GrampsFrameGroupExpander
 from frame_couple import CoupleGrampsFrame
 from frame_generic import GenericGrampsFrameGroup
 from frame_media import MediaGrampsFrameGroup
@@ -56,11 +56,7 @@ from frame_repositories import RepositoriesGrampsFrameGroup
 from frame_sources import SourcesGrampsFrameGroup
 from frame_timeline import TimelineGrampsFrameGroup
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
+_ = glocale.translation.sgettext
 
 
 def get_generic_group(grstate, obj, framegroup, title_plural, title_single, expanded=True):

@@ -71,27 +71,12 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from frame_base import (
-    GrampsConfig,
-    button_activated,
-    _LEFT_BUTTON,
-    _RIGHT_BUTTON
-)
-from frame_utils import get_gramps_object_type
+from frame_classes import GrampsConfig
+from frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from frame_utils import button_activated, get_gramps_object_type
 from page_layout import ProfileViewLayout
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-_EDITORS = {
-    "Address": EditAddress,
-    "Citation": EditCitation,
-    "Name": EditName,
-    "Note": EditNote,
-}
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

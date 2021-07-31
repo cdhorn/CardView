@@ -48,11 +48,7 @@ from frame_primary import PrimaryGrampsFrame
 from frame_person import PersonGrampsFrame
 from frame_utils import get_family_color_css, get_key_family_events
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

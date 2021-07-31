@@ -36,7 +36,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.place import PlaceDisplay
 
 
 # ------------------------------------------------------------------------
@@ -47,20 +46,7 @@ from gramps.gen.display.place import PlaceDisplay
 from frame_primary import PrimaryGrampsFrame
 from frame_utils import TextLink
 
-
-# ------------------------------------------------------------------------
-#
-# Internationalisation
-#
-# ------------------------------------------------------------------------
-
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-pd = PlaceDisplay()
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

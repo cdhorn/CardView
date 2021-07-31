@@ -61,29 +61,7 @@ from gramps.gui.utils import open_file_with_default_application
 # ------------------------------------------------------------------------
 from frame_utils import get_config_option
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-_RETURN = Gdk.keyval_from_name("Return")
-_KP_ENTER = Gdk.keyval_from_name("KP_Enter")
-_SPACE = Gdk.keyval_from_name("space")
-_LEFT_BUTTON = 1
-_RIGHT_BUTTON = 3
-
-
-def button_activated(event, mouse_button):
-    """
-    Test if specific button press happened.
-    """
-    return (
-        event.type == Gdk.EventType.BUTTON_PRESS and event.button == mouse_button
-    ) or (
-        event.type == Gdk.EventType.KEY_PRESS
-        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
-    )
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------

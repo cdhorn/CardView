@@ -45,43 +45,9 @@ from gramps.gui.managedwindow import ManagedWindow
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from frame_const import LABELS, PAGES
 
-try:
-    _trans = glocale.get_addon_translator(__file__)
-except ValueError:
-    _trans = glocale.translation
-_ = _trans.gettext
-
-LABELS = {
-    "parent": _("Parents"),
-    "timeline": _("Timeline"),
-    "citation": _("Citations"),
-    "media": _("Media"),
-    "note": _("Notes"),
-    "spouse": _("Spouses"),
-    "repository": _("Repositories"),
-    "place": _("Places"),
-    "event": _("Events"),
-    "reference": _("References"),
-    "people": _("People"),
-    "family": _("Families"),
-    "child": _("Children"),
-    "source": _("Sources"),
-    "association": _("Associations"),
-    "address": _("Addresses")
-}
-
-PAGES = [
-    ("Person", _("Person")),
-    ("Family", _("Family")),
-    ("Event", _("Event")),
-    ("Place", _("Place")),
-    ("Source", _("Source")),
-    ("Citation", _("Citation")),
-    ("Repository", _("Repository")),
-    ("Note", _("Note")),
-    ("Media", _("Media")),
-]
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
