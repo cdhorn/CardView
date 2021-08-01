@@ -24,6 +24,14 @@ AssociationGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+import pickle
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -40,6 +48,7 @@ from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Note, Source
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditCitation, EditNote, EditPersonRef
 from gramps.gui.selectors import SelectorFactory
 
@@ -55,7 +64,7 @@ from .frame_utils import (
     button_activated,
     citation_option_text,
     menu_item,
-    note_option_text
+    note_option_text,
 )
 
 _ = glocale.translation.sgettext
@@ -92,7 +101,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             groups=groups,
         )
         self.base_person = person
-
+        self.dnd_drop_ref_targets = []
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         association = person_ref.get_relation()
@@ -125,6 +134,70 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             )
             self.ref_body.pack_start(hbox, False, False, 0)
 
+        self.enable_drag(
+            obj=self.secondary,
+            eventbox=self.ref_eventbox,
+            drag_data_get=self.drag_data_ref_get,
+        )
+        self.enable_drop(
+            eventbox=self.ref_eventbox,
+            dnd_drop_targets=self.dnd_drop_ref_targets,
+            drag_data_received=self.drag_data_ref_received,
+        )
+
+    def drag_data_ref_get(
+        self, _dummy_widget, _dummy_context, data, info, _dummy_time
+    ):
+        """
+        Return requested data.
+        """
+        if info == self.secondary.dnd_type.app_id:
+            returned_data = (
+                self.secondary.dnd_type.drag_type,
+                id(self),
+                self.secondary.obj,
+                0,
+            )
+            data.set(
+                self.secondary.dnd_type.atom_drag_type,
+                8,
+                pickle.dumps(returned_data),
+            )
+
+    def drag_data_ref_received(
+        self,
+        _dummy_widget,
+        _dummy_context,
+        _dummy_x,
+        _dummy_y,
+        data,
+        _dummy_info,
+        _dummy_time,
+    ):
+        """
+        Handle dropped data.
+        """
+        if data and data.get_data():
+            try:
+                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
+                    data.get_data()
+                )
+            except pickle.UnpicklingError:
+                return self.dropped_ref_text(data.get_data().decode("utf-8"))
+            if id(self) == obj_id:
+                return
+            if DdTargets.CITATION_LINK.drag_type == dnd_type:
+                self.added_ref_citation(obj_handle)
+            elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+                self.added_ref_note(obj_handle)
+
+    def dropped_ref_text(self, data):
+        """
+        Examine and try to handle dropped text in a reasonable manner.
+        """
+        if data and hasattr(self.secondary.obj, "note_list"):
+            self.add_new_ref_note(None, content=data)
+
     def route_ref_action(self, obj, event):
         """
         Route the ref related action if the frame was clicked on.
@@ -135,7 +208,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             else:
                 self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(None, None, self.primary.obj_type, self.primary.obj.get_handle())
+            self.switch_object(
+                None, None, self.primary.obj_type, self.primary.obj.get_handle()
+            )
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -179,7 +254,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), name_displayer.display(self.primary.obj))
+        name = "{} {}".format(
+            _("Edit"), name_displayer.display(self.primary.obj)
+        )
         return menu_item("gtk-edit", name, self.edit_person_ref)
 
     def edit_person_ref(self, *_dummy_obj):
@@ -372,9 +449,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         prefix = _(
             "You are about to remove the following note from this object:"
         )
-        extra = _(
-            "This removes the reference but does not delete the note."
-        )
+        extra = _("This removes the reference but does not delete the note.")
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),
