@@ -125,23 +125,26 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         self.facts_row = 0
 
-    def enable_drag(self):
+    def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """
         Enable self as a drag source.
         """
-        if self.eventbox:
-            self.eventbox.drag_source_set(
+        obj = obj or self.focus
+        eventbox = eventbox or self.eventbox
+        drag_data_get = drag_data_get or self.drag_data_get
+        if eventbox:
+            eventbox.drag_source_set(
                 Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.COPY
             )
             target_list = Gtk.TargetList.new([])
             target_list.add(
-                self.focus.dnd_type.atom_drag_type,
-                self.focus.dnd_type.target_flags,
-                self.focus.dnd_type.app_id,
+                obj.dnd_type.atom_drag_type,
+                obj.dnd_type.target_flags,
+                obj.dnd_type.app_id,
             )
-            self.eventbox.drag_source_set_target_list(target_list)
-            self.eventbox.drag_source_set_icon_name(self.focus.dnd_icon)
-            self.eventbox.connect("drag_data_get", self.drag_data_get)
+            eventbox.drag_source_set_target_list(target_list)
+            eventbox.drag_source_set_icon_name(obj.dnd_icon)
+            eventbox.connect("drag_data_get", drag_data_get)
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
@@ -162,23 +165,26 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 pickle.dumps(returned_data),
             )
 
-    def enable_drop(self):
+    def enable_drop(self, eventbox=None, dnd_drop_targets=None, drag_data_received=None):
         """
         Enable self as a basic drop target, override in derived classes as
         needed.
         """
-        if self.eventbox:
-            self.dnd_drop_targets.append(DdTargets.URI_LIST.target())
+        eventbox = eventbox or self.eventbox
+        dnd_drop_targets = dnd_drop_targets or self.dnd_drop_targets
+        drag_data_received = drag_data_received or self.drag_data_received
+        if eventbox:
+            dnd_drop_targets.append(DdTargets.URI_LIST.target())
             for target in DdTargets.all_text_targets():
-                self.dnd_drop_targets.append(target)
-            self.dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
-            self.dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
-            self.dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-            self.dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
-            self.eventbox.drag_dest_set(
-                Gtk.DestDefaults.ALL, self.dnd_drop_targets, Gdk.DragAction.COPY
+                dnd_drop_targets.append(target)
+            dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+            dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
+            dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+            dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            eventbox.drag_dest_set(
+                Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
             )
-            self.eventbox.connect("drag-data-received", self.drag_data_received)
+            eventbox.connect("drag-data-received", drag_data_received)
 
     def drag_data_received(
         self,
