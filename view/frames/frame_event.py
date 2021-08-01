@@ -197,9 +197,18 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         if date:
             self.add_fact(self.make_label(date))
 
-        place = place_displayer.display_event(grstate.dbstate.db, event)
-        if place:
-            self.add_fact(self.make_label(place))
+        text = place_displayer.display_event(grstate.dbstate.db, event)
+        if text:
+            place = TextLink(
+                text,
+                "Place",
+                event.place,
+                self.switch_object,
+                hexpand=False,
+                bold=False,
+                markup=self.markup,
+            )
+            self.add_fact(place)
 
         if self.option(context, "show-description"):
             text = event.get_description()
@@ -301,9 +310,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             living = probably_alive(self.event_person, self.grstate.dbstate.db)
         else:
             living = False
-        return get_person_color_css(
-            self.event_person, living=living
-        )
+        return get_person_color_css(self.event_person, living=living)
 
     def add_custom_actions(self):
         """
@@ -390,7 +397,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 self.add_existing_participant,
             )
         )
-        participants, text = get_participants(self.grstate.dbstate.db, self.primary.obj)
+        participants, text = get_participants(
+            self.grstate.dbstate.db, self.primary.obj
+        )
         if len(participants) > 1:
             gotomenu = Gtk.Menu()
             menu.add(
@@ -400,9 +409,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             )
             editmenu = Gtk.Menu()
             menu.add(
-                submenu_item(
-                    "gramps-person", _("Edit a participant"), editmenu
-                )
+                submenu_item("gramps-person", _("Edit a participant"), editmenu)
             )
             removemenu = Gtk.Menu()
             removesubmenu = submenu_item(

@@ -336,9 +336,12 @@ class TextLink(Gtk.EventBox):
         tooltip=None,
         hexpand=False,
         bold=True,
+        markup=None
     ):
         Gtk.EventBox.__init__(self)
         self.name = escape(name)
+        if markup:
+            self.name = markup.format(self.name)
         if bold:
             self.name = "<b>{}</b>".format(self.name)
         self.label = Gtk.Label(
