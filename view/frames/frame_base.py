@@ -242,7 +242,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         try:
             ProfileViewLayout(
-                self.grstate.uistate, self.grstate.config, self.primary_type
+                self.grstate.uistate, self.grstate.config, self.primary.obj_type
             )
         except WindowActiveError:
             pass
