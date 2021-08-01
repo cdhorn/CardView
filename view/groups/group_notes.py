@@ -19,7 +19,7 @@
 #
 
 """
-SourcesGrampsFrameGroup
+NotesGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -32,74 +32,52 @@ from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
-#
-# ------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_list import GrampsFrameList
-from .frame_source import SourceGrampsFrame
-from .frame_utils import get_gramps_object_type
-
-_ = glocale.translation.sgettext
+from ..frames.frame_note import NoteGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# SourcesGrampsFrameGroup class
+# NotesGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class SourcesGrampsFrameGroup(GrampsFrameList):
+class NotesGrampsFrameGroup(GrampsFrameGroupList):
     """
-    The SourcesGrampsFrameGroup class provides a container for viewing and
-    managing all of the sources associated with a primary Gramps object.
+    The NotesGrampsFrameGroup class provides a container for managing all
+    of the notes associated with an object.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.source", "hideable")
+            self.hideable = self.option("layout.note", "hideable")
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        sources_list = []
-        if self.obj_type == "Repository":
-            for (
-                obj_type,
-                obj_handle,
-            ) in grstate.dbstate.db.find_backlink_handles(
-                self.obj.get_handle()
-            ):
-                if obj_type == "Source":
-                    source = self.grstate.dbstate.db.get_source_from_handle(
-                        obj_handle
-                    )
-                    sources_list.append(source)
 
-        if sources_list:
-            for source in sources_list:
-                frame = SourceGrampsFrame(
-                    grstate,
-                    "source",
-                    source,
-                    groups=groups,
-                )
-                self.add_frame(frame)
+        for handle in obj.get_note_list():
+            note = grstate.dbstate.db.get_note_from_handle(handle)
+            frame = NoteGrampsFrame(
+                grstate,
+                "note",
+                note,
+                groups=groups,
+            )
+            frame.set_size_request(220, -1)
+            self.add_frame(frame)
         self.show_all()
 
-    # Todo
+    # Todo: Add drag and drop to reorder or add to note list
     def save_new_object(self, handle, insert_row):
         """
-        Add new source to the repository.
+        Add new note to the list.
         """
+        return

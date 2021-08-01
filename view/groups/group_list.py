@@ -19,7 +19,7 @@
 #
 
 """
-GrampsFrameList
+GrampsFrameGroupList
 """
 
 # ------------------------------------------------------------------------
@@ -43,20 +43,20 @@ from gi.repository import Gtk, Gdk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsConfig
-from .frame_primary import PrimaryGrampsFrame
-from .frame_secondary import SecondaryGrampsFrame
+from ..frames.frame_classes import GrampsConfig
+from ..frames.frame_primary import PrimaryGrampsFrame
+from ..frames.frame_secondary import SecondaryGrampsFrame
 
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameList class
+# GrampsFrameGroupList class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameList(Gtk.ListBox, GrampsConfig):
+class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
     """
-    The GrampsFrameList class provides the core methods for managing a
-    list of GrampsFrame objects. It primarily supports drag and drop
+    The GrampsFrameGroupList class provides the core methods for managing
+    a list of GrampsFrame objects. It primarily supports drag and drop
     actions related to the list.
     """
 

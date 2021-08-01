@@ -35,8 +35,8 @@ from gi.repository import Gtk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_list import GrampsFrameList
-from .frame_association import AssociationGrampsFrame
+from ..frames.frame_association import AssociationGrampsFrame
+from .group_list import GrampsFrameGroupList
 
 
 # ------------------------------------------------------------------------
@@ -44,14 +44,14 @@ from .frame_association import AssociationGrampsFrame
 # AssociationsGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AssociationsGrampsFrameGroup(GrampsFrameList):
+class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
     """
     The AssociationsGrampsFrameGroup class provides a container for managing
     all of the associations a person has with other people.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type = "Person"
         if not self.option("layout", "tabbed"):

@@ -61,7 +61,13 @@ from ..frames.frame_const import (
     SEX_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )    
-from ..frames.frame_groups import (
+from ..frames.frame_person import PersonGrampsFrame
+from ..frames.frame_utils import (
+    button_activated,
+    ConfigReset,
+    LayoutEditorButton
+)
+from ..groups.group_utils import (
     get_addresses_group,
     get_associations_group,
     get_citations_group,
@@ -70,12 +76,6 @@ from ..frames.frame_groups import (
     get_parents_group,
     get_spouses_group,
     get_timeline_group,
-)
-from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_utils import (
-    button_activated,
-    ConfigReset,
-    LayoutEditorButton
 )
 from .page_base import BaseProfilePage
 

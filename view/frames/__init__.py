@@ -19,35 +19,24 @@
 #
 
 """
-Module containing the frames and frame groups for the page views.
+Module containing the frames for the frame groups and page views.
 """
 
 __all__ = [
-    "frame_addresses",
     "frame_address",
-    "frame_associations",
     "frame_association",
     "frame_child",
-    "frame_children",
     "frame_citation",
-    "frame_citations",
     "frame_classes",
     "frame_const",
     "frame_couple",
     "frame_event",
-    "frame_generic",
-    "frame_groups",
     "frame_image",
-    "frame_media",
     "frame_note",
-    "frame_notes",
     "frame_person",
     "frame_place",
-    "frame_repositories",
     "frame_repository",
     "frame_selectors",
     "frame_source",
-    "frame_sources",
-    "frame_timeline",
     "frame_utils"
 ]

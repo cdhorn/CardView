@@ -44,8 +44,8 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_list import GrampsFrameList
-from .frame_child import ChildGrampsFrame
+from ..frames.frame_child import ChildGrampsFrame
+from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
@@ -55,13 +55,13 @@ _ = glocale.translation.sgettext
 # ChildrenGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class ChildrenGrampsFrameGroup(GrampsFrameList):
+class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
     """
     A container for managing a list of children for a given family.
     """
 
     def __init__(self, grstate, context, family, relation=None):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.family = family
 
         working_context = context

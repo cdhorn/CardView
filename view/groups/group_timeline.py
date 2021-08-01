@@ -43,9 +43,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_event import EventGrampsFrame
-from .frame_list import GrampsFrameList
-from .frame_utils import get_gramps_object_type
+from ..frames.frame_event import EventGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 
 _ = glocale.translation.sgettext
@@ -56,14 +56,14 @@ _ = glocale.translation.sgettext
 # TimelineGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
-class TimelineGrampsFrameGroup(GrampsFrameList):
+class TimelineGrampsFrameGroup(GrampsFrameGroupList):
     """
     The TimelineGrampsFrameGroup generates an event timeline for a person
     that may also optionally include events for close family if choosen.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, skip1, skip2 = get_gramps_object_type(obj)
         self.categories = []

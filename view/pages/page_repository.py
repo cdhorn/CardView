@@ -56,13 +56,13 @@ from ..frames.frame_const import (
     SEX_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
 )    
-from ..frames.frame_generic import GenericGrampsFrameGroup
-from ..frames.frame_groups import get_notes_group, get_sources_group
 from ..frames.frame_repository import RepositoryGrampsFrame
 from ..frames.frame_utils import (
     ConfigReset,
     LayoutEditorButton
 )
+from ..groups.group_generic import GenericGrampsFrameGroup
+from ..groups.group_utils import get_notes_group, get_sources_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext

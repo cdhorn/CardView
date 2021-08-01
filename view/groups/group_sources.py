@@ -19,7 +19,7 @@
 #
 
 """
-RepositoriesGrampsFrameGroup
+SourcesGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -43,64 +43,63 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_list import GrampsFrameList
-from .frame_repository import RepositoryGrampsFrame
-from .frame_utils import get_gramps_object_type
+from ..frames.frame_source import SourceGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# RepositoriesGrampsFrameGroup class
+# SourcesGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class RepositoriesGrampsFrameGroup(GrampsFrameList):
+class SourcesGrampsFrameGroup(GrampsFrameGroupList):
     """
-    The RepositoriesGrampsFrameGroup class provides a container for managing
-    all of the repositories that may contain a Source.
+    The SourcesGrampsFrameGroup class provides a container for viewing and
+    managing all of the sources associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.repository", "hideable")
+            self.hideable = self.option("layout.source", "hideable")
 
         groups = {
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
+        sources_list = []
+        if self.obj_type == "Repository":
+            for (
+                obj_type,
+                obj_handle,
+            ) in grstate.dbstate.db.find_backlink_handles(
+                self.obj.get_handle()
+            ):
+                if obj_type == "Source":
+                    source = self.grstate.dbstate.db.get_source_from_handle(
+                        obj_handle
+                    )
+                    sources_list.append(source)
 
-        repository_list = []
-        for repo_ref in obj.get_reporef_list():
-            repository = grstate.dbstate.db.get_repository_from_handle(
-                repo_ref.ref
-            )
-            repository_list.append((repository, repo_ref))
-
-        if repository_list:
-            if self.option("repositories", "sort-by-date"):
-                repository_list.sort(
-                    key=lambda x: x[0][0].get_date_object().get_sort_value()
-                )
-
-            for repository, repo_ref in repository_list:
-                frame = RepositoryGrampsFrame(
+        if sources_list:
+            for source in sources_list:
+                frame = SourceGrampsFrame(
                     grstate,
-                    "repository",
-                    repository,
-                    repo_ref=repo_ref,
+                    "source",
+                    source,
                     groups=groups,
                 )
                 self.add_frame(frame)
         self.show_all()
 
-    # Todo: Add drag and drop to reorder or add to repo list
+    # Todo
     def save_new_object(self, handle, insert_row):
         """
-        Add new repository to the list.
+        Add new source to the repository.
         """
-        return

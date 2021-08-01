@@ -44,9 +44,9 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_image import ImageGrampsFrame
-from .frame_list import GrampsFrameList
-from .frame_utils import get_gramps_object_type
+from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
@@ -56,14 +56,14 @@ _ = glocale.translation.sgettext
 # MediaGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class MediaGrampsFrameGroup(GrampsFrameList):
+class MediaGrampsFrameGroup(GrampsFrameGroupList):
     """
     The MediaGrampsFrameGroup class provides a container for managing all
     of the media items for a given primary Gramps object.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):

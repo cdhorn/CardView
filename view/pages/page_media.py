@@ -56,15 +56,15 @@ from ..frames.frame_const import (
     SEX_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
 )    
-from ..frames.frame_groups import (
-    get_citations_group,
-    get_notes_group,
-    get_references_group,
-)
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_utils import (
     ConfigReset,
     LayoutEditorButton
+)
+from ..groups.group_utils import (
+    get_citations_group,
+    get_notes_group,
+    get_references_group,
 )
 from .page_base import BaseProfilePage
 

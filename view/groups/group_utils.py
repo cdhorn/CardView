@@ -43,18 +43,18 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_addresses import AddressesGrampsFrameGroup
-from .frame_associations import AssociationsGrampsFrameGroup
-from .frame_children import ChildrenGrampsFrameGroup
-from .frame_citations import CitationsGrampsFrameGroup
-from .frame_classes import GrampsFrameGroupExpander
-from .frame_couple import CoupleGrampsFrame
-from .frame_generic import GenericGrampsFrameGroup
-from .frame_media import MediaGrampsFrameGroup
-from .frame_notes import NotesGrampsFrameGroup
-from .frame_repositories import RepositoriesGrampsFrameGroup
-from .frame_sources import SourcesGrampsFrameGroup
-from .frame_timeline import TimelineGrampsFrameGroup
+from ..frames.frame_couple import CoupleGrampsFrame
+from .group_addresses import AddressesGrampsFrameGroup
+from .group_associations import AssociationsGrampsFrameGroup
+from .group_children import ChildrenGrampsFrameGroup
+from .group_citations import CitationsGrampsFrameGroup
+from .group_classes import GrampsFrameGroupExpander
+from .group_generic import GenericGrampsFrameGroup
+from .group_media import MediaGrampsFrameGroup
+from .group_notes import NotesGrampsFrameGroup
+from .group_repositories import RepositoriesGrampsFrameGroup
+from .group_sources import SourcesGrampsFrameGroup
+from .group_timeline import TimelineGrampsFrameGroup
 
 _ = glocale.translation.sgettext
 

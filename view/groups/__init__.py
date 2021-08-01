@@ -19,12 +19,20 @@
 #
 
 """
-Module containing the profile view objects.
+Module containing the frame groups for the page views.
 """
 
 __all__ = [
-    "frames",
-    "groups",
-    "pages"
+    "group_addresses",
+    "group_associations",
+    "group_children",
+    "group_citations",
+    "group_classes",
+    "group_generic",
+    "group_media",
+    "group_notes",
+    "group_repositories",
+    "group_sources",
+    "group_timeline",
+    "group_utils",
 ]
-

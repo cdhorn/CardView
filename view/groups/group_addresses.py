@@ -35,9 +35,9 @@ from gi.repository import Gtk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_address import AddressGrampsFrame
-from .frame_list import GrampsFrameList
-from .frame_utils import get_gramps_object_type
+from ..frames.frame_address import AddressGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 
 
 # ------------------------------------------------------------------------
@@ -45,14 +45,14 @@ from .frame_utils import get_gramps_object_type
 # AddressesGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AddressesGrampsFrameGroup(GrampsFrameList):
+class AddressesGrampsFrameGroup(GrampsFrameGroupList):
     """
     The AddressesGrampsFrameGroup class provides a container for managing
     all of the addresses a person or repository may have.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.option("layout", "tabbed"):

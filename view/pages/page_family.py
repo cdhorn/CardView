@@ -60,18 +60,18 @@ from ..frames.frame_const import (
     SEX_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )    
-from ..frames.frame_groups import (
-    get_children_group,
-    get_citations_group,
-    get_media_group,
-    get_notes_group,
-    get_timeline_group,
-)
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_utils import (
     ConfigReset,
     LayoutEditorButton
+)
+from ..groups.group_utils import (
+    get_children_group,
+    get_citations_group,
+    get_media_group,
+    get_notes_group,
+    get_timeline_group,
 )
 from .page_base import BaseProfilePage
 

@@ -44,9 +44,9 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_citation import CitationGrampsFrame
-from .frame_list import GrampsFrameList
-from .frame_utils import get_gramps_object_type
+from ..frames.frame_citation import CitationGrampsFrame
+from ..frames.frame_utils import get_gramps_object_type
+from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
@@ -56,14 +56,14 @@ _ = glocale.translation.sgettext
 # CitationsGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class CitationsGrampsFrameGroup(GrampsFrameList):
+class CitationsGrampsFrameGroup(GrampsFrameGroupList):
     """
     The CitationsGrampsFrameGroup class provides a container for viewing and
     managing all of the citations associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, obj):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         self.maximum = grstate.config.get(

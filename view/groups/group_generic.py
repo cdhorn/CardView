@@ -35,16 +35,16 @@ from gi.repository import Gtk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_citation import CitationGrampsFrame
-from .frame_couple import CoupleGrampsFrame
-from .frame_event import EventGrampsFrame
-from .frame_image import ImageGrampsFrame
-from .frame_list import GrampsFrameList
-from .frame_note import NoteGrampsFrame
-from .frame_person import PersonGrampsFrame
-from .frame_place import PlaceGrampsFrame
-from .frame_source import SourceGrampsFrame
-from .frame_repository import RepositoryGrampsFrame
+from ..frames.frame_citation import CitationGrampsFrame
+from ..frames.frame_couple import CoupleGrampsFrame
+from ..frames.frame_event import EventGrampsFrame
+from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_note import NoteGrampsFrame
+from ..frames.frame_person import PersonGrampsFrame
+from ..frames.frame_place import PlaceGrampsFrame
+from ..frames.frame_source import SourceGrampsFrame
+from ..frames.frame_repository import RepositoryGrampsFrame
+from .group_list import GrampsFrameGroupList
 
 
 # ------------------------------------------------------------------------
@@ -52,14 +52,14 @@ from .frame_repository import RepositoryGrampsFrame
 # GenericGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class GenericGrampsFrameGroup(GrampsFrameList):
+class GenericGrampsFrameGroup(GrampsFrameGroupList):
     """
     The GenericGrampsFrameGroup class provides a container for managing a
     set of generic frames for a list of primary Gramps objects.
     """
 
     def __init__(self, grstate, frame_obj_type, frame_obj_handles):
-        GrampsFrameList.__init__(self, grstate)
+        GrampsFrameGroupList.__init__(self, grstate)
         self.obj_type = frame_obj_type
         self.obj_handles = frame_obj_handles
 
