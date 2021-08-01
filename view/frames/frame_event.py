@@ -57,7 +57,8 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_primary import _EDITORS, PrimaryGrampsFrame
+from .frame_const import _EDITORS
+from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
     get_confidence,
     get_confidence_color_css,
@@ -66,6 +67,8 @@ from .frame_utils import (
     get_participants,
     get_person_color_css,
     get_relationship_color_css,
+    menu_item,
+    submenu_item,
     TextLink,
 )
 
@@ -330,8 +333,8 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 pass
             return
         try:
-            _EDITORS[self.obj_type](
-                self.grstate.dbstate, self.grstate.uistate, [], self.obj
+            self.primary.obj_edit(
+                self.grstate.dbstate, self.grstate.uistate, [], self.primary.obj
             )
         except WindowActiveError:
             pass
@@ -341,8 +344,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         Commit person to save an event reference update.
         """
         event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
-        action = "{} {} {} {} {}".format(
-            _("Update Person"),
+        action = "{} {} {} {} {} {}".format(
+            _("Update"),
+            _("Person"),
             self.event_person.get_gramps_id(),
             _("Event"),
             event.get_gramps_id(),
@@ -356,8 +360,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         Commit family to save an event reference update.
         """
         event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
-        action = "{} {} {} {} {}".format(
-            _("Update Family"),
+        action = "{} {} {} {} {} {}".format(
+            _("Update"),
+            _("Family"),
             self.event_family.get_gramps_id(),
             _("Event"),
             event.get_gramps_id(),
@@ -372,35 +377,35 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         menu = Gtk.Menu()
         menu.add(
-            self._menu_item(
+            menu_item(
                 "gramps-person",
                 _("Add a new person as a participant"),
                 self.add_new_participant,
             )
         )
         menu.add(
-            self._menu_item(
+            menu_item(
                 "gramps-person",
                 _("Add an existing person as a participant"),
                 self.add_existing_participant,
             )
         )
-        participants, text = get_participants(self.grstate.dbstate.db, self.obj)
+        participants, text = get_participants(self.grstate.dbstate.db, self.primary.obj)
         if len(participants) > 1:
             gotomenu = Gtk.Menu()
             menu.add(
-                self._submenu_item(
+                submenu_item(
                     "gramps-person", _("Go to a participant"), gotomenu
                 )
             )
             editmenu = Gtk.Menu()
             menu.add(
-                self._submenu_item(
+                submenu_item(
                     "gramps-person", _("Edit a participant"), editmenu
                 )
             )
             removemenu = Gtk.Menu()
-            removesubmenu = self._submenu_item(
+            removesubmenu = submenu_item(
                 "gramps-person", _("Remove a participant"), removemenu
             )
             menu.add(removesubmenu)
@@ -418,22 +423,22 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 handle = person.get_handle()
                 if not self.event_person.handle == handle:
                     gotomenu.add(
-                        self._menu_item(
+                        menu_item(
                             "gramps-person", text, self.goto_person, handle
                         )
                     )
                     editmenu.add(
-                        self._menu_item(
+                        menu_item(
                             "gramps-person",
                             text,
-                            self.edit_object,
+                            self.edit_primary_object,
                             person,
                             "Person",
                         )
                     )
                 if not event_ref.get_role().is_primary():
                     removemenu.add(
-                        self._menu_item(
+                        menu_item(
                             "list-remove",
                             text,
                             self.remove_participant,
@@ -443,7 +448,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                     )
                 if not self.event_person.handle == handle:
                     menu.add(
-                        self._menu_item(
+                        menu_item(
                             "gramps-person",
                             text,
                             self.edit_participant,
@@ -453,7 +458,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                     )
             if len(removemenu) == 0:
                 removesubmenu.destroy()
-        return self._submenu_item("gramps-person", _("Participants"), menu)
+        return submenu_item("gramps-person", _("Participants"), menu)
 
     def edit_participant(self, _dummy_obj, person, event_ref):
         """
@@ -563,8 +568,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 if not event_ref.is_equal(ref):
                     new_list.append(ref)
             event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
-            action = "{} {} {} {} {}".format(
-                _("Remove Person"),
+            action = "{} {} {} {} {} {}".format(
+                _("Remove"),
+                _("Person"),
                 person.get_gramps_id(),
                 _("Event"),
                 event.get_gramps_id(),

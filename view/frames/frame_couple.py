@@ -233,5 +233,5 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             return ""
 
         return get_family_color_css(
-            self.obj, divorced=self.divorced
+            self.primary.obj, divorced=self.divorced
         )

@@ -286,7 +286,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Launch the desired editor for a secondary object.
         """
         try:
-            _EDITORS[self.secondary.obj_type](
+            self.secondary.obj_edit(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
@@ -302,15 +302,16 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         if not obj:
             return
-        action = "{} {} {} {} {}".format(
-            _("Edited"),
-            self.secondary.obj_lang,
-            _("for"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
-        )
         if action_text:
             action = action_text
+        else:
+            action = "{} {} {} {} {}".format(
+                _("Edited"),
+                self.secondary.obj_lang,
+                _("for"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.primary.obj_type
         )

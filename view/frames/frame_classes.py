@@ -114,6 +114,8 @@ class GrampsObject:
                  self.obj_lang,
                  self.dnd_type,
                  self.dnd_icon) = obj_type
+                if not self.obj_lang:
+                    self.obj_lang = self.obj_type
                 break
 
         if not self.obj_type:

@@ -107,7 +107,7 @@ class CitationProfilePage(BaseProfilePage):
         )
         self.active_profile = CitationGrampsFrame(grstate, "active", citation)
 
-        source = self.dbstate.db.get_source_from_handle(self.active_profile.obj.source_handle)
+        source = self.dbstate.db.get_source_from_handle(self.active_profile.primary.obj.source_handle)
         source_frame = SourceGrampsFrame(grstate, "source", source)
 
         groups = self.config.get("options.citation.layout.groups").split(",")

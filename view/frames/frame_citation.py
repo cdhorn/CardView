@@ -126,5 +126,5 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
             return ""
 
         return get_confidence_color_css(
-            self.obj.confidence, self.grstate.config
+            self.primary.obj.confidence, self.grstate.config
         )

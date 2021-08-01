@@ -51,7 +51,12 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_person import PersonGrampsFrame
-from .frame_utils import button_activated
+from .frame_utils import (
+    button_activated,
+    citation_option_text,
+    menu_item,
+    note_option_text
+)
 
 _ = glocale.translation.sgettext
 
@@ -130,7 +135,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             else:
                 self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(None, None, self.obj_type, self.obj.get_handle())
+            self.switch_object(None, None, self.primary.obj_type, self.primary.obj.get_handle())
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -141,7 +146,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             action_menu.append(self._edit_person_ref_option())
             action_menu.append(
                 self._citations_option(
-                    self.obj_ref,
+                    self.secondary.obj,
                     self.add_new_ref_citation,
                     self.add_existing_ref_citation,
                     self.remove_ref_citation,
@@ -149,7 +154,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             )
             action_menu.append(
                 self._notes_option(
-                    self.obj_ref,
+                    self.secondary.obj,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -174,8 +179,8 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), name_displayer.display(self.obj))
-        return self._menu_item("gtk-edit", name, self.edit_person_ref)
+        name = "{} {}".format(_("Edit"), name_displayer.display(self.primary.obj))
+        return menu_item("gtk-edit", name, self.edit_person_ref)
 
     def edit_person_ref(self, *_dummy_obj):
         """
@@ -186,7 +191,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                self.obj_ref,
+                self.secondary.obj,
                 self.save_person_ref,
             )
         except WindowActiveError:
@@ -198,9 +203,10 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         if not person_ref:
             return
-        action = "{} {} {} {} {}".format(
-            _("Edited PersonRef"),
-            self.obj.get_gramps_id(),
+        action = "{} {} {} {} {} {}".format(
+            _("Edited"),
+            _("PersonRef"),
+            self.primary.obj.get_gramps_id(),
             _("for"),
             _("Person"),
             self.base_person.get_gramps_id(),
@@ -232,16 +238,17 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.obj_ref.add_citation(handle):
+        if handle and self.secondary.obj.add_citation(handle):
             citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
-            action = "{} {} {} {} {}".format(
-                _("Added Citation"),
+            action = "{} {} {} {} {} {}".format(
+                _("Added"),
+                _("Citation"),
                 citation.get_gramps_id(),
                 _("to"),
                 _("PersonRef"),
-                self.obj.get_gramps_id(),
+                self.primary.obj.get_gramps_id(),
             )
-            self.save_person_ref(self.obj_ref, action_text=action)
+            self.save_person_ref(self.secondary.obj, action_text=action)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -279,35 +286,35 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             else:
                 raise ValueError("Selection must be either source or citation")
 
-    def remove_ref_citation(self, _dummy_obj, old_citation):
+    def remove_ref_citation(self, _dummy_obj, citation):
         """
         Remove the given citation from the current object.
         """
-        if not old_citation:
+        if not citation:
             return
-        text = self._citation_option_text(old_citation)
+        text = citation_option_text(self.grstate.dbstate.db, citation)
         prefix = _(
             "You are about to remove the following citation from this object:"
         )
         extra = _(
-            "Note this does not delete the citation. You can also use the undo"
-            "option under edit if you change your mind later."
+            "This removes the reference but does not delete the citation."
         )
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {}".format(
-                _("Removed Citation"),
-                old_citation.get_gramps_id(),
+            action = "{} {} {} {} {} {}".format(
+                _("Removed"),
+                _("Citation"),
+                citation.get_gramps_id(),
                 _("from"),
                 _("PersonRef"),
-                self.obj.get_gramps_id(),
+                self.primary.obj.get_gramps_id(),
             )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.obj_ref.remove_citation_references(
-                    [old_citation.get_handle()]
+                self.secondary.obj.remove_citation_references(
+                    [citation.get_handle()]
                 )
                 self.grstate.dbstate.db.commit_person(self.base_person, trans)
 
@@ -333,16 +340,17 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.obj_ref.add_note(handle):
+        if handle and self.secondary.obj.add_note(handle):
             note = self.grstate.dbstate.db.get_note_from_handle(handle)
-            action = "{} {} {} {} {}".format(
-                _("Added Note"),
+            action = "{} {} {} {} {} {}".format(
+                _("Added"),
+                _("Note"),
                 note.get_gramps_id(),
                 _("to"),
                 _("PersonRef"),
-                self.obj.get_gramps_id(),
+                self.primary.obj.get_gramps_id(),
             )
-            self.save_person_ref(self.obj_ref, action_text=action)
+            self.save_person_ref(self.secondary.obj, action_text=action)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -354,48 +362,48 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if selection:
             self.added_ref_note(selection.handle)
 
-    def remove_ref_note(self, _dummy_obj, old_note):
+    def remove_ref_note(self, _dummy_obj, note):
         """
         Remove the given note from the current object.
         """
-        if not old_note:
+        if not note:
             return
-        text = self._note_option_text(old_note)
+        text = note_option_text(note)
         prefix = _(
             "You are about to remove the following note from this object:"
         )
         extra = _(
-            "Note this does not delete the note. You can also use the undo"
-            "option under edit if you change your mind later."
+            "This removes the reference but does not delete the note."
         )
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {}".format(
-                _("Removed Note"),
-                old_note.get_gramps_id(),
+            action = "{} {} {} {} {} {}".format(
+                _("Removed"),
+                _("Note"),
+                note.get_gramps_id(),
                 _("from"),
                 _("PersonRef"),
-                self.obj.get_gramps_id(),
+                self.primary.obj.get_gramps_id(),
             )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.obj_ref.remove_note(old_note.get_handle())
+                self.secondary.obj.remove_note(note.get_handle())
                 self.grstate.dbstate.db.commit_person(self.base_person, trans)
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.obj_ref.get_privacy():
-            return self._menu_item(
+        if self.secondary.obj.get_privacy():
+            return menu_item(
                 "gramps-unlock",
                 _("Make public"),
                 self.change_ref_privacy,
                 False,
             )
-        return self._menu_item(
+        return menu_item(
             "gramps-lock", _("Make private"), self.change_ref_privacy, True
         )
 
@@ -407,14 +415,15 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             text = _("Private")
         else:
             text = _("Public")
-        action = "{} {} {} {} {} {}".format(
+        action = "{} {} {} {} {} {} {}".format(
             _("Made"),
             _("PersonRef"),
-            self.obj.get_gramps_id(),
+            self.primary.obj.get_gramps_id(),
+            _("for"),
             _("Person"),
             self.base_person.get_gramps_id(),
             text,
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj_ref.set_privacy(mode)
+            self.secondary.obj.set_privacy(mode)
             self.grstate.dbstate.db.commit_person(self.base_person, trans)

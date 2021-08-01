@@ -650,15 +650,14 @@ class LayoutEditorButton(Gtk.Button):
             pass
 
 
-def note_option_text(note):
+def attribute_option_text(attribute):
     """
-    Helper to build note description string.
+    Helper to build attribute description string.
     """
-    notetype = str(note.get_type())
-    text = note.get()[:50].replace("\n", " ")
-    if len(text) > 40:
-        text = text[:40] + "..."
-    return "{}: {}".format(notetype, text)
+    text = "{}: {}".format(attribute.get_type(), attribute.get_value())
+    if len(text) > 50:
+        text = text[:50]+"..."
+    return text
 
 
 def citation_option_text(db, citation):
@@ -678,6 +677,17 @@ def citation_option_text(db, citation):
     else:
         text = "{}: [{}]".format(text, _("Missing Page"))
     return text
+
+
+def note_option_text(note):
+    """
+    Helper to build note description string.
+    """
+    notetype = str(note.get_type())
+    text = note.get()[:50].replace("\n", " ")
+    if len(text) > 40:
+        text = text[:40] + "..."
+    return "{}: {}".format(notetype, text)
 
 
 def menu_item(icon, label, callback, data1=None, data2=None):
