@@ -32,6 +32,7 @@ __all__ = [
     "frame_couple",
     "frame_event",
     "frame_image",
+    "frame_name",
     "frame_note",
     "frame_person",
     "frame_place",

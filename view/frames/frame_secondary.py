@@ -28,6 +28,14 @@ SecondaryGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+import pickle
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -88,6 +96,25 @@ class SecondaryGrampsFrame(GrampsFrame):
         self.frame.add(body)
         self.eventbox.add(self.frame)
         self.add(self.eventbox)
+
+    def drag_data_get(
+        self, _dummy_widget, _dummy_context, data, info, _dummy_time
+    ):
+        """
+        Return requested data.
+        """
+        if info == self.secondary.dnd_type.app_id:
+            returned_data = (
+                self.secondary.dnd_type.drag_type,
+                id(self),
+                self.secondary.obj,
+                0,
+            )
+            data.set(
+                self.secondary.dnd_type.atom_drag_type,
+                8,
+                pickle.dumps(returned_data),
+            )
 
     def add_fact(self, fact, label=None, row=None, column=0, stop=1):
         """

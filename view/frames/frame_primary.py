@@ -94,6 +94,7 @@ from .frame_utils import (
     attribute_option_text,
     menu_item,
     submenu_item,
+    TextLink
 )
 
 _ = glocale.translation.sgettext

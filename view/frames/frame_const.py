@@ -289,6 +289,7 @@ LABELS = {
     "source": _("Sources"),
     "association": _("Associations"),
     "address": _("Addresses"),
+    "name": _("Names"),
 }
 
 # For layout editor

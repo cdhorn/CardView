@@ -30,6 +30,7 @@ __all__ = [
     "group_classes",
     "group_generic",
     "group_media",
+    "group_names",
     "group_notes",
     "group_repositories",
     "group_sources",

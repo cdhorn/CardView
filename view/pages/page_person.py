@@ -72,6 +72,7 @@ from ..groups.group_utils import (
     get_associations_group,
     get_citations_group,
     get_media_group,
+    get_names_group,
     get_notes_group,
     get_parents_group,
     get_spouses_group,
@@ -140,6 +141,8 @@ class PersonProfilePage(BaseProfilePage):
             obj_groups.update({"parent": get_parents_group(grstate, person)})
         if "spouse" in groups:
             obj_groups.update({"spouse": get_spouses_group(grstate, person)})
+        if "name" in groups:
+            obj_groups.update({"name": get_names_group(grstate, person)})
         if "association" in groups:
             obj_groups.update({"association": get_associations_group(grstate, person)})
         if "timeline" in groups:

@@ -51,6 +51,7 @@ from .group_citations import CitationsGrampsFrameGroup
 from .group_classes import GrampsFrameGroupExpander
 from .group_generic import GenericGrampsFrameGroup
 from .group_media import MediaGrampsFrameGroup
+from .group_names import NamesGrampsFrameGroup
 from .group_notes import NotesGrampsFrameGroup
 from .group_repositories import RepositoriesGrampsFrameGroup
 from .group_sources import SourcesGrampsFrameGroup
@@ -113,9 +114,7 @@ def get_children_group(
     return content
 
 
-def get_family_unit(
-    grstate, family, context="family", relation=None
-):
+def get_family_unit(grstate, family, context="family", relation=None):
     """
     Get the group for a family unit.
     """
@@ -383,6 +382,22 @@ def get_addresses_group(
         grstate,
         obj,
         AddressesGrampsFrameGroup,
+        title_plural,
+        title_single,
+        expanded=True,
+    )
+
+
+def get_names_group(
+    grstate, obj, title_plural=_("Names"), title_single=_("Name")
+):
+    """
+    Get the group of names associated with an object.
+    """
+    return get_generic_group(
+        grstate,
+        obj,
+        NamesGrampsFrameGroup,
         title_plural,
         title_single,
         expanded=True,
