@@ -206,7 +206,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Find an event and load the data.
         """
-        show_age = self.option(self.context, "show-age")
+        show_age = False
         for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if skip_birth and have_birth:
@@ -215,6 +215,8 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 if skip_death and have_death:
                     if event_type in _DEATH_EQUIVALENTS:
                         return
+                if event_type in _DEATH_EQUIVALENTS or event_type == "Death":
+                    show_age = self.option(self.context, "show-age")                    
                 self.add_event(
                     event, extra=extra, reference=have_birth, show_age=show_age
                 )
