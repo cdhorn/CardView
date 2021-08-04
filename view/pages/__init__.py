@@ -28,6 +28,7 @@ __all__ = [
     "page_family",
     "page_layout"
     "page_media",
+    "page_name",
     "page_note",
     "page_options",
     "page_person",

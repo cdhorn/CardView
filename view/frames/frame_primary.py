@@ -94,7 +94,7 @@ from .frame_utils import (
     attribute_option_text,
     menu_item,
     submenu_item,
-    TextLink
+    TextLink,
 )
 
 _ = glocale.translation.sgettext
@@ -159,7 +159,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.eventbox.add(self.frame)
                 self.add(self.eventbox)
 
-        self.image = None
+        self.image = Gtk.Box()
         self.age = None
         self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
         self.tags = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
@@ -181,6 +181,16 @@ class PrimaryGrampsFrame(GrampsFrame):
         self.partner2 = None
 
         self.build_layout()
+        self.load_layout()
+
+    def load_layout(self):
+        """
+        Load standard portions of layout.
+        """
+        image_mode = self.option(self.context, "image-mode")
+        if image_mode and self.context != "media":
+            self.load_image(image_mode)
+
         self.metadata.pack_start(
             self.get_gramps_id_label(), expand=False, fill=False, padding=0
         )
@@ -194,17 +204,31 @@ class PrimaryGrampsFrame(GrampsFrame):
         if flowbox:
             self.tags.pack_start(flowbox, expand=True, fill=True, padding=0)
 
+    def refresh_layout(self):
+        """
+        Refresh primary object and reset layout.
+        """
+        query_method = self.grstate.dbstate.db.method(
+            "get_%s_from_handle", self.primary.obj_type
+        )
+        self.primary.obj = query_method(self.primary.obj.get_handle())
+        list(map(self.image.remove, self.image.get_children()))
+        list(map(self.title.remove, self.title.get_children()))
+        list(map(self.facts_grid.remove, self.facts_grid.get_children()))
+        list(map(self.extra_grid.remove, self.extra_grid.get_children()))
+        list(map(self.metadata.remove, self.metadata.get_children()))
+        list(map(self.tags.remove, self.tags.get_children()))
+        self.load_layout()
+
     def build_layout(self):
         """
         Construct framework for default layout.
         """
         image_mode = self.option(self.context, "image-mode")
-        if image_mode:
-            self.load_image(image_mode)
-            if image_mode in [3, 4]:
-                self.body.pack_start(
-                    self.image, expand=False, fill=False, padding=0
-                )
+        if image_mode and image_mode in [3, 4]:
+            self.body.pack_start(
+                self.image, expand=False, fill=False, padding=0
+            )
 
         if self.option(self.context, "show-age"):
             self.age = Gtk.VBox(
@@ -244,8 +268,10 @@ class PrimaryGrampsFrame(GrampsFrame):
         large_size = False
         if image_mode in [2, 4]:
             large_size = True
-        self.image = GrampsImageViewFrame(
-            self.grstate, self.primary.obj, size=large_size
+        self.image.add(
+            GrampsImageViewFrame(
+                self.grstate, self.primary.obj, size=large_size
+            )
         )
         if self.groups and "image" in self.groups:
             self.groups["image"].add_widget(self.image)

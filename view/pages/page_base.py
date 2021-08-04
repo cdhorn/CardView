@@ -66,6 +66,7 @@ class BaseProfilePage(Callback):
 
     __signals__ = {
         "object-changed": (str, str),
+        "context-changed": (str, bytes),
         "copy-to-clipboard": (str, str),
     }
 

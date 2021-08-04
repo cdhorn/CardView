@@ -78,6 +78,9 @@ class NoteProfilePage(BaseProfilePage):
     def obj_type(self):
         return 'Note'
 
+    def page_type(self):
+        return 'Note'
+
     def define_actions(self, view):
         return
 
@@ -87,7 +90,7 @@ class NoteProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, note):
+    def render_page(self, header, vbox, note, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
         if not note:

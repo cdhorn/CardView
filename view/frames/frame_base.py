@@ -77,7 +77,7 @@ from .frame_utils import (
     citation_option_text,
     menu_item,
     note_option_text,
-    submenu_item
+    submenu_item,
 )
 from ..pages.page_layout import ProfileViewLayout
 
@@ -95,9 +95,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary and secondary Gramps objects it helps expose.
     """
 
-    def __init__(
-        self, grstate, context, primary_obj, secondary_obj=None
-    ):
+    def __init__(self, grstate, context, primary_obj, secondary_obj=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate)
         self.context = context
@@ -165,7 +163,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 pickle.dumps(returned_data),
             )
 
-    def enable_drop(self, eventbox=None, dnd_drop_targets=None, drag_data_received=None):
+    def enable_drop(
+        self, eventbox=None, dnd_drop_targets=None, drag_data_received=None
+    ):
         """
         Enable self as a basic drop target, override in derived classes as
         needed.
@@ -238,9 +238,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             else:
                 self.build_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(
-                None, None, self.focus.obj_type, self.focus.obj.get_handle()
-            )
+            self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
     def layout_editor(self):
         """
@@ -356,9 +354,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         menu = Gtk.Menu()
         menu.add(
-            menu_item(
-                "list-add", _("Add a new citation"), add_new_citation
-            )
+            menu_item("list-add", _("Add a new citation"), add_new_citation)
         )
         menu.add(
             menu_item(
@@ -384,9 +380,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             citation_list.sort(key=lambda x: x[0])
             for text, citation in citation_list:
                 removemenu.add(
-                    menu_item(
-                        "list-remove", text, remove_citation, citation
-                    )
+                    menu_item("list-remove", text, remove_citation, citation)
                 )
                 menu.add(
                     menu_item(
@@ -510,16 +504,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         menu = Gtk.Menu()
         menu.add(menu_item("list-add", _("Add a new note"), add_new_note))
         menu.add(
-            menu_item(
-                "list-add", _("Add an existing note"), add_existing_note
-            )
+            menu_item("list-add", _("Add an existing note"), add_existing_note)
         )
         if len(obj.get_note_list()) > 0:
             removemenu = Gtk.Menu()
             menu.add(
-                submenu_item(
-                    "gramps-notes", _("Remove a note"), removemenu
-                )
+                submenu_item("gramps-notes", _("Remove a note"), removemenu)
             )
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
@@ -534,9 +524,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     menu_item("list-remove", text, remove_note, note)
                 )
                 menu.add(
-                    menu_item(
-                        "gramps-notes", text, self.edit_note, note.handle
-                    )
+                    menu_item("gramps-notes", text, self.edit_note, note.handle)
                 )
         if self.option("page", "include-child-notes") and not no_children:
             note_list = []
@@ -611,9 +599,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         prefix = _(
             "You are about to remove the following note from this object:"
         )
-        extra = _(
-            "This removes the reference but does not delete the note."
-        )
+        extra = _("This removes the reference but does not delete the note.")
         confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
             _("Warning"),

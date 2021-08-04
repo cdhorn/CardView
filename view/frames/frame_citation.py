@@ -28,6 +28,7 @@ CitationGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.utils.callman import CallbackManager
 
 
 # ------------------------------------------------------------------------
@@ -59,8 +60,18 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         source = grstate.dbstate.db.get_source_from_handle(
             citation.source_handle
         )
+        self.populate_layout(source, citation, reference)
+        self.enable_drag()
+        self.enable_drop()
+        self.set_css_style()
 
-        if grstate.config.get("options.global.link-citation-title-to-source"):
+    def populate_layout(self, source, citation, reference=None):
+        """
+        Populate information.
+        """
+        if self.grstate.config.get(
+            "options.global.link-citation-title-to-source"
+        ):
             title = TextLink(
                 source.title,
                 "Source",
@@ -113,10 +124,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 get_confidence(citation.confidence), left=False
             )
             self.metadata.pack_start(label, False, False, 0)
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
+        self.show_all()
 
     def get_color_css(self):
         """

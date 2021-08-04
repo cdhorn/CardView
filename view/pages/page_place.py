@@ -83,6 +83,9 @@ class PlaceProfilePage(BaseProfilePage):
     def obj_type(self):
         return 'Place'
 
+    def page_type(self):
+        return 'Place'
+
     def define_actions(self, view):
         return
 
@@ -92,7 +95,7 @@ class PlaceProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, place):
+    def render_page(self, header, vbox, place, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
         if not place:

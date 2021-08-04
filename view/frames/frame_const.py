@@ -301,6 +301,7 @@ PAGES = [
     ("Source", _("Source")),
     ("Citation", _("Citation")),
     ("Repository", _("Repository")),
+    ("Name", _("Name")),
     ("Note", _("Note")),
     ("Media", _("Media")),
 ]

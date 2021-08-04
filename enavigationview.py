@@ -23,29 +23,29 @@
 Provide the base classes for GRAMPS' DataView classes
 """
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 #
 # python modules
 #
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 from abc import abstractmethod
 import html
 import logging
 
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 #
 # gtk
 #
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 from gi.repository import Gdk
 from gi.repository import Gtk
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 #
 # Gramps
 #
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.constfunc import mod_key
@@ -56,19 +56,19 @@ from gramps.gui.views.pageview import PageView
 
 _ = glocale.translation.sgettext
 
-_LOG = logging.getLogger('.navigationview')
+_LOG = logging.getLogger(".navigationview")
 
 DISABLED = -1
 MRU_SIZE = 10
 
 MRU_TOP = '<section id="CommonHistory">'
-MRU_BTM = '</section>'
+MRU_BTM = "</section>"
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 # ENavigationView
 #
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 class ENavigationView(PageView):
     """
     The NavigationView class is the base class for all Data Views that require
@@ -97,18 +97,29 @@ class ENavigationView(PageView):
         self.history = History(self.dbstate)
 
         self.hist = {}
-        for hist_type in ('Person', 'Family', 'Event', 'Place', 'Media', 'Note', 'Citation', 'Source', 'Repository'):
+        for hist_type in (
+            "Person",
+            "Family",
+            "Event",
+            "Place",
+            "Media",
+            "Note",
+            "Citation",
+            "Source",
+            "Repository",
+        ):
             self.hist[hist_type] = self.uistate.get_history(hist_type)
-            self.hist[hist_type].connect('active-changed', self.sync(hist_type))
+            self.hist[hist_type].connect("active-changed", self.sync(hist_type))
 
     # A partial would be neater here but it doesn't work.
     def sync(self, hist_type):
         def sync(handle):
             self.change_active((hist_type, handle))
+
         return sync
 
     def bm_change(self, handle):
-        self.change_active(('Person', handle))
+        self.change_active(("Person", handle))
 
     def navigation_type(self):
         """
@@ -148,22 +159,23 @@ class ENavigationView(PageView):
         self.uimanager.set_actions_visible(self.fwd_action, True)
         self.uimanager.set_actions_visible(self.back_action, True)
         hobj = self.get_history()
-        self.uimanager.set_actions_sensitive(self.fwd_action,
-                                             not hobj.at_end())
-        self.uimanager.set_actions_sensitive(self.back_action,
-                                             not hobj.at_front())
+        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.back_action, not hobj.at_front()
+        )
 
     def change_page(self):
         """
         Called when the page changes.
         """
         hobj = self.get_history()
-        self.uimanager.set_actions_sensitive(self.fwd_action,
-                                             not hobj.at_end())
-        self.uimanager.set_actions_sensitive(self.back_action,
-                                             not hobj.at_front())
-        self.uimanager.set_actions_sensitive(self.other_action,
-                                             not self.dbstate.db.readonly)
+        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.back_action, not hobj.at_front()
+        )
+        self.uimanager.set_actions_sensitive(
+            self.other_action, not self.dbstate.db.readonly
+        )
         self.uistate.modify_statusbar(self.dbstate)
 
     def set_active(self):
@@ -174,8 +186,8 @@ class ENavigationView(PageView):
         self.bookmarks.display()
 
         hobj = self.get_history()
-        self.active_signal = hobj.connect('active-changed', self.goto_active)
-        self.mru_signal = hobj.connect('mru-changed', self.update_mru_menu)
+        self.active_signal = hobj.connect("active-changed", self.goto_active)
+        self.mru_signal = hobj.connect("mru-changed", self.update_mru_menu)
         self.update_mru_menu(hobj.mru, update_menu=False)
 
         self.goto_active(None)
@@ -214,10 +226,10 @@ class ENavigationView(PageView):
         if active_handle:
             self.goto_handle(active_handle)
 
-        self.uimanager.set_actions_sensitive(self.fwd_action,
-                                             not hobj.at_end())
-        self.uimanager.set_actions_sensitive(self.back_action,
-                                             not hobj.at_front())
+        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.back_action, not hobj.at_front()
+        )
 
     def get_active(self):
         """
@@ -252,8 +264,9 @@ class ENavigationView(PageView):
         compatibility with those list views that can return multiply
         selected items.
         """
-        active_handle = self.uistate.get_active(self.navigation_type(),
-                                                self.navigation_group())
+        active_handle = self.uistate.get_active(
+            self.navigation_type(), self.navigation_group()
+        )
         return [active_handle] if active_handle else []
 
     ####################################################################
@@ -265,20 +278,25 @@ class ENavigationView(PageView):
         """
         from gramps.gen.display.name import displayer as name_displayer
 
-        active_handle = self.uistate.get_active('Person')
+        active_handle = self.uistate.get_active("Person")
         active_person = self.dbstate.db.get_person_from_handle(active_handle)
         if active_person:
             self.bookmarks.add(active_handle)
             name = name_displayer.display(active_person)
-            self.uistate.push_message(self.dbstate,
-                                      _("%s has been bookmarked") % name)
+            self.uistate.push_message(
+                self.dbstate, _("%s has been bookmarked") % name
+            )
         else:
             from gramps.gui.dialog import WarningDialog
+
             WarningDialog(
                 _("Could Not Set a Bookmark"),
-                _("A bookmark could not be set because "
-                  "no one was selected."),
-                parent=self.uistate.window)
+                _(
+                    "A bookmark could not be set because "
+                    "no one was selected."
+                ),
+                parent=self.uistate.window,
+            )
 
     def edit_bookmarks(self, *obj):
         """
@@ -290,11 +308,13 @@ class ENavigationView(PageView):
         """
         Define the bookmark menu actions.
         """
-        self.book_action = ActionGroup(name=self.title + '/Bookmark')
-        self.book_action.add_actions([
-            ('AddBook', self.add_bookmark, '<PRIMARY>d'),
-            ('EditBook', self.edit_bookmarks, '<shift><PRIMARY>D'),
-            ])
+        self.book_action = ActionGroup(name=self.title + "/Bookmark")
+        self.book_action.add_actions(
+            [
+                ("AddBook", self.add_bookmark, "<PRIMARY>d"),
+                ("EditBook", self.edit_bookmarks, "<shift><PRIMARY>D"),
+            ]
+        )
 
         self._add_action_group(self.book_action)
 
@@ -306,20 +326,21 @@ class ENavigationView(PageView):
         Define the navigation menu actions.
         """
         # add the Forward action group to handle the Forward button
-        self.fwd_action = ActionGroup(name=self.title + '/Forward')
-        self.fwd_action.add_actions([('Forward', self.fwd_clicked,
-                                      "%sRight" % mod_key())])
+        self.fwd_action = ActionGroup(name=self.title + "/Forward")
+        self.fwd_action.add_actions(
+            [("Forward", self.fwd_clicked, "%sRight" % mod_key())]
+        )
 
         # add the Backward action group to handle the Forward button
-        self.back_action = ActionGroup(name=self.title + '/Backward')
-        self.back_action.add_actions([('Back', self.back_clicked,
-                                       "%sLeft" % mod_key())])
+        self.back_action = ActionGroup(name=self.title + "/Backward")
+        self.back_action.add_actions(
+            [("Back", self.back_clicked, "%sLeft" % mod_key())]
+        )
 
-        self._add_action('HomePerson', self.home, "%sHome" % mod_key())
+        self._add_action("HomePerson", self.home, "%sHome" % mod_key())
 
-        self.other_action = ActionGroup(name=self.title + '/PersonOther')
-        self.other_action.add_actions([
-            ('SetActive', self.set_default_person)])
+        self.other_action = ActionGroup(name=self.title + "/PersonOther")
+        self.other_action.add_actions([("SetActive", self.set_default_person)])
 
         self._add_action_group(self.back_action)
         self._add_action_group(self.fwd_action)
@@ -329,7 +350,7 @@ class ENavigationView(PageView):
         """
         Set the default person.
         """
-        active = self.uistate.get_active('Person')
+        active = self.uistate.get_active("Person")
         if active:
             self.dbstate.db.set_default_person_handle(active)
 
@@ -339,36 +360,47 @@ class ENavigationView(PageView):
         """
         defperson = self.dbstate.db.get_default_person()
         if defperson:
-            self.change_active(('Person', defperson.get_handle()))
+            self.change_active(("Person", defperson.get_handle()))
         else:
             from ..dialog import WarningDialog
-            WarningDialog(_("No Home Person"),
-                _("You need to set a 'default person' to go to. "
-                  "Select the People View, select the person you want as "
-                  "'Home Person', then confirm your choice "
-                  "via the menu Edit -> Set Home Person."),
-                parent=self.uistate.window)
+
+            WarningDialog(
+                _("No Home Person"),
+                _(
+                    "You need to set a 'default person' to go to. "
+                    "Select the People View, select the person you want as "
+                    "'Home Person', then confirm your choice "
+                    "via the menu Edit -> Set Home Person."
+                ),
+                parent=self.uistate.window,
+            )
 
     def jump(self, *obj):
         """
         A dialog to move to a Gramps ID entered by the user.
         """
-        dialog = Gtk.Dialog(_('Jump to by Gramps ID'), self.uistate.window)
+        dialog = Gtk.Dialog(_("Jump to by Gramps ID"), self.uistate.window)
         dialog.set_border_width(12)
-        label = Gtk.Label(label='<span weight="bold" size="larger">%s</span>' %
-                          _('Jump to by Gramps ID'))
+        label = Gtk.Label(
+            label='<span weight="bold" size="larger">%s</span>'
+            % _("Jump to by Gramps ID")
+        )
         label.set_use_markup(True)
         dialog.vbox.add(label)
         dialog.vbox.set_spacing(10)
         dialog.vbox.set_border_width(12)
         hbox = Gtk.Box()
-        hbox.pack_start(Gtk.Label(label=_("%s: ") % _('ID')), True, True, 0)
+        hbox.pack_start(Gtk.Label(label=_("%s: ") % _("ID")), True, True, 0)
         text = Gtk.Entry()
         text.set_activates_default(True)
         hbox.pack_start(text, False, True, 0)
         dialog.vbox.pack_start(hbox, False, True, 0)
-        dialog.add_buttons(_('_Cancel'), Gtk.ResponseType.CANCEL,
-                           _('_Jump to'), Gtk.ResponseType.OK)
+        dialog.add_buttons(
+            _("_Cancel"),
+            Gtk.ResponseType.CANCEL,
+            _("_Jump to"),
+            Gtk.ResponseType.OK,
+        )
         dialog.set_default_response(Gtk.ResponseType.OK)
         dialog.vbox.show_all()
 
@@ -379,8 +411,8 @@ class ENavigationView(PageView):
                 self.change_active(handle)
             else:
                 self.uistate.push_message(
-                    self.dbstate,
-                    _("Error: %s is not a valid Gramps ID") % gid)
+                    self.dbstate, _("Error: %s is not a valid Gramps ID") % gid
+                )
         dialog.destroy()
 
     def get_handle_from_gramps_id(self, gid):
@@ -399,8 +431,7 @@ class ENavigationView(PageView):
         if not hobj.at_end():
             hobj.forward()
             self.uistate.modify_statusbar(self.dbstate)
-        self.uimanager.set_actions_sensitive(self.fwd_action,
-                                             not hobj.at_end())
+        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
         self.uimanager.set_actions_sensitive(self.back_action, True)
         hobj.lock = False
 
@@ -413,8 +444,9 @@ class ENavigationView(PageView):
         if not hobj.at_front():
             hobj.back()
             self.uistate.modify_statusbar(self.dbstate)
-        self.uimanager.set_actions_sensitive(self.back_action,
-                                             not hobj.at_front())
+        self.uimanager.set_actions_sensitive(
+            self.back_action, not hobj.at_front()
+        )
         self.uimanager.set_actions_sensitive(self.fwd_action, True)
         hobj.lock = False
 
@@ -445,12 +477,12 @@ class ENavigationView(PageView):
         """
         Builds the UI and action group for the MRU list.
         """
-        menuitem = '''        <item>
+        menuitem = """        <item>
               <attribute name="action">win.%s%02d</attribute>
               <attribute name="label">%s</attribute>
             </item>
-            '''
-        menus = ''
+            """
+        menus = ""
         self.mru_disable()
         nav_type = self.navigation_type()
         hobj = self.get_history()
@@ -458,15 +490,20 @@ class ENavigationView(PageView):
 
         data = []
         for index in range(menu_len - 1, -1, -1):
-            name, _obj = navigation_label(self.dbstate.db, items[index][0],
-                                          items[index][1])
+            name, _obj = navigation_label(
+                self.dbstate.db, items[index][0], items[index][1]
+            )
             menus += menuitem % (nav_type, index, html.escape(name))
-            data.append(('%s%02d' % (nav_type, index),
-                         make_callback(hobj.push, items[index]),
-                         "%s%d" % (mod_key(), menu_len - 1 - index)))
+            data.append(
+                (
+                    "%s%02d" % (nav_type, index),
+                    make_callback(hobj.push, items[index]),
+                    "%s%d" % (mod_key(), menu_len - 1 - index),
+                )
+            )
         self.mru_ui = [MRU_TOP + menus + MRU_BTM]
 
-        self.mru_action = ActionGroup(name=self.title + '/MRU')
+        self.mru_action = ActionGroup(name=self.title + "/MRU")
         self.mru_action.add_actions(data)
         self.mru_enable(update_menu)
 
@@ -493,8 +530,9 @@ class ENavigationView(PageView):
         """
         if self.active:
             if event.type == Gdk.EventType.KEY_PRESS:
-                if (event.keyval == Gdk.KEY_c and
-                    match_primary_mask(event.get_state())):
+                if event.keyval == Gdk.KEY_c and match_primary_mask(
+                    event.get_state()
+                ):
                     self.call_copy()
                     return True
         return super(ENavigationView, self).key_press_handler(widget, event)
@@ -513,27 +551,26 @@ class ENavigationView(PageView):
             obj_type, handle = handles[0]
         return self.copy_to_clipboard(obj_type, [handle])
 
+
 def make_callback(func, handle):
     """
     Generates a callback function based off the passed arguments
     """
     return lambda x, y: func(handle)
 
-#-------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
 #
 # History manager
 #
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 class History(Callback):
-    """ History manages the objects of a certain type that have been viewed,
-        with ability to go back, or forward.
-        When accessing an object, it should be pushed on the History.
+    """History manages the objects of a certain type that have been viewed,
+    with ability to go back, or forward.
+    When accessing an object, it should be pushed on the History.
     """
 
-    __signals__ = {
-        'active-changed' : (tuple, ),
-        'mru-changed' : (list, )
-        }
+    __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
 
     def __init__(self, dbstate):
         Callback.__init__(self)
@@ -543,26 +580,26 @@ class History(Callback):
         self.index = -1
         self.lock = False
 
-        dbstate.connect('database-changed', self.connect_signals)
+        dbstate.connect("database-changed", self.connect_signals)
         self.signal_map = {}
-        self.signal_map['person-delete'] = self.person_removed
-        self.signal_map['person-rebuild'] = self.history_changed
-        self.signal_map['family-delete'] = self.family_removed
-        self.signal_map['family-rebuild'] = self.history_changed
-        self.signal_map['event-delete'] = self.event_removed
-        self.signal_map['event-rebuild'] = self.history_changed
-        self.signal_map['place-delete'] = self.place_removed
-        self.signal_map['place-rebuild'] = self.history_changed
-        self.signal_map['media-delete'] = self.media_removed
-        self.signal_map['media-rebuild'] = self.history_changed
-        self.signal_map['note-delete'] = self.note_removed
-        self.signal_map['note-rebuild'] = self.history_changed
-        self.signal_map['citation-delete'] = self.citation_removed
-        self.signal_map['citation-rebuild'] = self.history_changed
-        self.signal_map['source-delete'] = self.source_removed
-        self.signal_map['source-rebuild'] = self.history_changed
-        self.signal_map['repository-delete'] = self.repository_removed
-        self.signal_map['repository-rebuild'] = self.history_changed
+        self.signal_map["person-delete"] = self.person_removed
+        self.signal_map["person-rebuild"] = self.history_changed
+        self.signal_map["family-delete"] = self.family_removed
+        self.signal_map["family-rebuild"] = self.history_changed
+        self.signal_map["event-delete"] = self.event_removed
+        self.signal_map["event-rebuild"] = self.history_changed
+        self.signal_map["place-delete"] = self.place_removed
+        self.signal_map["place-rebuild"] = self.history_changed
+        self.signal_map["media-delete"] = self.media_removed
+        self.signal_map["media-rebuild"] = self.history_changed
+        self.signal_map["note-delete"] = self.note_removed
+        self.signal_map["note-rebuild"] = self.history_changed
+        self.signal_map["citation-delete"] = self.citation_removed
+        self.signal_map["citation-rebuild"] = self.history_changed
+        self.signal_map["source-delete"] = self.source_removed
+        self.signal_map["source-rebuild"] = self.history_changed
+        self.signal_map["repository-delete"] = self.repository_removed
+        self.signal_map["repository-rebuild"] = self.history_changed
         self.connect_signals(dbstate.db)
 
     def connect_signals(self, db):
@@ -591,10 +628,10 @@ class History(Callback):
             if item in self.mru:
                 self.mru.remove(item)
             self.mru.append(item)
-            self.emit('mru-changed', (self.mru, ))
+            self.emit("mru-changed", (self.mru,))
             self.index += 1
         if self.history:
-            self.emit('active-changed', (item, ))
+            self.emit("active-changed", (item,))
 
     def forward(self, step=1):
         """
@@ -605,8 +642,8 @@ class History(Callback):
         if item in self.mru:
             self.mru.remove(item)
         self.mru.append(item)
-        self.emit('mru-changed', (self.mru, ))
-        self.emit('active-changed', (item, ))
+        self.emit("mru-changed", (self.mru,))
+        self.emit("active-changed", (item,))
         return item
 
     def back(self, step=1):
@@ -619,8 +656,8 @@ class History(Callback):
             if item in self.mru:
                 self.mru.remove(item)
             self.mru.append(item)
-            self.emit('mru-changed', (self.mru, ))
-            self.emit('active-changed', (item, ))
+            self.emit("mru-changed", (self.mru,))
+            self.emit("active-changed", (item,))
             return item
         except IndexError:
             return ""
@@ -629,8 +666,8 @@ class History(Callback):
         """
         return the person handle that is now active in the history
         """
-        try :
-            if self.history :
+        try:
+            if self.history:
                 return self.history[self.index]
             return ""
         except IndexError:
@@ -640,7 +677,7 @@ class History(Callback):
         """
         returns True if we are at the end of the history list
         """
-        return self.index+1 == len(self.history)
+        return self.index + 1 == len(self.history)
 
     def at_front(self):
         """
@@ -653,34 +690,34 @@ class History(Callback):
         Truncates the history list at the current object.
         """
         if not self.at_end():
-            self.history = self.history[0:self.index+1]
+            self.history = self.history[0 : self.index + 1]
 
     def person_removed(self, handle_list):
-        self.handles_removed('Person', handle_list)
+        self.handles_removed("Person", handle_list)
 
     def family_removed(self, handle_list):
-        self.handles_removed('Family', handle_list)
+        self.handles_removed("Family", handle_list)
 
     def event_removed(self, handle_list):
-        self.handles_removed('Event', handle_list)
+        self.handles_removed("Event", handle_list)
 
     def place_removed(self, handle_list):
-        self.handles_removed('Place', handle_list)
+        self.handles_removed("Place", handle_list)
 
     def media_removed(self, handle_list):
-        self.handles_removed('Media', handle_list)
+        self.handles_removed("Media", handle_list)
 
     def note_removed(self, handle_list):
-        self.handles_removed('Note', handle_list)
+        self.handles_removed("Note", handle_list)
 
     def citation_removed(self, handle_list):
-        self.handles_removed('Citation', handle_list)
+        self.handles_removed("Citation", handle_list)
 
     def source_removed(self, handle_list):
-        self.handles_removed('Source', handle_list)
+        self.handles_removed("Source", handle_list)
 
     def repository_removed(self, handle_list):
-        self.handles_removed('Repository', handle_list)
+        self.handles_removed("Repository", handle_list)
 
     def handles_removed(self, nav_type, handle_list):
         """
@@ -698,8 +735,8 @@ class History(Callback):
             for dummy in range(mhc):
                 self.mru.remove(item)
         if self.history:
-            self.emit('active-changed', (self.history[self.index], ))
-        self.emit('mru-changed', (self.mru, ))
+            self.emit("active-changed", (self.history[self.index],))
+        self.emit("mru-changed", (self.mru,))
 
     def history_changed(self):
         """
@@ -707,4 +744,4 @@ class History(Callback):
         Objects in the history list may have been deleted.
         """
         self.clear()
-        self.emit('mru-changed', (self.mru, ))
+        self.emit("mru-changed", (self.mru,))

@@ -95,6 +95,9 @@ class FamilyProfilePage(BaseProfilePage):
     def obj_type(self):
         return 'Family'
 
+    def page_type(self):
+        return 'Family'
+
     def define_actions(self, view):
         return
 
@@ -117,7 +120,7 @@ class FamilyProfilePage(BaseProfilePage):
                 )
         return None
             
-    def render_page(self, header, vbox, family):
+    def render_page(self, header, vbox, family, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
         if not family:

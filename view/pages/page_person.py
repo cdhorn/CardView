@@ -100,6 +100,9 @@ class PersonProfilePage(BaseProfilePage):
     def obj_type(self):
         return 'Person'
 
+    def page_type(self):
+        return 'Person'
+
     def define_actions(self, view):
         self.order_action = ActionGroup(name='ChangeOrder')
         self.order_action.add_actions([
@@ -122,7 +125,7 @@ class PersonProfilePage(BaseProfilePage):
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
-    def render_page(self, header, vbox, person):
+    def render_page(self, header, vbox, person, secondary=None):
         list(map(header.remove, header.get_children()))        
         list(map(vbox.remove, vbox.get_children()))
         if not person:

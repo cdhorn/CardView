@@ -31,6 +31,7 @@ GrampsFrame base classes
 # Python modules
 #
 # ------------------------------------------------------------------------
+import pickle
 from html import escape
 
 
@@ -220,11 +221,16 @@ class GrampsConfig:
             return True
         return False
 
-    def switch_object(self, _dummy_obj, _dummy_event, obj_type, handle):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj):
         """
         Change active object for the view.
         """
-        self.grstate.router("object-changed", (obj_type, handle))
+        if isinstance(obj, str):
+            return self.grstate.router("object-changed", (obj_type, obj))
+        if hasattr(obj, "handle"):
+            return self.grstate.router("object-changed", (obj_type, obj.get_handle()))
+        data = pickle.dumps((self.primary.obj, self.secondary.obj_type, self.secondary.obj))
+        return self.grstate.router("context-changed", (obj_type, data))
 
 
 # ------------------------------------------------------------------------
