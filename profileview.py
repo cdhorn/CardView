@@ -623,7 +623,6 @@ class ProfileView(ENavigationView):
         list(map(self.header.remove, self.header.get_children()))
         list(map(self.header.remove, self.vbox.get_children()))
 
-        print("call on: {}".format(page_type))
         page = self.pages[page_type]
         page.render_page(
             self.header, self.vbox, primary_obj, secondary=secondary_obj
@@ -661,7 +660,6 @@ class ProfileView(ENavigationView):
 
         self.active_page = page
         self.active_type = primary_obj_type
-        self.uistate.status.pop(self.uistate.status_id)
         name, _obj = navigation_label(
             self.dbstate.db, primary_obj_type, primary_obj.get_handle()
         )
@@ -674,7 +672,9 @@ class ProfileView(ENavigationView):
             )
             if relation:
                 name = "{} ({})".format(name, relation.strip())
-        self.uistate.status.push(self.uistate.status_id, name)
+        if name:
+            self.uistate.status.pop(self.uistate.status_id)
+            self.uistate.status.push(self.uistate.status_id, name)
 
     def set_active(self):
         """
