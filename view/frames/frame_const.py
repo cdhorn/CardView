@@ -304,4 +304,6 @@ PAGES = [
     ("Name", _("Name")),
     ("Note", _("Note")),
     ("Media", _("Media")),
+    ("ChildRef", _("ChildRef")),
+    ("PersonRef", _("PersonRef")),
 ]

@@ -92,6 +92,45 @@ CONFIGSETTINGS = (
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
     ######################################################################
+    # Name Page Options
+    ######################################################################
+    # Layout Options
+    ("options.name.layout.tabbed", False),
+    ("options.name.layout.scrolled", False),
+    ("options.name.layout.groups", "citation,note"),
+    ("options.name.layout.citation.visible", True),
+    ("options.name.layout.citation.stacked", False),
+    ("options.name.layout.citation.hideable", False),
+    ("options.name.layout.note.visible", True),
+    ("options.name.layout.note.stacked", False),
+    ("options.name.layout.note.hideable", False),
+    ######################################################################
+    # ChildRef Page Options
+    ######################################################################
+    # Layout Options
+    ("options.childref.layout.tabbed", False),
+    ("options.childref.layout.scrolled", False),
+    ("options.childref.layout.groups", "citation,note"),
+    ("options.childref.layout.citation.visible", True),
+    ("options.childref.layout.citation.stacked", False),
+    ("options.childref.layout.citation.hideable", False),
+    ("options.childref.layout.note.visible", True),
+    ("options.childref.layout.note.stacked", False),
+    ("options.childref.layout.note.hideable", False),
+    ######################################################################
+    # PersonRef Page Options
+    ######################################################################
+    # Layout Options
+    ("options.personref.layout.tabbed", False),
+    ("options.personref.layout.scrolled", False),
+    ("options.personref.layout.groups", "citation,note"),
+    ("options.personref.layout.citation.visible", True),
+    ("options.personref.layout.citation.stacked", False),
+    ("options.personref.layout.citation.hideable", False),
+    ("options.personref.layout.note.visible", True),
+    ("options.personref.layout.note.stacked", False),
+    ("options.personref.layout.note.hideable", False),
+    ######################################################################
     # Person Page Options
     ######################################################################
     # Layout Options

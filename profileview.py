@@ -64,8 +64,10 @@ from view.pages.page_name import NameProfilePage
 from view.pages.page_note import NoteProfilePage
 from view.pages.page_place import PlaceProfilePage
 from view.pages.page_citation import CitationProfilePage
+from view.pages.page_child_ref import ChildRefProfilePage
 from view.pages.page_source import SourceProfilePage
 from view.pages.page_repository import RepositoryProfilePage
+from view.pages.page_person_ref import PersonRefProfilePage
 
 _ = glocale.translation.sgettext
 
@@ -116,6 +118,12 @@ class ProfileView(ENavigationView):
         )
         self._add_page(
             NameProfilePage(self.dbstate, self.uistate, self._config)
+        )
+        self._add_page(
+            ChildRefProfilePage(self.dbstate, self.uistate, self._config)
+        )
+        self._add_page(
+            PersonRefProfilePage(self.dbstate, self.uistate, self._config)
         )
         self._add_page(
             FamilyProfilePage(self.dbstate, self.uistate, self._config)
@@ -615,6 +623,7 @@ class ProfileView(ENavigationView):
         list(map(self.header.remove, self.header.get_children()))
         list(map(self.header.remove, self.vbox.get_children()))
 
+        print("call on: {}".format(page_type))
         page = self.pages[page_type]
         page.render_page(
             self.header, self.vbox, primary_obj, secondary=secondary_obj

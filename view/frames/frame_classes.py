@@ -221,7 +221,7 @@ class GrampsConfig:
             return True
         return False
 
-    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None):
         """
         Change active object for the view.
         """
@@ -229,7 +229,10 @@ class GrampsConfig:
             return self.grstate.router("object-changed", (obj_type, obj))
         if hasattr(obj, "handle"):
             return self.grstate.router("object-changed", (obj_type, obj.get_handle()))
-        data = pickle.dumps((self.primary.obj, self.secondary.obj_type, self.secondary.obj))
+        primary = self.primary.obj
+        if override_primary_obj:
+            primary = override_primary_obj
+        data = pickle.dumps((primary, self.secondary.obj_type, self.secondary.obj))
         return self.grstate.router("context-changed", (obj_type, data))
 
 

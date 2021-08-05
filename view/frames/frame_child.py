@@ -207,7 +207,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(
-                None, None, self.primary.obj_type, self.primary.obj.get_handle()
+                None, None, self.secondary.obj_type, self.secondary.obj
             )
 
     def build_ref_action_menu(self, _dummy_obj, event):

@@ -261,7 +261,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build the edit option.
         """
-        if self.secondary:
+        if self.secondary and not self.has_reference:
             name = "{} {}".format(_("Edit"), self.secondary.obj_lang.lower())
             return menu_item("gtk-edit", name, self.edit_secondary_object)
         if self.primary.obj_type == "Person":

@@ -23,6 +23,7 @@ Module containing the page views.
 """
 
 __all__ = [
+    "page_child_ref",
     "page_citation",
     "page_event",
     "page_family",
@@ -32,6 +33,7 @@ __all__ = [
     "page_note",
     "page_options",
     "page_person",
+    "page_person_ref",
     "page_place",
     "page_repository",
     "page_source",
