@@ -114,32 +114,22 @@ class PrimaryGrampsFrame(GrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         primary_obj,
         secondary_obj=None,
-        vertical=True,
-        groups=None,
     ):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsFrame.__init__(
-            self, grstate, context, primary_obj, secondary_obj=secondary_obj
+            self, grstate, groptions, primary_obj, secondary_obj=secondary_obj
         )
-        self.vertical = vertical
-        self.groups = groups
-        if not groups:
-            self.groups = {
-                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            }
+
         self.body = Gtk.HBox(hexpand=True, margin=3)
         if self.secondary and self.secondary.is_reference:
             self.eventbox.add(self.body)
             self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
             self.ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END)
-            if "ref" in self.groups:
-                self.groups["ref"].add_widget(self.ref_body)
+            if "ref" in self.groptions.size_groups:
+                self.groptions.size_groups["ref"].add_widget(self.ref_body)
             self.ref_eventbox = Gtk.EventBox()
             self.ref_eventbox.add(self.ref_body)
             self.ref_frame.add(self.ref_eventbox)
@@ -163,20 +153,20 @@ class PrimaryGrampsFrame(GrampsFrame):
         self.age = None
         self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
         self.tags = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
-        if "data" in self.groups:
-            self.groups["data"].add_widget(self.facts_grid)
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(self.facts_grid)
         self.extra_grid = Gtk.Grid(
             row_spacing=2,
             column_spacing=6,
             hexpand=True,
             halign=Gtk.Align.START,
         )
-        if "extra" in self.groups:
-            self.groups["extra"].add_widget(self.facts_grid)
+        if "extra" in self.groptions.size_groups:
+            self.groptions.size_groups["extra"].add_widget(self.facts_grid)
         self.extra_row = 0
         self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
-        if "metadata" in self.groups:
-            self.groups["metadata"].add_widget(self.metadata)
+        if "metadata" in self.groptions.size_groups:
+            self.groptions.size_groups["metadata"].add_widget(self.metadata)
         self.partner1 = None
         self.partner2 = None
 
@@ -187,9 +177,10 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Load standard portions of layout.
         """
-        image_mode = self.option(self.context, "image-mode")
-        if image_mode and self.context != "media":
-            self.load_image(image_mode)
+        image_mode = self.get_option("image-mode")
+        if image_mode:
+            if "media" not in self.groptions.option_space:
+                self.load_image(image_mode)
 
         self.metadata.pack_start(
             self.get_gramps_id_label(), expand=False, fill=False, padding=0
@@ -224,13 +215,13 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Construct framework for default layout.
         """
-        image_mode = self.option(self.context, "image-mode")
+        image_mode = self.get_option("image-mode")
         if image_mode and image_mode in [3, 4]:
             self.body.pack_start(
                 self.image, expand=False, fill=False, padding=0
             )
 
-        if self.option(self.context, "show-age"):
+        if self.get_option("show-age"):
             self.age = Gtk.VBox(
                 margin_right=3,
                 margin_left=3,
@@ -238,8 +229,8 @@ class PrimaryGrampsFrame(GrampsFrame):
                 margin_bottom=3,
                 spacing=2,
             )
-            if "age" in self.groups:
-                self.groups["age"].add_widget(self.age)
+            if "age" in self.groptions.size_groups:
+                self.groptions.size_groups["age"].add_widget(self.age)
             self.body.pack_start(self.age, expand=False, fill=False, padding=0)
 
         vcontent = Gtk.VBox()
@@ -273,8 +264,8 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.grstate, self.primary.obj, size=large_size
             )
         )
-        if self.groups and "image" in self.groups:
-            self.groups["image"].add_widget(self.image)
+        if "image" in self.groptions.size_groups:
+            self.groptions.size_groups["image"].add_widget(self.image)
 
     def add_fact(self, fact, label=None, extra=False):
         """
@@ -322,7 +313,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 if age == "unknown":
                     age = None
 
-        event_format = self.option(self.context, "event-format")
+        event_format = self.get_option("event-format")
         if event_format in [3, 4, 6]:
             name = event.type.get_abbreviation(
                 trans_text=glocale.translation.sgettext
@@ -429,10 +420,10 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build a flowbox with the tags for the object in the requested format.
         """
-        tag_mode = self.option(self.context, "tag-format")
+        tag_mode = self.get_option("tag-format")
         if not tag_mode:
             return None
-        tag_width = self.option(self.context, "tag-width")
+        tag_width = self.get_option("tag-width")
         flowbox = Gtk.FlowBox(
             min_children_per_line=tag_width,
             max_children_per_line=tag_width,
@@ -478,8 +469,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         values = []
         number = 1
         while number <= 8:
-            option = self.option(
-                self.context,
+            option = self.get_option(
                 "metadata-attribute-{}".format(number),
                 full=False,
                 keyed=True,
@@ -736,7 +726,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             else:
                 tag_add_list.append(tag)
         for tag_list in [tag_add_list, tag_remove_list]:
-            if self.option("page", "sort-tags-by-name"):
+            if self.grstate.config.get("options.global.sort-tags-by-name"):
                 tag_list.sort(key=lambda x: x.name)
             else:
                 tag_list.sort(key=lambda x: x.priority)
@@ -972,7 +962,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu option for adding a new event for a family.
         """
-        if self.primary.obj_type == "Family" or self.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
             return menu_item(
                 "gramps-event",
                 _("Add a new family event"),
@@ -991,7 +981,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.primary.obj_type == "Family":
             event_ref.ref = self.primary.obj.handle
         else:
-            event_ref.ref = self.family_backlink
+            event_ref.ref = self.groptions.family_backlink
         try:
             EditEventRef(
                 self.grstate.dbstate,
@@ -1012,7 +1002,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             family = self.grstate.dbstate.db.get_family_from_handle(
-                self.family_backlink
+                self.groptions.family_backlink
             )
         event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
         action = "{} {} {} {} {} {}".format(
@@ -1031,7 +1021,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu item for adding a new child to the family.
         """
-        if self.primary.obj_type == "Family" or self.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
             return menu_item(
                 "gramps-person",
                 _("Add a new child to the family"),
@@ -1047,7 +1037,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             handle = self.primary.obj.get_handle()
             family = self.primary.obj
         else:
-            handle = self.family_backlink
+            handle = self.groptions.family_backlink
             family = self.grstate.dbstate.db.get_family_from_handle(handle)
         callback = lambda x: self.added_child(x, handle)
         person = Person()
@@ -1102,7 +1092,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu item for adding existing child to the family.
         """
-        if self.primary.obj_type == "Family" or self.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
             return menu_item(
                 "gramps-person",
                 _("Add an existing child to the family"),
@@ -1119,7 +1109,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             handle = self.primary.obj.get_handle()
             family = self.primary.obj
         else:
-            handle = self.family_backlink
+            handle = self.groptions.family_backlink
             family = self.grstate.dbstate.db.get_family_from_handle(handle)
         # it only makes sense to skip those who are already in the family
         skip_list = [family.get_father_handle(), family.get_mother_handle()]

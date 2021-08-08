@@ -62,8 +62,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
     that may also optionally include events for close family if choosen.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, skip1, skip2 = get_gramps_object_type(obj)
         self.categories = []
@@ -71,8 +71,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         self.relation_categories = []
         self.ancestors = 1
         self.offspring = 1
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.timeline", "hideable")
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
         self.prepare_timeline_filters()
         self.timeline = Timeline(
@@ -94,16 +94,10 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 offspring=self.offspring,
             )
 
-        groups = {
-            "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         for event, event_ref, event_person, event_family, relation, category in self.timeline.events():
             event_frame = EventGrampsFrame(
                 grstate,
-                "timeline",
+                groptions,
                 obj,
                 event,
                 event_ref,
@@ -111,7 +105,6 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 event_family,
                 relation,
                 category,
-                groups=groups,
             )
             self.add_frame(event_frame)
         self.show_all()
@@ -121,16 +114,16 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         Parse and prepare filter groups.
         """
         for category in EVENT_CATEGORIES:
-            if self.option("timeline", "show-class-{}".format(category)):
+            if self.get_option("show-class-{}".format(category)):
                 self.categories.append(category)
             if self.obj_type == "Person":
-                if self.option("timeline", "show-family-class-{}".format(category)):
+                if self.get_option("show-family-class-{}".format(category)):
                     self.relation_categories.append(category)
 
         if self.obj_type == "Person":
             for relation in RELATIVES:
-                if self.option("timeline", "show-family-{}".format(relation)):
+                if self.get_option("show-family-{}".format(relation)):
                     self.relations.append(relation)
 
-        self.ancestors = self.option("timeline", "generations-ancestors")
-        self.offspring = self.option("timeline", "generations-offspring")
+        self.ancestors = self.get_option("generations-ancestors")
+        self.offspring = self.get_option("generations-offspring")

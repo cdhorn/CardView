@@ -19,7 +19,7 @@
 #
 
 """
-ProfileViewLayout
+Page layout configuration dialog
 """
 
 # ------------------------------------------------------------------------
@@ -46,51 +46,25 @@ from gramps.gui.managedwindow import ManagedWindow
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_const import LABELS, PAGES
+from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
 
 
-# ------------------------------------------------------------------------
-#
-# ProfileViewLayout
-#
-# ------------------------------------------------------------------------
-class ProfileViewLayout(ManagedWindow):
+def build_layout_grid(grstate):
     """
-    Class to handle layout for all pages.
+    Build and return layout grid.
     """
-    def __init__(self, uistate, config, obj_type):
-        ManagedWindow.__init__(self, uistate, [], None)
-        self.config = config
-
-        root = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        root.set_transient_for(uistate.window)
-        root.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-
-        vbox = Gtk.VBox()
-        notebook = Gtk.Notebook()
-        index = 0
-        number = 0
-        for tab in PAGES:
-            page = ProfilePageLayout(config, tab)
-            label = Gtk.Label(label=tab[1])
-            notebook.append_page(page, tab_label=label)
-            if tab[0] == obj_type:
-                index = number
-            number = number + 1
-        notebook.set_current_page(index)
-        vbox.add(notebook)
-
-        box = Gtk.ButtonBox(margin=12)
-        box.set_layout(Gtk.ButtonBoxStyle.END)
-        cancel = Gtk.Button(label=_("Cancel"))
-        cancel.connect("clicked", self.close)
-        box.add(cancel)
-        vbox.pack_end(box, True, True, 0)
-        root.add(vbox)
-        self.set_window(root, None, _("Profile Page Layouts"))
-        self.show()
-
+    grid = create_grid()
+    vbox = Gtk.VBox()
+    notebook = Gtk.Notebook()
+    for tab in PAGES:
+        page = ProfilePageLayout(grstate.config, tab)
+        label = Gtk.Label(label=tab[1])
+        notebook.append_page(page, tab_label=label)
+    vbox.add(notebook)
+    grid.add(vbox)
+    return grid
 
 class ProfilePageLayout(Gtk.VBox):
     """
@@ -100,7 +74,7 @@ class ProfilePageLayout(Gtk.VBox):
         Gtk.VBox.__init__(self, spacing=6, margin=12)
         self.config = config
         self.obj_type, self.obj_type_lang = tab
-        self.space = "options.{}.layout".format(self.obj_type.lower())
+        self.space = "options.page.{}.layout".format(self.obj_type.lower())
         self.revert = []
         self.draw()
 
@@ -177,13 +151,13 @@ class ProfilePageLayout(Gtk.VBox):
         Extract all available groups for an object view.
         """
         settings = self.config.get_section_settings("options")
-        prefix = "{}.layout".format(obj_type.lower())
+        prefix = "page.{}.layout".format(obj_type.lower())
         prefix_length = len(prefix)
         groups = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
                 if 'visible' in setting:
-                    groups.append(setting.split(".")[2])
+                    groups.append(setting.split(".")[3])
         return groups
 
     def apply_changes(self, *obj):

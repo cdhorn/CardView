@@ -87,21 +87,18 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         person,
         obj_ref=None,
-        relation=None,
-        number=0,
-        groups=None,
-        family_backlink=None,
     ):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, person, secondary_obj=obj_ref, groups=groups
+            self, grstate, groptions, person, secondary_obj=obj_ref
         )
         self.person = person
-        self.relation = relation
-        self.family_backlink = family_backlink
-
+        self.relation = groptions.relation
+        self.family_backlink = groptions.family_backlink
+        self.context = groptions.option_space.split(".")[2]
+        
         display_name = name_displayer.display(person)
         name = TextLink(
             display_name,
@@ -111,17 +108,17 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             bold=True,
         )
         name_box = Gtk.HBox(spacing=2)
-        if number:
+        if groptions.frame_number:
             label = Gtk.Label(
-                use_markup=True, label=self.markup.format("{}. ".format(number))
+                use_markup=True, label=self.markup.format("{}. ".format(groptions.frame_number))
             )
             name_box.pack_start(label, False, False, 0)
-        if self.option(context, "sex-mode") == 1:
+        if self.get_option("sex-mode") == 1:
             name_box.pack_start(
                 Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
             )
         name_box.pack_start(name, False, False, 0)
-        if self.option(context, "sex-mode") == 2:
+        if self.get_option("sex-mode") == 2:
             name_box.pack_start(
                 Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
             )
@@ -134,7 +131,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 grstate.dbstate.db.get_event_from_handle(event_ref.ref)
             )
         self.load_fields(event_cache, "facts-field")
-        if self.context == "active":
+        if "active" in groptions.option_space:
             self.load_fields(event_cache, "extra-field", extra=True)
         del event_cache
 
@@ -147,9 +144,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         Parse and load a set of facts about a person.
         """
         key = "{}-skip-birth-alternates".format(field_type)
-        skip_birth_alternates = self.option(self.context, key)
+        skip_birth_alternates = self.get_option(key)
         key = "{}-skip-death-alternates".format(field_type)
-        skip_death_alternates = self.option(self.context, key)
+        skip_death_alternates = self.get_option(key)
         have_birth = False
         have_death = False
         for event in event_cache:
@@ -160,8 +157,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
 
         count = 1
         while count < 8:
-            option = self.option(
-                self.context,
+            option = self.get_option(
                 "{}-{}".format(field_type, count),
                 full=False,
                 keyed=True,
@@ -216,7 +212,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                     if event_type in _DEATH_EQUIVALENTS:
                         return
                 if event_type in _DEATH_EQUIVALENTS or event_type == "Death":
-                    show_age = self.option(self.context, "show-age")                    
+                    show_age = self.get_option("show-age")
                 self.add_event(
                     event, extra=extra, reference=have_birth, show_age=show_age
                 )
@@ -286,7 +282,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("page", "use-color-scheme"):
+        if not self.grstate.config.get("options.global.use-color-scheme"):
             return ""
 
         return get_person_color_css(
@@ -511,7 +507,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             "{}\n\nAre you sure you want to continue?".format(text),
         ):
             self.grstate.dbstate.db.remove_parent_from_family(
-                self.primary.obj.get_handle(), self.family_backlink
+                self.primary.obj.get_handle(), self.groptions.family_backlink
             )
 
     def _remove_child_from_family_option(self):
@@ -528,11 +524,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Remove a child from the family.
         """
-        if not self.family_backlink:
+        if not self.groptions.family_backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.family_backlink
+            self.groptions.family_backlink
         )
         family_text = family_name(family, self.grstate.dbstate.db)
         if self.confirm_action(

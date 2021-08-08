@@ -53,10 +53,10 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(
-        self, grstate, context, repository, repo_ref=None, groups=None
+            self, grstate, groptions, repository, repo_ref=None
     ):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, repository, groups=groups
+            self, grstate, groptions, repository, repo_ref
         )
 
         title = TextLink(
@@ -90,14 +90,14 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 self.add_fact(self.make_label(address.phone))
 
         if repo_ref:
-            if self.option(context, "show-call-number"):
+            if self.get_option("show-call-number"):
                 if repo_ref.call_number:
                     text = "{}: {}".format(
                         _("Call number"), repo_ref.call_number
                     )
                     self.add_fact(self.make_label(text))
 
-            if self.option(context, "show-media-type"):
+            if self.get_option("show-media-type"):
                 if repo_ref.media_type:
                     text = glocale.translation.sgettext(
                         repo_ref.media_type.xml_str()
@@ -106,7 +106,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                         text = "{}: {}".format(_("Media type"), text)
                     self.add_fact(self.make_label(text))
 
-        if self.option(context, "show-repository-type"):
+        if self.get_option("show-repository-type"):
             if repository.type:
                 text = glocale.translation.sgettext(repository.type.xml_str())
                 if text:

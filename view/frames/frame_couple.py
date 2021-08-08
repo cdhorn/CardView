@@ -63,19 +63,15 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         family,
-        parent=None,
-        relation=None,
-        vertical=True,
-        groups=None,
     ):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, family, groups=groups, vertical=vertical
+            self, grstate, groptions, family
         )
         self.family = family
-        self.parent = parent
-        self.relation = relation
+        self.parent = groptions.parent
+        self.relation = groptions.relation
 
         self.parent1, self.parent2 = self._get_parents()
         profile = self._get_profile(self.parent1)
@@ -95,7 +91,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.divorced = False
         if divorce:
             self.divorced = True
-            if self.option(context, "show-divorce"):
+            if self.get_option("show-divorce"):
                 self.add_event(divorce)
         self.enable_drag()
         self.enable_drop()
@@ -107,7 +103,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         vcontent = Gtk.VBox(spacing=3)
         self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        if self.vertical:
+        if self.groptions.vertical_orientation:
             self.partner1 = Gtk.HBox(hexpand=True)
             vcontent.pack_start(
                 self.partner1, expand=True, fill=True, padding=0
@@ -139,15 +135,15 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             vcontent.pack_start(partners, expand=True, fill=True, padding=0)
             self.partner1 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner1)
-            if self.groups and "partner1" in self.groups:
-                self.groups["partner1"].add_widget(self.partner1)
+            if "partner1" in self.groptions.size_groups:
+                self.groptions.size_groups["partner1"].add_widget(self.partner1)
             partners.pack_start(
                 self.partner1, expand=True, fill=True, padding=0
             )
             self.partner2 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner2)
-            if self.groups and "partner2" in self.groups:
-                self.groups["partner2"].add_widget(self.partner2)
+            if "partner2" in self.groptions.size_groups:
+                self.groptions.size_groups["partner2"].add_widget(self.partner2)
             partners.pack_start(
                 self.partner2, expand=True, fill=True, padding=0
             )
@@ -171,15 +167,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
     def _get_profile(self, person):
         if person:
-            working_context = self.context
-            if working_context == "family":
-                working_context = "people"
+            self.groptions.set_backlink(self.family.handle)
             profile = PersonGrampsFrame(
                 self.grstate,
-                working_context,
+                self.groptions,
                 person,
-                groups=self.groups,
-                family_backlink=self.family.handle,
             )
             return profile
         return None
@@ -198,13 +190,13 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         partner1 = father
         partner2 = mother
-        if self.option(self.context, "show-matrilineal"):
+        if self.get_option("show-matrilineal"):
             partner1 = mother
             partner2 = father
         if (
-            self.context == "spouse"
+            "spouse" in self.groptions.option_space
             and self.parent
-            and self.option(self.context, "show-spouse-only")
+            and self.get_option("show-spouse-only")
         ):
             if (
                 partner1
@@ -220,7 +212,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
-        if self.context in ["parent", "spouse"]:
+        if "parent" in self.groptions.option_space or "spouse" in self.groptions.option_space:
             self.action_menu.append(self._add_new_family_event_option())
             self.action_menu.append(self._add_new_child_to_family_option())
             self.action_menu.append(self._add_existing_child_to_family_option())
@@ -229,7 +221,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("page", "use-color-scheme"):
+        if not self.grstate.config.get("options.global.use-color-scheme"):
             return ""
 
         return get_family_color_css(

@@ -82,7 +82,6 @@ from .frame_const import (
     _SPACE,
     CONFIDENCE_COLOR_SCHEME,
 )
-from ..pages.page_layout import ProfileViewLayout
 from ..timeline import RELATIVES
 
 _ = glocale.translation.sgettext
@@ -568,22 +567,26 @@ def save_config_option(config, option, option_type, option_value="", dbid=None):
         config.set(option, "{}:{}".format(option_type, option_value))
 
 
-class ConfigReset(Gtk.Button):
+class ConfigReset(Gtk.ButtonBox):
     """
     Class to manage resetting configuration options.
     """
 
-    def __init__(self, dialog, config, space, label=None):
-        Gtk.Button.__init__(self, hexpand=False)
+    def __init__(self, dialog, grstate, space, label=None):
+        Gtk.ButtonBox.__init__(self, spacing=6)
+        self.set_layout(Gtk.ButtonBoxStyle.END)
+        self.button = Gtk.Button(hexpand=False)
+        self.pack_start(self.button, False, False, 0)
+        self.grstate = grstate
         self.dialog = dialog
-        self.config = config
+        self.config = grstate.config
         self.space = space
         if label:
-            self.set_label(label)
+            self.button.set_label(label)
         else:
-            self.set_label(_("Reset Page Defaults"))
-        self.connect("clicked", self.reset_option_space)
-        self.set_tooltip_text(
+            self.button.set_label(_("Defaults"))
+        self.button.connect("clicked", self.reset_option_space)
+        self.button.set_tooltip_text(
             _(
                 "This option will examine a set of options and set any "
                 "that were changed back to their default value. It may "
@@ -594,20 +597,60 @@ class ConfigReset(Gtk.Button):
             )
         )
 
+    def confirm_reset(self):
+        """
+        Confirm reset action.
+        """
+        dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
+        dialog.set_title(_("Reset Option Defaults"))
+        dialog.set_default_size(500, 300)
+        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        dialog.add_button("_OK", Gtk.ResponseType.OK)
+
+        message = _(
+            "You are about to reset the options on this page back to "
+            "their default values.\n\n"
+            "If any options are found to reset then when done the "
+            "configuration dialog will close and you will need to "
+            "reopen it if needed.\n\n"
+            "Are you sure you want to proceed?"
+        )
+        label = Gtk.Label(
+            hexpand=True,
+            vexpand=True,
+            halign=Gtk.Align.CENTER,
+            justify=Gtk.Justification.CENTER,
+            use_markup=True,
+            wrap=True,
+            label=message,
+        )
+        dialog.vbox.add(label)
+        all_button = Gtk.CheckButton(label=_("Reset all options to defaults, not just this page."))
+        dialog.vbox.add(all_button)
+        dialog.show_all()
+        response = dialog.run()
+        dialog.destroy()
+        if response == Gtk.ResponseType.OK:
+            if all_button.get_active():
+                self.space = "options."
+            return True
+        return False
+
     def reset_option_space(self, _dummy_obj):
         """
         Reset any options that changed in a given space.
         """
-        reset_option = False
-        options = self.get_option_space()
-        for option in options:
-            current_value = self.config.get(option)
-            default_value = self.config.get_default(option)
-            if current_value != default_value:
-                self.config.set(option, default_value)
-                reset_option = True
-        if reset_option:
-            self.dialog.done(None, None)
+        if self.confirm_reset():
+            reset_option = False
+            options = self.get_option_space()
+            for option in options:
+                current_value = self.config.get(option)
+                default_value = self.config.get_default(option)
+                if current_value != default_value:
+                    self.config.set(option, default_value)
+                    reset_option = True
+            if reset_option:
+                self.dialog.done(None, None)
 
     def get_option_space(self):
         """
@@ -621,36 +664,6 @@ class ConfigReset(Gtk.Button):
             if setting[:prefix_length] == prefix:
                 options.append("options.{}".format(setting))
         return options
-
-
-class LayoutEditorButton(Gtk.Button):
-    """
-    Class to launch the layout editor.
-    """
-
-    def __init__(self, uistate, config, obj_type):
-        Gtk.Button.__init__(self, hexpand=False)
-        self.uistate = uistate
-        self.config = config
-        self.obj_type = obj_type
-        self.set_label(_("Layout Editor"))
-        self.connect("clicked", self.launch_editor)
-        self.set_tooltip_text(
-            _(
-                "This will launch the page layout editor, which can also "
-                "be launched by Ctrl-Right clicking in the fact section "
-                "of any framed object."
-            )
-        )
-
-    def launch_editor(self, _dummy_obj):
-        """
-        Launch the layout editor.
-        """
-        try:
-            ProfileViewLayout(self.uistate, self.config, self.obj_type)
-        except WindowActiveError:
-            pass
 
 
 def attribute_option_text(attribute):

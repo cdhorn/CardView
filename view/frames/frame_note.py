@@ -60,14 +60,14 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
     The NoteGrampsFrame exposes some of the basic facts about a Note.
     """
 
-    def __init__(self, grstate, context, note, groups=None):
+    def __init__(self, grstate, groptions, note):
         self.text_view = Gtk.TextView(
             wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False
         )
-        PrimaryGrampsFrame.__init__(self, grstate, context, note, groups=groups)
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, note)
 
-        preview_mode = self.option(context, "preview-mode")
-        preview_lines = self.option(context, "preview-lines")
+        preview_mode = self.get_option("preview-mode")
+        preview_lines = self.get_option("preview-lines")
 
         styled_text_buffer = StyledTextBuffer()
         text = note.get_styledtext()

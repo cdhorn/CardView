@@ -62,22 +62,16 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
     of the media items for a given primary Gramps object.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.media", "hideable")
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         media_list = self.collect_media()
-
         if media_list:
-            if self.option("media", "sort-by-date"):
+            if self.get_option("sort-by-date"):
                 media_list.sort(
                     key=lambda x: x[0].get_date_object().get_sort_value()
                 )
@@ -90,9 +84,8 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
             ) in media_list:
                 frame = ImageGrampsFrame(
                     grstate,
-                    "media",
+                    groptions,
                     media,
-                    groups=groups,
                 )
                 self.add_frame(frame)
         self.show_all()

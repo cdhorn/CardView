@@ -31,7 +31,7 @@ GrampsFrame base classes
 # Python modules
 #
 # ------------------------------------------------------------------------
-import pickle
+from collections import namedtuple
 from html import escape
 
 
@@ -68,22 +68,90 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsState class
+# GrampsState namedtuple
 #
 # ------------------------------------------------------------------------
-class GrampsState:
+GrampsState = namedtuple(
+    "GrampsState", "dbstate uistate router config page_type"
+)
+
+# ------------------------------------------------------------------------
+#
+# GrampsOptions class
+#
+# ------------------------------------------------------------------------
+class GrampsOptions:
     """
-    A simple class to encapsulate the underlying state for the page view.
+    A simple class to encapsulate the options for a Gramps frame or list.
     """
 
-    __slots__ = "dbstate", "uistate", "router", "space", "config"
+    __slots__ = (
+        "option_space",
+        "size_groups",
+        "frame_number",
+        "vertical_orientation",
+        "family_backlink",
+        "relation",
+        "parent",
+        "context",
+    )
 
-    def __init__(self, dbstate, uistate, router, space, config):
-        self.dbstate = dbstate
-        self.uistate = uistate
-        self.router = router
-        self.space = space
-        self.config = config
+    def __init__(
+        self, option_space, size_groups=None, frame_number=0
+    ):
+        self.option_space = option_space
+        self.size_groups = size_groups
+        self.frame_number = frame_number
+        self.vertical_orientation = True
+        self.family_backlink = None
+        self.relation = None
+        self.parent = None
+        self.context = option_space.split(".")[-1]
+
+        if size_groups is None:
+            self.size_groups = {
+                "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            }
+
+    def set_vertical(self, value):
+        """
+        Set orientation.
+        """
+        self.vertical_orientation = value
+
+    def set_backlink(self, value):
+        """
+        Set family backlink.
+        """
+        self.family_backlink = value
+
+    def set_number(self, value):
+        """
+        Set frame number.
+        """
+        self.frame_number = value
+
+    def set_relation(self, value):
+        """
+        Set the relation.
+        """
+        self.relation = value
+
+    def set_parent(self, value):
+        """
+        Set the relation.
+        """
+        self.parent = value
+
+    def set_context(self, value):
+        """
+        Set the context.
+        """
+        self.context = value
 
 
 # ------------------------------------------------------------------------
@@ -96,7 +164,15 @@ class GrampsObject:
     A simple class to encapsulate information about a Gramps object.
     """
 
-    __slots__ = "obj", "obj_edit", "obj_type", "obj_lang", "dnd_type", "dnd_icon", "is_reference"
+    __slots__ = (
+        "obj",
+        "obj_edit",
+        "obj_type",
+        "obj_lang",
+        "dnd_type",
+        "dnd_icon",
+        "is_reference",
+    )
 
     def __init__(self, obj):
         self.obj = obj
@@ -109,12 +185,14 @@ class GrampsObject:
 
         for obj_type in GRAMPS_OBJECTS:
             if isinstance(obj, obj_type[0]):
-                (dummy_var1,
-                 self.obj_edit,
-                 self.obj_type,
-                 self.obj_lang,
-                 self.dnd_type,
-                 self.dnd_icon) = obj_type
+                (
+                    dummy_var1,
+                    self.obj_edit,
+                    self.obj_type,
+                    self.obj_lang,
+                    self.dnd_type,
+                    self.dnd_icon,
+                ) = obj_type
                 if not self.obj_lang:
                     self.obj_lang = self.obj_type
                 break
@@ -138,25 +216,37 @@ class GrampsConfig:
     and the various GrampsFrameGroup classes.
     """
 
-    def __init__(self, grstate):
+    def __init__(self, grstate, groptions):
         self.grstate = grstate
-        self.context = ""
+        self.groptions = groptions
         self.markup = "{}"
         if self.grstate.config.get("options.global.use-smaller-detail-font"):
             self.markup = "<small>{}</small>"
 
-    def option(self, context, name, full=True, keyed=False):
+    def get_option(self, key, full=True, keyed=False):
         """
-        Fetches an option from the given context in a configuration name space.
+        Fetches an option in the frame configuration name space.
         """
         dbid = None
         if keyed:
             dbid = self.grstate.dbstate.db.get_dbid()
-        option = "{}.{}.{}".format(self.grstate.space, context, name)
+        option = "{}.{}".format(self.groptions.option_space, key)
         try:
             return get_config_option(
                 self.grstate.config, option, full=full, dbid=dbid
             )
+        except AttributeError:
+            return False
+
+    def get_layout(self, key):
+        """
+        Fetches an option in the page layout name space.
+        """
+        option = "options.page.{}.layout.{}".format(
+            self.grstate.page_type, key
+        )
+        try:
+            return self.grstate.config.get(option)
         except AttributeError:
             return False
 
@@ -179,18 +269,6 @@ class GrampsConfig:
         text = data or ""
         label.set_markup(self.markup.format(escape(text)))
         return label
-
-    def get_labels(self, text1, text2, left=True, group1=None, group2=None):
-        """
-        Simple helper to prepare two labels.
-        """
-        label1 = self.make_label(text1, left=left)
-        if group1:
-            group1.add_widget(label1)
-        label2 = self.make_label(text2, left=left)
-        if group2:
-            group2.add_widget(label2)
-        return label1, label2
 
     def confirm_action(self, title, message):
         """
@@ -220,20 +298,6 @@ class GrampsConfig:
         if response == Gtk.ResponseType.OK:
             return True
         return False
-
-    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None):
-        """
-        Change active object for the view.
-        """
-        if isinstance(obj, str):
-            return self.grstate.router("object-changed", (obj_type, obj))
-        if hasattr(obj, "handle"):
-            return self.grstate.router("object-changed", (obj_type, obj.get_handle()))
-        primary = self.primary.obj
-        if override_primary_obj:
-            primary = override_primary_obj
-        data = pickle.dumps((primary, self.secondary.obj_type, self.secondary.obj))
-        return self.grstate.router("context-changed", (obj_type, data))
 
 
 # ------------------------------------------------------------------------

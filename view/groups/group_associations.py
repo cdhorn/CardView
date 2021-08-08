@@ -50,25 +50,19 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
     all of the associations a person has with other people.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type = "Person"
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.association", "hideable")
-
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
         for person_ref in obj.get_person_ref_list():
             frame = AssociationGrampsFrame(
                 grstate,
-                "association",
+                groptions,
                 obj,
                 person_ref,
-                groups=groups,
             )
             self.add_frame(frame)
         self.show_all()

@@ -88,7 +88,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         reference_person,
         event,
         event_ref,
@@ -99,7 +99,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         groups=None,
     ):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, event, groups=groups
+            self, grstate, groptions, event
         )
         self.event = event
         self.event_ref = event_ref
@@ -111,7 +111,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         self.confidence = 0
         self.event_participant = None
 
-        if self.option(context, "show-age"):
+        if self.get_option("show-age"):
             if reference_person:
                 target_person = reference_person
             else:
@@ -190,7 +190,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
 
         if (
             role and not role.is_primary() and not role.is_family()
-        ) or self.option(context, "show-role-always"):
+        ) or self.get_option("show-role-always"):
             self.add_fact(self.make_label(str(role)))
 
         date = glocale.date_displayer.display(event.date)
@@ -210,7 +210,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             )
             self.add_fact(place)
 
-        if self.option(context, "show-description"):
+        if self.get_option("show-description"):
             text = event.get_description()
             if not text:
                 if event_person:
@@ -221,7 +221,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                     text = "{}".format(event_type)
             self.add_fact(self.make_label(text))
 
-        if self.option(context, "show-participants"):
+        if self.get_option("show-participants"):
             if not participants:
                 participants, participant_string = get_participants(
                     grstate.dbstate.db, event
@@ -236,13 +236,13 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""
         comma = ""
-        if self.option(context, "show-source-count") and source_text:
+        if self.get_option("show-source-count") and source_text:
             text = source_text
             comma = ", "
-        if self.option(context, "show-citation-count") and citation_text:
+        if self.get_option("show-citation-count") and citation_text:
             text = "{}{}{}".format(text, comma, citation_text)
             comma = ", "
-        if self.option(context, "show-best-confidence") and confidence_text:
+        if self.get_option("show-best-confidence") and confidence_text:
             text = "{}{}{}".format(text, comma, confidence_text)
         if text:
             self.add_fact(self.make_label(text.lower().capitalize()))
@@ -289,10 +289,10 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("page", "use-color-scheme"):
+        if not self.grstate.config.get("options.global.use-color-scheme"):
             return ""
 
-        scheme = self.option(self.context, "color-scheme")
+        scheme = self.get_option("color-scheme")
         if scheme == 1:
             return get_relationship_color_css(
                 self.relation_to_reference, self.grstate.config

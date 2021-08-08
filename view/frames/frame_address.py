@@ -53,13 +53,12 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         obj,
         address,
-        groups=None,
     ):
         SecondaryGrampsFrame.__init__(
-            self, grstate, context, obj, address, groups=groups
+            self, grstate, groptions, obj, address
         )
         if address.street:
             self.add_fact(self.make_label(address.street))

@@ -22,6 +22,8 @@
 ChildrenGrampsFrameGroup
 """
 
+from copy import copy
+
 # ------------------------------------------------------------------------
 #
 # GTK modules
@@ -60,35 +62,29 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
     A container for managing a list of children for a given family.
     """
 
-    def __init__(self, grstate, context, family, relation=None):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, family):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.family = family
 
-        working_context = context
-        if working_context == "parent":
-            working_context = "sibling"
+        context = "child"
+        if "parent" in groptions.option_space:
+            context = "sibling"
 
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         child_number = 0
         for child_ref in self.family.get_child_ref_list():
             if child_ref:
                 child = grstate.dbstate.db.get_person_from_handle(child_ref.ref)
+                groptions_copy = copy(groptions)
+                groptions_copy.set_backlink(family.get_handle())
+                groptions_copy.option_space = "options.group.{}".format(context)
                 child_number = child_number + 1
-                if not self.option(working_context, "number-children"):
-                    child_number = 0
+                if self.grstate.config.get("options.group.{}.number-children".format(context)):
+                    groptions_copy.set_number(child_number)
                 profile = ChildGrampsFrame(
                     grstate,
-                    working_context,
+                    groptions_copy,
                     child,
                     child_ref,
-                    number=child_number,
-                    relation=relation,
-                    groups=groups,
-                    family_backlink=family.handle,
                 )
                 self.add_frame(profile)
         self.show_all()

@@ -52,9 +52,9 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
     The PlaceGrampsFrame exposes some of the basic facts about a Place.
     """
 
-    def __init__(self, grstate, context, place, groups=None):
+    def __init__(self, grstate, groptions, place):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, place, groups=groups
+            self, grstate, groptions, place
         )
 
         place_name = place_displayer.display(grstate.dbstate.db, place)

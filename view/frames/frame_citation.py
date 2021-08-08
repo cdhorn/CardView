@@ -53,9 +53,9 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
     The CitationGrampsFrame exposes some of the basic facts about a Citation.
     """
 
-    def __init__(self, grstate, context, citation, groups=None, reference=None):
+    def __init__(self, grstate, groptions, citation, reference=None):
         PrimaryGrampsFrame.__init__(
-            self, grstate, "citation", citation, groups=groups
+            self, grstate, groptions, citation
         )
         source = grstate.dbstate.db.get_source_from_handle(
             citation.source_handle
@@ -95,7 +95,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         if citation.page:
             self.add_fact(self.make_label(citation.page))
 
-        if self.option("citation", "show-date"):
+        if self.get_option("show-date"):
             if citation.get_date_object():
                 text = glocale.date_displayer.display(
                     citation.get_date_object()
@@ -103,23 +103,23 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 if text:
                     self.add_fact(self.make_label(text))
 
-        if self.option("citation", "show-publisher"):
+        if self.get_option("show-publisher"):
             if source.pubinfo:
                 self.add_fact(self.make_label(source.pubinfo))
 
-        if self.option("citation", "show-reference-type"):
+        if self.get_option("show-reference-type"):
             if reference and reference[1]:
                 label = self.make_label(
                     CITATION_TYPES[reference[1]], left=False
                 )
                 self.metadata.pack_start(label, False, False, 0)
 
-        if self.option("citation", "show-reference-description"):
+        if self.get_option("show-reference-description"):
             if reference and reference[2]:
                 label = self.make_label(reference[2], left=False)
                 self.metadata.pack_start(label, False, False, 0)
 
-        if self.option("citation", "show-confidence"):
+        if self.get_option("show-confidence"):
             label = self.make_label(
                 get_confidence(citation.confidence), left=False
             )
@@ -130,7 +130,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.option("page", "use-color-scheme"):
+        if not self.grstate.config.get("options.global.use-color-scheme"):
             return ""
 
         return get_confidence_color_css(

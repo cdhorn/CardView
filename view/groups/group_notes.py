@@ -51,25 +51,19 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
     of the notes associated with an object.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.note", "hideable")
-
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
         for handle in obj.get_note_list():
             note = grstate.dbstate.db.get_note_from_handle(handle)
             frame = NoteGrampsFrame(
                 grstate,
-                "note",
+                groptions,
                 note,
-                groups=groups,
             )
             frame.set_size_request(220, -1)
             self.add_frame(frame)

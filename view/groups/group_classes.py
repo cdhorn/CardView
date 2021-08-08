@@ -54,35 +54,27 @@ class GrampsFrameGroupExpander(Gtk.Expander):
     A simple class for managing collapse of a GrampsFrameGroup object.
     """
 
-    def __init__(self, grstate, expanded=True, use_markup=True, hidable=False):
+    def __init__(self, grstate, groptions, expanded=True, use_markup=True):
         Gtk.Expander.__init__(
             self, expanded=expanded, use_markup=use_markup, hexpand=True
         )
         self.set_resize_toplevel(True)
-        self.hidable = hidable
         self.grstate = grstate
+        self.hideable = grstate.config.get("options.page.{}.layout.{}.hideable".format(grstate.page_type, groptions.context))
+        self.tabbed = grstate.config.get("options.page.{}.layout.tabbed".format(grstate.page_type))
+        self.scrolled = grstate.config.get("options.page.{}.layout.scrolled".format(grstate.page_type))
         self.connect("activate", self.collapse)
-
-    def set_hidable(self, hidable):
-        """
-        Set the hideable attribute.
-        """
-        self.hidable = hidable
 
     def collapse(self, _dummy_obj):
         """
         Handle removing the frame on collapse if needed.
         """
-        if not self.grstate.config.get(
-            "{}.layout.tabbed".format(self.grstate.space)
-        ):
-            if self.get_expanded() and self.hidable:
+        if not self.tabbed:
+            if self.get_expanded() and self.hideable:
                 child = self.get_child()
                 list(map(child.remove, child.get_children()))
                 parent = self.get_parent()
-                if not self.grstate.config.get(
-                    "{}.layout.scrolled".format(self.grstate.space)
-                ):
+                if not self.scrolled:
                     parent.remove(self)
                 else:
                     gparent = parent.get_parent()

@@ -59,9 +59,9 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
     The ImageGrampsFrame exposes the image and some facts about Media.
     """
 
-    def __init__(self, grstate, context, media, groups=None):
+    def __init__(self, grstate, groptions, media):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, media, groups=groups
+            self, grstate, groptions, media
         )
 
         title = TextLink(
@@ -73,7 +73,7 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         )
         self.title.pack_start(title, True, False, 0)
 
-        if self.option("media", "show-date"):
+        if self.get_option("show-date"):
             if media.get_date_object():
                 text = glocale.date_displayer.display(media.get_date_object())
                 if text:

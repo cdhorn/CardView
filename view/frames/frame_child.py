@@ -84,24 +84,16 @@ class ChildGrampsFrame(PersonGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         child,
         child_ref,
-        relation=None,
-        number=0,
-        groups=None,
-        family_backlink=None,
     ):
         PersonGrampsFrame.__init__(
             self,
             grstate,
-            context,
+            groptions,
             child,
             obj_ref=child_ref,
-            relation=relation,
-            number=number,
-            groups=groups,
-            family_backlink=family_backlink,
         )
         self.dnd_drop_ref_targets = []
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
@@ -201,10 +193,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Route the ref related action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
-            if event.state & Gdk.ModifierType.CONTROL_MASK:
-                self.layout_editor()
-            else:
-                self.build_ref_action_menu(obj, event)
+            self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(
                 None, None, self.secondary.obj_type, self.secondary.obj
@@ -281,7 +270,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if not child_ref:
             return
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.family_backlink
+            self.groptions.family_backlink
         )
         child_ref_list = []
         for ref in family.get_child_ref_list():
@@ -503,7 +492,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Update the privacy indicator for the current object.
         """
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.family_backlink
+            self.groptions.family_backlink
         )
         if mode:
             text = _("Private")

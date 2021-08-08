@@ -61,18 +61,13 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
     managing all of the sources associated with a primary Gramps object.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.source", "hideable")
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         sources_list = []
         if self.obj_type == "Repository":
             for (
@@ -91,9 +86,8 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
             for source in sources_list:
                 frame = SourceGrampsFrame(
                     grstate,
-                    "source",
+                    groptions,
                     source,
-                    groups=groups,
                 )
                 self.add_frame(frame)
         self.show_all()

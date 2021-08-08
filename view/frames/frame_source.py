@@ -41,9 +41,9 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
     The SourceGrampsFrame exposes some of the basic facts about a Source.
     """
 
-    def __init__(self, grstate, context, source, groups=None):
+    def __init__(self, grstate, groptions, source):
         PrimaryGrampsFrame.__init__(
-            self, grstate, context, source, groups=groups
+            self, grstate, groptions, source
         )
 
         title = TextLink(

@@ -60,9 +60,9 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
     actions related to the list.
     """
 
-    def __init__(self, grstate):
+    def __init__(self, grstate, groptions):
         Gtk.ListBox.__init__(self)
-        GrampsConfig.__init__(self, grstate)
+        GrampsConfig.__init__(self, grstate, groptions)
         self.hideable = False
         self.managed_obj_type = None
         self.dnd_type = None

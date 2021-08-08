@@ -51,25 +51,19 @@ class AddressesGrampsFrameGroup(GrampsFrameGroupList):
     all of the addresses a person or repository may have.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.address", "hideable")
-
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
         for address in obj.get_address_list():
             frame = AddressGrampsFrame(
                 grstate,
-                "address",
+                groptions,
                 obj,
                 address,
-                groups=groups,
             )
             self.add_frame(frame)
         self.show_all()

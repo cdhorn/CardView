@@ -52,6 +52,7 @@ from gramps.gen.lib import (
     Place,
     Source,
     Repository,
+    RepoRef,
 )
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
@@ -67,6 +68,7 @@ from gramps.gui.editors import (
     EditPersonRef,
     EditPlace,
     EditRepository,
+    EditRepoRef,
     EditSource,
 )
 
@@ -267,6 +269,14 @@ GRAMPS_OBJECTS = [
         "PersonRef",
         _("PersonRef"),
         DdTargets.PERSONREF,
+        "stock_link",
+    ),
+    (
+        RepoRef,
+        EditRepoRef,
+        "RepoRef",
+        _("RepoRef"),
+        DdTargets.REPOREF,
         "stock_link",
     ),
 ]

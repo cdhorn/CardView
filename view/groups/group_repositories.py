@@ -61,18 +61,12 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
     all of the repositories that may contain a Source.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.repository", "hideable")
-
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
         repository_list = []
         for repo_ref in obj.get_reporef_list():
@@ -82,7 +76,7 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
             repository_list.append((repository, repo_ref))
 
         if repository_list:
-            if self.option("repositories", "sort-by-date"):
+            if self.get_option("sort-by-date"):
                 repository_list.sort(
                     key=lambda x: x[0][0].get_date_object().get_sort_value()
                 )
@@ -90,10 +84,9 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
             for repository, repo_ref in repository_list:
                 frame = RepositoryGrampsFrame(
                     grstate,
-                    "repository",
+                    groptions,
                     repository,
-                    repo_ref=repo_ref,
-                    groups=groups,
+                    repo_ref,
                 )
                 self.add_frame(frame)
         self.show_all()

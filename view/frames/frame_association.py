@@ -84,10 +84,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
     def __init__(
         self,
         grstate,
-        context,
+        groptions,
         person,
         person_ref,
-        groups=None,
     ):
         self.ref_person = grstate.dbstate.db.get_person_from_handle(
             person_ref.ref
@@ -95,10 +94,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         PersonGrampsFrame.__init__(
             self,
             grstate,
-            context,
+            groptions,
             self.ref_person,
             obj_ref=person_ref,
-            groups=groups,
         )
         self.base_person = person
         self.dnd_drop_ref_targets = []
@@ -203,10 +201,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         Route the ref related action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
-            if event.state & Gdk.ModifierType.CONTROL_MASK:
-                self.layout_editor()
-            else:
-                self.build_ref_action_menu(obj, event)
+            self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(
                 None, None, self.secondary.obj_type, self.secondary.obj,

@@ -27,7 +27,6 @@ __all__ = [
     "page_citation",
     "page_event",
     "page_family",
-    "page_layout"
     "page_media",
     "page_name",
     "page_note",

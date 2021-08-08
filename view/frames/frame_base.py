@@ -79,7 +79,6 @@ from .frame_utils import (
     note_option_text,
     submenu_item,
 )
-from ..pages.page_layout import ProfileViewLayout
 
 _ = glocale.translation.sgettext
 
@@ -95,10 +94,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
     and working with the primary and secondary Gramps objects it helps expose.
     """
 
-    def __init__(self, grstate, context, primary_obj, secondary_obj=None):
+    def __init__(self, grstate, groptions, primary_obj, secondary_obj=None):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        GrampsConfig.__init__(self, grstate)
-        self.context = context
+        GrampsConfig.__init__(self, grstate, groptions)
         self.primary = GrampsObject(primary_obj)
         self.focus = self.primary
         self.has_reference = False
@@ -233,23 +231,23 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Route the action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
-            if event.state & Gdk.ModifierType.CONTROL_MASK:
-                self.layout_editor()
-            else:
-                self.build_action_menu(obj, event)
+            self.build_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
-    def layout_editor(self):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None):
         """
-        Launch page layout editor.
+        Change active object for the view.
         """
-        try:
-            ProfileViewLayout(
-                self.grstate.uistate, self.grstate.config, self.primary.obj_type
-            )
-        except WindowActiveError:
-            pass
+        if isinstance(obj, str):
+            return self.grstate.router("object-changed", (obj_type, obj))
+        if hasattr(obj, "handle"):
+            return self.grstate.router("object-changed", (obj_type, obj.get_handle()))
+        primary = self.primary.obj
+        if override_primary_obj:
+            primary = override_primary_obj
+        data = pickle.dumps((primary, self.secondary.obj_type, self.secondary.obj))
+        return self.grstate.router("context-changed", (obj_type, data))
 
     def build_action_menu(self, obj, event):
         """
@@ -526,7 +524,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 menu.add(
                     menu_item("gramps-notes", text, self.edit_note, note.handle)
                 )
-        if self.option("page", "include-child-notes") and not no_children:
+        if self.grstate.config.get("options.global.include-child-notes") and not no_children:
             note_list = []
             for child_obj in obj.get_note_child_list():
                 for handle in child_obj.get_note_list():

@@ -30,14 +30,6 @@ Place Profile Page
 
 # -------------------------------------------------------------------------
 #
-# GTK/Gnome modules
-#
-# -------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# -------------------------------------------------------------------------
-#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -49,23 +41,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState
-from ..frames.frame_const import (
-    EVENT_DISPLAY_MODES,
-    IMAGE_DISPLAY_MODES,
-    SEX_DISPLAY_MODES,
-    TAG_DISPLAY_MODES,
-)    
+from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_place import PlaceGrampsFrame
-from ..frames.frame_utils import (
-    ConfigReset,
-    LayoutEditorButton
-)
 from ..groups.group_utils import (
     get_citations_group,
     get_media_group,
     get_notes_group,
-    get_references_group
+    get_references_group,
 )
 from .page_base import BaseProfilePage
 
@@ -81,10 +63,10 @@ class PlaceProfilePage(BaseProfilePage):
         BaseProfilePage.__init__(self, dbstate, uistate, config)
 
     def obj_type(self):
-        return 'Place'
+        return "Place"
 
     def page_type(self):
-        return 'Place'
+        return "Place"
 
     def define_actions(self, view):
         return
@@ -102,16 +84,18 @@ class PlaceProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router,
-            "options.place", self.config,
+            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
         )
-        self.active_profile = PlaceGrampsFrame(grstate, "active", place)
+        groptions = GrampsOptions("options.active.place")
+        self.active_profile = PlaceGrampsFrame(grstate, groptions, place)
 
-        groups = self.config.get("options.place.layout.groups").split(",")
+        groups = self.config.get("options.page.place.layout.groups").split(",")
         obj_groups = {}
 
         if "reference" in groups:
-            obj_groups.update({"reference": get_references_group(grstate, place)})
+            obj_groups.update(
+                {"reference": get_references_group(grstate, place)}
+            )
         if "citation" in groups:
             obj_groups.update({"citation": get_citations_group(grstate, place)})
         if "note" in groups:
@@ -120,77 +104,10 @@ class PlaceProfilePage(BaseProfilePage):
             obj_groups.update({"media": get_media_group(grstate, place)})
         body = self.render_group_view(obj_groups)
 
-        if self.config.get("options.place.page.pinned-header"):
+        if self.config.get("options.global.pin-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
-        return True
-
-    def page_panel(self, configdialog):
-        """
-        Builds page and styling options section for the configuration dialog
-        """
-        grid = self.create_grid()
-        self._config_global_options(configdialog, grid, 0)
-        configdialog.add_text(grid, _("Page Options"), 10, bold=True)
-        configdialog.add_checkbox(
-            grid, _("Pin active place header so it does not scroll"),
-            11, "options.place.page.pinned-header",
-            tooltip=_("Enabling this option pins the header frame so it will not scroll with the rest of the view.")
-        )
-        configdialog.add_checkbox(
-            grid, _("Enable coloring schemes"),
-            12, "options.place.page.use-color-scheme",
-            tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline.")
-        )
-        editor = LayoutEditorButton(self.uistate, self.config, "Place")
-        grid.attach(editor, 1, 19, 1, 1)
-        reset = ConfigReset(configdialog, self.config, "options.place.page", label=_("Reset Page Defaults"))
-        grid.attach(reset, 1, 20, 1, 1)
-        return _("Page"), grid
-
-    def active_panel(self, configdialog):
-        """
-        Builds active note options section for the configuration dialog
-        """
-        grid = self.create_grid()
-        configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-        configdialog.add_combo(
-            grid, _("Tag display mode"),
-            4, "options.place.active.tag-format",
-            TAG_DISPLAY_MODES
-        )
-        configdialog.add_spinner(
-            grid, _("Maximum tags per line"),
-            5, "options.place.active.tag-width",
-            (1, 20)
-        )
-        reset = ConfigReset(configdialog, self.config, "options.place.active", label=_("Reset Page Defaults"))
-        grid.attach(reset, 1, 20, 1, 1)
-        return _("Media"), grid
-
-    def media_panel(self, configdialog):
-        """
-        Builds media options section for configuration dialog
-        """
-        return self._media_panel(configdialog, "options.place")
-
-    def notes_panel(self, configdialog):
-        """
-        Builds notes options section for configuration dialog
-        """
-        return self._notes_panel(configdialog, "options.place")
-
-    def _get_configure_page_funcs(self):
-        """
-        Return the list of functions for generating the configuration dialog notebook pages.
-        """
-        return [
-            self.page_panel,
-            self.active_panel,
-            self.notes_panel,
-            self.media_panel
-        ]

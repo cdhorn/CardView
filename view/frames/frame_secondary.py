@@ -73,10 +73,10 @@ class SecondaryGrampsFrame(GrampsFrame):
     """
 
     def __init__(
-        self, grstate, context, primary_obj, secondary_obj, groups=None
+        self, grstate, groptions, primary_obj, secondary_obj
     ):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        GrampsFrame.__init__(self, grstate, context, primary_obj, secondary_obj)
+        GrampsFrame.__init__(self, grstate, groptions, primary_obj, secondary_obj)
 
         vcontent = Gtk.VBox()
         self.title = Gtk.HBox()
@@ -90,8 +90,8 @@ class SecondaryGrampsFrame(GrampsFrame):
             image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
             vlock.pack_start(image, False, False, 0)
             body.pack_start(vlock, False, False, 0)
-        if groups and "data" in groups:
-            groups["data"].add_widget(body)
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(body)
         self.frame.set_size_request(160, -1)
         self.frame.add(body)
         self.eventbox.add(self.frame)

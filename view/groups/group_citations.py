@@ -62,25 +62,19 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
     managing all of the citations associated with a primary Gramps object.
     """
 
-    def __init__(self, grstate, obj):
-        GrampsFrameGroupList.__init__(self, grstate)
+    def __init__(self, grstate, groptions, obj):
+        GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         self.maximum = grstate.config.get(
             "options.global.max-citations-per-group"
         )
-        if not self.option("layout", "tabbed"):
-            self.hideable = self.option("layout.citation", "hideable")
+        if not self.get_layout("tabbed"):
+            self.hideable = self.get_layout("hideable")
 
-        groups = {
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
         citation_list = self.collect_citations()
-
         if citation_list:
-            if self.option("citation", "sort-by-date"):
+            if self.get_option("sort-by-date"):
                 citation_list.sort(
                     key=lambda x: x[0].get_date_object().get_sort_value()
                 )
@@ -89,10 +83,9 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                 reference = (references, ref_type, ref_desc)
                 frame = CitationGrampsFrame(
                     grstate,
-                    "citation",
+                    groptions,
                     citation,
-                    groups=groups,
-                    reference=reference,
+                    reference=reference
                 )
                 self.add_frame(frame)
         self.show_all()
@@ -125,7 +118,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         )
 
         if self.obj_type == "Person":
-            if self.option("citation", "include-indirect"):
+            if self.get_option("include-indirect"):
                 self.extract_citations(
                     1,
                     _("Primary Name"),
@@ -164,7 +157,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                     1, _("Event"), citation_list, self.obj.get_event_ref_list
                 )
 
-            if self.option("citation", "include-family"):
+            if self.get_option("include-family"):
                 for family_handle in self.obj.get_family_handle_list():
                     family = self.grstate.dbstate.db.get_family_from_handle(
                         family_handle
@@ -172,12 +165,12 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                     self.extract_citations(
                         0, "Family", citation_list, None, [family]
                     )
-                    if self.option("citation", "include-family-indirect"):
+                    if self.get_option("include-family-indirect"):
                         self.extract_family_indirect_citations(
                             citation_list, family
                         )
 
-            if self.option("citation", "include-parent-family"):
+            if self.get_option("include-parent-family"):
                 for family_handle in self.obj.get_parent_family_handle_list():
                     family = self.grstate.dbstate.db.get_family_from_handle(
                         family_handle
@@ -198,7 +191,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                                 )
 
         if self.obj_type == "Family":
-            if self.option("citation", "include-indirect"):
+            if self.get_option("include-indirect"):
                 self.extract_family_indirect_citations(citation_list, self.obj)
 
         if self.obj_type == "Source":

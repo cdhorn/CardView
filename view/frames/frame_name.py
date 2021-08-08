@@ -58,16 +58,16 @@ class NameGrampsFrame(SecondaryGrampsFrame):
     The NameGrampsFrame exposes some of the basic facts about a Name.
     """
 
-    def __init__(self, grstate, context, obj, name, groups=None, primary=False):
+    def __init__(self, grstate, groptions, obj, name):
         SecondaryGrampsFrame.__init__(
-            self, grstate, context, obj, name, groups=groups
+            self, grstate, groptions, obj, name
         )
 
         if name.get_type():
             name_type = glocale.translation.sgettext(name.get_type().xml_str())
         else:
             name_type = _("Unknown")
-        if primary:
+        if obj.primary_name.serialize() == name.serialize():
             title = "<b>{}: {}</b>".format(_("Primary"), name_type)
         else:
             title = "<b>{}: {}</b>".format(_("Alternate"), name_type)
