@@ -36,4 +36,5 @@ __all__ = [
     "page_place",
     "page_repository",
     "page_source",
+    "page_tag",
 ]

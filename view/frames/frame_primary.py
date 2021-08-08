@@ -32,6 +32,7 @@ PrimaryGrampsFrame
 #
 # ------------------------------------------------------------------------
 from html import escape
+import pickle
 import time
 
 
@@ -458,10 +459,21 @@ class PrimaryGrampsFrame(GrampsFrame):
             context = tag_view.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class(css_class)
-            flowbox.add(tag_view)
+            eventbox = Gtk.EventBox()
+            eventbox.add(tag_view)
+            eventbox.connect("button-press-event", self.tag_click, tag.handle)
+            flowbox.add(eventbox)
         flowbox.show_all()
         return flowbox
 
+    def tag_click(self, obj, event, handle):
+        """
+        Request page for tag.
+        """
+        tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+        data = pickle.dumps((self.primary.obj, "Tag", tag))
+        return self.grstate.router("context-changed", ("Tag", data))        
+                             
     def get_metadata_attributes(self):
         """
         Return a list of values for any user defined metadata attributes.

@@ -50,9 +50,10 @@ from gramps.gen.lib import (
     Person,
     PersonRef,
     Place,
-    Source,
     Repository,
     RepoRef,
+    Source,
+    Tag,
 )
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
@@ -71,6 +72,7 @@ from gramps.gui.editors import (
     EditRepoRef,
     EditSource,
 )
+from gramps.gui.views.tags import EditTag
 
 
 # ------------------------------------------------------------------------
@@ -279,10 +281,19 @@ GRAMPS_OBJECTS = [
         DdTargets.REPOREF,
         "stock_link",
     ),
+    (
+        Tag,
+        EditTag,
+        "Tag",
+        _("Tag"),
+        None,
+        "gramps-tag",
+    ),
 ]
 
 # For layout editor
 LABELS = {
+    "person": _("People"),
     "parent": _("Parents"),
     "timeline": _("Timeline"),
     "citation": _("Citations"),
@@ -316,4 +327,5 @@ PAGES = [
     ("Media", _("Media")),
     ("ChildRef", _("ChildRef")),
     ("PersonRef", _("PersonRef")),
+    ("Tag", _("Tag")),
 ]

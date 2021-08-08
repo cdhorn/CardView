@@ -68,6 +68,7 @@ from view.pages.page_child_ref import ChildRefProfilePage
 from view.pages.page_source import SourceProfilePage
 from view.pages.page_repository import RepositoryProfilePage
 from view.pages.page_person_ref import PersonRefProfilePage
+from view.pages.page_tag import TagProfilePage
 
 _ = glocale.translation.sgettext
 
@@ -149,6 +150,9 @@ class ProfileView(ENavigationView):
         self._add_page(
             PlaceProfilePage(self.dbstate, self.uistate, self._config)
         )
+        self._add_page(
+            TagProfilePage(self.dbstate, self.uistate, self._config)
+        )
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
 
@@ -172,6 +176,7 @@ class ProfileView(ENavigationView):
             "media",
             "repository",
             "note",
+            "tag",
         ]:
             self.callman.add_db_signal("{}-add".format(obj), self.redraw)
             self.callman.add_db_signal("{}-update".format(obj), self.redraw)
