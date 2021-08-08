@@ -313,7 +313,7 @@ class BaseProfilePage(Callback):
         grstate = GrampsState(
             self.dbstate, self.uistate, None, self.config, None
         )
-        return _("Layout"), build_layout_grid(grstate)
+        return _("Layout"), build_layout_grid(configdialog, grstate)
 
     def active_panel(self, configdialog):
         """

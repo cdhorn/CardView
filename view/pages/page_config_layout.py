@@ -46,20 +46,21 @@ from gramps.gui.managedwindow import ManagedWindow
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_const import LABELS, PAGES
+from ..frames.frame_utils import ConfigReset
 from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
 
 
-def build_layout_grid(grstate):
+def build_layout_grid(configdialog, grstate):
     """
     Build and return layout grid.
     """
     grid = create_grid()
     vbox = Gtk.VBox()
-    notebook = Gtk.Notebook()
+    notebook = Gtk.Notebook(vexpand=True, hexpand=True)
     for tab in PAGES:
-        page = ProfilePageLayout(grstate.config, tab)
+        page = ProfilePageLayout(configdialog, grstate, tab)
         label = Gtk.Label(label=tab[1])
         notebook.append_page(page, tab_label=label)
     vbox.add(notebook)
@@ -70,9 +71,11 @@ class ProfilePageLayout(Gtk.VBox):
     """
     Class to handle layout for a specific page.
     """
-    def __init__(self, config, tab):
+    def __init__(self, configdialog, grstate, tab):
         Gtk.VBox.__init__(self, spacing=6, margin=12)
-        self.config = config
+        self.configdialog = configdialog
+        self.grstate = grstate
+        self.config = grstate.config
         self.obj_type, self.obj_type_lang = tab
         self.space = "options.page.{}.layout".format(self.obj_type.lower())
         self.revert = []
@@ -122,8 +125,9 @@ class ProfilePageLayout(Gtk.VBox):
         self.undo.connect("clicked", self.undo_changes)
         bbox.pack_start(self.undo, False, False, 0)
         box.pack_start(bbox, False, False, 0)
-        defaults = Gtk.Button(label=_("Defaults"))
-        defaults.connect("clicked", self.apply_defaults)
+        defaults = ConfigReset(self.configdialog, self.grstate, self.space)
+#        defaults = Gtk.Button(label=_("Defaults"))
+#        defaults.connect("clicked", self.apply_defaults)
         box.pack_end(defaults, False, False, 0)
         self.pack_end(box, False, False, 0)
         self.show_all()
