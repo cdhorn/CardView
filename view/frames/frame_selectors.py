@@ -355,7 +355,6 @@ class FrameFieldSelector(Gtk.HBox):
             self.hide_selectors(event=False, all=False)
             current_index = self.event_names.index(self.event_etoi["Unknown"])
             self.event_selector.set_active(current_index)
-            self.event_matches.set_active(False)
             self.event_selector.show()
             self.all_matches.show()
             self.update_event_choice()
