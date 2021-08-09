@@ -44,15 +44,16 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import (
-    Person,
-    Family,
-    Event,
     ChildRef,
+    Event,
     EventRef,
+    Family,
+    Name,
+    Person,
 )
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
-from gramps.gui.editors import EditFamily, EditEventRef
+from gramps.gui.editors import EditFamily, EditEventRef, EditName
 from gramps.gui.selectors import SelectorFactory
 
 
@@ -307,6 +308,136 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             self.action_menu.append(self._remove_child_from_family_option())
         self.action_menu.append(self._parents_option())
         self.action_menu.append(self._partners_option())
+        self.action_menu.append(self._names_option())
+
+    def _names_option(self):
+        """
+        Build the names submenu.
+        """
+        menu = Gtk.Menu()
+        menu.add(
+            menu_item("list-add", _("Add a name"), self.add_name)
+        )
+        if len(self.primary.obj.get_alternate_names()) > 0:
+            removemenu = Gtk.Menu()
+            menu.add(
+                submenu_item(
+                    "gramps-person", _("Remove a name"), removemenu
+                )
+            )
+            menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            name = self.primary.obj.get_primary_name()
+            given_name = name.get_regular_name()
+            menu.add(
+                menu_item(
+                    "gramps-person", given_name, self.edit_name, name
+                )
+            )
+            for name in self.primary.obj.get_alternate_names():
+                given_name = name.get_regular_name()
+                removemenu.add(
+                    menu_item(
+                        "list-remove", given_name, self.remove_name, name
+                    )
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-person", given_name, self.edit_name, name
+                    )
+                )
+        return submenu_item("gramps-person", _("Names"), menu)
+
+    def add_name(self, _dummy_obj):
+        """
+        Add a new name.
+        """
+        name = Name()
+        try:
+            EditName(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                name,
+                self.added_name
+                )
+        except WindowActiveError:
+            pass
+
+    def added_name(self, name):
+        """
+        Save the new name to finish adding it.
+        """
+        if name:
+            action = "{} {} {} {} {} {}".format(
+                _("Added"),
+                _("Name"),
+                name.get_regular_name(),
+                _("to"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+            self.primary.obj.add_alternate_name(name)
+            self.save_object(self.primary.obj, action_text=action)
+
+    def edit_name(self, _dummy_obj, name):
+        """
+        Edit a name.
+        """
+        try:
+            EditName(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                name,
+                self.edited_name
+                )
+        except WindowActiveError:
+            pass
+
+    def edited_name(self, name):
+        """
+        Save edited name.
+        """
+        action = "{} {} {} {} {} {}".format(
+            _("Edited"),
+            _("Name"),
+            name.get_regular_name(),
+            _("for"),
+            _("Person"),
+            self.primary.obj.get_gramps_id(),
+        )
+        self.save_object(self.primary.obj, action_text=action)
+
+    def remove_name(self, _dummy_obj, name):
+        """
+        Remove the given name from the current object.
+        """
+        if not name:
+            return
+        text = name.get_regular_name()
+        prefix = _(
+            "You are about to remove the following name from this object:"
+        )
+        confirm = _("Are you sure you want to continue?")
+        if self.confirm_action(
+            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
+        ):
+            action = "{} {} {} {} {} {}".format(
+                _("Deleted"),
+                _("Name"),
+                text,
+                _("from"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+            name_list = []
+            for alternate_name in self.primary.obj.get_alternate_names():
+                if alternate_name.serialize() != name.serialize():
+                    name_list.append(alternate_name)
+            with DbTxn(action, self.grstate.dbstate.db) as trans:
+                self.primary.obj.set_alternate_names(name_list)
+                self.grstate.dbstate.db.commit_person(self.primary.obj, trans)
 
     def _add_new_person_event_option(self):
         """
