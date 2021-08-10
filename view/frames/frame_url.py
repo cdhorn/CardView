@@ -24,6 +24,14 @@ UrlGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from html import escape
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -73,7 +81,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         )
         self.link = url.get_full_path()
 
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(self.link))
+        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(escape(self.link)))
         self.title.pack_start(label, False, False, 0)
 
         if url.get_description():

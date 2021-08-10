@@ -24,6 +24,14 @@ NoteUrlGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from html import escape
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -79,7 +87,7 @@ class NoteUrlGrampsFrame(GrampsFrame):
         self.eventbox.add(self.frame)
         self.add(self.eventbox)
 
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(link))
+        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(escape(link)))
         self.title.pack_start(label, False, False, 0)
         text = "{} {} {}".format(_("Found in"), _("Note"), note.get_gramps_id())
         note_link = TextLink(

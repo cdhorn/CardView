@@ -112,11 +112,14 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Add a note url.
         """
+        text = link
+        if text[-1:] == ".":
+            text = text[:-1]
         frame = NoteUrlGrampsFrame(
             self.grstate,
             self.groptions,
             note,
-            link
+            text
         )
         self.add_frame(frame)
 
