@@ -35,5 +35,6 @@ __all__ = [
     "group_repositories",
     "group_sources",
     "group_timeline",
+    "group_urls",
     "group_utils",
 ]

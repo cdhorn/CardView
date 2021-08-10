@@ -43,9 +43,8 @@ from gi.repository import Gtk, Gdk
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..frames.frame_base import GrampsFrame
 from ..frames.frame_classes import GrampsConfig
-from ..frames.frame_primary import PrimaryGrampsFrame
-from ..frames.frame_secondary import SecondaryGrampsFrame
 
 
 # ------------------------------------------------------------------------
@@ -80,7 +79,7 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
         """
         Add a GrampsFrame object.
         """
-        if isinstance(gramps_frame, (PrimaryGrampsFrame, SecondaryGrampsFrame)):
+        if isinstance(gramps_frame, GrampsFrame):
             if self.managed_obj_type is None and self.dnd_type is None:
                 if hasattr(gramps_frame, "primary"):
                     if gramps_frame.secondary:

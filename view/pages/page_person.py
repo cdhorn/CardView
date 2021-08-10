@@ -58,6 +58,7 @@ from ..groups.group_utils import (
     get_parents_group,
     get_spouses_group,
     get_timeline_group,
+    get_urls_group,
 )
 from .page_base import BaseProfilePage
 
@@ -145,6 +146,8 @@ class PersonProfilePage(BaseProfilePage):
             obj_groups.update({"media": get_media_group(grstate, person)})
         if "address" in groups:
             obj_groups.update({"address": get_addresses_group(grstate, person)})
+        if "url" in groups:
+            obj_groups.update({"url": get_urls_group(grstate, person)})
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):

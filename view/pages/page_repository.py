@@ -43,7 +43,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_repository import RepositoryGrampsFrame
-from ..groups.group_utils import get_notes_group, get_sources_group
+from ..groups.group_utils import (
+    get_notes_group,
+    get_sources_group,
+    get_urls_group,
+)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -95,6 +99,8 @@ class RepositoryProfilePage(BaseProfilePage):
             obj_groups.update(
                 {"source": get_sources_group(grstate, repository)}
             )
+        if "url" in groups:
+            obj_groups.update({"url": get_urls_group(grstate, repository)})
         if "note" in groups:
             obj_groups.update({"note": get_notes_group(grstate, repository)})
 

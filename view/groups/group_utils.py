@@ -57,6 +57,7 @@ from .group_notes import NotesGrampsFrameGroup
 from .group_repositories import RepositoriesGrampsFrameGroup
 from .group_sources import SourcesGrampsFrameGroup
 from .group_timeline import TimelineGrampsFrameGroup
+from .group_urls import UrlsGrampsFrameGroup
 
 _ = glocale.translation.sgettext
 
@@ -418,6 +419,24 @@ def get_names_group(
         groptions,
         obj,
         NamesGrampsFrameGroup,
+        title_plural,
+        title_single,
+        expanded=True,
+    )
+
+
+def get_urls_group(
+    grstate, obj, title_plural=_("Urls"), title_single=_("Url")
+):
+    """
+    Get the group of urls associated with an object.
+    """
+    groptions = GrampsOptions("options.group.url")
+    return get_generic_group(
+        grstate,
+        groptions,
+        obj,
+        UrlsGrampsFrameGroup,
         title_plural,
         title_single,
         expanded=True,

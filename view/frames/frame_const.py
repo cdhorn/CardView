@@ -54,6 +54,7 @@ from gramps.gen.lib import (
     RepoRef,
     Source,
     Tag,
+    Url,
 )
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
@@ -71,6 +72,7 @@ from gramps.gui.editors import (
     EditRepository,
     EditRepoRef,
     EditSource,
+    EditUrl,
 )
 from gramps.gui.views.tags import EditTag
 
@@ -258,6 +260,14 @@ GRAMPS_OBJECTS = [
         "gramps-person"
     ),
     (
+        Url,
+        EditUrl,
+        "Url",
+        _("Url"),
+        DdTargets.URL,
+        "gramps-url",
+    ),
+    (
         ChildRef,
         EditChildRef,
         "ChildRef",
@@ -311,6 +321,7 @@ LABELS = {
     "association": _("Associations"),
     "address": _("Addresses"),
     "name": _("Names"),
+    "url": _("Urls"),
 }
 
 # For layout editor

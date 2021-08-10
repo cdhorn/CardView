@@ -57,6 +57,7 @@ from ..groups.group_utils import (
     get_media_group,
     get_notes_group,
     get_timeline_group,
+    get_urls_group,
 )
 from .page_base import BaseProfilePage
 
@@ -168,6 +169,8 @@ class FamilyProfilePage(BaseProfilePage):
             obj_groups.update(
                 {"citation": get_citations_group(grstate, family)}
             )
+        if "url" in groups:
+            obj_groups.update({"url": get_urls_group(grstate, family)})
         if "note" in groups:
             obj_groups.update({"note": get_notes_group(grstate, family)})
         if "media" in groups:

@@ -48,6 +48,7 @@ from ..groups.group_utils import (
     get_media_group,
     get_notes_group,
     get_references_group,
+    get_urls_group,
 )
 from .page_base import BaseProfilePage
 
@@ -98,6 +99,8 @@ class PlaceProfilePage(BaseProfilePage):
             )
         if "citation" in groups:
             obj_groups.update({"citation": get_citations_group(grstate, place)})
+        if "url" in groups:
+            obj_groups.update({"url": get_urls_group(grstate, place)})
         if "note" in groups:
             obj_groups.update({"note": get_notes_group(grstate, place)})
         if "media" in groups:

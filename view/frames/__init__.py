@@ -34,10 +34,12 @@ __all__ = [
     "frame_image",
     "frame_name",
     "frame_note",
+    "frame_note_url",
     "frame_person",
     "frame_place",
     "frame_repository",
     "frame_selectors",
     "frame_source",
+    "frame_url",
     "frame_utils"
 ]
