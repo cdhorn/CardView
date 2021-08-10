@@ -59,10 +59,11 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
     actions related to the list.
     """
 
-    def __init__(self, grstate, groptions):
+    def __init__(self, grstate, groptions, enable_drop=True):
         Gtk.ListBox.__init__(self)
         GrampsConfig.__init__(self, grstate, groptions)
         self.hideable = False
+        self.enable_drop = enable_drop
         self.managed_obj_type = None
         self.dnd_type = None
         self.dnd_icon = None
@@ -71,9 +72,10 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
         self.row_current = 0
         self.row_previous_provider = None
         self.row_current_provider = None
-        self.connect("drag-data-received", self.on_drag_data_received)
-        self.connect("drag-motion", self.on_drag_motion)
-        self.connect("drag-leave", self.on_drag_leave)
+        if enable_drop:
+            self.connect("drag-data-received", self.on_drag_data_received)
+            self.connect("drag-motion", self.on_drag_motion)
+            self.connect("drag-leave", self.on_drag_leave)
 
     def add_frame(self, gramps_frame):
         """

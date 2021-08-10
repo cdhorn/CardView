@@ -62,7 +62,7 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions)
+        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
