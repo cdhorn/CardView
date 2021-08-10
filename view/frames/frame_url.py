@@ -44,7 +44,7 @@ from gramps.gui.display import display_url
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _RIGHT_BUTTON
+from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_secondary import SecondaryGrampsFrame
 from .frame_utils import button_activated
 
@@ -93,7 +93,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         """
         if button_activated(event, _RIGHT_BUTTON):
             self.build_action_menu(obj, event)
-        else:
+        elif not button_activated(event, _LEFT_BUTTON):
             display_url(self.link)
 
     def edit_secondary_object(self, _dummy_var1=None):

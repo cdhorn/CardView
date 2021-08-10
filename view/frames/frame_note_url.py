@@ -45,7 +45,7 @@ from gramps.gui.display import display_url
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_const import _LEFT_BUTTON
+from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_utils import (
     button_activated,
     TextLink
@@ -99,5 +99,6 @@ class NoteUrlGrampsFrame(GrampsFrame):
         """
         Route the action if the frame was clicked on.
         """
-        if button_activated(event, _LEFT_BUTTON):
-            display_url(self.link)
+        if not button_activated(event, _LEFT_BUTTON):
+            if not button_activated(event, _RIGHT_BUTTON):
+                display_url(self.link)
