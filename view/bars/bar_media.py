@@ -19,7 +19,7 @@
 #
 
 """
-MediaGrampsFrameGroup
+MediaBar
 """
 
 # ------------------------------------------------------------------------
@@ -44,95 +44,76 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..frames.frame_classes import GrampsConfig, GrampsOptions, GrampsImageViewFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_utils import get_gramps_object_type
-from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# MediaGrampsFrameGroup class
+# MediaBar class
 #
 # ------------------------------------------------------------------------
-class MediaGrampsFrameGroup(GrampsFrameGroupList):
+class MediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
     """
-    The MediaGrampsFrameGroup class provides a container for managing all
-    of the media items for a given primary Gramps object.
+    The MediaBarGroup class provides a container for managing a horizontal
+    scrollable list of media items for a given primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        Gtk.ScrolledWindow.__init__(self, hexpand=True, vexpand=False)
+        groptions = GrampsOptions("")
+        GrampsConfig.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
+
+        hbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3)
+        viewport = Gtk.Viewport()
+        viewport.add(hbox)
+        self.add(viewport)
+        self.set_policy(hscrollbar_policy=Gtk.PolicyType.AUTOMATIC, vscrollbar_policy=Gtk.PolicyType.NEVER)
 
         media_list = self.collect_media()
         if media_list:
-            if self.get_option("sort-by-date"):
-                media_list.sort(
-                    key=lambda x: x[0].get_date_object().get_sort_value()
-                )
+#            if self.get_option("sort-by-date"):
+#                media_list.sort(
+#                    key=lambda x: x[0].get_date_object().get_sort_value()
+#                )
 
-            for (
-                media,
-                media_ref,
-                dummy_references,
-                dummy_ref_type,
-                dummy_ref_desc,
-            ) in media_list:
-                frame = ImageGrampsFrame(
+            for (media, media_ref) in media_list:
+                frame = GrampsImageViewFrame(
                     grstate,
-                    groptions,
                     media,
-                    media_ref=media_ref
+                    media_ref
                 )
-                self.add_frame(frame)
+                hbox.pack_start(frame, False, False, 0)
         self.show_all()
 
-    # Revisit probably needs to be media ref not media
-    def save_new_object(self, handle, insert_row):
-        """
-        Add new media to the list.
-        """
-        media = self.grstate.dbstate.db.get_media_from_handle()
-        action = "{} {} {} {}".format(
-            _("Added Media"),
-            media.get_gramps_id(),
-            _("to"),
-            self.obj.get_gramps_id(),
-        )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            if self.obj.add_media(handle):
-                commit_method(self.obj, trans)
 
     def collect_media(self):
         """
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(0, self.obj_type, media_list, None, [self.obj])
+        self.extract_media(media_list, self.obj)
         return media_list
 
-    def extract_media(
-        self, ref_type, ref_desc, media_list, query_method=None, obj_list=None
-    ):
+    def extract_media(self, media_list, obj):
         """
         Helper to extract a set of media references from an object.
         """
-        if query_method:
-            data = query_method()
-        else:
-            data = obj_list or []
-        for item in data:
-            if hasattr(item, "media_list"):
-                for media_ref in item.get_media_list():
-                    media = self.grstate.dbstate.db.get_media_from_handle(
-                        media_ref.ref
-                    )
-                    media_list.append((media, media_ref, [item], ref_type, ref_desc))
+        if not hasattr(obj, "media_list"):
+            return
+        
+        obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
+        query_method = self.grstate.dbstate.db.method(
+            "get_%s_from_handle", obj_type
+        )
+
+        for media_ref in obj.get_media_list():
+            media = self.grstate.dbstate.db.get_media_from_handle(
+                media_ref.ref
+            )
+            media_list.append((media, media_ref))

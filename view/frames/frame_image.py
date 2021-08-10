@@ -59,9 +59,9 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
     The ImageGrampsFrame exposes the image and some facts about Media.
     """
 
-    def __init__(self, grstate, groptions, media):
+    def __init__(self, grstate, groptions, media, media_ref=None):
         PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, media
+            self, grstate, groptions, media, secondary_obj=media_ref
         )
 
         title = TextLink(
@@ -86,7 +86,10 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         """
         Construct framework for media layout, overrides base class.
         """
-        self.load_image(2)
+        if self.secondary:
+            self.load_image(2, media_ref=self.secondary.obj)
+        else:
+            self.load_image(2)
         vcontent = Gtk.VBox()
         self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
         vcontent.pack_start(self.image, expand=True, fill=True, padding=0)

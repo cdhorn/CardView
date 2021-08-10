@@ -95,6 +95,7 @@ CONFIGSETTINGS = (
     ("options.global.use-color-scheme", True),
     ("options.global.use-smaller-detail-font", True),
     ("options.global.border-width", 2),
+    ("options.global.enable-media-bar", True),
     ("options.global.link-citation-title-to-source", True),
     ("options.global.include-child-notes", True),
     ("options.global.include-note-urls", True),
@@ -200,7 +201,7 @@ CONFIGSETTINGS = (
     ("options.page.person.layout.note.visible", True),
     ("options.page.person.layout.note.stacked", False),
     ("options.page.person.layout.note.hideable", False),
-    ("options.page.person.layout.media.visible", True),
+    ("options.page.person.layout.media.visible", False),
     ("options.page.person.layout.media.stacked", False),
     ("options.page.person.layout.media.hideable", False),
     ######################################################################
@@ -224,7 +225,7 @@ CONFIGSETTINGS = (
     ("options.page.family.layout.note.visible", True),
     ("options.page.family.layout.note.stacked", False),
     ("options.page.family.layout.note.hideable", False),
-    ("options.page.family.layout.media.visible", True),
+    ("options.page.family.layout.media.visible", False),
     ("options.page.family.layout.media.stacked", False),
     ("options.page.family.layout.media.hideable", False),
     ######################################################################
@@ -248,7 +249,7 @@ CONFIGSETTINGS = (
     ("options.page.event.layout.note.visible", True),
     ("options.page.event.layout.note.stacked", False),
     ("options.page.event.layout.note.hideable", False),
-    ("options.page.event.layout.media.visible", True),
+    ("options.page.event.layout.media.visible", False),
     ("options.page.event.layout.media.stacked", False),
     ("options.page.event.layout.media.hideable", False),
     ######################################################################
@@ -275,7 +276,7 @@ CONFIGSETTINGS = (
     ("options.page.source.layout.event.visible", True),
     ("options.page.source.layout.event.stacked", False),
     ("options.page.source.layout.event.hideable", False),
-    ("options.page.source.layout.media.visible", True),
+    ("options.page.source.layout.media.visible", False),
     ("options.page.source.layout.media.stacked", False),
     ("options.page.source.layout.media.hideable", False),
     ######################################################################
@@ -293,7 +294,7 @@ CONFIGSETTINGS = (
     ("options.page.citation.layout.note.visible", True),
     ("options.page.citation.layout.note.stacked", False),
     ("options.page.citation.layout.note.hideable", False),
-    ("options.page.citation.layout.media.visible", True),
+    ("options.page.citation.layout.media.visible", False),
     ("options.page.citation.layout.media.stacked", False),
     ("options.page.citation.layout.media.hideable", False),
     ######################################################################
@@ -353,7 +354,7 @@ CONFIGSETTINGS = (
     ("options.page.place.layout.note.visible", True),
     ("options.page.place.layout.note.stacked", False),
     ("options.page.place.layout.note.hideable", False),
-    ("options.page.place.layout.media.visible", True),
+    ("options.page.place.layout.media.visible", False),
     ("options.page.place.layout.media.stacked", False),
     ("options.page.place.layout.media.hideable", False),
     ("options.page.place.layout.reference.visible", True),

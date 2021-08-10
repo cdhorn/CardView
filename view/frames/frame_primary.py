@@ -253,7 +253,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.image, expand=False, fill=False, padding=0
             )
 
-    def load_image(self, image_mode):
+    def load_image(self, image_mode, media_ref=None):
         """
         Load primary image for the object if found.
         """
@@ -262,7 +262,8 @@ class PrimaryGrampsFrame(GrampsFrame):
             large_size = True
         self.image.add(
             GrampsImageViewFrame(
-                self.grstate, self.primary.obj, size=large_size
+                self.grstate, self.primary.obj,
+                obj_ref=media_ref, size=large_size
             )
         )
         if "image" in self.groptions.size_groups:

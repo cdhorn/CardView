@@ -81,8 +81,17 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid,
-        _("Link citation title to source page"),
+        _("Enable media bar"),
         5,
+        "options.global.enable-media-bar",
+        tooltip=_(
+            "Indicates whether to enable the horizontal media bar beneath the header."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link citation title to source page"),
+        6,
         "options.global.link-citation-title-to-source",
         tooltip=_(
             "Indicates whether the source title link in a citation record links to the source page instead of the citation page."
@@ -90,18 +99,18 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid, _("Include notes on child objects"),
-        6, "options.global.include-child-notes",
+        7, "options.global.include-child-notes",
         tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
     )
     configdialog.add_checkbox(
         grid, _("Include urls from notes"),
-        7, "options.global.include-note-urls",
+        8, "options.global.include-note-urls",
         tooltip=_("Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list.")
     )
     configdialog.add_checkbox(
         grid,
         _("Sort tags by name not priority"),
-        8,
+        9,
         "options.global.sort-tags-by-name",
         tooltip=_(
             "Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool."
@@ -110,21 +119,21 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid,
         _("Maximum citations per group"),
-        9,
+        10,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum references per group"),
-        10,
+        11,
         "options.global.max-references-per-group",
         (1, 500),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable warnings"),
-        11,
+        12,
         "options.global.enable-warnings",
         tooltip=_(
             "Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard."

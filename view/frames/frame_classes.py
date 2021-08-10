@@ -49,7 +49,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Media
+from gramps.gen.lib import Media, MediaRef
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.utils import open_file_with_default_application
@@ -311,9 +311,13 @@ class GrampsImageViewFrame(Gtk.Frame):
     in a GrampsFrame object.
     """
 
-    def __init__(self, grstate, obj, size=0):
+    def __init__(self, grstate, obj, obj_ref=None, size=0):
         Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE)
         self.grstate = grstate
+        if obj_ref:
+            thumbnail = self.get_thumbnail(obj, obj_ref, size)
+            self.add(thumbnail)
+            return
         if isinstance(obj, Media):
             thumbnail = self.get_thumbnail(obj, None, size)
             self.add(thumbnail)
@@ -333,7 +337,7 @@ class GrampsImageViewFrame(Gtk.Frame):
         if mobj and mobj.get_mime_type()[0:5] == "image":
             rectangle = None
             if media_ref:
-                media_ref.get_rectangle()
+                rectangle = media_ref.get_rectangle()
             pixbuf = get_thumbnail_image(
                 media_path_full(self.grstate.dbstate.db, mobj.get_path()),
                 rectangle=rectangle,

@@ -44,6 +44,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..bars.bar_media import MediaBarGroup
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_person import PersonGrampsFrame
@@ -155,6 +156,11 @@ class PersonProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
+
+        if self.config.get("options.global.enable-media-bar"):
+            bar = MediaBarGroup(grstate, None, person)
+            if bar:
+                vbox.pack_start(bar, False, False, 0)
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()

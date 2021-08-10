@@ -41,6 +41,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..bars.bar_media import MediaBarGroup
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_event import EventGrampsFrame
 from ..groups.group_utils import (
@@ -157,5 +158,11 @@ class EventProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
+
+        if self.config.get("options.global.enable-media-bar"):
+            bar = MediaBarGroup(grstate, None, event)
+            if bar:
+                vbox.pack_start(bar, False, False, 0)
+
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()

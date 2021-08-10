@@ -49,6 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..bars.bar_media import MediaBarGroup
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..groups.group_utils import (
@@ -157,6 +158,11 @@ class FamilyProfilePage(BaseProfilePage):
 
         vbox.pack_start(pbox, expand=True, fill=True, padding=0)
         vbox.pack_start(self.active_profile, expand=True, fill=True, padding=0)
+
+        if self.config.get("options.global.enable-media-bar"):
+            bar = MediaBarGroup(grstate, None, family)
+            if bar:
+                vbox.pack_start(bar, False, False, 0)
 
         groups = self.config.get("options.page.family.layout.groups").split(",")
         obj_groups = {}
