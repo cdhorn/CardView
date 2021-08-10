@@ -25,16 +25,8 @@
 #
 
 """
-PersonRef Profile Page
+Address Profile Page
 """
-
-# -------------------------------------------------------------------------
-#
-# GTK/Gnome modules
-#
-# -------------------------------------------------------------------------
-from gi.repository import Gtk
-
 
 # -------------------------------------------------------------------------
 #
@@ -43,6 +35,7 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
+from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
 
@@ -51,9 +44,9 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
-from ..frames.frame_association import AssociationGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
 from ..groups.group_utils import (
@@ -66,10 +59,10 @@ from .page_base import BaseProfilePage
 _ = glocale.translation.sgettext
 
 
-class PersonRefProfilePage(BaseProfilePage):
+class AddressProfilePage(BaseProfilePage):
     """
-    Provides the person reference profile page view with information
-    about the association between two people.
+    Provides the address profile page view with information about the
+    address of a person.
     """
 
     def __init__(self, dbstate, uistate, config):
@@ -85,16 +78,31 @@ class PersonRefProfilePage(BaseProfilePage):
         return "Person"
 
     def page_type(self):
-        return "PersonRef"
+        return "Address"
 
     def define_actions(self, view):
-        pass
+        self.order_action = ActionGroup(name="ChangeOrder")
+        self.order_action.add_actions([("ChangeOrder", self.reorder)])
+
+        self.family_action = ActionGroup(name="Family")
+        self.family_action.add_actions(
+            [
+                ("AddSpouse", self.add_spouse),
+                ("AddParents", self.add_parents),
+                ("ShareFamily", self.select_parents),
+            ]
+        )
+
+        view._add_action_group(self.order_action)
+        view._add_action_group(self.family_action)
 
     def enable_actions(self, uimanager, person):
-        pass
+        uimanager.set_actions_visible(self.family_action, True)
+        uimanager.set_actions_visible(self.order_action, True)
 
     def disable_actions(self, uimanager):
-        pass
+        uimanager.set_actions_visible(self.family_action, False)
+        uimanager.set_actions_visible(self.order_action, False)
 
     def render_page(self, header, vbox, person, secondary=None):
         list(map(header.remove, header.get_children()))
@@ -106,41 +114,40 @@ class PersonRefProfilePage(BaseProfilePage):
             self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
         )
         groptions = GrampsOptions("options.active.person")
-        person_frame = PersonGrampsFrame(grstate, groptions, person)
-        groptions = GrampsOptions("options.active.association")
-        self.active_profile = AssociationGrampsFrame(
-            grstate,
-            groptions,
-            person,
-            secondary,
-        )
-        vheader = Gtk.VBox(spacing=3)
-        vheader.pack_start(person_frame, False, False, 0)
-        vheader.pack_start(self.active_profile, False, False, 0)
+        self.active_profile = PersonGrampsFrame(grstate, groptions, person)
 
-        groups = self.config.get("options.page.personref.layout.groups").split(
-            ","
-        )
+        address = secondary
+        groptions = GrampsOptions("options.active.address")
+        frame = AddressGrampsFrame(grstate, groptions, person, address)
+
+        groups = self.config.get("options.page.address.layout.groups").split(",")
         obj_groups = {}
 
         if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, secondary)}
-            )
+            obj_groups.update({"citation": get_citations_group(grstate, address)})
         if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, secondary)})
+            obj_groups.update({"url": get_urls_group(grstate, address)})
         if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, secondary)})
+            obj_groups.update({"note": get_notes_group(grstate, address)})
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
-            header.pack_start(vheader, False, False, 0)
+            header.pack_start(self.active_profile, False, False, 0)
+            header.pack_start(frame, False, False, 0)
             header.show_all()
         else:
-            vbox.pack_start(vheader, False, False, 0)
+            vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(frame, False, False, 0)
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
+
+        family_handle_list = person.get_parent_family_handle_list()
+        self.reorder_sensitive = len(family_handle_list) > 1
+        family_handle_list = person.get_family_handle_list()
+        if not self.reorder_sensitive:
+            self.reorder_sensitive = len(family_handle_list) > 1
+        return True
 
     def reorder_button_press(self, obj, event, handle):
         if button_activated(event, _LEFT_BUTTON):

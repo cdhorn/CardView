@@ -59,6 +59,7 @@ from ..frames.frame_utils import button_activated
 from ..groups.group_utils import (
     get_citations_group,
     get_notes_group,
+    get_urls_group,
 )
 from .page_base import BaseProfilePage
 
@@ -156,6 +157,8 @@ class ChildRefProfilePage(BaseProfilePage):
             obj_groups.update(
                 {"citation": get_citations_group(grstate, secondary)}
             )
+        if "url" in groups:
+            obj_groups.update({"url": get_urls_group(grstate, secondary)})
         if "note" in groups:
             obj_groups.update({"note": get_notes_group(grstate, secondary)})
         body = self.render_group_view(obj_groups)

@@ -69,6 +69,7 @@ from view.pages.page_source import SourceProfilePage
 from view.pages.page_repository import RepositoryProfilePage
 from view.pages.page_person_ref import PersonRefProfilePage
 from view.pages.page_tag import TagProfilePage
+from view.pages.page_address import AddressProfilePage
 
 _ = glocale.translation.sgettext
 
@@ -119,6 +120,9 @@ class ProfileView(ENavigationView):
         )
         self._add_page(
             NameProfilePage(self.dbstate, self.uistate, self._config)
+        )
+        self._add_page(
+            AddressProfilePage(self.dbstate, self.uistate, self._config)
         )
         self._add_page(
             ChildRefProfilePage(self.dbstate, self.uistate, self._config)

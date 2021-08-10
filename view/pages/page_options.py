@@ -112,37 +112,61 @@ CONFIGSETTINGS = (
     ######################################################################    
     ("options.page.name.layout.tabbed", False),
     ("options.page.name.layout.scrolled", False),
-    ("options.page.name.layout.groups", "citation,note"),
+    ("options.page.name.layout.groups", "citation,note,url"),
     ("options.page.name.layout.citation.visible", True),
     ("options.page.name.layout.citation.stacked", False),
     ("options.page.name.layout.citation.hideable", False),
     ("options.page.name.layout.note.visible", True),
     ("options.page.name.layout.note.stacked", False),
     ("options.page.name.layout.note.hideable", False),
+    ("options.page.name.layout.url.visible", True),
+    ("options.page.name.layout.url.stacked", False),
+    ("options.page.name.layout.url.hideable", False),
+    ######################################################################
+    ## Address Page Options
+    ######################################################################    
+    ("options.page.address.layout.tabbed", False),
+    ("options.page.address.layout.scrolled", False),
+    ("options.page.address.layout.groups", "citation,note,url"),
+    ("options.page.address.layout.citation.visible", True),
+    ("options.page.address.layout.citation.stacked", False),
+    ("options.page.address.layout.citation.hideable", False),
+    ("options.page.address.layout.note.visible", True),
+    ("options.page.address.layout.note.stacked", False),
+    ("options.page.address.layout.note.hideable", False),
+    ("options.page.address.layout.url.visible", True),
+    ("options.page.address.layout.url.stacked", False),
+    ("options.page.address.layout.url.hideable", False),
     ######################################################################
     ## ChildRef Page Options
     ######################################################################
     ("options.page.childref.layout.tabbed", False),
     ("options.page.childref.layout.scrolled", False),
-    ("options.page.childref.layout.groups", "citation,note"),
+    ("options.page.childref.layout.groups", "citation,note,url"),
     ("options.page.childref.layout.citation.visible", True),
     ("options.page.childref.layout.citation.stacked", False),
     ("options.page.childref.layout.citation.hideable", False),
     ("options.page.childref.layout.note.visible", True),
     ("options.page.childref.layout.note.stacked", False),
     ("options.page.childref.layout.note.hideable", False),
+    ("options.page.childref.layout.url.visible", True),
+    ("options.page.childref.layout.url.stacked", False),
+    ("options.page.childref.layout.url.hideable", False),
     ######################################################################
     ## PersonRef Page Options
     ######################################################################
     ("options.page.personref.layout.tabbed", False),
     ("options.page.personref.layout.scrolled", False),
-    ("options.page.personref.layout.groups", "citation,note"),
+    ("options.page.personref.layout.groups", "citation,note,url"),
     ("options.page.personref.layout.citation.visible", True),
     ("options.page.personref.layout.citation.stacked", False),
     ("options.page.personref.layout.citation.hideable", False),
     ("options.page.personref.layout.note.visible", True),
     ("options.page.personref.layout.note.stacked", False),
     ("options.page.personref.layout.note.hideable", False),
+    ("options.page.personref.layout.url.visible", True),
+    ("options.page.personref.layout.url.stacked", False),
+    ("options.page.personref.layout.url.hideable", False),
     ######################################################################
     ## Person Page Options
     ######################################################################
