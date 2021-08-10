@@ -258,13 +258,17 @@ class GrampsConfig:
             label = Gtk.Label(
                 hexpand=False,
                 halign=Gtk.Align.START,
+                justify=Gtk.Justification.LEFT,
                 wrap=True,
+                xalign=0.0
             )
         else:
             label = Gtk.Label(
                 hexpand=False,
                 halign=Gtk.Align.END,
+                justify=Gtk.Justification.RIGHT,
                 wrap=True,
+                xalign=1.0
             )
         text = data or ""
         label.set_markup(self.markup.format(escape(text)))

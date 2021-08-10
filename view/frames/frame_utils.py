@@ -344,7 +344,7 @@ class TextLink(Gtk.EventBox):
         if bold:
             self.name = "<b>{}</b>".format(self.name)
         self.label = Gtk.Label(
-            hexpand=hexpand, halign=Gtk.Align.START, wrap=True
+            hexpand=hexpand, halign=Gtk.Align.START, wrap=True, xalign=0.0, justify=Gtk.Justification.LEFT
         )
         self.label.set_markup(self.name)
         self.add(self.label)
