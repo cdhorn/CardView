@@ -734,4 +734,27 @@ def submenu_item(icon, label, menu):
     item.set_submenu(menu)
     return item
 
-    
+
+def get_bookmarks(db, obj_type):
+    """
+    Return bookmarks for given object type.
+    """
+    if obj_type == "Person":
+        return db.get_bookmarks()
+    if obj_type == "Citation":
+        return db.get_citation_bookmarks()
+    if obj_type == "Event":
+        return db.get_event_bookmarks()
+    if obj_type == "Family":
+        return db.get_family_bookmarks()
+    if obj_type == "Media":
+        return db.get_media_bookmarks()
+    if obj_type == "Note":
+        return db.get_note_bookmarks()
+    if obj_type == "Place":
+        return db.get_place_bookmarks()
+    if obj_type == "Source":
+        return db.get_source_bookmarks()
+    if obj_type == "Repository":
+        return db.get_repo_bookmarks()
+    return []

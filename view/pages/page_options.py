@@ -96,6 +96,7 @@ CONFIGSETTINGS = (
     ("options.global.use-smaller-detail-font", True),
     ("options.global.border-width", 2),
     ("options.global.enable-media-bar", True),
+    ("options.global.enable-bookmarks", True),
     ("options.global.link-citation-title-to-source", True),
     ("options.global.include-child-notes", True),
     ("options.global.include-note-urls", True),
