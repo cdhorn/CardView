@@ -103,6 +103,8 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         vcontent = Gtk.VBox(spacing=3)
         self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        tbox = Gtk.HBox(hexpand=False, vexpand=False)
+        tbox.pack_start(self.tags, False, False, 0)
         if self.groptions.vertical_orientation:
             self.partner1 = Gtk.HBox(hexpand=True)
             vcontent.pack_start(
@@ -124,7 +126,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 self.metadata, expand=True, fill=True, padding=0
             )
             dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+            dcontent.pack_start(tbox, expand=True, fill=True, padding=0)
             self.partner2 = Gtk.HBox(hexpand=True)
             vcontent.pack_start(
                 self.partner2, expand=True, fill=True, padding=0
@@ -163,7 +165,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 self.metadata, expand=True, fill=True, padding=0
             )
             dcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            dcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+            dcontent.pack_start(tbox, expand=True, fill=True, padding=0)
 
     def _get_profile(self, person):
         if person:
