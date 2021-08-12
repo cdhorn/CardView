@@ -24,14 +24,6 @@ NameGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
-#
-# ------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-
-
-# ------------------------------------------------------------------------
-#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -40,10 +32,20 @@ from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
+# Gramps modules
+#
+# ------------------------------------------------------------------------
+from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.utils.alive import probably_alive
+
+
+# ------------------------------------------------------------------------
+#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
+from .frame_utils import get_person_color_css
 
 _ = glocale.translation.sgettext
 
@@ -126,3 +128,18 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if not self.grstate.config.get("options.global.use-color-scheme"):
+            return ""
+
+        if self.primary.obj_type == "Person":
+            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
+            return get_person_color_css(
+                self.primary.obj,
+                living=living,
+            )
