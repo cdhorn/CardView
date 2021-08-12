@@ -52,9 +52,11 @@ from gi.repository import Gtk, Gdk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gui.editors import (
     EditAttribute,
+    EditChildRef,
     EditEventRef,
     EditPerson,
     EditSrcAttribute,
@@ -1049,7 +1051,7 @@ class PrimaryGrampsFrame(GrampsFrame):
 
     def add_new_child_to_family(self, *_dummy_obj):
         """
-        Add a new child to a family.
+        Add a new child to a family. First create the person.
         """
         if self.primary.obj_type == "Family":
             handle = self.primary.obj.get_handle()
@@ -1057,8 +1059,8 @@ class PrimaryGrampsFrame(GrampsFrame):
         else:
             handle = self.groptions.family_backlink
             family = self.grstate.dbstate.db.get_family_from_handle(handle)
-        callback = lambda x: self.added_child(x, handle)
-        person = Person()
+        callback = lambda x: self.adding_child_to_family(x, handle)
+        child = Person()
         name = Name()
         name.add_surname(Surname())
         name.set_primary_surname(0)
@@ -1073,38 +1075,56 @@ class PrimaryGrampsFrame(GrampsFrame):
             )
             if mother:
                 preset_name(mother, name)
-        person.set_primary_name(name)
+        child.set_primary_name(name)
         try:
             EditPerson(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                person,
+                child,
                 callback=callback,
             )
         except WindowActiveError:
             pass
 
-    def added_child(self, person, family_handle):
+    def adding_child_to_family(self, child, family_handle):
+        """
+        Second set parental relations.
+        """
+        child_ref = ChildRef()
+        child_ref.ref = child.handle
+        callback = lambda x: self.added_child(x, child, family_handle)
+        name = name_displayer.display(child)
+        try:
+            EditChildRef(
+                name,
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                child_ref,
+                callback
+            )
+        except WindowActiveError:
+            pass
+
+    def added_child(self, child_ref, child, family_handle):
         """
         Finish adding the child to the family.
         """
-        ref = ChildRef()
-        ref.ref = person.get_handle()
         family = self.grstate.dbstate.db.get_family_from_handle(family_handle)
         action = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Child"),
-            person.get_gramps_id(),
+            child.get_gramps_id(),
             _("to"),
             _("Family"),
             family.get_gramps_id(),
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            family.add_child_ref(ref)
-            person.add_parent_family_handle(family_handle)
-            self.grstate.dbstate.db.commit_person(person, trans)
+            family.add_child_ref(child_ref)
             self.grstate.dbstate.db.commit_family(family, trans)
+            child.add_parent_family_handle(family_handle)
+            self.grstate.dbstate.db.commit_person(child, trans)
 
     def _add_existing_child_to_family_option(self):
         """
@@ -1120,16 +1140,15 @@ class PrimaryGrampsFrame(GrampsFrame):
 
     def add_existing_child_to_family(self, *_dummy_obj):
         """
-        Add the child to the family.
+        Add the child to the family. First select the person.
         """
         select_person = SelectorFactory("Person")
         if self.primary.obj_type == "Family":
-            handle = self.primary.obj.get_handle()
+            family_handle = self.primary.obj.get_handle()
             family = self.primary.obj
         else:
-            handle = self.groptions.family_backlink
-            family = self.grstate.dbstate.db.get_family_from_handle(handle)
-        # it only makes sense to skip those who are already in the family
+            family_handle = self.groptions.family_backlink
+            family = self.grstate.dbstate.db.get_family_from_handle(family_handle)
         skip_list = [family.get_father_handle(), family.get_mother_handle()]
         skip_list.extend(x.ref for x in family.get_child_ref_list())
         selector = select_person(
@@ -1139,9 +1158,9 @@ class PrimaryGrampsFrame(GrampsFrame):
             _("Select Child"),
             skip=skip_list,
         )
-        person = selector.run()
-        if person:
-            self.added_child(person, handle)
+        child = selector.run()
+        if child:
+            self.adding_child_to_family(child, family_handle)
 
     def _bookmark_option(self):
         """

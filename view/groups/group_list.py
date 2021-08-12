@@ -83,19 +83,8 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
         """
         if isinstance(gramps_frame, GrampsFrame):
             if self.managed_obj_type is None and self.dnd_type is None:
-                if hasattr(gramps_frame, "primary"):
-                    if gramps_frame.secondary:
-                        self.managed_obj_type = gramps_frame.secondary.obj_type
-                        self.dnd_type = gramps_frame.secondary.dnd_type
-                    else:
-                        self.managed_obj_type = gramps_frame.primary.obj_type
-                        self.dnd_type = gramps_frame.primary.dnd_type
-                else:
-                    if hasattr(gramps_frame, "obj_type"):
-                        self.managed_obj_type = gramps_frame.obj_type
-                    else:
-                        self.managed_obj_type = gramps_frame.secondary_type
-                    self.dnd_type = gramps_frame.dnd_type
+                self.managed_obj_type = gramps_frame.focus.obj_type
+                self.dnd_type = gramps_frame.focus.dnd_type
                 self.drag_dest_set(
                     Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
                     [self.dnd_type.target()],
@@ -126,7 +115,7 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
             )
             source_index = 0
             for frame in self.row_frames:
-                if frame.obj.get_handle() == obj_handle:
+                if frame.primary.obj.get_handle() == obj_handle:
                     if self.row_current == source_index:
                         break
                     row_moving = self.get_row_at_index(source_index)
