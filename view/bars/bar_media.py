@@ -24,6 +24,14 @@ GrampsMediaBarGroup
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+import pickle
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -40,6 +48,7 @@ from gramps.gen.db import DbTxn
 from gramps.gen.lib import Citation, Note, Source
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gen.utils.file import media_path_full
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
 from gramps.gui.utils import open_file_with_default_application
 from gramps.gui.selectors import SelectorFactory
@@ -164,7 +173,8 @@ class GrampsMediaBarItem(GrampsFrame):
             self.frame.add(thumbnail)
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
-
+        self.enable_drop(drag_data_received=self.drag_data_ref_received)
+        
     def get_thumbnail(self, media, media_ref, size, crop):
         """
         Get the thumbnail image.
@@ -303,13 +313,16 @@ class GrampsMediaBarItem(GrampsFrame):
         if action_text:
             action = action_text
         else:
-            action = "{} {} {} {} {} {}".format(
+            action = "{} {} {} {} {} {} {} {}".format(
                 _("Edited"),
                 _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
                 _("for"),
                 self.obj_type,
                 self.obj.get_gramps_id(),
+                _("to"),
+                self.primary.obj_type,
+                self.primary.obj.get_gramps_id(),
+
             )
         commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(action, self.grstate.dbstate.db) as trans:
@@ -339,16 +352,18 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         if handle and self.secondary.obj.add_citation(handle):
             citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
-            action = "{} {} {} {} {} {} {} {} {}".format(
+            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
                 _("Citation"),
                 citation.get_gramps_id(),
                 _("to"),
                 _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
                 _("for"),
                 self.obj_type,
                 self.obj.get_gramps_id(),
+                _("to"),
+                self.primary.obj_type,
+                self.primary.obj.get_gramps_id(),
             )
             self.save_media_ref(self.secondary.obj, action_text=action)
 
@@ -406,16 +421,18 @@ class GrampsMediaBarItem(GrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {} {} {} {}".format(
+            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Removed"),
                 _("Citation"),
                 citation.get_gramps_id(),
                 _("from"),
                 _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
                 _("for"),
                 self.obj_type,
                 self.obj.get_gramps_id(),
+                _("to"),
+                self.primary.obj_type,
+                self.primary.obj.get_gramps_id(),
             )
             self.secondary.obj.remove_citation_references(
                 [citation.get_handle()]
@@ -448,16 +465,18 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         if handle and self.secondary.obj.add_note(handle):
             note = self.grstate.dbstate.db.get_note_from_handle(handle)
-            action = "{} {} {} {} {} {} {} {} {}".format(
+            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
                 _("Note"),
                 note.get_gramps_id(),
                 _("to"),
                 _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
                 _("for"),
                 self.obj_type,
                 self.obj.get_gramps_id(),
+                _("to"),
+                self.primary.obj_type,
+                self.primary.obj.get_gramps_id(),
             )
             self.save_media_ref(self.secondary.obj, action_text=action)
 
@@ -487,16 +506,18 @@ class GrampsMediaBarItem(GrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {} {} {} {}".format(
+            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Removed"),
                 _("Note"),
                 note.get_gramps_id(),
                 _("from"),
                 _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
                 _("for"),
                 self.obj_type,
                 self.obj.get_gramps_id(),
+                _("to"),
+                self.primary.obj_type,
+                self.primary.obj.get_gramps_id(),
             )
             self.secondary.obj.remove_note(note.get_handle())
             self.save_media_ref(
