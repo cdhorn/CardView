@@ -45,7 +45,7 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import get_person_color_css
+from .frame_utils import get_person_color_css, TextLink
 
 _ = glocale.translation.sgettext
 
@@ -70,12 +70,10 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         else:
             name_type = _("Unknown")
         if obj.primary_name.serialize() == name.serialize():
-            title = "<b>{}: {}</b>".format(_("Primary"), name_type)
+            title = "{}: {}".format(_("Primary"), name_type)
         else:
-            title = "<b>{}: {}</b>".format(_("Alternate"), name_type)
-        label = Gtk.Label(
-            hexpand=False, halign=Gtk.Align.START, use_markup=True, label=title
-        )
+            title = "{}: {}".format(_("Alternate"), name_type)
+        label = TextLink(title, "Person", obj.get_handle(), self.switch_name_page)
         self.title.pack_start(label, False, False, 0)
 
         given_name = name.get_regular_name()
@@ -129,6 +127,11 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         self.enable_drop()
         self.set_css_style()
 
+    def switch_name_page(self, *_dummy_obj):
+        """
+        Initiate switch to name page.
+        """
+        self.switch_object(None, None, "Name", self.secondary.obj)
 
     def get_color_css(self):
         """
