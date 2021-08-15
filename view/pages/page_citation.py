@@ -49,7 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import MediaBarGroup
+from ..bars.bar_media import GrampsMediaBarGroup
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_source import SourceGrampsFrame
@@ -132,7 +132,7 @@ class CitationProfilePage(BaseProfilePage):
             vbox.pack_start(hbox, False, False, 0)
 
         if self.config.get("options.global.enable-media-bar"):
-            bar = MediaBarGroup(grstate, None, citation)
+            bar = GrampsMediaBarGroup(grstate, None, citation)
             if bar:
                 vbox.pack_start(bar, False, False, 0)
 
