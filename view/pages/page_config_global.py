@@ -46,6 +46,14 @@ from .page_utils import create_grid, add_config_reset
 
 _ = glocale.translation.sgettext
 
+MEDIA_BAR_IMAGE_DISPLAY_MODES = [
+    (0, _("No media bar displayed")),
+    (1, _("Small full images")),
+    (2, _("Small cropped images when available")),
+    (3, _("Large full images")),
+    (4, _("Large cropped images when available")),
+]
+
 
 def build_global_grid(configdialog, grstate):
     """
@@ -79,19 +87,35 @@ def build_global_grid(configdialog, grstate):
         "options.global.border-width",
         (0, 5),
     )
+    configdialog.add_combo(
+        grid,
+        _("Media bar display mode"),
+        5,
+        "options.global.media-bar-display-mode",
+        MEDIA_BAR_IMAGE_DISPLAY_MODES,
+    )        
     configdialog.add_checkbox(
         grid,
-        _("Enable media bar"),
-        5,
-        "options.global.enable-media-bar",
+        _("Sort media bar items by date"),
+        6,
+        "options.global.media-bar-sort-by-date",
         tooltip=_(
-            "Indicates whether to enable the horizontal media bar beneath the header."
+            "Indicates whether media items in the media bar should be sorted by date or not."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link media bar image to media page"),
+        7,
+        "options.global.media-bar-page-link",
+        tooltip=_(
+            "Indicates whether left click should open the media page instead of the media viewer."
         ),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable bookmark support"),
-        6,
+        8,
         "options.global.enable-bookmarks",
         tooltip=_(
             "Indicates whether to enable bookmark support or not."
@@ -100,7 +124,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Link citation title to source page"),
-        7,
+        9,
         "options.global.link-citation-title-to-source",
         tooltip=_(
             "Indicates whether the source title link in a citation record links to the source page instead of the citation page."
@@ -108,18 +132,18 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid, _("Include notes on child objects"),
-        8, "options.global.include-child-notes",
+        10, "options.global.include-child-notes",
         tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
     )
     configdialog.add_checkbox(
         grid, _("Include urls from notes"),
-        9, "options.global.include-note-urls",
+        11, "options.global.include-note-urls",
         tooltip=_("Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list.")
     )
     configdialog.add_checkbox(
         grid,
         _("Sort tags by name not priority"),
-        10,
+        12,
         "options.global.sort-tags-by-name",
         tooltip=_(
             "Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool."
@@ -128,21 +152,21 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid,
         _("Maximum citations per group"),
-        11,
+        13,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum references per group"),
-        12,
+        14,
         "options.global.max-references-per-group",
         (1, 500),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable warnings"),
-        13,
+        15,
         "options.global.enable-warnings",
         tooltip=_(
             "Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard."

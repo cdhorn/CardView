@@ -131,7 +131,7 @@ class CitationProfilePage(BaseProfilePage):
         else:
             vbox.pack_start(hbox, False, False, 0)
 
-        if self.config.get("options.global.enable-media-bar"):
+        if self.config.get("options.global.media-bar-display-mode"):
             bar = GrampsMediaBarGroup(grstate, None, citation)
             if bar:
                 vbox.pack_start(bar, False, False, 0)

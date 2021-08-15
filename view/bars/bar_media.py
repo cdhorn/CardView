@@ -92,10 +92,18 @@ class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
 
         media_list = self.collect_media()
         if media_list:
-            if self.grstate.config.get("options.group.media.sort-by-date"):
+            if self.grstate.config.get("options.global.media-bar-sort-by-date"):
                 media_list.sort(
                     key=lambda x: x[0].get_date_object().get_sort_value()
                 )
+
+            size = 0
+            if self.grstate.config.get("options.global.media-bar-display-mode") in [3, 4]:
+                size = 1
+
+            crop = False
+            if self.grstate.config.get("options.global.media-bar-display-mode") in [2, 4]:
+                crop = True
 
             for (media, media_ref) in media_list:
                 frame = GrampsMediaBarItem(
@@ -103,7 +111,9 @@ class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
                     groptions,
                     (self.obj, self.obj_type),
                     media,
-                    media_ref
+                    media_ref,
+                    size=size,
+                    crop=crop
                 )
                 hbox.pack_start(frame, False, False, 0)
         self.show_all()
@@ -142,20 +152,20 @@ class GrampsMediaBarItem(GrampsFrame):
     A simple class for managing display of a media bar image.
     """
 
-    def __init__(self, grstate, groptions, obj, media, media_ref=None, size=0):
+    def __init__(self, grstate, groptions, obj, media, media_ref, size=0, crop=False):
         GrampsFrame.__init__(self, grstate, groptions, media, secondary_obj=media_ref)
         self.set_hexpand(False)
         self.obj, self.obj_type = obj
         if media_ref:
-            thumbnail = self.get_thumbnail(media, media_ref, size)
+            thumbnail = self.get_thumbnail(media, media_ref, size, crop)
         elif isinstance(media, Media):
-            thumbnail = self.get_thumbnail(media, None, size)
+            thumbnail = self.get_thumbnail(media, None, size, crop)
         if thumbnail:
             self.frame.add(thumbnail)
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
 
-    def get_thumbnail(self, media, media_ref, size):
+    def get_thumbnail(self, media, media_ref, size, crop):
         """
         Get the thumbnail image.
         """
@@ -164,7 +174,7 @@ class GrampsMediaBarItem(GrampsFrame):
             mobj = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
         if mobj and mobj.get_mime_type()[0:5] == "image":
             rectangle = None
-            if media_ref:
+            if media_ref and crop:
                 rectangle = media_ref.get_rectangle()
             pixbuf = get_thumbnail_image(
                 media_path_full(self.grstate.dbstate.db, mobj.get_path()),
@@ -217,7 +227,10 @@ class GrampsMediaBarItem(GrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_action_menu(obj, event)
         else:
-            self.view_photo()
+            if self.grstate.config.get("options.global.media-bar-page-link"):
+                self.switch_object(None, None, "Media", self.primary.obj)
+            else:
+                self.view_photo()
 
     def build_action_menu(self, _dummy_obj, event):
         """
