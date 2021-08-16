@@ -338,15 +338,21 @@ def get_references_group(
 
     total = 0
     tuple_list = []
+    handle_cache = []
     if not obj_types:
         for item in obj_list:
-            tuple_list.append(item)
-            total = total + 1
+            if item[1] not in handle_cache:
+                tuple_list.append(item)
+                handle_cache.append(item[1])
+                total = total + 1
     else:
         for obj_type, handle in obj_list:
             if obj_type in obj_types:
-                tuple_list.append((obj_type, handle))
-                total = total + 1
+                if handle not in handle_cache:
+                    tuple_list.append((obj_type, handle))
+                    handle_cache.append(handle)
+                    total = total + 1
+    del handle_cache
 
     not_shown = 0
     if not maximum:
