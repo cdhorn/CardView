@@ -229,8 +229,8 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if event.get_description():
-                    label = self.make_label(str(event.get_type()))
-                    fact = self.make_label(event.get_description())
+                    label = TextLink(str(event.get_type()), "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+                    fact = TextLink(event.get_description(), "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
                     self.add_fact(fact, label=label, extra=extra)
                     if not show_all:
                         return
@@ -257,6 +257,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         text = ""
         if self.primary.obj.get_handle() == handle:
             text = _("Home person")
+            label = self.make_label(text)            
         else:
             try:
                 relation = self.grstate.dbstate.db.get_person_from_handle(
@@ -273,10 +274,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 else:
                     name = name_displayer.display(relation)
                     text = "{} {}".format(_("Not related to"), name)
+                label = TextLink(text, "Person", handle, self.switch_object, bold=False, markup=self.markup)
             except HandleError:
                 text = "[{}]".format(_("Missing Person"))
+                label = self.make_label(text)
         if text:
-            label = self.make_label(text)
             self.add_fact(label, extra=extra)
 
     def get_color_css(self):

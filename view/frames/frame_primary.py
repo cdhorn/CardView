@@ -304,90 +304,71 @@ class PrimaryGrampsFrame(GrampsFrame):
             grid = self.extra_grid
             row = self.extra_row
 
-        age = None
         if show_age:
-            if reference and reference.date and event and event.date:
-                span = Span(reference.date, event.date)
-                if span.is_valid():
-                    precision = global_config.get(
-                        "preferences.age-display-precision"
-                    )
-                    age = str(span.format(precision=precision))
-                if age == "unknown":
-                    age = None
+            age = self._fetch_age_text(reference, event)
+        else:
+            age = None
 
         event_format = self.get_option("event-format")
-        if event_format in [3, 4, 6]:
-            name = event.type.get_abbreviation(
+
+        description = ""
+        if event_format in [1, 2, 5]:
+            column = 1
+            name = glocale.translation.sgettext(event.type.xml_str())
+            name_label = TextLink(name, "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+            grid.attach(name_label, 0, row, 1, 1)
+        else:
+            column = 0
+            description = event.type.get_abbreviation(
                 trans_text=glocale.translation.sgettext
             )
-        else:
-            name = glocale.translation.sgettext(event.type.xml_str())
 
         date = glocale.date_displayer.display(event.date)
         place = place_displayer.display_event(self.grstate.dbstate.db, event)
 
-        text = ""
-        if event_format in [1, 2, 5]:
-            name_label = self.make_label(name)
-        else:
-            if event_format in [3, 4, 6]:
-                text = name
-
+        join = ""
         if date:
-            text = "{} {}".format(text, date).strip()
+            description = "{} {}".format(description, date).strip()
+            join = " {}".format(_("in"))
 
-        if event_format in [1, 3]:
-            if place:
-                text = "{} {} {}".format(text, _("in"), place).strip()
+        if event_format in [1, 3] and place:
+            description = "{}{} {}".format(description, join, place).strip()
 
-        if reference and age:
-            text = "{} {}".format(text, age)
+        if age:
+            description = "{} {}".format(description, age)
 
-        if event_format in [1, 2]:
-            text_label = self.make_label(text)
-            grid.attach(name_label, 0, row, 1, 1)
-            grid.attach(text_label, 1, row, 1, 1)
+        date_label = TextLink(description, "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+        if date:
+            grid.attach(date_label, column, row, 1, 1)
             row = row + 1
-        elif event_format in [3, 4]:
-            text_label = self.make_label(text)
-            grid.attach(text_label, 0, row, 1, 1)
-            row = self.facts_row + 1
-        elif event_format in [5]:
-            grid.attach(name_label, 0, row, 1, 1)
-            if date:
-                if reference and age:
-                    date_label = self.make_label("{} {}".format(date, age))
-                else:
-                    date_label = self.make_label(date)
-                grid.attach(date_label, 1, row, 1, 1)
-                row = row + 1
-            if place:
-                place_label = self.make_label(place)
-                grid.attach(place_label, 1, row, 1, 1)
-                row = row + 1
-        elif event_format in [6]:
-            if date:
-                if reference and age:
-                    date_label = self.make_label(
-                        "{} {} {}".format(name, date, age)
-                    )
-                else:
-                    date_label = self.make_label("{} {}".format(name, date))
-                grid.attach(date_label, 0, row, 1, 1)
-                row = row + 1
-            if place:
-                if not date:
-                    place_label = self.make_label("{} {}".format(name, place))
-                else:
-                    place_label = self.make_label(place)
-                grid.attach(place_label, 0, row, 1, 1)
-                row = row + 1
+        if event_format in [5, 6] and place:
+            if event_format in [6]:
+                text = "{} {}".format(_("in"), place)
+            else:
+                text = place
+            place_label = TextLink(text, "Place", event.place, self.switch_object, bold=False, markup=self.markup)
+            grid.attach(place_label, column, row, 1, 1)
+            row = row + 1
 
         if not extra:
             self.facts_row = row
         else:
             self.extra_row = row
+
+    def _fetch_age_text(self, reference, event):
+        """
+        Return age label if applicable.
+        """
+        if reference and reference.date and event and event.date:
+            span = Span(reference.date, event.date)
+            if span.is_valid():
+                precision = global_config.get(
+                    "preferences.age-display-precision"
+                )
+                age = str(span.format(precision=precision))
+            if age and age != "unknown":
+                return age
+        return None
 
     def load_gramps_id(self):
         """
