@@ -394,11 +394,12 @@ class PrimaryGrampsFrame(GrampsFrame):
         Build the gramps id including bookmark and lock indicators as needed.
         """
         list(map(self.gramps_id.remove, self.gramps_id.get_children()))
-        label = Gtk.Label(
-            use_markup=True,
-            label=self.markup.format(escape(self.primary.obj.gramps_id)),
-        )
-        self.gramps_id.pack_end(label, False, False, 0)
+        if self.grstate.config.get("options.global.enable-gramps-ids"):
+            label = Gtk.Label(
+                use_markup=True,
+                label=self.markup.format(escape(self.primary.obj.gramps_id)),
+            )
+            self.gramps_id.pack_end(label, False, False, 0)
         if self.grstate.config.get("options.global.enable-bookmarks"):
             for bookmark in get_bookmarks(self.grstate.dbstate.db, self.primary.obj_type).get():
                 if bookmark == self.primary.obj.get_handle():
