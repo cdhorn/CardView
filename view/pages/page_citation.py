@@ -54,6 +54,7 @@ from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_source import SourceGrampsFrame
 from ..groups.group_utils import (
+    get_attributes_group,
     get_media_group,
     get_notes_group,
     get_references_group,
@@ -110,6 +111,8 @@ class CitationProfilePage(BaseProfilePage):
         )
         obj_groups = {}
 
+        if "attribute" in groups:
+            obj_groups.update({"attribute": get_attributes_group(grstate, citation)})
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, citation)})
         if "note" in groups:

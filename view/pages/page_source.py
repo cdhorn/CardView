@@ -45,6 +45,7 @@ from ..bars.bar_media import GrampsMediaBarGroup
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_source import SourceGrampsFrame
 from ..groups.group_utils import (
+    get_attributes_group,
     get_citations_group,
     get_media_group,
     get_notes_group,
@@ -103,6 +104,8 @@ class SourceProfilePage(BaseProfilePage):
             obj_groups.update(
                 {"citation": get_citations_group(grstate, source)}
             )
+        if "attribute" in groups:
+            obj_groups.update({"attribute": get_attributes_group(grstate, source)})
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, source)})
         if "note" in groups:

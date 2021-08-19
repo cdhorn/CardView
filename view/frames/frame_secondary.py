@@ -75,7 +75,6 @@ class SecondaryGrampsFrame(GrampsFrame):
     def __init__(
         self, grstate, groptions, primary_obj, secondary_obj
     ):
-        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsFrame.__init__(self, grstate, groptions, primary_obj, secondary_obj)
 
         vcontent = Gtk.VBox()

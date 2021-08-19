@@ -131,7 +131,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.secondary and self.secondary.is_reference:
             self.eventbox.add(self.body)
             self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-            self.ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END)
+            self.ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END, margin=3)
             if "ref" in self.groptions.size_groups:
                 self.groptions.size_groups["ref"].add_widget(self.ref_body)
             self.ref_eventbox = Gtk.EventBox()

@@ -207,6 +207,8 @@ class BaseProfilePage(Callback):
             if not title:
                 title = LABELS[group]
             else:
+                if " & " in title:
+                    title = title.replace(" &", ",")
                 title = "{} & {}".format(title, LABELS[group])
             if self.config.get("{}.{}.stacked".format(space, group)):
                 in_stack = True

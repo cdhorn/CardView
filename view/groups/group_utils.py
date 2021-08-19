@@ -47,6 +47,7 @@ from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_addresses import AddressesGrampsFrameGroup
 from .group_associations import AssociationsGrampsFrameGroup
+from .group_attributes import AttributesGrampsFrameGroup
 from .group_children import ChildrenGrampsFrameGroup
 from .group_citations import CitationsGrampsFrameGroup
 from .group_classes import GrampsFrameGroupExpander
@@ -407,6 +408,24 @@ def get_addresses_group(
         groptions,
         obj,
         AddressesGrampsFrameGroup,
+        title_plural,
+        title_single,
+        expanded=True,
+    )
+
+
+def get_attributes_group(
+    grstate, obj, title_plural=_("Attributes"), title_single=_("Attribute")
+):
+    """
+    Get the group of attributes associated with an object.
+    """
+    groptions = GrampsOptions("options.group.attribute")
+    return get_generic_group(
+        grstate,
+        groptions,
+        obj,
+        AttributesGrampsFrameGroup,
         title_plural,
         title_single,
         expanded=True,

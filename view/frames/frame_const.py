@@ -40,6 +40,7 @@ from gi.repository import Gdk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import (
     Address,
+    Attribute,
     ChildRef,
     Citation,
     Event,
@@ -54,12 +55,14 @@ from gramps.gen.lib import (
     Repository,
     RepoRef,
     Source,
+    SrcAttribute,
     Tag,
     Url,
 )
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
     EditAddress,
+    EditAttribute,
     EditChildRef,
     EditCitation,
     EditEvent,
@@ -254,6 +257,22 @@ GRAMPS_OBJECTS = [
         "gramps-address",
     ),
     (
+        Attribute,
+        EditAttribute,
+        "Attribute",
+        _("Attribute"),
+        DdTargets.ATTRIBUTE,
+        "gramps-attribute",
+    ),
+    (
+        SrcAttribute,
+        EditAttribute,
+        "Attribute",
+        _("Attribute"),
+        DdTargets.SRCATTRIBUTE,
+        "gramps-attribute",
+    ),
+    (
         Name,
         EditName,
         "Name",
@@ -315,6 +334,7 @@ GRAMPS_OBJECTS = [
 LABELS = {
     "address": _("Addresses"),
     "association": _("Associations"),
+    "attribute": _("Attributes"),
     "child": _("Children"),
     "citation": _("Citations"),
     "event": _("Events"),

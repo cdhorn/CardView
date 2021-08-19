@@ -44,6 +44,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_image import ImageGrampsFrame
 from ..groups.group_utils import (
+    get_attributes_group,
     get_citations_group,
     get_notes_group,
     get_references_group,
@@ -94,6 +95,8 @@ class MediaProfilePage(BaseProfilePage):
 
         if "citation" in groups:
             obj_groups.update({"citation": get_citations_group(grstate, media)})
+        if "attribute" in groups:
+            obj_groups.update({"attribute": get_attributes_group(grstate, media)})
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, media)})
         if "note" in groups:

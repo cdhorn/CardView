@@ -52,6 +52,7 @@ from ..frames.frame_utils import button_activated
 from ..groups.group_utils import (
     get_addresses_group,
     get_associations_group,
+    get_attributes_group,
     get_citations_group,
     get_media_group,
     get_names_group,
@@ -129,6 +130,8 @@ class PersonProfilePage(BaseProfilePage):
             obj_groups.update({"parent": get_parents_group(grstate, person)})
         if "spouse" in groups:
             obj_groups.update({"spouse": get_spouses_group(grstate, person)})
+        if "attribute" in groups:
+            obj_groups.update({"attribute": get_attributes_group(grstate, person)})
         if "name" in groups:
             obj_groups.update({"name": get_names_group(grstate, person)})
         if "association" in groups:

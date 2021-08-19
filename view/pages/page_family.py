@@ -53,6 +53,7 @@ from ..bars.bar_media import GrampsMediaBarGroup
 from ..frames.frame_classes import GrampsState, GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..groups.group_utils import (
+    get_attributes_group,
     get_children_group,
     get_citations_group,
     get_media_group,
@@ -175,6 +176,8 @@ class FamilyProfilePage(BaseProfilePage):
             obj_groups.update(
                 {"citation": get_citations_group(grstate, family)}
             )
+        if "attribute" in groups:
+            obj_groups.update({"attribute": get_attributes_group(grstate, family)})
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, family)})
         if "note" in groups:
