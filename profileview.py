@@ -70,6 +70,7 @@ from view.pages.page_repository import RepositoryProfilePage
 from view.pages.page_person_ref import PersonRefProfilePage
 from view.pages.page_tag import TagProfilePage
 from view.pages.page_address import AddressProfilePage
+from view.pages.page_attribute import AttributeProfilePage
 
 _ = glocale.translation.sgettext
 
@@ -123,6 +124,9 @@ class ProfileView(ENavigationView):
         )
         self._add_page(
             AddressProfilePage(self.dbstate, self.uistate, self._config)
+        )
+        self._add_page(
+            AttributeProfilePage(self.dbstate, self.uistate, self._config)
         )
         self._add_page(
             ChildRefProfilePage(self.dbstate, self.uistate, self._config)
@@ -271,7 +275,7 @@ class ProfileView(ENavigationView):
         """
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         container.set_border_width(6)
-        self.header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.child = None
         self.scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)

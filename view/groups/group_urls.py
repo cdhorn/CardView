@@ -91,12 +91,13 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse all notes associated with object.
         """
-        for handle in self.obj.get_note_list():
-            self.parse_note(handle)
-
-        for obj in self.obj.get_note_child_list():
-            for handle in obj.get_note_list():
+        if hasattr(self.obj, "note_list"):
+            for handle in self.obj.get_note_list():
                 self.parse_note(handle)
+
+            for obj in self.obj.get_note_child_list():
+                for handle in obj.get_note_list():
+                    self.parse_note(handle)
 
     def parse_note(self, handle):
         """

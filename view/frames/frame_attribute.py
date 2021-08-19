@@ -81,7 +81,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         )
 
         name = glocale.translation.sgettext(attribute.get_type().xml_str())
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(name))
+        label = TextLink(name, self.primary.obj_type, self.primary.obj.get_handle(), self.switch_attribute_page)
         self.title.pack_start(label, False, False, 0)
 
         if attribute.get_value():
@@ -90,6 +90,12 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         self.show_all()
         self.enable_drag()
         self.set_css_style()
+
+    def switch_attribute_page(self, *_dummy_obj):
+        """
+        Initiate switch to attribute page.
+        """
+        self.switch_object(None, None, "Attribute", self.secondary.obj)
 
     def get_color_css(self):
         """
