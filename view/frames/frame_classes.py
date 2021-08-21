@@ -89,6 +89,7 @@ class GrampsOptions:
         "option_space",
         "size_groups",
         "frame_number",
+        "ref_mode",
         "vertical_orientation",
         "family_backlink",
         "relation",
@@ -102,6 +103,7 @@ class GrampsOptions:
         self.option_space = option_space
         self.size_groups = size_groups
         self.frame_number = frame_number
+        self.ref_mode = 2
         self.vertical_orientation = True
         self.family_backlink = None
         self.relation = None
@@ -116,6 +118,13 @@ class GrampsOptions:
                 "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             }
+
+    def set_ref_mode(self, value):
+        """
+        Set reference view mode.
+        1 = top, 2 = right, 3 = bottom
+        """
+        self.ref_mode = value
 
     def set_vertical(self, value):
         """

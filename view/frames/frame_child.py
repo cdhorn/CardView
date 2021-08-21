@@ -100,29 +100,37 @@ class ChildGrampsFrame(PersonGrampsFrame):
 
         if child_ref.get_father_relation():
             reltype = child_ref.get_father_relation()
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(_("Father"), left=False), False, False, 0
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(str(reltype), left=False), False, False, 0
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
+            if groptions.ref_mode == 2:
+                self.ref_body.pack_start(
+                    self.make_label(_("Father"), left=False), False, False, 0
+                )
+                self.ref_body.pack_start(
+                    self.make_label(str(reltype), left=False), False, False, 0
+                )
+            else:
+                self.ref_body.pack_start(
+                    self.make_label("{}: {}".format(_("Father"), reltype)),
+                    True,
+                    True,
+                    0,
+                )
 
         if child_ref.get_mother_relation():
             reltype = child_ref.get_mother_relation()
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(_("Mother"), left=False), False, False, 0
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(str(reltype), left=False), False, False, 0
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
+            if groptions.ref_mode == 2:
+                self.ref_body.pack_start(
+                    self.make_label(_("Mother"), left=False), False, False, 0
+                )
+                self.ref_body.pack_start(
+                    self.make_label(str(reltype), left=False), False, False, 0
+                )
+            else:
+                self.ref_body.pack_start(
+                    self.make_label("{}: {}".format(_("Mother"), reltype)),
+                    True,
+                    True,
+                    0,
+                )
 
         self.enable_drag(
             obj=self.secondary,

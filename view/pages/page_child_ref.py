@@ -136,8 +136,9 @@ class ChildRefProfilePage(BaseProfilePage):
             groptions,
             family,
         )
-        groptions = GrampsOptions("options.active.child")
+        groptions = GrampsOptions("options.active.person")
         groptions.set_backlink(family.get_handle())
+        groptions.set_ref_mode(3)
         self.active_profile = ChildGrampsFrame(
             grstate,
             groptions,

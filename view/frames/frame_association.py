@@ -105,32 +105,49 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         association = person_ref.get_relation()
         if not association:
             association = _("[None Provided]")
-        hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-        hbox.pack_end(
-            self.make_label(_("Association"), left=False), False, False, 0
-        )
-        self.ref_body.pack_start(hbox, False, False, 0)
-        hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-        hbox.pack_end(self.make_label(association, left=False), False, False, 0)
-        self.ref_body.pack_start(hbox, False, False, 0)
+        if groptions.ref_mode == 2:
+            self.ref_body.pack_start(
+                self.make_label(_("Association"), left=False), False, False, 0
+            )
+            self.ref_body.pack_start(
+                self.make_label(association, left=False), False, False, 0
+            )
+        else:
+            self.ref_body.pack_start(
+                self.make_label("{}: {}".format(_("Association"), association)),
+                True,
+                True,
+                0,
+            )
 
         relation = grstate.uistate.relationship.get_one_relationship(
             grstate.dbstate.db, person, self.ref_person
         )
         if relation:
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(_("Relationship"), left=False), False, False, 0
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
-            hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.END)
-            hbox.pack_end(
-                self.make_label(relation.capitalize(), left=False),
-                False,
-                False,
-                0,
-            )
-            self.ref_body.pack_start(hbox, False, False, 0)
+            if groptions.ref_mode == 2:
+                self.ref_body.pack_start(
+                    self.make_label(_("Relationship"), left=False),
+                    False,
+                    False,
+                    0,
+                )
+                self.ref_body.pack_start(
+                    self.make_label(relation.capitalize(), left=False),
+                    False,
+                    False,
+                    0,
+                )
+            else:
+                self.ref_body.pack_start(
+                    self.make_label(
+                        "{}: {}".format(
+                            _("Relationship"), relation.capitalize()
+                        )
+                    ),
+                    True,
+                    True,
+                    0,
+                )
 
         self.enable_drag(
             obj=self.secondary,
@@ -204,8 +221,11 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(
-                None, None, self.secondary.obj_type, self.secondary.obj,
-                override_primary_obj=self.base_person
+                None,
+                None,
+                self.secondary.obj_type,
+                self.secondary.obj,
+                override_primary_obj=self.base_person,
             )
 
     def build_ref_action_menu(self, _dummy_obj, event):

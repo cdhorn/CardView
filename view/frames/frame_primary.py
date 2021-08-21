@@ -122,29 +122,47 @@ class PrimaryGrampsFrame(GrampsFrame):
         primary_obj,
         secondary_obj=None,
     ):
-        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsFrame.__init__(
             self, grstate, groptions, primary_obj, secondary_obj=secondary_obj
         )
 
         self.body = Gtk.HBox(hexpand=True, margin=3)
         if self.secondary and self.secondary.is_reference:
-            self.eventbox.add(self.body)
-            self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-            self.ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END, margin=3)
-            if "ref" in self.groptions.size_groups:
-                self.groptions.size_groups["ref"].add_widget(self.ref_body)
             self.ref_eventbox = Gtk.EventBox()
-            self.ref_eventbox.add(self.ref_body)
-            self.ref_frame.add(self.ref_eventbox)
-            view_obj = Gtk.HBox(hexpand=True)
-            view_obj.pack_start(self.eventbox, True, True, 0)
-            view_obj.pack_start(self.ref_frame, True, True, 0)
-            self.frame.add(view_obj)
-            self.add(self.frame)
-            self.ref_body.pack_start(
-                self.get_ref_label(), expand=False, fill=False, padding=0
-            )
+            self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+            self.ref_eventbox.add(self.ref_frame)
+
+            if groptions.ref_mode == 2:
+                view_obj = Gtk.HBox(hexpand=True)
+                view_obj.pack_start(self.eventbox, True, True, 0)
+                view_obj.pack_start(self.ref_eventbox, True, True, 0)
+                self.frame.add(view_obj)
+                self.add(self.frame)
+                self.ref_body = Gtk.VBox(
+                    hexpand=True, halign=Gtk.Align.END, margin=3
+                )
+                if "ref" in self.groptions.size_groups:
+                    self.groptions.size_groups["ref"].add_widget(self.ref_body)
+                self.ref_body.pack_start(
+                    self.get_ref_label(), expand=False, fill=False, padding=0
+                )
+                self.eventbox.add(self.body)
+            else:
+                self.set_spacing(3)
+                if groptions.ref_mode == 1:
+                    self.pack_start(self.ref_eventbox, True, True, 0)
+                    self.pack_start(self.eventbox, True, True, 0)
+                elif groptions.ref_mode == 3:
+                    self.pack_start(self.eventbox, True, True, 0)
+                    self.pack_start(self.ref_eventbox, True, True, 0)
+                self.ref_body = Gtk.HBox(hexpand=True, margin=3)
+                self.ref_body.pack_end(
+                    self.get_ref_label(), expand=False, fill=False, padding=0
+                )
+                self.frame.add(self.body)
+                self.eventbox.add(self.frame)
+
+            self.ref_frame.add(self.ref_body)
         else:
             self.frame.add(self.body)
             if self.primary.obj_type == "Family":
@@ -157,7 +175,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         self.age = None
         self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
         self.gramps_id = Gtk.HBox(hexpand=True, halign=Gtk.Align.END)
-        self.tags = Gtk.FlowBox(orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False)
+        self.tags = Gtk.FlowBox(
+            orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
+        )
         if "data" in self.groptions.size_groups:
             self.groptions.size_groups["data"].add_widget(self.facts_grid)
         self.extra_grid = Gtk.Grid(
@@ -167,7 +187,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             halign=Gtk.Align.START,
         )
         if "extra" in self.groptions.size_groups:
-            self.groptions.size_groups["extra"].add_widget(self.facts_grid)
+            self.groptions.size_groups["extra"].add_widget(self.extra_grid)
         self.extra_row = 0
         self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
         if "metadata" in self.groptions.size_groups:
@@ -184,16 +204,13 @@ class PrimaryGrampsFrame(GrampsFrame):
         Load standard portions of layout.
         """
         image_mode = self.get_option("image-mode")
-        if image_mode:
-            if "media" not in self.groptions.option_space:
-                self.load_image(image_mode)
-
+        if image_mode and "media" not in self.groptions.option_space:
+            self.load_image(image_mode)
         self.load_gramps_id()
-        values = self.get_metadata_attributes()
-        if values:
-            for value in values:
-                label = self.make_label(value, left=False)
-                self.metadata.pack_start(label, False, False, 0)
+        for value in self.get_metadata_attributes():
+            self.metadata.pack_start(
+                self.make_label(value, left=False), False, False, 0
+            )
         self.load_tags()
 
     def refresh_layout(self):
@@ -263,8 +280,10 @@ class PrimaryGrampsFrame(GrampsFrame):
             large_size = True
         self.image.add(
             GrampsImageViewFrame(
-                self.grstate, self.primary.obj,
-                obj_ref=media_ref, size=large_size
+                self.grstate,
+                self.primary.obj,
+                obj_ref=media_ref,
+                size=large_size,
             )
         )
         if "image" in self.groptions.size_groups:
@@ -315,7 +334,14 @@ class PrimaryGrampsFrame(GrampsFrame):
         if event_format in [1, 2, 5]:
             column = 1
             name = glocale.translation.sgettext(event.type.xml_str())
-            name_label = TextLink(name, "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+            name_label = TextLink(
+                name,
+                "Event",
+                event.get_handle(),
+                self.switch_object,
+                bold=False,
+                markup=self.markup,
+            )
             grid.attach(name_label, 0, row, 1, 1)
         else:
             column = 0
@@ -337,7 +363,14 @@ class PrimaryGrampsFrame(GrampsFrame):
         if age:
             description = "{} {}".format(description, age)
 
-        date_label = TextLink(description, "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+        date_label = TextLink(
+            description,
+            "Event",
+            event.get_handle(),
+            self.switch_object,
+            bold=False,
+            markup=self.markup,
+        )
         if date:
             grid.attach(date_label, column, row, 1, 1)
             row = row + 1
@@ -346,7 +379,14 @@ class PrimaryGrampsFrame(GrampsFrame):
                 text = "{} {}".format(_("in"), place)
             else:
                 text = place
-            place_label = TextLink(text, "Place", event.place, self.switch_object, bold=False, markup=self.markup)
+            place_label = TextLink(
+                text,
+                "Place",
+                event.place,
+                self.switch_object,
+                bold=False,
+                markup=self.markup,
+            )
             grid.attach(place_label, column, row, 1, 1)
             row = row + 1
 
@@ -382,10 +422,14 @@ class PrimaryGrampsFrame(GrampsFrame):
             )
             self.gramps_id.pack_end(label, False, False, 0)
         if self.grstate.config.get("options.global.enable-bookmarks"):
-            for bookmark in get_bookmarks(self.grstate.dbstate.db, self.primary.obj_type).get():
+            for bookmark in get_bookmarks(
+                self.grstate.dbstate.db, self.primary.obj_type
+            ).get():
                 if bookmark == self.primary.obj.get_handle():
                     image = Gtk.Image()
-                    image.set_from_icon_name("gramps-bookmark", Gtk.IconSize.BUTTON)
+                    image.set_from_icon_name(
+                        "gramps-bookmark", Gtk.IconSize.BUTTON
+                    )
                     self.gramps_id.pack_end(image, False, False, 0)
                     break
         if self.primary.obj.private:
@@ -460,8 +504,8 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
         data = pickle.dumps((self.primary.obj, "Tag", tag))
-        return self.grstate.router("context-changed", ("Tag", data))        
-                             
+        return self.grstate.router("context-changed", ("Tag", data))
+
     def get_metadata_attributes(self):
         """
         Return a list of values for any user defined metadata attributes.
@@ -1084,7 +1128,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.grstate.uistate,
                 [],
                 child_ref,
-                callback
+                callback,
             )
         except WindowActiveError:
             pass
@@ -1130,7 +1174,9 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             family_handle = self.groptions.family_backlink
-            family = self.grstate.dbstate.db.get_family_from_handle(family_handle)
+            family = self.grstate.dbstate.db.get_family_from_handle(
+                family_handle
+            )
         skip_list = [family.get_father_handle(), family.get_mother_handle()]
         skip_list.extend(x.ref for x in family.get_child_ref_list())
         selector = select_person(
@@ -1148,10 +1194,15 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build bookmark option based on current object state.
         """
-        for bookmark in get_bookmarks(self.grstate.dbstate.db, self.primary.obj_type).get():
+        for bookmark in get_bookmarks(
+            self.grstate.dbstate.db, self.primary.obj_type
+        ).get():
             if bookmark == self.primary.obj.get_handle():
                 return menu_item(
-                    "gramps-bookmark-delete", _("Unbookmark"), self.change_bookmark, False
+                    "gramps-bookmark-delete",
+                    _("Unbookmark"),
+                    self.change_bookmark,
+                    False,
                 )
         return menu_item(
             "gramps-bookmark", _("Bookmark"), self.change_bookmark, True
@@ -1161,7 +1212,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Either bookmark or unbookmark the current object.
         """
-        bookmarks = get_bookmarks(self.grstate.dbstate.db, self.primary.obj_type)
+        bookmarks = get_bookmarks(
+            self.grstate.dbstate.db, self.primary.obj_type
+        )
         bookmark_list = bookmarks.get()
         if mode:
             if self.primary.obj.get_handle() not in bookmark_list:

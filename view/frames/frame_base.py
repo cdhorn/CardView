@@ -235,18 +235,24 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
-    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None):
+    def switch_object(
+        self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None
+    ):
         """
         Change active object for the view.
         """
         if isinstance(obj, str):
             return self.grstate.router("object-changed", (obj_type, obj))
         if hasattr(obj, "handle"):
-            return self.grstate.router("object-changed", (obj_type, obj.get_handle()))
+            return self.grstate.router(
+                "object-changed", (obj_type, obj.get_handle())
+            )
         primary = self.primary.obj
         if override_primary_obj:
             primary = override_primary_obj
-        data = pickle.dumps((primary, self.secondary.obj_type, self.secondary.obj))
+        data = pickle.dumps(
+            (primary, self.secondary.obj_type, self.secondary.obj)
+        )
         return self.grstate.router("context-changed", (obj_type, data))
 
     def build_action_menu(self, obj, event):
@@ -524,7 +530,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 menu.add(
                     menu_item("gramps-notes", text, self.edit_note, note.handle)
                 )
-        if self.grstate.config.get("options.global.include-child-notes") and not no_children:
+        if (
+            self.grstate.config.get("options.global.include-child-notes")
+            and not no_children
+        ):
             note_list = []
             for child_obj in obj.get_note_child_list():
                 for handle in child_obj.get_note_list():
@@ -668,6 +677,14 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         context = self.frame.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
+        if (
+            self.has_reference
+            and self.ref_frame
+            and self.groptions.ref_mode != 2
+        ):
+            context = self.ref_frame.get_style_context()
+            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            context.add_class("frame")
 
     def get_color_css(self):
         """
