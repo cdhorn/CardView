@@ -84,30 +84,42 @@ _ = glocale.translation.sgettext
 # GrampsMediaBarGroup class
 #
 # ------------------------------------------------------------------------
-class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
+class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
     """
     The MediaBarGroup class provides a container for managing a horizontal
     scrollable list of media items for a given primary Gramps object.
     """
 
-    def __init__(self, grstate, groptions, obj):
-        Gtk.ScrolledWindow.__init__(self, hexpand=True, vexpand=False)
+    def __init__(self, grstate, groptions, obj, css=""):
+        Gtk.HBox.__init__(self, hexpand=True, vexpand=False)
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
+        self.total = 0
 
-        hbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3)
+        frame = Gtk.Frame()
+        self.add(frame)
+        window = Gtk.ScrolledWindow(hexpand=True, vexpand=False)
+        frame.add(window)
         viewport = Gtk.Viewport()
+        window.add(viewport)
+        hbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3, margin=3)
         viewport.add(hbox)
-        self.add(viewport)
-        self.set_policy(
+        if css:
+            provider = Gtk.CssProvider()
+            provider.load_from_data(css)
+            context = frame.get_style_context()
+            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            context.add_class("frame")
+        window.set_policy(
             hscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
             vscrollbar_policy=Gtk.PolicyType.NEVER,
         )
 
         media_list = self.collect_media()
         if media_list:
+            self.total = len(media_list)
             if self.grstate.config.get("options.global.media-bar-sort-by-date"):
                 media_list.sort(
                     key=lambda x: x[0].get_date_object().get_sort_value()

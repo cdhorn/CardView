@@ -161,8 +161,9 @@ class FamilyProfilePage(BaseProfilePage):
         vbox.pack_start(self.active_profile, expand=True, fill=True, padding=0)
 
         if self.config.get("options.global.media-bar-display-mode"):
-            bar = GrampsMediaBarGroup(grstate, None, family)
-            if bar:
+            css = self.active_profile.get_css_style()
+            bar = GrampsMediaBarGroup(grstate, None, family, css=css)
+            if bar.total:
                 vbox.pack_start(bar, False, False, 0)
 
         groups = self.config.get("options.page.family.layout.groups").split(",")

@@ -108,6 +108,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             else:
                 self.focus = self.secondary
         self.dnd_drop_targets = []
+        self.css = ""
         self.action_menu = None
 
         self.eventbox = Gtk.EventBox()
@@ -671,9 +672,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         border = self.grstate.config.get("options.global.border-width")
         color = self.get_color_css()
         css = ".frame {{ border-width: {}px; {} }}".format(border, color)
-        css = css.encode("utf-8")
+        self.css = css.encode("utf-8")
         provider = Gtk.CssProvider()
-        provider.load_from_data(css)
+        provider.load_from_data(self.css)
         context = self.frame.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
@@ -691,3 +692,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         For derived objects to set their color scheme if in use.
         """
         return ""
+
+    def get_css_style(self):
+        """
+        Return css style string.
+        """
+        return self.css

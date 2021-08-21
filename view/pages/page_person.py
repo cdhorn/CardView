@@ -161,8 +161,9 @@ class PersonProfilePage(BaseProfilePage):
             vbox.pack_start(self.active_profile, False, False, 0)
 
         if self.config.get("options.global.media-bar-display-mode"):
-            bar = GrampsMediaBarGroup(grstate, None, person)
-            if bar:
+            css = self.active_profile.get_css_style()
+            bar = GrampsMediaBarGroup(grstate, None, person, css=css)
+            if bar.total:
                 vbox.pack_start(bar, False, False, 0)
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
