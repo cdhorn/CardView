@@ -69,7 +69,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
         self.obj = obj
-        self.obj_type, skip1, skip2 = get_gramps_object_type(obj)
+        self.obj_type = get_gramps_object_type(obj)
         self.categories = []
         self.relations = []
         self.relation_categories = []

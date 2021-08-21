@@ -98,7 +98,7 @@ class AttributeProfilePage(BaseProfilePage):
         if not primary:
             return
         
-        self.focus_type, dummy_var1, dummy_var2 = get_gramps_object_type(primary)
+        self.focus_type = get_gramps_object_type(primary)
 
         grstate = GrampsState(
             self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()

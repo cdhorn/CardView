@@ -60,7 +60,11 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_base import GrampsFrame
-from ..frames.frame_classes import GrampsConfig, GrampsOptions, GrampsImageViewFrame
+from ..frames.frame_classes import (
+    GrampsConfig,
+    GrampsOptions,
+    GrampsImageViewFrame,
+)
 from ..frames.frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_utils import (
@@ -91,13 +95,16 @@ class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
         self.obj = obj
-        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
+        self.obj_type = get_gramps_object_type(obj)
 
         hbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3)
         viewport = Gtk.Viewport()
         viewport.add(hbox)
         self.add(viewport)
-        self.set_policy(hscrollbar_policy=Gtk.PolicyType.AUTOMATIC, vscrollbar_policy=Gtk.PolicyType.NEVER)
+        self.set_policy(
+            hscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+            vscrollbar_policy=Gtk.PolicyType.NEVER,
+        )
 
         media_list = self.collect_media()
         if media_list:
@@ -107,11 +114,15 @@ class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
                 )
 
             size = 0
-            if self.grstate.config.get("options.global.media-bar-display-mode") in [3, 4]:
+            if self.grstate.config.get(
+                "options.global.media-bar-display-mode"
+            ) in [3, 4]:
                 size = 1
 
             crop = False
-            if self.grstate.config.get("options.global.media-bar-display-mode") in [2, 4]:
+            if self.grstate.config.get(
+                "options.global.media-bar-display-mode"
+            ) in [2, 4]:
                 crop = True
 
             for (media, media_ref) in media_list:
@@ -122,38 +133,32 @@ class GrampsMediaBarGroup(Gtk.ScrolledWindow, GrampsConfig):
                     media,
                     media_ref,
                     size=size,
-                    crop=crop
+                    crop=crop,
                 )
                 hbox.pack_start(frame, False, False, 0)
         self.show_all()
-
 
     def collect_media(self):
         """
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(media_list, self.obj)
+        self.extract_media(media_list, self.obj, self.obj_type)
         return media_list
 
-    def extract_media(self, media_list, obj):
+    def extract_media(self, media_list, obj, obj_type):
         """
         Helper to extract a set of media references from an object.
         """
         if not hasattr(obj, "media_list"):
             return
-        
-        obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
+
         query_method = self.grstate.dbstate.db.method(
             "get_%s_from_handle", obj_type
         )
-
         for media_ref in obj.get_media_list():
-            media = self.grstate.dbstate.db.get_media_from_handle(
-                media_ref.ref
-            )
+            media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
             media_list.append((media, media_ref))
-
 
 
 class GrampsMediaBarItem(GrampsFrame):
@@ -161,8 +166,12 @@ class GrampsMediaBarItem(GrampsFrame):
     A simple class for managing display of a media bar image.
     """
 
-    def __init__(self, grstate, groptions, obj, media, media_ref, size=0, crop=False):
-        GrampsFrame.__init__(self, grstate, groptions, media, secondary_obj=media_ref)
+    def __init__(
+        self, grstate, groptions, obj, media, media_ref, size=0, crop=False
+    ):
+        GrampsFrame.__init__(
+            self, grstate, groptions, media, secondary_obj=media_ref
+        )
         self.set_hexpand(False)
         self.obj, self.obj_type = obj
         if media_ref:
@@ -174,7 +183,7 @@ class GrampsMediaBarItem(GrampsFrame):
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
         self.enable_drop(drag_data_received=self.drag_data_ref_received)
-        
+
     def get_thumbnail(self, media, media_ref, size, crop):
         """
         Get the thumbnail image.
@@ -200,7 +209,9 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         Open the image in the default picture viewer.
         """
-        photo_path = media_path_full(self.grstate.dbstate.db, self.primary.obj.get_path())
+        photo_path = media_path_full(
+            self.grstate.dbstate.db, self.primary.obj.get_path()
+        )
         open_file_with_default_application(photo_path, self.grstate.uistate)
 
     def drag_data_ref_received(
@@ -283,9 +294,7 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(
-            _("Edit"), _("reference")
-        )
+        name = "{} {}".format(_("Edit"), _("reference"))
         return menu_item("gtk-edit", name, self.edit_media_ref)
 
     def edit_media_ref(self, *_dummy_obj):
@@ -322,9 +331,10 @@ class GrampsMediaBarItem(GrampsFrame):
                 _("to"),
                 self.primary.obj_type,
                 self.primary.obj.get_gramps_id(),
-
             )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             commit_method(self.obj, trans)
 
@@ -437,9 +447,7 @@ class GrampsMediaBarItem(GrampsFrame):
             self.secondary.obj.remove_citation_references(
                 [citation.get_handle()]
             )
-            self.save_media_ref(
-                self.secondary.obj, action_text=action
-            )
+            self.save_media_ref(self.secondary.obj, action_text=action)
 
     def add_new_ref_note(self, _dummy_obj, content=None):
         """
@@ -520,9 +528,7 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.primary.obj.get_gramps_id(),
             )
             self.secondary.obj.remove_note(note.get_handle())
-            self.save_media_ref(
-                self.secondary.obj, action_text=action
-            )
+            self.save_media_ref(self.secondary.obj, action_text=action)
 
     def _change_ref_privacy_option(self):
         """
@@ -556,7 +562,9 @@ class GrampsMediaBarItem(GrampsFrame):
             self.obj.get_gramps_id(),
             text,
         )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", self.obj_type)        
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             for media_ref in self.obj.get_media_list():
                 if media_ref.ref == self.secondary.obj.ref:

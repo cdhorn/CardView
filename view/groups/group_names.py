@@ -36,7 +36,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_name import NameGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
 from .group_list import GrampsFrameGroupList
 
 

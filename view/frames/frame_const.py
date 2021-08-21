@@ -177,6 +177,22 @@ _EDITORS = {
 
 GRAMPS_OBJECTS = [
     (
+        Person,
+        EditPerson,
+        "Person",
+        _("Person"),
+        DdTargets.PERSON_LINK,
+        "gramps-person",
+    ),
+    (
+        ChildRef,
+        EditChildRef,
+        "ChildRef",
+        _("ChildRef"),
+        DdTargets.CHILDREF,
+        "stock_link",
+    ),
+    (
         Event,
         EditEvent,
         "Event",
@@ -201,12 +217,20 @@ GRAMPS_OBJECTS = [
         "gramps-source",
     ),
     (
-        Place,
-        EditPlace,
-        "Place",
-        _("Place"),
-        DdTargets.PLACE_LINK,
-        "gramps-place",
+        Media,
+        EditMedia,
+        "Media",
+        _("Media"),
+        DdTargets.MEDIAOBJ,
+        "gramps-media"
+    ),
+    (
+        MediaRef,
+        EditMediaRef,
+        "MediaRef",
+        _("MediaRef"),
+        DdTargets.MEDIAREF,
+        "stock_link",
     ),
     (
         Note,
@@ -217,44 +241,12 @@ GRAMPS_OBJECTS = [
         "gramps-notes"
     ),
     (
-        Person,
-        EditPerson,
-        "Person",
-        _("Person"),
-        DdTargets.PERSON_LINK,
-        "gramps-person",
-    ),
-    (
         Family,
         EditFamily,
         "Family",
         _("Family"),
         DdTargets.FAMILY_LINK,
         "gramps-family",
-    ),
-    (
-        Media,
-        EditMedia,
-        "Media",
-        _("Media"),
-        DdTargets.MEDIAOBJ,
-        "gramps-media"
-    ),
-    (
-        Repository,
-        EditRepository,
-        "Repository",
-        _("Repository"),
-        DdTargets.REPO_LINK,
-        "gramps-repository",
-    ),
-    (
-        Address,
-        EditAddress,
-        "Address",
-        _("Address"),
-        DdTargets.ADDRESS,
-        "gramps-address",
     ),
     (
         Attribute,
@@ -289,14 +281,6 @@ GRAMPS_OBJECTS = [
         "gramps-url",
     ),
     (
-        ChildRef,
-        EditChildRef,
-        "ChildRef",
-        _("ChildRef"),
-        DdTargets.CHILDREF,
-        "stock_link",
-    ),
-    (
         PersonRef,
         EditPersonRef,
         "PersonRef",
@@ -305,19 +289,35 @@ GRAMPS_OBJECTS = [
         "stock_link",
     ),
     (
+        Place,
+        EditPlace,
+        "Place",
+        _("Place"),
+        DdTargets.PLACE_LINK,
+        "gramps-place",
+    ),
+    (
+        Address,
+        EditAddress,
+        "Address",
+        _("Address"),
+        DdTargets.ADDRESS,
+        "gramps-address",
+    ),
+    (
+        Repository,
+        EditRepository,
+        "Repository",
+        _("Repository"),
+        DdTargets.REPO_LINK,
+        "gramps-repository",
+    ),
+    (
         RepoRef,
         EditRepoRef,
         "RepoRef",
         _("RepoRef"),
         DdTargets.REPOREF,
-        "stock_link",
-    ),
-    (
-        MediaRef,
-        EditMediaRef,
-        "MediaRef",
-        _("MediaRef"),
-        DdTargets.MEDIAREF,
         "stock_link",
     ),
     (

@@ -57,7 +57,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
             return
 
         self.obj = obj
-        self.obj_type, dummy_var1, dummy_var2 = get_gramps_object_type(obj)
+        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 

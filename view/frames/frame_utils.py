@@ -81,6 +81,7 @@ from .frame_const import (
     _RETURN,
     _SPACE,
     CONFIDENCE_COLOR_SCHEME,
+    GRAMPS_OBJECTS
 )
 from ..timeline import RELATIVES
 
@@ -104,33 +105,10 @@ def get_gramps_object_type(obj):
     """
     Return information for primary and some secondary Gramps objects.
     """
-    if isinstance(obj, Person):
-        return "Person", DdTargets.PERSON_LINK, "gramps-person"
-    if isinstance(obj, Family):
-        return "Family", DdTargets.FAMILY_LINK, "gramps-family"
-    if isinstance(obj, Event):
-        return "Event", DdTargets.EVENT, "gramps-event"
-    if isinstance(obj, Place):
-        return "Place", DdTargets.PLACE_LINK, "gramps-place"
-    if isinstance(obj, Source):
-        return "Source", DdTargets.SOURCE_LINK, "gramps-source"
-    if isinstance(obj, Citation):
-        return "Citation", DdTargets.CITATION_LINK, "gramps-citation"
-    if isinstance(obj, Note):
-        return "Note", DdTargets.NOTE_LINK, "gramps-notes"
-    if isinstance(obj, Media):
-        return "Media", DdTargets.MEDIAOBJ, "gramps-media"
-    if isinstance(obj, Repository):
-        return "Repository", DdTargets.REPO_LINK, "gramps-repository"
-    if isinstance(obj, Address):
-        return "Address", DdTargets.ADDRESS, "gramps-address"
-    if isinstance(obj, Name):
-        return "Name", DdTargets.NAME, "gramps-person"
-    if isinstance(obj, ChildRef):
-        return "ChildRef", DdTargets.CHILDREF, "stock_link"
-    if isinstance(obj, PersonRef):
-        return "PersonRef", DdTargets.PERSONREF, "stock_link"
-    return "", None, ""
+    for obj_type in GRAMPS_OBJECTS:
+        if isinstance(obj, obj_type[0]):
+            return obj_type[2]
+    return ""
 
 
 def format_date_string(event1, event2):
