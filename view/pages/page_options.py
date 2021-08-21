@@ -97,6 +97,8 @@ CONFIGSETTINGS = (
     ("options.global.border-width", 2),
     ("options.global.media-bar-display-mode", 1),
     ("options.global.media-bar-sort-by-date", True),
+    ("options.global.media-bar-group-by-type", True),
+    ("options.global.media-bar-filter-documents", False),
     ("options.global.media-bar-page-link", True),
     ("options.global.enable-privacy", True),
     ("options.global.enable-bookmarks", True),

@@ -119,11 +119,35 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
 
         media_list = self.collect_media()
         if media_list:
-            self.total = len(media_list)
             if self.grstate.config.get("options.global.media-bar-sort-by-date"):
                 media_list.sort(
                     key=lambda x: x[0].get_date_object().get_sort_value()
                 )
+
+            if self.grstate.config.get(
+                "options.global.media-bar-group-by-type"
+            ):
+                photo_list = []
+                stone_list = []
+                other_list = []
+                for media in media_list:
+                    if media[2] == "Photo":
+                        photo_list.append(media)
+                    elif media[2] in ["Tombstone", "Headstone"]:
+                        stone_list.append(media)
+                    else:
+                        other_list.append(media)
+                other_list.sort(key=lambda x: x[2])
+                media_list = photo_list + stone_list + other_list
+
+            if self.grstate.config.get(
+                "options.global.media-bar-filter-documents"
+            ):
+                new_list = []
+                for media in media_list:
+                    if media[2] in ["Photo", "Tombstone", "Headstone"]:
+                        new_list.append(media)
+                media_list = new_list
 
             size = 0
             if self.grstate.config.get(
@@ -137,7 +161,7 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
             ) in [2, 4]:
                 crop = True
 
-            for (media, media_ref) in media_list:
+            for (media, media_ref, media_type) in media_list:
                 frame = GrampsMediaBarItem(
                     grstate,
                     groptions,
@@ -148,7 +172,8 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
                     crop=crop,
                 )
                 hbox.pack_start(frame, False, False, 0)
-        self.show_all()
+            self.total = len(media_list)
+            self.show_all()
 
     def collect_media(self):
         """
@@ -170,7 +195,11 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         )
         for media_ref in obj.get_media_list():
             media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
-            media_list.append((media, media_ref))
+            media_type = ""
+            for attribute in media.get_attribute_list():
+                if attribute.get_type().xml_str() == "Media-Type":
+                    media_type = attribute.get_value()
+            media_list.append((media, media_ref, media_type))
 
 
 class GrampsMediaBarItem(GrampsFrame):
