@@ -406,8 +406,8 @@ class PrimaryGrampsFrame(GrampsFrame):
                     "preferences.age-display-precision"
                 )
                 age = str(span.format(precision=precision))
-            if age and age != "unknown":
-                return age
+                if age and age != "unknown":
+                    return age
         return None
 
     def load_gramps_id(self):
