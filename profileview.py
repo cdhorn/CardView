@@ -166,6 +166,7 @@ class ProfileView(ENavigationView):
         page.connect("object-changed", self.object_changed)
         page.connect("context-changed", self.context_changed)
         page.connect("copy-to-clipboard", self.clipboard_copy)
+        page.connect("update-history-reference", self.update_history_reference)
         self.pages[page.page_type()] = page
 
     def _connect_db_signals(self):
@@ -253,6 +254,13 @@ class ProfileView(ENavigationView):
                     self.history.push(lastobj)
                     return True
         return False
+
+    def update_history_reference(self, old, new):
+        """
+        Replace secondary reference in history entries with a new one.
+        Used to keep history in sync with secondary object updates.
+        """
+        return self.history.replace_secondary(old, new)
 
     def get_stock(self):
         """

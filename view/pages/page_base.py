@@ -92,6 +92,7 @@ class BaseProfilePage(Callback):
         "object-changed": (str, str),
         "context-changed": (str, bytes),
         "copy-to-clipboard": (str, str),
+        "update-history-reference": (str, str),
     }
 
     def __init__(self, dbstate, uistate, config):

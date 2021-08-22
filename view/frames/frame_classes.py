@@ -31,6 +31,7 @@ GrampsFrame base classes
 # Python modules
 #
 # ------------------------------------------------------------------------
+import hashlib
 from collections import namedtuple
 from html import escape
 
@@ -97,9 +98,7 @@ class GrampsOptions:
         "context",
     )
 
-    def __init__(
-        self, option_space, size_groups=None, frame_number=0
-    ):
+    def __init__(self, option_space, size_groups=None, frame_number=0):
         self.option_space = option_space
         self.size_groups = size_groups
         self.frame_number = frame_number
@@ -212,6 +211,14 @@ class GrampsObject:
         if self.obj_type and "Ref" in self.obj_type:
             self.is_reference = True
 
+    def obj_hash(self):
+        """
+        Return sha256 hash in digest format.
+        """
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(self.obj.serialize()).encode("utf-8"))
+        return sha256_hash.hexdigest()
+
 
 # ------------------------------------------------------------------------
 #
@@ -251,9 +258,7 @@ class GrampsConfig:
         """
         Fetches an option in the page layout name space.
         """
-        option = "options.page.{}.layout.{}".format(
-            self.grstate.page_type, key
-        )
+        option = "options.page.{}.layout.{}".format(self.grstate.page_type, key)
         try:
             return self.grstate.config.get(option)
         except AttributeError:
@@ -269,7 +274,7 @@ class GrampsConfig:
                 halign=Gtk.Align.START,
                 justify=Gtk.Justification.LEFT,
                 wrap=True,
-                xalign=0.0
+                xalign=0.0,
             )
         else:
             label = Gtk.Label(
@@ -277,7 +282,7 @@ class GrampsConfig:
                 halign=Gtk.Align.END,
                 justify=Gtk.Justification.RIGHT,
                 wrap=True,
-                xalign=1.0
+                xalign=1.0,
             )
         text = data or ""
         label.set_markup(self.markup.format(escape(text)))

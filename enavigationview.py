@@ -578,9 +578,10 @@ class History(Callback):
 
         (page_type,
          primary_object_type, primary_object_handle,
-         secondary_obj_type, secondary_obj)
+         secondary_obj_type, secondary_obj_reference)
 
-    The secondary_obj may be an object or handle.
+    The secondary_obj_reference may be a handle or a signature for the
+    object in the form of a hash.
     """
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
@@ -763,6 +764,17 @@ class History(Callback):
             if self.history:
                 self.emit("active-changed", (self.history[self.index],))
             self.emit("mru-changed", (self.mru,))
+
+    def replace_secondary(self, old, new):
+        """
+        Replace old secondary value with new one.
+        """
+        for item in self.history:
+            if item[4] == old:
+                new_item = (item[0], item[1], item[2], item[3], new)
+                index = self.history.index(item)
+                self.history.remove(item)
+                self.history.insert(index, new_item)
 
     def history_changed(self):
         """
