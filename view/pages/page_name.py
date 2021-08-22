@@ -30,6 +30,14 @@ Name Profile Page
 
 # -------------------------------------------------------------------------
 #
+# Python Modules
+#
+# -------------------------------------------------------------------------
+import hashlib
+
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -107,19 +115,29 @@ class NameProfilePage(BaseProfilePage):
     def render_page(self, header, vbox, person, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person:
+        if not person or not secondary:
             return
 
+        name = person.get_primary_name()
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(name.serialize()).encode("utf-8"))
+        if sha256_hash.hexdigest() != secondary:
+            for name in person.get_alternate_names():
+                sha256_hash = hashlib.sha256()
+                sha256_hash.update(str(name.serialize()).encode("utf-8"))
+                if sha256_hash.hexdigest() == secondary:
+                    break
+
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callback_router,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(grstate, groptions, person)
 
-        if secondary is None:
-            name = person.get_primary_name()
-        else:
-            name = secondary
         groptions = GrampsOptions("options.active.name")
         frame = NameGrampsFrame(grstate, groptions, person, name)
 

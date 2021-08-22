@@ -30,6 +30,14 @@ Address Profile Page
 
 # -------------------------------------------------------------------------
 #
+# Python Modules
+#
+# -------------------------------------------------------------------------
+import hashlib
+
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -107,24 +115,37 @@ class AddressProfilePage(BaseProfilePage):
     def render_page(self, header, vbox, person, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person:
+        if not person or not secondary:
             return
 
+        for address in person.get_address_list():
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(str(address.serialize()).encode("utf-8"))
+            if sha256_hash.hexdigest() == secondary:
+                break
+
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callback_router,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(grstate, groptions, person)
 
-        address = secondary
         groptions = GrampsOptions("options.active.address")
         frame = AddressGrampsFrame(grstate, groptions, person, address)
 
-        groups = self.config.get("options.page.address.layout.groups").split(",")
+        groups = self.config.get("options.page.address.layout.groups").split(
+            ","
+        )
         obj_groups = {}
 
         if "citation" in groups:
-            obj_groups.update({"citation": get_citations_group(grstate, address)})
+            obj_groups.update(
+                {"citation": get_citations_group(grstate, address)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, address)})
         if "note" in groups:

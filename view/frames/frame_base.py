@@ -31,6 +31,7 @@ GrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
+import hashlib
 import pickle
 import re
 
@@ -237,9 +238,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
-    def switch_object(
-        self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None
-    ):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj):
         """
         Change active object for the view.
         """
@@ -249,13 +248,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return self.grstate.router(
                 "object-changed", (obj_type, obj.get_handle())
             )
-        primary = self.primary.obj
-        primary_type = self.primary.obj_type
-        if override_primary_obj:
-            primary = override_primary_obj
-            primary_type = get_gramps_object_type(primary)
+        if self.secondary and self.secondary.obj:
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(
+                str(self.secondary.obj.serialize()).encode("utf-8")
+            )
+            secondary = sha256_hash.hexdigest()
+        else:
+            secondary = None
         data = pickle.dumps(
-            (primary_type, primary, self.secondary.obj_type, self.secondary.obj)
+            (
+                self.primary.obj_type,
+                self.primary.obj,
+                self.secondary.obj_type,
+                secondary,
+            )
         )
         return self.grstate.router("context-changed", (obj_type, data))
 
