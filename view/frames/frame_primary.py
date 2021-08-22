@@ -503,7 +503,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         Request page for tag.
         """
         tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
-        data = pickle.dumps((self.primary.obj, "Tag", tag))
+        data = pickle.dumps(
+            (self.primary.obj_type, self.primary.obj, "Tag", tag.handle)
+        )
         return self.grstate.router("context-changed", ("Tag", data))
 
     def get_metadata_attributes(self):

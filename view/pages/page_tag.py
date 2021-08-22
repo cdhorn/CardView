@@ -79,10 +79,14 @@ class TagProfilePage(BaseProfilePage):
         list(map(vbox.remove, vbox.get_children()))
         if not secondary:
             return
-        tag = secondary
+        tag = self.dbstate.db.get_tag_from_handle(secondary)
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callback_router,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.tag")
         self.active_profile = TagGrampsFrame(grstate, groptions, tag)
@@ -92,7 +96,7 @@ class TagProfilePage(BaseProfilePage):
 
         object_list = {}
         for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(
-                tag.get_handle()
+            tag.get_handle()
         ):
             if obj_type not in object_list:
                 object_list.update({obj_type: []})
@@ -100,7 +104,9 @@ class TagProfilePage(BaseProfilePage):
 
         if object_list:
             for key in object_list:
-                groptions = GrampsOptions("options.group.{}".format(key.lower()))
+                groptions = GrampsOptions(
+                    "options.group.{}".format(key.lower())
+                )
                 obj_groups.update(
                     {
                         key.lower(): get_references_group(

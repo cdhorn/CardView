@@ -117,17 +117,20 @@ class ChildRefProfilePage(BaseProfilePage):
         """
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person:
+        if not person or not secondary:
             return
 
-        for handle in person.get_parent_family_handle_list():
-            family = self.dbstate.db.get_family_from_handle(handle)
-            for child_ref in family.get_child_ref_list():
-                if child_ref.ref == person.get_handle():
-                    break
+        family = self.dbstate.db.get_family_from_handle(secondary)
+        for child_ref in family.get_child_ref_list():
+            if child_ref.ref == person.get_handle():
+                break
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callback_router,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.family")
         groptions.set_vertical(False)
@@ -143,7 +146,7 @@ class ChildRefProfilePage(BaseProfilePage):
             grstate,
             groptions,
             person,
-            secondary,
+            child_ref,
         )
         vheader = Gtk.VBox(spacing=3)
         vheader.pack_start(family_frame, False, False, 0)
@@ -156,12 +159,12 @@ class ChildRefProfilePage(BaseProfilePage):
 
         if "citation" in groups:
             obj_groups.update(
-                {"citation": get_citations_group(grstate, secondary)}
+                {"citation": get_citations_group(grstate, child_ref)}
             )
         if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, secondary)})
+            obj_groups.update({"url": get_urls_group(grstate, child_ref)})
         if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, secondary)})
+            obj_groups.update({"note": get_notes_group(grstate, child_ref)})
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):

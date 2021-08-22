@@ -99,11 +99,19 @@ class PersonRefProfilePage(BaseProfilePage):
     def render_page(self, header, vbox, person, secondary=None):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person:
+        if not person or not secondary:
             return
 
+        for person_ref in person.get_person_ref_list():
+            if person_ref.ref == secondary:
+                break
+
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callback_router,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.person")
         person_frame = PersonGrampsFrame(grstate, groptions, person)
@@ -113,7 +121,7 @@ class PersonRefProfilePage(BaseProfilePage):
             grstate,
             groptions,
             person,
-            secondary,
+            person_ref,
         )
         vheader = Gtk.VBox(spacing=3)
         vheader.pack_start(person_frame, False, False, 0)
@@ -126,12 +134,12 @@ class PersonRefProfilePage(BaseProfilePage):
 
         if "citation" in groups:
             obj_groups.update(
-                {"citation": get_citations_group(grstate, secondary)}
+                {"citation": get_citations_group(grstate, person_ref)}
             )
         if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, secondary)})
+            obj_groups.update({"url": get_urls_group(grstate, person_ref)})
         if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, secondary)})
+            obj_groups.update({"note": get_notes_group(grstate, person_ref)})
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):

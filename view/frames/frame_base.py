@@ -75,6 +75,7 @@ from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_utils import (
     button_activated,
     citation_option_text,
+    get_gramps_object_type,
     menu_item,
     note_option_text,
     submenu_item,
@@ -249,10 +250,12 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 "object-changed", (obj_type, obj.get_handle())
             )
         primary = self.primary.obj
+        primary_type = self.primary.obj_type
         if override_primary_obj:
             primary = override_primary_obj
+            primary_type = get_gramps_object_type(primary)
         data = pickle.dumps(
-            (primary, self.secondary.obj_type, self.secondary.obj)
+            (primary_type, primary, self.secondary.obj_type, self.secondary.obj)
         )
         return self.grstate.router("context-changed", (obj_type, data))
 

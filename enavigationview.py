@@ -119,7 +119,7 @@ class ENavigationView(PageView):
         return sync
 
     def bm_change(self, handle):
-        self.change_active(("Person", handle))
+        self.change_active(("Person", "Person", handle, None, None))
 
     def navigation_type(self):
         """
@@ -238,18 +238,23 @@ class ENavigationView(PageView):
         hobj = self.get_history()
         return hobj.present()
 
-    def change_active(self, handle):
+    def change_active(self, obj_tuple):
         """
         Changes the active object.
         """
+        if len(obj_tuple) == 2:
+            full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
+        else:
+            full_tuple = obj_tuple
         hobj = self.get_history()
-        if handle and not hobj.lock and not handle == hobj.present():
-            self.active_type = handle[0]
-            hobj.push(handle)
+        if full_tuple and not hobj.lock and not full_tuple == hobj.present():
+            self.active_type = full_tuple[1]
+            hobj.push(full_tuple)
 
-            sync_hist = self.hist[handle[0]]
-            if sync_hist.present() != handle[1]:
-                sync_hist.push(handle[1])
+            if full_tuple[1] in self.hist:
+                sync_hist = self.hist[full_tuple[1]]
+                if sync_hist.present() != full_tuple[2]:
+                    sync_hist.push(full_tuple[2])
 
     @abstractmethod
     def goto_handle(self, handle):
@@ -565,9 +570,17 @@ def make_callback(func, handle):
 #
 # -------------------------------------------------------------------------
 class History(Callback):
-    """History manages the objects of a certain type that have been viewed,
-    with ability to go back, or forward.
-    When accessing an object, it should be pushed on the History.
+    """
+    History manages the pages that have been viewed, with ability to go
+    backward or forward.
+
+    A history item or page reference is a tuple consisting of:
+
+        (page_type,
+         primary_object_type, primary_object_handle,
+         secondary_obj_type, secondary_obj)
+
+    The secondary_obj may be an object or handle.
     """
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
@@ -600,6 +613,7 @@ class History(Callback):
         self.signal_map["source-rebuild"] = self.history_changed
         self.signal_map["repository-delete"] = self.repository_removed
         self.signal_map["repository-rebuild"] = self.history_changed
+        self.signal_map["tag-delete"] = self.tag_removed
         self.connect_signals(dbstate.db)
 
     def connect_signals(self, db):
@@ -620,18 +634,25 @@ class History(Callback):
 
     def push(self, item):
         """
-        Pushes the handle on the history stack
+        Pushes the page reference on the history stack and object on the
+        mru stack
         """
         self.prune()
-        if len(self.history) == 0 or item != self.history[-1]:
-            self.history.append(item)
-            if item in self.mru:
-                self.mru.remove(item)
-            self.mru.append(item)
+        if len(item) == 2:
+            full_item = (item[0], item[0], item[1], None, None)
+        else:
+            full_item = item
+        if len(self.history) == 0 or full_item != self.history[-1]:
+            print("History: {}".format(str(full_item)))
+            self.history.append(full_item)
+            mru_item = (full_item[1], full_item[2])
+            if mru_item in self.mru:
+                self.mru.remove(mru_item)
+            self.mru.append(mru_item)
             self.emit("mru-changed", (self.mru,))
             self.index += 1
         if self.history:
-            self.emit("active-changed", (item,))
+            self.emit("active-changed", (full_item,))
 
     def forward(self, step=1):
         """
@@ -639,9 +660,10 @@ class History(Callback):
         """
         self.index += step
         item = self.history[self.index]
-        if item in self.mru:
-            self.mru.remove(item)
-        self.mru.append(item)
+        mru_item = (item[1], item[2])
+        if mru_item in self.mru:
+            self.mru.remove(mru_item)
+        self.mru.append(mru_item)
         self.emit("mru-changed", (self.mru,))
         self.emit("active-changed", (item,))
         return item
@@ -653,9 +675,10 @@ class History(Callback):
         self.index -= step
         try:
             item = self.history[self.index]
-            if item in self.mru:
-                self.mru.remove(item)
-            self.mru.append(item)
+            mru_item = (item[1], item[2])
+            if mru_item in self.mru:
+                self.mru.remove(mru_item)
+            self.mru.append(mru_item)
             self.emit("mru-changed", (self.mru,))
             self.emit("active-changed", (item,))
             return item
@@ -719,24 +742,27 @@ class History(Callback):
     def repository_removed(self, handle_list):
         self.handles_removed("Repository", handle_list)
 
-    def handles_removed(self, nav_type, handle_list):
+    def tag_removed(self, handle_list):
+        self.handles_removed("Tag", handle_list, silent=True)
+
+    def handles_removed(self, nav_type, handle_list, silent=False):
         """
         Called in response to an object-delete signal.
-        Removes a list of handles from the history.
+        Removes a list of pages from the history.
         """
-        for del_id in handle_list:
-            item = (nav_type, del_id)
-            history_count = self.history.count(item)
-            for dummy in range(history_count):
-                self.history.remove(item)
-                self.index -= 1
+        for handle in handle_list:
+            for item in self.history:
+                if item[2] == handle or item[4] == handle:
+                    self.history.remove(item)
+                    self.index -= 1
 
-            mhc = self.mru.count(item)
-            for dummy in range(mhc):
-                self.mru.remove(item)
-        if self.history:
-            self.emit("active-changed", (self.history[self.index],))
-        self.emit("mru-changed", (self.mru,))
+            for item in self.mru:
+                if item[2] == handle:
+                    self.mru.remove(item)
+        if not silent:
+            if self.history:
+                self.emit("active-changed", (self.history[self.index],))
+            self.emit("mru-changed", (self.mru,))
 
     def history_changed(self):
         """
