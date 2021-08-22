@@ -158,9 +158,7 @@ class ProfileView(ENavigationView):
         self._add_page(
             PlaceProfilePage(self.dbstate, self.uistate, self._config)
         )
-        self._add_page(
-            TagProfilePage(self.dbstate, self.uistate, self._config)
-        )
+        self._add_page(TagProfilePage(self.dbstate, self.uistate, self._config))
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
 
@@ -168,6 +166,7 @@ class ProfileView(ENavigationView):
         page.connect("object-changed", self.object_changed)
         page.connect("context-changed", self.context_changed)
         page.connect("copy-to-clipboard", self.clipboard_copy)
+        page.connect("update-history-reference", self.update_history_reference)
         self.pages[page.page_type()] = page
 
     def _connect_db_signals(self):
@@ -251,10 +250,17 @@ class ProfileView(ENavigationView):
                 objhist = self.passed_uistate.history_lookup[navobj]
                 if objhist and objhist.present():
                     handle = objhist.present()
-                    lastobj = (objtype, handle)
+                    lastobj = (objtype, objtype, handle, None, None)
                     self.history.push(lastobj)
                     return True
         return False
+
+    def update_history_reference(self, old, new):
+        """
+        Replace secondary reference in history entries with a new one.
+        Used to keep history in sync with secondary object updates.
+        """
+        return self.history.replace_secondary(old, new)
 
     def get_stock(self):
         """
@@ -546,14 +552,15 @@ class ProfileView(ENavigationView):
             if not initial_person:
                 return None
             obj_tuple = ("Person", initial_person.get_handle())
-        return obj_tuple
+        full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
+        return full_tuple
 
     def clipboard_copy(self, data, handle):
         return self.copy_to_clipboard(data, [handle])
 
     def object_changed(self, obj_type, handle):
-        self.change_active((obj_type, handle))
-        self.change_object((obj_type, handle))
+        self.change_active((obj_type, obj_type, handle, None, None))
+        self.change_object((obj_type, obj_type, handle, None, None))
 
     def _clear_change(self):
         list(map(self.header.remove, self.header.get_children()))
@@ -572,17 +579,19 @@ class ProfileView(ENavigationView):
         if not obj_type or not data:
             return
         try:
-            primary, secondary_type, secondary = pickle.loads(data)
+            primary_type, primary, secondary_type, secondary = pickle.loads(
+                data
+            )
         except pickle.UnpicklingError:
             return
-        self.render_page(
+        full_tuple = (
             secondary_type,
-            primary_obj=primary,
-            primary_obj_type=obj_type,
-            secondary_obj=secondary,
-            secondary_obj_type=secondary_type,
+            primary_type,
+            primary.get_handle(),
+            secondary_type,
+            secondary,
         )
-        return True
+        self.change_active(full_tuple)
 
     def change_object(self, obj_tuple):
         """
@@ -600,20 +609,31 @@ class ProfileView(ENavigationView):
             return False
 
         (
-            obj_type,
-            handle,
+            page_type,
+            primary_obj_type,
+            primary_obj_handle,
+            secondary_obj_type,
+            secondary_obj,
         ) = obj_tuple
-        query_method = self.dbstate.db.method("get_%s_from_handle", obj_type)
-        obj = query_method(handle)
-        self.render_page(obj_type, primary_obj=obj, primary_obj_type=obj_type)
+        query_method = self.dbstate.db.method(
+            "get_%s_from_handle", primary_obj_type
+        )
+        obj = query_method(primary_obj_handle)
+        self.render_page(
+            page_type,
+            primary_obj=obj,
+            primary_obj_type=primary_obj_type,
+            secondary_obj=secondary_obj,
+            secondary_obj_type=secondary_obj_type,
+        )
 
         if self.loaded:
             dbid = self.dbstate.db.get_dbid()
             save_config_option(
                 self._config,
                 "options.active.last_object",
-                obj_type,
-                handle,
+                primary_obj_type,
+                primary_obj_handle,
                 dbid=dbid,
             )
         return True

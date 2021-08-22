@@ -220,13 +220,15 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(
-                None,
-                None,
-                self.secondary.obj_type,
-                self.secondary.obj,
-                override_primary_obj=self.base_person,
+            data = pickle.dumps(
+                (
+                    "Person",
+                    self.base_person,
+                    "PersonRef",
+                    self.ref_person.get_handle(),
+                )
             )
+            return self.grstate.router("context-changed", ("PersonRef", data))
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """

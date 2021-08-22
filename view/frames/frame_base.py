@@ -31,6 +31,7 @@ GrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
+import hashlib
 import pickle
 import re
 
@@ -75,6 +76,7 @@ from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_utils import (
     button_activated,
     citation_option_text,
+    get_gramps_object_type,
     menu_item,
     note_option_text,
     submenu_item,
@@ -236,9 +238,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
-    def switch_object(
-        self, _dummy_obj, _dummy_event, obj_type, obj, override_primary_obj=None
-    ):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj):
         """
         Change active object for the view.
         """
@@ -248,11 +248,21 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             return self.grstate.router(
                 "object-changed", (obj_type, obj.get_handle())
             )
-        primary = self.primary.obj
-        if override_primary_obj:
-            primary = override_primary_obj
+        if self.secondary and self.secondary.obj:
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(
+                str(self.secondary.obj.serialize()).encode("utf-8")
+            )
+            secondary = sha256_hash.hexdigest()
+        else:
+            secondary = None
         data = pickle.dumps(
-            (primary, self.secondary.obj_type, self.secondary.obj)
+            (
+                self.primary.obj_type,
+                self.primary.obj,
+                self.secondary.obj_type,
+                secondary,
+            )
         )
         return self.grstate.router("context-changed", (obj_type, data))
 
@@ -416,12 +426,27 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.focus.obj.add_citation(handle):
-            citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
-            action = self._commit_message(
-                _("Added"), _("Citation"), citation, _("to")
-            )
-            self.save_object(self.focus.obj, action_text=action)
+        if handle:
+            old_hash = None
+            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+                old_hash = self.focus.obj_hash()
+            if self.focus.obj.add_citation(handle):
+                if old_hash:
+                    sha256_hash = hashlib.sha256()
+                    sha256_hash.update(
+                        str(self.focus.obj.serialize()).encode("utf-8")
+                    )
+                    self.grstate.router(
+                        "update-history-reference",
+                        (old_hash, sha256_hash.hexdigest()),
+                    )
+                citation = self.grstate.dbstate.db.get_citation_from_handle(
+                    handle
+                )
+                action = self._commit_message(
+                    _("Added"), _("Citation"), citation, _("to")
+                )
+                self.save_object(self.focus.obj, action_text=action)
 
     def add_existing_citation(self, _dummy_obj):
         """
@@ -489,10 +514,22 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             commit_method = self.grstate.dbstate.db.method(
                 "commit_%s", self.primary.obj_type
             )
+            old_hash = None
+            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+                old_hash = self.focus.obj_hash()
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_citation_references(
                     [citation.get_handle()]
                 )
+                if old_hash:
+                    sha256_hash = hashlib.sha256()
+                    sha256_hash.update(
+                        str(self.focus.obj.serialize()).encode("utf-8")
+                    )
+                    self.grstate.router(
+                        "update-history-reference",
+                        (old_hash, sha256_hash.hexdigest()),
+                    )
                 commit_method(self.primary.obj, trans)
 
     def _notes_option(
@@ -575,10 +612,25 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.focus.obj.add_note(handle):
-            note = self.grstate.dbstate.db.get_note_from_handle(handle)
-            action = self._commit_message(_("Added"), _("Note"), note, _("to"))
-            self.save_object(self.focus.obj, action_text=action)
+        if handle:
+            old_hash = None
+            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+                old_hash = self.focus.obj_hash()
+            if self.focus.obj.add_note(handle):
+                if old_hash:
+                    sha256_hash = hashlib.sha256()
+                    sha256_hash.update(
+                        str(self.focus.obj.serialize()).encode("utf-8")
+                    )
+                    self.grstate.router(
+                        "update-history-reference",
+                        (old_hash, sha256_hash.hexdigest()),
+                    )
+                note = self.grstate.dbstate.db.get_note_from_handle(handle)
+                action = self._commit_message(
+                    _("Added"), _("Note"), note, _("to")
+                )
+                self.save_object(self.focus.obj, action_text=action)
 
     def add_existing_note(self, _dummy_obj):
         """
@@ -619,8 +671,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             commit_method = self.grstate.dbstate.db.method(
                 "commit_%s", self.primary.obj_type
             )
+            old_hash = None
+            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+                old_hash = self.focus.obj_hash()
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_note(note.get_handle())
+                if old_hash:
+                    sha256_hash = hashlib.sha256()
+                    sha256_hash.update(
+                        str(self.focus.obj.serialize()).encode("utf-8")
+                    )
+                    self.grstate.router(
+                        "update-history-reference",
+                        (old_hash, sha256_hash.hexdigest()),
+                    )
                 commit_method(self.primary.obj, trans)
 
     def _change_privacy_option(self):
@@ -661,8 +725,20 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.primary.obj_type
         )
+        old_hash = None
+        if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+            old_hash = self.focus.obj_hash()
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.focus.obj.set_privacy(mode)
+            if old_hash:
+                sha256_hash = hashlib.sha256()
+                sha256_hash.update(
+                    str(self.focus.obj.serialize()).encode("utf-8")
+                )
+                self.grstate.router(
+                    "update-history-reference",
+                    (old_hash, sha256_hash.hexdigest()),
+                )
             commit_method(self.primary.obj, trans)
 
     def set_css_style(self):

@@ -203,8 +203,16 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(
-                None, None, self.secondary.obj_type, self.secondary.obj
+            data = pickle.dumps(
+                (
+                    self.primary.obj_type,
+                    self.primary.obj,
+                    self.secondary.obj_type,
+                    self.groptions.family_backlink,
+                )
+            )
+            return self.grstate.router(
+                "context-changed", (self.secondary.obj_type, data)
             )
 
     def build_ref_action_menu(self, _dummy_obj, event):
