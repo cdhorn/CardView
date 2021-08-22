@@ -61,9 +61,7 @@ class NameGrampsFrame(SecondaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, obj, name):
-        SecondaryGrampsFrame.__init__(
-            self, grstate, groptions, obj, name
-        )
+        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, name)
 
         if name.get_type():
             name_type = glocale.translation.sgettext(name.get_type().xml_str())
@@ -73,7 +71,9 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             title = "{}: {}".format(_("Primary"), name_type)
         else:
             title = "{}: {}".format(_("Alternate"), name_type)
-        label = TextLink(title, "Person", obj.get_handle(), self.switch_name_page)
+        label = TextLink(
+            title, "Person", obj.get_handle(), self.switch_name_page
+        )
         self.title.pack_start(label, False, False, 0)
 
         given_name = name.get_regular_name()
@@ -132,6 +132,12 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         Initiate switch to name page.
         """
         self.switch_object(None, None, "Name", self.secondary.obj)
+
+    def edit_secondary_object(self, _dummy_var1=None):
+        """
+        Override default method to launch the name editor.
+        """
+        self.edit_name(None, self.secondary.obj)
 
     def get_color_css(self):
         """

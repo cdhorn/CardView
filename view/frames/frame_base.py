@@ -53,8 +53,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gui.editors import (
+    EditAddress,
+    EditAttribute,
     EditCitation,
+    EditName,
     EditNote,
+    EditSrcAttribute,
 )
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
@@ -73,6 +77,7 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from .frame_classes import GrampsConfig, GrampsObject
 from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from .frame_selectors import get_attribute_types
 from .frame_utils import (
     button_activated,
     citation_option_text,
@@ -360,6 +365,139 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             self.primary.obj_lang,
             self.primary.obj.get_gramps_id(),
         )
+
+    def edit_name(self, _dummy_obj, name):
+        """
+        Edit a name.
+        """
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(name.serialize()).encode("utf-8"))
+        callback = lambda x: self.edited_name(x, sha256_hash.hexdigest())
+        try:
+            EditName(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                name,
+                callback,
+            )
+        except WindowActiveError:
+            pass
+
+    def edited_name(self, name, old_hash):
+        """
+        Save edited name.
+        """
+        action = "{} {} {} {} {} {}".format(
+            _("Edited"),
+            _("Name"),
+            name.get_regular_name(),
+            _("for"),
+            _("Person"),
+            self.primary.obj.get_gramps_id(),
+        )
+        if old_hash:
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(str(name.serialize()).encode("utf-8"))
+            self.grstate.router(
+                "update-history-reference",
+                (old_hash, sha256_hash.hexdigest()),
+            )
+        self.save_object(self.primary.obj, action_text=action)
+
+    def edit_attribute(self, _dummy_obj, attribute):
+        """
+        Edit an attribute.
+        """
+        attribute_types = get_attribute_types(
+            self.grstate.dbstate.db, self.primary.obj_type
+        )
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
+        callback = lambda x: self.edited_attribute(x, sha256_hash.hexdigest())
+        try:
+            if self.primary.obj_type in ["Source", "Citation"]:
+                EditSrcAttribute(
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    attribute,
+                    "",
+                    attribute_types,
+                    callback,
+                )
+            else:
+                EditAttribute(
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    attribute,
+                    "",
+                    attribute_types,
+                    callback,
+                )
+        except WindowActiveError:
+            pass
+
+    def edited_attribute(self, attribute, old_hash):
+        """
+        Save the edited attribute.
+        """
+        if attribute:
+            action = "{} {} {} {} {} {}".format(
+                _("Updated"),
+                _("Attribute"),
+                attribute.get_type(),
+                _("for"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+            if old_hash:
+                sha256_hash = hashlib.sha256()
+                sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
+                self.grstate.router(
+                    "update-history-reference",
+                    (old_hash, sha256_hash.hexdigest()),
+                )
+            self.save_object(attribute, action_text=action)
+
+    def edit_address(self, _dummy_obj, address):
+        """
+        Edit an address.
+        """
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(address.serialize()).encode("utf-8"))
+        callback = lambda x: self.edited_address(x, sha256_hash.hexdigest())
+        try:
+            EditAddress(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                address,
+                callback,
+            )
+        except WindowActiveError:
+            pass
+
+    def edited_address(self, address, old_hash):
+        """
+        Save edited address.
+        """
+        action = "{} {} {} {} {}".format(
+            _("Edited"),
+            _("Address"),
+            _("for"),
+            self.primary.obj_lang,
+            self.primary.obj.get_gramps_id(),
+        )
+        if old_hash:
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(str(address.serialize()).encode("utf-8"))
+            self.grstate.router(
+                "update-history-reference",
+                (old_hash, sha256_hash.hexdigest()),
+            )
+        self.save_object(self.primary.obj, action_text=action)
 
     def _citations_option(
         self, obj, add_new_citation, add_existing_citation, remove_citation

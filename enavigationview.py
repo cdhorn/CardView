@@ -644,7 +644,6 @@ class History(Callback):
         else:
             full_item = item
         if len(self.history) == 0 or full_item != self.history[-1]:
-            print("History: {}".format(str(full_item)))
             self.history.append(full_item)
             mru_item = (full_item[1], full_item[2])
             if mru_item in self.mru:

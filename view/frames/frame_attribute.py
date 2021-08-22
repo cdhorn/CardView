@@ -76,12 +76,15 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         obj,
         attribute,
     ):
-        SecondaryGrampsFrame.__init__(
-            self, grstate, groptions, obj, attribute
-        )
+        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, attribute)
 
         name = glocale.translation.sgettext(attribute.get_type().xml_str())
-        label = TextLink(name, self.primary.obj_type, self.primary.obj.get_handle(), self.switch_attribute_page)
+        label = TextLink(
+            name,
+            self.primary.obj_type,
+            self.primary.obj.get_handle(),
+            self.switch_attribute_page,
+        )
         self.title.pack_start(label, False, False, 0)
 
         if attribute.get_value():
@@ -96,6 +99,12 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         Initiate switch to attribute page.
         """
         self.switch_object(None, None, "Attribute", self.secondary.obj)
+
+    def edit_secondary_object(self, _dummy_var1=None):
+        """
+        Override default method to launch the attribute editor.
+        """
+        self.edit_attribute(None, self.secondary.obj)
 
     def get_color_css(self):
         """

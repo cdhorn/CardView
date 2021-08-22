@@ -99,7 +99,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         self.relation = groptions.relation
         self.family_backlink = groptions.family_backlink
         self.context = groptions.option_space.split(".")[2]
-        
+
         display_name = name_displayer.display(person)
         name = TextLink(
             display_name,
@@ -111,7 +111,8 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         name_box = Gtk.HBox(spacing=2)
         if groptions.frame_number:
             label = Gtk.Label(
-                use_markup=True, label=self.markup.format("{}. ".format(groptions.frame_number))
+                use_markup=True,
+                label=self.markup.format("{}. ".format(groptions.frame_number)),
             )
             name_box.pack_start(label, False, False, 0)
         if self.get_option("sex-mode") == 1:
@@ -229,8 +230,22 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if event.get_description():
-                    label = TextLink(str(event.get_type()), "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
-                    fact = TextLink(event.get_description(), "Event", event.get_handle(), self.switch_object, bold=False, markup=self.markup)
+                    label = TextLink(
+                        str(event.get_type()),
+                        "Event",
+                        event.get_handle(),
+                        self.switch_object,
+                        bold=False,
+                        markup=self.markup,
+                    )
+                    fact = TextLink(
+                        event.get_description(),
+                        "Event",
+                        event.get_handle(),
+                        self.switch_object,
+                        bold=False,
+                        markup=self.markup,
+                    )
                     self.add_fact(fact, label=label, extra=extra)
                     if not show_all:
                         return
@@ -257,7 +272,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         text = ""
         if self.primary.obj.get_handle() == handle:
             text = _("Home person")
-            label = self.make_label(text)            
+            label = self.make_label(text)
         else:
             try:
                 relation = self.grstate.dbstate.db.get_person_from_handle(
@@ -274,7 +289,14 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 else:
                     name = name_displayer.display(relation)
                     text = "{} {}".format(_("Not related to"), name)
-                label = TextLink(text, "Person", handle, self.switch_object, bold=False, markup=self.markup)
+                label = TextLink(
+                    text,
+                    "Person",
+                    handle,
+                    self.switch_object,
+                    bold=False,
+                    markup=self.markup,
+                )
             except HandleError:
                 text = "[{}]".format(_("Missing Person"))
                 label = self.make_label(text)
@@ -317,36 +339,26 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         Build the names submenu.
         """
         menu = Gtk.Menu()
-        menu.add(
-            menu_item("list-add", _("Add a name"), self.add_name)
-        )
+        menu.add(menu_item("list-add", _("Add a name"), self.add_name))
         if len(self.primary.obj.get_alternate_names()) > 0:
             removemenu = Gtk.Menu()
             menu.add(
-                submenu_item(
-                    "gramps-person", _("Remove a name"), removemenu
-                )
+                submenu_item("gramps-person", _("Remove a name"), removemenu)
             )
             menu.add(Gtk.SeparatorMenuItem())
             menu.add(Gtk.SeparatorMenuItem())
             name = self.primary.obj.get_primary_name()
             given_name = name.get_regular_name()
             menu.add(
-                menu_item(
-                    "gramps-person", given_name, self.edit_name, name
-                )
+                menu_item("gramps-person", given_name, self.edit_name, name)
             )
             for name in self.primary.obj.get_alternate_names():
                 given_name = name.get_regular_name()
                 removemenu.add(
-                    menu_item(
-                        "list-remove", given_name, self.remove_name, name
-                    )
+                    menu_item("list-remove", given_name, self.remove_name, name)
                 )
                 menu.add(
-                    menu_item(
-                        "gramps-person", given_name, self.edit_name, name
-                    )
+                    menu_item("gramps-person", given_name, self.edit_name, name)
                 )
         return submenu_item("gramps-person", _("Names"), menu)
 
@@ -361,8 +373,8 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 self.grstate.uistate,
                 [],
                 name,
-                self.added_name
-                )
+                self.added_name,
+            )
         except WindowActiveError:
             pass
 
@@ -381,35 +393,6 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             )
             self.primary.obj.add_alternate_name(name)
             self.save_object(self.primary.obj, action_text=action)
-
-    def edit_name(self, _dummy_obj, name):
-        """
-        Edit a name.
-        """
-        try:
-            EditName(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                name,
-                self.edited_name
-                )
-        except WindowActiveError:
-            pass
-
-    def edited_name(self, name):
-        """
-        Save edited name.
-        """
-        action = "{} {} {} {} {} {}".format(
-            _("Edited"),
-            _("Name"),
-            name.get_regular_name(),
-            _("for"),
-            _("Person"),
-            self.primary.obj.get_gramps_id(),
-        )
-        self.save_object(self.primary.obj, action_text=action)
 
     def remove_name(self, _dummy_obj, name):
         """
@@ -545,7 +528,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         )
         family = dialog.run()
         if family:
-            self.grstate.dbstate.db.add_child_to_family(family, self.primary.obj)
+            self.grstate.dbstate.db.add_child_to_family(
+                family, self.primary.obj
+            )
 
     def _partners_option(self):
         """
@@ -626,14 +611,14 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 partner_handle
             )
             partner_name = name_displayer.display(partner)
-            text = "You are about to remove {} as the partner of {} " \
-                "and a parent of this family.".format(
-                person_name, partner_name
+            text = (
+                "You are about to remove {} as the partner of {} "
+                "and a parent of this family.".format(person_name, partner_name)
             )
         else:
-            text = "You are about to remove {} as a parent of this " \
-                "family.".format(
-                person_name
+            text = (
+                "You are about to remove {} as a parent of this "
+                "family.".format(person_name)
             )
         if not self.confirm_action(
             "Warning",
@@ -666,7 +651,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         family_text = family_name(family, self.grstate.dbstate.db)
         if self.confirm_action(
             "Warning",
-            "You are about to remove {} from the family of {}.\n\n" \
+            "You are about to remove {} from the family of {}.\n\n"
             "Are you sure you want to continue?".format(
                 person_name, family_text
             ),

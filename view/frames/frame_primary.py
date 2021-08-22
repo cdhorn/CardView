@@ -689,52 +689,6 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.primary.obj.add_attribute(attribute)
             self.save_object(self.primary.obj, action_text=action)
 
-    def edit_attribute(self, _dummy_obj, attribute):
-        """
-        Edit an attribute.
-        """
-        attribute_types = get_attribute_types(
-            self.grstate.dbstate.db, self.primary.obj_type
-        )
-        try:
-            if self.primary.obj_type in ["Source", "Citation"]:
-                EditSrcAttribute(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    attribute,
-                    "",
-                    attribute_types,
-                    self.edited_attribute,
-                )
-            else:
-                EditAttribute(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    attribute,
-                    "",
-                    attribute_types,
-                    self.edited_attribute,
-                )
-        except WindowActiveError:
-            pass
-
-    def edited_attribute(self, attribute):
-        """
-        Save the edited attribute.
-        """
-        if attribute:
-            action = "{} {} {} {} {} {}".format(
-                _("Updated"),
-                _("Attribute"),
-                attribute.get_type(),
-                _("for"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-            )
-            self.save_object(attribute, action_text=action)
-
     def remove_attribute(self, _dummy_obj, attribute):
         """
         Remove the given attribute from the current object.

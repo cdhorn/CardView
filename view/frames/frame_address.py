@@ -59,9 +59,7 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         obj,
         address,
     ):
-        SecondaryGrampsFrame.__init__(
-            self, grstate, groptions, obj, address
-        )
+        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, address)
         if address.street:
             self.add_fact(self.make_label(address.street))
         if address.locality:
@@ -88,6 +86,12 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+    def edit_secondary_object(self, _dummy_var1=None):
+        """
+        Override default method to launch the address editor.
+        """
+        self.edit_address(None, self.secondary.obj)
 
     def get_color_css(self):
         """
