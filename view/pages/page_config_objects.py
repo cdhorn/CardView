@@ -30,6 +30,14 @@ Page configuration dialog functions
 
 # -------------------------------------------------------------------------
 #
+# Gnome/Gtk Modules
+#
+# -------------------------------------------------------------------------
+from gi.repository import Gtk
+
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -58,9 +66,45 @@ from .page_utils import (
 _ = glocale.translation.sgettext
 
 
-def build_person_grid(
-    configdialog, grstate, space, person, extra=False
-):
+# -------------------------------------------------------------------------
+#
+# ConfigNotebook class
+#
+# -------------------------------------------------------------------------
+class ConfigNotebook(Gtk.Notebook):
+    """
+    Provide a Notebook with deferred tab rendering support.
+    """
+
+    def __init__(self, vexpand=True, hexpand=True):
+        Gtk.Notebook.__init__(self, vexpand=vexpand, hexpand=hexpand)
+        self.deferred_pages = {}
+        self.rendered_pages = []
+        self.connect("switch-page", self.handle_page_switch)
+
+    def append_deferred_page(self, tab_label, render_page):
+        """
+        Appends a page deferring rendering till selected.
+        """
+        container = Gtk.HBox()
+        index = self.append_page(container, tab_label=tab_label)
+        self.deferred_pages.update({index: (container, render_page)})
+
+    def handle_page_switch(self, widget, tab, index):
+        """
+        Handle a page switch, rendering the page if needed.
+        """
+        if widget == self:
+            if index not in self.rendered_pages:
+                if index in self.deferred_pages:
+                    container, render_page = self.deferred_pages[index]
+                    page = render_page()
+                    container.pack_start(page, True, True, 0)
+                    container.show_all()
+                    self.rendered_pages.append(index)
+
+
+def build_person_grid(configdialog, grstate, space, person, extra=False):
     """
     Builds a person options section for the configuration dialog
     """
@@ -102,13 +146,24 @@ def build_person_grid(
             grid, _("Extra Fact Display Fields"), 8, start=3, bold=True
         )
         config_facts_fields(
-            configdialog, grstate, space, person, grid, 9, start_col=3, extra=True
+            configdialog,
+            grstate,
+            space,
+            person,
+            grid,
+            9,
+            start_col=3,
+            extra=True,
         )
     configdialog.add_text(
         grid, _("Metadata Display Fields"), 8, start=5, bold=True
     )
-    config_metadata_attributes(grstate, "{}.{}".format(space, person), grid, 9, start_col=5)
-    return add_config_reset(configdialog, grstate, "{}.{}".format(space, person), grid)
+    config_metadata_attributes(
+        grstate, "{}.{}".format(space, person), grid, 9, start_col=5
+    )
+    return add_config_reset(
+        configdialog, grstate, "{}.{}".format(space, person), grid
+    )
 
 
 def build_media_grid(configdialog, grstate, space):
@@ -147,7 +202,9 @@ def build_media_grid(configdialog, grstate, space):
         number=4,
         obj_selector_type="Media",
     )
-    return add_config_reset(configdialog, grstate, "{}.media".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.media".format(space), grid
+    )
 
 
 def build_note_grid(configdialog, grstate, space):
@@ -173,7 +230,9 @@ def build_note_grid(configdialog, grstate, space):
         (0, 8),
     )
     config_tag_fields(configdialog, "{}.note".format(space), grid, 3)
-    return add_config_reset(configdialog, grstate, "{}.note".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.note".format(space), grid
+    )
 
 
 def build_citation_grid(configdialog, grstate, space):
@@ -182,9 +241,7 @@ def build_citation_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(
-        configdialog, "{}.citation".format(space), grid, 1
-    )
+    config_tag_fields(configdialog, "{}.citation".format(space), grid, 1)
     configdialog.add_combo(
         grid,
         _("Image display mode"),
@@ -299,7 +356,9 @@ def build_citation_grid(configdialog, grstate, space):
         number=4,
         obj_selector_type="Citation",
     )
-    return add_config_reset(configdialog, grstate, "{}.citation".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.citation".format(space), grid
+    )
 
 
 def build_source_grid(configdialog, grstate, space):
@@ -327,9 +386,17 @@ def build_source_grid(configdialog, grstate, space):
         grid, _("Metadata Display Fields"), 15, start=1, bold=True
     )
     config_metadata_attributes(
-        grstate, "{}.source".format(space), grid, 16, start_col=1, number=4, obj_selector_type="Source"
+        grstate,
+        "{}.source".format(space),
+        grid,
+        16,
+        start_col=1,
+        number=4,
+        obj_selector_type="Source",
     )
-    return add_config_reset(configdialog, grstate, "{}.source".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.source".format(space), grid
+    )
 
 
 def build_repository_grid(configdialog, grstate, space):
@@ -338,9 +405,7 @@ def build_repository_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(
-        configdialog, "{}.repository".format(space), grid, 1
-    )
+    config_tag_fields(configdialog, "{}.repository".format(space), grid, 1)
     configdialog.add_text(grid, _("Attributes"), 9, bold=True)
     configdialog.add_checkbox(
         grid,
@@ -369,7 +434,9 @@ def build_repository_grid(configdialog, grstate, space):
             "Enabling this option will show the repository type if it is available."
         ),
     )
-    return add_config_reset(configdialog, grstate, "{}.repository".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.repository".format(space), grid
+    )
 
 
 def build_place_grid(configdialog, grstate, space):
@@ -379,7 +446,9 @@ def build_place_grid(configdialog, grstate, space):
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
     config_tag_fields(configdialog, "{}.place".format(space), grid, 4)
-    return add_config_reset(configdialog, grstate, "{}.place".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.place".format(space), grid
+    )
 
 
 def build_event_grid(configdialog, grstate, space):
@@ -407,9 +476,17 @@ def build_event_grid(configdialog, grstate, space):
         grid, _("Metadata Display Fields"), 11, start=1, bold=True
     )
     config_metadata_attributes(
-        grstate, "{}.event".format(space), grid, 12, start_col=1, number=4, obj_selector_type="Event"
+        grstate,
+        "{}.event".format(space),
+        grid,
+        12,
+        start_col=1,
+        number=4,
+        obj_selector_type="Event",
     )
-    return add_config_reset(configdialog, grstate, "{}.event".format(space), grid)
+    return add_config_reset(
+        configdialog, grstate, "{}.event".format(space), grid
+    )
 
 
 def build_family_grid(configdialog, grstate, space):
@@ -452,5 +529,9 @@ def build_family_grid(configdialog, grstate, space):
     configdialog.add_text(
         grid, _("Metadata Display Fields"), 8, start=5, bold=True
     )
-    config_metadata_attributes(grstate, "{}.family".format(space), grid, 9, start_col=5)
-    return add_config_reset(configdialog, grstate, "{}.event".format(space), grid)
+    config_metadata_attributes(
+        grstate, "{}.family".format(space), grid, 9, start_col=5
+    )
+    return add_config_reset(
+        configdialog, grstate, "{}.event".format(space), grid
+    )
