@@ -100,7 +100,7 @@ CONFIGSETTINGS = (
     ("options.global.media-bar-group-by-type", True),
     ("options.global.media-bar-filter-non-photos", False),
     ("options.global.media-bar-page-link", True),
-    ("options.global.enable-privacy", True),
+    ("options.global.privacy-mode", 1),
     ("options.global.enable-bookmarks", True),
     ("options.global.enable-gramps-ids", True),
     ("options.global.link-citation-title-to-source", True),

@@ -58,6 +58,13 @@ MEDIA_IMAGE_DISPLAY_MODES = [
     (4, _("Large cropped images when available")),
 ]
 
+PRIVACY_DISPLAY_MODES = [
+    (0, _("No indicator displayed")),
+    (1, _("Only show state if private")),
+    (2, _("Only show state if public")),
+    (3, _("Always show state")),
+]
+
 SEX_DISPLAY_MODES = [
     (0, _("No indicator displayed")),
     (1, _("Indicator to left of name")),

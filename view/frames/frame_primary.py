@@ -419,6 +419,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 label=self.markup.format(escape(self.primary.obj.gramps_id)),
             )
             self.gramps_id.pack_end(label, False, False, 0)
+
         if self.grstate.config.get("options.global.enable-bookmarks"):
             for bookmark in get_bookmarks(
                 self.grstate.dbstate.db, self.primary.obj_type
@@ -430,9 +431,16 @@ class PrimaryGrampsFrame(GrampsFrame):
                     )
                     self.gramps_id.pack_end(image, False, False, 0)
                     break
-        if self.primary.obj.private:
+
+        mode = self.grstate.config.get("options.global.privacy-mode")
+        if mode:
             image = Gtk.Image()
-            image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            if self.primary.obj.private:
+                if mode in [1, 3]:
+                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            else:
+                if mode in [2, 3]:
+                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
             self.gramps_id.pack_end(image, False, False, 0)
         self.gramps_id.show_all()
 

@@ -83,10 +83,17 @@ class SecondaryGrampsFrame(GrampsFrame):
         vcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
         body = Gtk.HBox(hexpand=True, margin=3)
         body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        if self.secondary.obj.private:
-            vlock = Gtk.VBox()
+
+        mode = self.grstate.config.get("options.global.privacy-mode")
+        if mode:
             image = Gtk.Image()
-            image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            if self.secondary.obj.private:
+                if mode in [1, 3]:
+                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            else:
+                if mode in [2, 3]:
+                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
+            vlock = Gtk.VBox()
             vlock.pack_start(image, False, False, 0)
             body.pack_start(vlock, False, False, 0)
         if "data" in self.groptions.size_groups:

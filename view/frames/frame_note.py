@@ -116,4 +116,6 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
         hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
         vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
+        tbox = Gtk.HBox(vexpand=False, hexpand=False)
+        tbox.pack_start(self.tags, expand=False, fill=False, padding=0)
+        vcontent.pack_start(tbox, expand=True, fill=True, padding=0)
