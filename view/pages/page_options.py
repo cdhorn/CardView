@@ -98,7 +98,7 @@ CONFIGSETTINGS = (
     ("options.global.media-bar-display-mode", 1),
     ("options.global.media-bar-sort-by-date", True),
     ("options.global.media-bar-group-by-type", True),
-    ("options.global.media-bar-filter-documents", False),
+    ("options.global.media-bar-filter-non-photos", False),
     ("options.global.media-bar-page-link", True),
     ("options.global.enable-privacy", True),
     ("options.global.enable-bookmarks", True),
@@ -683,12 +683,12 @@ CONFIGSETTINGS = (
     ("options.active.media.tag-format", 1),
     ("options.active.media.tag-width", 10),
     ("options.active.media.image-mode", 2),
-    ("options.active.media.sort-by-date", False),
     ("options.active.media.show-date", True),
     ("options.active.media.metadata-attribute-1", "None"),
     ("options.active.media.metadata-attribute-2", "None"),
     ("options.active.media.metadata-attribute-3", "None"),
     ("options.active.media.metadata-attribute-4", "None"),
+
     ######################################################################
     ## Note Options
     ######################################################################
@@ -1000,10 +1000,12 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Media Options
     ######################################################################    
+    ("options.group.media.sort-by-date", False),
+    ("options.group.media.group-by-type", False),
+    ("options.group.media.filter-non-photos", False),
     ("options.group.media.tag-format", 1),
     ("options.group.media.tag-width", 10),
     ("options.group.media.image-mode", 2),
-    ("options.group.media.sort-by-date", False),
     ("options.group.media.show-date", True),
     ("options.group.media.metadata-attribute-1", "None"),
     ("options.group.media.metadata-attribute-2", "None"),

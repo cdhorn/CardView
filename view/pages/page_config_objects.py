@@ -49,12 +49,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_const import (
+from ..frames.frame_utils import ConfigReset
+from .page_const import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
-    SEX_DISPLAY_MODES,
+    MEDIA_IMAGE_DISPLAY_MODES,
+    SEX_DISPLAY_MODES,    
 )
-from ..frames.frame_utils import ConfigReset
 from .page_utils import (
     create_grid,
     add_config_reset,
@@ -166,38 +167,61 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
     )
 
 
-def build_media_grid(configdialog, grstate, space):
+def build_media_grid(configdialog, grstate, space, group=True):
     """
     Builds a media options section for the configuration dialog
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(configdialog, "{}.media".format(space), grid, 1)
-    configdialog.add_checkbox(
+    if group:
+        configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Sort media by date"),
+            1,
+            "{}.media.sort-by-date".format(space),
+            tooltip=_("Indicates whether to sort media items by date."),
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Group media by type"),
+            2,
+            "{}.media.group-by-type".format(space),
+            tooltip=_("Indicates whether to group like media, based on Media-Type."),
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Filter out non-photos"),
+            3,
+            "{}.media.filter-non-photos".format(space),
+            tooltip=_("Indicates only photos should be displayed, based on Media-Type.")
+        )
+    configdialog.add_text(grid, _("Object Display Options"), 10, bold=True)
+    configdialog.add_combo(
         grid,
-        _("Sort media by date"),
-        4,
-        "{}.media.sort-by-date".format(space),
-        tooltip=_("Enabling this option will sort the media by date."),
+        _("Image display mode"),
+        11,
+        "{}.media.image-mode".format(space),
+        MEDIA_IMAGE_DISPLAY_MODES,
     )
-    configdialog.add_text(grid, _("Attributes"), 9, bold=True)
+    config_tag_fields(configdialog, "{}.media".format(space), grid, 12)
     configdialog.add_checkbox(
         grid,
         _("Show date"),
-        10,
+        14,
         "{}.media.show-date".format(space),
+        stop=2,
         tooltip=_(
             "Enabling this option will show the media date if it is available."
         ),
     )
     configdialog.add_text(
-        grid, _("Metadata Display Fields"), 15, start=1, bold=True
+        grid, _("Metadata Display Fields"), 20, bold=True
     )
     config_metadata_attributes(
         grstate,
         "{}.media".format(space),
         grid,
-        16,
+        21,
         start_col=1,
         number=4,
         obj_selector_type="Media",

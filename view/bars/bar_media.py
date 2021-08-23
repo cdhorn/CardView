@@ -45,7 +45,8 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
-from gramps.gen.lib import Citation, Note, Source
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import Citation, Media, Note, Source
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.ddtargets import DdTargets
@@ -63,15 +64,12 @@ from ..frames.frame_base import GrampsFrame
 from ..frames.frame_classes import (
     GrampsConfig,
     GrampsOptions,
-    GrampsImageViewFrame,
 )
-from ..frames.frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_const import _RIGHT_BUTTON
 from ..frames.frame_utils import (
     button_activated,
     get_gramps_object_type,
     menu_item,
-    submenu_item,
     citation_option_text,
     note_option_text,
 )
@@ -141,11 +139,18 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
                 media_list = photo_list + stone_list + other_list
 
             if self.grstate.config.get(
-                "options.global.media-bar-filter-documents"
+                "options.global.media-bar-filter-non-photos"
             ):
                 new_list = []
                 for media in media_list:
-                    if media[2] in ["Photo", "Tombstone", "Headstone"]:
+                    if media[2]:
+                        if media[2] in [
+                            "Photo",
+                            "Tombstone",
+                            "Headstone",
+                        ]:
+                            new_list.append(media)
+                    else:
                         new_list.append(media)
                 media_list = new_list
 
@@ -190,9 +195,6 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         if not hasattr(obj, "media_list"):
             return
 
-        query_method = self.grstate.dbstate.db.method(
-            "get_%s_from_handle", obj_type
-        )
         for media_ref in obj.get_media_list():
             media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
             media_type = ""

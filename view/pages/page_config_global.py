@@ -42,17 +42,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_utils import ConfigReset
+from .page_const import MEDIA_IMAGE_DISPLAY_MODES
 from .page_utils import create_grid, add_config_reset
 
 _ = glocale.translation.sgettext
-
-MEDIA_BAR_IMAGE_DISPLAY_MODES = [
-    (0, _("No media bar displayed")),
-    (1, _("Small full images")),
-    (2, _("Small cropped images when available")),
-    (3, _("Large full images")),
-    (4, _("Large cropped images when available")),
-]
 
 
 def build_global_grid(configdialog, grstate):
@@ -62,14 +55,22 @@ def build_global_grid(configdialog, grstate):
     grid = create_grid()
     configdialog.add_text(grid, _("Global Options"), 0, bold=True)
     configdialog.add_checkbox(
-        grid, _("Pin active header so it does not scroll"),
-        1, "options.global.pin-header",
-        tooltip=_("Enabling this option pins the header so it will not scroll with the rest of the view.")
+        grid,
+        _("Pin active header so it does not scroll"),
+        1,
+        "options.global.pin-header",
+        tooltip=_(
+            "Enabling this option pins the header so it will not scroll with the rest of the view."
+        ),
     )
     configdialog.add_checkbox(
-        grid, _("Enable coloring schemes"),
-        2, "options.global.use-color-scheme",
-        tooltip=_("Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline and citations.")
+        grid,
+        _("Enable coloring schemes"),
+        2,
+        "options.global.use-color-scheme",
+        tooltip=_(
+            "Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline and citations."
+        ),
     )
     configdialog.add_checkbox(
         grid,
@@ -87,49 +88,6 @@ def build_global_grid(configdialog, grstate):
         "options.global.border-width",
         (0, 5),
     )
-    configdialog.add_combo(
-        grid,
-        _("Media bar display mode"),
-        5,
-        "options.global.media-bar-display-mode",
-        MEDIA_BAR_IMAGE_DISPLAY_MODES,
-    )        
-    configdialog.add_checkbox(
-        grid,
-        _("Sort media bar items by date"),
-        6,
-        "options.global.media-bar-sort-by-date",
-        tooltip=_(
-            "Indicates whether media items in the media bar should be sorted by date if available or not."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Group media bar items by type"),
-        7,
-        "options.global.media-bar-group-by-type",
-        tooltip=_(
-            "Indicates whether media items in the media bar should be grouped by type based on the Media-Type attribute if available."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Filter documents from media bar"),
-        8,
-        "options.global.media-bar-filter-documents",
-        tooltip=_(
-            "Indicates whether documents should be filtered out and not displayed in the media bar based on the Media-Type attribute if available."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Link media bar image to media page"),
-        9,
-        "options.global.media-bar-page-link",
-        tooltip=_(
-            "Indicates whether left click should open the media page instead of the media viewer."
-        ),
-    )
     configdialog.add_checkbox(
         grid,
         _("Enable gramps ids"),
@@ -144,9 +102,7 @@ def build_global_grid(configdialog, grstate):
         _("Enable bookmark support"),
         11,
         "options.global.enable-bookmarks",
-        tooltip=_(
-            "Indicates whether to enable bookmark support or not."
-        ),
+        tooltip=_("Indicates whether to enable bookmark support or not."),
     )
     configdialog.add_checkbox(
         grid,
@@ -158,14 +114,22 @@ def build_global_grid(configdialog, grstate):
         ),
     )
     configdialog.add_checkbox(
-        grid, _("Include notes on child objects"),
-        13, "options.global.include-child-notes",
-        tooltip=_("Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present.")
+        grid,
+        _("Include notes on child objects"),
+        13,
+        "options.global.include-child-notes",
+        tooltip=_(
+            "Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present."
+        ),
     )
     configdialog.add_checkbox(
-        grid, _("Include urls from notes"),
-        14, "options.global.include-note-urls",
-        tooltip=_("Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list.")
+        grid,
+        _("Include urls from notes"),
+        14,
+        "options.global.include-note-urls",
+        tooltip=_(
+            "Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list."
+        ),
     )
     configdialog.add_checkbox(
         grid,
@@ -199,4 +163,48 @@ def build_global_grid(configdialog, grstate):
             "Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard."
         ),
     )
+
+    configdialog.add_text(grid, _("Media Bar Options"), 20, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Media bar display mode"),
+        21,
+        "options.global.media-bar-display-mode",
+        MEDIA_IMAGE_DISPLAY_MODES,
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Sort media by date"),
+        22,
+        "options.global.media-bar-sort-by-date",
+        tooltip=_("Indicates whether to sort media items by date."),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Group media by type"),
+        23,
+        "options.global.media-bar-group-by-type",
+        tooltip=_(
+            "Indicates whether to group like media, based on Media-Type."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Filter out non-photos"),
+        24,
+        "options.global.media-bar-filter-non-photos",
+        tooltip=_(
+            "Indicates only photos should be displayed, based on Media-Type."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link image to media page"),
+        25,
+        "options.global.media-bar-page-link",
+        tooltip=_(
+            "Indicates left click should open the media page instead of the media viewer."
+        ),
+    )
+
     return add_config_reset(configdialog, grstate, "options.global", grid)

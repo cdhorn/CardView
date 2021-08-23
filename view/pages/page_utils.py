@@ -49,9 +49,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_const import TAG_DISPLAY_MODES
 from ..frames.frame_utils import ConfigReset
 from ..frames.frame_selectors import AttributeSelector, FrameFieldSelector
+from .page_const import TAG_DISPLAY_MODES
 
 _ = glocale.translation.sgettext
 

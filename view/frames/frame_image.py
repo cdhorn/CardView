@@ -86,16 +86,34 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         """
         Construct framework for media layout, overrides base class.
         """
+        active = "active" in self.groptions.option_space
+        crop = self.get_option("image-mode") in [2, 4]
+        size = 0
+        if self.get_option("image-mode") in [3, 4]:
+            size = 2
+
         if self.secondary:
-            self.load_image(2, media_ref=self.secondary.obj)
+            self.load_image(size, media_ref=self.secondary.obj, crop=crop)
         else:
-            self.load_image(2)
-        vcontent = Gtk.VBox()
-        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.image, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        hcontent = Gtk.HBox(hexpand=True)
-        hcontent.pack_start(self.tags, expand=True, fill=True, padding=0)
-        hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
-        vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+            self.load_image(size, crop=crop)
+
+        tbox = Gtk.HBox(hexpand=False, vexpand=False)
+        tbox.pack_start(self.tags, False, False, 0)
+        if active:
+            hcontent = Gtk.HBox(hexpand=True)
+            self.body.pack_start(hcontent, expand=True, fill=True, padding=0)
+            vcontent = Gtk.VBox()
+            vcontent.pack_start(self.title, expand=False, fill=False, padding=0)
+            vcontent.pack_start(tbox, expand=True, fill=False, padding=0)
+            hcontent.pack_start(self.image, expand=False, fill=False, padding=0)
+            hcontent.pack_start(vcontent, expand=True, fill=True, padding=0)
+            hcontent.pack_end(self.metadata, expand=False, fill=True, padding=0)
+        else:
+            vcontent = Gtk.VBox(hexpand=False)
+            self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+            hcontent = Gtk.HBox(hexpand=False)
+            vcontent.pack_start(hcontent, True, True, 0)
+            hcontent.pack_start(self.image, expand=True, fill=True, padding=0)
+            hcontent.pack_end(self.metadata, expand=False, fill=True, padding=0)
+            vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
+            vcontent.pack_start(tbox, expand=True, fill=False, padding=0)

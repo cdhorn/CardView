@@ -247,6 +247,7 @@ class BaseProfilePage(Callback):
         """
         Build an object options panel.
         """
+        group = 'group' in space
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
         grstate = GrampsState(
@@ -308,7 +309,7 @@ class BaseProfilePage(Callback):
         notebook.append_deferred_page(
             Gtk.Label(label=_("Repository")), render_page
         )
-        render_page = lambda: build_media_grid(configdialog, grstate, space)
+        render_page = lambda: build_media_grid(configdialog, grstate, space, group=group)
         notebook.append_deferred_page(Gtk.Label(label=_("Media")), render_page)
         render_page = lambda: build_note_grid(configdialog, grstate, space)
         notebook.append_deferred_page(Gtk.Label(label=_("Note")), render_page)

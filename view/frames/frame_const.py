@@ -124,43 +124,6 @@ CONFIDENCE_COLOR_SCHEME = {
     Citation.CONF_VERY_HIGH: "very-high",
 }
 
-EVENT_DISPLAY_MODES = [
-    (0, _("Show life span only and nothing else")),
-    (1, _("Single line with place")),
-    (2, _("Single line with no place")),
-    (3, _("Abbreviated single line with place")),
-    (4, _("Abbreviated single line with no place")),
-    (5, _("Split line")),
-    (6, _("Abbreviated split line")),
-]
-
-TAG_DISPLAY_MODES = [
-    (0, _("Disabled")),
-    (1, _("Show icons")),
-    (2, _("Show tag names")),
-]
-
-IMAGE_DISPLAY_MODES = [
-    (0, _("No image displayed")),
-    (1, _("Small image on right")),
-    (2, _("Large image on right")),
-    (3, _("Small image on left")),
-    (4, _("Large image on left")),
-]
-
-SEX_DISPLAY_MODES = [
-    (0, _("No indicator displayed")),
-    (1, _("Indicator to left of name")),
-    (2, _("Indicator to right of name")),
-]
-
-TIMELINE_COLOR_MODES = [
-    (0, _("Person scheme")),
-    (1, _("Relationship scheme")),
-    (2, _("Event category scheme")),
-    (3, _("Evidence confidence scheme")),
-]
-
 _EDITORS = {
     "Address": EditAddress,
     "Citation": EditCitation,

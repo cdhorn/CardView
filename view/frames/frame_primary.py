@@ -271,23 +271,21 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.image, expand=False, fill=False, padding=0
             )
 
-    def load_image(self, image_mode, media_ref=None):
+    def load_image(self, image_mode, media_ref=None, crop=True):
         """
         Load primary image for the object if found.
         """
-        large_size = False
-        if image_mode in [2, 4]:
-            large_size = True
-        self.image.add(
-            GrampsImageViewFrame(
-                self.grstate,
-                self.primary.obj,
-                obj_ref=media_ref,
-                size=large_size,
-            )
+        large_size = image_mode in [2, 4]
+        frame = GrampsImageViewFrame(
+            self.grstate,
+            self.primary.obj,
+            obj_ref=media_ref,
+            size=large_size,
+            crop=crop,
         )
+        self.image.add(frame)
         if "image" in self.groptions.size_groups:
-            self.groptions.size_groups["image"].add_widget(self.image)
+            self.groptions.size_groups["image"].add_widget(frame)
 
     def add_fact(self, fact, label=None, extra=False):
         """

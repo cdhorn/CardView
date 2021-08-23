@@ -63,7 +63,9 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
@@ -76,18 +78,41 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                     key=lambda x: x[0].get_date_object().get_sort_value()
                 )
 
+            if self.get_option("group-by-type"):
+                photo_list = []
+                stone_list = []
+                other_list = []
+                for media in media_list:
+                    if media[2] == "Photo":
+                        photo_list.append(media)
+                    elif media[2] in ["Tombstone", "Headstone"]:
+                        stone_list.append(media)
+                    else:
+                        other_list.append(media)
+                other_list.sort(key=lambda x: x[2])
+                media_list = photo_list + stone_list + other_list
+
+            if self.get_option("filter-non-photos"):
+                new_list = []
+                for media in media_list:
+                    if media[2]:
+                        if media[2] in [
+                            "Photo",
+                            "Tombstone",
+                            "Headstone",
+                        ]:
+                            new_list.append(media)
+                    else:
+                        new_list.append(media)
+                media_list = new_list
+
             for (
                 media,
                 media_ref,
-                dummy_references,
-                dummy_ref_type,
-                dummy_ref_desc,
+                media_type,
             ) in media_list:
                 frame = ImageGrampsFrame(
-                    grstate,
-                    groptions,
-                    media,
-                    media_ref=media_ref
+                    grstate, groptions, media, media_ref=media_ref
                 )
                 self.add_frame(frame)
         self.show_all()
@@ -116,23 +141,20 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(0, self.obj_type, media_list, None, [self.obj])
+        self.extract_media(media_list, self.obj, self.obj_type)
         return media_list
 
-    def extract_media(
-        self, ref_type, ref_desc, media_list, query_method=None, obj_list=None
-    ):
+    def extract_media(self, media_list, obj, obj_type):
         """
         Helper to extract a set of media references from an object.
         """
-        if query_method:
-            data = query_method()
-        else:
-            data = obj_list or []
-        for item in data:
-            if hasattr(item, "media_list"):
-                for media_ref in item.get_media_list():
-                    media = self.grstate.dbstate.db.get_media_from_handle(
-                        media_ref.ref
-                    )
-                    media_list.append((media, media_ref, [item], ref_type, ref_desc))
+        if not hasattr(obj, "media_list"):
+            return
+
+        for media_ref in obj.get_media_list():
+            media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
+            media_type = ""
+            for attribute in media.get_attribute_list():
+                if attribute.get_type().xml_str() == "Media-Type":
+                    media_type = attribute.get_value()
+            media_list.append((media, media_ref, media_type))
