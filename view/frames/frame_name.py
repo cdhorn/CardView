@@ -82,19 +82,17 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         self.add_fact(self.make_label(given_name))
 
         if name.get_call_name():
-            call_name = "{}: {}".format(_("Call Name"), name.get_call_name())
+            call_name = "{} {}".format(_("Call Name:"), name.get_call_name())
             self.add_fact(self.make_label(call_name))
 
         if name.get_nick_name():
-            nick_name = "{}: {}".format(_("Nick Name"), name.get_nick_name())
+            nick_name = "{} {}".format(_("Nick Name:"), name.get_nick_name())
             self.add_fact(self.make_label(nick_name))
 
         origin_type = ""
         for surname in name.get_surname_list():
             if surname.get_origintype():
-                origin_type = glocale.translation.sgettext(
-                    surname.get_origintype().xml_str()
-                )
+                origin_type = str(surname.get_origintype())
             if not origin_type:
                 origin_type = "[{}]".format(_("Missing Origin"))
 
@@ -106,14 +104,16 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             if surname.get_connector():
                 connector = " {}".format(surname.get_connector())
 
-            text = "{}: {}{}{}".format(
-                origin_type, prefix, name.get_surname(), connector
-            )
-            self.add_fact(self.make_label(text))
+            text = "{}{}{}".format(
+                prefix, name.get_surname(), connector
+            ).strip()
+            if text:
+                text = "{}: {}".format(origin_type, text)
+                self.add_fact(self.make_label(text))
 
         if name.get_family_nick_name():
-            nick_name = "{}: {}".format(
-                _("Family Nick Name"), name.get_family_nick_name()
+            nick_name = "{} {}".format(
+                _("Family Nick Name:"), name.get_family_nick_name()
             )
             self.add_fact(self.make_label(nick_name))
 

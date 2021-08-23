@@ -88,8 +88,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
             self.add_fact(self.make_label(url.get_description()))
 
         if url.get_type():
-            text = glocale.translation.sgettext(url.get_type().xml_str())
-            self.add_fact(self.make_label(text))
+            self.add_fact(self.make_label(str(url.get_type())))
 
         self.show_all()
         self.enable_drag()

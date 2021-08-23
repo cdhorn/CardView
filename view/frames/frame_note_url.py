@@ -89,7 +89,7 @@ class NoteUrlGrampsFrame(GrampsFrame):
 
         label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(escape(link)))
         self.title.pack_start(label, False, False, 0)
-        text = "{} {} {}".format(_("Found in"), _("Note"), note.get_gramps_id())
+        text = "{} {} {} {}".format(_("Found"), _("in"), _("note"), note.get_gramps_id())
         note_link = TextLink(
             text,
             "Note",
