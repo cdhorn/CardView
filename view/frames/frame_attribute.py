@@ -92,6 +92,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
 
         self.show_all()
         self.enable_drag()
+        self.enable_drop()
         self.set_css_style()
 
     def switch_attribute_page(self, *_dummy_obj):

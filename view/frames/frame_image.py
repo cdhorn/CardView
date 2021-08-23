@@ -80,6 +80,7 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                     self.add_fact(self.make_label(text))
 
         self.enable_drag()
+        self.enable_drop()
         self.set_css_style()
 
     def build_layout(self):
