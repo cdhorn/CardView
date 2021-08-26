@@ -75,7 +75,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsConfig, GrampsObject
+from .frame_classes import GrampsConfig, GrampsObject, GrampsFrameGrid
 from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
@@ -105,15 +105,11 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate, groptions)
         self.primary = GrampsObject(primary_obj)
-        self.focus = self.primary
-        self.has_reference = False
-        self.secondary = None
-        if secondary_obj:
-            self.secondary = GrampsObject(secondary_obj)
-            if self.secondary.is_reference:
-                self.has_reference = True
-            else:
-                self.focus = self.secondary
+        self.secondary = GrampsObject(secondary_obj)
+        if self.secondary and not self.secondary.is_reference:
+            self.focus = self.secondary
+        else:
+            self.focus = self.primary
         self.dnd_drop_targets = []
         self.css = ""
         self.action_menu = None
@@ -121,13 +117,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.eventbox = Gtk.EventBox()
         self.eventbox.connect("button-press-event", self.route_action)
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.facts_grid = Gtk.Grid(
-            row_spacing=2,
-            column_spacing=6,
-            halign=Gtk.Align.START,
-            hexpand=False,
-        )
-        self.facts_row = 0
+        self.facts_grid = GrampsFrameGrid(grstate, groptions, self.switch_object)
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """
@@ -281,7 +271,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Build the edit option.
         """
-        if self.secondary and not self.has_reference:
+        if self.secondary and not self.secondary.is_reference:
             name = "{} {}".format(_("Edit"), self.secondary.obj_lang.lower())
             return menu_item("gtk-edit", name, self.edit_secondary_object)
         if self.primary.obj_type == "Person":
@@ -893,7 +883,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
         if (
-            self.has_reference
+            self.secondary
+            and self.secondary.is_reference
             and self.ref_frame
             and self.groptions.ref_mode != 2
         ):

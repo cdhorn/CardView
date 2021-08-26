@@ -32,7 +32,6 @@ GrampsFrame base classes
 #
 # ------------------------------------------------------------------------
 import hashlib
-from collections import namedtuple
 from html import escape
 
 
@@ -49,8 +48,10 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Media, MediaRef
+from gramps.gen.display.place import displayer as place_displayer
+from gramps.gen.lib import Media, MediaRef, Span
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.utils import open_file_with_default_application
@@ -62,7 +63,7 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from .frame_const import GRAMPS_OBJECTS, _LEFT_BUTTON
-from .frame_utils import get_config_option, button_activated
+from .frame_utils import TextLink, get_config_option, button_activated
 
 _ = glocale.translation.sgettext
 
@@ -215,6 +216,10 @@ class GrampsObject:
             raise AttributeError
         self.is_reference = "Ref" in self.obj_type
 
+    def __new__(cls, obj):
+        if obj:
+            return super().__new__(cls)
+
     @property
     def obj_hash(self):
         """
@@ -321,6 +326,134 @@ class GrampsConfig:
         if response == Gtk.ResponseType.OK:
             return True
         return False
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsFrameGrid class
+#
+# ------------------------------------------------------------------------
+class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
+    """
+    A simple class to manage a fact grid for a Gramps frame.
+    """
+
+    __slots__ = (
+        "row",
+        "cbrouter",
+    )
+
+    def __init__(self, grstate, groptions, cbrouter):
+        Gtk.Grid.__init__(
+            self,
+            row_spacing=2,
+            column_spacing=6,
+            halign=Gtk.Align.START,
+            hexpand=False,
+        )
+        GrampsConfig.__init__(self, grstate, groptions)
+        self.cbrouter = cbrouter
+        self.row = 0
+
+    def add_fact(self, fact, label=None):
+        """
+        Add a simple fact.
+        """
+        if label:
+            self.attach(label, 0, self.row, 1, 1)
+            self.attach(fact, 1, self.row, 1, 1)
+        else:
+            self.attach(fact, 0, self.row, 2, 1)
+        self.row = self.row + 1
+
+    def add_event(self, event, reference=None, show_age=False):
+        """
+        Add a formatted event.
+        """
+        if not event:
+            return
+
+        if show_age:
+            age = self._fetch_age_text(reference, event)
+        else:
+            age = None
+
+        event_format = self.get_option("event-format")
+
+        description = ""
+        if event_format in [1, 2, 5]:
+            column = 1
+            name = glocale.translation.sgettext(event.type.xml_str())
+            name_label = TextLink(
+                name,
+                "Event",
+                event.get_handle(),
+                self.cbrouter,
+                bold=False,
+                markup=self.markup,
+            )
+            self.attach(name_label, 0, self.row, 1, 1)
+        else:
+            column = 0
+            description = event.type.get_abbreviation(
+                trans_text=glocale.translation.sgettext
+            )
+
+        date = glocale.date_displayer.display(event.date)
+        place = place_displayer.display_event(self.grstate.dbstate.db, event)
+
+        join = ""
+        if date:
+            description = "{} {}".format(description, date).strip()
+            join = " {}".format(_("in"))
+
+        if event_format in [1, 3] and place:
+            description = "{}{} {}".format(description, join, place).strip()
+
+        if age:
+            description = "{} {}".format(description, age)
+
+        date_label = TextLink(
+            description,
+            "Event",
+            event.get_handle(),
+            self.cbrouter,
+            bold=False,
+            markup=self.markup,
+        )
+        if date:
+            self.attach(date_label, column, self.row, 1, 1)
+            self.row = self.row + 1
+        if event_format in [5, 6] and place:
+            if event_format in [6]:
+                text = "{} {}".format(_("in"), place)
+            else:
+                text = place
+            place_label = TextLink(
+                text,
+                "Place",
+                event.place,
+                self.cbrouter,
+                bold=False,
+                markup=self.markup,
+            )
+            self.attach(place_label, column, self.row, 1, 1)
+            self.row = self.row + 1
+
+    def _fetch_age_text(self, reference, event):
+        """
+        Return age label if applicable.
+        """
+        if reference and reference.date and event and event.date:
+            span = Span(reference.date, event.date)
+            if span.is_valid():
+                precision = global_config.get(
+                    "preferences.age-display-precision"
+                )
+                age = str(span.format(precision=precision))
+                if age and age != "unknown":
+                    return age
+        return None
 
 
 # ------------------------------------------------------------------------

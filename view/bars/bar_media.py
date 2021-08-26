@@ -96,7 +96,7 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         self.obj_type = get_gramps_object_type(obj)
         self.total = 0
 
-        frame = Gtk.Frame()
+        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.add(frame)
         window = Gtk.ScrolledWindow(hexpand=True, vexpand=False)
         frame.add(window)

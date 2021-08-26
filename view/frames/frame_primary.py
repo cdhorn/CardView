@@ -91,7 +91,7 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_classes import GrampsImageViewFrame
+from .frame_classes import GrampsFrameGrid, GrampsImageViewFrame
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
     attribute_option_text,
@@ -180,15 +180,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         )
         if "data" in self.groptions.size_groups:
             self.groptions.size_groups["data"].add_widget(self.facts_grid)
-        self.extra_grid = Gtk.Grid(
-            row_spacing=2,
-            column_spacing=6,
-            hexpand=True,
-            halign=Gtk.Align.START,
-        )
+        self.extra_grid = GrampsFrameGrid(grstate, groptions, self.switch_object)
         if "extra" in self.groptions.size_groups:
             self.groptions.size_groups["extra"].add_widget(self.extra_grid)
-        self.extra_row = 0
         self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
         if "metadata" in self.groptions.size_groups:
             self.groptions.size_groups["metadata"].add_widget(self.metadata)
@@ -288,125 +282,16 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.groptions.size_groups["image"].add_widget(frame)
 
     def add_fact(self, fact, label=None, extra=False):
-        """
-        Add a simple fact.
-        """
-        if not extra:
-            if label:
-                self.facts_grid.attach(label, 0, self.facts_row, 1, 1)
-                self.facts_grid.attach(fact, 1, self.facts_row, 1, 1)
-            else:
-                self.facts_grid.attach(fact, 0, self.facts_row, 2, 1)
-            self.facts_row = self.facts_row + 1
+        if extra:
+            self.extra_grid.add_fact(fact, label=label)
         else:
-            if label:
-                self.extra_grid.attach(label, 0, self.extra_row, 1, 1)
-                self.extra_grid.attach(fact, 1, self.extra_row, 1, 1)
-            else:
-                self.extra_grid.attach(fact, 0, self.extra_row, 2, 1)
-            self.extra_row = self.extra_row + 1
+            self.facts_grid.add_fact(fact, label=label)
 
     def add_event(self, event, extra=False, reference=None, show_age=False):
-        """
-        Adds event information in the requested format to the facts section
-        of the object view.
-        """
-        if not event:
-            return
-
-        if not extra:
-            grid = self.facts_grid
-            row = self.facts_row
+        if extra:
+            self.extra_grid.add_event(event, reference=reference, show_age=show_age)
         else:
-            grid = self.extra_grid
-            row = self.extra_row
-
-        if show_age:
-            age = self._fetch_age_text(reference, event)
-        else:
-            age = None
-
-        event_format = self.get_option("event-format")
-
-        description = ""
-        if event_format in [1, 2, 5]:
-            column = 1
-            name = glocale.translation.sgettext(event.type.xml_str())
-            name_label = TextLink(
-                name,
-                "Event",
-                event.get_handle(),
-                self.switch_object,
-                bold=False,
-                markup=self.markup,
-            )
-            grid.attach(name_label, 0, row, 1, 1)
-        else:
-            column = 0
-            description = event.type.get_abbreviation(
-                trans_text=glocale.translation.sgettext
-            )
-
-        date = glocale.date_displayer.display(event.date)
-        place = place_displayer.display_event(self.grstate.dbstate.db, event)
-
-        join = ""
-        if date:
-            description = "{} {}".format(description, date).strip()
-            join = " {}".format(_("in"))
-
-        if event_format in [1, 3] and place:
-            description = "{}{} {}".format(description, join, place).strip()
-
-        if age:
-            description = "{} {}".format(description, age)
-
-        date_label = TextLink(
-            description,
-            "Event",
-            event.get_handle(),
-            self.switch_object,
-            bold=False,
-            markup=self.markup,
-        )
-        if date:
-            grid.attach(date_label, column, row, 1, 1)
-            row = row + 1
-        if event_format in [5, 6] and place:
-            if event_format in [6]:
-                text = "{} {}".format(_("in"), place)
-            else:
-                text = place
-            place_label = TextLink(
-                text,
-                "Place",
-                event.place,
-                self.switch_object,
-                bold=False,
-                markup=self.markup,
-            )
-            grid.attach(place_label, column, row, 1, 1)
-            row = row + 1
-
-        if not extra:
-            self.facts_row = row
-        else:
-            self.extra_row = row
-
-    def _fetch_age_text(self, reference, event):
-        """
-        Return age label if applicable.
-        """
-        if reference and reference.date and event and event.date:
-            span = Span(reference.date, event.date)
-            if span.is_valid():
-                precision = global_config.get(
-                    "preferences.age-display-precision"
-                )
-                age = str(span.format(precision=precision))
-                if age and age != "unknown":
-                    return age
-        return None
+            self.facts_grid.add_event(event, reference=reference, show_age=show_age)
 
     def load_gramps_id(self):
         """

@@ -126,14 +126,7 @@ class SecondaryGrampsFrame(GrampsFrame):
         """
         Add a simple fact.
         """
-        row_number = row or self.facts_row
-        if label:
-            self.facts_grid.attach(label, column, row_number, stop, 1)
-            self.facts_grid.attach(fact, column + 1, row_number, stop, 1)
-        else:
-            self.facts_grid.attach(fact, column, row_number, stop + 1, 1)
-        if row is None:
-            self.facts_row = self.facts_row + 1
+        self.facts_grid.add_fact(fact, label=label)
 
     def build_action_menu(self, _dummy_obj, event):
         """
