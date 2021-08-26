@@ -69,12 +69,23 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsState namedtuple
+# GrampsState class
 #
 # ------------------------------------------------------------------------
-GrampsState = namedtuple(
-    "GrampsState", "dbstate uistate router config page_type"
-)
+class GrampsState:
+    """
+    A simple class to encapsulate the state of the Gramps application.
+    """
+
+    __slots__ = ("dbstate", "uistate", "router", "config", "page_type")
+
+    def __init__(self, dbstate, uistate, router, config, page_type):
+        self.dbstate = dbstate
+        self.uistate = uistate
+        self.router = router
+        self.config = config
+        self.page_type = page_type
+
 
 # ------------------------------------------------------------------------
 #
@@ -184,12 +195,7 @@ class GrampsObject:
 
     def __init__(self, obj):
         self.obj = obj
-        self.obj_edit = None
         self.obj_type = None
-        self.obj_lang = None
-        self.dnd_type = None
-        self.dnd_icon = None
-        self.is_reference = False
 
         for obj_type in GRAMPS_OBJECTS:
             if isinstance(obj, obj_type[0]):
@@ -207,10 +213,9 @@ class GrampsObject:
 
         if not self.obj_type:
             raise AttributeError
+        self.is_reference = "Ref" in self.obj_type
 
-        if self.obj_type and "Ref" in self.obj_type:
-            self.is_reference = True
-
+    @property
     def obj_hash(self):
         """
         Return sha256 hash in digest format.
@@ -330,7 +335,9 @@ class GrampsImageViewFrame(Gtk.Frame):
     """
 
     def __init__(self, grstate, obj, obj_ref=None, size=0, crop=True):
-        Gtk.Frame.__init__(self, expand=False, shadow_type=Gtk.ShadowType.NONE, margin=3)
+        Gtk.Frame.__init__(
+            self, expand=False, shadow_type=Gtk.ShadowType.NONE, margin=3
+        )
         self.grstate = grstate
         self.obj = obj
         thumbnail = None
@@ -339,7 +346,9 @@ class GrampsImageViewFrame(Gtk.Frame):
         elif isinstance(obj, Media):
             thumbnail = self.get_thumbnail(obj, None, size, crop)
         elif obj.get_media_list():
-            thumbnail = self.get_thumbnail(None, obj.get_media_list()[0], size, crop)
+            thumbnail = self.get_thumbnail(
+                None, obj.get_media_list()[0], size, crop
+            )
         if thumbnail:
             eventbox = Gtk.EventBox()
             eventbox.add(thumbnail)
@@ -373,5 +382,7 @@ class GrampsImageViewFrame(Gtk.Frame):
         Open the image in the default picture viewer.
         """
         if button_activated(event, _LEFT_BUTTON):
-            photo_path = media_path_full(self.grstate.dbstate.db, self.obj.get_path())
+            photo_path = media_path_full(
+                self.grstate.dbstate.db, self.obj.get_path()
+            )
             open_file_with_default_application(photo_path, self.grstate.uistate)
