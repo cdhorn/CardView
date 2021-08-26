@@ -92,7 +92,9 @@ from .frame_selectors import get_attribute_types
 from .frame_utils import (
     attribute_option_text,
     get_bookmarks,
+    get_child_icon_indicators,
     menu_item,
+    pack_icon,
     submenu_item,
 )
 
@@ -300,56 +302,54 @@ class PrimaryGrampsFrame(GrampsFrame):
                 event, reference=reference, show_age=show_age
             )
 
-    def load_gramps_id(self):
+    def _add_gramps_id(self, widget):
         """
-        Build the gramps id including bookmark and lock indicators as needed.
+        Add gramps id to widget if needed.
         """
-        list(map(self.gramps_id.remove, self.gramps_id.get_children()))
         if self.grstate.config.get("options.global.enable-gramps-ids"):
             label = Gtk.Label(
                 use_markup=True,
                 label=self.markup.format(escape(self.primary.obj.gramps_id)),
             )
-            self.gramps_id.pack_end(label, False, False, 0)
+            widget.pack_end(label, False, False, 0)
 
+    def _add_privacy_indicator(self, obj, widget):
+        """
+        Add privacy mode indicator to widget if needed.
+        """
+        mode = self.grstate.config.get("options.global.privacy-mode")
+        if mode:
+            image = Gtk.Image()
+            if obj.private:
+                if mode in [1, 3]:
+                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            else:
+                if mode in [2, 3]:
+                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
+            widget.pack_end(image, False, False, 0)
+
+    def load_gramps_id(self):
+        """
+        Build the gramps id including bookmark and lock indicators as needed.
+        """
+        self._add_gramps_id(self.gramps_id)
         if self.grstate.config.get("options.global.enable-bookmarks"):
             for bookmark in get_bookmarks(
                 self.grstate.dbstate.db, self.primary.obj_type
             ).get():
                 if bookmark == self.primary.obj.get_handle():
-                    image = Gtk.Image()
-                    image.set_from_icon_name(
-                        "gramps-bookmark", Gtk.IconSize.BUTTON
-                    )
-                    self.gramps_id.pack_end(image, False, False, 0)
+                    pack_icon(self.gramps_id, "gramps-bookmark")
                     break
-
-        mode = self.grstate.config.get("options.global.privacy-mode")
-        if mode:
-            image = Gtk.Image()
-            if self.primary.obj.private:
-                if mode in [1, 3]:
-                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
-            else:
-                if mode in [2, 3]:
-                    image.set_from_icon_name(
-                        "gramps-unlock", Gtk.IconSize.BUTTON
-                    )
-            self.gramps_id.pack_end(image, False, False, 0)
-        self.gramps_id.show_all()
+        self._add_privacy_indicator(self.primary.obj, self.gramps_id)
 
     def get_ref_label(self):
         """
         Build the label for a reference with lock icon if object marked private.
         """
         hbox = Gtk.HBox()
-        image = Gtk.Image()
-        image.set_from_icon_name("stock_link", Gtk.IconSize.BUTTON)
-        hbox.pack_end(image, False, False, 0)
-        if self.secondary.obj.private:
-            image = Gtk.Image()
-            image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
-            hbox.pack_end(image, False, False, 0)
+        self._add_gramps_id(hbox)
+        pack_icon(hbox, "stock_link")
+        self._add_privacy_indicator(self.secondary.obj, hbox)
         return hbox
 
     def load_tags(self):

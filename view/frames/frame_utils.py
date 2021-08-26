@@ -736,3 +736,50 @@ def get_bookmarks(db, obj_type):
     if obj_type == "Repository":
         return db.get_repo_bookmarks()
     return []
+
+
+def get_child_icon_indicators(obj, ref=False):
+    """
+    Return an icon list representing types of child objects present.
+    """
+    box = Gtk.FlowBox(
+        orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
+    )
+    box.set_min_children_per_line(4)
+    box.set_max_children_per_line(4)
+    if not ref:
+        if hasattr(obj, "person_ref_list"):
+            if hasattr(obj, "address_list") and obj.get_address_list():
+                pack_icon(box, "gramps-address", add=True)
+            if obj.get_person_ref_list():
+                pack_icon(box, "gramps-person", add=True)
+            if hasattr(obj, "parent_family_list") and obj.get_parent_family_handle_list():
+                pack_icon(box, "gramps-family", add=True)
+            if hasattr(obj, "family_list") and obj.get_family_handle_list():
+                pack_icon(box, "gramps-spouse", add=True)
+        elif hasattr(obj, "child_ref_list") and obj.get_child_ref_list():
+            pack_icon(box, "gramps-person", add=True)
+        if hasattr(obj, "media_list") and obj.get_media_list():
+            pack_icon(box, "gramps-media", add=True)
+    if hasattr(obj, "attribute_list") and obj.get_attribute_list():
+        pack_icon(box, "gramps-attribute", add=True)
+    if hasattr(obj, "citation_list") and obj.get_citation_list():
+        pack_icon(box, "gramps-citation", add=True)
+    if hasattr(obj, "note_list") and obj.get_note_list():
+        pack_icon(box, "gramps-notes", add=True)
+    if not ref and hasattr(obj, "urls") and obj.get_url_list():
+        pack_icon(box, "gramps-url", add=True)
+    return box
+
+
+def pack_icon(widget, icon_name, add=False, start=False):
+    """
+    Pack an icon in a widget.
+    """
+    image = Gtk.Image()
+    image.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+    if add:
+        return widget.add(image)
+    if start:
+        return widget.pack_start(image, False, False, 1)
+    return widget.pack_end(image, False, False, 1)
