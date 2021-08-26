@@ -67,6 +67,7 @@ from view.pages.page_citation import CitationProfilePage
 from view.pages.page_child_ref import ChildRefProfilePage
 from view.pages.page_source import SourceProfilePage
 from view.pages.page_repository import RepositoryProfilePage
+from view.pages.page_repository_ref import RepositoryRefProfilePage
 from view.pages.page_person_ref import PersonRefProfilePage
 from view.pages.page_tag import TagProfilePage
 from view.pages.page_address import AddressProfilePage
@@ -148,6 +149,9 @@ class ProfileView(ENavigationView):
         )
         self._add_page(
             RepositoryProfilePage(self.dbstate, self.uistate, self._config)
+        )
+        self._add_page(
+            RepositoryRefProfilePage(self.dbstate, self.uistate, self._config)
         )
         self._add_page(
             MediaProfilePage(self.dbstate, self.uistate, self._config)

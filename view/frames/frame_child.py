@@ -208,7 +208,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                     self.primary.obj_type,
                     self.primary.obj,
                     self.secondary.obj_type,
-                    self.groptions.family_backlink,
+                    self.groptions.backlink,
                 )
             )
             return self.grstate.router(
@@ -286,7 +286,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if not child_ref:
             return
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.family_backlink
+            self.groptions.backlink
         )
         child_ref_list = []
         for ref in family.get_child_ref_list():
@@ -508,7 +508,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Update the privacy indicator for the current object.
         """
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.family_backlink
+            self.groptions.backlink
         )
         if mode:
             text = _("Private")

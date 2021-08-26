@@ -56,7 +56,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_utils import menu_item, submenu_item
 
 _ = glocale.translation.sgettext
 
@@ -72,10 +71,10 @@ class SecondaryGrampsFrame(GrampsFrame):
     view and working with the secondary Gramps object it exposes.
     """
 
-    def __init__(
-        self, grstate, groptions, primary_obj, secondary_obj
-    ):
-        GrampsFrame.__init__(self, grstate, groptions, primary_obj, secondary_obj)
+    def __init__(self, grstate, groptions, primary_obj, secondary_obj):
+        GrampsFrame.__init__(
+            self, grstate, groptions, primary_obj, secondary_obj
+        )
 
         vcontent = Gtk.VBox()
         self.title = Gtk.HBox()
@@ -92,7 +91,9 @@ class SecondaryGrampsFrame(GrampsFrame):
                     image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
             else:
                 if mode in [2, 3]:
-                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
+                    image.set_from_icon_name(
+                        "gramps-unlock", Gtk.IconSize.BUTTON
+                    )
             vlock = Gtk.VBox()
             vlock.pack_start(image, False, False, 0)
             body.pack_start(vlock, False, False, 0)
@@ -122,7 +123,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                 pickle.dumps(returned_data),
             )
 
-    def add_fact(self, fact, label=None, row=None, column=0, stop=1):
+    def add_fact(self, fact, label=None):
         """
         Add a simple fact.
         """

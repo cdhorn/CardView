@@ -350,6 +350,18 @@ CONFIGSETTINGS = (
     ("options.page.repository.layout.note.stacked", False),
     ("options.page.repository.layout.note.hideable", False),
     ######################################################################
+    ## RepoRef Page Options
+    ######################################################################
+    ("options.page.reporef.layout.tabbed", False),
+    ("options.page.reporef.layout.scrolled", False),
+    ("options.page.reporef.layout.groups", "note,url"),
+    ("options.page.reporef.layout.note.visible", True),
+    ("options.page.reporef.layout.note.stacked", False),
+    ("options.page.reporef.layout.note.hideable", False),
+    ("options.page.reporef.layout.url.visible", True),
+    ("options.page.reporef.layout.url.stacked", False),
+    ("options.page.reporef.layout.url.hideable", False),
+    ######################################################################
     ## Note Page Options
     ######################################################################
     ("options.page.note.layout.tabbed", False),

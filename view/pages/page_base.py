@@ -51,8 +51,7 @@ from gramps.gen.utils.callback import Callback
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsState
-from ..frames.frame_const import LABELS
-from .page_utils import create_grid
+from .page_const import LABELS
 from .page_config_global import build_global_grid
 from .page_config_objects import (
     ConfigNotebook,
@@ -80,6 +79,7 @@ from .page_config_timeline import (
     build_person_timeline_grid,
     build_family_timeline_grid,
 )
+from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
 

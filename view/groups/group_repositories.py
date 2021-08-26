@@ -24,6 +24,14 @@ RepositoriesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from copy import copy
+
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -81,10 +89,12 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
                     key=lambda x: x[0][0].get_date_object().get_sort_value()
                 )
 
+            groptions_copy = copy(groptions)
+            groptions_copy.set_backlink(self.obj.get_handle())
             for repository, repo_ref in repository_list:
                 frame = RepositoryGrampsFrame(
                     grstate,
-                    groptions,
+                    groptions_copy,
                     repository,
                     repo_ref,
                 )

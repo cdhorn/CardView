@@ -70,112 +70,6 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsState class
-#
-# ------------------------------------------------------------------------
-class GrampsState:
-    """
-    A simple class to encapsulate the state of the Gramps application.
-    """
-
-    __slots__ = ("dbstate", "uistate", "router", "config", "page_type")
-
-    def __init__(self, dbstate, uistate, router, config, page_type):
-        self.dbstate = dbstate
-        self.uistate = uistate
-        self.router = router
-        self.config = config
-        self.page_type = page_type
-
-
-# ------------------------------------------------------------------------
-#
-# GrampsOptions class
-#
-# ------------------------------------------------------------------------
-class GrampsOptions:
-    """
-    A simple class to encapsulate the options for a Gramps frame or list.
-    """
-
-    __slots__ = (
-        "option_space",
-        "size_groups",
-        "frame_number",
-        "ref_mode",
-        "vertical_orientation",
-        "family_backlink",
-        "relation",
-        "parent",
-        "context",
-    )
-
-    def __init__(self, option_space, size_groups=None, frame_number=0):
-        self.option_space = option_space
-        self.size_groups = size_groups
-        self.frame_number = frame_number
-        self.ref_mode = 2
-        self.vertical_orientation = True
-        self.family_backlink = None
-        self.relation = None
-        self.parent = None
-        self.context = option_space.split(".")[-1]
-
-        if size_groups is None:
-            self.size_groups = {
-                "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            }
-
-    def set_ref_mode(self, value):
-        """
-        Set reference view mode.
-        1 = top, 2 = right, 3 = bottom
-        """
-        self.ref_mode = value
-
-    def set_vertical(self, value):
-        """
-        Set orientation.
-        """
-        self.vertical_orientation = value
-
-    def set_backlink(self, value):
-        """
-        Set family backlink.
-        """
-        self.family_backlink = value
-
-    def set_number(self, value):
-        """
-        Set frame number.
-        """
-        self.frame_number = value
-
-    def set_relation(self, value):
-        """
-        Set the relation.
-        """
-        self.relation = value
-
-    def set_parent(self, value):
-        """
-        Set the relation.
-        """
-        self.parent = value
-
-    def set_context(self, value):
-        """
-        Set the context.
-        """
-        self.context = value
-
-
-# ------------------------------------------------------------------------
-#
 # GrampsObject class
 #
 # ------------------------------------------------------------------------
@@ -228,6 +122,112 @@ class GrampsObject:
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(self.obj.serialize()).encode("utf-8"))
         return sha256_hash.hexdigest()
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsState class
+#
+# ------------------------------------------------------------------------
+class GrampsState:
+    """
+    A simple class to encapsulate the state of the Gramps application.
+    """
+
+    __slots__ = ("dbstate", "uistate", "router", "config", "page_type")
+
+    def __init__(self, dbstate, uistate, router, config, page_type):
+        self.dbstate = dbstate
+        self.uistate = uistate
+        self.router = router
+        self.config = config
+        self.page_type = page_type
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsOptions class
+#
+# ------------------------------------------------------------------------
+class GrampsOptions:
+    """
+    A simple class to encapsulate the options for a Gramps frame or list.
+    """
+
+    __slots__ = (
+        "option_space",
+        "size_groups",
+        "frame_number",
+        "ref_mode",
+        "vertical_orientation",
+        "backlink",
+        "relation",
+        "parent",
+        "context",
+    )
+
+    def __init__(self, option_space, size_groups=None, frame_number=0):
+        self.option_space = option_space
+        self.size_groups = size_groups
+        self.frame_number = frame_number
+        self.ref_mode = 2
+        self.vertical_orientation = True
+        self.backlink = None
+        self.relation = None
+        self.parent = None
+        self.context = option_space.split(".")[-1]
+
+        if size_groups is None:
+            self.size_groups = {
+                "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            }
+
+    def set_ref_mode(self, value):
+        """
+        Set reference view mode.
+        1 = top, 2 = right, 3 = bottom
+        """
+        self.ref_mode = value
+
+    def set_vertical(self, value):
+        """
+        Set orientation.
+        """
+        self.vertical_orientation = value
+
+    def set_backlink(self, value):
+        """
+        Set object backlink reference.
+        """
+        self.backlink = value
+
+    def set_number(self, value):
+        """
+        Set frame number.
+        """
+        self.frame_number = value
+
+    def set_relation(self, value):
+        """
+        Set the relation.
+        """
+        self.relation = value
+
+    def set_parent(self, value):
+        """
+        Set the relation.
+        """
+        self.parent = value
+
+    def set_context(self, value):
+        """
+        Set the context.
+        """
+        self.context = value
 
 
 # ------------------------------------------------------------------------

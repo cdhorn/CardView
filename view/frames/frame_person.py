@@ -97,7 +97,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         )
         self.person = person
         self.relation = groptions.relation
-        self.family_backlink = groptions.family_backlink
+        self.backlink = groptions.backlink
         self.context = groptions.option_space.split(".")[2]
 
         display_name = name_displayer.display(person)
@@ -591,11 +591,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Remove a parent from a family.
         """
-        if not self.family_backlink:
+        if not self.backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.family_backlink
+            self.backlink
         )
         father_handle = family.get_father_handle()
         mother_handle = family.get_mother_handle()
@@ -625,7 +625,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             "{}\n\nAre you sure you want to continue?".format(text),
         ):
             self.grstate.dbstate.db.remove_parent_from_family(
-                self.primary.obj.get_handle(), self.groptions.family_backlink
+                self.primary.obj.get_handle(), self.groptions.backlink
             )
 
     def _remove_child_from_family_option(self):
@@ -642,11 +642,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Remove a child from the family.
         """
-        if not self.groptions.family_backlink:
+        if not self.groptions.backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
         family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.family_backlink
+            self.groptions.backlink
         )
         family_text = family_name(family, self.grstate.dbstate.db)
         if self.confirm_action(
@@ -657,5 +657,5 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             ),
         ):
             self.grstate.dbstate.db.remove_child_from_family(
-                self.primary.obj.get_handle(), self.family_backlink
+                self.primary.obj.get_handle(), self.backlink
             )

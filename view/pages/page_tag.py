@@ -42,10 +42,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsState, GrampsOptions
-from ..frames.frame_const import LABELS
 from ..frames.frame_tag import TagGrampsFrame
 from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
+from .page_const import LABELS
 
 _ = glocale.translation.sgettext
 

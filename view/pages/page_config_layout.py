@@ -45,8 +45,8 @@ from gramps.gui.managedwindow import ManagedWindow
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_const import LABELS, PAGES
 from ..frames.frame_utils import ConfigReset
+from .page_const import LABELS, PAGES
 from .page_utils import create_grid
 
 _ = glocale.translation.sgettext

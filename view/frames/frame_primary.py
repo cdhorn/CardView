@@ -49,11 +49,9 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.display.place import displayer as place_displayer
 from gramps.gui.editors import (
     EditAttribute,
     EditChildRef,
@@ -70,11 +68,9 @@ from gramps.gen.lib import (
     EventRef,
     EventRoleType,
     EventType,
-    Family,
     Name,
     Person,
     SrcAttribute,
-    Span,
     Surname,
     Tag,
     Url,
@@ -98,7 +94,6 @@ from .frame_utils import (
     get_bookmarks,
     menu_item,
     submenu_item,
-    TextLink,
 )
 
 _ = glocale.translation.sgettext
@@ -180,7 +175,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         )
         if "data" in self.groptions.size_groups:
             self.groptions.size_groups["data"].add_widget(self.facts_grid)
-        self.extra_grid = GrampsFrameGrid(grstate, groptions, self.switch_object)
+        self.extra_grid = GrampsFrameGrid(
+            grstate, groptions, self.switch_object
+        )
         if "extra" in self.groptions.size_groups:
             self.groptions.size_groups["extra"].add_widget(self.extra_grid)
         self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
@@ -282,16 +279,26 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.groptions.size_groups["image"].add_widget(frame)
 
     def add_fact(self, fact, label=None, extra=False):
+        """
+        Add a fact.
+        """
         if extra:
             self.extra_grid.add_fact(fact, label=label)
         else:
             self.facts_grid.add_fact(fact, label=label)
 
     def add_event(self, event, extra=False, reference=None, show_age=False):
+        """
+        Add an event.
+        """
         if extra:
-            self.extra_grid.add_event(event, reference=reference, show_age=show_age)
+            self.extra_grid.add_event(
+                event, reference=reference, show_age=show_age
+            )
         else:
-            self.facts_grid.add_event(event, reference=reference, show_age=show_age)
+            self.facts_grid.add_event(
+                event, reference=reference, show_age=show_age
+            )
 
     def load_gramps_id(self):
         """
@@ -325,7 +332,9 @@ class PrimaryGrampsFrame(GrampsFrame):
                     image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
             else:
                 if mode in [2, 3]:
-                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
+                    image.set_from_icon_name(
+                        "gramps-unlock", Gtk.IconSize.BUTTON
+                    )
             self.gramps_id.pack_end(image, False, False, 0)
         self.gramps_id.show_all()
 
@@ -389,7 +398,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.tags.add(eventbox)
         self.tags.show_all()
 
-    def tag_click(self, obj, event, handle):
+    def tag_click(self, _dummy_obj, _dummy_event, handle):
         """
         Request page for tag.
         """
@@ -855,7 +864,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu option for adding a new event for a family.
         """
-        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.backlink:
             return menu_item(
                 "gramps-event",
                 _("Add a new family event"),
@@ -874,7 +883,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.primary.obj_type == "Family":
             event_ref.ref = self.primary.obj.handle
         else:
-            event_ref.ref = self.groptions.family_backlink
+            event_ref.ref = self.groptions.backlink
         try:
             EditEventRef(
                 self.grstate.dbstate,
@@ -895,7 +904,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             family = self.grstate.dbstate.db.get_family_from_handle(
-                self.groptions.family_backlink
+                self.groptions.backlink
             )
         event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
         action = "{} {} {} {} {} {}".format(
@@ -914,7 +923,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu item for adding a new child to the family.
         """
-        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.backlink:
             return menu_item(
                 "gramps-person",
                 _("Add a new child to the family"),
@@ -930,7 +939,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             handle = self.primary.obj.get_handle()
             family = self.primary.obj
         else:
-            handle = self.groptions.family_backlink
+            handle = self.groptions.backlink
             family = self.grstate.dbstate.db.get_family_from_handle(handle)
         callback = lambda x: self.adding_child_to_family(x, handle)
         child = Person()
@@ -1003,7 +1012,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Build menu item for adding existing child to the family.
         """
-        if self.primary.obj_type == "Family" or self.groptions.family_backlink:
+        if self.primary.obj_type == "Family" or self.groptions.backlink:
             return menu_item(
                 "gramps-person",
                 _("Add an existing child to the family"),
@@ -1020,7 +1029,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             family_handle = self.primary.obj.get_handle()
             family = self.primary.obj
         else:
-            family_handle = self.groptions.family_backlink
+            family_handle = self.groptions.backlink
             family = self.grstate.dbstate.db.get_family_from_handle(
                 family_handle
             )

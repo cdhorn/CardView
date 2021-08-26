@@ -83,3 +83,46 @@ TIMELINE_COLOR_MODES = [
     (2, _("Event category scheme")),
     (3, _("Evidence confidence scheme")),
 ]
+
+# For layout editor
+LABELS = {
+    "address": _("Addresses"),
+    "association": _("Associations"),
+    "attribute": _("Attributes"),
+    "child": _("Children"),
+    "citation": _("Citations"),
+    "event": _("Events"),
+    "family": _("Families"),
+    "media": _("Media"),
+    "name": _("Names"),
+    "note": _("Notes"),
+    "parent": _("Parents"),
+    "people": _("People"),
+    "person": _("People"),
+    "place": _("Places"),
+    "reference": _("References"),
+    "repository": _("Repositories"),
+    "spouse": _("Spouses"),
+    "timeline": _("Timeline"),
+    "source": _("Sources"),
+    "url": _("Urls"),
+}
+
+# For layout editor
+PAGES = [
+    ("Address", _("Address")),
+    ("ChildRef", _("ChildRef")),
+    ("Citation", _("Citation")),
+    ("Event", _("Event")),
+    ("Family", _("Family")),
+    ("Media", _("Media")),
+    ("Name", _("Name")),
+    ("Note", _("Note")),
+    ("Person", _("Person")),
+    ("PersonRef", _("PersonRef")),
+    ("Place", _("Place")),
+    ("Repository", _("Repository")),
+    ("RepoRef", _("RepoRef")),
+    ("Source", _("Source")),
+    ("Tag", _("Tag")),
+]

@@ -81,7 +81,6 @@ from .frame_selectors import get_attribute_types
 from .frame_utils import (
     button_activated,
     citation_option_text,
-    get_gramps_object_type,
     menu_item,
     note_option_text,
     submenu_item,
@@ -117,7 +116,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.eventbox = Gtk.EventBox()
         self.eventbox.connect("button-press-event", self.route_action)
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.facts_grid = GrampsFrameGrid(grstate, groptions, self.switch_object)
+        self.facts_grid = GrampsFrameGrid(
+            grstate, groptions, self.switch_object
+        )
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """
