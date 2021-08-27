@@ -87,7 +87,11 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_classes import GrampsFrameGrid, GrampsImageViewFrame
+from .frame_classes import (
+    GrampsFrameGrid,
+    GrampsFrameTags,
+    GrampsImageViewFrame,
+)
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
     attribute_option_text,
@@ -172,9 +176,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         self.age = None
         self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
         self.gramps_id = Gtk.HBox(hexpand=True, halign=Gtk.Align.END)
-        self.tags = Gtk.FlowBox(
-            orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
-        )
+        self.tags = GrampsFrameTags(grstate, groptions)
         if "data" in self.groptions.size_groups:
             self.groptions.size_groups["data"].add_widget(self.facts_grid)
         self.extra_grid = GrampsFrameGrid(
@@ -213,7 +215,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.metadata.pack_start(
                 self.make_label(value, left=False), False, False, 0
             )
-        self.load_tags()
+        self.tags.load(self.primary.obj, self.primary.obj_type)
 
     def refresh_layout(self):
         """
@@ -362,70 +364,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         pack_icon(hbox, "stock_link")
         self._add_privacy_indicator(self.secondary.obj, hbox)
         return hbox
-
-    def load_tags(self):
-        """
-        Build a flowbox with the tags for the object in the requested format.
-        """
-        list(map(self.tags.remove, self.tags.get_children()))
-        tag_mode = self.get_option("tag-format")
-        if not tag_mode:
-            return
-        tag_width = self.get_option("tag-width")
-        self.tags.set_min_children_per_line(tag_width)
-        self.tags.set_max_children_per_line(tag_width)
-        tags = []
-        for handle in self.primary.obj.get_tag_list():
-            tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
-            tags.append(tag)
-        if self.grstate.config.get("options.global.sort-tags-by-name"):
-            tags.sort(key=lambda x: x.name)
-        else:
-            tags.sort(key=lambda x: x.priority)
-        for tag in tags:
-            if tag_mode == 1:
-                tag_view = Gtk.Image()
-                tag_view.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
-                tag_view.set_tooltip_text(tag.name)
-                css = ".image {{ margin: 0px; padding: 0px; background-image: none; background-color: {}; }}".format(
-                    tag.color[:7]
-                )
-                css_class = "image"
-            else:
-                tag_view = Gtk.Label(label=tag.name)
-                if tag_mode == 2:
-                    css = ".label { margin: 0px; padding: 0px; font-size: x-small; }"
-                else:
-                    css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; background-color: {}; }}".format(
-                        tag.color[:7]
-                    )
-                css_class = "label"
-            css = css.encode("utf-8")
-            provider = Gtk.CssProvider()
-            provider.load_from_data(css)
-            context = tag_view.get_style_context()
-            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-            context.add_class(css_class)
-            eventbox = Gtk.EventBox()
-            if tag_mode == 2:
-                frame = Gtk.Frame()
-                frame.add(tag_view)
-                eventbox.add(frame)
-            else:
-                eventbox.add(tag_view)
-            eventbox.connect("button-press-event", self.tag_click, tag.handle)
-            self.tags.add(eventbox)
-        self.tags.show_all()
-
-    def tag_click(self, _dummy_obj, _dummy_event, handle):
-        """
-        Request page for tag.
-        """
-        tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
-        data = pickle.dumps(
-            (self.primary.obj_type, self.primary.obj, "Tag", tag.handle)
-        )
-        return self.grstate.router("context-changed", ("Tag", data))
 
     def get_metadata_attributes(self):
         """

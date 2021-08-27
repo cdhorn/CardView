@@ -155,7 +155,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             image_mode = self.get_option("options.active.family.image-mode")
         else:
             image_mode = self.get_option("options.group.family.image-mode")
-        if image_mode and image_mode in [3, 4]:
+        if image_mode in [3, 4]:
             data_content.pack_start(
                 self.image, expand=False, fill=False, padding=0
             )
@@ -173,7 +173,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             self.metadata, expand=True, fill=True, padding=0
         )
         if image_mode in [1, 2]:
-            data_content.pack_start(
+            data_content.pack_end(
                 self.image, expand=False, fill=False, padding=0
             )
 

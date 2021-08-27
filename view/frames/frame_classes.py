@@ -32,6 +32,7 @@ GrampsFrame base classes
 #
 # ------------------------------------------------------------------------
 import hashlib
+import pickle
 from html import escape
 
 
@@ -457,6 +458,92 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
                 if age and age != "unknown":
                     return age
         return None
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsFrameTags class
+#
+# ------------------------------------------------------------------------
+class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
+    """
+    A simple class for managing display of the tags for a Gramps object.
+    """
+
+    def __init__(self, grstate, groptions):
+        Gtk.FlowBox.__init__(
+            self, orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
+        )
+        GrampsConfig.__init__(self, grstate, groptions)
+        self.obj = None
+        self.obj_type = None
+
+    def load(self, obj, obj_type):
+        """
+        Load tags for an object.
+        """
+        self.obj = obj
+        self.obj_type = obj_type
+
+        tag_mode = self.get_option("tag-format")
+        if not tag_mode:
+            return
+        tag_width = self.get_option("tag-width")
+        self.set_min_children_per_line(tag_width)
+        self.set_max_children_per_line(tag_width)
+
+        tags = []
+        for handle in obj.get_tag_list():
+            tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+            tags.append(tag)
+
+        if self.grstate.config.get("options.global.sort-tags-by-name"):
+            tags.sort(key=lambda x: x.name)
+        else:
+            tags.sort(key=lambda x: x.priority)
+
+        for tag in tags:
+            if tag_mode == 1:
+                tag_view = Gtk.Image()
+                tag_view.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
+                tag_view.set_tooltip_text(tag.name)
+                css = ".image {{ margin: 0px; padding: 0px; background-image: none; background-color: {}; }}".format(
+                    tag.color[:7]
+                )
+                css_class = "image"
+            else:
+                tag_view = Gtk.Label(label=tag.name)
+                if tag_mode == 2:
+                    css = ".label { margin: 0px; padding: 0px; font-size: x-small; }"
+                else:
+                    css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; background-color: {}; }}".format(
+                        tag.color[:7]
+                    )
+                css_class = "label"
+            css = css.encode("utf-8")
+            provider = Gtk.CssProvider()
+            provider.load_from_data(css)
+            context = tag_view.get_style_context()
+            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            context.add_class(css_class)
+            eventbox = Gtk.EventBox()
+            if tag_mode == 2:
+                frame = Gtk.Frame()
+                frame.add(tag_view)
+                eventbox.add(frame)
+            else:
+                eventbox.add(tag_view)
+            eventbox.connect("button-press-event", self.tag_click, tag.handle)
+            self.add(eventbox)
+        self.show_all()
+
+    def tag_click(self, _dummy_obj, _dummy_event, handle):
+        """
+        Request page for tag.
+        """
+        tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+        data = pickle.dumps((self.obj_type, self.obj, "Tag", tag.handle))
+        return self.grstate.router("context-changed", ("Tag", data))
 
 
 # ------------------------------------------------------------------------
