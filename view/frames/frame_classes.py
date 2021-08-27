@@ -256,7 +256,10 @@ class GrampsConfig:
         dbid = None
         if keyed:
             dbid = self.grstate.dbstate.db.get_dbid()
-        option = "{}.{}".format(self.groptions.option_space, key)
+        if key[:8] == "options.":
+            option = key
+        else:
+            option = "{}.{}".format(self.groptions.option_space, key)
         try:
             return get_config_option(
                 self.grstate.config, option, full=full, dbid=dbid
@@ -438,7 +441,7 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
                 markup=self.markup,
             )
             self.attach(place_label, column, self.row, 1, 1)
-            self.row = self.row + 1
+        self.row = self.row + 1
 
     def _fetch_age_text(self, reference, event):
         """

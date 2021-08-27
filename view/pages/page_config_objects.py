@@ -54,7 +54,7 @@ from .page_const import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
     MEDIA_IMAGE_DISPLAY_MODES,
-    SEX_DISPLAY_MODES,    
+    SEX_DISPLAY_MODES,
 )
 from .page_utils import (
     create_grid,
@@ -167,6 +167,76 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
     )
 
 
+def build_family_grid(configdialog, grstate, space, extra=False):
+    """
+    Builds a family options section for the configuration dialog
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Event display format"),
+        1,
+        "{}.family.event-format".format(space),
+        EVENT_DISPLAY_MODES,
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show years married at divorce and if selected annulment"),
+        1,
+        "{}.family.show-years".format(space),
+        start=3,
+    )
+    configdialog.add_combo(
+        grid,
+        _("Image display mode"),
+        2,
+        "{}.family.image-mode".format(space),
+        IMAGE_DISPLAY_MODES,
+    )
+    if "group" in space:
+        configdialog.add_checkbox(
+            grid,
+            _("When on person page only show the spouse in family groups"),
+            2,
+            "{}.family.show-spouse-only".format(space),
+            start=3,
+        )
+    config_tag_fields(configdialog, "{}.family".format(space), grid, 4)
+    configdialog.add_checkbox(
+        grid,
+        _("Matrilineal mode, display female partner first"),
+        6,
+        "{}.family.show-matrilineal".format(space),
+        start=1,
+    )
+    configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
+    config_facts_fields(configdialog, grstate, space, "family", grid, 9)
+    if "active" in space:
+        configdialog.add_text(
+            grid, _("Extra Fact Display Fields"), 8, start=3, bold=True
+        )
+        config_facts_fields(
+            configdialog,
+            grstate,
+            space,
+            "family",
+            grid,
+            9,
+            start_col=3,
+            extra=True,
+        )
+    configdialog.add_text(
+        grid, _("Metadata Display Fields"), 8, start=5, bold=True
+    )
+    config_metadata_attributes(
+        grstate, "{}.family".format(space), grid, 9, start_col=5
+    )
+    return add_config_reset(
+        configdialog, grstate, "{}.family".format(space), grid
+    )
+
+
 def build_media_grid(configdialog, grstate, space, group=True):
     """
     Builds a media options section for the configuration dialog
@@ -186,14 +256,18 @@ def build_media_grid(configdialog, grstate, space, group=True):
             _("Group media by type"),
             2,
             "{}.media.group-by-type".format(space),
-            tooltip=_("Indicates whether to group like media, based on Media-Type."),
+            tooltip=_(
+                "Indicates whether to group like media, based on Media-Type."
+            ),
         )
         configdialog.add_checkbox(
             grid,
             _("Filter out non-photos"),
             3,
             "{}.media.filter-non-photos".format(space),
-            tooltip=_("Indicates only photos should be displayed, based on Media-Type.")
+            tooltip=_(
+                "Indicates only photos should be displayed, based on Media-Type."
+            ),
         )
     configdialog.add_text(grid, _("Object Display Options"), 10, bold=True)
     configdialog.add_combo(
@@ -214,9 +288,7 @@ def build_media_grid(configdialog, grstate, space, group=True):
             "Enabling this option will show the media date if it is available."
         ),
     )
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 20, bold=True
-    )
+    configdialog.add_text(grid, _("Metadata Display Fields"), 20, bold=True)
     config_metadata_attributes(
         grstate,
         "{}.media".format(space),
@@ -507,54 +579,6 @@ def build_event_grid(configdialog, grstate, space):
         start_col=1,
         number=4,
         obj_selector_type="Event",
-    )
-    return add_config_reset(
-        configdialog, grstate, "{}.event".format(space), grid
-    )
-
-
-def build_family_grid(configdialog, grstate, space):
-    """
-    Builds family options section for the configuration dialog.
-    """
-    grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    configdialog.add_combo(
-        grid,
-        _("Event display format"),
-        1,
-        "{}.family.event-format".format(space),
-        EVENT_DISPLAY_MODES,
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Show age at death and if selected burial"),
-        1,
-        "{}.family.show-age".format(space),
-        start=3,
-    )
-    configdialog.add_combo(
-        grid,
-        _("Sex display mode"),
-        2,
-        "{}.family.sex-mode".format(space),
-        SEX_DISPLAY_MODES,
-    )
-    configdialog.add_combo(
-        grid,
-        _("Image display mode"),
-        3,
-        "{}.family.image-mode".format(space),
-        IMAGE_DISPLAY_MODES,
-    )
-    config_tag_fields(configdialog, "{}.family".format(space), grid, 4)
-    configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
-    config_facts_fields(configdialog, grstate, space, "family", grid, 9)
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 8, start=5, bold=True
-    )
-    config_metadata_attributes(
-        grstate, "{}.family".format(space), grid, 9, start_col=5
     )
     return add_config_reset(
         configdialog, grstate, "{}.event".format(space), grid

@@ -106,6 +106,10 @@ _BIRTH_EQUIVALENTS = ["Baptism", "Christening"]
 
 _DEATH_EQUIVALENTS = ["Burial", "Cremation", "Probate"]
 
+_MARRIAGE_EQUIVALENTS = ["Marriage License", "Marriage Banns"]
+
+_DIVORCE_EQUIVALENTS = ["Annulment"]
+
 _CONFIDENCE = {
     Citation.CONF_VERY_LOW: _("Very Low"),
     Citation.CONF_LOW: _("Low"),
@@ -155,14 +159,7 @@ GRAMPS_OBJECTS = [
         DdTargets.CHILDREF,
         "stock_link",
     ),
-    (
-        Event,
-        EditEvent,
-        "Event",
-        _("Event"),
-        DdTargets.EVENT,
-        "gramps-event"
-    ),
+    (Event, EditEvent, "Event", _("Event"), DdTargets.EVENT, "gramps-event"),
     (
         Citation,
         EditCitation,
@@ -179,14 +176,7 @@ GRAMPS_OBJECTS = [
         DdTargets.SOURCE_LINK,
         "gramps-source",
     ),
-    (
-        Media,
-        EditMedia,
-        "Media",
-        _("Media"),
-        DdTargets.MEDIAOBJ,
-        "gramps-media"
-    ),
+    (Media, EditMedia, "Media", _("Media"), DdTargets.MEDIAOBJ, "gramps-media"),
     (
         MediaRef,
         EditMediaRef,
@@ -195,14 +185,7 @@ GRAMPS_OBJECTS = [
         DdTargets.MEDIAREF,
         "stock_link",
     ),
-    (
-        Note,
-        EditNote,
-        "Note",
-        _("Note"),
-        DdTargets.NOTE_LINK,
-        "gramps-notes"
-    ),
+    (Note, EditNote, "Note", _("Note"), DdTargets.NOTE_LINK, "gramps-notes"),
     (
         Family,
         EditFamily,
@@ -227,14 +210,7 @@ GRAMPS_OBJECTS = [
         DdTargets.SRCATTRIBUTE,
         "gramps-attribute",
     ),
-    (
-        Name,
-        EditName,
-        "Name",
-        _("Name"),
-        DdTargets.NAME,
-        "gramps-person"
-    ),
+    (Name, EditName, "Name", _("Name"), DdTargets.NAME, "gramps-person"),
     (
         Url,
         EditUrl,

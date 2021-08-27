@@ -75,6 +75,7 @@ TAG_DISPLAY_MODES = [
     (0, _("Disabled")),
     (1, _("Show icons")),
     (2, _("Show tag names")),
+    (3, _("Show tag names with color")),
 ]
 
 TIMELINE_COLOR_MODES = [

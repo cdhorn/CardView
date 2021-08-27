@@ -196,7 +196,16 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Load standard portions of layout.
         """
-        image_mode = self.get_option("image-mode")
+        if (
+            "spouse" in self.groptions.option_space
+            or "parent" in self.groptions.option_space
+        ):
+            if "active" in self.groptions.option_space:
+                image_mode = self.get_option("options.group.family.image-mode")
+            else:
+                image_mode = self.get_option("options.group.family.image-mode")
+        else:
+            image_mode = self.get_option("image-mode")
         if image_mode and "media" not in self.groptions.option_space:
             self.load_image(image_mode)
         self.load_gramps_id()
@@ -268,7 +277,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Load primary image for the object if found.
         """
-        large_size = image_mode in [2, 4]
+        large_size = int(image_mode in [2, 4])
         frame = GrampsImageViewFrame(
             self.grstate,
             self.primary.obj,
@@ -325,7 +334,9 @@ class PrimaryGrampsFrame(GrampsFrame):
                     image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
             else:
                 if mode in [2, 3]:
-                    image.set_from_icon_name("gramps-unlock", Gtk.IconSize.BUTTON)
+                    image.set_from_icon_name(
+                        "gramps-unlock", Gtk.IconSize.BUTTON
+                    )
             widget.pack_end(image, False, False, 0)
 
     def load_gramps_id(self):
@@ -382,9 +393,12 @@ class PrimaryGrampsFrame(GrampsFrame):
                 css_class = "image"
             else:
                 tag_view = Gtk.Label(label=tag.name)
-                css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; color: black; background-color: {}; }}".format(
-                    tag.color[:7]
-                )
+                if tag_mode == 2:
+                    css = ".label { margin: 0px; padding: 0px; font-size: x-small; }"
+                else:
+                    css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; background-color: {}; }}".format(
+                        tag.color[:7]
+                    )
                 css_class = "label"
             css = css.encode("utf-8")
             provider = Gtk.CssProvider()
@@ -393,7 +407,12 @@ class PrimaryGrampsFrame(GrampsFrame):
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class(css_class)
             eventbox = Gtk.EventBox()
-            eventbox.add(tag_view)
+            if tag_mode == 2:
+                frame = Gtk.Frame()
+                frame.add(tag_view)
+                eventbox.add(frame)
+            else:
+                eventbox.add(tag_view)
             eventbox.connect("button-press-event", self.tag_click, tag.handle)
             self.tags.add(eventbox)
         self.tags.show_all()

@@ -26,68 +26,66 @@ CONFIGSETTINGS = (
     # Active State
     ######################################################################
     ("options.active.last_object", "None"),
-
     ######################################################################
     # Additional Color Schemes
     #
-    ######################################################################    
+    ######################################################################
     ## Confidence Color Scheme
-    ######################################################################    
-    ('options.colors.confidence.very-high', ["#99c1f1","#304918"]),
-    ('options.colors.confidence.high', ["#8ff0a4","#454545"]),
-    ('options.colors.confidence.normal', ["#f9f06b","#454545"]),
-    ('options.colors.confidence.low', ["#ffbe6f","#454545"]),
-    ('options.colors.confidence.very-low', ["#f66161","#454545"]),
-    ('options.colors.confidence.border-very-high', ["#1a5fb4","#000000"]),
-    ('options.colors.confidence.border-high', ["#26a269","#000000"]),
-    ('options.colors.confidence.border-normal', ["#e5a50a","#000000"]),
-    ('options.colors.confidence.border-low', ["#c64600","#000000"]),
-    ('options.colors.confidence.border-very-low', ["#a51d2d","#000000"]),
-    ######################################################################    
+    ######################################################################
+    ("options.colors.confidence.very-high", ["#99c1f1", "#304918"]),
+    ("options.colors.confidence.high", ["#8ff0a4", "#454545"]),
+    ("options.colors.confidence.normal", ["#f9f06b", "#454545"]),
+    ("options.colors.confidence.low", ["#ffbe6f", "#454545"]),
+    ("options.colors.confidence.very-low", ["#f66161", "#454545"]),
+    ("options.colors.confidence.border-very-high", ["#1a5fb4", "#000000"]),
+    ("options.colors.confidence.border-high", ["#26a269", "#000000"]),
+    ("options.colors.confidence.border-normal", ["#e5a50a", "#000000"]),
+    ("options.colors.confidence.border-low", ["#c64600", "#000000"]),
+    ("options.colors.confidence.border-very-low", ["#a51d2d", "#000000"]),
+    ######################################################################
     ## Relationship Color Scheme
-    ######################################################################    
-    ('options.colors.relations.active', ["#bbe68e","#304918"]),
-    ('options.colors.relations.spouse', ["#eeeeee","#454545"]),
-    ('options.colors.relations.father', ["#eeeeee","#454545"]),
-    ('options.colors.relations.mother', ["#eeeeee","#454545"]),
-    ('options.colors.relations.brother', ["#eeeeee","#454545"]),
-    ('options.colors.relations.sister', ["#eeeeee","#454545"]),
-    ('options.colors.relations.son', ["#eeeeee","#454545"]),
-    ('options.colors.relations.daughter', ["#eeeeee","#454545"]),
-    ('options.colors.relations.none', ["#eeeeee","#454545"]),
-    ('options.colors.relations.border-active', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-spouse', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-father', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-mother', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-brother', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-sister', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-son', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-daughter', ["#cccccc","#000000"]),
-    ('options.colors.relations.border-none', ["#cccccc","#000000"]),
-    ######################################################################    
+    ######################################################################
+    ("options.colors.relations.active", ["#bbe68e", "#304918"]),
+    ("options.colors.relations.spouse", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.father", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.mother", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.brother", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.sister", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.son", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.daughter", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.none", ["#eeeeee", "#454545"]),
+    ("options.colors.relations.border-active", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-spouse", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-father", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-mother", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-brother", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-sister", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-son", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-daughter", ["#cccccc", "#000000"]),
+    ("options.colors.relations.border-none", ["#cccccc", "#000000"]),
+    ######################################################################
     ## Event Category Color Scheme
-    ######################################################################    
-    ('options.colors.events.vital', ["#bbe68e","#304918"]),
-    ('options.colors.events.family', ["#eeeeee","#454545"]),
-    ('options.colors.events.religious', ["#eeeeee","#454545"]),
-    ('options.colors.events.vocational', ["#eeeeee","#454545"]),
-    ('options.colors.events.academic', ["#eeeeee","#454545"]),
-    ('options.colors.events.travel', ["#eeeeee","#454545"]),
-    ('options.colors.events.legal', ["#eeeeee","#454545"]),
-    ('options.colors.events.residence', ["#eeeeee","#454545"]),
-    ('options.colors.events.other', ["#eeeeee","#454545"]),
-    ('options.colors.events.custom', ["#eeeeee","#454545"]),
-    ('options.colors.events.border-vital', ["#cccccc","#000000"]),
-    ('options.colors.events.border-family', ["#cccccc","#000000"]),
-    ('options.colors.events.border-religious', ["#cccccc","#000000"]),
-    ('options.colors.events.border-vocational', ["#cccccc","#000000"]),
-    ('options.colors.events.border-academic', ["#cccccc","#000000"]),
-    ('options.colors.events.border-travel', ["#cccccc","#000000"]),
-    ('options.colors.events.border-legal', ["#cccccc","#000000"]),
-    ('options.colors.events.border-residence', ["#cccccc","#000000"]),
-    ('options.colors.events.border-other', ["#cccccc","#000000"]),
-    ('options.colors.events.border-custom', ["#cccccc","#000000"]),
-
+    ######################################################################
+    ("options.colors.events.vital", ["#bbe68e", "#304918"]),
+    ("options.colors.events.family", ["#eeeeee", "#454545"]),
+    ("options.colors.events.religious", ["#eeeeee", "#454545"]),
+    ("options.colors.events.vocational", ["#eeeeee", "#454545"]),
+    ("options.colors.events.academic", ["#eeeeee", "#454545"]),
+    ("options.colors.events.travel", ["#eeeeee", "#454545"]),
+    ("options.colors.events.legal", ["#eeeeee", "#454545"]),
+    ("options.colors.events.residence", ["#eeeeee", "#454545"]),
+    ("options.colors.events.other", ["#eeeeee", "#454545"]),
+    ("options.colors.events.custom", ["#eeeeee", "#454545"]),
+    ("options.colors.events.border-vital", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-family", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-religious", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-vocational", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-academic", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-travel", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-legal", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-residence", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-other", ["#cccccc", "#000000"]),
+    ("options.colors.events.border-custom", ["#cccccc", "#000000"]),
     ######################################################################
     # Global Options
     ######################################################################
@@ -111,13 +109,12 @@ CONFIGSETTINGS = (
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
-
     ######################################################################
     # Page Layout Options
     #
     ######################################################################
     ## Name Page Options
-    ######################################################################    
+    ######################################################################
     ("options.page.name.layout.tabbed", False),
     ("options.page.name.layout.scrolled", False),
     ("options.page.name.layout.groups", "citation,note,url"),
@@ -132,7 +129,7 @@ CONFIGSETTINGS = (
     ("options.page.name.layout.url.hideable", False),
     ######################################################################
     ## Attribute Page Options
-    ######################################################################    
+    ######################################################################
     ("options.page.attribute.layout.tabbed", False),
     ("options.page.attribute.layout.scrolled", False),
     ("options.page.attribute.layout.groups", "citation,note,url"),
@@ -147,7 +144,7 @@ CONFIGSETTINGS = (
     ("options.page.attribute.layout.url.hideable", False),
     ######################################################################
     ## Address Page Options
-    ######################################################################    
+    ######################################################################
     ("options.page.address.layout.tabbed", False),
     ("options.page.address.layout.scrolled", False),
     ("options.page.address.layout.groups", "citation,note,url"),
@@ -195,7 +192,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.person.layout.tabbed", False),
     ("options.page.person.layout.scrolled", False),
-    ("options.page.person.layout.groups", "parent,timeline,spouse,name,attribute,association,citation,address,url,note,media"),
+    (
+        "options.page.person.layout.groups",
+        "parent,timeline,spouse,name,attribute,association,citation,address,url,note,media",
+    ),
     ("options.page.person.layout.parent.visible", True),
     ("options.page.person.layout.parent.stacked", False),
     ("options.page.person.layout.parent.hideable", False),
@@ -234,7 +234,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.family.layout.tabbed", False),
     ("options.page.family.layout.scrolled", False),
-    ("options.page.family.layout.groups", "child,timeline,attribute,citation,url,note,media"),
+    (
+        "options.page.family.layout.groups",
+        "child,timeline,attribute,citation,url,note,media",
+    ),
     ("options.page.family.layout.child.visible", True),
     ("options.page.family.layout.child.stacked", False),
     ("options.page.family.layout.child.hideable", False),
@@ -261,7 +264,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.event.layout.tabbed", False),
     ("options.page.event.layout.scrolled", False),
-    ("options.page.event.layout.groups", "attribute,people,family,citation,url,note,media"),
+    (
+        "options.page.event.layout.groups",
+        "attribute,people,family,citation,url,note,media",
+    ),
     ("options.page.event.layout.attribute.visible", True),
     ("options.page.event.layout.attribute.stacked", False),
     ("options.page.event.layout.attribute.hideable", False),
@@ -288,7 +294,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.source.layout.tabbed", False),
     ("options.page.source.layout.scrolled", False),
-    ("options.page.source.layout.groups", "repository,citation,attribute,url,note,people,event,media"),
+    (
+        "options.page.source.layout.groups",
+        "repository,citation,attribute,url,note,people,event,media",
+    ),
     ("options.page.source.layout.repository.visible", True),
     ("options.page.source.layout.repository.stacked", False),
     ("options.page.source.layout.repository.hideable", False),
@@ -318,7 +327,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.citation.layout.tabbed", False),
     ("options.page.citation.layout.scrolled", False),
-    ("options.page.citation.layout.groups", "reference,attribute,url,note,media"),
+    (
+        "options.page.citation.layout.groups",
+        "reference,attribute,url,note,media",
+    ),
     ("options.page.citation.layout.reference.visible", True),
     ("options.page.citation.layout.reference.stacked", False),
     ("options.page.citation.layout.reference.hideable", False),
@@ -375,7 +387,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.media.layout.tabbed", False),
     ("options.page.media.layout.scrolled", False),
-    ("options.page.media.layout.groups", "citation,attribute,url,note,reference"),
+    (
+        "options.page.media.layout.groups",
+        "citation,attribute,url,note,reference",
+    ),
     ("options.page.media.layout.citation.visible", True),
     ("options.page.media.layout.citation.stacked", False),
     ("options.page.media.layout.citation.hideable", False),
@@ -417,7 +432,10 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.tag.layout.tabbed", False),
     ("options.page.tag.layout.scrolled", False),
-    ("options.page.tag.layout.groups", "person,family,event,place,citation,source,repository,note,media"),
+    (
+        "options.page.tag.layout.groups",
+        "person,family,event,place,citation,source,repository,note,media",
+    ),
     ("options.page.tag.layout.person.visible", True),
     ("options.page.tag.layout.person.stacked", False),
     ("options.page.tag.layout.person.hideable", False),
@@ -445,7 +463,6 @@ CONFIGSETTINGS = (
     ("options.page.tag.layout.media.visible", True),
     ("options.page.tag.layout.media.stacked", False),
     ("options.page.tag.layout.media.hideable", False),
-
     ######################################################################
     # Frame Level Options
     # These apply when the frame is in the page header and not a group
@@ -487,7 +504,7 @@ CONFIGSETTINGS = (
     ("options.active.person.metadata-attribute-6", "None"),
     ("options.active.person.metadata-attribute-7", "None"),
     ("options.active.person.metadata-attribute-8", "None"),
-    ######################################################################    
+    ######################################################################
     ## Parent Options
     ######################################################################
     ("options.active.parent.event-format", 1),
@@ -517,7 +534,7 @@ CONFIGSETTINGS = (
     ("options.active.parent.metadata-attribute-6", "None"),
     ("options.active.parent.metadata-attribute-7", "None"),
     ("options.active.parent.metadata-attribute-8", "None"),
-    ######################################################################    
+    ######################################################################
     ## Spouse Options
     ######################################################################
     ("options.active.spouse.event-format", 1),
@@ -605,21 +622,31 @@ CONFIGSETTINGS = (
     ## Family Options
     ######################################################################
     ("options.active.family.event-format", 1),
-    ("options.active.family.show-age", True),
-    ("options.active.family.sex-mode", 1),
     ("options.active.family.image-mode", 3),
     ("options.active.family.tag-format", 1),
     ("options.active.family.tag-width", 10),
-    ("options.active.family.facts-field-skip-birth-alternates", False),
-    ("options.active.family.facts-field-skip-death-alternates", False),
-    ("options.active.family.facts-field-1", "Event:Birth:False"),
-    ("options.active.family.facts-field-2", "Event:Baptism:False"),
-    ("options.active.family.facts-field-3", "Event:Christening:False"),
-    ("options.active.family.facts-field-4", "Event:Death:False"),
-    ("options.active.family.facts-field-5", "Event:Burial:False"),
-    ("options.active.family.facts-field-6", "Event:Cremation:False"),
-    ("options.active.family.facts-field-7", "Event:Probate:False"),
-    ("options.active.family.facts-field-8", "None"),
+    ("options.active.family.show-years", True),
+    ("options.active.family.show-matrilineal", False),
+    ("options.active.family.facts-field-skip-marriage-alternates", False),
+    ("options.active.family.facts-field-skip-divorce-alternates", False),
+    ("options.active.family.facts-field-1", "Event:Marriage Banns:False"),
+    ("options.active.family.facts-field-2", "Event:Marriage License:False"),
+    ("options.active.family.facts-field-3", "Event:Marriage Contract:False"),
+    ("options.active.family.facts-field-4", "Event:Marriage Settlement:False"),
+    ("options.active.family.facts-field-5", "Event:Marriage:False"),
+    ("options.active.family.facts-field-6", "Event:Divorce Filing:False"),
+    ("options.active.family.facts-field-7", "Event:Divorce:False"),
+    ("options.active.family.facts-field-8", "Event:Annulment:False"),
+    ("options.active.family.extra-field-skip-marriage-alternates", False),
+    ("options.active.family.extra-field-skip-divorce-alternates", False),
+    ("options.active.family.extra-field-1", "None"),
+    ("options.active.family.extra-field-2", "None"),
+    ("options.active.family.extra-field-3", "None"),
+    ("options.active.family.extra-field-4", "None"),
+    ("options.active.family.extra-field-5", "None"),
+    ("options.active.family.extra-field-6", "None"),
+    ("options.active.family.extra-field-7", "None"),
+    ("options.active.family.extra-field-8", "None"),
     ("options.active.family.metadata-attribute-1", "None"),
     ("options.active.family.metadata-attribute-2", "None"),
     ("options.active.family.metadata-attribute-3", "None"),
@@ -691,7 +718,7 @@ CONFIGSETTINGS = (
     ("options.active.repository.show-repository-type", True),
     ######################################################################
     ## Media Options
-    ######################################################################    
+    ######################################################################
     ("options.active.media.tag-format", 1),
     ("options.active.media.tag-width", 10),
     ("options.active.media.image-mode", 2),
@@ -700,7 +727,6 @@ CONFIGSETTINGS = (
     ("options.active.media.metadata-attribute-2", "None"),
     ("options.active.media.metadata-attribute-3", "None"),
     ("options.active.media.metadata-attribute-4", "None"),
-
     ######################################################################
     ## Note Options
     ######################################################################
@@ -708,8 +734,6 @@ CONFIGSETTINGS = (
     ("options.active.note.preview-lines", 4),
     ("options.active.note.tag-format", 1),
     ("options.active.note.tag-width", 10),
-
-
     ######################################################################
     # Group Level Options
     # These apply when the frame is in a group and not the page header
@@ -751,7 +775,7 @@ CONFIGSETTINGS = (
     ("options.group.person.metadata-attribute-6", "None"),
     ("options.group.person.metadata-attribute-7", "None"),
     ("options.group.person.metadata-attribute-8", "None"),
-    ######################################################################    
+    ######################################################################
     ## Parent Options
     ######################################################################
     ("options.group.parent.event-format", 1),
@@ -809,7 +833,7 @@ CONFIGSETTINGS = (
     ("options.group.sibling.metadata-attribute-6", "None"),
     ("options.group.sibling.metadata-attribute-7", "None"),
     ("options.group.sibling.metadata-attribute-8", "None"),
-    ######################################################################    
+    ######################################################################
     ## Spouse Options
     ######################################################################
     ("options.group.spouse.event-format", 1),
@@ -925,21 +949,22 @@ CONFIGSETTINGS = (
     ## Family Options
     ######################################################################
     ("options.group.family.event-format", 1),
-    ("options.group.family.show-age", True),
-    ("options.group.family.sex-mode", 1),
     ("options.group.family.image-mode", 3),
     ("options.group.family.tag-format", 1),
     ("options.group.family.tag-width", 10),
-    ("options.group.family.facts-field-skip-birth-alternates", False),
-    ("options.group.family.facts-field-skip-death-alternates", False),
-    ("options.group.family.facts-field-1", "Event:Birth:False"),
-    ("options.group.family.facts-field-2", "Event:Baptism:False"),
-    ("options.group.family.facts-field-3", "Event:Christening:False"),
-    ("options.group.family.facts-field-4", "Event:Death:False"),
-    ("options.group.family.facts-field-5", "Event:Burial:False"),
-    ("options.group.family.facts-field-6", "Event:Cremation:False"),
-    ("options.group.family.facts-field-7", "Event:Probate:False"),
-    ("options.group.family.facts-field-8", "None"),
+    ("options.group.family.show-years", True),
+    ("options.group.family.show-matrilineal", False),
+    ("options.group.family.show-spouse-only", False),
+    ("options.group.family.facts-field-skip-marriage-alternates", False),
+    ("options.group.family.facts-field-skip-divorce-alternates", False),
+    ("options.group.family.facts-field-1", "Event:Marriage Banns:False"),
+    ("options.group.family.facts-field-2", "Event:Marriage License:False"),
+    ("options.group.family.facts-field-3", "Event:Marriage Contract:False"),
+    ("options.group.family.facts-field-4", "Event:Marriage Settlement:False"),
+    ("options.group.family.facts-field-5", "Event:Marriage:False"),
+    ("options.group.family.facts-field-6", "Event:Divorce Filing:False"),
+    ("options.group.family.facts-field-7", "Event:Divorce:False"),
+    ("options.group.family.facts-field-8", "Event:Annulment:False"),
     ("options.group.family.metadata-attribute-1", "None"),
     ("options.group.family.metadata-attribute-2", "None"),
     ("options.group.family.metadata-attribute-3", "None"),
@@ -1011,7 +1036,7 @@ CONFIGSETTINGS = (
     ("options.group.repository.show-repository-type", True),
     ######################################################################
     ## Media Options
-    ######################################################################    
+    ######################################################################
     ("options.group.media.sort-by-date", False),
     ("options.group.media.group-by-type", False),
     ("options.group.media.filter-non-photos", False),
@@ -1030,7 +1055,6 @@ CONFIGSETTINGS = (
     ("options.group.note.preview-lines", 4),
     ("options.group.note.tag-format", 1),
     ("options.group.note.tag-width", 10),
-
     ######################################################################
     # Timeline Options
     #
@@ -1149,5 +1173,5 @@ CONFIGSETTINGS = (
     ("options.timeline.place.show-class-other", True),
     ("options.timeline.place.show-class-custom", True),
     ("options.timeline.place.generations-ancestors", 1),
-    ("options.timeline.place.generations-offspring", 1),    
+    ("options.timeline.place.generations-offspring", 1),
 )
