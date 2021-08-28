@@ -592,7 +592,8 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
         """
         Load child icon indicators for an object.
         """
-        if not self.get_option("options.global.enable-child-indicators"):
+        check = self.grstate.config.get
+        if not check("options.global.enable-child-indicators"):
             return
 
         self.obj = obj
@@ -601,25 +602,61 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             self.set_size(size)
 
         if obj_type == "Person":
-            if obj.get_address_list():
+            if (
+                check("options.global.indicate-addresses")
+                and obj.get_address_list()
+            ):
                 self.add_icon("gramps-address", tooltip=_("Addresses"))
-            if obj.get_person_ref_list():
+            if (
+                check("options.global.indicate-associations")
+                and obj.get_person_ref_list()
+            ):
                 self.add_icon("gramps-person", tooltip=_("Associations"))
-            if obj.get_parent_family_handle_list():
+            if (
+                check("options.global.indicate-parents")
+                and obj.get_parent_family_handle_list()
+            ):
                 self.add_icon("gramps-family", tooltip=_("Parents"))
-            if obj.get_family_handle_list():
+            if (
+                check("options.global.indicate-spouses")
+                and obj.get_family_handle_list()
+            ):
                 self.add_icon("gramps-spouse", tooltip=_("Spouses"))
-        if obj_type == "Family" and obj.get_child_ref_list():
+        if (
+            obj_type == "Family"
+            and check("options.global.indicate-children")
+            and obj.get_child_ref_list()
+        ):
             self.add_icon("gramps-person", tooltip=_("Children"))
-        if hasattr(obj, "media_list") and obj.get_media_list():
+        if (
+            check("options.global.indicate-media")
+            and hasattr(obj, "media_list")
+            and obj.get_media_list()
+        ):
             self.add_icon("gramps-media", tooltip=_("Media"))
-        if hasattr(obj, "attribute_list") and obj.get_attribute_list():
+        if (
+            check("options.global.indicate-attributes")
+            and hasattr(obj, "attribute_list")
+            and obj.get_attribute_list()
+        ):
             self.add_icon("gramps-attribute", tooltip=_("Attributes"))
-        if hasattr(obj, "citation_list") and obj.get_citation_list():
+        if (
+            check("options.global.indicate-citations")
+            and hasattr(obj, "citation_list")
+            and obj.get_citation_list()
+        ):
             self.add_icon("gramps-citation", tooltip=_("Citations"))
-        if hasattr(obj, "note_list") and obj.get_note_list():
+        if (
+            check("options.global.indicate-notes")
+            and hasattr(obj, "note_list")
+            and obj.get_note_list()
+        ):
             self.add_icon("gramps-notes", tooltip=_("Notes"))
-        if hasattr(obj, "urls") and obj.get_url_list():
+        if (
+            check("options.global.indicate-urls")
+            and hasattr(obj, "urls")
+            and obj.get_url_list()
+        ):
             self.add_icon("gramps-url", tooltip=_("Urls"))
         self.show_all()
 

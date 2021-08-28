@@ -101,7 +101,6 @@ CONFIGSETTINGS = (
     ("options.global.privacy-mode", 1),
     ("options.global.enable-bookmarks", True),
     ("options.global.enable-gramps-ids", True),
-    ("options.global.enable-child-indicators", True),
     ("options.global.link-citation-title-to-source", True),
     ("options.global.include-child-notes", True),
     ("options.global.include-note-urls", True),
@@ -110,6 +109,17 @@ CONFIGSETTINGS = (
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
+    ("options.global.enable-child-indicators", True),
+    ("options.global.indicate-parents", True),
+    ("options.global.indicate-spouses", True),
+    ("options.global.indicate-children", True),
+    ("options.global.indicate-associations", True),
+    ("options.global.indicate-media", True),
+    ("options.global.indicate-attributes", True),
+    ("options.global.indicate-addresses", True),
+    ("options.global.indicate-citations", True),
+    ("options.global.indicate-notes", True),
+    ("options.global.indicate-urls", True),
     ######################################################################
     # Page Layout Options
     #
