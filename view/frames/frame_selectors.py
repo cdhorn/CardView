@@ -130,49 +130,6 @@ def get_event_maps(db):
     return etoi, itoe
 
 
-class AttributeSelector(Gtk.ComboBoxText):
-    """
-    An attribute selector for the configdialog.
-    """
-
-    def __init__(self, option, config, db, obj_type, dbid=False, tooltip=None):
-        Gtk.ComboBoxText.__init__(self)
-        self.option = option
-        self.config = config
-        self.dbid = None
-        if dbid:
-            self.dbid = db.get_dbid()
-
-        self.etoi, self.itoe = get_attribute_maps(db, obj_type)
-        attribute_names = sorted(self.itoe.keys())
-        for attribute_type in attribute_names:
-            self.append_text(attribute_type)
-
-        current_option = get_config_option(config, option, dbid=self.dbid)
-        current_value = "None"
-        if current_option and len(current_option) >= 2:
-            current_value = current_option[1]
-        if current_value in self.etoi:
-            current_index = attribute_names.index(self.etoi[current_value])
-        self.set_active(current_index)
-        self.connect("changed", self.update)
-        if tooltip:
-            self.set_tooltip_text(tooltip)
-
-    def update(self, _dummy_obj):
-        """
-        Save updated attribute.
-        """
-        current_value = self.get_active_text()
-        save_config_option(
-            self.config,
-            self.option,
-            "Attribute",
-            self.itoe[current_value],
-            dbid=self.dbid,
-        )
-
-
 class FrameFieldSelector(Gtk.HBox):
     """
     A custom selector for the user defined fields for the configdialog.
@@ -181,23 +138,19 @@ class FrameFieldSelector(Gtk.HBox):
     def __init__(
         self,
         option,
-        config,
-        dbstate,
-        uistate,
+        grstate,
         number,
+        mode="all",
         dbid=False,
         text=None,
-        relation=True,
         obj_type="Person",
     ):
         Gtk.HBox.__init__(self, hexpand=False, spacing=6)
         self.option = option
-        self.config = config
-        self.dbstate = dbstate
-        self.uistate = uistate
+        self.grstate = grstate
         self.dbid = None
         if dbid:
-            self.dbid = self.dbstate.db.get_dbid()
+            self.dbid = self.grstate.dbstate.db.get_dbid()
 
         if text:
             label_text = "{} {}:".format(text, number)
@@ -222,31 +175,36 @@ class FrameFieldSelector(Gtk.HBox):
 
         self.user_field_types = [
             "None",
-            "Event",
-            "Fact",
             "Attribute",
+            "Fact",
+            "Event",
             "Relation",
         ]
         self.user_field_types_lang = [
             _("None"),
-            _("Event"),
-            _("Fact"),
             _("Attribute"),
+            _("Fact"),
+            _("Event"),
             _("Relation"),
         ]
-        if not relation:
+        if mode != "all":
             del self.user_field_types_lang[-1]
+            if mode != "event":
+                del self.user_field_types_lang[-1]
+                del self.user_field_types_lang[-1]
         for item in self.user_field_types_lang:
             self.type_selector.append_text(item)
 
         self.attribute_etoi, self.attribute_itoe = get_attribute_maps(
-            self.dbstate.db, obj_type
+            self.grstate.dbstate.db, obj_type
         )
         self.attribute_names = sorted(self.attribute_itoe.keys())
         for attribute_type in self.attribute_names:
             self.attribute_selector.append_text(attribute_type)
 
-        self.event_etoi, self.event_itoe = get_event_maps(self.dbstate.db)
+        self.event_etoi, self.event_itoe = get_event_maps(
+            self.grstate.dbstate.db
+        )
         self.event_names = sorted(self.event_itoe.keys())
         for event_type in self.event_names:
             self.event_selector.append_text(event_type)
@@ -265,7 +223,7 @@ class FrameFieldSelector(Gtk.HBox):
         user_value = ""
         user_option = False
         current_option = get_config_option(
-            self.config,
+            self.grstate.config,
             self.option,
             dbid=self.dbid,
         )
@@ -293,7 +251,7 @@ class FrameFieldSelector(Gtk.HBox):
             )
         )
 
-        if current_index in [1, 2]:
+        if current_index in [2, 3]:
             self.hide_selectors(event=False, all=False)
             if self.event_etoi[user_value] in self.event_names:
                 current_index = self.event_names.index(
@@ -301,18 +259,19 @@ class FrameFieldSelector(Gtk.HBox):
                 )
                 self.event_selector.set_active(current_index)
                 self.all_matches.set_active(user_option)
-        elif current_index == 3:
+        elif current_index == 1:
             self.hide_selectors(attribute=False, all=False)
             if self.attribute_etoi[user_value] in self.attribute_names:
                 current_index = self.attribute_names.index(
                     self.attribute_etoi[user_value]
                 )
                 self.attribute_selector.set_active(current_index)
-                self.all_matches.set_active(user_option)
         elif current_index == 4:
             self.hide_selectors(relation=False)
             try:
-                person = self.dbstate.db.get_person_from_handle(user_value)
+                person = self.grstate.dbstate.db.get_person_from_handle(
+                    user_value
+                )
                 name = name_displayer.display(person)
                 self.relation_selector.set_label(name)
             except HandleError:
@@ -349,7 +308,7 @@ class FrameFieldSelector(Gtk.HBox):
         current_index = self.user_field_types_lang.index(current_type_lang)
         current_type = self.user_field_types[current_index]
         save_config_option(
-            self.config, self.option, current_type, "", dbid=self.dbid
+            self.grstate.config, self.option, current_type, "", dbid=self.dbid
         )
         if current_type in ["Event", "Fact"]:
             self.hide_selectors(event=False, all=False)
@@ -365,7 +324,6 @@ class FrameFieldSelector(Gtk.HBox):
             )
             self.attribute_selector.set_active(current_index)
             self.attribute_selector.show()
-            self.all_matches.show()
             self.update_attribute_choice()
         elif current_type == "Relation":
             self.hide_selectors(relation=False)
@@ -383,14 +341,14 @@ class FrameFieldSelector(Gtk.HBox):
         """
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [1, 2]:
+        if current_index in [2, 3]:
             current_value = self.event_selector.get_active_text()
             if self.all_matches.get_active():
                 current_option = "True"
             else:
                 current_option = "False"
             save_config_option(
-                self.config,
+                self.grstate.config,
                 self.option,
                 self.user_field_types[current_index],
                 "{}:{}".format(self.event_itoe[current_value], current_option),
@@ -403,10 +361,8 @@ class FrameFieldSelector(Gtk.HBox):
         """
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [1, 2]:
+        if current_index in [2, 3]:
             self.update_event_choice()
-        elif current_index == 3:
-            self.update_attribute_choice()
 
     def update_attribute_choice(self, *_dummy_obj):
         """
@@ -414,19 +370,13 @@ class FrameFieldSelector(Gtk.HBox):
         """
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index == 3:
+        if current_index == 1:
             current_value = self.attribute_selector.get_active_text()
-            if self.all_matches.get_active():
-                current_option = "True"
-            else:
-                current_option = "False"
             save_config_option(
-                self.config,
+                self.grstate.config,
                 self.option,
                 self.user_field_types[current_index],
-                "{}:{}".format(
-                    self.attribute_itoe[current_value], current_option
-                ),
+                self.attribute_itoe[current_value],
                 dbid=self.dbid,
             )
 
@@ -436,14 +386,14 @@ class FrameFieldSelector(Gtk.HBox):
         """
         select_person = SelectorFactory("Person")
         selector = select_person(
-            self.dbstate, self.uistate, [], _("Select Person")
+            self.grstate.dbstate, self.grstate.uistate, [], _("Select Person")
         )
         person = selector.run()
         if person:
             name = name_displayer.display(person)
             self.relation_selector.set_label(name)
             save_config_option(
-                self.config,
+                self.grstate.config,
                 self.option,
                 "Relation",
                 person.get_handle(),
@@ -465,10 +415,9 @@ class FrameFieldSelector(Gtk.HBox):
         """
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index not in [1, 2]:
+        if current_index not in [2, 3]:
             self.event_selector.hide()
-            if current_index != 3:
-                self.all_matches.hide()
+            self.all_matches.hide()
 
     def hide_attribute_selector(self, _dummy_obj):
         """
@@ -476,7 +425,7 @@ class FrameFieldSelector(Gtk.HBox):
         """
         current_type_lang = self.type_selector.get_active_text()
         current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 3:
+        if current_index != 1:
             self.attribute_selector.hide()
-            if current_index not in [1, 2]:
+            if current_index not in [2, 3]:
                 self.all_matches.hide()

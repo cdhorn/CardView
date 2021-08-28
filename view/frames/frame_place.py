@@ -53,9 +53,7 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, place):
-        PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, place
-        )
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, place)
 
         place_name = place_displayer.display(grstate.dbstate.db, place)
         title = TextLink(
@@ -81,7 +79,7 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
 
         if place.get_code():
             label = self.make_label(place.get_code(), left=False)
-            self.metadata.pack_start(label, False, False, 0)
+            self.attributes.add_fact(label)
 
         self.enable_drag()
         self.enable_drop()

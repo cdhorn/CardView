@@ -106,14 +106,14 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if not association:
             association = _("[None Provided]")
         if groptions.ref_mode == 2:
-            self.ref_body.pack_start(
+            self.ref_fact_body.pack_start(
                 self.make_label(_("Association"), left=False), False, False, 0
             )
-            self.ref_body.pack_start(
+            self.ref_fact_body.pack_start(
                 self.make_label(association, left=False), False, False, 0
             )
         else:
-            self.ref_body.pack_start(
+            self.ref_fact_body.pack_start(
                 self.make_label("{}: {}".format(_("Association"), association)),
                 True,
                 True,
@@ -125,20 +125,20 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         )
         if relation:
             if groptions.ref_mode == 2:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(_("Relationship"), left=False),
                     False,
                     False,
                     0,
                 )
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(relation.capitalize(), left=False),
                     False,
                     False,
                     0,
                 )
             else:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(
                         "{}: {}".format(
                             _("Relationship"), relation.capitalize()
@@ -148,6 +148,13 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                     True,
                     0,
                 )
+
+        if self.get_option("options.global.enable-child-indicators"):
+            if "active" in self.groptions.option_space:
+                size = 12
+            else:
+                size = 5
+            self.ref_indicators.load(person_ref, "PersonRef", size=size)
 
         self.enable_drag(
             obj=self.secondary,

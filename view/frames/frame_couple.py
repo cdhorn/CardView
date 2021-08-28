@@ -46,7 +46,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from .frame_const import _MARRIAGE_EQUIVALENTS, _DIVORCE_EQUIVALENTS
 from .frame_primary import PrimaryGrampsFrame
 from .frame_person import PersonGrampsFrame
-from .frame_utils import TextLink, get_family_color_css, get_key_family_events
+from .frame_utils import (
+    TextLink,
+    get_family_color_css,
+)
 
 _ = glocale.translation.sgettext
 
@@ -159,19 +162,45 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             data_content.pack_start(
                 self.image, expand=False, fill=False, padding=0
             )
-        title_box = Gtk.VBox()
-        title_box.pack_start(self.title, expand=True, fill=True, padding=0)
-        fact_box = Gtk.HBox()
-        fact_box.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        fact_box.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
-        title_box.pack_start(fact_box, expand=True, fill=True, padding=0)
-        tag_box = Gtk.HBox(hexpand=False, vexpand=False)
-        tag_box.pack_start(self.tags, False, False, 0)
-        title_box.pack_start(tag_box, expand=True, fill=True, padding=0)
-        data_content.pack_start(title_box, expand=True, fill=True, padding=0)
-        data_content.pack_start(
-            self.metadata, expand=True, fill=True, padding=0
+
+        fact_block = Gtk.VBox()
+        data_content.pack_start(fact_block, expand=True, fill=True, padding=0)
+        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
+        fact_section = Gtk.HBox(valign=Gtk.Align.START, vexpand=True)
+        fact_section.pack_start(
+            self.facts_grid, expand=True, fill=True, padding=0
         )
+        fact_section.pack_start(
+            self.extra_grid, expand=True, fill=True, padding=0
+        )
+        fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
+        #        tag_box = Gtk.HBox(valign=Gtk.Align.END)
+        #        tag_box.pack_start(self.tags, False, False, 0)
+        fact_block.pack_end(self.tags, expand=True, fill=True, padding=0)
+
+        attribute_block = Gtk.VBox(halign=Gtk.Align.END)
+        data_content.pack_start(
+            attribute_block, expand=True, fill=True, padding=0
+        )
+        attribute_block.pack_start(
+            self.gramps_id, expand=True, fill=True, padding=0
+        )
+        attribute_block.pack_start(
+            self.attributes, expand=True, fill=True, padding=0
+        )
+        #        indicator_box = Gtk.VBox(valign=Gtk.Align.END)
+        #        indicator_box.pack_end(self.indicators, False, False, 0)
+        attribute_block.pack_end(
+            self.indicators, expand=False, fill=False, padding=0
+        )
+        #        sg = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
+        #        sg.add_widget(self.tags)
+        #        sg.add_widget(self.indicators)
+        #        sg = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
+        #        sg.add_widget(self.facts_grid)
+        #        sg.add_widget(self.extra_grid)
+        #        sg.add_widget(self.attributes)
+
         if image_mode in [1, 2]:
             data_content.pack_end(
                 self.image, expand=False, fill=False, padding=0
@@ -314,19 +343,21 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                     if not show_all:
                         return
 
-    def get_metadata_attributes(self):
+    def load_attributes(self):
         """
-        Return a list of values for any user defined metadata attributes.
+        Load any user defined attributes.
         """
-        values = []
-        number = 1
         if "active" in self.groptions.option_space:
             prefix = "options.active.family"
         else:
             prefix = "options.group.family"
-        while number <= 8:
+
+        label = self.get_option(
+            "{}.attributes-field-show-labels".format(prefix)
+        )
+        for number in range(1, 8):
             option = self.get_option(
-                "{}.metadata-attribute-{}".format(prefix, number),
+                "{}.attributes-field-{}".format(prefix, number),
                 full=False,
                 keyed=True,
             )
@@ -339,10 +370,13 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 for attribute in self.primary.obj.get_attribute_list():
                     if attribute.get_type().xml_str() == option[1]:
                         if attribute.get_value():
-                            values.append(attribute.get_value())
+                            value = self.make_label(attribute.get_value())
+                            if label:
+                                key = self.make_label(attribute.get_type())
+                            else:
+                                key = None
+                            self.attributes.add_fact(value, label=key)
                         break
-            number = number + 1
-        return values
 
     def _get_profile(self, person):
         if person:

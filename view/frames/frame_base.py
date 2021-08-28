@@ -558,7 +558,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if handle:
             old_hash = None
             if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-                old_hash = self.focus.obj_hash()
+                old_hash = self.focus.obj_hash
             if self.focus.obj.add_citation(handle):
                 if old_hash:
                     sha256_hash = hashlib.sha256()
@@ -645,7 +645,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             )
             old_hash = None
             if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-                old_hash = self.focus.obj_hash()
+                old_hash = self.focus.obj_hash
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_citation_references(
                     [citation.get_handle()]
@@ -744,7 +744,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if handle:
             old_hash = None
             if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-                old_hash = self.focus.obj_hash()
+                old_hash = self.focus.obj_hash
             if self.focus.obj.add_note(handle):
                 if old_hash:
                     sha256_hash = hashlib.sha256()
@@ -802,7 +802,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             )
             old_hash = None
             if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-                old_hash = self.focus.obj_hash()
+                old_hash = self.focus.obj_hash
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_note(note.get_handle())
                 if old_hash:
@@ -856,7 +856,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         old_hash = None
         if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-            old_hash = self.focus.obj_hash()
+            old_hash = self.focus.obj_hash
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.focus.obj.set_privacy(mode)
             if old_hash:

@@ -60,7 +60,12 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink, button_activated, menu_item, note_option_text
+from .frame_utils import (
+    TextLink,
+    button_activated,
+    menu_item,
+    note_option_text,
+)
 
 _ = glocale.translation.sgettext
 
@@ -130,7 +135,14 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                     if text:
                         text = "{} {}: {}".format(_("Media"), _("type"), text)
                     vbox.pack_start(self.make_label(text), False, False, 0)
-            self.ref_body.pack_start(vbox, False, False, 0)
+            self.ref_fact_body.pack_start(vbox, False, False, 0)
+
+            if self.get_option("options.global.enable-child-indicators"):
+                if "active" in self.groptions.option_space:
+                    size = 12
+                else:
+                    size = 5
+                self.ref_indicators.load(repo_ref, "RepoRef", size=size)
 
             self.dnd_drop_ref_targets = []
             self.ref_eventbox.connect(
@@ -150,7 +162,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         if self.get_option("show-repository-type"):
             if repository.get_type():
                 label = self.make_label(str(repository.get_type()), left=False)
-                self.metadata.pack_start(label, False, False, 0)
+                self.attributes.add_fact(label)
 
         self.enable_drag()
         self.enable_drop()
@@ -214,7 +226,9 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            source = self.grstate.dbstate.db.get_source_from_handle(self.groptions.backlink)
+            source = self.grstate.dbstate.db.get_source_from_handle(
+                self.groptions.backlink
+            )
             data = pickle.dumps(
                 (
                     "Source",

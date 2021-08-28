@@ -32,7 +32,6 @@ PrimaryGrampsFrame
 #
 # ------------------------------------------------------------------------
 from html import escape
-import pickle
 import time
 
 
@@ -90,13 +89,13 @@ from .frame_base import GrampsFrame
 from .frame_classes import (
     GrampsFrameGrid,
     GrampsFrameTags,
+    GrampsFrameIndicators,
     GrampsImageViewFrame,
 )
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
     attribute_option_text,
     get_bookmarks,
-    get_child_icon_indicators,
     menu_item,
     pack_icon,
     submenu_item,
@@ -132,6 +131,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.ref_eventbox = Gtk.EventBox()
             self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
             self.ref_eventbox.add(self.ref_frame)
+            self.ref_indicators = GrampsFrameIndicators(grstate, groptions)
 
             if groptions.ref_mode == 2:
                 view_obj = Gtk.HBox(hexpand=True)
@@ -147,6 +147,13 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.ref_body.pack_start(
                     self.get_ref_label(), expand=False, fill=False, padding=0
                 )
+                self.ref_fact_body = Gtk.VBox()
+                self.ref_body.pack_start(
+                    self.ref_fact_body, expand=False, fill=False, padding=0
+                )
+                self.ref_body.pack_end(
+                    self.ref_indicators, expand=False, fill=False, padding=0
+                )
                 self.eventbox.add(self.body)
             else:
                 self.set_spacing(3)
@@ -157,12 +164,23 @@ class PrimaryGrampsFrame(GrampsFrame):
                     self.pack_start(self.eventbox, True, True, 0)
                     self.pack_start(self.ref_eventbox, True, True, 0)
                 self.ref_body = Gtk.HBox(hexpand=True, margin=3)
-                self.ref_body.pack_end(
+
+                self.ref_fact_body = Gtk.HBox()
+                self.ref_body.pack_start(
+                    self.ref_fact_body, expand=True, fill=True, padding=0
+                )
+                attribute_block = Gtk.VBox(hexpand=False)
+                attribute_block.pack_start(
                     self.get_ref_label(), expand=False, fill=False, padding=0
+                )
+                attribute_block.pack_end(
+                    self.ref_indicators, expand=False, fill=False, padding=0
+                )
+                self.ref_body.pack_end(
+                    attribute_block, expand=False, fill=False, padding=0
                 )
                 self.frame.add(self.body)
                 self.eventbox.add(self.frame)
-
             self.ref_frame.add(self.ref_body)
         else:
             self.frame.add(self.body)
@@ -174,8 +192,18 @@ class PrimaryGrampsFrame(GrampsFrame):
 
         self.image = Gtk.Box()
         self.age = None
-        self.title = Gtk.HBox(hexpand=True, halign=Gtk.Align.START)
-        self.gramps_id = Gtk.HBox(hexpand=True, halign=Gtk.Align.END)
+        self.title = Gtk.HBox(
+            hexpand=True,
+            vexpand=False,
+            halign=Gtk.Align.START,
+            valign=Gtk.Align.START,
+        )
+        self.gramps_id = Gtk.HBox(
+            hexpand=True,
+            vexpand=False,
+            halign=Gtk.Align.END,
+            valign=Gtk.Align.START,
+        )
         self.tags = GrampsFrameTags(grstate, groptions)
         if "data" in self.groptions.size_groups:
             self.groptions.size_groups["data"].add_widget(self.facts_grid)
@@ -184,10 +212,12 @@ class PrimaryGrampsFrame(GrampsFrame):
         )
         if "extra" in self.groptions.size_groups:
             self.groptions.size_groups["extra"].add_widget(self.extra_grid)
-        self.metadata = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
-        if "metadata" in self.groptions.size_groups:
-            self.groptions.size_groups["metadata"].add_widget(self.metadata)
-        self.metadata.pack_start(self.gramps_id, False, False, 0)
+        self.attributes = GrampsFrameGrid(
+            grstate, groptions, self.switch_object, right=True
+        )
+        if "attributes" in self.groptions.size_groups:
+            self.groptions.size_groups["attributes"].add_widget(self.attributes)
+        self.indicators = GrampsFrameIndicators(grstate, groptions)
         self.partner1 = None
         self.partner2 = None
 
@@ -211,27 +241,16 @@ class PrimaryGrampsFrame(GrampsFrame):
         if image_mode and "media" not in self.groptions.option_space:
             self.load_image(image_mode)
         self.load_gramps_id()
-        for value in self.get_metadata_attributes():
-            self.metadata.pack_start(
-                self.make_label(value, left=False), False, False, 0
-            )
+        self.load_attributes()
         self.tags.load(self.primary.obj, self.primary.obj_type)
-
-    def refresh_layout(self):
-        """
-        Refresh primary object and reset layout.
-        """
-        query_method = self.grstate.dbstate.db.method(
-            "get_%s_from_handle", self.primary.obj_type
-        )
-        self.primary.obj = query_method(self.primary.obj.get_handle())
-        list(map(self.image.remove, self.image.get_children()))
-        list(map(self.title.remove, self.title.get_children()))
-        list(map(self.facts_grid.remove, self.facts_grid.get_children()))
-        list(map(self.extra_grid.remove, self.extra_grid.get_children()))
-        list(map(self.metadata.remove, self.metadata.get_children()))
-        list(map(self.tags.remove, self.tags.get_children()))
-        self.load_layout()
+        if self.get_option("options.global.enable-child-indicators"):
+            if "active" in self.groptions.option_space:
+                size = 12
+            else:
+                size = 5
+            self.indicators.load(
+                self.primary.obj, self.primary.obj_type, size=size
+            )
 
     def build_layout(self):
         """
@@ -255,21 +274,31 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.groptions.size_groups["age"].add_widget(self.age)
             self.body.pack_start(self.age, expand=False, fill=False, padding=0)
 
-        vcontent = Gtk.VBox()
-        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        hcontent = Gtk.HBox()
-        vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-        tcontent = Gtk.VBox()
-        hcontent.pack_start(tcontent, expand=True, fill=True, padding=0)
-        hcontent.pack_start(self.metadata, expand=True, fill=True, padding=0)
-        tcontent.pack_start(self.title, expand=True, fill=True, padding=0)
-        tsections = Gtk.HBox()
-        tcontent.pack_start(tsections, expand=True, fill=True, padding=0)
-        tsections.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        tsections.pack_start(self.extra_grid, expand=True, fill=True, padding=0)
-        tbox = Gtk.HBox(hexpand=False, vexpand=False)
-        tbox.pack_start(self.tags, False, False, 0)
-        vcontent.pack_start(tbox, expand=True, fill=True, padding=0)
+        fact_block = Gtk.VBox()
+        self.body.pack_start(fact_block, expand=True, fill=True, padding=0)
+        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
+        fact_section = Gtk.HBox(valign=Gtk.Align.START)
+        fact_section.pack_start(
+            self.facts_grid, expand=True, fill=True, padding=0
+        )
+        fact_section.pack_start(
+            self.extra_grid, expand=True, fill=True, padding=0
+        )
+        fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
+        fact_block.pack_end(self.tags, expand=True, fill=True, padding=0)
+
+        attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
+        self.body.pack_start(attribute_block, expand=True, fill=True, padding=0)
+        attribute_block.pack_start(
+            self.gramps_id, expand=True, fill=True, padding=0
+        )
+        attribute_block.pack_start(
+            self.attributes, expand=False, fill=False, padding=0
+        )
+        attribute_block.pack_end(
+            self.indicators, expand=True, fill=True, padding=0
+        )
+
         if image_mode in [1, 2]:
             self.body.pack_start(
                 self.image, expand=False, fill=False, padding=0
@@ -365,15 +394,27 @@ class PrimaryGrampsFrame(GrampsFrame):
         self._add_privacy_indicator(self.secondary.obj, hbox)
         return hbox
 
-    def get_metadata_attributes(self):
+    def load_attributes(self):
         """
-        Return a list of values for any user defined metadata attributes.
+        Load any user defined attributes.
         """
-        values = []
-        number = 1
-        while number <= 8:
+
+        def add_attribute(attribute):
+            """
+            Check and add attribute if applicable.
+            """
+            if attribute.get_value():
+                value = self.make_label(attribute.get_value(), left=False)
+                if label:
+                    key = self.make_label(str(attribute.get_type()), left=False)
+                else:
+                    key = None
+                self.attributes.add_fact(value, label=key)
+
+        label = self.get_option("attributes-field-show-labels")
+        for number in range(1, 8):
             option = self.get_option(
-                "metadata-attribute-{}".format(number),
+                "attributes-field-{}".format(number),
                 full=False,
                 keyed=True,
             )
@@ -385,11 +426,8 @@ class PrimaryGrampsFrame(GrampsFrame):
             ):
                 for attribute in self.primary.obj.get_attribute_list():
                     if attribute.get_type().xml_str() == option[1]:
-                        if attribute.get_value():
-                            values.append(attribute.get_value())
+                        add_attribute(attribute)
                         break
-            number = number + 1
-        return values
 
     def build_action_menu(self, _dummy_obj, event):
         """

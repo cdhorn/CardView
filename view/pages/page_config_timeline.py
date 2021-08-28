@@ -56,9 +56,9 @@ from .page_const import (
     TIMELINE_COLOR_MODES,
 )
 from .page_utils import (
+    config_facts_fields,
     create_grid,
     add_config_reset,
-    config_metadata_attributes,
     config_tag_fields,
 )
 
@@ -199,11 +199,19 @@ def build_person_timeline_grid(configdialog, grstate):
             "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
         ),
     )
-    configdialog.add_text(
-        grid1, _("Metadata Display Fields"), 17, start=1, bold=True
-    )
-    config_metadata_attributes(
-        grstate, "options.timeline.person", grid1, 18, start_col=1, number=4, obj_selector_type="Event"
+    configdialog.add_text(grid1, _("Attributes Group"), 17, start=1, bold=True)
+    config_facts_fields(
+        configdialog,
+        grstate,
+        "options.timeline",
+        "person",
+        grid1,
+        18,
+        start_col=1,
+        number=4,
+        mode="fact",
+        key="attributes-field",
+        obj_type="Event",
     )
     grid2 = create_grid()
     configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
@@ -484,7 +492,9 @@ def build_person_timeline_grid(configdialog, grstate):
     grid.attach(grid2, 1, 0, 1, 1)
     grid.attach(grid3, 2, 0, 1, 1)
     grid.attach(grid4, 3, 0, 1, 1)
-    return add_config_reset(configdialog, grstate, "options.timeline.person", grid)
+    return add_config_reset(
+        configdialog, grstate, "options.timeline.person", grid
+    )
 
 
 def build_family_timeline_grid(configdialog, grstate):
@@ -565,7 +575,7 @@ def build_family_timeline_grid(configdialog, grstate):
         tooltip=_(
             "Enabling this option will include citations if they have a valid date."
         ),
-    )    
+    )
     configdialog.add_text(grid1, _("Display Attributes"), 10, bold=True)
     configdialog.add_checkbox(
         grid1,
@@ -621,17 +631,19 @@ def build_family_timeline_grid(configdialog, grstate):
             "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
         ),
     )
-    configdialog.add_text(
-        grid1, _("Metadata Display Fields"), 17, start=1, bold=True
-    )
-    config_metadata_attributes(
+    configdialog.add_text(grid1, _("Attributes Group"), 17, start=1, bold=True)
+    config_facts_fields(
+        configdialog,
         grstate,
-        "options.timeline.family",
+        "options.timeline",
+        "family",
         grid1,
         18,
         start_col=1,
         number=4,
-        obj_selector_type="Event",
+        mode="fact",
+        key="attributes-field",
+        obj_type="Event",
     )
     grid2 = create_grid()
     configdialog.add_text(grid2, _("Category Filters"), 0, bold=True)
@@ -728,4 +740,6 @@ def build_family_timeline_grid(configdialog, grstate):
     grid = Gtk.Grid()
     grid.attach(grid1, 0, 0, 1, 1)
     grid.attach(grid2, 1, 0, 1, 1)
-    return add_config_reset(configdialog, grstate, "options.timeline.family", grid)
+    return add_config_reset(
+        configdialog, grstate, "options.timeline.family", grid
+    )

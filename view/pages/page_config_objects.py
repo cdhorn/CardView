@@ -60,7 +60,6 @@ from .page_utils import (
     create_grid,
     add_config_reset,
     config_facts_fields,
-    config_metadata_attributes,
     config_tag_fields,
 )
 
@@ -140,11 +139,11 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         IMAGE_DISPLAY_MODES,
     )
     config_tag_fields(configdialog, "{}.{}".format(space, person), grid, 4)
-    configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
+    configdialog.add_text(grid, _("Primary Fact Group"), 8, bold=True)
     config_facts_fields(configdialog, grstate, space, person, grid, 9)
     if extra:
         configdialog.add_text(
-            grid, _("Extra Fact Display Fields"), 8, start=3, bold=True
+            grid, _("Secondary Fact Group"), 8, start=3, bold=True
         )
         config_facts_fields(
             configdialog,
@@ -154,13 +153,19 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
             grid,
             9,
             start_col=3,
-            extra=True,
+            key="extra-field",
         )
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 8, start=5, bold=True
-    )
-    config_metadata_attributes(
-        grstate, "{}.{}".format(space, person), grid, 9, start_col=5
+    configdialog.add_text(grid, _("Attributes Group"), 8, start=5, bold=True)
+    config_facts_fields(
+        configdialog,
+        grstate,
+        space,
+        person,
+        grid,
+        9,
+        start_col=5,
+        mode="fact",
+        key="attributes-field",
     )
     return add_config_reset(
         configdialog, grstate, "{}.{}".format(space, person), grid
@@ -210,11 +215,20 @@ def build_family_grid(configdialog, grstate, space, extra=False):
         "{}.family.show-matrilineal".format(space),
         start=1,
     )
-    configdialog.add_text(grid, _("Fact Display Fields"), 8, bold=True)
-    config_facts_fields(configdialog, grstate, space, "family", grid, 9)
+    configdialog.add_text(grid, _("Primary Fact Group"), 8, bold=True)
+    config_facts_fields(
+        configdialog,
+        grstate,
+        space,
+        "family",
+        grid,
+        9,
+        mode="event",
+        obj_type="Family",
+    )
     if "active" in space:
         configdialog.add_text(
-            grid, _("Extra Fact Display Fields"), 8, start=3, bold=True
+            grid, _("Secondary Fact Group"), 8, start=3, bold=True
         )
         config_facts_fields(
             configdialog,
@@ -224,13 +238,22 @@ def build_family_grid(configdialog, grstate, space, extra=False):
             grid,
             9,
             start_col=3,
-            extra=True,
+            mode="event",
+            key="extra-field",
+            obj_type="Family",
         )
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 8, start=5, bold=True
-    )
-    config_metadata_attributes(
-        grstate, "{}.family".format(space), grid, 9, start_col=5
+    configdialog.add_text(grid, _("Attributes Group"), 8, start=5, bold=True)
+    config_facts_fields(
+        configdialog,
+        grstate,
+        space,
+        "family",
+        grid,
+        9,
+        start_col=5,
+        mode="fact",
+        key="attributes-field",
+        obj_type="Family",
     )
     return add_config_reset(
         configdialog, grstate, "{}.family".format(space), grid
@@ -288,15 +311,19 @@ def build_media_grid(configdialog, grstate, space, group=True):
             "Enabling this option will show the media date if it is available."
         ),
     )
-    configdialog.add_text(grid, _("Metadata Display Fields"), 20, bold=True)
-    config_metadata_attributes(
+    configdialog.add_text(grid, _("Attributes Group"), 20, bold=True)
+    config_facts_fields(
+        configdialog,
         grstate,
-        "{}.media".format(space),
+        space,
+        "media",
         grid,
         21,
         start_col=1,
         number=4,
-        obj_selector_type="Media",
+        mode="fact",
+        key="attributes-field",
+        obj_type="Media",
     )
     return add_config_reset(
         configdialog, grstate, "{}.media".format(space), grid
@@ -440,17 +467,19 @@ def build_citation_grid(configdialog, grstate, space):
             "Enabling this option will display the user selected confidence level for the citation."
         ),
     )
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 15, start=1, bold=True
-    )
-    config_metadata_attributes(
+    configdialog.add_text(grid, _("Attributes Group"), 15, start=1, bold=True)
+    config_facts_fields(
+        configdialog,
         grstate,
-        "{}.citation".format(space),
+        space,
+        "citation",
         grid,
         16,
         start_col=1,
         number=4,
-        obj_selector_type="Citation",
+        mode="fact",
+        key="attributes-field",
+        obj_type="Citation",
     )
     return add_config_reset(
         configdialog, grstate, "{}.citation".format(space), grid
@@ -478,17 +507,19 @@ def build_source_grid(configdialog, grstate, space):
         IMAGE_DISPLAY_MODES,
     )
     config_tag_fields(configdialog, "{}.source".format(space), grid, 4)
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 15, start=1, bold=True
-    )
-    config_metadata_attributes(
+    configdialog.add_text(grid, _("Attributes Group"), 15, start=1, bold=True)
+    config_facts_fields(
+        configdialog,
         grstate,
-        "{}.source".format(space),
+        space,
+        "source",
         grid,
         16,
         start_col=1,
         number=4,
-        obj_selector_type="Source",
+        mode="fact",
+        key="attributes-field",
+        obj_type="Source",
     )
     return add_config_reset(
         configdialog, grstate, "{}.source".format(space), grid
@@ -568,17 +599,19 @@ def build_event_grid(configdialog, grstate, space):
         IMAGE_DISPLAY_MODES,
     )
     config_tag_fields(configdialog, "{}.event".format(space), grid, 4)
-    configdialog.add_text(
-        grid, _("Metadata Display Fields"), 11, start=1, bold=True
-    )
-    config_metadata_attributes(
+    configdialog.add_text(grid, _("Attributes Group"), 11, start=1, bold=True)
+    config_facts_fields(
+        configdialog,
         grstate,
-        "{}.event".format(space),
+        space,
+        "event",
         grid,
-        12,
+        16,
         start_col=1,
         number=4,
-        obj_selector_type="Event",
+        mode="fact",
+        key="attributes-field",
+        obj_type="Event",
     )
     return add_config_reset(
         configdialog, grstate, "{}.event".format(space), grid

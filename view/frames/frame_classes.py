@@ -52,7 +52,7 @@ from gi.repository import Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.lib import Media, MediaRef, Span
+from gramps.gen.lib import Media, Span
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.utils import open_file_with_default_application
@@ -183,7 +183,7 @@ class GrampsOptions:
                 "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "attributes": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             }
 
@@ -284,16 +284,20 @@ class GrampsConfig:
         """
         if left:
             label = Gtk.Label(
-                hexpand=False,
+                hexpand=True,
+                vexpand=True,
                 halign=Gtk.Align.START,
+                valign=Gtk.Align.START,
                 justify=Gtk.Justification.LEFT,
                 wrap=True,
                 xalign=0.0,
             )
         else:
             label = Gtk.Label(
-                hexpand=False,
+                hexpand=True,
+                vexpand=True,
                 halign=Gtk.Align.END,
+                valign=Gtk.Align.START,
                 justify=Gtk.Justification.RIGHT,
                 wrap=True,
                 xalign=1.0,
@@ -347,17 +351,20 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
         "cbrouter",
     )
 
-    def __init__(self, grstate, groptions, cbrouter):
+    def __init__(self, grstate, groptions, cbrouter, right=False):
         Gtk.Grid.__init__(
             self,
             row_spacing=2,
             column_spacing=6,
             halign=Gtk.Align.START,
-            hexpand=False,
+            valign=Gtk.Align.START,
+            hexpand=True,
         )
         GrampsConfig.__init__(self, grstate, groptions)
         self.cbrouter = cbrouter
         self.row = 0
+        if right:
+            self.set_halign(Gtk.Align.END)
 
     def add_fact(self, fact, label=None):
         """
@@ -472,7 +479,11 @@ class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
 
     def __init__(self, grstate, groptions):
         Gtk.FlowBox.__init__(
-            self, orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
+            self,
+            orientation=Gtk.Orientation.HORIZONTAL,
+            homogeneous=False,
+            halign=Gtk.Align.START,
+            valign=Gtk.Align.END,
         )
         GrampsConfig.__init__(self, grstate, groptions)
         self.obj = None
@@ -544,6 +555,91 @@ class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
         tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
         data = pickle.dumps((self.obj_type, self.obj, "Tag", tag.handle))
         return self.grstate.router("context-changed", ("Tag", data))
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsFrameIndicators class
+#
+# ------------------------------------------------------------------------
+class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
+    """
+    A simple class for managing display of the child indicator icons for
+    a Gramps object.
+    """
+
+    def __init__(self, grstate, groptions, size=5):
+        Gtk.HBox.__init__(self, halign=Gtk.Align.END, valign=Gtk.Align.END)
+        GrampsConfig.__init__(self, grstate, groptions)
+        self.flowbox = Gtk.FlowBox(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            homogeneous=False,
+            valign=Gtk.Align.END,
+        )
+        self.pack_end(self.flowbox, True, True, 0)
+        self.obj = None
+        self.obj_type = None
+        self.set_size(size)
+
+    def set_size(self, size):
+        """
+        Set size with respect to children per line.
+        """
+        self.flowbox.set_min_children_per_line(size)
+        self.flowbox.set_max_children_per_line(size)
+
+    def load(self, obj, obj_type, size=None):
+        """
+        Load child icon indicators for an object.
+        """
+        if not self.get_option("options.global.enable-child-indicators"):
+            return
+
+        self.obj = obj
+        self.obj_type = obj_type
+        if size:
+            self.set_size(size)
+
+        if obj_type == "Person":
+            if obj.get_address_list():
+                self.add_icon("gramps-address", tooltip=_("Addresses"))
+            if obj.get_person_ref_list():
+                self.add_icon("gramps-person", tooltip=_("Associations"))
+            if obj.get_parent_family_handle_list():
+                self.add_icon("gramps-family", tooltip=_("Parents"))
+            if obj.get_family_handle_list():
+                self.add_icon("gramps-spouse", tooltip=_("Spouses"))
+        if obj_type == "Family" and obj.get_child_ref_list():
+            self.add_icon("gramps-person", tooltip=_("Children"))
+        if hasattr(obj, "media_list") and obj.get_media_list():
+            self.add_icon("gramps-media", tooltip=_("Media"))
+        if hasattr(obj, "attribute_list") and obj.get_attribute_list():
+            self.add_icon("gramps-attribute", tooltip=_("Attributes"))
+        if hasattr(obj, "citation_list") and obj.get_citation_list():
+            self.add_icon("gramps-citation", tooltip=_("Citations"))
+        if hasattr(obj, "note_list") and obj.get_note_list():
+            self.add_icon("gramps-notes", tooltip=_("Notes"))
+        if hasattr(obj, "urls") and obj.get_url_list():
+            self.add_icon("gramps-url", tooltip=_("Urls"))
+        self.show_all()
+
+    def add_icon(self, icon_name, tooltip=None):
+        """
+        Add an indicator icon.
+        """
+        icon = Gtk.Image(halign=Gtk.Align.END)
+        icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        eventbox = Gtk.EventBox(
+            tooltip_text="{} {}".format(_("Object has"), tooltip)
+        )
+        eventbox.add(icon)
+        eventbox.connect("button-press-event", self.icon_click)
+        self.flowbox.add(eventbox)
+
+    def icon_click(self, _dummy_obj, _dummy_event):
+        """
+        Ignore click.
+        """
 
 
 # ------------------------------------------------------------------------

@@ -28,7 +28,6 @@ CitationGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.callman import CallbackManager
 
 
 # ------------------------------------------------------------------------
@@ -54,9 +53,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, citation, reference=None):
-        PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, citation
-        )
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, citation)
         source = grstate.dbstate.db.get_source_from_handle(
             citation.source_handle
         )
@@ -112,18 +109,18 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 label = self.make_label(
                     CITATION_TYPES[reference[1]], left=False
                 )
-                self.metadata.pack_start(label, False, False, 0)
+                self.attributes.add_fact(label)
 
         if self.get_option("show-reference-description"):
             if reference and reference[2]:
                 label = self.make_label(reference[2], left=False)
-                self.metadata.pack_start(label, False, False, 0)
+                self.attributes.add_fact(label)
 
         if self.get_option("show-confidence"):
             label = self.make_label(
                 get_confidence(citation.confidence), left=False
             )
-            self.metadata.pack_start(label, False, False, 0)
+            self.attributes.add_fact(label)
         self.show_all()
 
     def get_color_css(self):

@@ -101,14 +101,14 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if child_ref.get_father_relation():
             reltype = child_ref.get_father_relation()
             if groptions.ref_mode == 2:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(_("Father"), left=False), False, False, 0
                 )
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(str(reltype), left=False), False, False, 0
                 )
             else:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label("{}: {}".format(_("Father"), reltype)),
                     True,
                     True,
@@ -118,19 +118,26 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if child_ref.get_mother_relation():
             reltype = child_ref.get_mother_relation()
             if groptions.ref_mode == 2:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(_("Mother"), left=False), False, False, 0
                 )
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label(str(reltype), left=False), False, False, 0
                 )
             else:
-                self.ref_body.pack_start(
+                self.ref_fact_body.pack_start(
                     self.make_label("{}: {}".format(_("Mother"), reltype)),
                     True,
                     True,
                     0,
                 )
+
+        if self.get_option("options.global.enable-child-indicators"):
+            if "active" in self.groptions.option_space:
+                size = 12
+            else:
+                size = 5
+            self.ref_indicators.load(child_ref, "ChildRef", size=size)
 
         self.enable_drag(
             obj=self.secondary,

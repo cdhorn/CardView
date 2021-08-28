@@ -50,7 +50,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_utils import ConfigReset
-from ..frames.frame_selectors import AttributeSelector, FrameFieldSelector
+from ..frames.frame_selectors import FrameFieldSelector
 from .page_const import TAG_DISPLAY_MODES
 
 _ = glocale.translation.sgettext
@@ -84,124 +84,108 @@ def config_facts_fields(
     configdialog,
     grstate,
     space,
-    person,
+    context,
     grid,
     start_row,
     start_col=1,
     number=8,
-    extra=False,
+    mode="all",
+    key="facts-field",
+    obj_type="Person",
 ):
     """
     Build facts field configuration section.
     """
     count = 1
     row = start_row
-    key = "facts-field"
-    if extra:
-        key = "extra-field"
     while row < start_row + number:
-        option = "{}.{}.{}-{}".format(space, person, key, count)
+        option = "{}.{}.{}-{}".format(space, context, key, count)
         user_select = FrameFieldSelector(
             option,
-            grstate.config,
-            grstate.dbstate,
-            grstate.uistate,
+            grstate,
             count,
+            mode=mode,
             dbid=True,
+            obj_type=obj_type,
         )
         grid.attach(user_select, start_col, row, 2, 1)
         count = count + 1
         row = row + 1
-    if person != "family":
-        option = "{}.{}.{}-skip-birth-alternates".format(space, person, key)
-        configdialog.add_checkbox(
-            grid,
-            _("Skip birth alternatives if birth found"),
-            row,
-            option,
-            start=start_col,
-            stop=start_col + 1,
-            tooltip=_(
-                "If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed."
-            ),
-        )
+    args = []
+    if key != "attributes-field":
+        if context in [
+            "person",
+            "child",
+            "spouse",
+            "parent",
+            "sibling",
+            "association",
+            "participant",
+            "people",
+        ]:
+            args = [
+                (
+                    "{}.{}.{}-skip-birth-alternates".format(
+                        space, context, key
+                    ),
+                    _("Skip birth alternatives if birth found"),
+                    _(
+                        "If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed."
+                    ),
+                ),
+                (
+                    "{}.{}.{}-skip-death-alternates".format(
+                        space, context, key
+                    ),
+                    _("Skip death alternatives if death found"),
+                    _(
+                        "If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed."
+                    ),
+                ),
+            ]
+        elif context == "family":
+            args = [
+                (
+                    "{}.{}.{}-skip-marriage-alternates".format(
+                        space, context, key
+                    ),
+                    _("Skip marriage alternatives if marriage found"),
+                    _(
+                        "If enabled then if a marriage event was found other events considered to be marriage alternatives such as marriage banns or license will not be displayed."
+                    ),
+                ),
+                (
+                    "{}.{}.{}-skip-divorce-alternates".format(
+                        space, context, key
+                    ),
+                    _("Skip divorce alternatives if divorce found"),
+                    _(
+                        "If enabled then if a divorce event was found other events considered to be divorce alternatives such as divorce filing or annulment will not be displayed."
+                    ),
+                ),
+            ]
     else:
-        option = "{}.{}.{}-skip-marriage-alternates".format(space, person, key)
-        configdialog.add_checkbox(
-            grid,
-            _("Skip marriage alternatives if marriage found"),
-            row,
-            option,
-            start=start_col,
-            stop=start_col + 1,
-            tooltip=_(
-                "If enabled then if a marriage event was found other events considered to be marriage alternatives such as marriage banns or license will not be displayed."
+        args = [
+            (
+                "{}.{}.{}-show-labels".format(space, context, key),
+                _("Show attribute labels"),
+                _(
+                    "If enabled then the attribute and fact labels will be display."
+                ),
             ),
-        )
-    row = row + 1
-    if person != "family":
-        option = "{}.{}.{}-skip-death-alternates".format(space, person, key)
-        configdialog.add_checkbox(
-            grid,
-            _("Skip death alternatives if death found"),
-            row,
-            option,
-            start=start_col,
-            stop=start_col + 1,
-            tooltip=_(
-                "If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed."
-            ),
-        )
-    else:
-        option = "{}.{}.{}-skip-divorce-alternates".format(space, person, key)
-        configdialog.add_checkbox(
-            grid,
-            _("Skip divorce alternatives if divorce found"),
-            row,
-            option,
-            start=start_col,
-            stop=start_col + 1,
-            tooltip=_(
-                "If enabled then if a divorce event was found other events considered to be divorce alternatives such as divorce filing or annulment will not be displayed."
-            ),
-        )
-    row = row + 1
-
-
-def config_metadata_attributes(
-    grstate,
-    space,
-    grid,
-    start_row,
-    start_col=1,
-    number=8,
-    obj_selector_type="Person",
-):
-    """
-    Build metadata display field configuration section.
-    """
-    count = 1
-    row = start_row
-    while row < start_row + number:
-        option = "{}.metadata-attribute-{}".format(space, count)
-        attr_select = AttributeSelector(
-            option,
-            grstate.config,
-            grstate.dbstate.db,
-            obj_selector_type,
-            dbid=True,
-            tooltip=_(
-                "This option allows you to select the name of an attribute. The value of the attribute, if one is found, will then be displayed in the metadata section of the frame beneath the Gramps Id."
-            ),
-        )
-        label = Gtk.Label(
-            halign=Gtk.Align.START,
-            label="{} {}: ".format(_("Field"), count),
-        )
-        grid.attach(label, start_col, row, 1, 1)
-        grid.attach(attr_select, start_col + 1, row, 1, 1)
-        count = count + 1
-        row = row + 1
+        ]
+    if args:
+        for (option, label, tooltip) in args:
+            configdialog.add_checkbox(
+                grid,
+                label,
+                row,
+                option,
+                start=start_col,
+                stop=start_col + 1,
+                tooltip=tooltip,
+            )
+            row = row + 1
 
 
 def config_tag_fields(configdialog, space, grid, start_row):

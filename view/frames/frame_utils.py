@@ -47,27 +47,13 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
-    Address,
-    ChildRef,
-    Citation,
-    Event,
     EventType,
-    Family,
-    Media,
-    Name,
-    Note,
     Person,
-    PersonRef,
-    Place,
-    Repository,
-    Source,
 )
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.db import family_name
-from gramps.gui.ddtargets import DdTargets
 
 
 # ------------------------------------------------------------------------
@@ -81,7 +67,7 @@ from .frame_const import (
     _RETURN,
     _SPACE,
     CONFIDENCE_COLOR_SCHEME,
-    GRAMPS_OBJECTS
+    GRAMPS_OBJECTS,
 )
 from ..timeline import RELATIVES
 
@@ -313,7 +299,7 @@ class TextLink(Gtk.EventBox):
         tooltip=None,
         hexpand=False,
         bold=True,
-        markup=None
+        markup=None,
     ):
         Gtk.EventBox.__init__(self)
         self.name = escape(name)
@@ -322,7 +308,11 @@ class TextLink(Gtk.EventBox):
         if bold:
             self.name = "<b>{}</b>".format(self.name)
         self.label = Gtk.Label(
-            hexpand=hexpand, halign=Gtk.Align.START, wrap=True, xalign=0.0, justify=Gtk.Justification.LEFT
+            hexpand=hexpand,
+            halign=Gtk.Align.START,
+            wrap=True,
+            xalign=0.0,
+            justify=Gtk.Justification.LEFT,
         )
         self.label.set_markup(self.name)
         self.add(self.label)
@@ -603,7 +593,9 @@ class ConfigReset(Gtk.ButtonBox):
             label=message,
         )
         dialog.vbox.add(label)
-        all_button = Gtk.CheckButton(label=_("Reset all options to defaults, not just this page."))
+        all_button = Gtk.CheckButton(
+            label=_("Reset all options to defaults, not just this page.")
+        )
         dialog.vbox.add(all_button)
         dialog.show_all()
         response = dialog.run()
@@ -650,7 +642,7 @@ def attribute_option_text(attribute):
     """
     text = "{}: {}".format(attribute.get_type(), attribute.get_value())
     if len(text) > 50:
-        text = text[:50]+"..."
+        text = text[:50] + "..."
     return text
 
 
@@ -659,9 +651,7 @@ def citation_option_text(db, citation):
     Helper to build citation description string.
     """
     if citation.source_handle:
-        source = db.get_source_from_handle(
-            citation.source_handle
-        )
+        source = db.get_source_from_handle(citation.source_handle)
         if source.get_title():
             text = source.get_title()
         else:
@@ -689,9 +679,7 @@ def menu_item(icon, label, callback, data1=None, data2=None):
     Helper for constructing a menu item.
     """
     image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-    item = Gtk.ImageMenuItem(
-        always_show_image=True, image=image, label=label
-    )
+    item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
     if data2 is not None:
         item.connect("activate", callback, data1, data2)
     elif data1 is not None:
@@ -706,9 +694,7 @@ def submenu_item(icon, label, menu):
     Helper for constructing a submenu item.
     """
     image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-    item = Gtk.ImageMenuItem(
-        always_show_image=True, image=image, label=label
-    )
+    item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
     item.set_submenu(menu)
     return item
 
@@ -738,46 +724,17 @@ def get_bookmarks(db, obj_type):
     return []
 
 
-def get_child_icon_indicators(obj, ref=False):
-    """
-    Return an icon list representing types of child objects present.
-    """
-    box = Gtk.FlowBox(
-        orientation=Gtk.Orientation.HORIZONTAL, homogeneous=False
-    )
-    box.set_min_children_per_line(4)
-    box.set_max_children_per_line(4)
-    if not ref:
-        if hasattr(obj, "person_ref_list"):
-            if hasattr(obj, "address_list") and obj.get_address_list():
-                pack_icon(box, "gramps-address", add=True)
-            if obj.get_person_ref_list():
-                pack_icon(box, "gramps-person", add=True)
-            if hasattr(obj, "parent_family_list") and obj.get_parent_family_handle_list():
-                pack_icon(box, "gramps-family", add=True)
-            if hasattr(obj, "family_list") and obj.get_family_handle_list():
-                pack_icon(box, "gramps-spouse", add=True)
-        elif hasattr(obj, "child_ref_list") and obj.get_child_ref_list():
-            pack_icon(box, "gramps-person", add=True)
-        if hasattr(obj, "media_list") and obj.get_media_list():
-            pack_icon(box, "gramps-media", add=True)
-    if hasattr(obj, "attribute_list") and obj.get_attribute_list():
-        pack_icon(box, "gramps-attribute", add=True)
-    if hasattr(obj, "citation_list") and obj.get_citation_list():
-        pack_icon(box, "gramps-citation", add=True)
-    if hasattr(obj, "note_list") and obj.get_note_list():
-        pack_icon(box, "gramps-notes", add=True)
-    if not ref and hasattr(obj, "urls") and obj.get_url_list():
-        pack_icon(box, "gramps-url", add=True)
-    return box
-
-
-def pack_icon(widget, icon_name, add=False, start=False):
+def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
     """
     Pack an icon in a widget.
     """
-    image = Gtk.Image()
-    image.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+    icon = Gtk.Image()
+    icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+    if tooltip:
+        image = Gtk.EventBox(tooltip_text=tooltip)
+        image.add(icon)
+    else:
+        image = icon
     if add:
         return widget.add(image)
     if start:

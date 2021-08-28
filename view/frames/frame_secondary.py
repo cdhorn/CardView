@@ -56,6 +56,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
+from .frame_classes import GrampsFrameIndicators
 
 _ = glocale.translation.sgettext
 
@@ -76,29 +77,58 @@ class SecondaryGrampsFrame(GrampsFrame):
             self, grstate, groptions, primary_obj, secondary_obj
         )
 
-        vcontent = Gtk.VBox()
+        body = Gtk.HBox(hexpand=False, margin=3)
+
+        fact_block = Gtk.VBox(hexpand=False, vexpand=False)
+        body.pack_start(fact_block, expand=True, fill=True, padding=0)
         self.title = Gtk.HBox()
-        vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        body = Gtk.HBox(hexpand=True, margin=3)
-        body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
+        fact_block.pack_start(
+            self.facts_grid, expand=True, fill=True, padding=0
+        )
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(fact_block)
 
         mode = self.grstate.config.get("options.global.privacy-mode")
-        if mode:
-            image = Gtk.Image()
-            if self.secondary.obj.private:
-                if mode in [1, 3]:
-                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
-            else:
-                if mode in [2, 3]:
-                    image.set_from_icon_name(
-                        "gramps-unlock", Gtk.IconSize.BUTTON
+        if mode or self.get_option("options.global.enable-child-indicators"):
+            attribute_block = Gtk.VBox()
+            if mode:
+                image = Gtk.Image()
+                if self.secondary.obj.private:
+                    if mode in [1, 3]:
+                        image.set_from_icon_name(
+                            "gramps-lock", Gtk.IconSize.BUTTON
+                        )
+                else:
+                    if mode in [2, 3]:
+                        image.set_from_icon_name(
+                            "gramps-unlock", Gtk.IconSize.BUTTON
+                        )
+                image_box = Gtk.HBox()
+                image_box.pack_end(image, False, False, 0)
+                attribute_block.pack_start(image_box, False, False, 0)
+
+            if self.get_option("options.global.enable-child-indicators"):
+                self.indicators = GrampsFrameIndicators(grstate, groptions)
+                attribute_block.pack_end(
+                    self.indicators, expand=False, fill=False, padding=0
+                )
+                if "active" in self.groptions.option_space:
+                    size = 12
+                else:
+                    size = 2
+                self.indicators.load(
+                    self.secondary.obj, self.secondary.obj_type, size=size
+                )
+            if len(attribute_block):
+                body.pack_end(
+                    attribute_block, expand=False, fill=False, padding=0
+                )
+                if "attributes" in self.groptions.size_groups:
+                    self.groptions.size_groups["attributes"].add_widget(
+                        attribute_block
                     )
-            vlock = Gtk.VBox()
-            vlock.pack_start(image, False, False, 0)
-            body.pack_start(vlock, False, False, 0)
-        if "data" in self.groptions.size_groups:
-            self.groptions.size_groups["data"].add_widget(body)
+
         self.frame.set_size_request(160, -1)
         self.frame.add(body)
         self.eventbox.add(self.frame)

@@ -116,8 +116,17 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid,
-        _("Link citation title to source page"),
+        _("Enable child object indicators"),
         13,
+        "options.global.enable-child-indicators",
+        tooltip=_(
+            "Indicates whether to enable child object indicators to identify objects with notes, citations, and so forth."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link citation title to source page"),
+        14,
         "options.global.link-citation-title-to-source",
         tooltip=_(
             "Indicates whether the source title link in a citation record links to the source page instead of the citation page."
@@ -126,7 +135,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Include notes on child objects"),
-        14,
+        15,
         "options.global.include-child-notes",
         tooltip=_(
             "Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present."
@@ -135,7 +144,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Include urls from notes"),
-        15,
+        16,
         "options.global.include-note-urls",
         tooltip=_(
             "Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list."
@@ -144,7 +153,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Sort tags by name not priority"),
-        16,
+        17,
         "options.global.sort-tags-by-name",
         tooltip=_(
             "Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool."
@@ -153,46 +162,46 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid,
         _("Maximum citations per group"),
-        17,
+        18,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum references per group"),
-        18,
+        19,
         "options.global.max-references-per-group",
         (1, 500),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable warnings"),
-        19,
+        20,
         "options.global.enable-warnings",
         tooltip=_(
             "Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard."
         ),
     )
 
-    configdialog.add_text(grid, _("Media Bar Options"), 20, bold=True)
+    configdialog.add_text(grid, _("Media Bar Options"), 30, bold=True)
     configdialog.add_combo(
         grid,
         _("Media bar display mode"),
-        21,
+        31,
         "options.global.media-bar-display-mode",
         MEDIA_IMAGE_DISPLAY_MODES,
     )
     configdialog.add_checkbox(
         grid,
         _("Sort media by date"),
-        22,
+        32,
         "options.global.media-bar-sort-by-date",
         tooltip=_("Indicates whether to sort media items by date."),
     )
     configdialog.add_checkbox(
         grid,
         _("Group media by type"),
-        23,
+        33,
         "options.global.media-bar-group-by-type",
         tooltip=_(
             "Indicates whether to group like media, based on Media-Type."
@@ -201,7 +210,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Filter out non-photos"),
-        24,
+        34,
         "options.global.media-bar-filter-non-photos",
         tooltip=_(
             "Indicates only photos should be displayed, based on Media-Type."
@@ -210,7 +219,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid,
         _("Link image to media page"),
-        25,
+        35,
         "options.global.media-bar-page-link",
         tooltip=_(
             "Indicates left click should open the media page instead of the media viewer."

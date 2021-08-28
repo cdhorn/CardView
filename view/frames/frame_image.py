@@ -108,13 +108,17 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             vcontent.pack_start(tbox, expand=True, fill=False, padding=0)
             hcontent.pack_start(self.image, expand=False, fill=False, padding=0)
             hcontent.pack_start(vcontent, expand=True, fill=True, padding=0)
-            hcontent.pack_end(self.metadata, expand=False, fill=True, padding=0)
+            hcontent.pack_end(
+                self.attributes, expand=False, fill=True, padding=0
+            )
         else:
             vcontent = Gtk.VBox(hexpand=False)
             self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
             hcontent = Gtk.HBox(hexpand=False)
             vcontent.pack_start(hcontent, True, True, 0)
             hcontent.pack_start(self.image, expand=True, fill=True, padding=0)
-            hcontent.pack_end(self.metadata, expand=False, fill=True, padding=0)
+            hcontent.pack_end(
+                self.attributes, expand=False, fill=True, padding=0
+            )
             vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
             vcontent.pack_start(tbox, expand=True, fill=False, padding=0)
