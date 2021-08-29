@@ -53,6 +53,7 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.lib import Media, Span
+from gramps.gen.lib.date import Today
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.utils import open_file_with_default_application
@@ -459,12 +460,35 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
             self.attach(place_label, column, self.row, 1, 1)
         self.row = self.row + 1
 
-    def _fetch_age_text(self, reference, event):
+    def add_living(self, birth, show_age=False):
+        """
+        Add death event setting text to indicate living.
+        """
+        age = ""
+        if birth and show_age:
+            today = Today()
+            age = self._fetch_age_text(birth, None, today=today)
+
+        event_format = self.get_option("event-format")
+        if event_format in [1, 2, 5]:
+            label = self.make_label(_("Living"))
+            value = self.make_label("{}".format(age.strip("()")))
+            self.add_fact(value, label=label)
+        elif event_format in [3, 4, 6]:
+            value = self.make_label("{}. {}".format(_("liv"), age.strip("()")))
+            self.add_fact(value)
+
+    def _fetch_age_text(self, reference, event, today=None):
         """
         Return age label if applicable.
         """
-        if reference and reference.date and event and event.date:
-            span = Span(reference.date, event.date)
+        if reference and reference.date:
+            if event and event.date or today:
+                if today:
+                    current = today
+                else:
+                    current = event.date
+            span = Span(reference.date, current)
             if span.is_valid():
                 precision = global_config.get(
                     "preferences.age-display-precision"
@@ -472,7 +496,7 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
                 age = str(span.format(precision=precision))
                 if age and age != "unknown":
                     return age
-        return None
+        return ""
 
 
 # ------------------------------------------------------------------------

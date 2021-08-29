@@ -95,7 +95,6 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         PrimaryGrampsFrame.__init__(
             self, grstate, groptions, person, secondary_obj=obj_ref
         )
-        self.person = person
         self.relation = groptions.relation
         self.backlink = groptions.backlink
         self.context = groptions.option_space.split(".")[2]
@@ -125,7 +124,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
             )
         self.title.pack_start(name_box, True, True, 0)
-        self.living = probably_alive(person, grstate.dbstate.db)
+        self.living = True
 
         event_cache = []
         for event_ref in person.get_primary_event_ref_list():
@@ -152,10 +151,20 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         have_birth = False
         have_death = False
         for event in event_cache:
-            if event.get_type().xml_str() == "Birth":
+            event_type = event.get_type().xml_str()
+            if event_type == "Birth":
                 have_birth = event
-            elif event.get_type().xml_str() == "Death":
+            elif event_type == "Death":
                 have_death = event
+                self.living = False
+            elif event_type in _DEATH_EQUIVALENTS:
+                have_death = event
+                self.living = False
+
+        if self.living:
+            self.living = probably_alive(
+                self.primary.obj, self.grstate.dbstate.db
+            )
 
         count = 1
         while count < 8:
@@ -168,16 +177,27 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 if len(option) >= 3:
                     show_all = bool(option[2] == "True")
                 if option[0] == "Event":
-                    self.add_field_for_event(
-                        event_cache,
-                        option[1],
-                        extra=extra,
-                        show_all=show_all,
-                        skip_birth=skip_birth_alternates,
-                        have_birth=have_birth,
-                        skip_death=skip_death_alternates,
-                        have_death=have_death,
-                    )
+                    if option[1] == "Death" and self.living:
+                        show_age = self.get_option("show-age")
+                        if extra:
+                            self.extra_grid.add_living(
+                                have_birth, show_age=show_age
+                            )
+                        else:
+                            self.facts_grid.add_living(
+                                have_birth, show_age=show_age
+                            )
+                    else:
+                        self.add_field_for_event(
+                            event_cache,
+                            option[1],
+                            extra=extra,
+                            show_all=show_all,
+                            skip_birth=skip_birth_alternates,
+                            have_birth=have_birth,
+                            skip_death=skip_death_alternates,
+                            have_death=have_death,
+                        )
                 elif option[0] == "Fact":
                     self.add_field_for_fact(
                         event_cache, option[1], extra=extra, show_all=show_all
@@ -461,7 +481,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         action = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Person"),
-            self.person.get_gramps_id(),
+            self.primary.obj.get_gramps_id(),
             _("to"),
             _("Event"),
             event.get_gramps_id(),
@@ -594,9 +614,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if not self.backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
-        family = self.grstate.dbstate.db.get_family_from_handle(
-            self.backlink
-        )
+        family = self.grstate.dbstate.db.get_family_from_handle(self.backlink)
         father_handle = family.get_father_handle()
         mother_handle = family.get_mother_handle()
         partner_handle = None

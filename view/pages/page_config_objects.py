@@ -119,7 +119,7 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
     )
     configdialog.add_checkbox(
         grid,
-        _("Show age at death and if selected burial"),
+        _("Show age at death and if selected burial or if living"),
         1,
         "{}.{}.show-age".format(space, person),
         start=3,
