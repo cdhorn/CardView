@@ -78,6 +78,17 @@ class SecondaryGrampsFrame(GrampsFrame):
         )
 
         body = Gtk.HBox(hexpand=False, margin=3)
+        if self.get_option("show-age") or self.groptions.age_base:
+            self.age = Gtk.VBox(
+                margin_right=3,
+                margin_left=3,
+                margin_top=3,
+                margin_bottom=3,
+                spacing=2,
+            )
+            if "age" in self.groptions.size_groups:
+                self.groptions.size_groups["age"].add_widget(self.age)
+            body.pack_start(self.age, expand=False, fill=False, padding=0)
 
         fact_block = Gtk.VBox(hexpand=False, vexpand=False)
         body.pack_start(fact_block, expand=True, fill=True, padding=0)

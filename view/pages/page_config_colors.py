@@ -133,6 +133,23 @@ EVENT_OPTIONS = [
     (_("Border for Custom Events"), "border-custom", 10, 4),
 ]
 
+ROLE_TYPE = (
+    "Role",
+    _("Event role color scheme"),
+    "options.colors.roles",
+)
+
+ROLE_OPTIONS = [
+    (_("Background for Primary Events"), "primary", 1, 1),
+    (_("Background for Secondary Events"), "secondary", 2, 1),
+    (_("Background for Family Events"), "family", 3, 1),
+    (_("Background for Other Events"), "other", 4, 1),
+    (_("Border for Primary Events"), "border-primary", 1, 4),
+    (_("Border for Secondary Events"), "border-secondary", 2, 4),
+    (_("Border for Family Events"), "border-family", 3, 4),
+    (_("Border for Other Events"), "border-other", 4, 4),
+]
+
 
 def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     """
@@ -171,12 +188,7 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     for label, key, row, column in scheme_options:
         option = "{}.{}".format(space, key)
         colors[option] = add_color(
-            grstate.config,
-            colors_grid,
-            label,
-            option,
-            row,
-            column
+            grstate.config, colors_grid, label, option, row, column
         )
     return add_config_reset(configdialog, grstate, space, grid)
 
@@ -196,7 +208,9 @@ def add_color(config, grid, text, option, row, column):
     entry = Gtk.ColorButton(color=color)
     color_hex_label = BasicLabel(hexval)
     color_hex_label.set_hexpand(True)
-    entry.connect("notify::color", update_color, config, option, color_hex_label)
+    entry.connect(
+        "notify::color", update_color, config, option, color_hex_label
+    )
     grid.attach(label, column, row, 1, 1)
     grid.attach(entry, column + 1, row, 1, 1)
     grid.attach(color_hex_label, column + 2, row, 1, 1)

@@ -80,6 +80,10 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
             text = glocale.date_displayer.display(address.get_date_object())
             if text:
                 self.add_fact(self.make_label(text))
+
+            if groptions.age_base:
+                self.load_age(groptions.age_base, address.get_date_object())
+
         if len(self.facts_grid) == 0:
             self.add_fact(self.make_label("[{}]".format(_("Empty"))))
         self.show_all()

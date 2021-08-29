@@ -81,8 +81,9 @@ TAG_DISPLAY_MODES = [
 TIMELINE_COLOR_MODES = [
     (0, _("Person scheme")),
     (1, _("Relationship scheme")),
-    (2, _("Event category scheme")),
-    (3, _("Evidence confidence scheme")),
+    (2, _("Event role scheme")),
+    (3, _("Event category scheme")),
+    (4, _("Evidence confidence scheme")),
 ]
 
 # For layout editor

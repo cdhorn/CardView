@@ -73,11 +73,14 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         )
         self.title.pack_start(title, True, False, 0)
 
-        if self.get_option("show-date"):
-            if media.get_date_object():
+        if media.get_date_object():
+            if self.get_option("show-date"):
                 text = glocale.date_displayer.display(media.get_date_object())
                 if text:
                     self.add_fact(self.make_label(text))
+
+            if groptions.age_base:
+                self.load_age(groptions.age_base, media.get_date_object())
 
         self.enable_drag()
         self.enable_drop()
@@ -112,6 +115,19 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                 self.attributes, expand=False, fill=True, padding=0
             )
         else:
+            if self.groptions.age_base:
+                self.age = Gtk.VBox(
+                    margin_right=3,
+                    margin_left=3,
+                    margin_top=3,
+                    margin_bottom=3,
+                    spacing=2,
+                )
+                if "age" in self.groptions.size_groups:
+                    self.groptions.size_groups["age"].add_widget(self.age)
+                self.body.pack_start(
+                    self.age, expand=False, fill=False, padding=0
+                )
             vcontent = Gtk.VBox(hexpand=False)
             self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
             hcontent = Gtk.HBox(hexpand=False)

@@ -49,6 +49,7 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
@@ -65,6 +66,7 @@ from gramps.gen.lib import (
     Citation,
     Note,
     Source,
+    Span,
 )
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.selectors import SelectorFactory
@@ -119,6 +121,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.facts_grid = GrampsFrameGrid(
             grstate, groptions, self.switch_object
         )
+        self.age = None
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """
@@ -224,6 +227,28 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if not added_urls or (len(data) > (2 * added_urls)):
             if hasattr(self.focus.obj, "note_list"):
                 self.add_new_note(None, content=data)
+
+    def load_age(self, base_date, current_date):
+        """
+        Calculate and show age.
+        """
+        if self.age:
+            span = Span(base_date, current_date)
+            if span.is_valid():
+                year = current_date.get_year()
+                precision = global_config.get(
+                    "preferences.age-display-precision"
+                )
+                age = str(span.format(precision=precision).strip("()"))
+                if age[:2] == "0 ":
+                    age = ""
+                text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                label = Gtk.Label(
+                    label=self.markup.format(text.strip()),
+                    use_markup=True,
+                    justify=Gtk.Justification.CENTER,
+                )
+                self.age.pack_start(label, False, False, 0)
 
     def route_action(self, obj, event):
         """

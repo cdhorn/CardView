@@ -92,13 +92,18 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         if citation.page:
             self.add_fact(self.make_label(citation.page))
 
-        if self.get_option("show-date"):
-            if citation.get_date_object():
+        if citation.get_date_object():
+            if self.get_option("show-date"):
                 text = glocale.date_displayer.display(
                     citation.get_date_object()
                 )
                 if text:
                     self.add_fact(self.make_label(text))
+
+            if self.groptions.age_base:
+                self.load_age(
+                    self.groptions.age_base, citation.get_date_object()
+                )
 
         if self.get_option("show-publisher"):
             if source.pubinfo:

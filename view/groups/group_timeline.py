@@ -48,7 +48,7 @@ from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
+from ..frames.frame_utils import get_gramps_object_type, get_key_person_events
 from .group_list import GrampsFrameGroupList
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 
@@ -67,7 +67,9 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         self.categories = []
@@ -101,6 +103,16 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         timeline = []
         for (sortval, item) in self.timeline.events(raw=True):
             timeline.append((sortval, "event", None, item))
+
+        person = None
+        if self.obj_type == "Person" and self.get_option("show-age"):
+            person = self.obj
+            key_events = get_key_person_events(
+                grstate.dbstate.db, self.obj, birth_only=True
+            )
+            if key_events["birth"] and key_events["birth"].date:
+                self.groptions.set_age_base(key_events["birth"].date)
+
         if self.get_option("include-addresses"):
             timeline = timeline + self.extract_objects("addresses")
         if self.get_option("include-names"):
@@ -113,11 +125,18 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         timeline.sort(key=lambda x: x[0])
         for (sortval, obj_type, obj, item) in timeline:
             if obj_type == "event":
-                event, event_ref, event_person, event_family, relation, category = item
+                (
+                    event,
+                    event_ref,
+                    event_person,
+                    event_family,
+                    relation,
+                    category,
+                ) = item
                 frame = EventGrampsFrame(
                     grstate,
                     groptions,
-                    obj,
+                    person,
                     event,
                     event_ref,
                     event_person,
@@ -128,10 +147,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             elif obj_type == "media":
                 (media, media_ref) = item
                 frame = ImageGrampsFrame(
-                    grstate,
-                    groptions,
-                    media,
-                    media_ref=media_ref
+                    grstate, groptions, media, media_ref=media_ref
                 )
             elif obj_type == "address":
                 frame = AddressGrampsFrame(
@@ -193,15 +209,23 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             obj_list = extract(self.grstate.dbstate.db, self.obj)
         elif self.obj_type == "Family":
             if self.obj.get_mother_handle():
-                mother = self.grstate.dbstate.db.get_person_from_handle(self.obj.get_mother_handle())
+                mother = self.grstate.dbstate.db.get_person_from_handle(
+                    self.obj.get_mother_handle()
+                )
                 obj_list = obj_list + extract(self.grstate.dbstate.db, mother)
             if self.obj.get_father_handle():
-                father = self.grstate.dbstate.db.get_person_from_handle(self.obj.get_father_handle())
+                father = self.grstate.dbstate.db.get_person_from_handle(
+                    self.obj.get_father_handle()
+                )
                 obj_list = obj_list + extract(self.grstate.dbstate.db, father)
             if self.obj.get_child_ref_list():
                 for child_ref in self.obj.get_child_ref_list():
-                    child = self.grstate.dbstate.db.get_person_from_handle(child_ref.ref)
-                    obj_list = obj_list + extract(self.grstate.dbstate.db, child)
+                    child = self.grstate.dbstate.db.get_person_from_handle(
+                        child_ref.ref
+                    )
+                    obj_list = obj_list + extract(
+                        self.grstate.dbstate.db, child
+                    )
         return obj_list
 
 
@@ -238,7 +262,9 @@ def extract_media(db, obj):
         item = db.get_media_from_handle(media_ref.ref)
         date = item.get_date_object()
         if date and date.is_valid() and date.get_sort_value():
-            media.append((date.get_sort_value(), "media", obj, (item, media_ref)))
+            media.append(
+                (date.get_sort_value(), "media", obj, (item, media_ref))
+            )
     return media
 
 

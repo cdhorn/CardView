@@ -48,6 +48,7 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
@@ -69,6 +70,7 @@ from gramps.gen.lib import (
     EventType,
     Name,
     Person,
+    Span,
     SrcAttribute,
     Surname,
     Tag,
@@ -262,7 +264,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.image, expand=False, fill=False, padding=0
             )
 
-        if self.get_option("show-age"):
+        if self.get_option("show-age") or self.groptions.age_base:
             self.age = Gtk.VBox(
                 margin_right=3,
                 margin_left=3,

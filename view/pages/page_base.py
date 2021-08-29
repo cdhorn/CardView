@@ -72,6 +72,8 @@ from .page_config_colors import (
     EVENT_TYPE,
     RELATION_OPTIONS,
     RELATION_TYPE,
+    ROLE_OPTIONS,
+    ROLE_TYPE,
     build_color_grid,
 )
 from .page_config_layout import build_layout_grid
@@ -247,7 +249,7 @@ class BaseProfilePage(Callback):
         """
         Build an object options panel.
         """
-        group = 'group' in space
+        group = "group" in space
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
         grstate = GrampsState(
@@ -309,7 +311,9 @@ class BaseProfilePage(Callback):
         notebook.append_deferred_page(
             Gtk.Label(label=_("Repository")), render_page
         )
-        render_page = lambda: build_media_grid(configdialog, grstate, space, group=group)
+        render_page = lambda: build_media_grid(
+            configdialog, grstate, space, group=group
+        )
         notebook.append_deferred_page(Gtk.Label(label=_("Media")), render_page)
         render_page = lambda: build_note_grid(configdialog, grstate, space)
         notebook.append_deferred_page(Gtk.Label(label=_("Note")), render_page)
@@ -381,6 +385,10 @@ class BaseProfilePage(Callback):
             configdialog, grstate, EVENT_TYPE, EVENT_OPTIONS
         )
         notebook.append_deferred_page(Gtk.Label(label=_("Event")), render_page)
+        render_page = lambda: build_color_grid(
+            configdialog, grstate, ROLE_TYPE, ROLE_OPTIONS
+        )
+        notebook.append_deferred_page(Gtk.Label(label=_("Role")), render_page)
         render_page = lambda: build_color_grid(
             configdialog, grstate, RELATION_TYPE, RELATION_OPTIONS
         )

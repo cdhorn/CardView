@@ -48,6 +48,7 @@ from gramps.gen.lib import (
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
+from gramps.gen.utils.db import family_name
 from gramps.gui.editors import EditEventRef, EditPerson
 from gramps.gui.selectors import SelectorFactory
 
@@ -63,9 +64,11 @@ from .frame_utils import (
     get_confidence,
     get_confidence_color_css,
     get_event_category_color_css,
+    get_event_role_color_css,
     get_key_person_events,
     get_participants,
     get_person_color_css,
+    get_relation,
     get_relationship_color_css,
     menu_item,
     submenu_item,
@@ -98,9 +101,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         category=None,
         groups=None,
     ):
-        PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, event
-        )
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, event)
         self.event = event
         self.event_ref = event_ref
         self.event_category = category
@@ -110,42 +111,10 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         self.relation_to_reference = relation_to_reference
         self.confidence = 0
         self.event_participant = None
+        self.role_type = "other"
 
-        if self.get_option("show-age"):
-            if reference_person:
-                target_person = reference_person
-            else:
-                target_person = event_person
-            try:
-                key_events = get_key_person_events(
-                    grstate.dbstate.db, target_person, birth_only=True
-                )
-                birth = key_events["birth"]
-
-                if birth and birth.date and event.date:
-                    span = Span(birth.date, event.date)
-                    if span.is_valid():
-                        year = event.date.get_year()
-                        if birth.handle == event.handle:
-                            text = "<b>{}</b>".format(year)
-                        else:
-                            precision = global_config.get(
-                                "preferences.age-display-precision"
-                            )
-                            age = str(
-                                span.format(precision=precision).strip("()")
-                            )
-                            text = "<b>{}</b>\n{}".format(
-                                year, age.replace(", ", ",\n")
-                            )
-                        label = Gtk.Label(
-                            label=self.markup.format(text),
-                            use_markup=True,
-                            justify=Gtk.Justification.CENTER,
-                        )
-                        self.age.pack_start(label, False, False, 0)
-            except AttributeError:
-                pass
+        if event and event.date and groptions.age_base:
+            self.load_age(groptions.age_base, event.date)
 
         if event_ref:
             role = self.event_ref.get_role()
@@ -162,22 +131,40 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             text = "{} {} {}".format(
                 event_type, _("of"), relation_to_reference.title()
             )
-        elif role and not role.is_primary():
-            participant_name = "Unknown"
-            participant_handle = ""
-            participants, participant_string = get_participants(
-                grstate.dbstate.db, event
-            )
-            for (
-                dummy_var1,
-                participant,
-                participant_event_ref,
-            ) in participants:
-                if participant_event_ref.get_role().is_primary():
-                    participant_name = name_displayer.display(participant)
-                    participant_handle = participant.get_handle()
-            if participant_handle:
-                text = "{} {} {}".format(event_type, _("of"), participant_name)
+        elif not reference_person:
+            if event_family:
+                text = "{} {} {}".format(
+                    event_type,
+                    _("of"),
+                    family_name(event_family, grstate.dbstate.db),
+                )
+            elif event_person:
+                text = "{} {} {}".format(event_type, _("of"), event_person_name)
+        elif role:
+            if not role.is_primary():
+                self.role_type = "secondary"
+                participant_name = "Unknown"
+                participant_handle = ""
+                participants, participant_string = get_participants(
+                    grstate.dbstate.db, event
+                )
+                for (
+                    dummy_var1,
+                    participant,
+                    participant_event_ref,
+                ) in participants:
+                    if participant_event_ref.get_role().is_primary():
+                        participant_name = name_displayer.display(participant)
+                        participant_handle = participant.get_handle()
+                if participant_handle:
+                    text = "{} {} {}".format(
+                        event_type, _("of"), participant_name
+                    )
+            else:
+                if role.is_family():
+                    self.role_type = "family"
+                else:
+                    self.role_type = "primary"
         name = TextLink(
             text,
             "Event",
@@ -191,7 +178,28 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         if (
             role and not role.is_primary() and not role.is_family()
         ) or self.get_option("show-role-always"):
-            self.add_fact(self.make_label(str(role)))
+            if self.event_person:
+                if (
+                    relation_to_reference
+                    and relation_to_reference != "self"
+                    and reference_person
+                ):
+                    inverse_relation = get_relation(
+                        grstate.dbstate.db, reference_person, event_person
+                    )
+                    if inverse_relation:
+                        self.add_fact(
+                            self.make_label(
+                                "{}: {}".format(
+                                    _("Implicit Family"),
+                                    inverse_relation.split()[0].title(),
+                                )
+                            )
+                        )
+                    else:
+                        self.add_fact(self.make_label(_("Implicit Family")))
+                else:
+                    self.add_fact(self.make_label(str(role)))
 
         date = glocale.date_displayer.display(event.date)
         if date:
@@ -298,10 +306,12 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 self.relation_to_reference, self.grstate.config
             )
         if scheme == 2:
+            return get_event_role_color_css(self.role_type, self.grstate.config)
+        if scheme == 3:
             return get_event_category_color_css(
                 self.event_category, self.grstate.config
             )
-        if scheme == 3:
+        if scheme == 4:
             return get_confidence_color_css(
                 self.confidence, self.grstate.config
             )

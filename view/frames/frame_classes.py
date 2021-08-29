@@ -165,6 +165,7 @@ class GrampsOptions:
         "relation",
         "parent",
         "context",
+        "age_base",
     )
 
     def __init__(self, option_space, size_groups=None, frame_number=0):
@@ -177,6 +178,7 @@ class GrampsOptions:
         self.relation = None
         self.parent = None
         self.context = option_space.split(".")[-1]
+        self.age_base = None
 
         if size_groups is None:
             self.size_groups = {
@@ -229,6 +231,12 @@ class GrampsOptions:
         Set the context.
         """
         self.context = value
+
+    def set_age_base(self, value):
+        """
+        Set the context.
+        """
+        self.age_base = value
 
 
 # ------------------------------------------------------------------------

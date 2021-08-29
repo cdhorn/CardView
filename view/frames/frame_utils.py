@@ -399,6 +399,18 @@ def get_event_category_color_css(index, config):
     return format_color_css(background, border)
 
 
+def get_event_role_color_css(index, config):
+    """
+    Return css color string based on event role.
+    """
+    if not index:
+        return ""
+
+    background = config.get("options.colors.roles.{}".format(index))
+    border = config.get("options.colors.roles.border-{}".format(index))
+    return format_color_css(background, border)
+
+
 def get_person_color_css(person, living=False, home=None):
     """
     Return css color string based on person information.

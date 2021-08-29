@@ -87,6 +87,17 @@ CONFIGSETTINGS = (
     ("options.colors.events.border-other", ["#cccccc", "#000000"]),
     ("options.colors.events.border-custom", ["#cccccc", "#000000"]),
     ######################################################################
+    ## Event Role Color Scheme
+    ######################################################################
+    ("options.colors.roles.primary", ["#bbe68e", "#304918"]),
+    ("options.colors.roles.secondary", ["#eeeeee", "#454545"]),
+    ("options.colors.roles.family", ["#eeeeee", "#454545"]),
+    ("options.colors.roles.other", ["#eeeeee", "#454545"]),
+    ("options.colors.roles.border-primary", ["#cccccc", "#000000"]),
+    ("options.colors.roles.border-secondary", ["#cccccc", "#000000"]),
+    ("options.colors.roles.border-family", ["#cccccc", "#000000"]),
+    ("options.colors.roles.border-other", ["#cccccc", "#000000"]),
+    ######################################################################
     # Global Options
     ######################################################################
     ("options.global.pin-header", True),
