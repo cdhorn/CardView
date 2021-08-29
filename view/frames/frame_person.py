@@ -65,6 +65,7 @@ from gramps.gui.selectors import SelectorFactory
 from .frame_const import _BIRTH_EQUIVALENTS, _DEATH_EQUIVALENTS, _GENDERS
 from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
+    format_date_string,
     get_person_color_css,
     get_relation,
     menu_item,
@@ -131,14 +132,47 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             event_cache.append(
                 grstate.dbstate.db.get_event_from_handle(event_ref.ref)
             )
-        self.load_fields(event_cache, "facts-field")
-        if "active" in groptions.option_space:
-            self.load_fields(event_cache, "extra-field", extra=True)
+        if self.get_option("event-format") == 0:
+            self.load_years(event_cache)
+        else:
+            self.load_fields(event_cache, "facts-field")
+            if "active" in groptions.option_space:
+                self.load_fields(event_cache, "extra-field", extra=True)
         del event_cache
 
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+    def load_years(self, event_cache):
+        """
+        Parse and load birth and death dates only.
+        """
+        birth, death = self._get_birth_death(event_cache)
+        text = format_date_string(birth, death)
+        self.add_fact(self.make_label(text))
+
+    def _get_birth_death(self, event_cache):
+        """
+        Extract birth and death events.
+        """
+        birth = False
+        death = False
+        for event in event_cache:
+            event_type = event.get_type().xml_str()
+            if event_type == "Birth":
+                birth = event
+            elif event_type == "Death":
+                death = event
+                self.living = False
+            elif event_type in _DEATH_EQUIVALENTS:
+                self.living = False
+
+        if self.living:
+            self.living = probably_alive(
+                self.primary.obj, self.grstate.dbstate.db
+            )
+        return birth, death
 
     def load_fields(self, event_cache, field_type, extra=False):
         """
@@ -148,23 +182,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         skip_birth_alternates = self.get_option(key)
         key = "{}-skip-death-alternates".format(field_type)
         skip_death_alternates = self.get_option(key)
-        have_birth = False
-        have_death = False
-        for event in event_cache:
-            event_type = event.get_type().xml_str()
-            if event_type == "Birth":
-                have_birth = event
-            elif event_type == "Death":
-                have_death = event
-                self.living = False
-            elif event_type in _DEATH_EQUIVALENTS:
-                have_death = event
-                self.living = False
-
-        if self.living:
-            self.living = probably_alive(
-                self.primary.obj, self.grstate.dbstate.db
-            )
+        have_birth, have_death = self._get_birth_death(event_cache)
 
         count = 1
         while count < 8:
