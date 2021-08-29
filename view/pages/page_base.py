@@ -398,7 +398,7 @@ class BaseProfilePage(Callback):
         grid.attach(notebook, 1, 0, 1, 1)
         return _("Colors"), grid
 
-    def _get_configure_page_funcs(self):
+    def get_configure_page_funcs(self):
         """
         Return the list of functions for generating the configuration dialog notebook pages.
         """

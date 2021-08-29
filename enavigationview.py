@@ -25,7 +25,7 @@ Provide the base classes for GRAMPS' DataView classes
 
 # ----------------------------------------------------------------
 #
-# python modules
+# Python modules
 #
 # ----------------------------------------------------------------
 from abc import abstractmethod
@@ -35,15 +35,16 @@ import logging
 
 # ----------------------------------------------------------------
 #
-# gtk
+# Gnome/Gtk modules
 #
 # ----------------------------------------------------------------
 from gi.repository import Gdk
 from gi.repository import Gtk
 
+
 # ----------------------------------------------------------------
 #
-# Gramps
+# Gramps modules
 #
 # ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -64,16 +65,17 @@ MRU_SIZE = 10
 MRU_TOP = '<section id="CommonHistory">'
 MRU_BTM = "</section>"
 
+
 # ------------------------------------------------------------------------------
 #
-# ENavigationView
+# ExtendedNavigationView class
 #
 # ------------------------------------------------------------------------------
-class ENavigationView(PageView):
+class ExtendedNavigationView(PageView):
     """
-    The NavigationView class is the base class for all Data Views that require
-    navigation functionalilty. Views that need bookmarks and forward/backward
-    should derive from this class.
+    The ExtendedNavigationView class is the base class for all views that
+    require advanced navigation functionality across multiple object types.
+    It requires use of the ExtendedHistory class to keep list views in sync.
     """
 
     def __init__(self, title, pdata, state, uistate, bm_type, nav_group):
@@ -94,10 +96,8 @@ class ENavigationView(PageView):
         self.mru_ui = None
         self.active_type = None
 
-        self.history = History(self.dbstate)
-
-        self.hist = {}
-        for hist_type in (
+        self.other_history = {}
+        for history_type in (
             "Person",
             "Family",
             "Event",
@@ -108,17 +108,29 @@ class ENavigationView(PageView):
             "Source",
             "Repository",
         ):
-            self.hist[hist_type] = self.uistate.get_history(hist_type)
-            self.hist[hist_type].connect("active-changed", self.sync(hist_type))
+            self.other_history[history_type] = self.uistate.get_history(
+                history_type
+            )
+            self.other_history[history_type].connect(
+                "active-changed", self.sync(history_type)
+            )
+        self.history = ExtendedHistory(self.dbstate, self.other_history)
 
-    # A partial would be neater here but it doesn't work.
-    def sync(self, hist_type):
+    def sync(self, history_type):
+        """
+        Return a callback to update our view when a corresponding list
+        view change is made.
+        """
+
         def sync(handle):
-            self.change_active((hist_type, handle))
+            self.change_active((history_type, handle))
 
         return sync
 
     def bm_change(self, handle):
+        """
+        Handle bookmark change.
+        """
         self.change_active(("Person", "Person", handle, None, None))
 
     def navigation_type(self):
@@ -251,11 +263,6 @@ class ENavigationView(PageView):
             self.active_type = full_tuple[1]
             hobj.push(full_tuple)
 
-            if full_tuple[1] in self.hist:
-                sync_hist = self.hist[full_tuple[1]]
-                if sync_hist.present() != full_tuple[2]:
-                    sync_hist.push(full_tuple[2])
-
     @abstractmethod
     def goto_handle(self, handle):
         """
@@ -275,9 +282,9 @@ class ENavigationView(PageView):
         return [active_handle] if active_handle else []
 
     ####################################################################
-    # BOOKMARKS
+    # Bookmark related methods
     ####################################################################
-    def add_bookmark(self, *obj):
+    def add_bookmark(self, *_dummy_obj):
         """
         Add a bookmark to the list.
         """
@@ -303,7 +310,7 @@ class ENavigationView(PageView):
                 parent=self.uistate.window,
             )
 
-    def edit_bookmarks(self, *obj):
+    def edit_bookmarks(self, *_dummy_obj):
         """
         Call the bookmark editor.
         """
@@ -320,11 +327,10 @@ class ENavigationView(PageView):
                 ("EditBook", self.edit_bookmarks, "<shift><PRIMARY>D"),
             ]
         )
-
         self._add_action_group(self.book_action)
 
     ####################################################################
-    # NAVIGATION
+    # Navigation related methods
     ####################################################################
     def navigation_actions(self):
         """
@@ -351,7 +357,7 @@ class ENavigationView(PageView):
         self._add_action_group(self.fwd_action)
         self._add_action_group(self.other_action)
 
-    def set_default_person(self, *obj):
+    def set_default_person(self, *_dummy_obj):
         """
         Set the default person.
         """
@@ -359,7 +365,7 @@ class ENavigationView(PageView):
         if active:
             self.dbstate.db.set_default_person_handle(active)
 
-    def home(self, *obj):
+    def home(self, *_dummy_obj):
         """
         Move to the default person.
         """
@@ -380,7 +386,7 @@ class ENavigationView(PageView):
                 parent=self.uistate.window,
             )
 
-    def jump(self, *obj):
+    def jump(self, *_dummy_obj):
         """
         A dialog to move to a Gramps ID entered by the user.
         """
@@ -425,9 +431,8 @@ class ENavigationView(PageView):
         Get an object handle from its Gramps ID.
         Needs to be implemented by the inheriting class.
         """
-        pass
 
-    def fwd_clicked(self, *obj):
+    def fwd_clicked(self, *_dummy_obj):
         """
         Move forward one object in the history.
         """
@@ -440,7 +445,7 @@ class ENavigationView(PageView):
         self.uimanager.set_actions_sensitive(self.back_action, True)
         hobj.lock = False
 
-    def back_clicked(self, *obj):
+    def back_clicked(self, *_dummy_obj):
         """
         Move backward one object in the history.
         """
@@ -456,9 +461,8 @@ class ENavigationView(PageView):
         hobj.lock = False
 
     ####################################################################
-    # MRU functions
+    # MRU related methods
     ####################################################################
-
     def mru_disable(self):
         """
         Remove the UI and action groups for the MRU list.
@@ -495,7 +499,7 @@ class ENavigationView(PageView):
 
         data = []
         for index in range(menu_len - 1, -1, -1):
-            name, _obj = navigation_label(
+            name, dummy_obj = navigation_label(
                 self.dbstate.db, items[index][0], items[index][1]
             )
             menus += menuitem % (nav_type, index, html.escape(name))
@@ -512,9 +516,6 @@ class ENavigationView(PageView):
         self.mru_action.add_actions(data)
         self.mru_enable(update_menu)
 
-    ####################################################################
-    # Template functions
-    ####################################################################
     @abstractmethod
     def build_tree(self):
         """
@@ -525,7 +526,7 @@ class ENavigationView(PageView):
     @abstractmethod
     def build_widget(self):
         """
-        Builds the container widget for the interface. Must be overridden by the
+        Builds the container widget for the interface. Must be overridden by
         the base class. Returns a gtk container widget.
         """
 
@@ -540,20 +541,25 @@ class ENavigationView(PageView):
                 ):
                     self.call_copy()
                     return True
-        return super(ENavigationView, self).key_press_handler(widget, event)
+        return super().key_press_handler(widget, event)
 
     def call_copy(self):
         """
-        Navigation specific copy (control+c) hander. If the
-        copy can be handled, it returns true, otherwise false.
+        Navigation specific copy (control+c) hander. If the copy can be handled
+        it returns True, otherwise False.
 
-        The code brings up the Clipboard (if already exists) or
-        creates it. The copy is handled through the drag and drop
-        system.
+        The code brings up the Clipboard (if already exists) or creates it. The
+        copy is handled through the drag and drop system.
         """
         handles = self.selected_handles()
         if handles:
-            obj_type, handle = handles[0]
+            (
+                dummy_page_type,
+                obj_type,
+                handle,
+                dummy_secondary_type,
+                dummy_secondary_reference,
+            ) = handles[0]
         return self.copy_to_clipboard(obj_type, [handle])
 
 
@@ -564,32 +570,43 @@ def make_callback(func, handle):
     return lambda x, y: func(handle)
 
 
-# -------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
-# History manager
+# ExtendedHistory class
 #
-# -------------------------------------------------------------------------
-class History(Callback):
+# ------------------------------------------------------------------------------
+class ExtendedHistory(Callback):
     """
-    History manages the pages that have been viewed, with ability to go
-    backward or forward.
+    The ExtendedHistory manages the pages that have been viewed, with ability to
+    go backward or forward. Unlike a list view History class it can track pages
+    for secondary objects and will attempt to keep the list view history in
+    sync.
 
-    A history item or page reference is a tuple consisting of:
+    In this extended class a history item or page reference is a tuple
+    consisting of:
 
-        (page_type,
-         primary_object_type, primary_object_handle,
-         secondary_obj_type, secondary_obj_reference)
+        (
+            page_type,
+            primary_object_type,
+            primary_object_handle,
+            secondary_obj_type,
+            secondary_obj_reference
+        )
 
-    The secondary_obj_reference may be a handle or a signature for the
-    object in the form of a hash.
+    The secondary_obj_reference is a string which for reference objects will be
+    a handle so they can be identified or for non-references a signature for the
+    object in the form of a sha256 hash so it can be identified. In this later
+    form for the history to remain consistent as such objects are updated the
+    replace_secondary method should be called to update the hash as needed.
     """
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
 
-    def __init__(self, dbstate):
+    def __init__(self, dbstate, other_history):
         Callback.__init__(self)
         self.dbstate = dbstate
         self.history = []
+        self.other_history = other_history
         self.mru = []
         self.index = -1
         self.lock = False
@@ -626,17 +643,26 @@ class History(Callback):
 
     def clear(self):
         """
-        Clears the history, resetting the values back to their defaults
+        Clears the history, resetting the values back to their defaults.
         """
         self.history = []
         self.mru = []
         self.index = -1
         self.lock = False
 
+    def sync_other(self, obj_type, obj_handle):
+        """
+        Updates the history object for the list view if needed.
+        """
+        if obj_type in self.other_history:
+            sync_hist = self.other_history[obj_type]
+            if sync_hist.present() != obj_handle:
+                sync_hist.push(obj_handle)
+
     def push(self, item):
         """
         Pushes the page reference on the history stack and object on the
-        mru stack
+        mru stack.
         """
         self.prune()
         if len(item) == 2:
@@ -653,10 +679,11 @@ class History(Callback):
             self.index += 1
         if self.history:
             self.emit("active-changed", (full_item,))
+        self.sync_other(full_item[1], full_item[2])
 
     def forward(self, step=1):
         """
-        Moves forward in the history list
+        Moves forward in the history list.
         """
         self.index += step
         item = self.history[self.index]
@@ -666,11 +693,12 @@ class History(Callback):
         self.mru.append(mru_item)
         self.emit("mru-changed", (self.mru,))
         self.emit("active-changed", (item,))
+        self.sync_other(item[1], item[2])
         return item
 
     def back(self, step=1):
         """
-        Moves backward in the history list
+        Moves backward in the history list.
         """
         self.index -= step
         try:
@@ -681,13 +709,14 @@ class History(Callback):
             self.mru.append(mru_item)
             self.emit("mru-changed", (self.mru,))
             self.emit("active-changed", (item,))
+            self.sync_other(item[1], item[2])
             return item
         except IndexError:
             return ""
 
     def present(self):
         """
-        return the person handle that is now active in the history
+        Return the active/current history object.
         """
         try:
             if self.history:
@@ -698,61 +727,90 @@ class History(Callback):
 
     def at_end(self):
         """
-        returns True if we are at the end of the history list
+        Return True if at the end of the history list.
         """
         return self.index + 1 == len(self.history)
 
     def at_front(self):
         """
-        returns True if we are at the front of the history list
+        Return True if at the front of the history list.
         """
         return self.index <= 0
 
     def prune(self):
         """
-        Truncates the history list at the current object.
+        Truncate the history list at the current object.
         """
         if not self.at_end():
             self.history = self.history[0 : self.index + 1]
 
     def person_removed(self, handle_list):
+        """
+        Remove a person from the history.
+        """
         self.handles_removed("Person", handle_list)
 
     def family_removed(self, handle_list):
+        """
+        Remove a family from the history.
+        """
         self.handles_removed("Family", handle_list)
 
     def event_removed(self, handle_list):
+        """
+        Remove an event from the history.
+        """
         self.handles_removed("Event", handle_list)
 
     def place_removed(self, handle_list):
+        """
+        Remove a place from the history.
+        """
         self.handles_removed("Place", handle_list)
 
     def media_removed(self, handle_list):
+        """
+        Remove a media item from the history.
+        """
         self.handles_removed("Media", handle_list)
 
     def note_removed(self, handle_list):
+        """
+        Remove a note from the history.
+        """
         self.handles_removed("Note", handle_list)
 
     def citation_removed(self, handle_list):
+        """
+        Remove a citation from the history.
+        """
         self.handles_removed("Citation", handle_list)
 
     def source_removed(self, handle_list):
+        """
+        Remove a source from the history.
+        """
         self.handles_removed("Source", handle_list)
 
     def repository_removed(self, handle_list):
+        """
+        Remove a repository from the history.
+        """
         self.handles_removed("Repository", handle_list)
 
     def tag_removed(self, handle_list):
+        """
+        Remove a tag from the history.
+        """
         self.handles_removed("Tag", handle_list, silent=True)
 
-    def handles_removed(self, nav_type, handle_list, silent=False):
+    def handles_removed(self, _dummy_var, handle_list, silent=False):
         """
-        Called in response to an object-delete signal.
-        Removes a list of pages from the history.
+        Removes pages for a specific object from the history.
         """
         for handle in handle_list:
             for item in self.history:
-                if item[2] == handle or item[4] == handle:
+                if handle in [item[2], item[4]]:
                     self.history.remove(item)
                     self.index -= 1
 
@@ -766,7 +824,7 @@ class History(Callback):
 
     def replace_secondary(self, old, new):
         """
-        Replace old secondary value with new one.
+        Replace old secondary handle or hash value with new one.
         """
         for item in self.history:
             if item[4] == old:

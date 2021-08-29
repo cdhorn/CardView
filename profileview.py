@@ -53,7 +53,7 @@ from gramps.gen.utils.db import navigation_label
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 
-from enavigationview import ENavigationView
+from enavigationview import ExtendedNavigationView
 from view.frames.frame_utils import get_config_option, save_config_option
 from view.pages.page_options import CONFIGSETTINGS
 from view.pages.page_person import PersonProfilePage
@@ -76,7 +76,7 @@ from view.pages.page_attribute import AttributeProfilePage
 _ = glocale.translation.sgettext
 
 
-class ProfileView(ENavigationView):
+class ProfileView(ExtendedNavigationView):
     """
     View showing a textual representation of the relationships and events of
     the active person.
@@ -86,7 +86,7 @@ class ProfileView(ENavigationView):
     CONFIGSETTINGS = CONFIGSETTINGS
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
-        ENavigationView.__init__(
+        ExtendedNavigationView.__init__(
             self,
             _("Profile"),
             pdata,
@@ -211,16 +211,17 @@ class ProfileView(ENavigationView):
         for item in self.CONFIGSETTINGS:
             self._config.connect(item[0], self.config_update)
 
-    def config_update(self, client, cnxn_id, entry, data):
-        #        for page in self.pages.values():
-        #            page.config_update()
+    def config_update(self, *_dummy_args):
+        """
+        Redraw if configuration option changed.
+        """
         self.redraw()
 
     def _get_configure_page_funcs(self):
         """
         Return functions to build configuration dialog for a page.
         """
-        return self.active_page._get_configure_page_funcs()
+        return self.active_page.get_configure_page_funcs()
 
     def goto_handle(self, handle):
         self.change_object(handle)
@@ -237,7 +238,7 @@ class ProfileView(ENavigationView):
                 if obj_tuple:
                     self.history.push(tuple(obj_tuple))
                     self.loaded = True
-        ENavigationView.change_page(self)
+        ExtendedNavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
     def seed_history(self):
@@ -249,7 +250,7 @@ class ProfileView(ENavigationView):
         if not self.passed_uistate.history_lookup:
             return False
         for navobj in self.passed_uistate.history_lookup:
-            objtype, navtype = navobj
+            objtype, dummy_navtype = navobj
             if objtype == self.passed_navtype:
                 objhist = self.passed_uistate.history_lookup[navobj]
                 if objhist and objhist.present():
@@ -507,7 +508,10 @@ class ProfileView(ENavigationView):
     ]
 
     def define_actions(self):
-        ENavigationView.define_actions(self)
+        """
+        Define supported page actions.
+        """
+        ExtendedNavigationView.define_actions(self)
         for page in self.pages.values():
             page.define_actions(self)
 
@@ -515,23 +519,32 @@ class ProfileView(ENavigationView):
         self._add_action("FilterEdit", callback=self.filter_editor)
         self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
 
-    def filter_editor(self, *obj):
+    def filter_editor(self, *_dummy_obj):
         try:
             FilterEditor("Person", CUSTOM_FILTERS, self.dbstate, self.uistate)
         except WindowActiveError:
             return
 
-    def edit_active(self, *obj):
+    def edit_active(self, *_dummy_obj):
+        """
+        Edit active object.
+        """
         self.active_page.edit_active()
 
     def change_db(self, db):
+        """
+        Reset page if database changed.
+        """
         self._change_db(db)
         if self.active:
             self.bookmarks.redraw()
         self.history.clear()
         self.redraw(None)
 
-    def redraw(self, *obj):
+    def redraw(self, *_dummy_obj):
+        """
+        Redraw current view if needed.
+        """
         if self.active:
             active_object = self.get_active()
             if active_object:
@@ -542,6 +555,9 @@ class ProfileView(ENavigationView):
             self.dirty = True
 
     def _get_last(self):
+        """
+        Try to determine last accessed object.
+        """
         dbid = self.dbstate.db.get_dbid()
         if not dbid:
             return None
@@ -560,13 +576,22 @@ class ProfileView(ENavigationView):
         return full_tuple
 
     def clipboard_copy(self, data, handle):
+        """
+        Copy current object to clipboard.
+        """
         return self.copy_to_clipboard(data, [handle])
 
     def object_changed(self, obj_type, handle):
+        """
+        Change object.
+        """
         self.change_active((obj_type, obj_type, handle, None, None))
         self.change_object((obj_type, obj_type, handle, None, None))
 
     def _clear_change(self):
+        """
+        Clear view for object change.
+        """
         list(map(self.header.remove, self.header.get_children()))
         list(map(self.vbox.remove, self.vbox.get_children()))
         if not self.dbstate.is_open():
@@ -697,7 +722,7 @@ class ProfileView(ENavigationView):
 
         self.active_page = page
         self.active_type = primary_obj_type
-        name, _obj = navigation_label(
+        name, dummy_obj = navigation_label(
             self.dbstate.db, primary_obj_type, primary_obj.get_handle()
         )
         if (
@@ -717,17 +742,20 @@ class ProfileView(ENavigationView):
         """
         Called when the page is displayed.
         """
-        ENavigationView.set_active(self)
+        ExtendedNavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
     def set_inactive(self):
         """
         Called when the page is no longer displayed.
         """
-        ENavigationView.set_inactive(self)
+        ExtendedNavigationView.set_inactive(self)
         self.uistate.viewmanager.tags.tag_disable()
 
     def selected_handles(self):
+        """
+        Return current active handle.
+        """
         return [self.get_active()]
 
     def add_tag(self, trans, object_handle, tag_handle):
