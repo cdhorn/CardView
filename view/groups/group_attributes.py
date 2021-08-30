@@ -24,14 +24,6 @@ AttributesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -52,15 +44,15 @@ class AttributesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(self.obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
         for attribute in obj.get_attribute_list():
-            frame = AttributeGrampsFrame(
-                grstate, groptions, obj, attribute
-            )
+            frame = AttributeGrampsFrame(grstate, groptions, obj, attribute)
             self.add_frame(frame)
         self.show_all()

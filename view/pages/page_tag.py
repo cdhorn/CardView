@@ -56,8 +56,8 @@ class TagProfilePage(BaseProfilePage):
     objects.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Person"
@@ -84,7 +84,7 @@ class TagProfilePage(BaseProfilePage):
         grstate = GrampsState(
             self.dbstate,
             self.uistate,
-            self.callback_router,
+            self.callbacks,
             self.config,
             self.page_type().lower(),
         )

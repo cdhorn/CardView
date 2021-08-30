@@ -123,6 +123,7 @@ class ExtendedNavigationView(PageView):
         """
 
         def sync(handle):
+            self.dirty = True
             self.change_active((history_type, handle))
 
         return sync
@@ -439,6 +440,7 @@ class ExtendedNavigationView(PageView):
         hobj = self.get_history()
         hobj.lock = True
         if not hobj.at_end():
+            self.dirty = True
             hobj.forward()
             self.uistate.modify_statusbar(self.dbstate)
         self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
@@ -452,6 +454,7 @@ class ExtendedNavigationView(PageView):
         hobj = self.get_history()
         hobj.lock = True
         if not hobj.at_front():
+            self.dirty = True
             hobj.back()
             self.uistate.modify_statusbar(self.dbstate)
         self.uimanager.set_actions_sensitive(

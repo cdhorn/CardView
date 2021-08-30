@@ -32,14 +32,6 @@ from copy import copy
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -70,7 +62,9 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
@@ -78,9 +72,7 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
 
         repository_list = []
         for repo_ref in obj.get_reporef_list():
-            repository = grstate.dbstate.db.get_repository_from_handle(
-                repo_ref.ref
-            )
+            repository = self.fetch("Repository", repo_ref.ref)
             repository_list.append((repository, repo_ref))
 
         if repository_list:

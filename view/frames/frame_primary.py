@@ -48,7 +48,6 @@ from gi.repository import Gtk, Gdk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
@@ -70,7 +69,6 @@ from gramps.gen.lib import (
     EventType,
     Name,
     Person,
-    Span,
     SrcAttribute,
     Surname,
     Tag,
@@ -500,7 +498,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Change active person for the view.
         """
-        self.grstate.router("object-changed", ("Person", handle))
+        self.grstate.object_changed("Person", handle)
 
     def _attributes_option(self):
         """
@@ -619,7 +617,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         tag_add_list = []
         tag_remove_list = []
         for handle in self.grstate.dbstate.db.get_tag_handles():
-            tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+            tag = self.fetch("Tag", handle)
             if handle in self.primary.obj.tag_list:
                 tag_remove_list.append(tag)
             else:
@@ -852,9 +850,8 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Copy current object to the clipboard.
         """
-        self.grstate.router(
-            "copy-to-clipboard",
-            (self.primary.obj_type, self.primary.obj.get_handle()),
+        self.grstate.copy_to_clipboard(
+            self.primary.obj_type, self.primary.obj.get_handle()
         )
 
     def _add_new_family_event_option(self):
@@ -900,10 +897,8 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.primary.obj_type == "Family":
             family = self.primary.obj
         else:
-            family = self.grstate.dbstate.db.get_family_from_handle(
-                self.groptions.backlink
-            )
-        event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+            family = self.fetch("Family", self.groptions.backlink)
+        event = self.fetch("Event", event_ref.ref)
         action = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Event"),
@@ -937,21 +932,17 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             handle = self.groptions.backlink
-            family = self.grstate.dbstate.db.get_family_from_handle(handle)
+            family = self.fetch("Family", handle)
         callback = lambda x: self.adding_child_to_family(x, handle)
         child = Person()
         name = Name()
         name.add_surname(Surname())
         name.set_primary_surname(0)
-        father = self.grstate.dbstate.db.get_person_from_handle(
-            family.get_father_handle()
-        )
+        father = self.fetch("Person", family.get_father_handle())
         if father:
             preset_name(father, name)
         else:
-            mother = self.grstate.dbstate.db.get_person_from_handle(
-                family.get_mother_handle()
-            )
+            mother = self.fetch("Person", family.get_mother_handle())
             if mother:
                 preset_name(mother, name)
         child.set_primary_name(name)
@@ -990,7 +981,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Finish adding the child to the family.
         """
-        family = self.grstate.dbstate.db.get_family_from_handle(family_handle)
+        family = self.fetch("Family", family_handle)
         action = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Child"),
@@ -1027,9 +1018,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             family_handle = self.groptions.backlink
-            family = self.grstate.dbstate.db.get_family_from_handle(
-                family_handle
-            )
+            family = self.fetch("Family", family_handle)
         skip_list = [family.get_father_handle(), family.get_mother_handle()]
         skip_list.extend(x.ref for x in family.get_child_ref_list())
         selector = select_person(

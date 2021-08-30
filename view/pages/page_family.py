@@ -71,8 +71,8 @@ class FamilyProfilePage(BaseProfilePage):
     Provides the family profile page view with information about the family.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.order_action = None
         self.family_action = None
         self.reorder_sensitive = None
@@ -133,7 +133,11 @@ class FamilyProfilePage(BaseProfilePage):
         }
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.spouse", size_groups=groups)
         groptions.set_vertical(False)
@@ -178,7 +182,9 @@ class FamilyProfilePage(BaseProfilePage):
                 {"citation": get_citations_group(grstate, family)}
             )
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, family)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, family)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, family)})
         if "note" in groups:

@@ -55,7 +55,6 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.lib import Media, Span
 from gramps.gen.lib.date import Today
 from gramps.gen.utils.file import media_path_full
-from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.utils import open_file_with_default_application
 
 
@@ -115,6 +114,7 @@ class GrampsObject:
     def __new__(cls, obj):
         if obj:
             return super().__new__(cls)
+        return None
 
     @property
     def obj_hash(self):
@@ -136,14 +136,50 @@ class GrampsState:
     A simple class to encapsulate the state of the Gramps application.
     """
 
-    __slots__ = ("dbstate", "uistate", "router", "config", "page_type")
+    __slots__ = ("dbstate", "uistate", "callbacks", "config", "page_type")
 
-    def __init__(self, dbstate, uistate, router, config, page_type):
+    def __init__(self, dbstate, uistate, callbacks, config, page_type):
         self.dbstate = dbstate
         self.uistate = uistate
-        self.router = router
+        self.callbacks = callbacks
         self.config = config
         self.page_type = page_type
+
+    def fetch(self, obj_type, obj_handle):
+        """
+        Fetches an object from cache if possible.
+        """
+        return self.callbacks["fetch-object"](obj_type, obj_handle)
+
+    def thumbnail(self, path, rectangle, size):
+        """
+        Fetches a thumbnail from cache if possible.
+        """
+        return self.callbacks["fetch-thumbnail"](path, rectangle, size)
+
+    def object_changed(self, obj_type, handle):
+        """
+        Change page object for simple primary objects.
+        """
+        return self.callbacks["object-changed"](obj_type, handle)
+
+    def context_changed(self, obj_type, data):
+        """
+        Change page context across full navigatable spectrum.
+        """
+        return self.callbacks["context-changed"](obj_type, data)
+
+    def copy_to_clipboard(self, data, handle):
+        """
+        Copy object to clipboard.
+        """
+        return self.callbacks["copy-to-clipboard"](data, handle)
+
+    def update_history(self, old, new):
+        """
+        Update a secondary reference in the navigation history.
+        """
+        return self.callbacks["update-history-reference"](old, new)
 
 
 # ------------------------------------------------------------------------
@@ -258,6 +294,7 @@ class GrampsConfig:
         self.markup = "{}"
         if self.grstate.config.get("options.global.use-smaller-detail-font"):
             self.markup = "<small>{}</small>"
+        self.fetch = self.grstate.fetch
 
     def get_option(self, key, full=True, keyed=False):
         """
@@ -537,7 +574,7 @@ class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
 
         tags = []
         for handle in obj.get_tag_list():
-            tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+            tag = self.fetch("Tag", handle)
             tags.append(tag)
 
         if self.grstate.config.get("options.global.sort-tags-by-name"):
@@ -584,9 +621,9 @@ class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
         """
         Request page for tag.
         """
-        tag = self.grstate.dbstate.db.get_tag_from_handle(handle)
+        tag = self.fetch("Tag", handle)
         data = pickle.dumps((self.obj_type, self.obj, "Tag", tag.handle))
-        return self.grstate.router("context-changed", ("Tag", data))
+        return self.grstate.context_changed("Tag", data)
 
 
 # ------------------------------------------------------------------------
@@ -749,17 +786,14 @@ class GrampsImageViewFrame(Gtk.Frame):
         """
         mobj = media
         if not mobj:
-            mobj = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
+            mobj = self.grstate.fetch("Media", media_ref.ref)
             self.obj = mobj
         if mobj and mobj.get_mime_type()[0:5] == "image":
             rectangle = None
             if media_ref and crop:
                 rectangle = media_ref.get_rectangle()
-            pixbuf = get_thumbnail_image(
-                media_path_full(self.grstate.dbstate.db, mobj.get_path()),
-                rectangle=rectangle,
-                size=size,
-            )
+            path = media_path_full(self.grstate.dbstate.db, mobj.get_path())
+            pixbuf = self.grstate.thumbnail(path, rectangle, size)
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
             return image

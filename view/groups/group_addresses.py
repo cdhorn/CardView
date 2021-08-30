@@ -24,14 +24,6 @@ AddressesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -52,7 +44,9 @@ class AddressesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):

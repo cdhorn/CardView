@@ -47,7 +47,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Media, Note, Source
-from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
@@ -192,16 +191,14 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         """
         Helper to extract a set of media references from an object.
         """
-        if not hasattr(obj, "media_list"):
-            return
-
-        for media_ref in obj.get_media_list():
-            media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
-            media_type = ""
-            for attribute in media.get_attribute_list():
-                if attribute.get_type().xml_str() == "Media-Type":
-                    media_type = attribute.get_value()
-            media_list.append((media, media_ref, media_type))
+        if hasattr(obj, "media_list"):
+            for media_ref in obj.get_media_list():
+                media = self.fetch("Media", media_ref.ref)
+                media_type = ""
+                for attribute in media.get_attribute_list():
+                    if attribute.get_type().xml_str() == "Media-Type":
+                        media_type = attribute.get_value()
+                media_list.append((media, media_ref, media_type))
 
 
 class GrampsMediaBarItem(GrampsFrame):
@@ -233,16 +230,13 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         mobj = media
         if not mobj:
-            mobj = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
+            mobj = self.fetch("Media", media_ref.ref)
         if mobj and mobj.get_mime_type()[0:5] == "image":
             rectangle = None
             if media_ref and crop:
                 rectangle = media_ref.get_rectangle()
-            pixbuf = get_thumbnail_image(
-                media_path_full(self.grstate.dbstate.db, mobj.get_path()),
-                rectangle=rectangle,
-                size=size,
-            )
+            path = media_path_full(self.grstate.dbstate.db, mobj.get_path())
+            pixbuf = self.grstate.thumbnail(path, rectangle, size)
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
             return image
@@ -404,7 +398,7 @@ class GrampsMediaBarItem(GrampsFrame):
         Add the new or existing citation to the current object.
         """
         if handle and self.secondary.obj.add_citation(handle):
-            citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
+            citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
                 _("Citation"),
@@ -515,7 +509,7 @@ class GrampsMediaBarItem(GrampsFrame):
         Add the new or existing note to the current object.
         """
         if handle and self.secondary.obj.add_note(handle):
-            note = self.grstate.dbstate.db.get_note_from_handle(handle)
+            note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
                 _("Note"),

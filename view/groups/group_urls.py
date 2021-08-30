@@ -32,14 +32,6 @@ import re
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -62,7 +54,9 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
@@ -80,10 +74,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         if hasattr(self.obj, "urls"):
             for url in self.obj.get_url_list():
                 frame = UrlGrampsFrame(
-                    self.grstate,
-                    self.groptions,
-                    self.obj,
-                    url
+                    self.grstate, self.groptions, self.obj, url
                 )
                 self.add_frame(frame)
 
@@ -103,7 +94,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse a specific note extracting urls.
         """
-        note = self.grstate.dbstate.db.get_note_from_handle(handle)
+        note = self.fetch("Note", handle)
         links = re.findall(r"(?P<url>https?://[^\s]+)", note.get())
         if links:
             for link in links:
@@ -116,11 +107,5 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         text = link
         if text[-1:] == ".":
             text = text[:-1]
-        frame = NoteUrlGrampsFrame(
-            self.grstate,
-            self.groptions,
-            note,
-            text
-        )
+        frame = NoteUrlGrampsFrame(self.grstate, self.groptions, note, text)
         self.add_frame(frame)
-

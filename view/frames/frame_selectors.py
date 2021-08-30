@@ -269,9 +269,7 @@ class FrameFieldSelector(Gtk.HBox):
         elif current_index == 4:
             self.hide_selectors(relation=False)
             try:
-                person = self.grstate.dbstate.db.get_person_from_handle(
-                    user_value
-                )
+                person = self.grstate.fetch("Person", user_value)
                 name = name_displayer.display(person)
                 self.relation_selector.set_label(name)
             except HandleError:

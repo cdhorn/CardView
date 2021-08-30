@@ -42,7 +42,6 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.callback import Callback
 
 
 # -------------------------------------------------------------------------
@@ -86,22 +85,15 @@ from .page_utils import create_grid
 _ = glocale.translation.sgettext
 
 
-class BaseProfilePage(Callback):
+class BaseProfilePage:
     """
     Provides functionality common to all object profile page views.
     """
 
-    __signals__ = {
-        "object-changed": (str, str),
-        "context-changed": (str, bytes),
-        "copy-to-clipboard": (str, str),
-        "update-history-reference": (str, str),
-    }
-
-    def __init__(self, dbstate, uistate, config):
-        Callback.__init__(self)
+    def __init__(self, dbstate, uistate, config, callbacks):
         self.dbstate = dbstate
         self.uistate = uistate
+        self.callbacks = callbacks
         self.config = config
         self.container = None
 
@@ -109,12 +101,6 @@ class BaseProfilePage(Callback):
         """
         Return page type.
         """
-
-    def callback_router(self, signal, payload):
-        """
-        Emit signal on behalf of a managed object.
-        """
-        self.emit(signal, payload)
 
     def edit_active(self, *_dummy_obj):
         """
@@ -253,7 +239,7 @@ class BaseProfilePage(Callback):
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None
+            self.dbstate, self.uistate, None, self.config, None, None
         )
         page = build_person_grid(
             configdialog, grstate, space, "person", extra=extra
@@ -325,7 +311,7 @@ class BaseProfilePage(Callback):
         Build global options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None
+            self.dbstate, self.uistate, None, self.config, None, None
         )
         return _("Global"), build_global_grid(configdialog, grstate)
 
@@ -334,7 +320,7 @@ class BaseProfilePage(Callback):
         Build layout panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None
+            self.dbstate, self.uistate, None, self.config, None, None
         )
         return _("Layout"), build_layout_grid(configdialog, grstate)
 
@@ -357,7 +343,7 @@ class BaseProfilePage(Callback):
         Build timeline options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None
+            self.dbstate, self.uistate, None, self.config, None, None
         )
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
@@ -373,7 +359,7 @@ class BaseProfilePage(Callback):
         Build color scheme options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None
+            self.dbstate, self.uistate, None, self.config, None, None
         )
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)

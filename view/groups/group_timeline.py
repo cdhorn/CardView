@@ -24,14 +24,6 @@ TimelineGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -200,33 +192,55 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         elif extract_type == "addresses":
             extract = extract_addresses
         elif extract_type == "media":
-            extract = extract_media
+            extract = self.extract_media
         elif extract_type == "citations":
-            extract = extract_citations
+            extract = self.extract_citations
 
         obj_list = []
         if self.obj_type == "Person":
             obj_list = extract(self.grstate.dbstate.db, self.obj)
         elif self.obj_type == "Family":
             if self.obj.get_mother_handle():
-                mother = self.grstate.dbstate.db.get_person_from_handle(
-                    self.obj.get_mother_handle()
-                )
+                mother = self.fetch("Person", self.obj.get_mother_handle())
                 obj_list = obj_list + extract(self.grstate.dbstate.db, mother)
             if self.obj.get_father_handle():
-                father = self.grstate.dbstate.db.get_person_from_handle(
-                    self.obj.get_father_handle()
-                )
+                father = self.fetch("Person", self.obj.get_father_handle())
                 obj_list = obj_list + extract(self.grstate.dbstate.db, father)
             if self.obj.get_child_ref_list():
                 for child_ref in self.obj.get_child_ref_list():
-                    child = self.grstate.dbstate.db.get_person_from_handle(
-                        child_ref.ref
-                    )
+                    child = self.fetch("Person", child_ref.ref)
                     obj_list = obj_list + extract(
                         self.grstate.dbstate.db, child
                     )
         return obj_list
+
+    def extract_media(self, _dummy_arg, obj):
+        """
+        Return list of media items with a date value.
+        """
+        media = []
+        for media_ref in obj.get_media_list():
+            item = self.fetch("Media", media_ref.ref)
+            date = item.get_date_object()
+            if date and date.is_valid() and date.get_sort_value():
+                media.append(
+                    (date.get_sort_value(), "media", obj, (item, media_ref))
+                )
+        return media
+
+    def extract_citations(self, _dummy_arg, obj):
+        """
+        Return list of citations with a date value.
+        """
+        citations = []
+        for handle in obj.get_citation_list():
+            citation = self.fetch("Citation", handle)
+            date = citation.get_date_object()
+            if date and date.is_valid() and date.get_sort_value():
+                citations.append(
+                    (date.get_sort_value(), "citation", obj, citation)
+                )
+        return citations
 
 
 def extract_addresses(db, obj):
@@ -251,31 +265,3 @@ def extract_names(db, obj):
         if date and date.is_valid() and date.get_sort_value():
             names.append((date.get_sort_value(), "name", obj, name))
     return names
-
-
-def extract_media(db, obj):
-    """
-    Return list of media items with a date value.
-    """
-    media = []
-    for media_ref in obj.get_media_list():
-        item = db.get_media_from_handle(media_ref.ref)
-        date = item.get_date_object()
-        if date and date.is_valid() and date.get_sort_value():
-            media.append(
-                (date.get_sort_value(), "media", obj, (item, media_ref))
-            )
-    return media
-
-
-def extract_citations(db, obj):
-    """
-    Return list of citations with a date value.
-    """
-    citations = []
-    for handle in obj.get_citation_list():
-        citation = db.get_citation_from_handle(handle)
-        date = citation.get_date_object()
-        if date and date.is_valid() and date.get_sort_value():
-            citations.append((date.get_sort_value(), "citation", obj, citation))
-    return citations

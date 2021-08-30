@@ -35,14 +35,12 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
     EventRef,
     EventRoleType,
-    Span,
     Person,
 )
 from gramps.gen.display.name import displayer as name_displayer
@@ -58,14 +56,12 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _EDITORS
 from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
     get_confidence,
     get_confidence_color_css,
     get_event_category_color_css,
     get_event_role_color_css,
-    get_key_person_events,
     get_participants,
     get_person_color_css,
     get_relation,
@@ -267,9 +263,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         citations = len(self.event.citation_list)
         if self.event.citation_list:
             for handle in self.event.citation_list:
-                citation = self.grstate.dbstate.db.get_citation_from_handle(
-                    handle
-                )
+                citation = self.fetch("Citation", handle)
                 if citation.source_handle not in sources:
                     sources.append(citation.source_handle)
                 if citation.confidence > self.confidence:
@@ -360,7 +354,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Commit person to save an event reference update.
         """
-        event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+        event = self.fetch("Event", event_ref.ref)
         action = "{} {} {} {} {} {}".format(
             _("Update"),
             _("Person"),
@@ -376,7 +370,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Commit family to save an event reference update.
         """
-        event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+        event = self.fetch("Event", event_ref.ref)
         action = "{} {} {} {} {} {}".format(
             _("Update"),
             _("Family"),
@@ -503,7 +497,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         Save the event participant to save any update.
         """
         if self.event_participant:
-            event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+            event = self.fetch("Event", event_ref.ref)
             action = "{} {} {} {} {}".format(
                 _("Update Participant"),
                 self.event_family.get_gramps_id(),
@@ -584,7 +578,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             for ref in person.get_event_ref_list():
                 if not event_ref.is_equal(ref):
                     new_list.append(ref)
-            event = self.grstate.dbstate.db.get_event_from_handle(event_ref.ref)
+            event = self.fetch("Event", event_ref.ref)
             action = "{} {} {} {} {} {}".format(
                 _("Remove"),
                 _("Person"),

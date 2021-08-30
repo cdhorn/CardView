@@ -24,37 +24,20 @@ AttributeGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-
-# ------------------------------------------------------------------------
-#
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
-from gramps.gui.display import display_url
+
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import button_activated, get_person_color_css, TextLink
+from .frame_utils import get_person_color_css, TextLink
 
 _ = glocale.translation.sgettext
 
@@ -111,13 +94,13 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get("options.global.use-color-scheme"):
-            return ""
-
-        if self.primary.obj_type == "Person":
-            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
-            return get_person_color_css(
-                self.primary.obj,
-                living=living,
-            )
+        if self.grstate.config.get("options.global.use-color-scheme"):
+            if self.primary.obj_type == "Person":
+                living = probably_alive(
+                    self.primary.obj, self.grstate.dbstate.db
+                )
+                return get_person_color_css(
+                    self.primary.obj,
+                    living=living,
+                )
         return ""

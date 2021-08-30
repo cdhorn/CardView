@@ -72,8 +72,8 @@ class PersonProfilePage(BaseProfilePage):
     Provides the person profile page view with information about the person.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.order_action = None
         self.family_action = None
         self.reorder_sensitive = None
@@ -118,7 +118,11 @@ class PersonProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(grstate, groptions, person)
@@ -131,7 +135,9 @@ class PersonProfilePage(BaseProfilePage):
         if "spouse" in groups:
             obj_groups.update({"spouse": get_spouses_group(grstate, person)})
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, person)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, person)}
+            )
         if "name" in groups:
             obj_groups.update({"name": get_names_group(grstate, person)})
         if "association" in groups:

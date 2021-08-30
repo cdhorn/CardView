@@ -22,14 +22,12 @@
 ChildrenGrampsFrameGroup
 """
 
+# ------------------------------------------------------------------------
+#
+# Python modules
+#
+# ------------------------------------------------------------------------
 from copy import copy
-
-# ------------------------------------------------------------------------
-#
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
 
 
 # ------------------------------------------------------------------------
@@ -40,6 +38,7 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import ChildRef
 from gramps.gui.editors import EditChildRef
 
@@ -76,12 +75,14 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         child_number = 0
         for child_ref in self.family.get_child_ref_list():
             if child_ref:
-                child = grstate.dbstate.db.get_person_from_handle(child_ref.ref)
+                child = self.fetch("Person", child_ref.ref)
                 groptions_copy = copy(groptions)
                 groptions_copy.set_backlink(family.get_handle())
                 groptions_copy.option_space = "options.group.{}".format(context)
                 child_number = child_number + 1
-                if self.grstate.config.get("options.group.{}.number-children".format(context)):
+                if self.grstate.config.get(
+                    "options.group.{}.number-children".format(context)
+                ):
                     groptions_copy.set_number(child_number)
                 profile = ChildGrampsFrame(
                     grstate,
@@ -111,7 +112,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.family.set_child_ref_list(new_list)
             self.grstate.dbstate.db.commit_family(self.family, trans)
-        
+
     def save_new_object(self, handle, insert_row):
         """
         Add a new child to the list of children.
@@ -127,8 +128,8 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         child_ref = ChildRef()
         child_ref.ref = handle
         callback = lambda x: self.save_new_child(x, insert_row)
-        child = self.grstate.dbstate.db.get_person_from_handle(handle)
-        name = name_displayer.display(child)        
+        child = self.fetch("Person", handle)
+        name = name_displayer.display(child)
         try:
             EditChildRef(
                 name,
@@ -136,7 +137,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                 self.grstate.uistate,
                 [],
                 child_ref,
-                callback
+                callback,
             )
         except WindowActiveError:
             pass
@@ -146,12 +147,12 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         Save the new child added to the list of children.
         """
         new_list = []
-        for frame in self.row_frames:        
+        for frame in self.row_frames:
             for ref in self.family.get_child_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, child_ref)
-        child = self.grstate.dbstate.db.get_person_from_handle(child_ref.ref)
+        child = self.fetch("Person", child_ref.ref)
         action = "{} {} {} {} {}".format(
             _("Added Child"),
             child.get_gramps_id(),

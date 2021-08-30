@@ -24,14 +24,6 @@ MediaGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -122,7 +114,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         """
         Add new media to the list.
         """
-        media = self.grstate.dbstate.db.get_media_from_handle()
+        media = self.fetch("Media", handle)
         action = "{} {} {} {}".format(
             _("Added Media"),
             media.get_gramps_id(),
@@ -152,7 +144,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
             return
 
         for media_ref in obj.get_media_list():
-            media = self.grstate.dbstate.db.get_media_from_handle(media_ref.ref)
+            media = self.fetch("Media", media_ref.ref)
             media_type = ""
             for attribute in media.get_attribute_list():
                 if attribute.get_type().xml_str() == "Media-Type":

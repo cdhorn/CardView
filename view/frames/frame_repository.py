@@ -226,9 +226,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            source = self.grstate.dbstate.db.get_source_from_handle(
-                self.groptions.backlink
-            )
+            source = self.fetch("Source", self.groptions.backlink)
             data = pickle.dumps(
                 (
                     "Source",
@@ -237,9 +235,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                     self.primary.obj.get_handle(),
                 )
             )
-            return self.grstate.router(
-                "context-changed", (self.secondary.obj_type, data)
-            )
+            return self.grstate.context_changed(self.secondary.obj_type, data)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -306,9 +302,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             repo_ref = changed_repo_ref[0]
         else:
             repo_ref = changed_repo_ref
-        source = self.grstate.dbstate.db.get_source_from_handle(
-            self.groptions.backlink
-        )
+        source = self.fetch("Source", self.groptions.backlink)
         repo_ref_list = []
         for ref in source.get_reporef_list():
             if repo_ref.ref == ref.ref:
@@ -356,7 +350,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         Add the new or existing note to the current object.
         """
         if handle and self.secondary.obj.add_note(handle):
-            note = self.grstate.dbstate.db.get_note_from_handle(handle)
+            note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
                 _("Note"),
@@ -425,9 +419,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         """
         Update the privacy indicator for the current object.
         """
-        source = self.grstate.dbstate.db.get_source_from_handle(
-            self.groptions.backlink
-        )
+        source = self.fetch("Source", self.groptions.backlink)
         if mode:
             text = _("Private")
         else:

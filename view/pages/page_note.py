@@ -54,8 +54,8 @@ class NoteProfilePage(BaseProfilePage):
     Provides the note profile page view with information about the note.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Note"
@@ -79,7 +79,11 @@ class NoteProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.note")
         self.active_profile = NoteGrampsFrame(grstate, groptions, note)

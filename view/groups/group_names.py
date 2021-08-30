@@ -24,14 +24,6 @@ NamesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -51,7 +43,9 @@ class NamesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = "Person"
         if not self.get_layout("tabbed"):
@@ -66,8 +60,6 @@ class NamesGrampsFrameGroup(GrampsFrameGroupList):
         self.add_frame(frame)
 
         for name in obj.get_alternate_names():
-            frame = NameGrampsFrame(
-                grstate, groptions, obj, name
-            )
+            frame = NameGrampsFrame(grstate, groptions, obj, name)
             self.add_frame(frame)
         self.show_all()

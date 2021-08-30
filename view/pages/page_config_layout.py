@@ -67,10 +67,12 @@ def build_layout_grid(configdialog, grstate):
     grid.add(vbox)
     return grid
 
+
 class ProfilePageLayout(Gtk.VBox):
     """
     Class to handle layout for a specific page.
     """
+
     def __init__(self, configdialog, grstate, tab):
         Gtk.VBox.__init__(self, spacing=6, margin=12)
         self.configdialog = configdialog
@@ -101,15 +103,19 @@ class ProfilePageLayout(Gtk.VBox):
         self.scrolled = Gtk.CheckButton(label=_("Scrolled Mode"))
         self.scrolled.set_active(self.config.get(option))
         self.pack_start(self.scrolled, False, False, 6)
-            
+
         self.columns = ProfileColumnLayout()
         current_groups = self.config.get("{}.groups".format(self.space))
-        current_groups = self.get_valid_layout_groups(self.obj_type, current_groups.split(","))
+        current_groups = self.get_valid_layout_groups(
+            self.obj_type, current_groups.split(",")
+        )
 
         number = 0
         for field in current_groups:
             space = "{}.{}".format(self.space, field)
-            row = ProfileRowLayout(self.config, space, LABELS[field], groups, number)
+            row = ProfileRowLayout(
+                self.config, space, LABELS[field], groups, number
+            )
             self.columns.add_row(row)
             number = number + 1
         self.pack_start(self.columns, False, False, 6)
@@ -126,8 +132,8 @@ class ProfilePageLayout(Gtk.VBox):
         bbox.pack_start(self.undo, False, False, 0)
         box.pack_start(bbox, False, False, 0)
         defaults = ConfigReset(self.configdialog, self.grstate, self.space)
-#        defaults = Gtk.Button(label=_("Defaults"))
-#        defaults.connect("clicked", self.apply_defaults)
+        #        defaults = Gtk.Button(label=_("Defaults"))
+        #        defaults.connect("clicked", self.apply_defaults)
         box.pack_end(defaults, False, False, 0)
         self.pack_end(box, False, False, 0)
         self.show_all()
@@ -160,7 +166,7 @@ class ProfilePageLayout(Gtk.VBox):
         groups = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
-                if 'visible' in setting:
+                if "visible" in setting:
                     groups.append(setting.split(".")[3])
         return groups
 
@@ -278,6 +284,7 @@ class ProfileColumnLayout(Gtk.ListBox):
     """
     Class to manage order of columns on page.
     """
+
     def __init__(self):
         Gtk.ListBox.__init__(self, hexpand=False)
         self.set_sort_func(None)
@@ -289,9 +296,9 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.row_previous_provider = None
         self.row_current_provider = None
         self.drag_dest_set(
-            Gtk.DestDefaults.MOTION|Gtk.DestDefaults.DROP,
+            Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
             [DdTargets.TEXT.target()],
-            Gdk.DragAction.MOVE
+            Gdk.DragAction.MOVE,
         )
         self.connect("drag-data-received", self.on_drag_data_received)
         self.connect("drag-motion", self.on_drag_motion)
@@ -306,7 +313,9 @@ class ProfileColumnLayout(Gtk.ListBox):
         row.add(self.rows[-1])
         self.add(row)
 
-    def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
+    def on_drag_data_received(
+        self, widget, drag_context, x, y, data, info, time
+    ):
         """
         Extract the data and handle any required actions.
         """
@@ -344,7 +353,7 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.reset_dnd_css()
         current_row = self.get_row_at_y(y)
         allocation = current_row.get_allocation()
-        if y < allocation.y + allocation.height/2:
+        if y < allocation.y + allocation.height / 2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1
             if self.row_previous < 0:
@@ -353,18 +362,30 @@ class ProfileColumnLayout(Gtk.ListBox):
             self.row_previous = current_row.get_index()
             self.row_current = self.row_previous + 1
             if self.row_current >= len(self) - 1:
-                self.row_current = len(self) -1
+                self.row_current = len(self) - 1
 
         if self.row_current == 0 and self.row_previous == 0:
-            self.row_current_provider = self.set_dnd_css(self.rows[self.row_current], top=True)
+            self.row_current_provider = self.set_dnd_css(
+                self.rows[self.row_current], top=True
+            )
         elif self.row_current == self.row_previous:
-            self.row_current_provider = self.set_dnd_css(self.rows[self.row_current], top=False)
+            self.row_current_provider = self.set_dnd_css(
+                self.rows[self.row_current], top=False
+            )
         elif self.row_current > self.row_previous:
-            self.row_previous_provider = self.set_dnd_css(self.rows[self.row_previous], top=False)
-            self.row_current_provider = self.set_dnd_css(self.rows[self.row_current], top=True)
+            self.row_previous_provider = self.set_dnd_css(
+                self.rows[self.row_previous], top=False
+            )
+            self.row_current_provider = self.set_dnd_css(
+                self.rows[self.row_current], top=True
+            )
         else:
-            self.row_previous_provider = self.set_dnd_css(self.rows[self.row_previous], top=True)
-            self.row_current_provider = self.set_dnd_css(self.rows[self.row_current], top=False)
+            self.row_previous_provider = self.set_dnd_css(
+                self.rows[self.row_previous], top=True
+            )
+            self.row_current_provider = self.set_dnd_css(
+                self.rows[self.row_current], top=False
+            )
 
     def on_drag_leave(self, *obj):
         """
@@ -392,9 +413,13 @@ class ProfileColumnLayout(Gtk.ListBox):
         Set custom CSS for the drag and drop view.
         """
         if top:
-            css = ".frame { border-top-width: 3px; border-top-color: #4e9a06; }".encode("utf-8")
+            css = ".frame { border-top-width: 3px; border-top-color: #4e9a06; }".encode(
+                "utf-8"
+            )
         else:
-            css = ".frame { border-bottom-width: 3px; border-bottom-color: #4e9a06; }".encode("utf-8")
+            css = ".frame { border-bottom-width: 3px; border-bottom-color: #4e9a06; }".encode(
+                "utf-8"
+            )
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
         context = row.get_style_context()
@@ -407,6 +432,7 @@ class ProfileRowLayout(Gtk.Frame):
     """
     Class to manage object group specific options.
     """
+
     def __init__(self, config, space, name, groups, number):
         Gtk.Frame.__init__(self, expand=False)
         self.config = config
@@ -415,32 +441,37 @@ class ProfileRowLayout(Gtk.Frame):
 
         hbox = Gtk.HBox(hexpand=False, halign=Gtk.Align.START, spacing=6)
         ebox = Gtk.EventBox()
-        ebox.drag_source_set(Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.MOVE)
+        ebox.drag_source_set(
+            Gdk.ModifierType.BUTTON1_MASK, [], Gdk.DragAction.MOVE
+        )
         target = Gtk.TargetList.new([])
-        target.add(DdTargets.TEXT.atom_drag_type,
-                   DdTargets.TEXT.target_flags,
-                   DdTargets.TEXT.app_id
-                   )
+        target.add(
+            DdTargets.TEXT.atom_drag_type,
+            DdTargets.TEXT.target_flags,
+            DdTargets.TEXT.app_id,
+        )
         ebox.drag_source_set_target_list(target)
         ebox.drag_source_set_icon_name("x-office-document")
-        ebox.connect('drag_data_get', self.drag_data_get)
+        ebox.connect("drag_data_get", self.drag_data_get)
         ebox.add(hbox)
         self.add(ebox)
-        
-        label = Gtk.Label(label=name, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT)
+
+        label = Gtk.Label(
+            label=name, halign=Gtk.Align.START, justify=Gtk.Justification.LEFT
+        )
         groups["label"].add_widget(label)
         hbox.pack_start(label, True, True, 6)
-        option = "{}.visible".format(self.space)        
+        option = "{}.visible".format(self.space)
         self.visible = Gtk.CheckButton(label=_("Visible"))
         self.visible.set_active(self.config.get(option))
         groups["visible"].add_widget(self.visible)
         hbox.pack_start(self.visible, False, False, 6)
-        option = "{}.stacked".format(self.space)        
+        option = "{}.stacked".format(self.space)
         self.stacked = Gtk.CheckButton(label=_("Stacked"))
         self.stacked.set_active(self.config.get(option))
         groups["stacked"].add_widget(self.stacked)
         hbox.pack_start(self.stacked, False, False, 6)
-        option = "{}.hideable".format(self.space)        
+        option = "{}.hideable".format(self.space)
         self.hideable = Gtk.CheckButton(label=_("Hideable"))
         self.hideable.set_active(self.config.get(option))
         groups["hideable"].add_widget(self.hideable)

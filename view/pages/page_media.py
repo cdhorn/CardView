@@ -60,8 +60,8 @@ class MediaProfilePage(BaseProfilePage):
     Provides the media item profile page view with information about the media.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Media"
@@ -85,7 +85,11 @@ class MediaProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.media")
         self.active_profile = ImageGrampsFrame(grstate, groptions, media)
@@ -96,7 +100,9 @@ class MediaProfilePage(BaseProfilePage):
         if "citation" in groups:
             obj_groups.update({"citation": get_citations_group(grstate, media)})
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, media)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, media)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, media)})
         if "note" in groups:

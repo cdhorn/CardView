@@ -218,9 +218,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                     self.groptions.backlink,
                 )
             )
-            return self.grstate.router(
-                "context-changed", (self.secondary.obj_type, data)
-            )
+            return self.grstate.context_changed(self.secondary.obj_type, data)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -292,9 +290,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         if not child_ref:
             return
-        family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.backlink
-        )
+        family = self.fetch("Family", self.groptions.backlink)
         child_ref_list = []
         for ref in family.get_child_ref_list():
             if child_ref.ref == ref.ref:
@@ -342,7 +338,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Add the new or existing citation to the current object.
         """
         if handle and self.secondary.obj.add_citation(handle):
-            citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
+            citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
                 _("Citation"),
@@ -445,7 +441,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         Add the new or existing note to the current object.
         """
         if handle and self.secondary.obj.add_note(handle):
-            note = self.grstate.dbstate.db.get_note_from_handle(handle)
+            note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
                 _("Note"),
@@ -514,9 +510,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         Update the privacy indicator for the current object.
         """
-        family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.backlink
-        )
+        family = self.fetch("Family", self.groptions.backlink)
         if mode:
             text = _("Private")
         else:

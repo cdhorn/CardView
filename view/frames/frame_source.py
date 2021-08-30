@@ -42,9 +42,7 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, source):
-        PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, source
-        )
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, source)
 
         title = TextLink(
             source.title,

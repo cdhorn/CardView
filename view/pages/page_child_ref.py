@@ -72,8 +72,8 @@ class ChildRefProfilePage(BaseProfilePage):
     status of a child in a family.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.order_action = None
         self.family_action = None
         self.reorder_sensitive = None
@@ -128,7 +128,7 @@ class ChildRefProfilePage(BaseProfilePage):
         grstate = GrampsState(
             self.dbstate,
             self.uistate,
-            self.callback_router,
+            self.callbacks,
             self.config,
             self.page_type().lower(),
         )

@@ -70,8 +70,8 @@ class RepositoryRefProfilePage(BaseProfilePage):
     about the repository a source is located in.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.active_profile = None
 
     def obj_type(self):
@@ -120,7 +120,7 @@ class RepositoryRefProfilePage(BaseProfilePage):
         grstate = GrampsState(
             self.dbstate,
             self.uistate,
-            self.callback_router,
+            self.callbacks,
             self.config,
             self.page_type().lower(),
         )

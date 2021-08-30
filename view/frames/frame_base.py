@@ -264,11 +264,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         Change active object for the view.
         """
         if isinstance(obj, str):
-            return self.grstate.router("object-changed", (obj_type, obj))
+            return self.grstate.object_changed(obj_type, obj)
         if hasattr(obj, "handle"):
-            return self.grstate.router(
-                "object-changed", (obj_type, obj.get_handle())
-            )
+            return self.grstate.object_changed(obj_type, obj.get_handle())
         if self.secondary and self.secondary.obj:
             sha256_hash = hashlib.sha256()
             sha256_hash.update(
@@ -285,7 +283,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 secondary,
             )
         )
-        return self.grstate.router("context-changed", (obj_type, data))
+        return self.grstate.context_changed(obj_type, data)
 
     def build_action_menu(self, obj, event):
         """
@@ -415,10 +413,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if old_hash:
             sha256_hash = hashlib.sha256()
             sha256_hash.update(str(name.serialize()).encode("utf-8"))
-            self.grstate.router(
-                "update-history-reference",
-                (old_hash, sha256_hash.hexdigest()),
-            )
+            self.grstate.update_history(old_hash, sha256_hash.hexdigest())
         self.save_object(self.primary.obj, action_text=action)
 
     def edit_attribute(self, _dummy_obj, attribute):
@@ -471,10 +466,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             if old_hash:
                 sha256_hash = hashlib.sha256()
                 sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
-                self.grstate.router(
-                    "update-history-reference",
-                    (old_hash, sha256_hash.hexdigest()),
-                )
+                self.grstate.update_history(old_hash, sha256_hash.hexdigest())
             self.save_object(attribute, action_text=action)
 
     def edit_address(self, _dummy_obj, address):
@@ -509,10 +501,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         if old_hash:
             sha256_hash = hashlib.sha256()
             sha256_hash.update(str(address.serialize()).encode("utf-8"))
-            self.grstate.router(
-                "update-history-reference",
-                (old_hash, sha256_hash.hexdigest()),
-            )
+            self.grstate.update_history(old_hash, sha256_hash.hexdigest())
         self.save_object(self.primary.obj, action_text=action)
 
     def _citations_option(
@@ -541,9 +530,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             menu.add(Gtk.SeparatorMenuItem())
             citation_list = []
             for handle in obj.get_citation_list():
-                citation = self.grstate.dbstate.db.get_citation_from_handle(
-                    handle
-                )
+                citation = self.fetch("Citation", handle)
                 text = citation_option_text(self.grstate.dbstate.db, citation)
                 citation_list.append((text, citation))
             citation_list.sort(key=lambda x: x[0])
@@ -590,13 +577,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     sha256_hash.update(
                         str(self.focus.obj.serialize()).encode("utf-8")
                     )
-                    self.grstate.router(
-                        "update-history-reference",
-                        (old_hash, sha256_hash.hexdigest()),
+                    self.grstate.update_history(
+                        old_hash, sha256_hash.hexdigest()
                     )
-                citation = self.grstate.dbstate.db.get_citation_from_handle(
-                    handle
-                )
+                citation = self.fetch("Citation", handle)
                 action = self._commit_message(
                     _("Added"), _("Citation"), citation, _("to")
                 )
@@ -680,9 +664,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     sha256_hash.update(
                         str(self.focus.obj.serialize()).encode("utf-8")
                     )
-                    self.grstate.router(
-                        "update-history-reference",
-                        (old_hash, sha256_hash.hexdigest()),
+                    self.grstate.update_history(
+                        old_hash, sha256_hash.hexdigest()
                     )
                 commit_method(self.primary.obj, trans)
 
@@ -711,7 +694,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             menu.add(Gtk.SeparatorMenuItem())
             note_list = []
             for handle in obj.get_note_list():
-                note = self.grstate.dbstate.db.get_note_from_handle(handle)
+                note = self.fetch("Note", handle)
                 text = note_option_text(note)
                 note_list.append((text, note))
             note_list.sort(key=lambda x: x[0])
@@ -729,7 +712,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
             note_list = []
             for child_obj in obj.get_note_child_list():
                 for handle in child_obj.get_note_list():
-                    note = self.grstate.dbstate.db.get_note_from_handle(handle)
+                    note = self.fetch("Note", handle)
                     text = note_option_text(note)
                     note_list.append((text, note))
             if len(note_list) > 0:
@@ -776,11 +759,10 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     sha256_hash.update(
                         str(self.focus.obj.serialize()).encode("utf-8")
                     )
-                    self.grstate.router(
-                        "update-history-reference",
-                        (old_hash, sha256_hash.hexdigest()),
+                    self.grstate.update_history(
+                        old_hash, sha256_hash.hexdigest()
                     )
-                note = self.grstate.dbstate.db.get_note_from_handle(handle)
+                note = self.fetch("Note", handle)
                 action = self._commit_message(
                     _("Added"), _("Note"), note, _("to")
                 )
@@ -800,7 +782,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Edit a note.
         """
-        note = self.grstate.dbstate.db.get_note_from_handle(handle)
+        note = self.fetch("Note", handle)
         self.edit_primary_object(None, note, "Note")
 
     def remove_note(self, _dummy_obj, note):
@@ -835,9 +817,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     sha256_hash.update(
                         str(self.focus.obj.serialize()).encode("utf-8")
                     )
-                    self.grstate.router(
-                        "update-history-reference",
-                        (old_hash, sha256_hash.hexdigest()),
+                    self.grstate.update_history(
+                        old_hash, sha256_hash.hexdigest()
                     )
                 commit_method(self.primary.obj, trans)
 
@@ -889,10 +870,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                 sha256_hash.update(
                     str(self.focus.obj.serialize()).encode("utf-8")
                 )
-                self.grstate.router(
-                    "update-history-reference",
-                    (old_hash, sha256_hash.hexdigest()),
-                )
+                self.grstate.update_history(old_hash, sha256_hash.hexdigest())
             commit_method(self.primary.obj, trans)
 
     def set_css_style(self):

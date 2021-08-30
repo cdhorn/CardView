@@ -129,9 +129,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
 
         event_cache = []
         for event_ref in person.get_primary_event_ref_list():
-            event_cache.append(
-                grstate.dbstate.db.get_event_from_handle(event_ref.ref)
-            )
+            event_cache.append(self.fetch("Event", event_ref.ref))
         if self.get_option("event-format") == 0:
             self.load_years(event_cache)
         else:
@@ -313,9 +311,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             label = self.make_label(text)
         else:
             try:
-                relation = self.grstate.dbstate.db.get_person_from_handle(
-                    handle
-                )
+                relation = self.fetch("Person", handle)
                 relationship = get_relation(
                     self.grstate.dbstate.db,
                     self.primary.obj,
@@ -495,7 +491,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Finish adding a new event for a person.
         """
-        event = self.grstate.dbstate.db.get_event_from_handle(reference.ref)
+        event = self.fetch("Event", reference.ref)
         action = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Person"),
@@ -529,7 +525,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if self.primary.obj.get_parent_family_handle_list():
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.primary.obj.get_parent_family_handle_list():
-                family = self.grstate.dbstate.db.get_family_from_handle(handle)
+                family = self.fetch("Family", handle)
                 family_text = family_name(family, self.grstate.dbstate.db)
                 menu.add(
                     menu_item(
@@ -585,7 +581,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if self.primary.obj.get_family_handle_list():
             menu.add(Gtk.SeparatorMenuItem())
             for handle in self.primary.obj.get_family_handle_list():
-                family = self.grstate.dbstate.db.get_family_from_handle(handle)
+                family = self.fetch("Family", handle)
                 family_text = family_name(family, self.grstate.dbstate.db)
                 menu.add(
                     menu_item(
@@ -632,7 +628,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if not self.backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
-        family = self.grstate.dbstate.db.get_family_from_handle(self.backlink)
+        family = self.fetch("Family", self.backlink)
         father_handle = family.get_father_handle()
         mother_handle = family.get_mother_handle()
         partner_handle = None
@@ -643,9 +639,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             if father_handle:
                 partner_handle = father_handle
         if partner_handle:
-            partner = self.grstate.dbstate.db.get_person_from_handle(
-                partner_handle
-            )
+            partner = self.fetch("Person", partner_handle)
             partner_name = name_displayer.display(partner)
             text = (
                 "You are about to remove {} as the partner of {} "
@@ -681,9 +675,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if not self.groptions.backlink:
             return
         person_name = name_displayer.display(self.primary.obj)
-        family = self.grstate.dbstate.db.get_family_from_handle(
-            self.groptions.backlink
-        )
+        family = self.fetch("Family", self.groptions.backlink)
         family_text = family_name(family, self.grstate.dbstate.db)
         if self.confirm_action(
             "Warning",

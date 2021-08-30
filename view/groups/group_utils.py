@@ -64,7 +64,13 @@ _ = glocale.translation.sgettext
 
 
 def get_generic_group(
-    grstate, groptions, obj, framegroup, title_plural, title_single, expanded=True
+    grstate,
+    groptions,
+    obj,
+    framegroup,
+    title_plural,
+    title_single,
+    expanded=True,
 ):
     """
     Get the group associated with a simple object.
@@ -167,13 +173,13 @@ def get_parents_group(grstate, person):
         )
         elements = Gtk.VBox(spacing=6)
         parents.add(elements)
-        family = grstate.dbstate.db.get_family_from_handle(primary_handle)
+        family = grstate.fetch("Family", primary_handle)
         group = get_family_unit(grstate, family, "parent", relation=person)
         elements.add(group)
 
     for handle in person.parent_family_list:
         if handle != primary_handle:
-            family = grstate.dbstate.db.get_family_from_handle(handle)
+            family = grstate.fetch("Family", handle)
             group = get_family_unit(grstate, family, "parent", relation=person)
             elements.add(group)
     return parents
@@ -196,7 +202,7 @@ def get_spouses_group(grstate, person):
             )
             elements = Gtk.VBox(spacing=6)
             spouses.add(elements)
-        family = grstate.dbstate.db.get_family_from_handle(handle)
+        family = grstate.fetch("Family", handle)
         group = get_family_unit(grstate, family, "spouse", relation=person)
         elements.add(group)
     return spouses
@@ -266,7 +272,7 @@ def get_media_group(
 
 
 def get_repositories_group(
-   grstate, obj, title_plural=_("Repositories"), title_single=_("Repository")
+    grstate, obj, title_plural=_("Repositories"), title_single=_("Repository")
 ):
     """
     Get the group of repositories associated with an object.
@@ -450,9 +456,7 @@ def get_names_group(
     )
 
 
-def get_urls_group(
-    grstate, obj, title_plural=_("Urls"), title_single=_("Url")
-):
+def get_urls_group(grstate, obj, title_plural=_("Urls"), title_single=_("Url")):
     """
     Get the group of urls associated with an object.
     """

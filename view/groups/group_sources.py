@@ -24,14 +24,6 @@ SourcesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -62,7 +54,9 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
@@ -77,9 +71,7 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
                 self.obj.get_handle()
             ):
                 if obj_type == "Source":
-                    source = self.grstate.dbstate.db.get_source_from_handle(
-                        obj_handle
-                    )
+                    source = self.fetch("Source", obj_handle)
                     sources_list.append(source)
 
         if sources_list:

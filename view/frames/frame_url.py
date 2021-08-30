@@ -44,6 +44,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.errors import WindowActiveError
 from gramps.gui.display import display_url
 
 
@@ -76,12 +77,12 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         obj,
         url,
     ):
-        SecondaryGrampsFrame.__init__(
-            self, grstate, groptions, obj, url
-        )
+        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, url)
         self.link = url.get_full_path()
 
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(escape(self.link)))
+        label = Gtk.Label(
+            use_markup=True, label="<b>{}</b>".format(escape(self.link))
+        )
         self.title.pack_start(label, False, False, 0)
 
         if url.get_description():

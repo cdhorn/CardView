@@ -24,20 +24,11 @@ AssociationsGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.lib import PersonRef
 from gramps.gui.editors import EditPersonRef
 from gramps.gen.errors import WindowActiveError
@@ -120,7 +111,7 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
                 self.grstate.uistate,
                 [],
                 person_ref,
-                callback
+                callback,
             )
         except WindowActiveError:
             pass
@@ -130,12 +121,12 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         Save the new person added to the list of associations.
         """
         new_list = []
-        for frame in self.row_frames:        
+        for frame in self.row_frames:
             for ref in self.obj.get_person_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, person_ref)
-        person = self.grstate.dbstate.db.get_person_from_handle(person_ref.ref)
+        person = self.fetch("Person", person_ref.ref)
         action = "{} {} {} {} {} {} {}".format(
             _("Added"),
             _("Person"),
@@ -148,4 +139,3 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.obj.set_person_ref_list(new_list)
             self.grstate.dbstate.db.commit_person(self.obj, trans)
-

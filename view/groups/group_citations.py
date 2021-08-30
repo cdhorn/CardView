@@ -24,14 +24,6 @@ CitationsGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -63,7 +55,9 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         self.maximum = grstate.config.get(
@@ -82,10 +76,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
             for citation, references, ref_type, ref_desc in citation_list:
                 reference = (references, ref_type, ref_desc)
                 frame = CitationGrampsFrame(
-                    grstate,
-                    groptions,
-                    citation,
-                    reference=reference
+                    grstate, groptions, citation, reference=reference
                 )
                 self.add_frame(frame)
         self.show_all()
@@ -94,7 +85,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Add new citation to the list.
         """
-        citation = self.grstate.dbstate.db.get_citation_from_handle()
+        citation = self.fetch("Citation", handle)
         action = "{} {} {} {}".format(
             _("Added Citation"),
             citation.get_gramps_id(),
@@ -159,9 +150,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
 
             if self.get_option("include-family"):
                 for family_handle in self.obj.get_family_handle_list():
-                    family = self.grstate.dbstate.db.get_family_from_handle(
-                        family_handle
-                    )
+                    family = self.fetch("Family", family_handle)
                     self.extract_citations(
                         0, "Family", citation_list, None, [family]
                     )
@@ -172,15 +161,11 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
 
             if self.get_option("include-parent-family"):
                 for family_handle in self.obj.get_parent_family_handle_list():
-                    family = self.grstate.dbstate.db.get_family_from_handle(
-                        family_handle
-                    )
+                    family = self.fetch("Family", family_handle)
                     for child_ref in family.get_child_ref_list():
                         if child_ref.ref == self.obj.get_handle():
                             for handle in child_ref.get_citation_list():
-                                citation = self.grstate.dbstate.db.get_citation_from_handle(
-                                    handle
-                                )
+                                citation = self.fetch("Citation", handle)
                                 citation_list.append(
                                     (
                                         citation,
@@ -202,9 +187,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                 self.obj.get_handle()
             ):
                 if obj_type == "Citation":
-                    citation = self.grstate.dbstate.db.get_citation_from_handle(
-                        obj_handle
-                    )
+                    citation = self.fetch("Citation", obj_handle)
                     citation_list.append((citation, [self.obj], 0, obj_type))
                     if len(citation_list) >= self.maximum:
                         break
@@ -230,9 +213,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         for item in data:
             if hasattr(item, "citation_list"):
                 for handle in item.get_citation_list():
-                    citation = self.grstate.dbstate.db.get_citation_from_handle(
-                        handle
-                    )
+                    citation = self.fetch("Citation", handle)
                     citation_list.append((citation, [item], ref_type, ref_desc))
                     if len(citation_list) >= self.maximum:
                         break

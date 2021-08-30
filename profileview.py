@@ -30,6 +30,8 @@ Combined Profile View
 #
 # -------------------------------------------------------------------------
 import pickle
+import time
+from functools import lru_cache
 
 
 # -------------------------------------------------------------------------
@@ -48,8 +50,9 @@ from gi.repository import Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
+from gramps.gen.errors import WindowActiveError, HandleError
 from gramps.gen.utils.db import navigation_label
+from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 
@@ -101,7 +104,6 @@ class ProfileView(ExtendedNavigationView):
         self.scroll = None
         self.viewport = None
         self.dirty = False
-        self.redrawing = False
         self.active_type = None
 
         self.loaded = False
@@ -112,72 +114,110 @@ class ProfileView(ExtendedNavigationView):
                 uistate.viewmanager.active_page.navigation_type()
             )
 
+        self.cache = {}
+        self.methods = {}
+        self._init_cache()
+
+        self.pages = {}
+        self._init_pages()
+        self.active_page = None
+        self.additional_uis.append(self.additional_ui)
+
         dbstate.connect("database-changed", self.change_db)
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
 
-        self.pages = {}
-        self._add_page(
-            PersonProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            NameProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            AddressProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            AttributeProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            ChildRefProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            PersonRefProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            FamilyProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            EventProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            CitationProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            SourceProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            RepositoryProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            RepositoryRefProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            MediaProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            NoteProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(
-            PlaceProfilePage(self.dbstate, self.uistate, self._config)
-        )
-        self._add_page(TagProfilePage(self.dbstate, self.uistate, self._config))
-        self.active_page = None
-        self.additional_uis.append(self.additional_ui)
+    def _init_cache(self):
+        """
+        Initialize simple Gramps object cache.
+        """
+        self.cache = {}
+        self.methods = {}
+        for obj_type in [
+            "Person",
+            "Family",
+            "Event",
+            "Place",
+            "Citation",
+            "Source",
+            "Note",
+            "Media",
+            "Tag",
+            "Repository",
+        ]:
+            query_method = self.dbstate.db.method(
+                "get_%s_from_handle", obj_type
+            )
+            self.methods.update({obj_type: query_method})
 
-    def _add_page(self, page):
-        page.connect("object-changed", self.object_changed)
-        page.connect("context-changed", self.context_changed)
-        page.connect("copy-to-clipboard", self.clipboard_copy)
-        page.connect("update-history-reference", self.update_history_reference)
-        self.pages[page.page_type()] = page
+    def fetch_object(self, obj_type, handle):
+        """
+        Fetch an object from cache when possible.
+        """
+        if handle in self.cache:
+            obj = self.cache[handle][0]
+            self.cache.update({handle: (obj, int(time.time()))})
+            return obj
+        if len(self.cache) > 1000:
+            refs = [(x, self.cache[x][1]) for x in self.cache]
+            refs.sort(key=lambda x: x[1])
+            for ref in refs[:100]:
+                del self.cache[ref[0]]
+            del refs
+        try:
+            obj = self.methods[obj_type](handle)
+        except HandleError:
+            return None
+        self.cache.update({handle: (obj, int(time.time()))})
+        return obj
+
+    @lru_cache(maxsize=300)
+    def fetch_thumbnail(self, path, rectangle, size):
+        """
+        Fetch a thumbnail from cache when possible.
+        """
+        return get_thumbnail_image(path, rectangle=rectangle, size=size)
+    
+    def _init_pages(self):
+        """
+        Load page handlers.
+        """
+        callbacks = {
+            "fetch-object": self.fetch_object,
+            "fetch-thumbnail": self.fetch_thumbnail,
+            "object-changed": self.object_changed,
+            "context-changed": self.context_changed,
+            "copy-to-clipboard": self.clipboard_copy,
+            "update-history-reference": self.update_history_reference,
+        }
+
+        for page_class in [
+            AddressProfilePage,
+            AttributeProfilePage,
+            ChildRefProfilePage,
+            CitationProfilePage,
+            EventProfilePage,
+            FamilyProfilePage,
+            MediaProfilePage,
+            NameProfilePage,
+            NoteProfilePage,
+            PersonProfilePage,
+            PersonRefProfilePage,
+            RepositoryProfilePage,
+            RepositoryRefProfilePage,
+            SourceProfilePage,
+            TagProfilePage,
+        ]:
+            page = page_class(
+                self.dbstate, self.uistate, self._config, callbacks
+            )
+            self.pages[page.page_type()] = page
 
     def _connect_db_signals(self):
         """
         Register the callbacks we need.
         """
-        for obj in [
+        for obj_type in [
             "person",
             "family",
             "event",
@@ -189,10 +229,18 @@ class ProfileView(ExtendedNavigationView):
             "note",
             "tag",
         ]:
-            self.callman.add_db_signal("{}-add".format(obj), self.redraw)
-            self.callman.add_db_signal("{}-update".format(obj), self.redraw)
-            self.callman.add_db_signal("{}-delete".format(obj), self.redraw)
-            self.callman.add_db_signal("{}-rebuild".format(obj), self.redraw)
+            self.callman.add_db_signal(
+                "{}-add".format(obj_type), self.redraw
+            )
+            self.callman.add_db_signal(
+                "{}-update".format(obj_type), self.redraw
+            )
+            self.callman.add_db_signal(
+                "{}-delete".format(obj_type), self.redraw
+            )
+            self.callman.add_db_signal(
+                "{}-rebuild".format(obj_type), self.redraw
+            )
 
     def navigation_type(self):
         return self.active_type
@@ -224,6 +272,7 @@ class ProfileView(ExtendedNavigationView):
         return self.active_page.get_configure_page_funcs()
 
     def goto_handle(self, handle):
+        self.dirty = True
         self.change_object(handle)
 
     def build_tree(self):
@@ -539,12 +588,22 @@ class ProfileView(ExtendedNavigationView):
         if self.active:
             self.bookmarks.redraw()
         self.history.clear()
+        self._init_cache()
+        self.fetch_thumbnail.cache_clear()
+        self.dirty = True
         self.redraw(None)
 
-    def redraw(self, *_dummy_obj):
+    def redraw(self, handle_list=None):
         """
-        Redraw current view if needed.
+        Redraw current view if needed, invalidating cached objects
+        if called as result of anything changing.
         """
+        if handle_list:
+            for handle in handle_list:
+                if handle in self.cache:
+                    del self.cache[handle]
+                    self.dirty = True
+
         if self.active:
             active_object = self.get_active()
             if active_object:
@@ -568,10 +627,11 @@ class ProfileView(ExtendedNavigationView):
         except ValueError:
             return None
         if not obj_tuple or len(obj_tuple) != 2:
-            initial_person = self.dbstate.db.find_initial_person()
-            if not initial_person:
+            initial_person_handle = self.dbstate.db.find_initial_person()
+            if not initial_person_handle:
                 return None
-            obj_tuple = ("Person", initial_person.get_handle())
+            initial_person = self.fetch_object("Person", initial_person_handle)
+            obj_tuple = ("Person", initial_person)
         full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
         return full_tuple
 
@@ -585,8 +645,8 @@ class ProfileView(ExtendedNavigationView):
         """
         Change object.
         """
+        self.dirty = True
         self.change_active((obj_type, obj_type, handle, None, None))
-        self.change_object((obj_type, obj_type, handle, None, None))
 
     def _clear_change(self):
         """
@@ -620,13 +680,14 @@ class ProfileView(ExtendedNavigationView):
             secondary_type,
             secondary,
         )
+        self.dirty = True
         self.change_active(full_tuple)
 
     def change_object(self, obj_tuple):
         """
         Change the page view to load a new active object.
         """
-        if self.redrawing:
+        if not self.dirty:
             return False
 
         if not obj_tuple:
@@ -644,10 +705,11 @@ class ProfileView(ExtendedNavigationView):
             secondary_obj_type,
             secondary_obj,
         ) = obj_tuple
-        query_method = self.dbstate.db.method(
-            "get_%s_from_handle", primary_obj_type
-        )
-        obj = query_method(primary_obj_handle)
+
+        obj = self.fetch_object(primary_obj_type, primary_obj_handle)
+        if not obj:
+            return False
+            
         self.render_page(
             page_type,
             primary_obj=obj,
@@ -678,7 +740,6 @@ class ProfileView(ExtendedNavigationView):
         """
         Render a new page view.
         """
-        self.redrawing = True
         if self.active_page:
             self.active_page.disable_actions(self.uimanager)
 
@@ -717,8 +778,6 @@ class ProfileView(ExtendedNavigationView):
                 edit_button.set_tooltip_text(tooltip)
 
         self.uistate.modify_statusbar(self.dbstate)
-        self.redrawing = False
-        self.dirty = False
 
         self.active_page = page
         self.active_type = primary_obj_type
@@ -737,7 +796,8 @@ class ProfileView(ExtendedNavigationView):
         if name:
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)
-
+        self.dirty = False
+        
     def set_active(self):
         """
         Called when the page is displayed.

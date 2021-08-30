@@ -60,7 +60,9 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, frame_obj_type, frame_obj_handles):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         self.obj_type = frame_obj_type
         self.obj_handles = frame_obj_handles
 
@@ -76,15 +78,27 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
         }
 
         for obj_type, obj_handle in tuple_list:
-            groptions = GrampsOptions("options.group.{}".format(obj_type.lower()), size_groups=groups)
+            if obj_type not in [
+                "Person",
+                "Family",
+                "Event",
+                "Place",
+                "Media",
+                "Note",
+                "Source",
+                "Citation",
+                "Repository",
+            ]:
+                continue
+            groptions = GrampsOptions(
+                "options.group.{}".format(obj_type.lower()), size_groups=groups
+            )
+            obj = self.fetch(obj_type, obj_handle)
             if obj_type == "Person":
-                obj = grstate.dbstate.db.get_person_from_handle(obj_handle)
                 frame = PersonGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Family":
-                obj = grstate.dbstate.db.get_family_from_handle(obj_handle)
                 frame = CoupleGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Event":
-                obj = grstate.dbstate.db.get_event_from_handle(obj_handle)
                 frame = EventGrampsFrame(
                     grstate,
                     groptions,
@@ -96,22 +110,16 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
                     None,
                 )
             elif obj_type == "Place":
-                obj = grstate.dbstate.db.get_place_from_handle(obj_handle)
                 frame = PlaceGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Media":
-                obj = grstate.dbstate.db.get_media_from_handle(obj_handle)
                 frame = ImageGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Note":
-                obj = grstate.dbstate.db.get_note_from_handle(obj_handle)
                 frame = NoteGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Source":
-                obj = grstate.dbstate.db.get_source_from_handle(obj_handle)
                 frame = SourceGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Citation":
-                obj = grstate.dbstate.db.get_citation_from_handle(obj_handle)
                 frame = CitationGrampsFrame(grstate, groptions, obj)
             elif obj_type == "Repository":
-                obj = grstate.dbstate.db.get_repository_from_handle(obj_handle)
                 frame = RepositoryGrampsFrame(grstate, groptions, obj)
             else:
                 continue

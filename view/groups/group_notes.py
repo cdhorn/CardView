@@ -24,14 +24,6 @@ NotesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-
-# ------------------------------------------------------------------------
-#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
@@ -52,7 +44,9 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, enable_drop=False)
+        GrampsFrameGroupList.__init__(
+            self, grstate, groptions, enable_drop=False
+        )
         if not hasattr(obj, "note_list"):
             return
 
@@ -62,7 +56,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
             self.hideable = self.get_layout("hideable")
 
         for handle in obj.get_note_list():
-            note = grstate.dbstate.db.get_note_from_handle(handle)
+            note = self.fetch("Note", handle)
             frame = NoteGrampsFrame(
                 grstate,
                 groptions,

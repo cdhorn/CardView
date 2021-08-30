@@ -78,8 +78,8 @@ class AttributeProfilePage(BaseProfilePage):
     attribute for an object.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.child = None
         self.colors = None
         self.active_profile = None
@@ -117,7 +117,7 @@ class AttributeProfilePage(BaseProfilePage):
         grstate = GrampsState(
             self.dbstate,
             self.uistate,
-            self.callback_router,
+            self.callbacks,
             self.config,
             self.page_type().lower(),
         )

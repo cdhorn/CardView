@@ -88,9 +88,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         person,
         person_ref,
     ):
-        self.ref_person = grstate.dbstate.db.get_person_from_handle(
-            person_ref.ref
-        )
+        self.ref_person = grstate.fetch("Person", person_ref.ref)
         PersonGrampsFrame.__init__(
             self,
             grstate,
@@ -235,7 +233,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                     self.ref_person.get_handle(),
                 )
             )
-            return self.grstate.router("context-changed", ("PersonRef", data))
+            return self.grstate.context_changed("PersonRef", data)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -341,7 +339,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         Add the new or existing citation to the current object.
         """
         if handle and self.secondary.obj.add_citation(handle):
-            citation = self.grstate.dbstate.db.get_citation_from_handle(handle)
+            citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
                 _("Citation"),
@@ -443,7 +441,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         Add the new or existing note to the current object.
         """
         if handle and self.secondary.obj.add_note(handle):
-            note = self.grstate.dbstate.db.get_note_from_handle(handle)
+            note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
                 _("Note"),

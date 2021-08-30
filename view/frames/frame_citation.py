@@ -54,9 +54,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
 
     def __init__(self, grstate, groptions, citation, reference=None):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, citation)
-        source = grstate.dbstate.db.get_source_from_handle(
-            citation.source_handle
-        )
+        source = self.fetch("Source", citation.source_handle)
         self.populate_layout(source, citation, reference)
         self.enable_drag()
         self.enable_drop()

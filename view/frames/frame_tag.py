@@ -28,19 +28,10 @@ TagGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-import pickle
-import re
-
-
-# ------------------------------------------------------------------------
-#
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 
 
 # ------------------------------------------------------------------------
@@ -51,7 +42,6 @@ from gi.repository import Gtk, Gdk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 from gramps.gen.errors import WindowActiveError
-from gramps.gui.ddtargets import DdTargets
 
 
 # ------------------------------------------------------------------------
@@ -60,13 +50,7 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_classes import GrampsConfig, GrampsObject
-from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_utils import (
-    button_activated,
-    menu_item,
-    submenu_item,
-)
+from .frame_utils import menu_item
 
 _ = glocale.translation.sgettext
 
@@ -100,12 +84,16 @@ class TagGrampsFrame(GrampsFrame):
         self.title.pack_start(image, False, False, 0)
         label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(tag.name))
         self.title.pack_start(label, False, False, 0)
-        
-        self.facts_grid.attach(self.make_label("{}:".format(_("Priority"))), 0, 0, 1, 1)
+
+        self.facts_grid.attach(
+            self.make_label("{}:".format(_("Priority"))), 0, 0, 1, 1
+        )
         self.facts_grid.attach(self.make_label(str(tag.priority)), 1, 0, 1, 1)
         label = Gtk.Label(label="{}:".format(_("Color")))
-        self.facts_grid.attach(self.make_label("{}:".format(_("Color"))), 0, 1, 1, 1)
-        
+        self.facts_grid.attach(
+            self.make_label("{}:".format(_("Color"))), 0, 1, 1, 1
+        )
+
         label = self.make_label(tag.color)
         css = ".label {{ margin: 0px; padding: 0px; font-size: x-small; color: black; background-color: {}; }}".format(
             tag.color[:7]
@@ -120,7 +108,7 @@ class TagGrampsFrame(GrampsFrame):
         self.facts_grid.attach(label, 1, 1, 1, 1)
         self.set_css_style()
 
-    def build_action_menu(self, obj, event):
+    def build_action_menu(self, _dummy_obj, event):
         """
         Build the action menu for the tag.
         """
@@ -133,16 +121,19 @@ class TagGrampsFrame(GrampsFrame):
         if Gtk.get_minor_version() >= 22:
             menu.popup_at_pointer(event)
         else:
-            menu.popup(
-                None, None, None, None, event.button, event.time
-            )
+            menu.popup(None, None, None, None, event.button, event.time)
 
     def edit_tag(self, _dummy_obj):
         """
         Create a new tag.
         """
         try:
-            EditTag(self.grstate.dbstate.db, self.grstate.uistate, [], self.primary.obj)
+            EditTag(
+                self.grstate.dbstate.db,
+                self.grstate.uistate,
+                [],
+                self.primary.obj,
+            )
         except WindowActiveError:
             pass
 

@@ -96,9 +96,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         event_cache = []
         for event_ref in family.get_event_ref_list():
-            event_cache.append(
-                grstate.dbstate.db.get_event_from_handle(event_ref.ref)
-            )
+            event_cache.append(self.fetch("Event", event_ref.ref))
         if "active" in groptions.option_space:
             anchor = "options.active.family"
         else:
@@ -392,14 +390,10 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
     def _get_parents(self):
         father = None
         if self.family.get_father_handle():
-            father = self.grstate.dbstate.db.get_person_from_handle(
-                self.family.get_father_handle()
-            )
+            father = self.fetch("Person", self.family.get_father_handle())
         mother = None
         if self.family.get_mother_handle():
-            mother = self.grstate.dbstate.db.get_person_from_handle(
-                self.family.get_mother_handle()
-            )
+            mother = self.fetch("Person", self.family.get_mother_handle())
 
         partner1 = father
         partner2 = mother

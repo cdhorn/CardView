@@ -54,10 +54,7 @@ from gramps.gui.display import display_url
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
 from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_utils import (
-    button_activated,
-    TextLink
-)
+from .frame_utils import button_activated, TextLink
 
 _ = glocale.translation.sgettext
 
@@ -87,9 +84,13 @@ class NoteUrlGrampsFrame(GrampsFrame):
         self.eventbox.add(self.frame)
         self.add(self.eventbox)
 
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(escape(link)))
+        label = Gtk.Label(
+            use_markup=True, label="<b>{}</b>".format(escape(link))
+        )
         self.title.pack_start(label, False, False, 0)
-        text = "{} {} {} {}".format(_("Found"), _("in"), _("note"), note.get_gramps_id())
+        text = "{} {} {} {}".format(
+            _("Found"), _("in"), _("note"), note.get_gramps_id()
+        )
         note_link = TextLink(
             text,
             "Note",
@@ -97,13 +98,13 @@ class NoteUrlGrampsFrame(GrampsFrame):
             self.switch_object,
             hexpand=False,
             bold=False,
-            markup=self.markup
+            markup=self.markup,
         )
         self.facts_grid.attach(note_link, 0, 0, 1, 1)
         self.set_css_style()
         self.show_all()
-        
-    def route_action(self, obj, event):
+
+    def route_action(self, _dummy_obj, event):
         """
         Route the action if the frame was clicked on.
         """

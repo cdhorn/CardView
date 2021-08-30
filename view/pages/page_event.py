@@ -62,8 +62,8 @@ class EventProfilePage(BaseProfilePage):
     Provides the event profile page view with information about the event.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Event"
@@ -87,7 +87,11 @@ class EventProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.event")
         self.active_profile = EventGrampsFrame(
@@ -107,7 +111,9 @@ class EventProfilePage(BaseProfilePage):
         if "citation" in groups:
             obj_groups.update({"citation": get_citations_group(grstate, event)})
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, event)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, event)}
+            )
         if "url" in groups:
             obj_groups.update({"urls": get_urls_group(grstate, event)})
         if "note" in groups:

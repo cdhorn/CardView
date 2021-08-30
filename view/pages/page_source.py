@@ -63,8 +63,8 @@ class SourceProfilePage(BaseProfilePage):
     Provides the source profile page view with information about the source.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Source"
@@ -88,7 +88,11 @@ class SourceProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.source")
         self.active_profile = SourceGrampsFrame(grstate, groptions, source)
@@ -105,7 +109,9 @@ class SourceProfilePage(BaseProfilePage):
                 {"citation": get_citations_group(grstate, source)}
             )
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, source)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, source)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, source)})
         if "note" in groups:

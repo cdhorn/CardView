@@ -70,8 +70,8 @@ class CitationProfilePage(BaseProfilePage):
     Provides the citation profile page view with information about the citation.
     """
 
-    def __init__(self, dbstate, uistate, config):
-        BaseProfilePage.__init__(self, dbstate, uistate, config)
+    def __init__(self, dbstate, uistate, config, callbacks):
+        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
     def obj_type(self):
         return "Citation"
@@ -95,7 +95,11 @@ class CitationProfilePage(BaseProfilePage):
             return
 
         grstate = GrampsState(
-            self.dbstate, self.uistate, self.callback_router, self.config, self.page_type().lower()
+            self.dbstate,
+            self.uistate,
+            self.callbacks,
+            self.config,
+            self.page_type().lower(),
         )
         groptions = GrampsOptions("options.active.citation")
         self.active_profile = CitationGrampsFrame(grstate, groptions, citation)
@@ -112,7 +116,9 @@ class CitationProfilePage(BaseProfilePage):
         obj_groups = {}
 
         if "attribute" in groups:
-            obj_groups.update({"attribute": get_attributes_group(grstate, citation)})
+            obj_groups.update(
+                {"attribute": get_attributes_group(grstate, citation)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, citation)})
         if "note" in groups:
