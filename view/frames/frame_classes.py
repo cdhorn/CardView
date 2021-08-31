@@ -52,7 +52,7 @@ from gi.repository import Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.lib import Media, Span
+from gramps.gen.lib import Media, MediaRef, Span
 from gramps.gen.lib.date import Today
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
@@ -750,50 +750,127 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
 
 # ------------------------------------------------------------------------
 #
-# GrampsImageViewFrame class
+# GrampsFrameId class
 #
 # ------------------------------------------------------------------------
-class GrampsImageViewFrame(Gtk.Frame):
+class GrampsFrameId(Gtk.HBox, GrampsConfig):
     """
-    A simple class for managing display of an image intended for embedding
-    in a GrampsFrame object.
+    A simple class for display of the id and privacy for a GrampsFrame object.
     """
 
-    def __init__(self, grstate, obj, obj_ref=None, size=0, crop=True):
-        Gtk.Frame.__init__(
-            self, expand=False, shadow_type=Gtk.ShadowType.NONE, margin=3
+    def __init__(self, grstate, groptions):
+        Gtk.HBox.__init__(
+            self,
+            hexpand=True,
+            vexpand=False,
+            halign=Gtk.Align.END,
+            valign=Gtk.Align.START,
         )
-        self.grstate = grstate
-        self.obj = obj
-        thumbnail = None
-        if obj_ref:
-            thumbnail = self.get_thumbnail(obj, obj_ref, size, crop)
-        elif isinstance(obj, Media):
-            thumbnail = self.get_thumbnail(obj, None, size, crop)
-        elif obj.get_media_list():
-            thumbnail = self.get_thumbnail(
-                None, obj.get_media_list()[0], size, crop
-            )
-        if thumbnail:
-            eventbox = Gtk.EventBox()
-            eventbox.add(thumbnail)
-            self.add(eventbox)
-            eventbox.connect("button-press-event", self.view_photo)
+        GrampsConfig.__init__(self, grstate, groptions)
 
-    def get_thumbnail(self, media, media_ref, size, crop):
+    def load(self, obj, obj_type):
+        """
+        Load the id field as needed for the given object.
+        """
+        if hasattr(obj, "gramps_id"):
+            self._add_gramps_id(obj)
+        if hasattr(obj, "handle"):
+            self._add_bookmark_indicator(obj, obj_type)
+        elif "Ref" in obj_type:
+            pack_icon(self, "stock_link")
+        self._add_privacy_indicator(obj)
+
+    def _add_gramps_id(self, obj):
+        """
+        Add the gramps id if needed.
+        """
+        if self.grstate.config.get("options.global.enable-gramps-ids"):
+            label = Gtk.Label(
+                use_markup=True,
+                label=self.markup.format(escape(obj.gramps_id)),
+            )
+            self.pack_end(label, False, False, 0)
+
+    def _add_bookmark_indicator(self, obj, obj_type):
+        """
+        Add the bookmark indicator if needed.
+        """
+        if self.grstate.config.get("options.global.enable-bookmarks"):
+            for bookmark in get_bookmarks(
+                self.grstate.dbstate.db, obj_type
+            ).get():
+                if bookmark == obj.get_handle():
+                    pack_icon(self, "gramps-bookmark")
+                    break
+
+    def _add_privacy_indicator(self, obj):
+        """
+        Add privacy mode indicator if needed.
+        """
+        mode = self.grstate.config.get("options.global.privacy-mode")
+        if mode:
+            image = Gtk.Image()
+            if obj.private:
+                if mode in [1, 3]:
+                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
+            else:
+                if mode in [2, 3]:
+                    image.set_from_icon_name(
+                        "gramps-unlock", Gtk.IconSize.BUTTON
+                    )
+            self.pack_end(image, False, False, 0)
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsImage class
+#
+# ------------------------------------------------------------------------
+class GrampsImage(Gtk.EventBox):
+    """
+    A simple class for managing display of an image for a GrampsFrame object.
+    """
+
+    def __init__(self, grstate, obj=None, media_ref=None):
+        Gtk.EventBox.__init__(self)
+        self.grstate = grstate
+        self.media_ref = None
+
+        if isinstance(obj, Media):
+            self.media = obj
+        elif isinstance(media_ref, MediaRef):
+            self.media_ref = media_ref
+            self.media = grstate.fetch("Media", media_ref.ref)
+        elif hasattr(obj, "media_list") and obj.get_media_list():
+            self.media = grstate.fetch("Media", obj.get_media_list()[0].ref)
+        else:
+            self.media = None
+
+        if self.media:
+            self.path = media_path_full(
+                self.grstate.dbstate.db, self.media.get_path()
+            )
+
+    def load(self, size=0, crop=True):
+        """
+        Load or reload an image.
+        """
+        if self.media:
+            list(map(self.remove, self.get_children()))
+            thumbnail = self.__get_thumbnail(size, crop)
+            if thumbnail:
+                self.add(thumbnail)
+                self.connect("button-press-event", self.view_photo)
+
+    def __get_thumbnail(self, size, crop):
         """
         Get the thumbnail image.
         """
-        mobj = media
-        if not mobj:
-            mobj = self.grstate.fetch("Media", media_ref.ref)
-            self.obj = mobj
-        if mobj and mobj.get_mime_type()[0:5] == "image":
+        if self.media and self.media.get_mime_type()[0:5] == "image":
             rectangle = None
-            if media_ref and crop:
-                rectangle = media_ref.get_rectangle()
-            path = media_path_full(self.grstate.dbstate.db, mobj.get_path())
-            pixbuf = self.grstate.thumbnail(path, rectangle, size)
+            if self.media_ref and crop:
+                rectangle = self.media_ref.get_rectangle()
+            pixbuf = self.grstate.thumbnail(self.path, rectangle, size)
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
             return image
@@ -804,7 +881,5 @@ class GrampsImageViewFrame(Gtk.Frame):
         Open the image in the default picture viewer.
         """
         if button_activated(event, _LEFT_BUTTON):
-            photo_path = media_path_full(
-                self.grstate.dbstate.db, self.obj.get_path()
-            )
-            open_file_with_default_application(photo_path, self.grstate.uistate)
+            open_file_with_default_application(self.path, self.grstate.uistate)
+

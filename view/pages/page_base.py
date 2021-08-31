@@ -239,7 +239,7 @@ class BaseProfilePage:
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None, None
+            self.dbstate, self.uistate, self.callbacks, self.config, None
         )
         page = build_person_grid(
             configdialog, grstate, space, "person", extra=extra
@@ -311,7 +311,7 @@ class BaseProfilePage:
         Build global options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None, None
+            self.dbstate, self.uistate, self.callbacks, self.config, None
         )
         return _("Global"), build_global_grid(configdialog, grstate)
 
@@ -320,7 +320,7 @@ class BaseProfilePage:
         Build layout panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None, None
+            self.dbstate, self.uistate, self.callbacks, self.config, None
         )
         return _("Layout"), build_layout_grid(configdialog, grstate)
 
@@ -343,7 +343,7 @@ class BaseProfilePage:
         Build timeline options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None, None
+            self.dbstate, self.uistate, self.callbacks, self.config, None
         )
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)
@@ -359,7 +359,7 @@ class BaseProfilePage:
         Build color scheme options panel for the configuration dialog.
         """
         grstate = GrampsState(
-            self.dbstate, self.uistate, None, self.config, None, None
+            self.dbstate, self.uistate, self.callbacks, self.config, None
         )
         grid = create_grid()
         notebook = ConfigNotebook(vexpand=True, hexpand=True)

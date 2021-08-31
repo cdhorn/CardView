@@ -90,7 +90,7 @@ from .frame_classes import (
     GrampsFrameGrid,
     GrampsFrameTags,
     GrampsFrameIndicators,
-    GrampsImageViewFrame,
+    GrampsImage,
 )
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
@@ -308,17 +308,12 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Load primary image for the object if found.
         """
-        large_size = int(image_mode in [2, 4])
-        frame = GrampsImageViewFrame(
-            self.grstate,
-            self.primary.obj,
-            obj_ref=media_ref,
-            size=large_size,
-            crop=crop,
-        )
-        self.image.add(frame)
+        size = int(image_mode in [2, 4])
+        image = GrampsImage(self.grstate, self.primary.obj, media_ref=media_ref)
+        image.load(size, crop)
+        self.image.add(image)
         if "image" in self.groptions.size_groups:
-            self.groptions.size_groups["image"].add_widget(frame)
+            self.groptions.size_groups["image"].add_widget(image)
 
     def add_fact(self, fact, label=None, extra=False):
         """

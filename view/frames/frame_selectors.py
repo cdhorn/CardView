@@ -274,6 +274,8 @@ class FrameFieldSelector(Gtk.HBox):
                 self.relation_selector.set_label(name)
             except HandleError:
                 self.relation_selector.set_label("")
+            except AttributeError:
+                self.relation_selector.set_label("")
         else:
             self.hide_selectors()
 

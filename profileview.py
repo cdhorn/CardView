@@ -177,7 +177,7 @@ class ProfileView(ExtendedNavigationView):
         Fetch a thumbnail from cache when possible.
         """
         return get_thumbnail_image(path, rectangle=rectangle, size=size)
-    
+
     def _init_pages(self):
         """
         Load page handlers.
@@ -203,6 +203,7 @@ class ProfileView(ExtendedNavigationView):
             NoteProfilePage,
             PersonProfilePage,
             PersonRefProfilePage,
+            PlaceProfilePage,
             RepositoryProfilePage,
             RepositoryRefProfilePage,
             SourceProfilePage,
@@ -229,9 +230,7 @@ class ProfileView(ExtendedNavigationView):
             "note",
             "tag",
         ]:
-            self.callman.add_db_signal(
-                "{}-add".format(obj_type), self.redraw
-            )
+            self.callman.add_db_signal("{}-add".format(obj_type), self.redraw)
             self.callman.add_db_signal(
                 "{}-update".format(obj_type), self.redraw
             )
@@ -709,7 +708,7 @@ class ProfileView(ExtendedNavigationView):
         obj = self.fetch_object(primary_obj_type, primary_obj_handle)
         if not obj:
             return False
-            
+
         self.render_page(
             page_type,
             primary_obj=obj,
@@ -797,7 +796,7 @@ class ProfileView(ExtendedNavigationView):
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)
         self.dirty = False
-        
+
     def set_active(self):
         """
         Called when the page is displayed.
