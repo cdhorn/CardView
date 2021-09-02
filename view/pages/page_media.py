@@ -35,13 +35,12 @@ Media Profile Page
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_image import ImageGrampsFrame
 from ..groups.group_utils import (
     get_attributes_group,
@@ -98,7 +97,9 @@ class MediaProfilePage(BaseProfilePage):
         obj_groups = {}
 
         if "citation" in groups:
-            obj_groups.update({"citation": get_citations_group(grstate, media)})
+            obj_groups.update(
+                {"citation": get_citations_group(grstate, media)}
+            )
         if "attribute" in groups:
             obj_groups.update(
                 {"attribute": get_attributes_group(grstate, media)}

@@ -35,7 +35,6 @@ RepoRef Profile Page
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -44,21 +43,17 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_repository import RepositoryGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
 from ..frames.frame_utils import button_activated
-from ..groups.group_utils import (
-    get_notes_group,
-    get_urls_group,
-)
+from ..groups.group_utils import get_notes_group, get_urls_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext

@@ -31,21 +31,16 @@ Frame option selection classes
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError
-from gramps.gen.lib import (
-    AttributeType,
-    EventType,
-)
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.errors import HandleError
+from gramps.gen.lib import AttributeType, EventType
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
@@ -282,7 +277,9 @@ class FrameFieldSelector(Gtk.HBox):
         self.type_selector.connect("changed", self.update_type)
         self.event_selector.connect("changed", self.update_event_choice)
         self.all_matches.connect("toggled", self.update_all_choice)
-        self.attribute_selector.connect("changed", self.update_attribute_choice)
+        self.attribute_selector.connect(
+            "changed", self.update_attribute_choice
+        )
         self.relation_selector.connect("clicked", self.update_relation_choice)
 
     def hide_selectors(

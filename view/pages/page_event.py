@@ -35,14 +35,13 @@ Event Profile Page
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_event import EventGrampsFrame
 from ..groups.group_utils import (
     get_attributes_group,
@@ -109,7 +108,9 @@ class EventProfilePage(BaseProfilePage):
         obj_groups = {}
 
         if "citation" in groups:
-            obj_groups.update({"citation": get_citations_group(grstate, event)})
+            obj_groups.update(
+                {"citation": get_citations_group(grstate, event)}
+            )
         if "attribute" in groups:
             obj_groups.update(
                 {"attribute": get_attributes_group(grstate, event)}

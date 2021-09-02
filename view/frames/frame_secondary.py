@@ -33,14 +33,12 @@ SecondaryGrampsFrame
 # ------------------------------------------------------------------------
 import pickle
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -49,14 +47,12 @@ from gi.repository import Gtk, Gdk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_classes import GrampsFrameIndicators
 
 _ = glocale.translation.sgettext
 
@@ -76,74 +72,9 @@ class SecondaryGrampsFrame(GrampsFrame):
         GrampsFrame.__init__(
             self, grstate, groptions, primary_obj, secondary_obj
         )
-
-        body = Gtk.HBox(hexpand=False, margin=3)
-        if self.get_option("show-age") or self.groptions.age_base:
-            self.age = Gtk.VBox(
-                margin_right=3,
-                margin_left=3,
-                margin_top=3,
-                margin_bottom=3,
-                spacing=2,
-            )
-            if "age" in self.groptions.size_groups:
-                self.groptions.size_groups["age"].add_widget(self.age)
-            body.pack_start(self.age, expand=False, fill=False, padding=0)
-
-        fact_block = Gtk.VBox(hexpand=False, vexpand=False)
-        body.pack_start(fact_block, expand=True, fill=True, padding=0)
-        self.title = Gtk.HBox()
-        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
-        fact_block.pack_start(
-            self.facts_grid, expand=True, fill=True, padding=0
-        )
-        if "data" in self.groptions.size_groups:
-            self.groptions.size_groups["data"].add_widget(fact_block)
-
-        mode = self.grstate.config.get("options.global.privacy-mode")
-        if mode or self.get_option("options.global.enable-child-indicators"):
-            attribute_block = Gtk.VBox()
-            if mode:
-                image = Gtk.Image()
-                if self.secondary.obj.private:
-                    if mode in [1, 3]:
-                        image.set_from_icon_name(
-                            "gramps-lock", Gtk.IconSize.BUTTON
-                        )
-                else:
-                    if mode in [2, 3]:
-                        image.set_from_icon_name(
-                            "gramps-unlock", Gtk.IconSize.BUTTON
-                        )
-                image_box = Gtk.HBox()
-                image_box.pack_end(image, False, False, 0)
-                attribute_block.pack_start(image_box, False, False, 0)
-
-            if self.get_option("options.global.enable-child-indicators"):
-                self.indicators = GrampsFrameIndicators(grstate, groptions)
-                attribute_block.pack_end(
-                    self.indicators, expand=False, fill=False, padding=0
-                )
-                if "active" in self.groptions.option_space:
-                    size = 12
-                else:
-                    size = 2
-                self.indicators.load(
-                    self.secondary.obj, self.secondary.obj_type, size=size
-                )
-            if len(attribute_block):
-                body.pack_end(
-                    attribute_block, expand=False, fill=False, padding=0
-                )
-                if "attributes" in self.groptions.size_groups:
-                    self.groptions.size_groups["attributes"].add_widget(
-                        attribute_block
-                    )
-
+        self.build_layout()
         self.frame.set_size_request(160, -1)
-        self.frame.add(body)
-        self.eventbox.add(self.frame)
-        self.add(self.eventbox)
+        self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
@@ -168,7 +99,7 @@ class SecondaryGrampsFrame(GrampsFrame):
         """
         Add a simple fact.
         """
-        self.facts_grid.add_fact(fact, label=label)
+        self.widgets["facts"].add_fact(fact, label=label)
 
     def build_action_menu(self, _dummy_obj, event):
         """

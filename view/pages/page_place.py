@@ -35,14 +35,13 @@ Place Profile Page
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_place import PlaceGrampsFrame
 from ..groups.group_utils import (
     get_citations_group,
@@ -103,7 +102,9 @@ class PlaceProfilePage(BaseProfilePage):
                 {"reference": get_references_group(grstate, place)}
             )
         if "citation" in groups:
-            obj_groups.update({"citation": get_citations_group(grstate, place)})
+            obj_groups.update(
+                {"citation": get_citations_group(grstate, place)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, place)})
         if "note" in groups:

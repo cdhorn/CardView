@@ -35,14 +35,12 @@ import hashlib
 import pickle
 import re
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -53,6 +51,9 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import Citation, Note, Source, Span
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
@@ -61,23 +62,14 @@ from gramps.gui.editors import (
     EditNote,
     EditSrcAttribute,
 )
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import (
-    Citation,
-    Note,
-    Source,
-    Span,
-)
-from gramps.gui.ddtargets import DdTargets
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsConfig, GrampsObject, GrampsFrameGrid
+from .frame_classes import GrampsObject
 from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
@@ -87,6 +79,7 @@ from .frame_utils import (
     note_option_text,
     submenu_item,
 )
+from .frame_view import GrampsFrameView
 
 _ = glocale.translation.sgettext
 
@@ -96,15 +89,13 @@ _ = glocale.translation.sgettext
 # GrampsFrame class
 #
 # ------------------------------------------------------------------------
-class GrampsFrame(Gtk.VBox, GrampsConfig):
+class GrampsFrame(GrampsFrameView):
     """
-    The GrampsFrame class provides core methods for constructing the view
-    and working with the primary and secondary Gramps objects it helps expose.
+    Provides core methods for working with the Gramps objects it manages.
     """
 
     def __init__(self, grstate, groptions, primary_obj, secondary_obj=None):
-        Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
-        GrampsConfig.__init__(self, grstate, groptions)
+        GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
         self.secondary = GrampsObject(secondary_obj)
         if self.secondary and not self.secondary.is_reference:
@@ -114,14 +105,8 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         self.dnd_drop_targets = []
         self.css = ""
         self.action_menu = None
-
-        self.eventbox = Gtk.EventBox()
+        self.init_layout(secondary=self.secondary)
         self.eventbox.connect("button-press-event", self.route_action)
-        self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.facts_grid = GrampsFrameGrid(
-            grstate, groptions, self.switch_object
-        )
-        self.age = None
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """
@@ -232,7 +217,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         """
         Calculate and show age.
         """
-        if self.age:
+        if "age" in self.widgets:
             span = Span(base_date, current_date)
             if span.is_valid():
                 year = current_date.get_year()
@@ -248,7 +233,7 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     use_markup=True,
                     justify=Gtk.Justification.CENTER,
                 )
-                self.age.pack_start(label, False, False, 0)
+                self.widgets["age"].pack_start(label, False, False, 0)
 
     def route_action(self, obj, event):
         """
@@ -516,7 +501,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
         )
         menu.add(
             menu_item(
-                "list-add", _("Add an existing citation"), add_existing_citation
+                "list-add",
+                _("Add an existing citation"),
+                add_existing_citation,
             )
         )
         if len(obj.get_citation_list()) > 0:
@@ -703,7 +690,9 @@ class GrampsFrame(Gtk.VBox, GrampsConfig):
                     menu_item("list-remove", text, remove_note, note)
                 )
                 menu.add(
-                    menu_item("gramps-notes", text, self.edit_note, note.handle)
+                    menu_item(
+                        "gramps-notes", text, self.edit_note, note.handle
+                    )
                 )
         if (
             self.grstate.config.get("options.global.include-child-notes")

@@ -30,7 +30,6 @@ PlaceGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -63,7 +62,7 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
             self.switch_object,
             bold=True,
         )
-        self.title.pack_start(title, True, False, 0)
+        self.widgets["title"].pack_start(title, True, False, 0)
 
         if place.get_type():
             text = glocale.translation.sgettext(place.get_type().xml_str())

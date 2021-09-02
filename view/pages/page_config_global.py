@@ -35,18 +35,14 @@ Global configuration dialog functions
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_utils import ConfigReset
-from .page_const import (
-    MEDIA_IMAGE_DISPLAY_MODES,
-    PRIVACY_DISPLAY_MODES,
-)
-from .page_utils import create_grid, add_config_reset
+from .page_const import MEDIA_IMAGE_DISPLAY_MODES, PRIVACY_DISPLAY_MODES
+from .page_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 

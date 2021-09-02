@@ -29,7 +29,6 @@ EventGrampsFrame.
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -37,19 +36,14 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import (
-    EventRef,
-    EventRoleType,
-    Person,
-)
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import EventRef, EventRoleType, Person
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
 from gramps.gui.editors import EditEventRef, EditPerson
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
@@ -58,6 +52,7 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
+    TextLink,
     get_confidence,
     get_confidence_color_css,
     get_event_category_color_css,
@@ -68,7 +63,6 @@ from .frame_utils import (
     get_relationship_color_css,
     menu_item,
     submenu_item,
-    TextLink,
 )
 
 _ = glocale.translation.sgettext
@@ -135,7 +129,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                     family_name(event_family, grstate.dbstate.db),
                 )
             elif event_person:
-                text = "{} {} {}".format(event_type, _("of"), event_person_name)
+                text = "{} {} {}".format(
+                    event_type, _("of"), event_person_name
+                )
         elif role:
             if not role.is_primary():
                 self.role_type = "secondary"
@@ -169,7 +165,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             hexpand=True,
             bold=True,
         )
-        self.title.pack_start(name, True, True, 0)
+        self.widgets["title"].pack_start(name, True, True, 0)
 
         if (
             role and not role.is_primary() and not role.is_family()
@@ -300,7 +296,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 self.relation_to_reference, self.grstate.config
             )
         if scheme == 2:
-            return get_event_role_color_css(self.role_type, self.grstate.config)
+            return get_event_role_color_css(
+                self.role_type, self.grstate.config
+            )
         if scheme == 3:
             return get_event_category_color_css(
                 self.event_category, self.grstate.config
@@ -345,7 +343,10 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             return
         try:
             self.primary.obj_edit(
-                self.grstate.dbstate, self.grstate.uistate, [], self.primary.obj
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.primary.obj,
             )
         except WindowActiveError:
             pass
@@ -413,7 +414,9 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             )
             editmenu = Gtk.Menu()
             menu.add(
-                submenu_item("gramps-person", _("Edit a participant"), editmenu)
+                submenu_item(
+                    "gramps-person", _("Edit a participant"), editmenu
+                )
             )
             removemenu = Gtk.Menu()
             removesubmenu = submenu_item(

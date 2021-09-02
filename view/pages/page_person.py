@@ -38,14 +38,13 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
@@ -127,7 +126,9 @@ class PersonProfilePage(BaseProfilePage):
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(grstate, groptions, person)
 
-        groups = self.config.get("options.page.person.layout.groups").split(",")
+        groups = self.config.get("options.page.person.layout.groups").split(
+            ","
+        )
         obj_groups = {}
 
         if "parent" in groups:
@@ -145,7 +146,9 @@ class PersonProfilePage(BaseProfilePage):
                 {"association": get_associations_group(grstate, person)}
             )
         if "timeline" in groups:
-            obj_groups.update({"timeline": get_timeline_group(grstate, person)})
+            obj_groups.update(
+                {"timeline": get_timeline_group(grstate, person)}
+            )
         if "citation" in groups:
             obj_groups.update(
                 {"citation": get_citations_group(grstate, person)}
@@ -155,7 +158,9 @@ class PersonProfilePage(BaseProfilePage):
         if "media" in groups:
             obj_groups.update({"media": get_media_group(grstate, person)})
         if "address" in groups:
-            obj_groups.update({"address": get_addresses_group(grstate, person)})
+            obj_groups.update(
+                {"address": get_addresses_group(grstate, person)}
+            )
         if "url" in groups:
             obj_groups.update({"url": get_urls_group(grstate, person)})
         body = self.render_group_view(obj_groups)

@@ -35,13 +35,12 @@ Repository Profile Page
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_repository import RepositoryGrampsFrame
 from ..groups.group_utils import (
     get_notes_group,
@@ -94,9 +93,9 @@ class RepositoryProfilePage(BaseProfilePage):
             grstate, groptions, repository
         )
 
-        groups = self.config.get("options.page.repository.layout.groups").split(
-            ","
-        )
+        groups = self.config.get(
+            "options.page.repository.layout.groups"
+        ).split(",")
         obj_groups = {}
 
         if "source" in groups:

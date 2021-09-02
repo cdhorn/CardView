@@ -33,14 +33,12 @@ import pickle
 import time
 from functools import lru_cache
 
-
 # -------------------------------------------------------------------------
 #
 # GTK/Gnome modules
 #
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
-
 
 # -------------------------------------------------------------------------
 #
@@ -50,7 +48,7 @@ from gi.repository import Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError, HandleError
+from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.editors import FilterEditor
@@ -58,23 +56,23 @@ from gramps.gui.views.bookmarks import PersonBookmarks
 
 from enavigationview import ExtendedNavigationView
 from view.frames.frame_utils import get_config_option, save_config_option
-from view.pages.page_options import CONFIGSETTINGS
-from view.pages.page_person import PersonProfilePage
-from view.pages.page_family import FamilyProfilePage
+from view.pages.page_address import AddressProfilePage
+from view.pages.page_attribute import AttributeProfilePage
+from view.pages.page_child_ref import ChildRefProfilePage
+from view.pages.page_citation import CitationProfilePage
 from view.pages.page_event import EventProfilePage
+from view.pages.page_family import FamilyProfilePage
 from view.pages.page_media import MediaProfilePage
 from view.pages.page_name import NameProfilePage
 from view.pages.page_note import NoteProfilePage
+from view.pages.page_options import CONFIGSETTINGS
+from view.pages.page_person import PersonProfilePage
+from view.pages.page_person_ref import PersonRefProfilePage
 from view.pages.page_place import PlaceProfilePage
-from view.pages.page_citation import CitationProfilePage
-from view.pages.page_child_ref import ChildRefProfilePage
-from view.pages.page_source import SourceProfilePage
 from view.pages.page_repository import RepositoryProfilePage
 from view.pages.page_repository_ref import RepositoryRefProfilePage
-from view.pages.page_person_ref import PersonRefProfilePage
+from view.pages.page_source import SourceProfilePage
 from view.pages.page_tag import TagProfilePage
-from view.pages.page_address import AddressProfilePage
-from view.pages.page_attribute import AttributeProfilePage
 
 _ = glocale.translation.sgettext
 

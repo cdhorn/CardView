@@ -31,7 +31,6 @@ Frame constants
 # ------------------------------------------------------------------------
 from gi.repository import Gdk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -52,8 +51,8 @@ from gramps.gen.lib import (
     Person,
     PersonRef,
     Place,
-    Repository,
     RepoRef,
+    Repository,
     Source,
     SrcAttribute,
     Tag,
@@ -74,13 +73,12 @@ from gramps.gui.editors import (
     EditPerson,
     EditPersonRef,
     EditPlace,
-    EditRepository,
     EditRepoRef,
+    EditRepository,
     EditSource,
     EditUrl,
 )
 from gramps.gui.views.tags import EditTag
-
 
 # ------------------------------------------------------------------------
 #
@@ -176,7 +174,14 @@ GRAMPS_OBJECTS = [
         DdTargets.SOURCE_LINK,
         "gramps-source",
     ),
-    (Media, EditMedia, "Media", _("Media"), DdTargets.MEDIAOBJ, "gramps-media"),
+    (
+        Media,
+        EditMedia,
+        "Media",
+        _("Media"),
+        DdTargets.MEDIAOBJ,
+        "gramps-media",
+    ),
     (
         MediaRef,
         EditMediaRef,

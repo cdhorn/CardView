@@ -29,7 +29,6 @@ ChildrenGrampsFrameGroup
 # ------------------------------------------------------------------------
 from copy import copy
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -41,7 +40,6 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import ChildRef
 from gramps.gui.editors import EditChildRef
-
 
 # ------------------------------------------------------------------------
 #
@@ -78,7 +76,9 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                 child = self.fetch("Person", child_ref.ref)
                 groptions_copy = copy(groptions)
                 groptions_copy.set_backlink(family.get_handle())
-                groptions_copy.option_space = "options.group.{}".format(context)
+                groptions_copy.option_space = "options.group.{}".format(
+                    context
+                )
                 child_number = child_number + 1
                 if self.grstate.config.get(
                     "options.group.{}.number-children".format(context)

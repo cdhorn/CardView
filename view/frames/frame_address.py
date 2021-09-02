@@ -30,7 +30,6 @@ AddressGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -84,7 +83,7 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
             if groptions.age_base:
                 self.load_age(groptions.age_base, address.get_date_object())
 
-        if len(self.facts_grid) == 0:
+        if len(self.widgets["facts"]) == 0:
             self.add_fact(self.make_label("[{}]".format(_("Empty"))))
         self.show_all()
         self.enable_drag()

@@ -30,7 +30,6 @@ MediaGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules

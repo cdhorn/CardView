@@ -29,14 +29,12 @@ ImageGrampsFrame
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 
 # ------------------------------------------------------------------------
 #
@@ -71,7 +69,7 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             self.switch_object,
             bold=True,
         )
-        self.title.pack_start(title, True, False, 0)
+        self.widgets["title"].pack_start(title, True, False, 0)
 
         if media.get_date_object():
             if self.get_option("show-date"):
@@ -79,7 +77,7 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                 if text:
                     self.add_fact(self.make_label(text))
 
-            if groptions.age_base:
+            if "age" in self.widgets and groptions.age_base:
                 self.load_age(groptions.age_base, media.get_date_object())
 
         self.enable_drag()
@@ -102,39 +100,42 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             self.load_image(size, crop=crop)
 
         tbox = Gtk.HBox(hexpand=False, vexpand=False)
-        tbox.pack_start(self.tags, False, False, 0)
+        tbox.pack_start(self.widgets["tags"], False, False, 0)
         if active:
             hcontent = Gtk.HBox(hexpand=True)
-            self.body.pack_start(hcontent, expand=True, fill=True, padding=0)
+            self.widgets["body"].pack_start(
+                hcontent, expand=True, fill=True, padding=0
+            )
             vcontent = Gtk.VBox()
-            vcontent.pack_start(self.title, expand=False, fill=False, padding=0)
+            vcontent.pack_start(
+                self.widgets["title"], expand=False, fill=False, padding=0
+            )
             vcontent.pack_start(tbox, expand=True, fill=False, padding=0)
-            hcontent.pack_start(self.image, expand=False, fill=False, padding=0)
+            hcontent.pack_start(
+                self.widgets["image"], expand=False, fill=False, padding=0
+            )
             hcontent.pack_start(vcontent, expand=True, fill=True, padding=0)
             hcontent.pack_end(
-                self.attributes, expand=False, fill=True, padding=0
+                self.widgets["attributes"], expand=False, fill=True, padding=0
             )
         else:
-            if self.groptions.age_base:
-                self.age = Gtk.VBox(
-                    margin_right=3,
-                    margin_left=3,
-                    margin_top=3,
-                    margin_bottom=3,
-                    spacing=2,
-                )
-                if "age" in self.groptions.size_groups:
-                    self.groptions.size_groups["age"].add_widget(self.age)
-                self.body.pack_start(
-                    self.age, expand=False, fill=False, padding=0
+            if "age" in self.widgets and self.groptions.age_base:
+                self.widgets["body"].pack_start(
+                    self.widgets["age"], expand=False, fill=False, padding=0
                 )
             vcontent = Gtk.VBox(hexpand=False)
-            self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+            self.widgets["body"].pack_start(
+                vcontent, expand=True, fill=True, padding=0
+            )
             hcontent = Gtk.HBox(hexpand=False)
             vcontent.pack_start(hcontent, True, True, 0)
-            hcontent.pack_start(self.image, expand=True, fill=True, padding=0)
-            hcontent.pack_end(
-                self.attributes, expand=False, fill=True, padding=0
+            hcontent.pack_start(
+                self.widgets["image"], expand=True, fill=True, padding=0
             )
-            vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
+            hcontent.pack_end(
+                self.widgets["attributes"], expand=False, fill=True, padding=0
+            )
+            vcontent.pack_start(
+                self.widgets["title"], expand=True, fill=True, padding=0
+            )
             vcontent.pack_start(tbox, expand=True, fill=False, padding=0)

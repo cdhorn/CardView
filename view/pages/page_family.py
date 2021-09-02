@@ -35,7 +35,6 @@ Family Profile Page
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -43,14 +42,13 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..groups.group_utils import (
     get_attributes_group,
@@ -147,7 +145,9 @@ class FamilyProfilePage(BaseProfilePage):
             family,
         )
 
-        pbox = Gtk.HBox(vexpand=False, hexpand=True, spacing=3, margin_bottom=3)
+        pbox = Gtk.HBox(
+            vexpand=False, hexpand=True, spacing=3, margin_bottom=3
+        )
         p1parents = self._get_primary_parents(
             grstate, self.active_profile.parent1, p1groups
         )
@@ -170,13 +170,17 @@ class FamilyProfilePage(BaseProfilePage):
             if bar.total:
                 vbox.pack_start(bar, False, False, 0)
 
-        groups = self.config.get("options.page.family.layout.groups").split(",")
+        groups = self.config.get("options.page.family.layout.groups").split(
+            ","
+        )
         obj_groups = {}
 
         if "child" in groups:
             obj_groups.update({"child": get_children_group(grstate, family)})
         if "timeline" in groups:
-            obj_groups.update({"timeline": get_timeline_group(grstate, family)})
+            obj_groups.update(
+                {"timeline": get_timeline_group(grstate, family)}
+            )
         if "citation" in groups:
             obj_groups.update(
                 {"citation": get_citations_group(grstate, family)}

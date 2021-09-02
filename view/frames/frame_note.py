@@ -29,7 +29,6 @@ NoteGrampsFrame
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -38,7 +37,6 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import StyledText
 from gramps.gui.widgets import StyledTextBuffer
-
 
 # ------------------------------------------------------------------------
 #
@@ -110,12 +108,19 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         Construct framework for note layout, overrides base class.
         """
         vcontent = Gtk.VBox(spacing=3)
-        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        self.widgets["body"].pack_start(
+            vcontent, expand=True, fill=True, padding=0
+        )
         vcontent.pack_start(self.text_view, expand=True, fill=True, padding=0)
         hcontent = Gtk.HBox(hexpand=True)
-        hcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        hcontent.pack_start(self.attributes, expand=True, fill=True, padding=0)
+        hcontent.pack_start(
+            self.widgets["facts"], expand=True, fill=True, padding=0
+        )
+        hcontent.pack_start(
+            self.widgets["attributes"], expand=True, fill=True, padding=0
+        )
         vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-        tbox = Gtk.HBox(vexpand=False, hexpand=False)
-        tbox.pack_start(self.tags, expand=False, fill=False, padding=0)
-        vcontent.pack_start(tbox, expand=True, fill=True, padding=0)
+        if "tags" in self.widgets:
+            vcontent.pack_start(
+                self.widgets["tags"], expand=True, fill=True, padding=0
+            )

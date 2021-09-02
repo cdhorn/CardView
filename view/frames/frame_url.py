@@ -29,14 +29,12 @@ UrlGrampsFrame
 # ------------------------------------------------------------------------
 from html import escape
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
-
 
 # ------------------------------------------------------------------------
 #
@@ -46,7 +44,6 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.display import display_url
-
 
 # ------------------------------------------------------------------------
 #
@@ -83,7 +80,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         label = Gtk.Label(
             use_markup=True, label="<b>{}</b>".format(escape(self.link))
         )
-        self.title.pack_start(label, False, False, 0)
+        self.widgets["title"].pack_start(label, False, False, 0)
 
         if url.get_description():
             self.add_fact(self.make_label(url.get_description()))

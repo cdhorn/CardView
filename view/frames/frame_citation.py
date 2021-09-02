@@ -29,7 +29,6 @@ CitationGrampsFrame
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -37,7 +36,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from .frame_const import CITATION_TYPES
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import get_confidence, get_confidence_color_css, TextLink
+from .frame_utils import TextLink, get_confidence, get_confidence_color_css
 
 _ = glocale.translation.sgettext
 
@@ -82,7 +81,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 self.switch_object,
                 bold=True,
             )
-        self.title.pack_start(title, True, False, 0)
+        self.widgets["title"].pack_start(title, True, False, 0)
 
         if source.author:
             self.add_fact(self.make_label(source.author))
@@ -112,18 +111,18 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 label = self.make_label(
                     CITATION_TYPES[reference[1]], left=False
                 )
-                self.attributes.add_fact(label)
+                self.widgets["attributes"].add_fact(label)
 
         if self.get_option("show-reference-description"):
             if reference and reference[2]:
                 label = self.make_label(reference[2], left=False)
-                self.attributes.add_fact(label)
+                self.widgets["attributes"].add_fact(label)
 
         if self.get_option("show-confidence"):
             label = self.make_label(
                 get_confidence(citation.confidence), left=False
             )
-            self.attributes.add_fact(label)
+            self.widgets["attributes"].add_fact(label)
         self.show_all()
 
     def get_color_css(self):

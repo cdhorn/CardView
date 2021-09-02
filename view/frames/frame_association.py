@@ -29,14 +29,12 @@ AssociationGrampsFrame
 # ------------------------------------------------------------------------
 import pickle
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -51,7 +49,6 @@ from gramps.gen.lib import Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditCitation, EditNote, EditPersonRef
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
@@ -98,21 +95,24 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         )
         self.base_person = person
         self.dnd_drop_ref_targets = []
+        self.ref_widgets["id"].load(person_ref, "PersonRef")
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         association = person_ref.get_relation()
         if not association:
             association = _("[None Provided]")
         if groptions.ref_mode == 2:
-            self.ref_fact_body.pack_start(
+            self.ref_widgets["body"].pack_start(
                 self.make_label(_("Association"), left=False), False, False, 0
             )
-            self.ref_fact_body.pack_start(
+            self.ref_widgets["body"].pack_start(
                 self.make_label(association, left=False), False, False, 0
             )
         else:
-            self.ref_fact_body.pack_start(
-                self.make_label("{}: {}".format(_("Association"), association)),
+            self.ref_widgets["body"].pack_start(
+                self.make_label(
+                    "{}: {}".format(_("Association"), association)
+                ),
                 True,
                 True,
                 0,
@@ -123,20 +123,20 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         )
         if relation:
             if groptions.ref_mode == 2:
-                self.ref_fact_body.pack_start(
+                self.ref_widgets["body"].pack_start(
                     self.make_label(_("Relationship"), left=False),
                     False,
                     False,
                     0,
                 )
-                self.ref_fact_body.pack_start(
+                self.ref_widgets["body"].pack_start(
                     self.make_label(relation.capitalize(), left=False),
                     False,
                     False,
                     0,
                 )
             else:
-                self.ref_fact_body.pack_start(
+                self.ref_widgets["body"].pack_start(
                     self.make_label(
                         "{}: {}".format(
                             _("Relationship"), relation.capitalize()
@@ -147,12 +147,14 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                     0,
                 )
 
-        if self.get_option("options.global.enable-child-indicators"):
+        if "indicators" in self.ref_widgets:
             if "active" in self.groptions.option_space:
                 size = 12
             else:
                 size = 5
-            self.ref_indicators.load(person_ref, "PersonRef", size=size)
+            self.ref_widgets["indicators"].load(
+                person_ref, "PersonRef", size=size
+            )
 
         self.enable_drag(
             obj=self.secondary,

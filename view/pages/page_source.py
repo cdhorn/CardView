@@ -35,14 +35,13 @@ Source Profile Page
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_source import SourceGrampsFrame
 from ..groups.group_utils import (
     get_attributes_group,
@@ -97,7 +96,9 @@ class SourceProfilePage(BaseProfilePage):
         groptions = GrampsOptions("options.active.source")
         self.active_profile = SourceGrampsFrame(grstate, groptions, source)
 
-        groups = self.config.get("options.page.source.layout.groups").split(",")
+        groups = self.config.get("options.page.source.layout.groups").split(
+            ","
+        )
         obj_groups = {}
 
         if "repository" in groups:

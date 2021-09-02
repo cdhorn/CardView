@@ -29,14 +29,12 @@ RepositoryGrampsFrame
 # ------------------------------------------------------------------------
 import pickle
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
-
 
 # ------------------------------------------------------------------------
 #
@@ -49,9 +47,8 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Note
 from gramps.gen.lib.const import IDENTICAL
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditRepoRef, EditNote
+from gramps.gui.editors import EditNote, EditRepoRef
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
@@ -95,7 +92,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             self.switch_object,
             bold=True,
         )
-        self.title.pack_start(title, True, False, 0)
+        self.widgets["title"].pack_start(title, True, False, 0)
 
         if repository.get_address_list():
             address = repository.get_address_list()[0]
@@ -119,6 +116,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 self.add_fact(self.make_label(address.phone))
 
         if repo_ref:
+            self.ref_widgets["id"].load(repo_ref, "RepoRef")
             vbox = Gtk.VBox()
             if self.get_option("show-call-number"):
                 if repo_ref.call_number:
@@ -135,14 +133,16 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                     if text:
                         text = "{} {}: {}".format(_("Media"), _("type"), text)
                     vbox.pack_start(self.make_label(text), False, False, 0)
-            self.ref_fact_body.pack_start(vbox, False, False, 0)
+            self.ref_widgets["body"].pack_start(vbox, False, False, 0)
 
-            if self.get_option("options.global.enable-child-indicators"):
+            if "indicators" in self.ref_widgets:
                 if "active" in self.groptions.option_space:
                     size = 12
                 else:
                     size = 5
-                self.ref_indicators.load(repo_ref, "RepoRef", size=size)
+                self.ref_widgets["indicators"].load(
+                    repo_ref, "RepoRef", size=size
+                )
 
             self.dnd_drop_ref_targets = []
             self.ref_eventbox.connect(
@@ -162,7 +162,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         if self.get_option("show-repository-type"):
             if repository.get_type():
                 label = self.make_label(str(repository.get_type()), left=False)
-                self.attributes.add_fact(label)
+                self.widgets["attributes"].add_fact(label)
 
         self.enable_drag()
         self.enable_drop()

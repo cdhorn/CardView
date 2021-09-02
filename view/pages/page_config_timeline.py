@@ -35,14 +35,12 @@ Timeline configuration panels
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 
 # -------------------------------------------------------------------------
 #
@@ -56,10 +54,10 @@ from .page_const import (
     TIMELINE_COLOR_MODES,
 )
 from .page_utils import (
-    config_facts_fields,
-    create_grid,
     add_config_reset,
+    config_facts_fields,
     config_tag_fields,
+    create_grid,
 )
 
 _ = glocale.translation.sgettext

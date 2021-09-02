@@ -32,7 +32,6 @@ PersonGrampsFrame
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -40,22 +39,14 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.db import DbTxn
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import HandleError, WindowActiveError
-from gramps.gen.lib import (
-    ChildRef,
-    Event,
-    EventRef,
-    Family,
-    Name,
-    Person,
-)
+from gramps.gen.lib import ChildRef, Event, EventRef, Family, Name, Person
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
-from gramps.gui.editors import EditFamily, EditEventRef, EditName
+from gramps.gui.editors import EditEventRef, EditFamily, EditName
 from gramps.gui.selectors import SelectorFactory
-
 
 # ------------------------------------------------------------------------
 #
@@ -65,12 +56,12 @@ from gramps.gui.selectors import SelectorFactory
 from .frame_const import _BIRTH_EQUIVALENTS, _DEATH_EQUIVALENTS, _GENDERS
 from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
+    TextLink,
     format_date_string,
     get_person_color_css,
     get_relation,
     menu_item,
     submenu_item,
-    TextLink,
 )
 
 _ = glocale.translation.sgettext
@@ -112,7 +103,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         if groptions.frame_number:
             label = Gtk.Label(
                 use_markup=True,
-                label=self.markup.format("{}. ".format(groptions.frame_number)),
+                label=self.markup.format(
+                    "{}. ".format(groptions.frame_number)
+                ),
             )
             name_box.pack_start(label, False, False, 0)
         if self.get_option("sex-mode") == 1:
@@ -124,7 +117,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             name_box.pack_start(
                 Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
             )
-        self.title.pack_start(name_box, True, True, 0)
+        self.widgets["title"].pack_start(name_box, True, True, 0)
         self.living = True
 
         event_cache = []
@@ -189,7 +182,12 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                 full=False,
                 keyed=True,
             )
-            if option and option[0] != "None" and len(option) > 1 and option[1]:
+            if (
+                option
+                and option[0] != "None"
+                and len(option) > 1
+                and option[1]
+            ):
                 if len(option) >= 3:
                     show_all = bool(option[2] == "True")
                 if option[0] == "Event":
@@ -360,8 +358,12 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             self.action_menu.append(self._add_new_family_event_option())
         if self.context in ["parent", "spouse"]:
             self.action_menu.append(self._add_new_child_to_family_option())
-            self.action_menu.append(self._add_existing_child_to_family_option())
-            self.action_menu.append(self._remove_as_parent_from_family_option())
+            self.action_menu.append(
+                self._add_existing_child_to_family_option()
+            )
+            self.action_menu.append(
+                self._remove_as_parent_from_family_option()
+            )
         if self.context in ["sibling", "child"]:
             self.action_menu.append(self._remove_child_from_family_option())
         self.action_menu.append(self._parents_option())
@@ -389,10 +391,14 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             for name in self.primary.obj.get_alternate_names():
                 given_name = name.get_regular_name()
                 removemenu.add(
-                    menu_item("list-remove", given_name, self.remove_name, name)
+                    menu_item(
+                        "list-remove", given_name, self.remove_name, name
+                    )
                 )
                 menu.add(
-                    menu_item("gramps-person", given_name, self.edit_name, name)
+                    menu_item(
+                        "gramps-person", given_name, self.edit_name, name
+                    )
                 )
         return submenu_item("gramps-person", _("Names"), menu)
 
@@ -643,7 +649,9 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             partner_name = name_displayer.display(partner)
             text = (
                 "You are about to remove {} as the partner of {} "
-                "and a parent of this family.".format(person_name, partner_name)
+                "and a parent of this family.".format(
+                    person_name, partner_name
+                )
             )
         else:
             text = (

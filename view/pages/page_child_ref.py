@@ -35,7 +35,6 @@ ChildRef Profile Page
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -45,15 +44,15 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.widgets.reorderfam import Reorder
 
+from ..frames.frame_child import ChildGrampsFrame
 
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
-from ..frames.frame_child import ChildGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_utils import button_activated
 from ..groups.group_utils import (

@@ -29,14 +29,12 @@ GrampsMediaBarGroup
 # ------------------------------------------------------------------------
 import pickle
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
-
 
 # ------------------------------------------------------------------------
 #
@@ -50,9 +48,8 @@ from gramps.gen.lib import Citation, Media, Note, Source
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
-from gramps.gui.utils import open_file_with_default_application
 from gramps.gui.selectors import SelectorFactory
-
+from gramps.gui.utils import open_file_with_default_application
 
 # ------------------------------------------------------------------------
 #
@@ -60,16 +57,13 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_base import GrampsFrame
-from ..frames.frame_classes import (
-    GrampsConfig,
-    GrampsOptions,
-)
+from ..frames.frame_classes import GrampsConfig, GrampsOptions
 from ..frames.frame_const import _RIGHT_BUTTON
 from ..frames.frame_utils import (
     button_activated,
+    citation_option_text,
     get_gramps_object_type,
     menu_item,
-    citation_option_text,
     note_option_text,
 )
 
@@ -94,7 +88,45 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         self.total = 0
+        self.hbox = self.init_layout(css)
 
+        media_list = self.collect_media()
+        if not media_list:
+            return
+
+        if self.grstate.config.get("options.global.media-bar-sort-by-date"):
+            media_list.sort(
+                key=lambda x: x[0].get_date_object().get_sort_value()
+            )
+        self.group_by_type(media_list)
+        self.filter_non_photos(media_list)
+
+        size = self.grstate.config.get(
+            "options.global.media-bar-display-mode"
+        ) in [3, 4]
+
+        crop = self.grstate.config.get(
+            "options.global.media-bar-display-mode"
+        ) in [2, 4]
+
+        for (media, media_ref, dummy_media_type) in media_list:
+            frame = GrampsMediaBarItem(
+                grstate,
+                groptions,
+                (self.obj, self.obj_type),
+                media,
+                media_ref,
+                size=size,
+                crop=crop,
+            )
+            self.hbox.pack_start(frame, False, False, 0)
+        self.total = len(media_list)
+        self.show_all()
+
+    def init_layout(self, css):
+        """
+        Initialize layout.
+        """
         frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.add(frame)
         window = Gtk.ScrolledWindow(hexpand=True, vexpand=False)
@@ -113,71 +145,7 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
             hscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
             vscrollbar_policy=Gtk.PolicyType.NEVER,
         )
-
-        media_list = self.collect_media()
-        if media_list:
-            if self.grstate.config.get("options.global.media-bar-sort-by-date"):
-                media_list.sort(
-                    key=lambda x: x[0].get_date_object().get_sort_value()
-                )
-
-            if self.grstate.config.get(
-                "options.global.media-bar-group-by-type"
-            ):
-                photo_list = []
-                stone_list = []
-                other_list = []
-                for media in media_list:
-                    if media[2] == "Photo":
-                        photo_list.append(media)
-                    elif media[2] in ["Tombstone", "Headstone"]:
-                        stone_list.append(media)
-                    else:
-                        other_list.append(media)
-                other_list.sort(key=lambda x: x[2])
-                media_list = photo_list + stone_list + other_list
-
-            if self.grstate.config.get(
-                "options.global.media-bar-filter-non-photos"
-            ):
-                new_list = []
-                for media in media_list:
-                    if media[2]:
-                        if media[2] in [
-                            "Photo",
-                            "Tombstone",
-                            "Headstone",
-                        ]:
-                            new_list.append(media)
-                    else:
-                        new_list.append(media)
-                media_list = new_list
-
-            size = 0
-            if self.grstate.config.get(
-                "options.global.media-bar-display-mode"
-            ) in [3, 4]:
-                size = 1
-
-            crop = False
-            if self.grstate.config.get(
-                "options.global.media-bar-display-mode"
-            ) in [2, 4]:
-                crop = True
-
-            for (media, media_ref, media_type) in media_list:
-                frame = GrampsMediaBarItem(
-                    grstate,
-                    groptions,
-                    (self.obj, self.obj_type),
-                    media,
-                    media_ref,
-                    size=size,
-                    crop=crop,
-                )
-                hbox.pack_start(frame, False, False, 0)
-            self.total = len(media_list)
-            self.show_all()
+        return hbox
 
     def collect_media(self):
         """
@@ -187,7 +155,7 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
         self.extract_media(media_list, self.obj, self.obj_type)
         return media_list
 
-    def extract_media(self, media_list, obj, obj_type):
+    def extract_media(self, media_list, obj, _dummy_obj_type):
         """
         Helper to extract a set of media references from an object.
         """
@@ -199,6 +167,44 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
                     if attribute.get_type().xml_str() == "Media-Type":
                         media_type = attribute.get_value()
                 media_list.append((media, media_ref, media_type))
+
+    def group_by_type(self, media_list):
+        """
+        Group images by type if needed.
+        """
+        if self.grstate.config.get("options.global.media-bar-group-by-type"):
+            photo_list = []
+            stone_list = []
+            other_list = []
+            for media in media_list:
+                if media[2] == "Photo":
+                    photo_list.append(media)
+                elif media[2] in ["Tombstone", "Headstone"]:
+                    stone_list.append(media)
+                else:
+                    other_list.append(media)
+            other_list.sort(key=lambda x: x[2])
+            media_list = photo_list + stone_list + other_list
+
+    def filter_non_photos(self, media_list):
+        """
+        Filter out non-photos if needed.
+        """
+        if self.grstate.config.get(
+            "options.global.media-bar-filter-non-photos"
+        ):
+            other_list = []
+            for media in media_list:
+                if media[2]:
+                    if media[2] in [
+                        "Photo",
+                        "Tombstone",
+                        "Headstone",
+                    ]:
+                        other_list.append(media)
+                else:
+                    other_list.append(media)
+            media_list = other_list
 
 
 class GrampsMediaBarItem(GrampsFrame):
@@ -223,6 +229,11 @@ class GrampsMediaBarItem(GrampsFrame):
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
         self.enable_drop(drag_data_received=self.drag_data_ref_received)
+
+    def init_layout(self, secondary=None):
+        """
+        Bypass default layout.
+        """
 
     def get_thumbnail(self, media, media_ref, size, crop):
         """

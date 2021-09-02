@@ -22,9 +22,4 @@
 Module containing the profile view objects.
 """
 
-__all__ = [
-    "frames",
-    "groups",
-    "pages"
-]
-
+__all__ = ["frames", "groups", "pages"]

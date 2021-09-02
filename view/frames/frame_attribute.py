@@ -30,14 +30,13 @@ AttributeGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import get_person_color_css, TextLink
+from .frame_utils import TextLink, get_person_color_css
 
 _ = glocale.translation.sgettext
 
@@ -68,7 +67,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
             self.primary.obj.get_handle(),
             self.switch_attribute_page,
         )
-        self.title.pack_start(label, False, False, 0)
+        self.widgets["title"].pack_start(label, False, False, 0)
 
         if attribute.get_value():
             self.add_fact(self.make_label(attribute.get_value()))

@@ -29,10 +29,9 @@ AssociationsGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import PersonRef
 from gramps.gui.editors import EditPersonRef
-from gramps.gen.errors import WindowActiveError
-
 
 # ------------------------------------------------------------------------
 #

@@ -29,14 +29,12 @@ GrampsFrameGroupList
 # ------------------------------------------------------------------------
 import pickle
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -110,9 +108,12 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
         """
         self.reset_dnd_css()
         if data and data.get_data():
-            dummy_dnd_type, dummy_obj_id, obj_handle, dummy_var1 = pickle.loads(
-                data.get_data()
-            )
+            (
+                dummy_dnd_type,
+                dummy_obj_id,
+                obj_handle,
+                dummy_var1,
+            ) = pickle.loads(data.get_data())
             source_index = 0
             for frame in self.row_frames:
                 if frame.primary.obj.get_handle() == obj_handle:

@@ -29,14 +29,12 @@ Routines to prepare object groups
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 
 # ------------------------------------------------------------------------
 #
@@ -456,7 +454,9 @@ def get_names_group(
     )
 
 
-def get_urls_group(grstate, obj, title_plural=_("Urls"), title_single=_("Url")):
+def get_urls_group(
+    grstate, obj, title_plural=_("Urls"), title_single=_("Url")
+):
     """
     Get the group of urls associated with an object.
     """

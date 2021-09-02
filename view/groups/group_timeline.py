@@ -29,7 +29,6 @@ TimelineGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -41,8 +40,8 @@ from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_utils import get_gramps_object_type, get_key_person_events
-from .group_list import GrampsFrameGroupList
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
+from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
 
@@ -64,32 +63,35 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
-        self.categories = []
-        self.relations = []
-        self.relation_categories = []
-        self.ancestors = 1
-        self.offspring = 1
+        self.options = {
+            "categories": [],
+            "relations": [],
+            "relation_categories": [],
+            "ancestors": 1,
+            "offspring": 1,
+        }
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
-        self.prepare_timeline_filters()
+        self.prepare_options()
+
         self.timeline = Timeline(
             grstate.dbstate.db,
-            events=self.categories,
-            relatives=self.relations,
-            relative_events=self.relation_categories,
+            events=self.options["categories"],
+            relatives=self.options["relations"],
+            relative_events=self.options["relation_categories"],
         )
         if self.obj_type == "Person":
             self.timeline.set_person(
                 obj.get_handle(),
-                ancestors=self.ancestors,
-                offspring=self.offspring,
+                ancestors=self.options["ancestors"],
+                offspring=self.options["offspring"],
             )
         elif self.obj_type == "Family":
             self.timeline.set_family(
                 obj.get_handle(),
-                ancestors=self.ancestors,
-                offspring=self.offspring,
+                ancestors=self.options["ancestors"],
+                offspring=self.options["offspring"],
             )
 
         timeline = []
@@ -105,18 +107,11 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             if key_events["birth"] and key_events["birth"].date:
                 self.groptions.set_age_base(key_events["birth"].date)
 
-        if self.get_option("include-addresses"):
-            timeline = timeline + self.extract_objects("addresses")
-        if self.get_option("include-names"):
-            timeline = timeline + self.extract_objects("names")
-        if self.get_option("include-media"):
-            timeline = timeline + self.extract_objects("media")
-        if self.get_option("include-citations"):
-            timeline = timeline + self.extract_objects("citations")
+        self.extract_objects(timeline)
 
         timeline.sort(key=lambda x: x[0])
-        for (sortval, obj_type, obj, item) in timeline:
-            if obj_type == "event":
+        for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
+            if timeline_obj_type == "event":
                 (
                     event,
                     event_ref,
@@ -125,65 +120,87 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                     relation,
                     category,
                 ) = item
-                frame = EventGrampsFrame(
-                    grstate,
-                    groptions,
-                    person,
-                    event,
-                    event_ref,
-                    event_person,
-                    event_family,
-                    relation,
-                    category,
+                self.add_frame(
+                    EventGrampsFrame(
+                        grstate,
+                        groptions,
+                        person,
+                        event,
+                        event_ref,
+                        event_person,
+                        event_family,
+                        relation,
+                        category,
+                    )
                 )
-            elif obj_type == "media":
+            elif timeline_obj_type == "media":
                 (media, media_ref) = item
-                frame = ImageGrampsFrame(
-                    grstate, groptions, media, media_ref=media_ref
+                self.add_frame(
+                    ImageGrampsFrame(
+                        grstate, groptions, media, media_ref=media_ref
+                    )
                 )
-            elif obj_type == "address":
-                frame = AddressGrampsFrame(
-                    grstate,
-                    groptions,
-                    obj,
-                    item,
+            elif timeline_obj_type == "address":
+                self.add_frame(
+                    AddressGrampsFrame(
+                        grstate,
+                        groptions,
+                        timeline_obj,
+                        item,
+                    )
                 )
-            elif obj_type == "name":
-                frame = NameGrampsFrame(
-                    grstate,
-                    groptions,
-                    obj,
-                    item,
+            elif timeline_obj_type == "name":
+                self.add_frame(
+                    NameGrampsFrame(
+                        grstate,
+                        groptions,
+                        timeline_obj,
+                        item,
+                    )
                 )
-            elif obj_type == "citation":
-                frame = CitationGrampsFrame(
-                    grstate,
-                    groptions,
-                    item,
+            elif timeline_obj_type == "citation":
+                self.add_frame(
+                    CitationGrampsFrame(
+                        grstate,
+                        groptions,
+                        item,
+                    )
                 )
-            self.add_frame(frame)
         self.show_all()
 
-    def prepare_timeline_filters(self):
+    def prepare_options(self):
         """
-        Parse and prepare filter groups.
+        Parse and prepare filter groups and options.
         """
         for category in EVENT_CATEGORIES:
             if self.get_option("show-class-{}".format(category)):
-                self.categories.append(category)
+                self.options["categories"].append(category)
             if self.obj_type == "Person":
                 if self.get_option("show-family-class-{}".format(category)):
-                    self.relation_categories.append(category)
+                    self.options["relation_categories"].append(category)
 
         if self.obj_type == "Person":
             for relation in RELATIVES:
                 if self.get_option("show-family-{}".format(relation)):
-                    self.relations.append(relation)
+                    self.options["relations"].append(relation)
 
-        self.ancestors = self.get_option("generations-ancestors")
-        self.offspring = self.get_option("generations-offspring")
+        self.options["ancestors"] = self.get_option("generations-ancestors")
+        self.options["offspring"] = self.get_option("generations-offspring")
 
-    def extract_objects(self, extract_type):
+    def extract_objects(self, timeline):
+        """
+        Examine and extract other objects to add to timeline if needed.
+        """
+        if self.get_option("include-addresses"):
+            timeline = timeline + self.extract_object_type("addresses")
+        if self.get_option("include-names"):
+            timeline = timeline + self.extract_object_type("names")
+        if self.get_option("include-media"):
+            timeline = timeline + self.extract_object_type("media")
+        if self.get_option("include-citations"):
+            timeline = timeline + self.extract_object_type("citations")
+
+    def extract_object_type(self, extract_type):
         """
         Extract objects if they have an associated date.
         """
@@ -198,23 +215,21 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
 
         obj_list = []
         if self.obj_type == "Person":
-            obj_list = extract(self.grstate.dbstate.db, self.obj)
+            obj_list = extract(self.obj)
         elif self.obj_type == "Family":
             if self.obj.get_mother_handle():
                 mother = self.fetch("Person", self.obj.get_mother_handle())
-                obj_list = obj_list + extract(self.grstate.dbstate.db, mother)
+                obj_list = obj_list + extract(mother)
             if self.obj.get_father_handle():
                 father = self.fetch("Person", self.obj.get_father_handle())
-                obj_list = obj_list + extract(self.grstate.dbstate.db, father)
+                obj_list = obj_list + extract(father)
             if self.obj.get_child_ref_list():
                 for child_ref in self.obj.get_child_ref_list():
                     child = self.fetch("Person", child_ref.ref)
-                    obj_list = obj_list + extract(
-                        self.grstate.dbstate.db, child
-                    )
+                    obj_list = obj_list + extract(child)
         return obj_list
 
-    def extract_media(self, _dummy_arg, obj):
+    def extract_media(self, obj):
         """
         Return list of media items with a date value.
         """
@@ -228,7 +243,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
         return media
 
-    def extract_citations(self, _dummy_arg, obj):
+    def extract_citations(self, obj):
         """
         Return list of citations with a date value.
         """
@@ -243,7 +258,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         return citations
 
 
-def extract_addresses(db, obj):
+def extract_addresses(obj):
     """
     Return list of addresses with a date value.
     """
@@ -255,7 +270,7 @@ def extract_addresses(db, obj):
     return addresses
 
 
-def extract_names(db, obj):
+def extract_names(obj):
     """
     Return list of names with a date value.
     """

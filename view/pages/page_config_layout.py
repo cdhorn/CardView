@@ -27,8 +27,7 @@ Page layout configuration dialog
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -38,7 +37,6 @@ from gi.repository import Gtk, Gdk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.managedwindow import ManagedWindow
-
 
 # ------------------------------------------------------------------------
 #

@@ -29,7 +29,6 @@ CoupleGrampsFrame
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # ------------------------------------------------------------------------
 #
 # Gramps modules
@@ -37,19 +36,15 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _MARRIAGE_EQUIVALENTS, _DIVORCE_EQUIVALENTS
-from .frame_primary import PrimaryGrampsFrame
+from .frame_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
 from .frame_person import PersonGrampsFrame
-from .frame_utils import (
-    TextLink,
-    get_family_color_css,
-)
+from .frame_primary import PrimaryGrampsFrame
+from .frame_utils import TextLink, get_family_color_css
 
 _ = glocale.translation.sgettext
 
@@ -70,6 +65,8 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         groptions,
         family,
     ):
+        self.partner1 = Gtk.HBox(hexpand=True)
+        self.partner2 = Gtk.HBox(hexpand=True)
         PrimaryGrampsFrame.__init__(self, grstate, groptions, family)
         self.divorced = False
         self.family = family
@@ -92,7 +89,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 self.switch_object,
                 bold=True,
             )
-            self.title.pack_start(title, True, True, 0)
+            self.widgets["title"].pack_start(title, True, True, 0)
 
         event_cache = []
         for event_ref in family.get_event_ref_list():
@@ -116,16 +113,16 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         Construct framework for couple layout, overrides base class.
         """
         vcontent = Gtk.VBox(spacing=3)
-        self.body.pack_start(vcontent, expand=True, fill=True, padding=0)
+        self.widgets["body"].pack_start(
+            vcontent, expand=True, fill=True, padding=0
+        )
         if self.groptions.vertical_orientation:
-            self.partner1 = Gtk.HBox(hexpand=True)
             vcontent.pack_start(
                 self.partner1, expand=True, fill=True, padding=0
             )
             vcontent.pack_start(
                 self.eventbox, expand=True, fill=True, padding=0
             )
-            self.partner2 = Gtk.HBox(hexpand=True)
             vcontent.pack_start(
                 self.partner2, expand=True, fill=True, padding=0
             )
@@ -133,17 +130,19 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
             partners = Gtk.HBox(hexpand=True, spacing=3)
             vcontent.pack_start(partners, expand=True, fill=True, padding=0)
-            self.partner1 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner1)
             if "partner1" in self.groptions.size_groups:
-                self.groptions.size_groups["partner1"].add_widget(self.partner1)
+                self.groptions.size_groups["partner1"].add_widget(
+                    self.partner1
+                )
             partners.pack_start(
                 self.partner1, expand=True, fill=True, padding=0
             )
-            self.partner2 = Gtk.HBox(hexpand=True)
             group.add_widget(self.partner2)
             if "partner2" in self.groptions.size_groups:
-                self.groptions.size_groups["partner2"].add_widget(self.partner2)
+                self.groptions.size_groups["partner2"].add_widget(
+                    self.partner2
+                )
             partners.pack_start(
                 self.partner2, expand=True, fill=True, padding=0
             )
@@ -158,50 +157,45 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             image_mode = self.get_option("options.group.family.image-mode")
         if image_mode in [3, 4]:
             data_content.pack_start(
-                self.image, expand=False, fill=False, padding=0
+                self.widgets["image"], expand=False, fill=False, padding=0
             )
 
         fact_block = Gtk.VBox()
         data_content.pack_start(fact_block, expand=True, fill=True, padding=0)
-        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
+        fact_block.pack_start(
+            self.widgets["title"], expand=True, fill=True, padding=0
+        )
         fact_section = Gtk.HBox(valign=Gtk.Align.START, vexpand=True)
         fact_section.pack_start(
-            self.facts_grid, expand=True, fill=True, padding=0
+            self.widgets["facts"], expand=True, fill=True, padding=0
         )
         fact_section.pack_start(
-            self.extra_grid, expand=True, fill=True, padding=0
+            self.widgets["extra"], expand=True, fill=True, padding=0
         )
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        #        tag_box = Gtk.HBox(valign=Gtk.Align.END)
-        #        tag_box.pack_start(self.tags, False, False, 0)
-        fact_block.pack_end(self.tags, expand=True, fill=True, padding=0)
+        if "tags" in self.widgets:
+            fact_block.pack_end(
+                self.widgets["tags"], expand=True, fill=True, padding=0
+            )
 
         attribute_block = Gtk.VBox(halign=Gtk.Align.END)
         data_content.pack_start(
             attribute_block, expand=True, fill=True, padding=0
         )
         attribute_block.pack_start(
-            self.gramps_id, expand=True, fill=True, padding=0
+            self.widgets["id"], expand=True, fill=True, padding=0
         )
         attribute_block.pack_start(
-            self.attributes, expand=True, fill=True, padding=0
+            self.widgets["attributes"], expand=True, fill=True, padding=0
         )
-        #        indicator_box = Gtk.VBox(valign=Gtk.Align.END)
-        #        indicator_box.pack_end(self.indicators, False, False, 0)
-        attribute_block.pack_end(
-            self.indicators, expand=False, fill=False, padding=0
-        )
-        #        sg = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
-        #        sg.add_widget(self.tags)
-        #        sg.add_widget(self.indicators)
-        #        sg = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
-        #        sg.add_widget(self.facts_grid)
-        #        sg.add_widget(self.extra_grid)
-        #        sg.add_widget(self.attributes)
+        if "indicators" in self.widgets:
+            attribute_block.pack_end(
+                self.widgets["indicators"], expand=False, fill=False, padding=0
+            )
 
         if image_mode in [1, 2]:
             data_content.pack_end(
-                self.image, expand=False, fill=False, padding=0
+                self.widgets["image"], expand=False, fill=False, padding=0
             )
 
     def load_fields(self, event_cache, anchor, field_type, extra=False):
@@ -228,7 +222,12 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 full=False,
                 keyed=True,
             )
-            if option and option[0] != "None" and len(option) > 1 and option[1]:
+            if (
+                option
+                and option[0] != "None"
+                and len(option) > 1
+                and option[1]
+            ):
                 if len(option) >= 3:
                     show_all = bool(option[2] == "True")
                 if option[0] == "Event":
@@ -345,6 +344,21 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Load any user defined attributes.
         """
+
+        def add_attribute(attribute):
+            """
+            Check and add attribute if applicable.
+            """
+            if attribute.get_value():
+                value = self.make_label(attribute.get_value(), left=False)
+                if label:
+                    key = self.make_label(
+                        str(attribute.get_type()), left=False
+                    )
+                else:
+                    key = None
+                self.widgets["attributes"].add_fact(value, label=key)
+
         if "active" in self.groptions.option_space:
             prefix = "options.active.family"
         else:
@@ -367,13 +381,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             ):
                 for attribute in self.primary.obj.get_attribute_list():
                     if attribute.get_type().xml_str() == option[1]:
-                        if attribute.get_value():
-                            value = self.make_label(attribute.get_value())
-                            if label:
-                                key = self.make_label(attribute.get_type())
-                            else:
-                                key = None
-                            self.attributes.add_fact(value, label=key)
+                        add_attribute(attribute)
                         break
 
     def _get_profile(self, person):
@@ -438,7 +446,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         ):
             self.action_menu.append(self._add_new_family_event_option())
             self.action_menu.append(self._add_new_child_to_family_option())
-            self.action_menu.append(self._add_existing_child_to_family_option())
+            self.action_menu.append(
+                self._add_existing_child_to_family_option()
+            )
 
     def get_color_css(self):
         """

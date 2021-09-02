@@ -28,7 +28,6 @@ Page related constants
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 _ = glocale.translation.sgettext
 
 

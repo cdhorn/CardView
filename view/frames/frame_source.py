@@ -51,7 +51,7 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
             self.switch_object,
             bold=True,
         )
-        self.title.pack_start(title, True, False, 0)
+        self.widgets["title"].pack_start(title, True, False, 0)
 
         if source.get_author():
             self.add_fact(self.make_label(source.get_author()))

@@ -35,7 +35,6 @@ Attribute Profile Page
 # -------------------------------------------------------------------------
 import hashlib
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -46,7 +45,6 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
@@ -54,7 +52,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from ..frames.frame_attribute import AttributeGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
@@ -123,10 +121,14 @@ class AttributeProfilePage(BaseProfilePage):
         )
         if self.focus_type == "Person":
             groptions = GrampsOptions("options.active.person")
-            self.active_profile = PersonGrampsFrame(grstate, groptions, primary)
+            self.active_profile = PersonGrampsFrame(
+                grstate, groptions, primary
+            )
         elif self.focus_type == "Family":
             groptions = GrampsOptions("options.active.family")
-            self.active_profile = CoupleGrampsFrame(grstate, groptions, primary)
+            self.active_profile = CoupleGrampsFrame(
+                grstate, groptions, primary
+            )
         elif self.focus_type == "Event":
             groptions = GrampsOptions("options.active.event")
             self.active_profile = EventGrampsFrame(grstate, groptions, primary)
@@ -135,7 +137,9 @@ class AttributeProfilePage(BaseProfilePage):
             self.active_profile = ImageGrampsFrame(grstate, groptions, primary)
         elif self.focus_type == "Source":
             groptions = GrampsOptions("options.active.source")
-            self.active_profile = SourceGrampsFrame(grstate, groptions, primary)
+            self.active_profile = SourceGrampsFrame(
+                grstate, groptions, primary
+            )
         elif self.focus_type == "Citation":
             groptions = GrampsOptions("options.active.citation")
             self.active_profile = CitationGrampsFrame(

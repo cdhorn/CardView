@@ -23,24 +23,22 @@
 Provide the base classes for GRAMPS' DataView classes
 """
 
+import html
+import logging
+
 # ----------------------------------------------------------------
 #
 # Python modules
 #
 # ----------------------------------------------------------------
 from abc import abstractmethod
-import html
-import logging
-
 
 # ----------------------------------------------------------------
 #
 # Gnome/Gtk modules
 #
 # ----------------------------------------------------------------
-from gi.repository import Gdk
-from gi.repository import Gtk
-
+from gi.repository import Gdk, Gtk
 
 # ----------------------------------------------------------------
 #
@@ -48,11 +46,11 @@ from gi.repository import Gtk
 #
 # ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.db import navigation_label
 from gramps.gen.constfunc import mod_key
+from gramps.gen.utils.callback import Callback
+from gramps.gen.utils.db import navigation_label
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.utils import match_primary_mask
-from gramps.gen.utils.callback import Callback
 from gramps.gui.views.pageview import PageView
 
 _ = glocale.translation.sgettext
@@ -172,7 +170,9 @@ class ExtendedNavigationView(PageView):
         self.uimanager.set_actions_visible(self.fwd_action, True)
         self.uimanager.set_actions_visible(self.back_action, True)
         hobj = self.get_history()
-        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.fwd_action, not hobj.at_end()
+        )
         self.uimanager.set_actions_sensitive(
             self.back_action, not hobj.at_front()
         )
@@ -182,7 +182,9 @@ class ExtendedNavigationView(PageView):
         Called when the page changes.
         """
         hobj = self.get_history()
-        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.fwd_action, not hobj.at_end()
+        )
         self.uimanager.set_actions_sensitive(
             self.back_action, not hobj.at_front()
         )
@@ -239,7 +241,9 @@ class ExtendedNavigationView(PageView):
         if active_handle:
             self.goto_handle(active_handle)
 
-        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.fwd_action, not hobj.at_end()
+        )
         self.uimanager.set_actions_sensitive(
             self.back_action, not hobj.at_front()
         )
@@ -443,7 +447,9 @@ class ExtendedNavigationView(PageView):
             self.dirty = True
             hobj.forward()
             self.uistate.modify_statusbar(self.dbstate)
-        self.uimanager.set_actions_sensitive(self.fwd_action, not hobj.at_end())
+        self.uimanager.set_actions_sensitive(
+            self.fwd_action, not hobj.at_end()
+        )
         self.uimanager.set_actions_sensitive(self.back_action, True)
         hobj.lock = False
 

@@ -35,14 +35,12 @@ Page configuration dialog functions
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 
 # -------------------------------------------------------------------------
 #
@@ -57,10 +55,10 @@ from .page_const import (
     SEX_DISPLAY_MODES,
 )
 from .page_utils import (
-    create_grid,
     add_config_reset,
     config_facts_fields,
     config_tag_fields,
+    create_grid,
 )
 
 _ = glocale.translation.sgettext

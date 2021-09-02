@@ -35,14 +35,12 @@ Citation Profile Page
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
 
 # -------------------------------------------------------------------------
 #
@@ -51,7 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
 from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_source import SourceGrampsFrame
 from ..groups.group_utils import (
     get_attributes_group,

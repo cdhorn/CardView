@@ -29,6 +29,7 @@ GenericGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
+from ..frames.frame_citation import CitationGrampsFrame
 
 # ------------------------------------------------------------------------
 #
@@ -36,15 +37,14 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsOptions
-from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_note import NoteGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_place import PlaceGrampsFrame
-from ..frames.frame_source import SourceGrampsFrame
 from ..frames.frame_repository import RepositoryGrampsFrame
+from ..frames.frame_source import SourceGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 

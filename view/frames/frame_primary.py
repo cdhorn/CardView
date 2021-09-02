@@ -31,17 +31,14 @@ PrimaryGrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
-from html import escape
 import time
-
 
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk, Gdk
-
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -51,14 +48,6 @@ from gi.repository import Gtk, Gdk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gui.editors import (
-    EditAttribute,
-    EditChildRef,
-    EditEventRef,
-    EditPerson,
-    EditSrcAttribute,
-    EditUrl,
-)
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
     Attribute,
@@ -76,9 +65,16 @@ from gramps.gen.lib import (
 )
 from gramps.gen.utils.db import preset_name
 from gramps.gui.display import display_url
+from gramps.gui.editors import (
+    EditAttribute,
+    EditChildRef,
+    EditEventRef,
+    EditPerson,
+    EditSrcAttribute,
+    EditUrl,
+)
 from gramps.gui.selectors import SelectorFactory
-from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
-
+from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
 # ------------------------------------------------------------------------
 #
@@ -86,20 +82,14 @@ from gramps.gui.views.tags import OrganizeTagsDialog, EditTag
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_classes import (
-    GrampsFrameGrid,
-    GrampsFrameTags,
-    GrampsFrameIndicators,
-    GrampsImage,
-)
 from .frame_selectors import get_attribute_types
 from .frame_utils import (
     attribute_option_text,
     get_bookmarks,
     menu_item,
-    pack_icon,
     submenu_item,
 )
+from .frame_widgets import GrampsImage
 
 _ = glocale.translation.sgettext
 
@@ -125,102 +115,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         GrampsFrame.__init__(
             self, grstate, groptions, primary_obj, secondary_obj=secondary_obj
         )
-
-        self.body = Gtk.HBox(hexpand=True, margin=3)
-        if self.secondary and self.secondary.is_reference:
-            self.ref_eventbox = Gtk.EventBox()
-            self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-            self.ref_eventbox.add(self.ref_frame)
-            self.ref_indicators = GrampsFrameIndicators(grstate, groptions)
-
-            if groptions.ref_mode == 2:
-                view_obj = Gtk.HBox(hexpand=True)
-                view_obj.pack_start(self.eventbox, True, True, 0)
-                view_obj.pack_start(self.ref_eventbox, True, True, 0)
-                self.frame.add(view_obj)
-                self.add(self.frame)
-                self.ref_body = Gtk.VBox(
-                    hexpand=True, halign=Gtk.Align.END, margin=3
-                )
-                if "ref" in self.groptions.size_groups:
-                    self.groptions.size_groups["ref"].add_widget(self.ref_body)
-                self.ref_body.pack_start(
-                    self.get_ref_label(), expand=False, fill=False, padding=0
-                )
-                self.ref_fact_body = Gtk.VBox()
-                self.ref_body.pack_start(
-                    self.ref_fact_body, expand=False, fill=False, padding=0
-                )
-                self.ref_body.pack_end(
-                    self.ref_indicators, expand=False, fill=False, padding=0
-                )
-                self.eventbox.add(self.body)
-            else:
-                self.set_spacing(3)
-                if groptions.ref_mode == 1:
-                    self.pack_start(self.ref_eventbox, True, True, 0)
-                    self.pack_start(self.eventbox, True, True, 0)
-                elif groptions.ref_mode == 3:
-                    self.pack_start(self.eventbox, True, True, 0)
-                    self.pack_start(self.ref_eventbox, True, True, 0)
-                self.ref_body = Gtk.HBox(hexpand=True, margin=3)
-
-                self.ref_fact_body = Gtk.HBox()
-                self.ref_body.pack_start(
-                    self.ref_fact_body, expand=True, fill=True, padding=0
-                )
-                attribute_block = Gtk.VBox(hexpand=False)
-                attribute_block.pack_start(
-                    self.get_ref_label(), expand=False, fill=False, padding=0
-                )
-                attribute_block.pack_end(
-                    self.ref_indicators, expand=False, fill=False, padding=0
-                )
-                self.ref_body.pack_end(
-                    attribute_block, expand=False, fill=False, padding=0
-                )
-                self.frame.add(self.body)
-                self.eventbox.add(self.frame)
-            self.ref_frame.add(self.ref_body)
-        else:
-            self.frame.add(self.body)
-            if self.primary.obj_type == "Family":
-                self.add(self.frame)
-            else:
-                self.eventbox.add(self.frame)
-                self.add(self.eventbox)
-
-        self.image = Gtk.Box()
-        self.age = None
-        self.title = Gtk.HBox(
-            hexpand=True,
-            vexpand=False,
-            halign=Gtk.Align.START,
-            valign=Gtk.Align.START,
-        )
-        self.gramps_id = Gtk.HBox(
-            hexpand=True,
-            vexpand=False,
-            halign=Gtk.Align.END,
-            valign=Gtk.Align.START,
-        )
-        self.tags = GrampsFrameTags(grstate, groptions)
-        if "data" in self.groptions.size_groups:
-            self.groptions.size_groups["data"].add_widget(self.facts_grid)
-        self.extra_grid = GrampsFrameGrid(
-            grstate, groptions, self.switch_object
-        )
-        if "extra" in self.groptions.size_groups:
-            self.groptions.size_groups["extra"].add_widget(self.extra_grid)
-        self.attributes = GrampsFrameGrid(
-            grstate, groptions, self.switch_object, right=True
-        )
-        if "attributes" in self.groptions.size_groups:
-            self.groptions.size_groups["attributes"].add_widget(self.attributes)
-        self.indicators = GrampsFrameIndicators(grstate, groptions)
-        self.partner1 = None
-        self.partner2 = None
-
         self.build_layout()
         self.load_layout()
 
@@ -240,68 +134,17 @@ class PrimaryGrampsFrame(GrampsFrame):
             image_mode = self.get_option("image-mode")
         if image_mode and "media" not in self.groptions.option_space:
             self.load_image(image_mode)
-        self.load_gramps_id()
+        self.widgets["id"].load(self.primary.obj, self.primary.obj_type)
         self.load_attributes()
-        self.tags.load(self.primary.obj, self.primary.obj_type)
-        if self.get_option("options.global.enable-child-indicators"):
+        if "tags" in self.widgets:
+            self.widgets["tags"].load(self.primary.obj, self.primary.obj_type)
+        if "indicators" in self.widgets:
             if "active" in self.groptions.option_space:
                 size = 12
             else:
                 size = 5
-            self.indicators.load(
+            self.widgets["indicators"].load(
                 self.primary.obj, self.primary.obj_type, size=size
-            )
-
-    def build_layout(self):
-        """
-        Construct framework for default layout.
-        """
-        image_mode = self.get_option("image-mode")
-        if image_mode and image_mode in [3, 4]:
-            self.body.pack_start(
-                self.image, expand=False, fill=False, padding=0
-            )
-
-        if self.get_option("show-age") or self.groptions.age_base:
-            self.age = Gtk.VBox(
-                margin_right=3,
-                margin_left=3,
-                margin_top=3,
-                margin_bottom=3,
-                spacing=2,
-            )
-            if "age" in self.groptions.size_groups:
-                self.groptions.size_groups["age"].add_widget(self.age)
-            self.body.pack_start(self.age, expand=False, fill=False, padding=0)
-
-        fact_block = Gtk.VBox()
-        self.body.pack_start(fact_block, expand=True, fill=True, padding=0)
-        fact_block.pack_start(self.title, expand=True, fill=True, padding=0)
-        fact_section = Gtk.HBox(valign=Gtk.Align.START)
-        fact_section.pack_start(
-            self.facts_grid, expand=True, fill=True, padding=0
-        )
-        fact_section.pack_start(
-            self.extra_grid, expand=True, fill=True, padding=0
-        )
-        fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        fact_block.pack_end(self.tags, expand=True, fill=True, padding=0)
-
-        attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
-        self.body.pack_start(attribute_block, expand=True, fill=True, padding=0)
-        attribute_block.pack_start(
-            self.gramps_id, expand=True, fill=True, padding=0
-        )
-        attribute_block.pack_start(
-            self.attributes, expand=False, fill=False, padding=0
-        )
-        attribute_block.pack_end(
-            self.indicators, expand=True, fill=True, padding=0
-        )
-
-        if image_mode in [1, 2]:
-            self.body.pack_start(
-                self.image, expand=False, fill=False, padding=0
             )
 
     def load_image(self, image_mode, media_ref=None, crop=True):
@@ -309,9 +152,11 @@ class PrimaryGrampsFrame(GrampsFrame):
         Load primary image for the object if found.
         """
         size = int(image_mode in [2, 4])
-        image = GrampsImage(self.grstate, self.primary.obj, media_ref=media_ref)
+        image = GrampsImage(
+            self.grstate, self.primary.obj, media_ref=media_ref
+        )
         image.load(size, crop)
-        self.image.add(image)
+        self.widgets["image"].add(image)
         if "image" in self.groptions.size_groups:
             self.groptions.size_groups["image"].add_widget(image)
 
@@ -320,74 +165,22 @@ class PrimaryGrampsFrame(GrampsFrame):
         Add a fact.
         """
         if extra:
-            self.extra_grid.add_fact(fact, label=label)
+            self.widgets["extra"].add_fact(fact, label=label)
         else:
-            self.facts_grid.add_fact(fact, label=label)
+            self.widgets["facts"].add_fact(fact, label=label)
 
     def add_event(self, event, extra=False, reference=None, show_age=False):
         """
         Add an event.
         """
         if extra:
-            self.extra_grid.add_event(
+            self.widgets["extra"].add_event(
                 event, reference=reference, show_age=show_age
             )
         else:
-            self.facts_grid.add_event(
+            self.widgets["facts"].add_event(
                 event, reference=reference, show_age=show_age
             )
-
-    def _add_gramps_id(self, widget):
-        """
-        Add gramps id to widget if needed.
-        """
-        if self.grstate.config.get("options.global.enable-gramps-ids"):
-            label = Gtk.Label(
-                use_markup=True,
-                label=self.markup.format(escape(self.primary.obj.gramps_id)),
-            )
-            widget.pack_end(label, False, False, 0)
-
-    def _add_privacy_indicator(self, obj, widget):
-        """
-        Add privacy mode indicator to widget if needed.
-        """
-        mode = self.grstate.config.get("options.global.privacy-mode")
-        if mode:
-            image = Gtk.Image()
-            if obj.private:
-                if mode in [1, 3]:
-                    image.set_from_icon_name("gramps-lock", Gtk.IconSize.BUTTON)
-            else:
-                if mode in [2, 3]:
-                    image.set_from_icon_name(
-                        "gramps-unlock", Gtk.IconSize.BUTTON
-                    )
-            widget.pack_end(image, False, False, 0)
-
-    def load_gramps_id(self):
-        """
-        Build the gramps id including bookmark and lock indicators as needed.
-        """
-        self._add_gramps_id(self.gramps_id)
-        if self.grstate.config.get("options.global.enable-bookmarks"):
-            for bookmark in get_bookmarks(
-                self.grstate.dbstate.db, self.primary.obj_type
-            ).get():
-                if bookmark == self.primary.obj.get_handle():
-                    pack_icon(self.gramps_id, "gramps-bookmark")
-                    break
-        self._add_privacy_indicator(self.primary.obj, self.gramps_id)
-
-    def get_ref_label(self):
-        """
-        Build the label for a reference with lock icon if object marked private.
-        """
-        hbox = Gtk.HBox()
-        self._add_gramps_id(hbox)
-        pack_icon(hbox, "stock_link")
-        self._add_privacy_indicator(self.secondary.obj, hbox)
-        return hbox
 
     def load_attributes(self):
         """
@@ -401,10 +194,12 @@ class PrimaryGrampsFrame(GrampsFrame):
             if attribute.get_value():
                 value = self.make_label(attribute.get_value(), left=False)
                 if label:
-                    key = self.make_label(str(attribute.get_type()), left=False)
+                    key = self.make_label(
+                        str(attribute.get_type()), left=False
+                    )
                 else:
                     key = None
-                self.attributes.add_fact(value, label=key)
+                self.widgets["attributes"].add_fact(value, label=key)
 
         label = self.get_option("attributes-field-show-labels")
         for number in range(1, 8):
@@ -426,9 +221,9 @@ class PrimaryGrampsFrame(GrampsFrame):
 
     def build_action_menu(self, _dummy_obj, event):
         """
-        Build the action menu for a right click. First action will always be edit,
-        then any custom actions of the derived children, then the global actions
-        supported for all objects enabled for them.
+        Build the action menu for a right click. First action will always be
+        edit, then any custom actions of the derived children, then the global
+        actions supported for all objects enabled for them.
         """
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             self.action_menu = Gtk.Menu()
@@ -525,7 +320,10 @@ class PrimaryGrampsFrame(GrampsFrame):
                 )
                 menu.add(
                     menu_item(
-                        "gramps-attribute", text, self.edit_attribute, attribute
+                        "gramps-attribute",
+                        text,
+                        self.edit_attribute,
+                        attribute,
                     )
                 )
         return submenu_item("gramps-attribute", _("Attributes"), menu)

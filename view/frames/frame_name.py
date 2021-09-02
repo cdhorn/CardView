@@ -30,14 +30,13 @@ NameGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import get_person_color_css, TextLink
+from .frame_utils import TextLink, get_person_color_css
 
 _ = glocale.translation.sgettext
 
@@ -66,7 +65,7 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         label = TextLink(
             title, "Person", obj.get_handle(), self.switch_name_page
         )
-        self.title.pack_start(label, False, False, 0)
+        self.widgets["title"].pack_start(label, False, False, 0)
 
         given_name = name.get_regular_name()
         if name.get_title():

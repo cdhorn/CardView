@@ -29,14 +29,12 @@ NoteUrlGrampsFrame
 # ------------------------------------------------------------------------
 from html import escape
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
-
 
 # ------------------------------------------------------------------------
 #
@@ -46,7 +44,6 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -54,7 +51,7 @@ from gramps.gui.display import display_url
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
 from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_utils import button_activated, TextLink
+from .frame_utils import TextLink, button_activated
 
 _ = glocale.translation.sgettext
 
@@ -73,21 +70,12 @@ class NoteUrlGrampsFrame(GrampsFrame):
     def __init__(self, grstate, groptions, note, link):
         GrampsFrame.__init__(self, grstate, groptions, note)
         self.link = link
-
-        vcontent = Gtk.VBox()
-        self.title = Gtk.HBox(spacing=6)
-        vcontent.pack_start(self.title, expand=True, fill=True, padding=0)
-        vcontent.pack_start(self.facts_grid, expand=True, fill=True, padding=0)
-        body = Gtk.HBox(hexpand=True, margin=3)
-        body.pack_start(vcontent, expand=True, fill=True, padding=0)
-        self.frame.add(body)
-        self.eventbox.add(self.frame)
-        self.add(self.eventbox)
+        self.build_layout()
 
         label = Gtk.Label(
             use_markup=True, label="<b>{}</b>".format(escape(link))
         )
-        self.title.pack_start(label, False, False, 0)
+        self.widgets["title"].pack_start(label, False, False, 0)
         text = "{} {} {} {}".format(
             _("Found"), _("in"), _("note"), note.get_gramps_id()
         )
@@ -100,7 +88,7 @@ class NoteUrlGrampsFrame(GrampsFrame):
             bold=False,
             markup=self.markup,
         )
-        self.facts_grid.attach(note_link, 0, 0, 1, 1)
+        self.widgets["facts"].attach(note_link, 0, 0, 1, 1)
         self.set_css_style()
         self.show_all()
 

@@ -35,7 +35,6 @@ Base Profile Page
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -43,27 +42,12 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsState
-from .page_const import LABELS
-from .page_config_global import build_global_grid
-from .page_config_objects import (
-    ConfigNotebook,
-    build_person_grid,
-    build_family_grid,
-    build_event_grid,
-    build_place_grid,
-    build_source_grid,
-    build_citation_grid,
-    build_repository_grid,
-    build_media_grid,
-    build_note_grid,
-)
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
     CONFIDENCE_TYPE,
@@ -75,11 +59,25 @@ from .page_config_colors import (
     ROLE_TYPE,
     build_color_grid,
 )
+from .page_config_global import build_global_grid
 from .page_config_layout import build_layout_grid
-from .page_config_timeline import (
-    build_person_timeline_grid,
-    build_family_timeline_grid,
+from .page_config_objects import (
+    ConfigNotebook,
+    build_citation_grid,
+    build_event_grid,
+    build_family_grid,
+    build_media_grid,
+    build_note_grid,
+    build_person_grid,
+    build_place_grid,
+    build_repository_grid,
+    build_source_grid,
 )
+from .page_config_timeline import (
+    build_family_timeline_grid,
+    build_person_timeline_grid,
+)
+from .page_const import LABELS
 from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
@@ -158,7 +156,10 @@ class BaseProfilePage:
             if not self.config.get("{}.{}.stacked".format(space, group)):
                 if scrolled:
                     self.container.pack_start(
-                        self._scrolled(gbox), expand=False, fill=True, padding=0
+                        self._scrolled(gbox),
+                        expand=False,
+                        fill=True,
+                        padding=0,
                     )
                 else:
                     self.container.pack_start(
@@ -248,7 +249,9 @@ class BaseProfilePage:
         render_page = lambda: build_person_grid(
             configdialog, grstate, space, "parent"
         )
-        notebook.append_deferred_page(Gtk.Label(label=_("Parent")), render_page)
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Parent")), render_page
+        )
         if "group" in space:
             render_page = lambda: build_person_grid(
                 configdialog, grstate, space, "sibling"
@@ -259,7 +262,9 @@ class BaseProfilePage:
         render_page = lambda: build_person_grid(
             configdialog, grstate, space, "spouse"
         )
-        notebook.append_deferred_page(Gtk.Label(label=_("Spouse")), render_page)
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Spouse")), render_page
+        )
         if "group" in space:
             render_page = lambda: build_person_grid(
                 configdialog, grstate, space, "child"
@@ -280,7 +285,9 @@ class BaseProfilePage:
             Gtk.Label(label=_("Association")), render_page
         )
         render_page = lambda: build_family_grid(configdialog, grstate, space)
-        notebook.append_deferred_page(Gtk.Label(label=_("Family")), render_page)
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Family")), render_page
+        )
         render_page = lambda: build_event_grid(configdialog, grstate, space)
         notebook.append_deferred_page(Gtk.Label(label=_("Event")), render_page)
         render_page = lambda: build_place_grid(configdialog, grstate, space)
@@ -290,7 +297,9 @@ class BaseProfilePage:
             Gtk.Label(label=_("Citation")), render_page
         )
         render_page = lambda: build_source_grid(configdialog, grstate, space)
-        notebook.append_deferred_page(Gtk.Label(label=_("Source")), render_page)
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Source")), render_page
+        )
         render_page = lambda: build_repository_grid(
             configdialog, grstate, space
         )
@@ -350,7 +359,9 @@ class BaseProfilePage:
         page = build_person_timeline_grid(configdialog, grstate)
         notebook.append_page(page, tab_label=Gtk.Label(label=_("Person")))
         render_page = lambda: build_family_timeline_grid(configdialog, grstate)
-        notebook.append_deferred_page(Gtk.Label(label=_("Family")), render_page)
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Family")), render_page
+        )
         grid.attach(notebook, 1, 0, 1, 1)
         return _("Timelines"), grid
 

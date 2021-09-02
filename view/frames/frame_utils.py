@@ -31,14 +31,12 @@ Frame utility functions and classes
 # ------------------------------------------------------------------------
 from html import escape
 
-
 # ------------------------------------------------------------------------
 #
 # GTK modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
-
 
 # ------------------------------------------------------------------------
 #
@@ -47,14 +45,12 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import (
-    EventType,
-    Person,
-)
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.lib import EventType, Person, Span
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.db import family_name
 
+from ..timeline import RELATIVES
 
 # ------------------------------------------------------------------------
 #
@@ -69,9 +65,29 @@ from .frame_const import (
     CONFIDENCE_COLOR_SCHEME,
     GRAMPS_OBJECTS,
 )
-from ..timeline import RELATIVES
 
 _ = glocale.translation.sgettext
+
+
+def get_age(base_event, current_event, today=None):
+    """
+    Return age text if applicable.
+    """
+    if base_event and base_event.date:
+        if current_event and current_event.date or today:
+            if today:
+                current = today
+            else:
+                current = current_event.date
+            span = Span(base_event.date, current)
+            if span.is_valid():
+                precision = global_config.get(
+                    "preferences.age-display-precision"
+                )
+                age = str(span.format(precision=precision))
+                if age and age != "unknown":
+                    return age
+    return ""
 
 
 def button_activated(event, mouse_button):
@@ -125,7 +141,9 @@ def get_relation(db, person, relation, depth=15):
 
     calc = get_relationship_calculator(reinit=True, clocale=glocale)
     calc.set_depth(depth)
-    result = calc.get_one_relationship(db, base_person, person, extra_info=True)
+    result = calc.get_one_relationship(
+        db, base_person, person, extra_info=True
+    )
     if result[0]:
         return "{} {} {}".format(
             result[0].capitalize(), _("of"), base_person_name
@@ -527,7 +545,9 @@ def get_config_option(config, option, full=False, dbid=None):
     return option_data.split(":")
 
 
-def save_config_option(config, option, option_type, option_value="", dbid=None):
+def save_config_option(
+    config, option, option_type, option_value="", dbid=None
+):
     """
     Save a compound config option.
     """

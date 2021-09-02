@@ -30,7 +30,6 @@ CitationsGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -214,7 +213,9 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
             if hasattr(item, "citation_list"):
                 for handle in item.get_citation_list():
                     citation = self.fetch("Citation", handle)
-                    citation_list.append((citation, [item], ref_type, ref_desc))
+                    citation_list.append(
+                        (citation, [item], ref_type, ref_desc)
+                    )
                     if len(citation_list) >= self.maximum:
                         break
 

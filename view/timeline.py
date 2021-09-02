@@ -31,7 +31,15 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db.base import DbReadBase
 from gramps.gen.display.place import PlaceDisplay
 from gramps.gen.errors import HandleError
-from gramps.gen.lib import Date, Event, EventType, EventRoleType, Person, Span, Family
+from gramps.gen.lib import (
+    Date,
+    Event,
+    EventRoleType,
+    EventType,
+    Family,
+    Person,
+    Span,
+)
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.alive import probably_alive_range
 from gramps.gen.utils.grampslocale import GrampsLocale
@@ -106,12 +114,12 @@ class Timeline:
     def __init__(
         self,
         db_handle,
-        dates = None,
-        events = None,
-        relatives = None,
-        relative_events = None,
-        precision = 1,
-        locale = glocale,
+        dates=None,
+        events=None,
+        relatives=None,
+        relative_events=None,
+        precision=1,
+        locale=glocale,
     ):
         """
         Initialize timeline.
@@ -178,14 +186,16 @@ class Timeline:
         """
         self.precision = precision
 
-    def set_event_filters(self, filters = None):
+    def set_event_filters(self, filters=None):
         """
         Prepare the event filter table.
         """
         self.event_filters = filters or []
-        self.eligible_events = self._prepare_eligible_events(self.event_filters)
+        self.eligible_events = self._prepare_eligible_events(
+            self.event_filters
+        )
 
-    def set_relative_event_filters(self, filters = None):
+    def set_relative_event_filters(self, filters=None):
         """
         Prepare the relative event filter table.
         """
@@ -241,7 +251,7 @@ class Timeline:
             if event_type.xml_str() == event_name:
                 return "custom"
         return "other"
-        
+
     def get_age(self, start_date, date):
         """
         Return the calculated age or an empty string otherwise.
@@ -251,9 +261,9 @@ class Timeline:
             span = Span(start_date, date)
             if span.is_valid():
                 age = str(
-                    span.format(precision=self.precision, dlocale=self.locale).strip(
-                        "()"
-                    )
+                    span.format(
+                        precision=self.precision, dlocale=self.locale
+                    ).strip("()")
                 )
         return age
 
@@ -302,21 +312,39 @@ class Timeline:
             if not relative:
                 role = event_ref.get_role()
                 if not role.is_primary() and not role.is_family():
-                    primary = self.get_primary_event_participant(event.get_handle())
+                    primary = self.get_primary_event_participant(
+                        event.get_handle()
+                    )
                     if primary:
-                        calculator = get_relationship_calculator(reinit=True, clocale=self.locale)
+                        calculator = get_relationship_calculator(
+                            reinit=True, clocale=self.locale
+                        )
                         calculator.set_depth(4)
                         relationship = calculator.get_one_relationship(
                             self.db_handle, person, primary
                         )
-            self.timeline.append((sortval, (event, event_ref, person, family, relationship, self.get_category(event))))
+            self.timeline.append(
+                (
+                    sortval,
+                    (
+                        event,
+                        event_ref,
+                        person,
+                        family,
+                        relationship,
+                        self.get_category(event),
+                    ),
+                )
+            )
             self.cached_events.append(event.handle)
 
     def get_primary_event_participant(self, handle):
         """
         Get the primary event participant.
         """
-        for backlink in self.db_handle.find_backlink_handles(handle, include_classes=['Person']):
+        for backlink in self.db_handle.find_backlink_handles(
+            handle, include_classes=["Person"]
+        ):
             person = self.db_handle.get_person_from_handle(backlink[1])
             if person:
                 for event_ref in person.get_primary_event_ref_list():
@@ -324,7 +352,7 @@ class Timeline:
                         if event_ref.get_role().is_primary():
                             return person
         return None
-            
+
     def prepare_event_sortvals(self, events):
         """
         Prepare keys for sorting constructing synthetic keys when we can for any
@@ -347,9 +375,13 @@ class Timeline:
             sortval = event.date.sortval
             if not sortval:
                 if event.type.is_marriage() and family:
-                    sortval = self.generate_union_event_sortval(family, union=True)
+                    sortval = self.generate_union_event_sortval(
+                        family, union=True
+                    )
                 if event.type.is_divorce() and family:
-                    sortval = self.generate_union_event_sortval(family, union=False)
+                    sortval = self.generate_union_event_sortval(
+                        family, union=False
+                    )
                 if not sortval:
                     sortval = lastval + 1
             keyed_list.append((sortval, event, event_ref, family))
@@ -376,7 +408,11 @@ class Timeline:
                 if event.type.is_birth():
                     birth = event
                     break
-                if not birth and not birth_fallback and event.type.is_birth_fallback():
+                if (
+                    not birth
+                    and not birth_fallback
+                    and event.type.is_birth_fallback()
+                ):
                     birth_fallback = event
                     break
             if not birth and birth_fallback:
@@ -402,11 +438,19 @@ class Timeline:
             if role.is_primary():
                 if event.type.is_birth():
                     birth = event
-                if not birth and not birth_fallback and event.type.is_birth_fallback():
+                if (
+                    not birth
+                    and not birth_fallback
+                    and event.type.is_birth_fallback()
+                ):
                     birth_fallback = event
                 if event.type.is_death():
                     death = event
-                if not death and not death_fallback and event.type in DEATH_INDICATORS:
+                if (
+                    not death
+                    and not death_fallback
+                    and event.type in DEATH_INDICATORS
+                ):
                     death_fallback = event
                 events.append((event, event_ref, None))
             elif not relative:
@@ -422,15 +466,21 @@ class Timeline:
         for family_handle in person.family_list:
             family = self.db_handle.get_family_from_handle(family_handle)
             for event_ref in family.event_ref_list:
-                events.append((self.db_handle.get_event_from_handle(event_ref.ref), event_ref, family))
+                events.append(
+                    (
+                        self.db_handle.get_event_from_handle(event_ref.ref),
+                        event_ref,
+                        family,
+                    )
+                )
             timeline = timeline + self.prepare_event_sortvals(events)
         return timeline, birth, death
 
     def set_person(
         self,
         handle,
-        ancestors = 0,
-        offspring = 0,
+        ancestors=0,
+        offspring=0,
     ):
         """
         Generate a person timeline.
@@ -442,7 +492,9 @@ class Timeline:
 
         person = self.db_handle.get_person_from_handle(handle)
         timeline, birth, death = self.extract_person_events(person)
-        self.merge_eligible_events(person, timeline, "self", birth=birth, death=death)
+        self.merge_eligible_events(
+            person, timeline, "self", birth=birth, death=death
+        )
         if person.handle not in self.cached_people:
             self.cached_people.update({person.handle: birth})
 
@@ -467,7 +519,9 @@ class Timeline:
                 self.add_family(family, ancestors=ancestors)
 
             for family in person.family_list:
-                self.add_family(family, ancestors=ancestors, offspring=offspring)
+                self.add_family(
+                    family, ancestors=ancestors, offspring=offspring
+                )
 
     def add_person(self, handle):
         """
@@ -475,25 +529,31 @@ class Timeline:
         """
         person = self.db_handle.get_person_from_handle(handle)
         timeline, birth, death = self.extract_person_events(person)
-        self.merge_eligible_events(person, timeline, "self", birth=birth, death=death)
+        self.merge_eligible_events(
+            person, timeline, "self", birth=birth, death=death
+        )
         if person.handle not in self.cached_people:
             self.cached_people.update({person.handle: birth})
-                
-    def add_relative(self, handle, ancestors = 1, offspring = 1):
+
+    def add_relative(self, handle, ancestors=1, offspring=1):
         """
         Add events for a relative of the reference person to the master timeline.
         """
         if not self.eligible_relatives:
             return
         person = self.db_handle.get_person_from_handle(handle)
-        calculator = get_relationship_calculator(reinit=True, clocale=self.locale)
+        calculator = get_relationship_calculator(
+            reinit=True, clocale=self.locale
+        )
         calculator.set_depth(self.depth)
         relationship = calculator.get_one_relationship(
             self.db_handle, self.reference_person, person
         )
         for relative in self.eligible_relatives:
             if relative in relationship:
-                timeline, birth, death = self.extract_person_events(person, relative=True)
+                timeline, birth, death = self.extract_person_events(
+                    person, relative=True
+                )
                 self.merge_eligible_events(
                     person,
                     timeline,
@@ -507,7 +567,9 @@ class Timeline:
 
                 if offspring > 0:
                     for family_handle in person.family_list:
-                        family = self.db_handle.get_family_from_handle(family_handle)
+                        family = self.db_handle.get_family_from_handle(
+                            family_handle
+                        )
                         if (
                             family.father_handle
                             and family.father_handle not in self.cached_people
@@ -540,18 +602,24 @@ class Timeline:
     def add_family(
         self,
         handle,
-        ancestors = 0,
-        offspring = 0,
-        include_children = True,
+        ancestors=0,
+        offspring=0,
+        include_children=True,
     ):
         """
         Add events for all family members to the timeline.
         """
         family = self.db_handle.get_family_from_handle(handle)
         if self.reference_person:
-            if family.father_handle and family.father_handle not in self.cached_people:
+            if (
+                family.father_handle
+                and family.father_handle not in self.cached_people
+            ):
                 self.add_relative(family.father_handle, ancestors=ancestors)
-            if family.mother_handle and family.mother_handle not in self.cached_people:
+            if (
+                family.mother_handle
+                and family.mother_handle not in self.cached_people
+            ):
                 self.add_relative(family.mother_handle, ancestors=ancestors)
             if include_children:
                 for child in family.child_ref_list:
@@ -568,8 +636,8 @@ class Timeline:
     def set_family(
         self,
         handle,
-        ancestors = 0,
-        offspring = 0,
+        ancestors=0,
+        offspring=0,
     ):
         """
         Generate a family timeline.

@@ -35,7 +35,6 @@ Address Profile Page
 # -------------------------------------------------------------------------
 import hashlib
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -46,14 +45,13 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_address import AddressGrampsFrame
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
@@ -168,13 +166,13 @@ class AddressProfilePage(BaseProfilePage):
         family_handle_list = person.get_family_handle_list()
         if not self.reorder_sensitive:
             self.reorder_sensitive = len(family_handle_list) > 1
-        return True
+        return
 
-    def reorder_button_press(self, obj, event, handle):
+    def reorder_button_press(self, obj, event, _dummy_handle):
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
-    def reorder(self, *obj):
+    def reorder(self, *_dummy_obj):
         if self.active_profile:
             try:
                 Reorder(
@@ -186,14 +184,14 @@ class AddressProfilePage(BaseProfilePage):
             except WindowActiveError:
                 pass
 
-    def add_spouse(self, *obj):
+    def add_spouse(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_spouse()
 
-    def select_parents(self, *obj):
+    def select_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_existing_parents()
 
-    def add_parents(self, *obj):
+    def add_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_parents()

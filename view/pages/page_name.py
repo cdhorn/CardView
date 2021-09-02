@@ -35,7 +35,6 @@ Name Profile Page
 # -------------------------------------------------------------------------
 import hashlib
 
-
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
@@ -46,16 +45,15 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsState, GrampsOptions
+from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_const import _LEFT_BUTTON
-from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
+from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
 from ..groups.group_utils import (
     get_citations_group,
