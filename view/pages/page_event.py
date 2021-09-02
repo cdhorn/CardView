@@ -40,17 +40,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_event import EventGrampsFrame
-from ..groups.group_utils import (
-    get_attributes_group,
-    get_citations_group,
-    get_media_group,
-    get_notes_group,
-    get_references_group,
-    get_urls_group,
-)
+from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -63,10 +55,13 @@ class EventProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Event"
 
+    @property
     def page_type(self):
         return "Event"
 
@@ -85,16 +80,9 @@ class EventProfilePage(BaseProfilePage):
         if not event:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.event")
         self.active_profile = EventGrampsFrame(
-            grstate,
+            self.grstate,
             groptions,
             None,
             event,
@@ -105,27 +93,15 @@ class EventProfilePage(BaseProfilePage):
         )
 
         groups = self.config.get("options.page.event.layout.groups").split(",")
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, event)}
-            )
-        if "attribute" in groups:
-            obj_groups.update(
-                {"attribute": get_attributes_group(grstate, event)}
-            )
-        if "url" in groups:
-            obj_groups.update({"urls": get_urls_group(grstate, event)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, event)})
-        if "media" in groups:
-            obj_groups.update({"media": get_media_group(grstate, event)})
+        obj_groups = self.get_object_groups(groups, event)
 
         people_list = []
         family_list = []
         if "people" in groups or "family" in groups:
-            for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(
+            for (
+                obj_type,
+                obj_handle,
+            ) in self.grstate.dbstate.db.find_backlink_handles(
                 event.get_handle()
             ):
                 if obj_type == "Person" and obj_handle not in people_list:
@@ -138,7 +114,7 @@ class EventProfilePage(BaseProfilePage):
             obj_groups.update(
                 {
                     "people": get_references_group(
-                        grstate,
+                        self.grstate,
                         None,
                         groptions=groptions,
                         title_plural=_("Individual Participants"),
@@ -152,7 +128,7 @@ class EventProfilePage(BaseProfilePage):
             obj_groups.update(
                 {
                     "family": get_references_group(
-                        grstate,
+                        self.grstate,
                         None,
                         groptions=groptions,
                         title_plural=_("Family Participants"),
@@ -168,12 +144,6 @@ class EventProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-
-        if self.config.get("options.global.media-bar-display-mode"):
-            css = self.active_profile.get_css_style()
-            bar = GrampsMediaBarGroup(grstate, None, event, css=css)
-            if bar.total:
-                vbox.pack_start(bar, False, False, 0)
-
+        self.add_media_bar(vbox, event)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()

@@ -41,19 +41,15 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
 
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
-from ..frames.frame_const import _LEFT_BUTTON
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_repository import RepositoryGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
-from ..frames.frame_utils import button_activated
-from ..groups.group_utils import get_notes_group, get_urls_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -69,12 +65,14 @@ class RepositoryRefProfilePage(BaseProfilePage):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.active_profile = None
 
+    @property
     def obj_type(self):
         """
         Primary object page focused on.
         """
         return "Source"
 
+    @property
     def page_type(self):
         """
         Page type.
@@ -85,19 +83,16 @@ class RepositoryRefProfilePage(BaseProfilePage):
         """
         Define page actions.
         """
-        pass
 
     def enable_actions(self, uimanager, person):
         """
         Enable page actions.
         """
-        pass
 
     def disable_actions(self, uimanager):
         """
         Disable page actions.
         """
-        pass
 
     def render_page(self, header, vbox, source, secondary=None):
         """
@@ -108,29 +103,25 @@ class RepositoryRefProfilePage(BaseProfilePage):
         if not source or not secondary:
             return
 
+        repo_ref = None
         for repo_ref in source.get_reporef_list():
             if repo_ref.ref == secondary:
                 break
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.source")
         source_frame = SourceGrampsFrame(
-            grstate,
+            self.grstate,
             groptions,
             source,
         )
-        repository = self.dbstate.db.get_repository_from_handle(secondary)
+        repository = self.grstate.dbstate.db.get_repository_from_handle(
+            secondary
+        )
         groptions = GrampsOptions("options.active.repository")
         groptions.set_backlink(source.get_handle())
         groptions.set_ref_mode(1)
         self.active_profile = RepositoryGrampsFrame(
-            grstate,
+            self.grstate,
             groptions,
             repository,
             repo_ref,
@@ -142,12 +133,7 @@ class RepositoryRefProfilePage(BaseProfilePage):
         groups = self.config.get("options.page.reporef.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, repo_ref)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, repo_ref)})
+        obj_groups = self.get_object_groups(groups, repo_ref)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -158,31 +144,3 @@ class RepositoryRefProfilePage(BaseProfilePage):
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
-
-    def reorder_button_press(self, obj, event, handle):
-        if button_activated(event, _LEFT_BUTTON):
-            self.reorder(obj)
-
-    def reorder(self, *obj):
-        if self.active_profile:
-            try:
-                Reorder(
-                    self.dbstate,
-                    self.uistate,
-                    [],
-                    self.active_profile.obj.get_handle(),
-                )
-            except WindowActiveError:
-                pass
-
-    def add_spouse(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_new_spouse()
-
-    def select_parents(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_parents(self, *obj):
-        if self.active_profile:
-            self.active_profile.add_new_parents()

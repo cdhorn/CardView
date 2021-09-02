@@ -40,7 +40,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_utils import ConfigReset
 from .page_const import MEDIA_IMAGE_DISPLAY_MODES, PRIVACY_DISPLAY_MODES
 from .page_utils import add_config_reset, create_grid
 

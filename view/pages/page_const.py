@@ -28,6 +28,36 @@ Page related constants
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+# -------------------------------------------------------------------------
+#
+# Plugin Modules
+#
+# -------------------------------------------------------------------------
+from ..frames.frame_attribute import AttributeGrampsFrame
+from ..frames.frame_citation import CitationGrampsFrame
+from ..frames.frame_classes import GrampsOptions
+from ..frames.frame_couple import CoupleGrampsFrame
+from ..frames.frame_event import EventGrampsFrame
+from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_person import PersonGrampsFrame
+from ..frames.frame_source import SourceGrampsFrame
+from ..groups.group_utils import (
+    get_addresses_group,
+    get_associations_group,
+    get_attributes_group,
+    get_children_group,
+    get_citations_group,
+    get_media_group,
+    get_names_group,
+    get_notes_group,
+    get_parents_group,
+    get_references_group,
+    get_repositories_group,
+    get_spouses_group,
+    get_timeline_group,
+    get_urls_group,
+)
+
 _ = glocale.translation.sgettext
 
 
@@ -127,3 +157,31 @@ PAGES = [
     ("Source", _("Source")),
     ("Tag", _("Tag")),
 ]
+
+
+OBJECT_GROUPS = {
+    "address": get_addresses_group,
+    "association": get_associations_group,
+    "attribute": get_attributes_group,
+    "child": get_children_group,
+    "citation": get_citations_group,
+    "media": get_media_group,
+    "name": get_names_group,
+    "note": get_notes_group,
+    "parent": get_parents_group,
+    "reference": get_references_group,
+    "repository": get_repositories_group,
+    "spouse": get_spouses_group,
+    "timeline": get_timeline_group,
+    "url": get_urls_group,
+}
+
+
+FRAME_MAP = {
+    "Person": ("options.active.person", PersonGrampsFrame),
+    "Family": ("options.active.family", CoupleGrampsFrame),
+    "Event": ("options.active.event", EventGrampsFrame),
+    "Media": ("options.active.media", ImageGrampsFrame),
+    "Source": ("options.active.source", SourceGrampsFrame),
+    "Citation": ("options.active.citation", CitationGrampsFrame),
+}

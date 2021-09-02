@@ -210,7 +210,7 @@ class ProfileView(ExtendedNavigationView):
             page = page_class(
                 self.dbstate, self.uistate, self._config, callbacks
             )
-            self.pages[page.page_type()] = page
+            self.pages[page.page_type] = page
 
     def _connect_db_signals(self):
         """

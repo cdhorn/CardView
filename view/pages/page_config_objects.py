@@ -47,7 +47,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_utils import ConfigReset
 from .page_const import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,

@@ -42,13 +42,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..frames.frame_classes import GrampsOptions, GrampsState
 from ..frames.frame_image import ImageGrampsFrame
-from ..groups.group_utils import (
-    get_attributes_group,
-    get_citations_group,
-    get_notes_group,
-    get_references_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -62,9 +55,11 @@ class MediaProfilePage(BaseProfilePage):
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
+    @property
     def obj_type(self):
         return "Media"
 
+    @property
     def page_type(self):
         return "Media"
 
@@ -83,35 +78,11 @@ class MediaProfilePage(BaseProfilePage):
         if not media:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.media")
-        self.active_profile = ImageGrampsFrame(grstate, groptions, media)
+        self.active_profile = ImageGrampsFrame(self.grstate, groptions, media)
 
         groups = self.config.get("options.page.media.layout.groups").split(",")
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, media)}
-            )
-        if "attribute" in groups:
-            obj_groups.update(
-                {"attribute": get_attributes_group(grstate, media)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, media)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, media)})
-        if "reference" in groups:
-            obj_groups.update(
-                {"reference": get_references_group(grstate, media)}
-            )
+        obj_groups = self.get_object_groups(groups, media)
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.global.pin-header"):

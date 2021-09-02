@@ -40,13 +40,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_repository import RepositoryGrampsFrame
-from ..groups.group_utils import (
-    get_notes_group,
-    get_sources_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -59,10 +54,13 @@ class RepositoryProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Repository"
 
+    @property
     def page_type(self):
         return "Repository"
 
@@ -81,33 +79,17 @@ class RepositoryProfilePage(BaseProfilePage):
         if not repository:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.repository")
         self.active_profile = RepositoryGrampsFrame(
-            grstate, groptions, repository
+            self.grstate, groptions, repository
         )
 
         groups = self.config.get(
             "options.page.repository.layout.groups"
         ).split(",")
-        obj_groups = {}
-
-        if "source" in groups:
-            obj_groups.update(
-                {"source": get_sources_group(grstate, repository)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, repository)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, repository)})
-
+        obj_groups = self.get_object_groups(groups, repository)
         body = self.render_group_view(obj_groups)
+
         if self.config.get("options.global.pin-header"):
             header.pack_start(self.active_profile, False, False, 0)
             header.show_all()

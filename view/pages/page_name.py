@@ -50,16 +50,11 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
-from ..groups.group_utils import (
-    get_citations_group,
-    get_notes_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -80,9 +75,11 @@ class NameProfilePage(BaseProfilePage):
         self.colors = None
         self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Person"
 
+    @property
     def page_type(self):
         return "Name"
 
@@ -126,28 +123,16 @@ class NameProfilePage(BaseProfilePage):
                 if sha256_hash.hexdigest() == secondary:
                     break
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.person")
-        self.active_profile = PersonGrampsFrame(grstate, groptions, person)
+        self.active_profile = PersonGrampsFrame(
+            self.grstate, groptions, person
+        )
 
         groptions = GrampsOptions("options.active.name")
-        frame = NameGrampsFrame(grstate, groptions, person, name)
+        frame = NameGrampsFrame(self.grstate, groptions, person, name)
 
         groups = self.config.get("options.page.name.layout.groups").split(",")
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update({"citation": get_citations_group(grstate, name)})
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, name)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, name)})
+        obj_groups = self.get_object_groups(groups, name)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -166,32 +151,32 @@ class NameProfilePage(BaseProfilePage):
         family_handle_list = person.get_family_handle_list()
         if not self.reorder_sensitive:
             self.reorder_sensitive = len(family_handle_list) > 1
-        return True
+        return
 
-    def reorder_button_press(self, obj, event, handle):
+    def reorder_button_press(self, obj, event, _dummy_handle):
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
-    def reorder(self, *obj):
+    def reorder(self, *_dummy_obj):
         if self.active_profile:
             try:
                 Reorder(
-                    self.dbstate,
-                    self.uistate,
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
                     [],
                     self.active_profile.obj.get_handle(),
                 )
             except WindowActiveError:
                 pass
 
-    def add_spouse(self, *obj):
+    def add_spouse(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_spouse()
 
-    def select_parents(self, *obj):
+    def select_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_existing_parents()
 
-    def add_parents(self, *obj):
+    def add_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_parents()

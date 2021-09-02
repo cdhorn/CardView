@@ -41,9 +41,6 @@ import hashlib
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.uimanager import ActionGroup
-from gramps.gui.widgets.reorderfam import Reorder
 
 # -------------------------------------------------------------------------
 #
@@ -51,21 +48,10 @@ from gramps.gui.widgets.reorderfam import Reorder
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_attribute import AttributeGrampsFrame
-from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_classes import GrampsOptions, GrampsState
-from ..frames.frame_const import _LEFT_BUTTON
-from ..frames.frame_couple import CoupleGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_image import ImageGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_source import SourceGrampsFrame
-from ..frames.frame_utils import button_activated, get_gramps_object_type
-from ..groups.group_utils import (
-    get_citations_group,
-    get_notes_group,
-    get_urls_group,
-)
+from ..frames.frame_classes import GrampsOptions
+from ..frames.frame_utils import get_gramps_object_type
 from .page_base import BaseProfilePage
+from .page_const import FRAME_MAP
 
 _ = glocale.translation.sgettext
 
@@ -83,9 +69,11 @@ class AttributeProfilePage(BaseProfilePage):
         self.active_profile = None
         self.focus_type = "Person"
 
+    @property
     def obj_type(self):
         return self.focus_type
 
+    @property
     def page_type(self):
         return "Attribute"
 
@@ -104,6 +92,7 @@ class AttributeProfilePage(BaseProfilePage):
         if not primary or not secondary:
             return
 
+        attribute = None
         for attribute in primary.get_attribute_list():
             sha256_hash = hashlib.sha256()
             sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
@@ -112,56 +101,19 @@ class AttributeProfilePage(BaseProfilePage):
 
         self.focus_type = get_gramps_object_type(primary)
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
-        if self.focus_type == "Person":
-            groptions = GrampsOptions("options.active.person")
-            self.active_profile = PersonGrampsFrame(
-                grstate, groptions, primary
-            )
-        elif self.focus_type == "Family":
-            groptions = GrampsOptions("options.active.family")
-            self.active_profile = CoupleGrampsFrame(
-                grstate, groptions, primary
-            )
-        elif self.focus_type == "Event":
-            groptions = GrampsOptions("options.active.event")
-            self.active_profile = EventGrampsFrame(grstate, groptions, primary)
-        elif self.focus_type == "Media":
-            groptions = GrampsOptions("options.active.media")
-            self.active_profile = ImageGrampsFrame(grstate, groptions, primary)
-        elif self.focus_type == "Source":
-            groptions = GrampsOptions("options.active.source")
-            self.active_profile = SourceGrampsFrame(
-                grstate, groptions, primary
-            )
-        elif self.focus_type == "Citation":
-            groptions = GrampsOptions("options.active.citation")
-            self.active_profile = CitationGrampsFrame(
-                grstate, groptions, primary
-            )
+        (option, frame) = FRAME_MAP[self.focus_type]
+        groptions = GrampsOptions(option)
+        self.active_profile = frame(self.grstate, groptions, primary)
 
         groptions = GrampsOptions("options.active.attribute")
-        frame = AttributeGrampsFrame(grstate, groptions, primary, attribute)
+        frame = AttributeGrampsFrame(
+            self.grstate, groptions, primary, attribute
+        )
 
         groups = self.config.get("options.page.attribute.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, attribute)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, attribute)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, attribute)})
+        obj_groups = self.get_object_groups(groups, attribute)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -174,4 +126,4 @@ class AttributeProfilePage(BaseProfilePage):
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
-        return True
+        return

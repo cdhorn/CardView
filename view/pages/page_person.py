@@ -43,24 +43,10 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
-from ..groups.group_utils import (
-    get_addresses_group,
-    get_associations_group,
-    get_attributes_group,
-    get_citations_group,
-    get_media_group,
-    get_names_group,
-    get_notes_group,
-    get_parents_group,
-    get_spouses_group,
-    get_timeline_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -80,9 +66,11 @@ class PersonProfilePage(BaseProfilePage):
         self.colors = None
         self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Person"
 
+    @property
     def page_type(self):
         return "Person"
 
@@ -116,53 +104,15 @@ class PersonProfilePage(BaseProfilePage):
         if not person:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.person")
-        self.active_profile = PersonGrampsFrame(grstate, groptions, person)
+        self.active_profile = PersonGrampsFrame(
+            self.grstate, groptions, person
+        )
 
         groups = self.config.get("options.page.person.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "parent" in groups:
-            obj_groups.update({"parent": get_parents_group(grstate, person)})
-        if "spouse" in groups:
-            obj_groups.update({"spouse": get_spouses_group(grstate, person)})
-        if "attribute" in groups:
-            obj_groups.update(
-                {"attribute": get_attributes_group(grstate, person)}
-            )
-        if "name" in groups:
-            obj_groups.update({"name": get_names_group(grstate, person)})
-        if "association" in groups:
-            obj_groups.update(
-                {"association": get_associations_group(grstate, person)}
-            )
-        if "timeline" in groups:
-            obj_groups.update(
-                {"timeline": get_timeline_group(grstate, person)}
-            )
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, person)}
-            )
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, person)})
-        if "media" in groups:
-            obj_groups.update({"media": get_media_group(grstate, person)})
-        if "address" in groups:
-            obj_groups.update(
-                {"address": get_addresses_group(grstate, person)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, person)})
+        obj_groups = self.get_object_groups(groups, person)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -170,12 +120,7 @@ class PersonProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-
-        if self.config.get("options.global.media-bar-display-mode"):
-            css = self.active_profile.get_css_style()
-            bar = GrampsMediaBarGroup(grstate, None, person, css=css)
-            if bar.total:
-                vbox.pack_start(bar, False, False, 0)
+        self.add_media_bar(vbox, person)
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
@@ -185,32 +130,32 @@ class PersonProfilePage(BaseProfilePage):
         family_handle_list = person.get_family_handle_list()
         if not self.reorder_sensitive:
             self.reorder_sensitive = len(family_handle_list) > 1
-        return True
+        return
 
-    def reorder_button_press(self, obj, event, handle):
+    def reorder_button_press(self, obj, event, _dummy_handle):
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
-    def reorder(self, *obj):
+    def reorder(self, *_dummy_obj):
         if self.active_profile:
             try:
                 Reorder(
-                    self.dbstate,
-                    self.uistate,
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
                     [],
                     self.active_profile.obj.get_handle(),
                 )
             except WindowActiveError:
                 pass
 
-    def add_spouse(self, *obj):
+    def add_spouse(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_spouse()
 
-    def select_parents(self, *obj):
+    def select_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_existing_parents()
 
-    def add_parents(self, *obj):
+    def add_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_parents()

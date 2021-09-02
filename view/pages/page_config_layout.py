@@ -36,7 +36,6 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.managedwindow import ManagedWindow
 
 # ------------------------------------------------------------------------
 #

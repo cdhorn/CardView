@@ -47,18 +47,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_utils import ConfigReset
 from .page_const import (
     IMAGE_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )
-from .page_utils import (
-    add_config_reset,
-    config_facts_fields,
-    config_tag_fields,
-    create_grid,
-)
+from .page_utils import add_config_reset, config_facts_fields, create_grid
 
 _ = glocale.translation.sgettext
 

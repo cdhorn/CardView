@@ -51,15 +51,10 @@ from gramps.gui.widgets.reorderfam import Reorder
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_address import AddressGrampsFrame
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_utils import button_activated
-from ..groups.group_utils import (
-    get_citations_group,
-    get_notes_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -80,9 +75,11 @@ class AddressProfilePage(BaseProfilePage):
         self.colors = None
         self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Person"
 
+    @property
     def page_type(self):
         return "Address"
 
@@ -102,7 +99,7 @@ class AddressProfilePage(BaseProfilePage):
         view._add_action_group(self.order_action)
         view._add_action_group(self.family_action)
 
-    def enable_actions(self, uimanager, person):
+    def enable_actions(self, uimanager, _dummy_person):
         uimanager.set_actions_visible(self.family_action, True)
         uimanager.set_actions_visible(self.order_action, True)
 
@@ -116,38 +113,25 @@ class AddressProfilePage(BaseProfilePage):
         if not person or not secondary:
             return
 
+        address = None
         for address in person.get_address_list():
             sha256_hash = hashlib.sha256()
             sha256_hash.update(str(address.serialize()).encode("utf-8"))
             if sha256_hash.hexdigest() == secondary:
                 break
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.person")
-        self.active_profile = PersonGrampsFrame(grstate, groptions, person)
+        self.active_profile = PersonGrampsFrame(
+            self.grstate, groptions, person
+        )
 
         groptions = GrampsOptions("options.active.address")
-        frame = AddressGrampsFrame(grstate, groptions, person, address)
+        frame = AddressGrampsFrame(self.grstate, groptions, person, address)
 
         groups = self.config.get("options.page.address.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, address)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, address)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, address)})
+        obj_groups = self.get_object_groups(groups, address)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -176,8 +160,8 @@ class AddressProfilePage(BaseProfilePage):
         if self.active_profile:
             try:
                 Reorder(
-                    self.dbstate,
-                    self.uistate,
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
                     [],
                     self.active_profile.obj.get_handle(),
                 )

@@ -40,7 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_tag import TagGrampsFrame
 from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
@@ -58,9 +58,11 @@ class TagProfilePage(BaseProfilePage):
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
+    @property
     def obj_type(self):
         return "Person"
 
+    @property
     def page_type(self):
         return "Tag"
 
@@ -78,25 +80,19 @@ class TagProfilePage(BaseProfilePage):
         list(map(vbox.remove, vbox.get_children()))
         if not secondary:
             return
-        tag = self.dbstate.db.get_tag_from_handle(secondary)
+        tag = self.grstate.dbstate.db.get_tag_from_handle(secondary)
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.tag")
-        self.active_profile = TagGrampsFrame(grstate, groptions, tag)
+        self.active_profile = TagGrampsFrame(self.grstate, groptions, tag)
 
         groups = self.config.get("options.page.tag.layout.groups").split(",")
         obj_groups = {}
 
         object_list = {}
-        for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(
-            tag.get_handle()
-        ):
+        for (
+            obj_type,
+            obj_handle,
+        ) in self.grstate.dbstate.db.find_backlink_handles(tag.get_handle()):
             if obj_type not in object_list:
                 object_list.update({obj_type: []})
             object_list[obj_type].append((obj_type, obj_handle))
@@ -109,7 +105,7 @@ class TagProfilePage(BaseProfilePage):
                 obj_groups.update(
                     {
                         key.lower(): get_references_group(
-                            grstate,
+                            self.grstate,
                             None,
                             groptions=groptions,
                             title_plural=LABELS[key.lower()],

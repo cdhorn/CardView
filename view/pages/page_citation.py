@@ -47,17 +47,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
 from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_source import SourceGrampsFrame
-from ..groups.group_utils import (
-    get_attributes_group,
-    get_media_group,
-    get_notes_group,
-    get_references_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -70,10 +62,13 @@ class CitationProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Citation"
 
+    @property
     def page_type(self):
         return "Citation"
 
@@ -92,43 +87,23 @@ class CitationProfilePage(BaseProfilePage):
         if not citation:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.citation")
-        self.active_profile = CitationGrampsFrame(grstate, groptions, citation)
+        self.active_profile = CitationGrampsFrame(
+            self.grstate, groptions, citation
+        )
 
-        source = self.dbstate.db.get_source_from_handle(
+        source = self.grstate.dbstate.db.get_source_from_handle(
             self.active_profile.primary.obj.source_handle
         )
         groptions = GrampsOptions("options.active.source")
-        source_frame = SourceGrampsFrame(grstate, groptions, source)
+        source_frame = SourceGrampsFrame(self.grstate, groptions, source)
 
         groups = self.config.get("options.page.citation.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "attribute" in groups:
-            obj_groups.update(
-                {"attribute": get_attributes_group(grstate, citation)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, citation)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, citation)})
-        if "media" in groups:
-            obj_groups.update({"media": get_media_group(grstate, citation)})
-        if "reference" in groups:
-            obj_groups.update(
-                {"references": get_references_group(grstate, citation)}
-            )
-
+        obj_groups = self.get_object_groups(groups, citation)
         body = self.render_group_view(obj_groups)
+
         hbox = Gtk.VBox()
         hbox.pack_start(source_frame, True, True, 0)
         hbox.pack_start(self.active_profile, True, True, 0)
@@ -137,13 +112,7 @@ class CitationProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(hbox, False, False, 0)
-
-        if self.config.get("options.global.media-bar-display-mode"):
-            css = self.active_profile.get_css_style()
-            bar = GrampsMediaBarGroup(grstate, None, citation, css=css)
-            if bar.total:
-                vbox.pack_start(bar, False, False, 0)
-
+        self.add_media_bar(vbox, citation)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
-        return True
+        return

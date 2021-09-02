@@ -40,9 +40,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_note import NoteGrampsFrame
-from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -56,9 +55,11 @@ class NoteProfilePage(BaseProfilePage):
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
 
+    @property
     def obj_type(self):
         return "Note"
 
+    @property
     def page_type(self):
         return "Note"
 
@@ -77,23 +78,11 @@ class NoteProfilePage(BaseProfilePage):
         if not note:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.note")
-        self.active_profile = NoteGrampsFrame(grstate, groptions, note)
+        self.active_profile = NoteGrampsFrame(self.grstate, groptions, note)
 
         groups = self.config.get("options.page.note.layout.groups").split(",")
-        obj_groups = {}
-
-        if "reference" in groups:
-            obj_groups.update(
-                {"reference": get_references_group(grstate, note)}
-            )
+        obj_groups = self.get_object_groups(groups, note)
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.global.pin-header"):
@@ -103,3 +92,4 @@ class NoteProfilePage(BaseProfilePage):
             vbox.pack_start(self.active_profile, False, False, 0)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
+        return

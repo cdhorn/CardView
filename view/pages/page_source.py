@@ -40,18 +40,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_source import SourceGrampsFrame
-from ..groups.group_utils import (
-    get_attributes_group,
-    get_citations_group,
-    get_media_group,
-    get_notes_group,
-    get_references_group,
-    get_repositories_group,
-    get_urls_group,
-)
+from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -64,10 +55,13 @@ class SourceProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
+    @property
     def obj_type(self):
         return "Source"
 
+    @property
     def page_type(self):
         return "Source"
 
@@ -86,51 +80,32 @@ class SourceProfilePage(BaseProfilePage):
         if not source:
             return
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.source")
-        self.active_profile = SourceGrampsFrame(grstate, groptions, source)
+        self.active_profile = SourceGrampsFrame(
+            self.grstate, groptions, source
+        )
 
         groups = self.config.get("options.page.source.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "repository" in groups:
-            obj_groups.update(
-                {"repository": get_repositories_group(grstate, source)}
-            )
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, source)}
-            )
-        if "attribute" in groups:
-            obj_groups.update(
-                {"attribute": get_attributes_group(grstate, source)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, source)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, source)})
-        if "media" in groups:
-            obj_groups.update({"media": get_media_group(grstate, source)})
+        obj_groups = self.get_object_groups(groups, source)
 
         people_list = []
         events_list = []
         if "person" in groups or "event" in groups:
-            for obj_type, obj_handle in self.dbstate.db.find_backlink_handles(
+            for (
+                obj_type,
+                obj_handle,
+            ) in self.grstate.dbstate.db.find_backlink_handles(
                 source.get_handle()
             ):
                 if obj_type == "Citation":
                     for (
                         sub_obj_type,
                         sub_obj_handle,
-                    ) in self.dbstate.db.find_backlink_handles(obj_handle):
+                    ) in self.grstate.dbstate.db.find_backlink_handles(
+                        obj_handle
+                    ):
                         if sub_obj_type == "Person":
                             if sub_obj_handle not in people_list:
                                 people_list.append(("Person", sub_obj_handle))
@@ -143,7 +118,7 @@ class SourceProfilePage(BaseProfilePage):
             obj_groups.update(
                 {
                     "people": get_references_group(
-                        grstate,
+                        self.grstate,
                         None,
                         groptions=groptions,
                         title_plural=_("Referenced People"),
@@ -157,7 +132,7 @@ class SourceProfilePage(BaseProfilePage):
             obj_groups.update(
                 {
                     "event": get_references_group(
-                        grstate,
+                        self.grstate,
                         None,
                         groptions=groptions,
                         title_plural=_("Referenced Events"),
@@ -173,11 +148,6 @@ class SourceProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-
-        if self.config.get("options.global.media-bar-display-mode"):
-            css = self.active_profile.get_css_style()
-            bar = GrampsMediaBarGroup(grstate, None, source, css=css)
-            if bar.total:
-                vbox.pack_start(bar, False, False, 0)
+        self.add_media_bar(vbox, source)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()

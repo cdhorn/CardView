@@ -51,15 +51,10 @@ from ..frames.frame_child import ChildGrampsFrame
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions, GrampsState
+from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_const import _LEFT_BUTTON
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_utils import button_activated
-from ..groups.group_utils import (
-    get_citations_group,
-    get_notes_group,
-    get_urls_group,
-)
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -80,12 +75,14 @@ class ChildRefProfilePage(BaseProfilePage):
         self.colors = None
         self.active_profile = None
 
+    @property
     def obj_type(self):
         """
         Primary object page focused on.
         """
         return "Person"
 
+    @property
     def page_type(self):
         """
         Page type.
@@ -96,19 +93,16 @@ class ChildRefProfilePage(BaseProfilePage):
         """
         Define page actions.
         """
-        pass
 
     def enable_actions(self, uimanager, person):
         """
         Enable page actions.
         """
-        pass
 
     def disable_actions(self, uimanager):
         """
         Disable page actions.
         """
-        pass
 
     def render_page(self, header, vbox, person, secondary=None):
         """
@@ -119,22 +113,17 @@ class ChildRefProfilePage(BaseProfilePage):
         if not person or not secondary:
             return
 
-        family = self.dbstate.db.get_family_from_handle(secondary)
+        family = self.grstate.dbstate.db.get_family_from_handle(secondary)
+
+        child_ref = None
         for child_ref in family.get_child_ref_list():
             if child_ref.ref == person.get_handle():
                 break
 
-        grstate = GrampsState(
-            self.dbstate,
-            self.uistate,
-            self.callbacks,
-            self.config,
-            self.page_type().lower(),
-        )
         groptions = GrampsOptions("options.active.family")
         groptions.set_vertical(False)
         family_frame = CoupleGrampsFrame(
-            grstate,
+            self.grstate,
             groptions,
             family,
         )
@@ -142,7 +131,7 @@ class ChildRefProfilePage(BaseProfilePage):
         groptions.set_backlink(family.get_handle())
         groptions.set_ref_mode(1)
         self.active_profile = ChildGrampsFrame(
-            grstate,
+            self.grstate,
             groptions,
             person,
             child_ref,
@@ -154,16 +143,7 @@ class ChildRefProfilePage(BaseProfilePage):
         groups = self.config.get("options.page.childref.layout.groups").split(
             ","
         )
-        obj_groups = {}
-
-        if "citation" in groups:
-            obj_groups.update(
-                {"citation": get_citations_group(grstate, child_ref)}
-            )
-        if "url" in groups:
-            obj_groups.update({"url": get_urls_group(grstate, child_ref)})
-        if "note" in groups:
-            obj_groups.update({"note": get_notes_group(grstate, child_ref)})
+        obj_groups = self.get_object_groups(groups, child_ref)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
@@ -175,30 +155,30 @@ class ChildRefProfilePage(BaseProfilePage):
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
 
-    def reorder_button_press(self, obj, event, handle):
+    def reorder_button_press(self, obj, event, _dummy_handle):
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
-    def reorder(self, *obj):
+    def reorder(self, *_dummy_obj):
         if self.active_profile:
             try:
                 Reorder(
-                    self.dbstate,
-                    self.uistate,
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
                     [],
                     self.active_profile.obj.get_handle(),
                 )
             except WindowActiveError:
                 pass
 
-    def add_spouse(self, *obj):
+    def add_spouse(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_spouse()
 
-    def select_parents(self, *obj):
+    def select_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_existing_parents()
 
-    def add_parents(self, *obj):
+    def add_parents(self, *_dummy_obj):
         if self.active_profile:
             self.active_profile.add_new_parents()

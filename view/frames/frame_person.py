@@ -194,11 +194,11 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
                     if option[1] == "Death" and self.living:
                         show_age = self.get_option("show-age")
                         if extra:
-                            self.extra_grid.add_living(
+                            self.widgets["extra"].add_living(
                                 have_birth, show_age=show_age
                             )
                         else:
-                            self.facts_grid.add_living(
+                            self.widgets["facts"].add_living(
                                 have_birth, show_age=show_age
                             )
                     else:
