@@ -91,26 +91,32 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         )
         GrampsConfig.__init__(self, grstate, groptions)
 
-    def load(self, obj, obj_type):
+    def load(self, obj, obj_type, gramps_id=None):
         """
         Load the id field as needed for the given object.
         """
         if hasattr(obj, "gramps_id"):
-            self.add_gramps_id(obj)
+            self.add_gramps_id(obj=obj)
+        elif gramps_id:
+            self.add_gramps_id(gramps_id=gramps_id)
         if hasattr(obj, "handle"):
             self.add_bookmark_indicator(obj, obj_type)
         elif "Ref" in obj_type:
             pack_icon(self, "stock_link")
         self.add_privacy_indicator(obj)
 
-    def add_gramps_id(self, obj):
+    def add_gramps_id(self, obj=None, gramps_id=""):
         """
         Add the gramps id if needed.
         """
         if self.grstate.config.get("options.global.enable-gramps-ids"):
+            if obj:
+                text = obj.gramps_id
+            else:
+                text = gramps_id
             label = Gtk.Label(
                 use_markup=True,
-                label=self.markup.format(escape(obj.gramps_id)),
+                label=self.markup.format(escape(text)),
             )
             self.pack_end(label, False, False, 0)
 

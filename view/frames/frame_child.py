@@ -93,7 +93,9 @@ class ChildGrampsFrame(PersonGrampsFrame):
             obj_ref=child_ref,
         )
         self.dnd_drop_ref_targets = []
-        self.ref_widgets["id"].load(child_ref, "ChildRef")
+        self.ref_widgets["id"].load(
+            child_ref, "ChildRef", gramps_id=self.primary.obj.get_gramps_id()
+        )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         if child_ref.get_father_relation():

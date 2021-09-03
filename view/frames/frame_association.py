@@ -95,7 +95,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         )
         self.base_person = person
         self.dnd_drop_ref_targets = []
-        self.ref_widgets["id"].load(person_ref, "PersonRef")
+        self.ref_widgets["id"].load(
+            person_ref, "PersonRef", gramps_id=self.ref_person.get_gramps_id()
+        )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         association = person_ref.get_relation()

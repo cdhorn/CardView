@@ -116,7 +116,9 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 self.add_fact(self.make_label(address.phone))
 
         if repo_ref:
-            self.ref_widgets["id"].load(repo_ref, "RepoRef")
+            self.ref_widgets["id"].load(
+                repo_ref, "RepoRef", gramps_id=repository.get_gramps_id()
+            )
             vbox = Gtk.VBox()
             if self.get_option("show-call-number"):
                 if repo_ref.call_number:
