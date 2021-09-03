@@ -698,12 +698,16 @@ class GrampsFrame(GrampsFrameView):
             self.grstate.config.get("options.global.include-child-notes")
             and not no_children
         ):
-            note_list = []
+            handle_list = []
             for child_obj in obj.get_note_child_list():
                 for handle in child_obj.get_note_list():
-                    note = self.fetch("Note", handle)
-                    text = note_option_text(note)
-                    note_list.append((text, note))
+                    if handle not in handle_list:
+                        handle_list.append(handle)
+            note_list = []
+            for handle in handle_list:
+                note = self.fetch("Note", handle)
+                text = note_option_text(note)
+                note_list.append((text, note))
             if len(note_list) > 0:
                 menu.add(Gtk.SeparatorMenuItem())
                 menu.add(Gtk.SeparatorMenuItem())
