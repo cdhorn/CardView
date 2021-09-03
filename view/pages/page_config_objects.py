@@ -75,6 +75,7 @@ class ConfigNotebook(Gtk.Notebook):
 
     def __init__(self, vexpand=True, hexpand=True):
         Gtk.Notebook.__init__(self, vexpand=vexpand, hexpand=hexpand)
+        self.set_tab_pos(Gtk.PositionType.LEFT)
         self.deferred_pages = {}
         self.rendered_pages = []
         self.connect("switch-page", self.handle_page_switch)
@@ -106,64 +107,70 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
     Builds a person options section for the configuration dialog
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    grid1 = create_grid()
+    configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
     configdialog.add_combo(
-        grid,
+        grid1,
         _("Event display format"),
         1,
         "{}.{}.event-format".format(space, person),
         EVENT_DISPLAY_MODES,
     )
     configdialog.add_checkbox(
-        grid,
+        grid1,
         _("Show age at death and if selected burial or if living"),
-        1,
+        2,
         "{}.{}.show-age".format(space, person),
-        start=3,
     )
     configdialog.add_combo(
-        grid,
+        grid1,
         _("Sex display mode"),
-        2,
+        3,
         "{}.{}.sex-mode".format(space, person),
         SEX_DISPLAY_MODES,
     )
     configdialog.add_combo(
-        grid,
+        grid1,
         _("Image display mode"),
-        3,
+        4,
         "{}.{}.image-mode".format(space, person),
         IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.{}".format(space, person), grid, 4)
-    configdialog.add_text(grid, _("Primary Fact Group"), 8, bold=True)
-    config_facts_fields(configdialog, grstate, space, person, grid, 9)
-    if extra:
-        configdialog.add_text(
-            grid, _("Secondary Fact Group"), 8, start=3, bold=True
-        )
-        config_facts_fields(
-            configdialog,
-            grstate,
-            space,
-            person,
-            grid,
-            9,
-            start_col=3,
-            key="extra-field",
-        )
-    configdialog.add_text(grid, _("Attributes Group"), 8, start=5, bold=True)
+    config_tag_fields(configdialog, "{}.{}".format(space, person), grid1, 5)
+    grid.attach(grid1, 0, 0, 1, 1)
+
+    grid2A = create_grid()
+    configdialog.add_text(grid2A, _("Primary Fact Group"), 0, bold=True)
+    config_facts_fields(configdialog, grstate, space, person, grid2A, 1)
+    grid.attach(grid2A, 0, 1, 1, 1)
+
+    grid2B = create_grid()
+    configdialog.add_text(grid2B, _("Attributes Group"), 0, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         person,
-        grid,
-        9,
-        start_col=5,
+        grid2B,
+        1,
         mode="fact",
         key="attributes-field",
     )
+    grid.attach(grid2B, 1, 1, 1, 1)
+
+    grid3 = create_grid()
+    if extra:
+        configdialog.add_text(grid3, _("Secondary Fact Group"), 0, bold=True)
+        config_facts_fields(
+            configdialog,
+            grstate,
+            space,
+            person,
+            grid3,
+            1,
+            key="extra-field",
+        )
+    grid.attach(grid3, 0, 2, 1, 1)
     return add_config_reset(
         configdialog, grstate, "{}.{}".format(space, person), grid
     )
@@ -174,84 +181,89 @@ def build_family_grid(configdialog, grstate, space, extra=False):
     Builds a family options section for the configuration dialog
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    grid1 = create_grid()
+    configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
     configdialog.add_combo(
-        grid,
+        grid1,
         _("Event display format"),
         1,
         "{}.family.event-format".format(space),
         EVENT_DISPLAY_MODES,
     )
     configdialog.add_checkbox(
-        grid,
+        grid1,
         _("Show years married at divorce and if selected annulment"),
-        1,
+        2,
         "{}.family.show-years".format(space),
-        start=3,
     )
     configdialog.add_combo(
-        grid,
+        grid1,
         _("Image display mode"),
-        2,
+        3,
         "{}.family.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
+    config_tag_fields(configdialog, "{}.family".format(space), grid1, 4)
     if "group" in space:
         configdialog.add_checkbox(
-            grid,
+            grid1,
             _("When on person page only show the spouse in family groups"),
-            2,
+            6,
             "{}.family.show-spouse-only".format(space),
-            start=3,
         )
-    config_tag_fields(configdialog, "{}.family".format(space), grid, 4)
     configdialog.add_checkbox(
-        grid,
+        grid1,
         _("Matrilineal mode, display female partner first"),
-        6,
+        7,
         "{}.family.show-matrilineal".format(space),
         start=1,
     )
-    configdialog.add_text(grid, _("Primary Fact Group"), 8, bold=True)
+    grid.attach(grid1, 0, 0, 1, 1)
+
+    grid2A = create_grid()
+    configdialog.add_text(grid2A, _("Primary Fact Group"), 0, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         "family",
-        grid,
-        9,
+        grid2A,
+        1,
         mode="event",
         obj_type="Family",
     )
+    grid.attach(grid2A, 0, 1, 1, 1)
+
+    grid2B = create_grid()
+    configdialog.add_text(grid2B, _("Attributes Group"), 0, bold=True)
+    config_facts_fields(
+        configdialog,
+        grstate,
+        space,
+        "family",
+        grid2B,
+        1,
+        mode="fact",
+        key="attributes-field",
+        obj_type="Family",
+    )
+    grid.attach(grid2B, 1, 1, 1, 1)
+
+    grid3 = create_grid()
     if "active" in space:
-        configdialog.add_text(
-            grid, _("Secondary Fact Group"), 8, start=3, bold=True
-        )
+        configdialog.add_text(grid3, _("Secondary Fact Group"), 0, bold=True)
         config_facts_fields(
             configdialog,
             grstate,
             space,
             "family",
-            grid,
-            9,
-            start_col=3,
+            grid3,
+            1,
             mode="event",
             key="extra-field",
             obj_type="Family",
         )
-    configdialog.add_text(grid, _("Attributes Group"), 8, start=5, bold=True)
-    config_facts_fields(
-        configdialog,
-        grstate,
-        space,
-        "family",
-        grid,
-        9,
-        start_col=5,
-        mode="fact",
-        key="attributes-field",
-        obj_type="Family",
-    )
+    grid.attach(grid3, 0, 2, 1, 1)
     return add_config_reset(
         configdialog, grstate, "{}.family".format(space), grid
     )

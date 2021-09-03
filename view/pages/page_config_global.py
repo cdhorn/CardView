@@ -296,7 +296,7 @@ def build_global_grid(configdialog, grstate):
         tooltip=_("Indicates whether to enable urls indicator."),
     )
 
-    grid.attach(grid1, 0, 0, 1, 1)
+    grid.attach(grid1, 0, 0, 1, 2)
     grid.attach(grid2, 1, 0, 1, 1)
-    grid.attach(grid3, 2, 0, 1, 1)
+    grid.attach(grid3, 1, 1, 1, 1)
     return add_config_reset(configdialog, grstate, "options.global", grid)

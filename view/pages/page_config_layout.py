@@ -44,7 +44,7 @@ from gramps.gui.ddtargets import DdTargets
 # ------------------------------------------------------------------------
 from ..frames.frame_utils import ConfigReset
 from .page_const import LABELS, PAGES
-from .page_utils import create_grid
+from .page_utils import create_grid, make_scrollable
 
 _ = glocale.translation.sgettext
 
@@ -56,10 +56,11 @@ def build_layout_grid(configdialog, grstate):
     grid = create_grid()
     vbox = Gtk.VBox()
     notebook = Gtk.Notebook(vexpand=True, hexpand=True)
+    notebook.set_tab_pos(Gtk.PositionType.LEFT)
     for tab in PAGES:
         page = ProfilePageLayout(configdialog, grstate, tab)
         label = Gtk.Label(label=tab[1])
-        notebook.append_page(page, tab_label=label)
+        notebook.append_page(make_scrollable(page), tab_label=label)
     vbox.add(notebook)
     grid.add(vbox)
     return grid
@@ -129,8 +130,6 @@ class ProfilePageLayout(Gtk.VBox):
         bbox.pack_start(self.undo, False, False, 0)
         box.pack_start(bbox, False, False, 0)
         defaults = ConfigReset(self.configdialog, self.grstate, self.space)
-        #        defaults = Gtk.Button(label=_("Defaults"))
-        #        defaults.connect("clicked", self.apply_defaults)
         box.pack_end(defaults, False, False, 0)
         self.pack_end(box, False, False, 0)
         self.show_all()

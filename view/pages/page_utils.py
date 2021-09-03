@@ -64,6 +64,8 @@ def create_grid():
         column_spacing=6,
         column_homogeneous=False,
         margin_bottom=12,
+        hexpand=False,
+        vexpand=False,
     )
     return grid
 
@@ -76,7 +78,7 @@ def add_config_reset(configdialog, grstate, space, grid):
     vbox.pack_start(grid, True, True, 0)
     reset = ConfigReset(configdialog, grstate, space)
     vbox.pack_end(reset, False, False, 0)
-    return vbox
+    return make_scrollable(vbox)
 
 
 def config_facts_fields(
@@ -205,3 +207,18 @@ def config_tag_fields(configdialog, space, grid, start_row):
         "{}.tag-width".format(space),
         (1, 20),
     )
+
+
+def make_scrollable(
+    widget, hexpand=True, vexpand=True, placement=Gtk.CornerType.BOTTOM_LEFT
+):
+    """
+    Make configuration widget scrollable.
+    """
+    viewport = Gtk.Viewport()
+    viewport.add(widget)
+    scroll = Gtk.ScrolledWindow(hexpand=hexpand, vexpand=vexpand)
+    scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+    scroll.set_placement(placement)
+    scroll.add(viewport)
+    return scroll

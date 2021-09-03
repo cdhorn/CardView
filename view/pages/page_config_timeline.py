@@ -480,10 +480,10 @@ def build_person_timeline_grid(configdialog, grstate):
         ),
     )
     grid = Gtk.Grid()
-    grid.attach(grid1, 0, 0, 1, 1)
+    grid.attach(grid1, 0, 0, 1, 2)
     grid.attach(grid2, 1, 0, 1, 1)
-    grid.attach(grid3, 2, 0, 1, 1)
-    grid.attach(grid4, 3, 0, 1, 1)
+    grid.attach(grid3, 1, 1, 1, 1)
+    grid.attach(grid4, 1, 2, 1, 1)
     return add_config_reset(
         configdialog, grstate, "options.timeline.person", grid
     )
