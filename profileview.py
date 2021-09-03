@@ -260,6 +260,7 @@ class ProfileView(ExtendedNavigationView):
         """
         Redraw if configuration option changed.
         """
+        self.dirty = True
         self.redraw()
 
     def _get_configure_page_funcs(self):
