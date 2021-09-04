@@ -211,7 +211,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Prepare a normal layout when no reference present.
         """
         self.frame.add(self.widgets["body"])
-        if self.primary.obj_type == "Family":
+        if self.primary.obj_type == "Family" and not self.secondary:
             self.add(self.frame)
         else:
             self.eventbox.add(self.frame)
