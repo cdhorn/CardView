@@ -33,6 +33,7 @@ __all__ = [
     "group_media",
     "group_names",
     "group_notes",
+    "group_ordinances",
     "group_repositories",
     "group_sources",
     "group_timeline",

@@ -33,6 +33,7 @@ __all__ = [
     "page_name",
     "page_note",
     "page_options",
+    "page_ordinance",
     "page_person",
     "page_person_ref",
     "page_place",

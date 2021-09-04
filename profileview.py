@@ -66,6 +66,7 @@ from view.pages.page_media import MediaProfilePage
 from view.pages.page_name import NameProfilePage
 from view.pages.page_note import NoteProfilePage
 from view.pages.page_options import CONFIGSETTINGS
+from view.pages.page_ordinance import LDSOrdinanceProfilePage
 from view.pages.page_person import PersonProfilePage
 from view.pages.page_person_ref import PersonRefProfilePage
 from view.pages.page_place import PlaceProfilePage
@@ -196,6 +197,7 @@ class ProfileView(ExtendedNavigationView):
             CitationProfilePage,
             EventProfilePage,
             FamilyProfilePage,
+            LDSOrdinanceProfilePage,
             MediaProfilePage,
             NameProfilePage,
             NoteProfilePage,

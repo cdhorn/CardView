@@ -39,6 +39,7 @@ from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
+from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
 from ..frames.frame_utils import get_gramps_object_type, get_key_person_events
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 from .group_list import GrampsFrameGroupList
@@ -107,7 +108,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             if key_events["birth"] and key_events["birth"].date:
                 self.groptions.set_age_base(key_events["birth"].date)
 
-        self.extract_objects(timeline)
+        timeline = self.extract_objects(timeline)
 
         timeline.sort(key=lambda x: x[0])
         for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
@@ -166,6 +167,15 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                         item,
                     )
                 )
+            elif timeline_obj_type == "ldsord":
+                self.add_frame(
+                    LDSOrdinanceGrampsFrame(
+                        grstate,
+                        groptions,
+                        timeline_obj,
+                        item,
+                    )
+                )
         self.show_all()
 
     def prepare_options(self):
@@ -193,12 +203,15 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         """
         if self.get_option("include-addresses"):
             timeline = timeline + self.extract_object_type("addresses")
-        if self.get_option("include-names"):
-            timeline = timeline + self.extract_object_type("names")
-        if self.get_option("include-media"):
-            timeline = timeline + self.extract_object_type("media")
         if self.get_option("include-citations"):
             timeline = timeline + self.extract_object_type("citations")
+        if self.get_option("include-media"):
+            timeline = timeline + self.extract_object_type("media")
+        if self.get_option("include-names"):
+            timeline = timeline + self.extract_object_type("names")
+        if self.get_option("include-ldsords"):
+            timeline = timeline + self.extract_object_type("ldsords")
+        return timeline
 
     def extract_object_type(self, extract_type):
         """
@@ -212,6 +225,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             extract = self.extract_media
         elif extract_type == "citations":
             extract = self.extract_citations
+        elif extract_type == "ldsords":
+            extract = extract_ordinances
 
         obj_list = []
         if self.obj_type == "Person":
@@ -229,20 +244,6 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                     obj_list = obj_list + extract(child)
         return obj_list
 
-    def extract_media(self, obj):
-        """
-        Return list of media items with a date value.
-        """
-        media = []
-        for media_ref in obj.get_media_list():
-            item = self.fetch("Media", media_ref.ref)
-            date = item.get_date_object()
-            if date and date.is_valid() and date.get_sort_value():
-                media.append(
-                    (date.get_sort_value(), "media", obj, (item, media_ref))
-                )
-        return media
-
     def extract_citations(self, obj):
         """
         Return list of citations with a date value.
@@ -256,6 +257,20 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                     (date.get_sort_value(), "citation", obj, citation)
                 )
         return citations
+
+    def extract_media(self, obj):
+        """
+        Return list of media items with a date value.
+        """
+        media = []
+        for media_ref in obj.get_media_list():
+            item = self.fetch("Media", media_ref.ref)
+            date = item.get_date_object()
+            if date and date.is_valid() and date.get_sort_value():
+                media.append(
+                    (date.get_sort_value(), "media", obj, (item, media_ref))
+                )
+        return media
 
 
 def extract_addresses(obj):
@@ -280,3 +295,17 @@ def extract_names(obj):
         if date and date.is_valid() and date.get_sort_value():
             names.append((date.get_sort_value(), "name", obj, name))
     return names
+
+
+def extract_ordinances(obj):
+    """
+    Return list of ordinance items with a date value.
+    """
+    ordinances = []
+    for ordinance in obj.get_lds_ord_list():
+        date = ordinance.get_date_object()
+        if date and date.is_valid() and date.get_sort_value():
+            ordinances.append(
+                (date.get_sort_value(), "ldsord", obj, ordinance)
+            )
+    return ordinances

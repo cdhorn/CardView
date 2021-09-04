@@ -53,6 +53,7 @@ from .group_generic import GenericGrampsFrameGroup
 from .group_media import MediaGrampsFrameGroup
 from .group_names import NamesGrampsFrameGroup
 from .group_notes import NotesGrampsFrameGroup
+from .group_ordinances import LDSOrdinancesGrampsFrameGroup
 from .group_repositories import RepositoriesGrampsFrameGroup
 from .group_sources import SourcesGrampsFrameGroup
 from .group_timeline import TimelineGrampsFrameGroup
@@ -466,6 +467,24 @@ def get_urls_group(
         groptions,
         obj,
         UrlsGrampsFrameGroup,
+        title_plural,
+        title_single,
+        expanded=True,
+    )
+
+
+def get_ordinances_group(
+    grstate, obj, title_plural=_("Ordinances"), title_single=_("Ordinance")
+):
+    """
+    Get the group of ordinances associated with an object.
+    """
+    groptions = GrampsOptions("options.group.ldsord")
+    return get_generic_group(
+        grstate,
+        groptions,
+        obj,
+        LDSOrdinancesGrampsFrameGroup,
         title_plural,
         title_single,
         expanded=True,

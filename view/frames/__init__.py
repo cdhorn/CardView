@@ -36,6 +36,7 @@ __all__ = [
     "frame_name",
     "frame_note",
     "frame_note_url",
+    "frame_ordinance",
     "frame_person",
     "frame_place",
     "frame_repository",

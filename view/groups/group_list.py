@@ -83,11 +83,12 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
             if self.managed_obj_type is None and self.dnd_type is None:
                 self.managed_obj_type = gramps_frame.focus.obj_type
                 self.dnd_type = gramps_frame.focus.dnd_type
-                self.drag_dest_set(
-                    Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
-                    [self.dnd_type.target()],
-                    Gdk.DragAction.COPY | Gdk.DragAction.MOVE,
-                )
+                if self.dnd_type:
+                    self.drag_dest_set(
+                        Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
+                        [self.dnd_type.target()],
+                        Gdk.DragAction.COPY | Gdk.DragAction.MOVE,
+                    )
             self.row_frames.append(gramps_frame)
             row = Gtk.ListBoxRow(selectable=False)
             row.add(self.row_frames[-1])
