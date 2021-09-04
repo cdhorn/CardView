@@ -87,28 +87,13 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
         return "LdsOrd"
 
     def define_actions(self, view):
-        self.order_action = ActionGroup(name="ChangeOrder")
-        self.order_action.add_actions([("ChangeOrder", self.reorder)])
-
-        self.family_action = ActionGroup(name="Family")
-        self.family_action.add_actions(
-            [
-                ("AddSpouse", self.add_spouse),
-                ("AddParents", self.add_parents),
-                ("ShareFamily", self.select_parents),
-            ]
-        )
-
-        view._add_action_group(self.order_action)
-        view._add_action_group(self.family_action)
+        return
 
     def enable_actions(self, uimanager, person):
-        uimanager.set_actions_visible(self.family_action, True)
-        uimanager.set_actions_visible(self.order_action, True)
+        return
 
     def disable_actions(self, uimanager):
-        uimanager.set_actions_visible(self.family_action, False)
-        uimanager.set_actions_visible(self.order_action, False)
+        return
 
     def render_page(self, header, vbox, primary, secondary=None):
         list(map(header.remove, header.get_children()))
@@ -150,38 +135,4 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
         self.child = body
         vbox.pack_start(self.child, True, True, 0)
         vbox.show_all()
-
-        family_handle_list = person.get_parent_family_handle_list()
-        self.reorder_sensitive = len(family_handle_list) > 1
-        family_handle_list = person.get_family_handle_list()
-        if not self.reorder_sensitive:
-            self.reorder_sensitive = len(family_handle_list) > 1
         return
-
-    def reorder_button_press(self, obj, event, _dummy_handle):
-        if button_activated(event, _LEFT_BUTTON):
-            self.reorder(obj)
-
-    def reorder(self, *_dummy_obj):
-        if self.active_profile:
-            try:
-                Reorder(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.active_profile.obj.get_handle(),
-                )
-            except WindowActiveError:
-                pass
-
-    def add_spouse(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_spouse()
-
-    def select_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_parents()
