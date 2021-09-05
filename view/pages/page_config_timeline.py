@@ -49,6 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from .page_const import (
     IMAGE_DISPLAY_MODES,
+    REF_DISPLAY_MODES,
     TAG_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )
@@ -91,10 +92,17 @@ def build_person_timeline_grid(configdialog, grstate):
         "options.timeline.person.image-mode",
         IMAGE_DISPLAY_MODES,
     )
+    configdialog.add_combo(
+        grid1,
+        _("Reference display mode"),
+        5,
+        "options.timeline.person.reference-mode",
+        REF_DISPLAY_MODES,
+    )
     configdialog.add_checkbox(
         grid1,
         _("Show year and age"),
-        5,
+        6,
         "options.timeline.person.show-age",
         tooltip=_(
             "Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated."
@@ -103,7 +111,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated media items"),
-        6,
+        7,
         "options.timeline.person.include-media",
         tooltip=_(
             "Enabling this option will include media items if they have a valid date set."
@@ -112,7 +120,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated names"),
-        7,
+        8,
         "options.timeline.person.include-names",
         tooltip=_(
             "Enabling this option will include names if they have a valid date set."
@@ -121,7 +129,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated addresses"),
-        8,
+        9,
         "options.timeline.person.include-addresses",
         tooltip=_(
             "Enabling this option will include addresses if they have a valid date."
@@ -130,7 +138,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated ordinances"),
-        9,
+        10,
         "options.timeline.person.include-ldsords",
         tooltip=_(
             "Enabling this option will include LDS ordinances if they have a valid date."
@@ -139,17 +147,17 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated citations"),
-        10,
+        11,
         "options.timeline.person.include-citations",
         tooltip=_(
             "Enabling this option will include citations if they have a valid date."
         ),
     )
-    configdialog.add_text(grid1, _("Display Attributes"), 11, bold=True)
+    configdialog.add_text(grid1, _("Display Attributes"), 12, bold=True)
     configdialog.add_checkbox(
         grid1,
         _("Show role always not just secondary events"),
-        12,
+        13,
         "options.timeline.person.show-role-always",
         tooltip=_(
             "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
@@ -158,7 +166,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show description"),
-        13,
+        14,
         "options.timeline.person.show-description",
         tooltip=_(
             "Enabling this option will show the event description if one is available."
@@ -167,7 +175,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show registered participants if more than one person"),
-        14,
+        15,
         "options.timeline.person.show-participants",
         tooltip=_(
             "Enabling this option will show the other participants in shared events."
@@ -176,7 +184,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show source count"),
-        15,
+        16,
         "options.timeline.person.show-source-count",
         tooltip=_(
             "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
@@ -185,7 +193,7 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show citation count"),
-        16,
+        17,
         "options.timeline.person.show-citation-count",
         tooltip=_(
             "Enabling this option will include a count of the number of citations in support of the information about the event."
@@ -194,20 +202,20 @@ def build_person_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show best confidence rating"),
-        17,
+        18,
         "options.timeline.person.show-best-confidence",
         tooltip=_(
             "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
         ),
     )
-    configdialog.add_text(grid1, _("Attributes Group"), 18, start=1, bold=True)
+    configdialog.add_text(grid1, _("Attributes Group"), 19, start=1, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         "options.timeline",
         "person",
         grid1,
-        19,
+        20,
         start_col=1,
         number=4,
         mode="fact",
@@ -532,10 +540,17 @@ def build_family_timeline_grid(configdialog, grstate):
         "options.timeline.family.image-mode",
         IMAGE_DISPLAY_MODES,
     )
+    configdialog.add_combo(
+        grid1,
+        _("Reference display mode"),
+        5,
+        "options.timeline.family.reference-mode",
+        REF_DISPLAY_MODES,
+    )
     configdialog.add_checkbox(
         grid1,
         _("Show year and age"),
-        5,
+        6,
         "options.timeline.family.show-age",
         tooltip=_(
             "Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated."
@@ -544,7 +559,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated media items"),
-        6,
+        7,
         "options.timeline.family.include-media",
         tooltip=_(
             "Enabling this option will include media items if they have a valid date set."
@@ -553,7 +568,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated names"),
-        7,
+        8,
         "options.timeline.family.include-names",
         tooltip=_(
             "Enabling this option will include names if they have a valid date set."
@@ -562,7 +577,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated addresses"),
-        8,
+        9,
         "options.timeline.family.include-addresses",
         tooltip=_(
             "Enabling this option will include addresses if they have a valid date."
@@ -571,7 +586,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated ordinances"),
-        9,
+        10,
         "options.timeline.family.include-ldsords",
         tooltip=_(
             "Enabling this option will include LDS ordinances if they have a valid date."
@@ -580,17 +595,17 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include dated citations"),
-        10,
+        11,
         "options.timeline.family.include-citations",
         tooltip=_(
             "Enabling this option will include citations if they have a valid date."
         ),
     )
-    configdialog.add_text(grid1, _("Display Attributes"), 11, bold=True)
+    configdialog.add_text(grid1, _("Display Attributes"), 12, bold=True)
     configdialog.add_checkbox(
         grid1,
         _("Show role always not just secondary events"),
-        12,
+        13,
         "options.timeline.family.show-role-always",
         tooltip=_(
             "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
@@ -599,7 +614,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show description"),
-        13,
+        14,
         "options.timeline.family.show-description",
         tooltip=_(
             "Enabling this option will show the event description if one is available."
@@ -608,7 +623,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show registered participants if more than one person"),
-        14,
+        15,
         "options.timeline.family.show-participants",
         tooltip=_(
             "Enabling this option will show the other participants in shared events."
@@ -617,7 +632,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show source count"),
-        15,
+        16,
         "options.timeline.family.show-source-count",
         tooltip=_(
             "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
@@ -626,7 +641,7 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show citation count"),
-        16,
+        17,
         "options.timeline.family.show-citation-count",
         tooltip=_(
             "Enabling this option will include a count of the number of citations in support of the information about the event."
@@ -635,20 +650,20 @@ def build_family_timeline_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Show best confidence rating"),
-        17,
+        18,
         "options.timeline.family.show-best-confidence",
         tooltip=_(
             "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
         ),
     )
-    configdialog.add_text(grid1, _("Attributes Group"), 18, start=1, bold=True)
+    configdialog.add_text(grid1, _("Attributes Group"), 19, start=1, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         "options.timeline",
         "family",
         grid1,
-        19,
+        20,
         start_col=1,
         number=4,
         mode="fact",

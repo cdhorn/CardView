@@ -109,6 +109,13 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 self.groptions.set_age_base(key_events["birth"].date)
 
         timeline = self.extract_objects(timeline)
+        groptions.set_ref_mode(
+            self.grstate.config.get(
+                "options.timeline.{}.reference-mode".format(
+                    self.obj_type.lower()
+                )
+            )
+        )
 
         timeline.sort(key=lambda x: x[0])
         for (sortval, timeline_obj_type, timeline_obj, item) in timeline:

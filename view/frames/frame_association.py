@@ -100,11 +100,11 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
-        vbox = Gtk.VBox()
+        vbox = None
         association = person_ref.get_relation()
         if not association:
             association = _("[None Provided]")
-        if groptions.ref_mode == 2:
+        if groptions.ref_mode == 1:
             self.ref_widgets["body"].pack_start(
                 self.make_label(_("Association"), left=False), False, False, 0
             )
@@ -112,6 +112,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 self.make_label(association, left=False), False, False, 0
             )
         else:
+            vbox = Gtk.VBox()
             vbox.pack_start(
                 self.make_label(
                     "{}: {}".format(_("Association"), association)
@@ -125,7 +126,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             grstate.dbstate.db, person, self.ref_person
         )
         if relation:
-            if groptions.ref_mode == 2:
+            if groptions.ref_mode == 1:
                 self.ref_widgets["body"].pack_start(
                     self.make_label(_("Relationship"), left=False),
                     False,
@@ -149,7 +150,9 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                     True,
                     0,
                 )
-        self.ref_widgets["body"].pack_start(vbox, True, True, 0)
+
+        if vbox:
+            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
 
         if "indicators" in self.ref_widgets:
             if "active" in self.groptions.option_space:

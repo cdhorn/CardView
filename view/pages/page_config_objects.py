@@ -51,6 +51,7 @@ from .page_const import (
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
     MEDIA_IMAGE_DISPLAY_MODES,
+    REF_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
 )
 from .page_utils import (
@@ -137,6 +138,14 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         IMAGE_DISPLAY_MODES,
     )
     config_tag_fields(configdialog, "{}.{}".format(space, person), grid1, 5)
+    if person in ["child", "sibling", "association"]:
+        configdialog.add_combo(
+            grid1,
+            _("Reference display mode"),
+            7,
+            "{}.{}.reference-mode".format(space, person),
+            REF_DISPLAY_MODES,
+        )
     grid.attach(grid1, 0, 0, 1, 1)
 
     grid2A = create_grid()
@@ -542,6 +551,13 @@ def build_repository_grid(configdialog, grstate, space):
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
     config_tag_fields(configdialog, "{}.repository".format(space), grid, 1)
+    configdialog.add_combo(
+        grid,
+        _("Reference display mode"),
+        3,
+        "{}.repository.reference-mode".format(space),
+        REF_DISPLAY_MODES,
+    )
     configdialog.add_text(grid, _("Attributes"), 9, bold=True)
     configdialog.add_checkbox(
         grid,

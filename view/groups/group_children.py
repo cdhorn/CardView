@@ -79,6 +79,11 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                 groptions_copy.option_space = "options.group.{}".format(
                     context
                 )
+                groptions_copy.set_ref_mode(
+                    self.grstate.config.get(
+                        "options.group.{}.reference-mode".format(context)
+                    )
+                )
                 child_number = child_number + 1
                 if self.grstate.config.get(
                     "options.group.{}.number-children".format(context)

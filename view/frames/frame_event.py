@@ -278,6 +278,15 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 dnd_drop_targets=self.dnd_drop_ref_targets,
                 drag_data_received=self.drag_data_ref_received,
             )
+        else:
+            if groptions.ref_mode != 1:
+                list(
+                    map(
+                        self.ref_eventbox.remove,
+                        self.ref_eventbox.get_children(),
+                    )
+                )
+                self.set_spacing(0)
 
         self.enable_drag()
         self.enable_drop()

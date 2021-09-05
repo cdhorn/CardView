@@ -62,6 +62,9 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
+        groptions.set_ref_mode(
+            self.grstate.config.get("options.group.association.reference-mode")
+        )
         for person_ref in obj.get_person_ref_list():
             frame = AssociationGrampsFrame(
                 grstate,

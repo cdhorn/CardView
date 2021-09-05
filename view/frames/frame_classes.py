@@ -199,7 +199,7 @@ class GrampsOptions:
         self.option_space = option_space
         self.size_groups = size_groups
         self.frame_number = frame_number
-        self.ref_mode = 2
+        self.ref_mode = 1
         self.vertical_orientation = True
         self.backlink = None
         self.relation = None

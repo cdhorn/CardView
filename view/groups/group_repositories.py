@@ -81,6 +81,11 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
 
             groptions_copy = copy(groptions)
             groptions_copy.set_backlink(self.obj.get_handle())
+            groptions_copy.set_ref_mode(
+                self.grstate.config.get(
+                    "options.group.repository.reference-mode"
+                )
+            )
             for repository, repo_ref in repository_list:
                 frame = RepositoryGrampsFrame(
                     grstate,

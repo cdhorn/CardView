@@ -79,8 +79,6 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, repository, repo_ref=None):
-        if repo_ref:
-            groptions.set_ref_mode(1)
         PrimaryGrampsFrame.__init__(
             self, grstate, groptions, repository, repo_ref
         )

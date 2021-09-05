@@ -73,7 +73,7 @@ EVENT_DISPLAY_MODES = [
 ]
 
 IMAGE_DISPLAY_MODES = [
-    (0, _("No image displayed")),
+    (0, _("Not displayed")),
     (1, _("Small image on right")),
     (2, _("Large image on right")),
     (3, _("Small image on left")),
@@ -89,20 +89,20 @@ MEDIA_IMAGE_DISPLAY_MODES = [
 ]
 
 PRIVACY_DISPLAY_MODES = [
-    (0, _("No indicator displayed")),
+    (0, _("Not displayed")),
     (1, _("Only show state if private")),
     (2, _("Only show state if public")),
     (3, _("Always show state")),
 ]
 
 SEX_DISPLAY_MODES = [
-    (0, _("No indicator displayed")),
+    (0, _("Not displayed")),
     (1, _("Indicator to left of name")),
     (2, _("Indicator to right of name")),
 ]
 
 TAG_DISPLAY_MODES = [
-    (0, _("Disabled")),
+    (0, _("Not displayed")),
     (1, _("Show icons")),
     (2, _("Show tag names")),
     (3, _("Show tag names with color")),
@@ -114,6 +114,12 @@ TIMELINE_COLOR_MODES = [
     (2, _("Event role scheme")),
     (3, _("Event category scheme")),
     (4, _("Evidence confidence scheme")),
+]
+
+REF_DISPLAY_MODES = [
+    (0, _("Display on top")),
+    (1, _("Display on right")),
+    (2, _("Display on bottom")),
 ]
 
 # For layout editor

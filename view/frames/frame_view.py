@@ -146,7 +146,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.ref_eventbox = Gtk.EventBox()
         self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.ref_eventbox.add(self.ref_frame)
-        if self.groptions.ref_mode == 2:
+        if self.groptions.ref_mode == 1:
             self._prepare_horizontal_ref_layout()
         else:
             self._prepare_vertical_ref_layout()
@@ -184,10 +184,10 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Prepare a vertical reference layout, placing it on top or bottom.
         """
         self.set_spacing(3)
-        if self.groptions.ref_mode == 1:
+        if self.groptions.ref_mode == 0:
             self.pack_start(self.ref_eventbox, True, True, 0)
             self.pack_start(self.eventbox, True, True, 0)
-        elif self.groptions.ref_mode == 3:
+        elif self.groptions.ref_mode == 2:
             self.pack_start(self.eventbox, True, True, 0)
             self.pack_start(self.ref_eventbox, True, True, 0)
         ref_body = Gtk.HBox(hexpand=True, margin=3)

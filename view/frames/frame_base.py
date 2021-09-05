@@ -883,7 +883,7 @@ class GrampsFrame(GrampsFrameView):
             self.secondary
             and self.secondary.is_reference
             and self.ref_frame
-            and self.groptions.ref_mode != 2
+            and self.groptions.ref_mode != 1
         ):
             context = self.ref_frame.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
