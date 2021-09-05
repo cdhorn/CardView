@@ -627,11 +627,10 @@ class ProfileView(ExtendedNavigationView):
         except ValueError:
             return None
         if not obj_tuple or len(obj_tuple) != 2:
-            initial_person_handle = self.dbstate.db.find_initial_person()
-            if not initial_person_handle:
+            initial_person = self.dbstate.db.find_initial_person()
+            if not initial_person:
                 return None
-            initial_person = self.fetch_object("Person", initial_person_handle)
-            obj_tuple = ("Person", initial_person)
+            obj_tuple = ("Person", initial_person.get_handle())
         full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
         return full_tuple
 
