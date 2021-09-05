@@ -24,10 +24,17 @@ EventGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+import pickle
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -50,9 +57,11 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from .frame_primary import PrimaryGrampsFrame
 from .frame_utils import (
     TextLink,
+    button_activated,
     get_confidence,
     get_confidence_color_css,
     get_event_category_color_css,
@@ -91,7 +100,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         category=None,
         groups=None,
     ):
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, event)
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, event, event_ref)
         self.event = event
         self.event_ref = event_ref
         self.event_category = category
@@ -233,6 +242,51 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                     )
                 )
 
+        text = self.get_quality_text()
+        if text:
+            self.add_fact(self.make_label(text.lower().capitalize()))
+
+        if event_ref and self.role_type != "other" or self.event_family:
+            if "id" in self.ref_widgets:
+                self.ref_widgets["id"].load(
+                    event_ref, "EventRef", gramps_id=event.get_gramps_id()
+                )
+            self.ref_widgets["body"].pack_start(
+                self.make_label(str(role)), False, False, 0
+            )
+
+            if "indicators" in self.ref_widgets:
+                if "active" in self.groptions.option_space:
+                    size = 12
+                else:
+                    size = 5
+                self.ref_widgets["indicators"].load(
+                    event_ref, "EventRef", size=size
+                )
+
+            self.dnd_drop_ref_targets = []
+            self.ref_eventbox.connect(
+                "button-press-event", self.route_ref_action
+            )
+            self.enable_drag(
+                obj=self.secondary,
+                eventbox=self.ref_eventbox,
+                drag_data_get=self.drag_data_ref_get,
+            )
+            self.enable_drop(
+                eventbox=self.ref_eventbox,
+                dnd_drop_targets=self.dnd_drop_ref_targets,
+                drag_data_received=self.drag_data_ref_received,
+            )
+
+        self.enable_drag()
+        self.enable_drop()
+        self.set_css_style()
+
+    def get_quality_text(self):
+        """
+        Generate quality description string.
+        """
         source_text, citation_text, confidence_text = self.get_quality_labels()
         text = ""
         comma = ""
@@ -244,12 +298,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             comma = ", "
         if self.get_option("show-best-confidence") and confidence_text:
             text = "{}{}{}".format(text, comma, confidence_text)
-        if text:
-            self.add_fact(self.make_label(text.lower().capitalize()))
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
+        return text
 
     def get_quality_labels(self):
         """
@@ -351,7 +400,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         except WindowActiveError:
             pass
 
-    def update_person_event(self, event_ref, _dummy_var1):
+    def update_person_event(self, event_ref, *_dummy_var1):
         """
         Commit person to save an event reference update.
         """
@@ -367,7 +416,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.grstate.dbstate.db.commit_person(self.event_person, trans)
 
-    def update_family_event(self, event_ref, _dummy_var1):
+    def update_family_event(self, event_ref, *_dummy_var1):
         """
         Commit family to save an event reference update.
         """
@@ -593,3 +642,227 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 person.set_event_ref_list(new_list)
                 self.grstate.dbstate.db.commit_person(person, trans)
+
+    def drag_data_ref_get(
+        self, _dummy_widget, _dummy_context, data, info, _dummy_time
+    ):
+        """
+        Return requested data.
+        """
+        if info == self.secondary.dnd_type.app_id:
+            returned_data = (
+                self.secondary.dnd_type.drag_type,
+                id(self),
+                self.secondary.obj,
+                0,
+            )
+            data.set(
+                self.secondary.dnd_type.atom_drag_type,
+                8,
+                pickle.dumps(returned_data),
+            )
+
+    def drag_data_ref_received(
+        self,
+        _dummy_widget,
+        _dummy_context,
+        _dummy_x,
+        _dummy_y,
+        data,
+        _dummy_info,
+        _dummy_time,
+    ):
+        """
+        Handle dropped data.
+        """
+        if data and data.get_data():
+            try:
+                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
+                    data.get_data()
+                )
+            except pickle.UnpicklingError:
+                return self.dropped_ref_text(data.get_data().decode("utf-8"))
+            if id(self) == obj_id:
+                return
+            if DdTargets.NOTE_LINK.drag_type == dnd_type:
+                self.added_ref_note(obj_handle)
+
+    def dropped_ref_text(self, data):
+        """
+        Examine and try to handle dropped text in a reasonable manner.
+        """
+        if data and hasattr(self.secondary.obj, "note_list"):
+            self.add_new_ref_note(None, content=data)
+
+    def route_ref_action(self, obj, event):
+        """
+        Route the ref related action if the frame was clicked on.
+        """
+        if button_activated(event, _RIGHT_BUTTON):
+            self.build_ref_action_menu(obj, event)
+        elif not button_activated(event, _LEFT_BUTTON):
+            if self.event_ref.get_role().is_family():
+                participant = self.event_family
+                participant_type = "Family"
+            else:
+                participant = self.event_person
+                participant_type = "Person"
+            data = pickle.dumps(
+                (
+                    participant_type,
+                    participant,
+                    "EventRef",
+                    self.primary.obj.get_handle(),
+                )
+            )
+            return self.grstate.context_changed(self.secondary.obj_type, data)
+
+    def build_ref_action_menu(self, _dummy_obj, event):
+        """
+        Build the action menu for a right click on a reference object.
+        """
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
+            action_menu = Gtk.Menu()
+            action_menu.append(self._edit_event_ref_option())
+            action_menu.append(
+                self._notes_option(
+                    self.secondary.obj,
+                    self.add_new_ref_note,
+                    self.add_existing_ref_note,
+                    self.remove_ref_note,
+                    no_children=True,
+                )
+            )
+            action_menu.append(self._change_ref_privacy_option())
+            action_menu.add(Gtk.SeparatorMenuItem())
+            label = Gtk.MenuItem(
+                label="{} {}".format(_("Event"), _("reference"))
+            )
+            label.set_sensitive(False)
+            action_menu.append(label)
+
+            action_menu.show_all()
+            if Gtk.get_minor_version() >= 22:
+                action_menu.popup_at_pointer(event)
+            else:
+                action_menu.popup(
+                    None, None, None, None, event.button, event.time
+                )
+
+    def _edit_event_ref_option(self):
+        """
+        Build the edit option.
+        """
+        name = "{} {}".format(_("Edit"), _("reference"))
+        return menu_item("gtk-edit", name, self.edit_self)
+
+    def add_new_ref_note(self, _dummy_obj, content=None):
+        """
+        Add a new note.
+        """
+        note = Note()
+        if content:
+            note.set(content)
+        if self.event_ref.get_role().is_family():
+            callback = self.update_family_event
+        else:
+            callback = self.update_person_event
+        try:
+            EditNote(
+                self.grstate.dbstate, self.grstate.uistate, [], note, callback
+            )
+        except WindowActiveError:
+            pass
+
+    def added_ref_note(self, handle):
+        """
+        Add the new or existing note to the current object.
+        """
+        if handle and self.secondary.obj.add_note(handle):
+            if self.event_ref.get_role().is_family():
+                self.update_family_event(self.secondary.obj)
+            else:
+                self.update_person_event(self.secondary.obj)
+
+    def add_existing_ref_note(self, _dummy_obj):
+        """
+        Add an existing note.
+        """
+        select_note = SelectorFactory("Note")
+        selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
+        selection = selector.run()
+        if selection:
+            self.added_ref_note(selection.handle)
+
+    def remove_ref_note(self, _dummy_obj, note):
+        """
+        Remove the given note from the current object.
+        """
+        if not note:
+            return
+        text = note_option_text(note)
+        prefix = _(
+            "You are about to remove the following note from this object:"
+        )
+        extra = _("This removes the reference but does not delete the note.")
+        confirm = _("Are you sure you want to continue?")
+        if self.confirm_action(
+            _("Warning"),
+            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+        ):
+            action = "{} {} {} {} {} {}".format(
+                _("Removed"),
+                _("Note"),
+                note.get_gramps_id(),
+                _("from"),
+                _("EventRef"),
+                self.primary.obj.get_gramps_id(),
+            )
+            self.secondary.obj.remove_note(note.get_handle())
+            if self.event_ref.get_role().is_family():
+                with DbTxn(action, self.grstate.dbstate.db) as trans:
+                    self.grstate.dbstate.db.commit_family(
+                        self.event_family, trans
+                    )
+            else:
+                with DbTxn(action, self.grstate.dbstate.db) as trans:
+                    self.grstate.dbstate.db.commit_person(
+                        self.event_person, trans
+                    )
+
+    def _change_ref_privacy_option(self):
+        """
+        Build privacy option based on current object state.
+        """
+        if self.secondary.obj.private:
+            return menu_item(
+                "gramps-unlock",
+                _("Make public"),
+                self.change_ref_privacy,
+                False,
+            )
+        return menu_item(
+            "gramps-lock", _("Make private"), self.change_ref_privacy, True
+        )
+
+    def change_ref_privacy(self, _dummy_obj, mode):
+        """
+        Update the privacy indicator for the current object.
+        """
+        if mode:
+            text = _("Private")
+        else:
+            text = _("Public")
+        action = "{} {} {} {}".format(
+            _("Made"),
+            _("EventRef"),
+            self.primary.obj.get_gramps_id(),
+            text,
+        )
+        self.event_ref.set_privacy(mode)
+        if self.event_ref.get_role().is_family():
+            with DbTxn(action, self.grstate.dbstate.db) as trans:
+                self.grstate.dbstate.db.commit_family(self.event_family, trans)
+        else:
+            with DbTxn(action, self.grstate.dbstate.db) as trans:
+                self.grstate.dbstate.db.commit_person(self.event_person, trans)

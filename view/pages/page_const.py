@@ -147,6 +147,7 @@ PAGES = [
     ("ChildRef", _("ChildRef")),
     ("Citation", _("Citation")),
     ("Event", _("Event")),
+    ("EventRef", _("EventRef")),
     ("Family", _("Family")),
     ("LdsOrd", _("LdsOrd")),
     ("Media", _("Media")),

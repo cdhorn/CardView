@@ -98,6 +98,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
+        vbox = None
         if child_ref.get_father_relation():
             reltype = child_ref.get_father_relation()
             if groptions.ref_mode == 2:
@@ -108,7 +109,8 @@ class ChildGrampsFrame(PersonGrampsFrame):
                     self.make_label(str(reltype), left=False), False, False, 0
                 )
             else:
-                self.ref_widgets["body"].pack_start(
+                vbox = Gtk.VBox()
+                vbox.pack_start(
                     self.make_label("{}: {}".format(_("Father"), reltype)),
                     True,
                     True,
@@ -125,12 +127,17 @@ class ChildGrampsFrame(PersonGrampsFrame):
                     self.make_label(str(reltype), left=False), False, False, 0
                 )
             else:
-                self.ref_widgets["body"].pack_start(
+                if not vbox:
+                    vbox = Gtk.VBox()
+                vbox.pack_start(
                     self.make_label("{}: {}".format(_("Mother"), reltype)),
                     True,
                     True,
                     0,
                 )
+
+        if vbox:
+            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
 
         if "indicators" in self.ref_widgets:
             if "active" in self.groptions.option_space:

@@ -161,7 +161,9 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.frame.add(view_obj)
         self.add(self.frame)
 
-        self.ref_widgets["body"] = Gtk.VBox()
+        self.ref_widgets["body"] = Gtk.VBox(
+            halign=Gtk.Align.END, valign=Gtk.Align.START
+        )
         ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END, margin=3)
         if "ref" in self.groptions.size_groups:
             self.groptions.size_groups["ref"].add_widget(ref_body)
@@ -169,7 +171,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             self.ref_widgets["id"], expand=False, fill=False, padding=0
         )
         ref_body.pack_start(
-            self.ref_widgets["body"], expand=False, fill=False, padding=0
+            self.ref_widgets["body"], expand=True, fill=True, padding=0
         )
         ref_body.pack_end(
             self.ref_widgets["indicators"], expand=False, fill=False, padding=0
@@ -190,7 +192,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             self.pack_start(self.ref_eventbox, True, True, 0)
         ref_body = Gtk.HBox(hexpand=True, margin=3)
 
-        self.ref_widgets["body"] = Gtk.HBox()
+        self.ref_widgets["body"] = Gtk.HBox(halign=Gtk.Align.START)
         ref_body.pack_start(
             self.ref_widgets["body"], expand=True, fill=True, padding=0
         )
@@ -236,14 +238,16 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
                     self.widgets["age"]
                 )
 
-        fact_block = Gtk.VBox()
+        fact_block = Gtk.VBox(hexpand=True)
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(fact_block)
         self.widgets["body"].pack_start(
             fact_block, expand=True, fill=True, padding=0
         )
         fact_block.pack_start(
-            self.widgets["title"], expand=True, fill=True, padding=0
+            self.widgets["title"], expand=False, fill=False, padding=0
         )
-        fact_section = Gtk.HBox(valign=Gtk.Align.START)
+        fact_section = Gtk.HBox(hexpand=True, valign=Gtk.Align.START)
         fact_section.pack_start(
             self.widgets["facts"], expand=True, fill=True, padding=0
         )
@@ -253,22 +257,26 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
         if "tags" in self.widgets:
             fact_block.pack_end(
-                self.widgets["tags"], expand=True, fill=True, padding=0
+                self.widgets["tags"], expand=False, fill=False, padding=0
             )
 
-        attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=True)
-        self.widgets["body"].pack_start(
-            attribute_block, expand=True, fill=True, padding=0
+        attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=False)
+        if "attributes" in self.groptions.size_groups:
+            self.groptions.size_groups["attributes"].add_widget(
+                attribute_block
+            )
+        self.widgets["body"].pack_end(
+            attribute_block, expand=False, fill=False, padding=0
         )
         attribute_block.pack_start(
-            self.widgets["id"], expand=True, fill=True, padding=0
+            self.widgets["id"], expand=False, fill=False, padding=0
         )
         attribute_block.pack_start(
-            self.widgets["attributes"], expand=False, fill=False, padding=0
+            self.widgets["attributes"], expand=True, fill=True, padding=0
         )
         if "indicators" in self.widgets:
             attribute_block.pack_end(
-                self.widgets["indicators"], expand=True, fill=True, padding=0
+                self.widgets["indicators"], expand=False, fill=False, padding=0
             )
 
         if image_mode in [1, 2]:

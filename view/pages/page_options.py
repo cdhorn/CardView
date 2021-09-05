@@ -318,6 +318,21 @@ CONFIGSETTINGS = (
     ("options.page.event.layout.media.stacked", False),
     ("options.page.event.layout.media.hideable", False),
     ######################################################################
+    ## EventRef Page Options
+    ######################################################################
+    ("options.page.eventref.layout.tabbed", False),
+    ("options.page.eventref.layout.scrolled", False),
+    ("options.page.eventref.layout.groups", "note,url"),
+    ("options.page.eventref.layout.attribute.visible", True),
+    ("options.page.eventref.layout.attribute.stacked", False),
+    ("options.page.eventref.layout.attribute.hideable", False),
+    ("options.page.eventref.layout.note.visible", True),
+    ("options.page.eventref.layout.note.stacked", False),
+    ("options.page.eventref.layout.note.hideable", False),
+    ("options.page.eventref.layout.url.visible", True),
+    ("options.page.eventref.layout.url.stacked", False),
+    ("options.page.eventref.layout.url.hideable", False),
+    ######################################################################
     ## LdsOrd Page Options
     ######################################################################
     ("options.page.ldsord.layout.tabbed", False),
