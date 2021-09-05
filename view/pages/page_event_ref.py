@@ -111,7 +111,7 @@ class EventRefProfilePage(BaseProfilePage):
         event = self.grstate.fetch("Event", event_ref.ref)
 
         groptions = GrampsOptions("options.active.event")
-        groptions.set_ref_mode(3)
+        groptions.set_ref_mode(2)
         self.active_profile = EventGrampsFrame(
             self.grstate,
             groptions,

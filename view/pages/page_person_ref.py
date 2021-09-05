@@ -106,7 +106,7 @@ class PersonRefProfilePage(BaseProfilePage):
         groptions = GrampsOptions("options.active.person")
         person_frame = PersonGrampsFrame(self.grstate, groptions, person)
         groptions = GrampsOptions("options.active.association")
-        groptions.set_ref_mode(1)
+        groptions.set_ref_mode(0)
         self.active_profile = AssociationGrampsFrame(
             self.grstate,
             groptions,
