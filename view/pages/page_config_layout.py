@@ -42,7 +42,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_utils import ConfigReset
+from ..common.common_utils import ConfigReset
 from .page_const import LABELS, PAGES
 from .page_utils import create_grid, make_scrollable
 

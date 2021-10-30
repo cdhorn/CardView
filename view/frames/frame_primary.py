@@ -76,6 +76,13 @@ from gramps.gui.editors import (
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
+from ..common.common_utils import (
+    attribute_option_text,
+    get_bookmarks,
+    menu_item,
+    submenu_item,
+)
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -83,12 +90,6 @@ from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
 from .frame_selectors import get_attribute_types
-from .frame_utils import (
-    attribute_option_text,
-    get_bookmarks,
-    menu_item,
-    submenu_item,
-)
 from .frame_widgets import GrampsImage
 
 _ = glocale.translation.sgettext

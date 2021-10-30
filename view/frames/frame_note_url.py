@@ -44,14 +44,15 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import TextLink, button_activated
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_utils import TextLink, button_activated
 
 _ = glocale.translation.sgettext
 

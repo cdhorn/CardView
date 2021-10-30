@@ -50,12 +50,12 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions
-from ..frames.frame_const import _LEFT_BUTTON
+from ..common.common_classes import GrampsOptions
+from ..common.common_const import _LEFT_BUTTON
+from ..common.common_utils import button_activated, get_gramps_object_type
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_utils import button_activated, get_gramps_object_type
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
 

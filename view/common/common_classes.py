@@ -53,8 +53,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import GRAMPS_OBJECTS
-from .frame_utils import get_config_option
+from .common_const import GRAMPS_OBJECTS
+from .common_utils import get_config_option
 
 _ = glocale.translation.sgettext
 
@@ -76,7 +76,6 @@ class GrampsObject:
         "obj_lang",
         "dnd_type",
         "dnd_icon",
-        "is_reference",
     )
 
     def __init__(self, obj):
@@ -99,12 +98,19 @@ class GrampsObject:
 
         if not self.obj_type:
             raise AttributeError
-        self.is_reference = "Ref" in self.obj_type
 
     def __new__(cls, obj):
         if obj:
             return super().__new__(cls)
         return None
+
+    @property
+    def is_reference(self):
+        """
+        Return True if object is a reference.
+        """
+        reference = "Ref" in self.obj_type
+        return reference
 
     @property
     def obj_hash(self):
@@ -114,6 +120,65 @@ class GrampsObject:
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(self.obj.serialize()).encode("utf-8"))
         return sha256_hash.hexdigest()
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsNavigationContext class
+#
+# ------------------------------------------------------------------------
+class GrampsNavigationContext:
+    """
+    A simple class to encapsulate the Gramps navigation context.
+    """
+
+    __slots__ = (
+        "primary_obj",
+        "reference_obj",
+        "secondary_obj",
+    )
+
+    def __init__(self, primary_obj, reference_obj, secondary_obj):
+        self.primary_obj = primary_obj
+        self.reference_obj = reference_obj
+        self.secondary_obj = secondary_obj
+
+    @property
+    def page_type(self):
+        """
+        Return page type.
+        """
+        if self.reference_obj:
+            if self.secondary_obj:
+                return "{}{}".format(
+                    self.reference_obj.obj_type, self.secondary_obj.obj_type
+                )
+            return self.reference_obj.obj_type
+        if self.secondary_obj:
+            return self.secondary_obj.obj_type
+        return self.primary_obj.obj_type
+
+    @property
+    def location(self):
+        """
+        Return location tuple for navigation history.
+        """
+        full_tuple = (
+            self.page_type,
+            self.primary_obj.obj_type,
+            self.primary_obj.get_handle(),
+            None,
+            None,
+            None,
+            None,
+        )
+        if self.reference_obj:
+            full_tuple[3] = self.reference_obj.obj_type
+            full_tuple[4] = self.reference_obj.ref
+        if self.secondary_obj:
+            full_tuple[5] = self.secondary_obj.obj_type
+            full_tuple[6] = self.secondary_obj.obj_hash
+        return full_tuple
 
 
 # ------------------------------------------------------------------------

@@ -29,6 +29,8 @@ TimelineGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+from ..common.common_utils import get_gramps_object_type, get_key_person_events
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -40,7 +42,6 @@ from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type, get_key_person_events
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
 from .group_list import GrampsFrameGroupList
 

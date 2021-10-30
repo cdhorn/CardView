@@ -47,11 +47,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions
+from ..common.common_classes import GrampsOptions
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
 from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP

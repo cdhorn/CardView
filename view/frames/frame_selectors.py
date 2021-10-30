@@ -47,7 +47,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_utils import get_config_option, save_config_option
+from ..common.common_utils import get_config_option, save_config_option
 
 _ = glocale.translation.sgettext
 

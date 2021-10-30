@@ -1,20 +1,20 @@
-# Gramps Relationship View Profile Plugin
+# Gramps Linked View Plugin
 
-This plugin is an effort to provide an interface that can be used to navigate through and view most of the data in a [Gramps](https://gramps-project.org) database. It is largely modelled after the layout styles used by many online genealogy sites. It is hoped that it may provide an easier to navigate view for Gramps newcomers.
+This plugin is an effort to provide an interface that can be used to navigate through and view most of the data in a [Gramps](https://gramps-project.org) database. It is largely influenced by the layout styles used by many online genealogy sites and is highly customizable. It was hoped that it may provide an easier to navigate view for Gramps newcomers although exposing everything in the Gramps data model in the manner it has may not make it as suitable for that as initially intended.
 
-This is still in a development phase as I toy around with it but far enough along it should be fairly usable.
+This is still in a development phase but far enough along it should be fairly usable.
 
-HOWEVER, be sure to backup your tree or even better use a copy of it if exploring the functionality.
+HOWEVER, be sure to backup your tree or even better use a copy of it if exploring any of the add/edit/delete functionality.
 
-Note a number of the ini configuration file options have changed format a few times now, most recently on August 8th 2021.  If you have trouble and suspect that may be the cause it is best to remove the `Relationships_profileview.ini` and let it be recreated.
+Note the view name and thus ini file names have changed as this was originally called the Profile View. It has been renamed Linked View as that is more descriptive of how it is navigated.
 
 ## Installation
         
-As a Gramps plugin it can be installed by creating a plugin subdirectory `~/.gramps/gramps51/plugins/ProfileView` and copying or cloning the full contents of this repository into place.
+As a Gramps plugin it can be installed by creating a plugin subdirectory `~/.gramps/gramps51/plugins/LinkedView` and copying or cloning the full contents of this repository into place.
 
 ## Usage Notes
 
-At the present time there are page views for each of the major Gramps objects: Person, Family, Event, Place, Citation, Source, Repository, Media and Notes. Some page views for secondary objects have also been added: Child Reference, Association or Person Reference, Name and Tag. Note I am considering Tag a secondary object as it like other secondary objects is not trackable in the navigation history.
+At the present time there are page views for each of the major Gramps objects: Person, Family, Event, Place, Citation, Source, Repository, Media and Notes. Page views for most secondary objects have also been added: Child Reference, Association or Person Reference, Name, Address, Attribute, LDS Ordinance, Repository Reference and Tag. Note I am considering Tag a secondary object as it like other secondary objects is not trackable in the navigation history.
 
 Normally the record in the header frame is the active record for the page. Note for the Citation page the Source record is shown above the Citation record and for Families the primary parents of each partner are shown above the partners.
 
@@ -29,7 +29,7 @@ Note in some contexts, such as children, the frame will contain two objects, the
 All configuration options and page layouts are handled in the same configuration dialog now.
 
 The options for objects under active apply when the frame appears in the page header, those for objects under groups apply to those not in the page header.
-    
+
 For the layout configuration the default mode is single page, with various object groups beneath the header record. This is designed for large high resolution displays. You can stack one group on top of another if needed, set which groups will render, and also choose which will hide when collapsed. If collapsed you can not reopen them, but you can click the active header to force it to reload the page and they will appear again. There is now also a tabbed mode selection which will be more similar though not exactly the same as in the Combined View. In that mode stacking places groups side by side in the same tab and the hide option is ignored.
 
 Make note of the ability to customize the displayed data in most of the frames as well if you choose. For people you can choose which events, facts, and attributes to display as well as choose to display additional relationship calculations. Note these user customizable field options are generally stored per tree as things like custom events or attributes may differ across trees.

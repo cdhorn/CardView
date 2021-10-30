@@ -22,13 +22,14 @@
 SourceGrampsFrame.
 """
 
+from ..common.common_utils import TextLink
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink
 
 
 # ------------------------------------------------------------------------

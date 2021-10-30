@@ -51,21 +51,22 @@ from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 
-# ------------------------------------------------------------------------
-#
-# Plugin modules
-#
-# ------------------------------------------------------------------------
-from ..frames.frame_base import GrampsFrame
-from ..frames.frame_classes import GrampsConfig, GrampsOptions
-from ..frames.frame_const import _RIGHT_BUTTON
-from ..frames.frame_utils import (
+from ..common.common_classes import GrampsConfig, GrampsOptions
+from ..common.common_const import _RIGHT_BUTTON
+from ..common.common_utils import (
     button_activated,
     citation_option_text,
     get_gramps_object_type,
     menu_item,
     note_option_text,
 )
+
+# ------------------------------------------------------------------------
+#
+# Plugin modules
+#
+# ------------------------------------------------------------------------
+from ..frames.frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext
 

@@ -30,13 +30,14 @@ MediaGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 
+from ..common.common_utils import get_gramps_object_type
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_image import ImageGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext

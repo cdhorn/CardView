@@ -36,13 +36,14 @@ import pickle
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
+from ..common.common_classes import GrampsConfig
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_base import GrampsFrame
-from ..frames.frame_classes import GrampsConfig
 
 
 # ------------------------------------------------------------------------

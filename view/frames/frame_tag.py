@@ -42,13 +42,14 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
+from ..common.common_utils import menu_item
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
-from .frame_utils import menu_item
 
 _ = glocale.translation.sgettext
 

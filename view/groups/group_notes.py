@@ -22,13 +22,14 @@
 NotesGrampsFrameGroup
 """
 
+from ..common.common_utils import get_gramps_object_type
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_note import NoteGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
 from .group_list import GrampsFrameGroupList
 
 

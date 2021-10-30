@@ -57,9 +57,8 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import (
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import (
     TextLink,
     button_activated,
     get_confidence,
@@ -73,6 +72,7 @@ from .frame_utils import (
     menu_item,
     submenu_item,
 )
+from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
 

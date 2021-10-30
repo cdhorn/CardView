@@ -21,7 +21,7 @@
 #
 
 """
-Frame utility functions and classes
+Common utility functions and classes
 """
 
 # ------------------------------------------------------------------------
@@ -57,7 +57,7 @@ from ..timeline import RELATIVES
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import (
+from .common_const import (
     _CONFIDENCE,
     _KP_ENTER,
     _RETURN,

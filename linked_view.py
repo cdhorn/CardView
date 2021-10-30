@@ -21,7 +21,7 @@
 #
 
 """
-Combined Profile View
+Linked View
 """
 
 # -------------------------------------------------------------------------
@@ -54,8 +54,8 @@ from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 
-from enavigationview import ExtendedNavigationView
-from view.frames.frame_utils import get_config_option, save_config_option
+from extended_navigation import ExtendedNavigationView
+from view.common.common_utils import get_config_option, save_config_option
 from view.pages.page_address import AddressProfilePage
 from view.pages.page_attribute import AttributeProfilePage
 from view.pages.page_child_ref import ChildRefProfilePage
@@ -79,7 +79,7 @@ from view.pages.page_tag import TagProfilePage
 _ = glocale.translation.sgettext
 
 
-class ProfileView(ExtendedNavigationView):
+class LinkedView(ExtendedNavigationView):
     """
     View showing a textual representation of the relationships and events of
     the active person.
@@ -91,7 +91,7 @@ class ProfileView(ExtendedNavigationView):
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
         ExtendedNavigationView.__init__(
             self,
-            _("Profile"),
+            _("Linked"),
             pdata,
             dbstate,
             uistate,
@@ -159,7 +159,7 @@ class ProfileView(ExtendedNavigationView):
             self.cache.update({handle: (obj, int(time.time()))})
             return obj
         if len(self.cache) > 1000:
-            refs = [(x, self.cache[x][1]) for x in self.cache]
+            refs = [(x, self.cache[x][1]) for x in self.cache.items()]
             refs.sort(key=lambda x: x[1])
             for ref in refs[:100]:
                 del self.cache[ref[0]]
@@ -306,7 +306,15 @@ class ProfileView(ExtendedNavigationView):
                 objhist = self.passed_uistate.history_lookup[navobj]
                 if objhist and objhist.present():
                     handle = objhist.present()
-                    lastobj = (objtype, objtype, handle, None, None)
+                    lastobj = (
+                        objtype,
+                        objtype,
+                        handle,
+                        None,
+                        None,
+                        None,
+                        None,
+                    )
                     self.history.push(lastobj)
                     return True
         return False
@@ -633,7 +641,15 @@ class ProfileView(ExtendedNavigationView):
             if not initial_person:
                 return None
             obj_tuple = ("Person", initial_person.get_handle())
-        full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
+        full_tuple = (
+            obj_tuple[0],
+            obj_tuple[0],
+            obj_tuple[1],
+            None,
+            None,
+            None,
+            None,
+        )
         return full_tuple
 
     def clipboard_copy(self, data, handle):
@@ -647,7 +663,9 @@ class ProfileView(ExtendedNavigationView):
         Change object.
         """
         self.dirty = True
-        self.change_active((obj_type, obj_type, handle, None, None))
+        self.change_active(
+            (obj_type, obj_type, handle, None, None, None, None)
+        )
 
     def _clear_change(self):
         """
@@ -669,15 +687,22 @@ class ProfileView(ExtendedNavigationView):
         if not obj_type or not data:
             return
         try:
-            primary_type, primary, secondary_type, secondary = pickle.loads(
-                data
-            )
+            (
+                primary_type,
+                primary,
+                reference_type,
+                reference,
+                secondary_type,
+                secondary,
+            ) = pickle.loads(data)
         except pickle.UnpicklingError:
             return
         full_tuple = (
             secondary_type,
             primary_type,
             primary.get_handle(),
+            reference_type,
+            reference.ref,
             secondary_type,
             secondary,
         )
@@ -703,6 +728,8 @@ class ProfileView(ExtendedNavigationView):
             page_type,
             primary_obj_type,
             primary_obj_handle,
+            reference_obj_type,
+            reference_obj,
             secondary_obj_type,
             secondary_obj,
         ) = obj_tuple

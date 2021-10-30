@@ -32,13 +32,14 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
 
+from ..common.common_utils import TextLink, get_person_color_css
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import TextLink, get_person_color_css
 
 _ = glocale.translation.sgettext
 

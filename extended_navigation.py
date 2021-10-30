@@ -3,6 +3,7 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Nick Hall
+# Copyright (C) 2021       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -130,7 +131,7 @@ class ExtendedNavigationView(PageView):
         """
         Handle bookmark change.
         """
-        self.change_active(("Person", "Person", handle, None, None))
+        self.change_active(("Person", "Person", handle, None, None, None, None))
 
     def navigation_type(self):
         """
@@ -260,7 +261,7 @@ class ExtendedNavigationView(PageView):
         Changes the active object.
         """
         if len(obj_tuple) == 2:
-            full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None)
+            full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None, None, None)
         else:
             full_tuple = obj_tuple
         hobj = self.get_history()
@@ -588,8 +589,8 @@ class ExtendedHistory(Callback):
     """
     The ExtendedHistory manages the pages that have been viewed, with ability to
     go backward or forward. Unlike a list view History class it can track pages
-    for secondary objects and will attempt to keep the list view history in
-    sync.
+    for embedded secondary objects. It will also attempt to keep the list view
+    history in sync.
 
     In this extended class a history item or page reference is a tuple
     consisting of:
@@ -598,15 +599,16 @@ class ExtendedHistory(Callback):
             page_type,
             primary_object_type,
             primary_object_handle,
-            secondary_obj_type,
-            secondary_obj_reference
+            reference_object_type,
+            reference_object_handle,
+            secondary_object_type,
+            secondary_object_hash
         )
 
-    The secondary_obj_reference is a string which for reference objects will be
-    a handle so they can be identified or for non-references a signature for the
-    object in the form of a sha256 hash so it can be identified. In this later
-    form for the history to remain consistent as such objects are updated the
-    replace_secondary method should be called to update the hash as needed.
+    The secondary_object_hash is a sha256 hash that is used as a signature for
+    the object so it can be identified. In order for this hash to remain valid
+    when secondary objects are updated the replace_secondary method should be
+    called to update the hash as needed.
     """
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
@@ -675,7 +677,7 @@ class ExtendedHistory(Callback):
         """
         self.prune()
         if len(item) == 2:
-            full_item = (item[0], item[0], item[1], None, None)
+            full_item = (item[0], item[0], item[1], None, None, None, None)
         else:
             full_item = item
         if len(self.history) == 0 or full_item != self.history[-1]:
@@ -836,8 +838,8 @@ class ExtendedHistory(Callback):
         Replace old secondary handle or hash value with new one.
         """
         for item in self.history:
-            if item[4] == old:
-                new_item = (item[0], item[1], item[2], item[3], new)
+            if item[6] == old:
+                new_item = (item[0], item[1], item[2], item[3], item[4], item[5], new)
                 index = self.history.index(item)
                 self.history.remove(item)
                 self.history.insert(index, new_item)

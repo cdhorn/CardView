@@ -34,9 +34,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import CITATION_TYPES
+from ..common.common_const import CITATION_TYPES
+from ..common.common_utils import (
+    TextLink,
+    get_confidence,
+    get_confidence_color_css,
+)
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink, get_confidence, get_confidence_color_css
 
 _ = glocale.translation.sgettext
 

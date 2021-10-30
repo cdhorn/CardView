@@ -36,13 +36,14 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+from ..common.common_utils import TextLink
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink
 
 _ = glocale.translation.sgettext
 

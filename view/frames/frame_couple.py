@@ -41,10 +41,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
+from ..common.common_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
+from ..common.common_utils import TextLink, get_family_color_css
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink, get_family_color_css
 
 _ = glocale.translation.sgettext
 

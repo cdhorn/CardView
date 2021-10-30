@@ -50,9 +50,9 @@ from gramps.gui.display import display_url
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import button_activated
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import button_activated
 
 _ = glocale.translation.sgettext
 

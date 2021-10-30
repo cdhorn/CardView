@@ -41,7 +41,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions
+from ..common.common_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_addresses import AddressesGrampsFrameGroup
 from .group_associations import AssociationsGrampsFrameGroup

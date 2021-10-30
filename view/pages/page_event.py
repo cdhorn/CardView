@@ -40,7 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions
+from ..common.common_classes import GrampsOptions
 from ..frames.frame_event import EventGrampsFrame
 from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage

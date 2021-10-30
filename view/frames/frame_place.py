@@ -30,13 +30,14 @@ PlaceGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
 
+from ..common.common_utils import TextLink
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_primary import PrimaryGrampsFrame
-from .frame_utils import TextLink
 
 _ = glocale.translation.sgettext
 

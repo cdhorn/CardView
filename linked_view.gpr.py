@@ -1,6 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
+# Copyright (C) 2020      Nick Hall
 # Copyright (C) 2021      Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,8 +19,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-"""
-Module containing the profile view objects.
-"""
-
-__all__ = ["common", "frames", "groups", "pages"]
+register(
+    VIEW,
+    id="linked_view",
+    name=_("Linked"),
+    description=_("A browseable object view."),
+    version="0.99",
+    gramps_target_version="5.1",
+    status=STABLE,
+    fname="linked_view.py",
+    authors=["The Gramps Project", "Christopher Horn"],
+    authors_email=["http://gramps-project.org"],
+    category=("Relationships", _("Relationships")),
+    viewclass="LinkedView",
+    order=END,
+)

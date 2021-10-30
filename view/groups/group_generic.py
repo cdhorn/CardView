@@ -29,14 +29,13 @@ GenericGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
-from ..frames.frame_citation import CitationGrampsFrame
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_classes import GrampsOptions
+from ..common.common_classes import GrampsOptions
+from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame

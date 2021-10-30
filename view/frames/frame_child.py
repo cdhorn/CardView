@@ -56,14 +56,14 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_person import PersonGrampsFrame
-from .frame_utils import (
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import (
     button_activated,
     citation_option_text,
     menu_item,
     note_option_text,
 )
+from .frame_person import PersonGrampsFrame
 
 _ = glocale.translation.sgettext
 

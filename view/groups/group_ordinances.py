@@ -22,13 +22,14 @@
 LDSOrdinancesGrampsFrameGroup
 """
 
+from ..common.common_utils import get_gramps_object_type
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from ..frames.frame_utils import get_gramps_object_type
 from .group_list import GrampsFrameGroupList
 
 

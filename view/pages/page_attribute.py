@@ -42,14 +42,15 @@ import hashlib
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+from ..common.common_classes import GrampsOptions
+from ..common.common_utils import get_gramps_object_type
+
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..frames.frame_attribute import AttributeGrampsFrame
-from ..frames.frame_classes import GrampsOptions
-from ..frames.frame_utils import get_gramps_object_type
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
 

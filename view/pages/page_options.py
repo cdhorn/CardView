@@ -322,7 +322,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.eventref.layout.tabbed", False),
     ("options.page.eventref.layout.scrolled", False),
-    ("options.page.eventref.layout.groups", "note,url"),
+    ("options.page.eventref.layout.groups", "attribute,note,url"),
     ("options.page.eventref.layout.attribute.visible", True),
     ("options.page.eventref.layout.attribute.stacked", False),
     ("options.page.eventref.layout.attribute.hideable", False),

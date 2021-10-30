@@ -45,7 +45,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsConfig
+from ..common.common_classes import GrampsConfig
 from .frame_widgets import (
     GrampsFrameGrid,
     GrampsFrameId,

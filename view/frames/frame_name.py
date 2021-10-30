@@ -30,13 +30,14 @@ NameGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
+from ..common.common_utils import TextLink, get_person_color_css
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_secondary import SecondaryGrampsFrame
-from .frame_utils import TextLink, get_person_color_css
 
 _ = glocale.translation.sgettext
 

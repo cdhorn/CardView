@@ -69,16 +69,16 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_classes import GrampsObject
-from .frame_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
-from .frame_selectors import get_attribute_types
-from .frame_utils import (
+from ..common.common_classes import GrampsObject
+from ..common.common_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import (
     button_activated,
     citation_option_text,
     menu_item,
     note_option_text,
     submenu_item,
 )
+from .frame_selectors import get_attribute_types
 from .frame_view import GrampsFrameView
 
 _ = glocale.translation.sgettext
@@ -97,6 +97,14 @@ class GrampsFrame(GrampsFrameView):
     def __init__(self, grstate, groptions, primary_obj, secondary_obj=None):
         GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
+        if self.primary.is_reference:
+            self.reference = self.primary
+            real_primary_obj = self.fetch(
+                self.primary.obj_type.replace("Ref", ""), self.primary.obj.ref
+            )
+            self.primary = GrampsObject(real_primary_obj)
+        else:
+            self.reference = None
         self.secondary = GrampsObject(secondary_obj)
         if self.secondary and not self.secondary.is_reference:
             self.focus = self.secondary

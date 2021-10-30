@@ -48,7 +48,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..frames.frame_classes import GrampsState
+from ..common.common_classes import GrampsState
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
     CONFIDENCE_TYPE,

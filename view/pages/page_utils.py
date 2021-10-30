@@ -42,14 +42,13 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-from ..frames.frame_selectors import FrameFieldSelector
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_utils import ConfigReset
+from ..common.common_utils import ConfigReset
+from ..frames.frame_selectors import FrameFieldSelector
 from .page_const import TAG_DISPLAY_MODES
 
 _ = glocale.translation.sgettext

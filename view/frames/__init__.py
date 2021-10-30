@@ -28,8 +28,6 @@ __all__ = [
     "frame_attribute",
     "frame_child",
     "frame_citation",
-    "frame_classes",
-    "frame_const",
     "frame_couple",
     "frame_event",
     "frame_image",
@@ -43,5 +41,4 @@ __all__ = [
     "frame_selectors",
     "frame_source",
     "frame_url",
-    "frame_utils",
 ]

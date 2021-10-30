@@ -28,6 +28,8 @@ Page related constants
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+from ..common.common_classes import GrampsOptions
+
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
@@ -35,7 +37,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..frames.frame_attribute import AttributeGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
