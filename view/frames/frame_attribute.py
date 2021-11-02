@@ -30,13 +30,14 @@ AttributeGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-from ..common.common_utils import TextLink, get_person_color_css
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
+from ..common.common_utils import TextLink, get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -82,7 +83,8 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         """
         Initiate switch to attribute page.
         """
-        self.switch_object(None, None, "Attribute", self.secondary.obj)
+        context = GrampsContext(self.primary.obj, None, self.secondary.obj)
+        self.grstate.load_page(context.pickled)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """

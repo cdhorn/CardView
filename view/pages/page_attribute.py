@@ -87,20 +87,15 @@ class AttributeProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         pass
 
-    def render_page(self, header, vbox, primary, secondary):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not primary or not secondary:
+        if not context:
             return
 
-        attribute = None
-        for attribute in primary.get_attribute_list():
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
-            if sha256_hash.hexdigest() == secondary:
-                break
-
-        self.focus_type = get_gramps_object_type(primary)
+        primary = context.primary_obj.obj
+        attribute = context.secondary_obj.obj
+        self.focus_type = context.primary_obj.obj_type
 
         (option, frame) = FRAME_MAP[self.focus_type]
         groptions = GrampsOptions(option)
