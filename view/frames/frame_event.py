@@ -57,6 +57,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     TextLink,
@@ -712,19 +713,10 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         elif not button_activated(event, _LEFT_BUTTON):
             if self.event_ref.get_role().is_family():
                 participant = self.event_family
-                participant_type = "Family"
             else:
                 participant = self.event_person
-                participant_type = "Person"
-            data = pickle.dumps(
-                (
-                    participant_type,
-                    participant,
-                    "EventRef",
-                    self.primary.obj.get_handle(),
-                )
-            )
-            return self.grstate.context_changed(self.secondary.obj_type, data)
+            context = GrampsContext(participant, self.secondary.obj, None)
+            return self.grstate.load_page(context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """

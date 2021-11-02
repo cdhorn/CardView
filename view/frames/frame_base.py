@@ -69,7 +69,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsObject
+from ..common.common_classes import GrampsObject, GrampsContext
 from ..common.common_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -256,27 +256,13 @@ class GrampsFrame(GrampsFrameView):
         """
         Change active object for the view.
         """
-        if isinstance(obj, str):
-            return self.grstate.object_changed(obj_type, obj)
-        if hasattr(obj, "handle"):
-            return self.grstate.object_changed(obj_type, obj.get_handle())
-        if self.secondary and self.secondary.obj:
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(
-                str(self.secondary.obj.serialize()).encode("utf-8")
-            )
-            secondary = sha256_hash.hexdigest()
+        if self.reference:
+            context = GrampsContext(self.primary.obj, self.reference.obj, None)
+        elif self.secondary:
+            context = GrampsContext(self.primary.obj, None, self.secondary.obj)
         else:
-            secondary = None
-        data = pickle.dumps(
-            (
-                self.primary.obj_type,
-                self.primary.obj,
-                self.secondary.obj_type,
-                secondary,
-            )
-        )
-        return self.grstate.context_changed(obj_type, data)
+            context = GrampsContext(self.primary.obj, None, None)
+        return self.grstate.load_page(context.pickled)
 
     def build_action_menu(self, obj, event):
         """

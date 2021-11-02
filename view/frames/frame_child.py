@@ -56,6 +56,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -219,15 +220,9 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            data = pickle.dumps(
-                (
-                    self.primary.obj_type,
-                    self.primary.obj,
-                    self.secondary.obj_type,
-                    self.groptions.backlink,
-                )
-            )
-            return self.grstate.context_changed(self.secondary.obj_type, data)
+            family = self.fetch("Family", self.groptions.backlink)
+            page_context = GrampsContext(family, self.secondary.obj, None)
+            return self.grstate.load_page(page_context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """

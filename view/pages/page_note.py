@@ -72,12 +72,14 @@ class NoteProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, note, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not note:
+        if not context:
             return
 
+        note = context.primary_obj.obj
+        
         groptions = GrampsOptions("options.active.note")
         self.active_profile = NoteGrampsFrame(self.grstate, groptions, note)
 

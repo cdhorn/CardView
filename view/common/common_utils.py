@@ -29,6 +29,7 @@ Common utility functions and classes
 # Python modules
 #
 # ------------------------------------------------------------------------
+import hashlib
 from html import escape
 
 # ------------------------------------------------------------------------
@@ -772,3 +773,68 @@ def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
     if start:
         return widget.pack_start(image, False, False, 1)
     return widget.pack_end(image, False, False, 1)
+
+
+def find_reference(obj, reference_type, reference_handle):
+    """
+    Find reference object inside a given object.
+    """
+    if reference_type == "EventRef":
+        reference_list = obj.get_event_ref_list()
+    elif reference_type == "ChildRef":
+        reference_list = obj.get_child_ref_list()
+    elif reference_type == "MediaRef":
+        reference_list = obj.get_media_list()
+    elif reference_type == "PersonRef":
+        reference_list = obj.get_person_ref_list()
+    elif reference_type == "RepoRef":
+        reference_list = obj.get_reporef_list()
+    else:
+        return None
+    for reference in reference_list:
+        if reference.ref == reference_handle:
+            return reference
+    return None
+
+def find_referencer(grstate, obj, reference_type, reference_hash):
+    if reference_type == "ChildRef":
+        seek = ["Family"]
+    elif reference_type == "PersonRef":
+        seek = ["Person"]
+    elif reference_type == "RepoRef":
+        seek = ["Source"]
+    else:
+        return None
+    obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+    for (obj_type, obj_handle) in obj_list:
+        if obj_type in seek:
+            work_obj = grstate.fetch(obj_type, obj_handle)
+            reference = find_secondary_object(work_obj, reference_type, reference_hash)
+            if reference:
+                return work_obj
+    return None
+    
+def find_secondary_object(obj, secondary_type, secondary_hash):
+    """
+    Find secondary object inside a given object.
+    """
+    if secondary_type == "Name":
+        secondary_list = [obj.get_primary_name()] + obj.get_alternate_names()
+    elif secondary_type == "Attribute":
+        secondary_list = obj.get_attribute_list()
+    elif secondary_type == "Address":
+        secondary_list = obj.get_address_list()
+    elif secondary_type == "LdsOrd":
+        secondary_list = obj.get_lds_ord_list()
+    elif secondary_type == "ChildRef":
+        secondary_list = obj.get_child_ref_list()
+    elif secondary_type == "PersonRef":
+        secondary_list = obj.get_person_ref_list()
+    else:
+        return None
+    for secondary_obj in secondary_list:
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(secondary_obj.serialize()).encode("utf-8"))
+        if sha256_hash.hexdigest() == secondary_hash:
+            return secondary_obj
+    return None

@@ -55,6 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     TextLink,
@@ -227,16 +228,9 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             source = self.fetch("Source", self.groptions.backlink)
-            data = pickle.dumps(
-                (
-                    "Source",
-                    source,
-                    "RepoRef",
-                    self.primary.obj.get_handle(),
-                )
-            )
-            return self.grstate.context_changed(self.secondary.obj_type, data)
-
+            context = GrampsContext(source, self.secondary.obj, None)
+            return self.grstate.load_page(context.pickled)
+        
     def build_ref_action_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click on a reference object.

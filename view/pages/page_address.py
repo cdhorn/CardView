@@ -108,19 +108,15 @@ class AddressProfilePage(BaseProfilePage):
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
-    def render_page(self, header, vbox, person, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person or not secondary:
+        if not context:
             return
 
-        address = None
-        for address in person.get_address_list():
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(str(address.serialize()).encode("utf-8"))
-            if sha256_hash.hexdigest() == secondary:
-                break
-
+        person = context.primary_obj.obj
+        address = context.secondary_obj.obj
+        
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(
             self.grstate, groptions, person

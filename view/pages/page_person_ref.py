@@ -91,17 +91,15 @@ class PersonRefProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         pass
 
-    def render_page(self, header, vbox, person, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person or not secondary:
+        if not context:
             return
 
-        person_ref = None
-        for person_ref in person.get_person_ref_list():
-            if person_ref.ref == secondary:
-                break
-
+        person = context.primary_obj.obj
+        person_ref = context.reference_obj.obj
+        
         groptions = GrampsOptions("options.active.person")
         person_frame = PersonGrampsFrame(self.grstate, groptions, person)
         groptions = GrampsOptions("options.active.association")

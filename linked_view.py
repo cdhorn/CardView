@@ -55,6 +55,7 @@ from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 
 from extended_navigation import ExtendedNavigationView
+from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_utils import get_config_option, save_config_option
 from view.pages.page_address import AddressProfilePage
 from view.pages.page_attribute import AttributeProfilePage
@@ -113,6 +114,8 @@ class LinkedView(ExtendedNavigationView):
             self.passed_navtype = (
                 uistate.viewmanager.active_page.navigation_type()
             )
+
+        self.grstate = None
 
         self.cache = {}
         self.methods = {}
@@ -183,13 +186,15 @@ class LinkedView(ExtendedNavigationView):
         Load page handlers.
         """
         callbacks = {
+            "load-page": self.load_page,
             "fetch-object": self.fetch_object,
             "fetch-thumbnail": self.fetch_thumbnail,
-            "object-changed": self.object_changed,
-            "context-changed": self.context_changed,
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
         }
+        self.grstate = GrampsState(
+            self.dbstate, self.uistate, callbacks, self._config
+        )
 
         for page_class in [
             AddressProfilePage,
@@ -294,28 +299,24 @@ class LinkedView(ExtendedNavigationView):
 
     def seed_history(self):
         """
-        A hack that attempts to seed our history cache with last object
-        using the uistate copy as the views may be using divergent history
-        navigation classes.
+        Attempt to seed our history cache with last object using the uistate
+        copy as the views may be using divergent history navigation classes.
         """
         if not self.passed_uistate.history_lookup:
             return False
-        for navobj in self.passed_uistate.history_lookup:
-            objtype, dummy_navtype = navobj
-            if objtype == self.passed_navtype:
-                objhist = self.passed_uistate.history_lookup[navobj]
-                if objhist and objhist.present():
-                    handle = objhist.present()
-                    lastobj = (
-                        objtype,
-                        objtype,
-                        handle,
+        for nav_obj in self.passed_uistate.history_lookup:
+            obj_type, dummy_nav_type = nav_obj
+            if obj_type == self.passed_navtype:
+                obj_history = self.passed_uistate.history_lookup[nav_obj]
+                if obj_history and obj_history.present():
+                    self.history.push((
+                        obj_type,
+                        obj_history.present(),
                         None,
                         None,
                         None,
                         None,
-                    )
-                    self.history.push(lastobj)
+                    ))
                     return True
         return False
 
@@ -641,8 +642,7 @@ class LinkedView(ExtendedNavigationView):
             if not initial_person:
                 return None
             obj_tuple = ("Person", initial_person.get_handle())
-        full_tuple = (
-            obj_tuple[0],
+        return (
             obj_tuple[0],
             obj_tuple[1],
             None,
@@ -650,22 +650,12 @@ class LinkedView(ExtendedNavigationView):
             None,
             None,
         )
-        return full_tuple
 
     def clipboard_copy(self, data, handle):
         """
         Copy current object to clipboard.
         """
         return self.copy_to_clipboard(data, [handle])
-
-    def object_changed(self, obj_type, handle):
-        """
-        Change object.
-        """
-        self.dirty = True
-        self.change_active(
-            (obj_type, obj_type, handle, None, None, None, None)
-        )
 
     def _clear_change(self):
         """
@@ -680,34 +670,18 @@ class LinkedView(ExtendedNavigationView):
             )
         return False
 
-    def context_changed(self, obj_type, data):
+    def load_page(self, new_context):
         """
-        Change the page view without changing the active object.
+        Load the proper page for the given context.
         """
-        if not obj_type or not data:
+        if not new_context:
             return
         try:
-            (
-                primary_type,
-                primary,
-                reference_type,
-                reference,
-                secondary_type,
-                secondary,
-            ) = pickle.loads(data)
+            context = pickle.loads(new_context)
         except pickle.UnpicklingError:
             return
-        full_tuple = (
-            secondary_type,
-            primary_type,
-            primary.get_handle(),
-            reference_type,
-            reference.ref,
-            secondary_type,
-            secondary,
-        )
         self.dirty = True
-        self.change_active(full_tuple)
+        self.change_active(context.page_location)
 
     def change_object(self, obj_tuple):
         """
@@ -724,62 +698,38 @@ class LinkedView(ExtendedNavigationView):
             self.loaded = True
             return False
 
-        (
-            page_type,
-            primary_obj_type,
-            primary_obj_handle,
-            reference_obj_type,
-            reference_obj,
-            secondary_obj_type,
-            secondary_obj,
-        ) = obj_tuple
-
-        obj = self.fetch_object(primary_obj_type, primary_obj_handle)
-        if not obj:
-            return False
-
-        self.render_page(
-            page_type,
-            primary_obj=obj,
-            primary_obj_type=primary_obj_type,
-            secondary_obj=secondary_obj,
-            secondary_obj_type=secondary_obj_type,
-        )
+        page_context = GrampsContext()
+        page_context.load_page_location(self.grstate, obj_tuple)
+        self.render_page(page_context)
 
         if self.loaded:
             dbid = self.dbstate.db.get_dbid()
             save_config_option(
                 self._config,
                 "options.active.last_object",
-                primary_obj_type,
-                primary_obj_handle,
+                page_context.primary_obj.obj_type,
+                page_context.primary_obj.obj.get_handle(),
                 dbid=dbid,
             )
         return True
 
-    def render_page(
-        self,
-        page_type,
-        primary_obj=None,
-        primary_obj_type=None,
-        secondary_obj=None,
-        secondary_obj_type=None,
-    ):
+    def render_page(self, page_context):
         """
         Render a new page view.
         """
         if self.active_page:
             self.active_page.disable_actions(self.uimanager)
 
-        list(map(self.header.remove, self.header.get_children()))
-        list(map(self.header.remove, self.vbox.get_children()))
+        self._clear_change()
+        if not page_context.primary_obj:
+            return
 
-        page = self.pages[page_type]
-        page.render_page(
-            self.header, self.vbox, primary_obj, secondary=secondary_obj
-        )
-        page.enable_actions(self.uimanager, primary_obj)
+        page = self.pages[page_context.page_type]
+        page.render_page(self.header, self.vbox, page_context)
+        page.enable_actions(self.uimanager, page_context.primary_obj)
         self.uimanager.update_menu()
+
+        primary_obj_type = page_context.primary_obj.obj_type
 
         edit_button = self.uimanager.get_widget("EditButton")
         if edit_button:
@@ -810,14 +760,16 @@ class LinkedView(ExtendedNavigationView):
         self.active_page = page
         self.active_type = primary_obj_type
         name, dummy_obj = navigation_label(
-            self.dbstate.db, primary_obj_type, primary_obj.get_handle()
+            self.dbstate.db,
+            primary_obj_type,
+            page_context.primary_obj.obj.get_handle(),
         )
         if (
             primary_obj_type == "Person"
             and global_config.get("interface.statusbar") > 1
         ):
             relation = self.uistate.display_relationship(
-                self.dbstate, primary_obj.get_handle()
+                self.dbstate, page_context.primary_obj.obj.get_handle()
             )
             if relation:
                 name = "{} ({})".format(name, relation.strip())

@@ -120,7 +120,6 @@ class ExtendedNavigationView(PageView):
         Return a callback to update our view when a corresponding list
         view change is made.
         """
-
         def sync(handle):
             self.dirty = True
             self.change_active((history_type, handle))
@@ -131,7 +130,9 @@ class ExtendedNavigationView(PageView):
         """
         Handle bookmark change.
         """
-        self.change_active(("Person", "Person", handle, None, None, None, None))
+        self.change_active(
+            ("Person", handle, None, None, None, None)
+        )
 
     def navigation_type(self):
         """
@@ -261,7 +262,14 @@ class ExtendedNavigationView(PageView):
         Changes the active object.
         """
         if len(obj_tuple) == 2:
-            full_tuple = (obj_tuple[0], obj_tuple[0], obj_tuple[1], None, None, None, None)
+            full_tuple = (
+                obj_tuple[0],
+                obj_tuple[1],
+                None,
+                None,
+                None,
+                None,
+            )
         else:
             full_tuple = obj_tuple
         hobj = self.get_history()
@@ -564,13 +572,14 @@ class ExtendedNavigationView(PageView):
         handles = self.selected_handles()
         if handles:
             (
-                dummy_page_type,
-                obj_type,
-                handle,
-                dummy_secondary_type,
-                dummy_secondary_reference,
+                primary_obj_type,
+                primary_obj_handle,
+                dummy_reference_obj_type,
+                dummy_reference_obj_handle,
+                dummy_secondary_obj_type,
+                dummy_secondary_obj_hash,
             ) = handles[0]
-        return self.copy_to_clipboard(obj_type, [handle])
+            return self.copy_to_clipboard(primary_obj_type, [primary_obj_handle])
 
 
 def make_callback(func, handle):
@@ -596,7 +605,6 @@ class ExtendedHistory(Callback):
     consisting of:
 
         (
-            page_type,
             primary_object_type,
             primary_object_handle,
             reference_object_type,
@@ -605,10 +613,11 @@ class ExtendedHistory(Callback):
             secondary_object_hash
         )
 
-    The secondary_object_hash is a sha256 hash that is used as a signature for
-    the object so it can be identified. In order for this hash to remain valid
-    when secondary objects are updated the replace_secondary method should be
-    called to update the hash as needed.
+    The secondary_object_hash is a sha256 hash of the json serialized object
+    that is used as a signature for the object so it can be identified. In
+    order for this hash to remain valid when secondary objects are updated
+    the replace_secondary method should be called to update the hash as part
+    of the update process.
     """
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
@@ -677,20 +686,21 @@ class ExtendedHistory(Callback):
         """
         self.prune()
         if len(item) == 2:
-            full_item = (item[0], item[0], item[1], None, None, None, None)
+            full_item = (item[0], item[1], None, None, None, None)
         else:
             full_item = item
         if len(self.history) == 0 or full_item != self.history[-1]:
             self.history.append(full_item)
-            mru_item = (full_item[1], full_item[2])
-            if mru_item in self.mru:
-                self.mru.remove(mru_item)
-            self.mru.append(mru_item)
-            self.emit("mru-changed", (self.mru,))
+            if full_item[0] != "Tag":
+                mru_item = (full_item[0], full_item[1])
+                if mru_item in self.mru:
+                    self.mru.remove(mru_item)
+                self.mru.append(mru_item)
+                self.emit("mru-changed", (self.mru,))
             self.index += 1
         if self.history:
             self.emit("active-changed", (full_item,))
-        self.sync_other(full_item[1], full_item[2])
+        self.sync_other(full_item[0], full_item[1])
 
     def forward(self, step=1):
         """
@@ -698,13 +708,14 @@ class ExtendedHistory(Callback):
         """
         self.index += step
         item = self.history[self.index]
-        mru_item = (item[1], item[2])
-        if mru_item in self.mru:
-            self.mru.remove(mru_item)
-        self.mru.append(mru_item)
-        self.emit("mru-changed", (self.mru,))
+        if item[0] != "Tag":
+            mru_item = (item[0], item[1])
+            if mru_item in self.mru:
+                self.mru.remove(mru_item)
+            self.mru.append(mru_item)
+            self.emit("mru-changed", (self.mru,))
         self.emit("active-changed", (item,))
-        self.sync_other(item[1], item[2])
+        self.sync_other(item[0], item[1])
         return item
 
     def back(self, step=1):
@@ -714,13 +725,14 @@ class ExtendedHistory(Callback):
         self.index -= step
         try:
             item = self.history[self.index]
-            mru_item = (item[1], item[2])
-            if mru_item in self.mru:
-                self.mru.remove(mru_item)
-            self.mru.append(mru_item)
-            self.emit("mru-changed", (self.mru,))
+            if item[0] != "Tag":
+                mru_item = (item[0], item[1])
+                if mru_item in self.mru:
+                    self.mru.remove(mru_item)
+                self.mru.append(mru_item)
+                self.emit("mru-changed", (self.mru,))
             self.emit("active-changed", (item,))
-            self.sync_other(item[1], item[2])
+            self.sync_other(item[0], item[1])
             return item
         except IndexError:
             return ""
@@ -821,12 +833,12 @@ class ExtendedHistory(Callback):
         """
         for handle in handle_list:
             for item in self.history:
-                if handle in [item[2], item[4]]:
+                if handle in [item[1], item[3]]:
                     self.history.remove(item)
                     self.index -= 1
 
             for item in self.mru:
-                if item[2] == handle:
+                if item[1] == handle:
                     self.mru.remove(item)
         if not silent:
             if self.history:
@@ -838,8 +850,15 @@ class ExtendedHistory(Callback):
         Replace old secondary handle or hash value with new one.
         """
         for item in self.history:
-            if item[6] == old:
-                new_item = (item[0], item[1], item[2], item[3], item[4], item[5], new)
+            if item[5] == old:
+                new_item = (
+                    item[0],
+                    item[1],
+                    item[2],
+                    item[3],
+                    item[4],
+                    new,
+                )
                 index = self.history.index(item)
                 self.history.remove(item)
                 self.history.insert(index, new_item)

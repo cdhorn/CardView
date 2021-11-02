@@ -103,12 +103,14 @@ class FamilyProfilePage(BaseProfilePage):
                 )
         return None
 
-    def render_page(self, header, vbox, family, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not family:
+        if not context:
             return
 
+        family = context.primary_obj.obj
+        
         groups = {
             "partner1": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "partner2": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),

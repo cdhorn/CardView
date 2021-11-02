@@ -75,12 +75,12 @@ class TagProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, obj, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not secondary:
+        if not context:
             return
-        tag = self.grstate.dbstate.db.get_tag_from_handle(secondary)
+        tag = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.tag")
         self.active_profile = TagGrampsFrame(self.grstate, groptions, tag)

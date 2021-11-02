@@ -90,9 +90,8 @@ class BaseProfilePage:
     """
 
     def __init__(self, dbstate, uistate, config, callbacks):
-        self.grstate = GrampsState(
-            dbstate, uistate, callbacks, config, self.page_type.lower()
-        )
+        self.grstate = GrampsState(dbstate, uistate, callbacks, config)
+        self.grstate.set_page_type(self.page_type.lower())
         self.config = config
         self.container = None
         self.active_profile = None

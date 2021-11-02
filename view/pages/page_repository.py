@@ -73,12 +73,14 @@ class RepositoryProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, repository, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not repository:
+        if not context:
             return
 
+        repository = context.primary_obj.obj
+        
         groptions = GrampsOptions("options.active.repository")
         self.active_profile = RepositoryGrampsFrame(
             self.grstate, groptions, repository

@@ -72,12 +72,14 @@ class MediaProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, media, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not media:
+        if not context:
             return
 
+        media = context.primary_obj.obj
+        
         groptions = GrampsOptions("options.active.media")
         self.active_profile = ImageGrampsFrame(self.grstate, groptions, media)
 

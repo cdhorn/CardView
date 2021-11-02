@@ -94,28 +94,24 @@ class RepositoryRefProfilePage(BaseProfilePage):
         Disable page actions.
         """
 
-    def render_page(self, header, vbox, source, secondary=None):
+    def render_page(self, header, vbox, context):
         """
         Render view for the page.
         """
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not source or not secondary:
+        if not context:
             return
 
-        repo_ref = None
-        for repo_ref in source.get_reporef_list():
-            if repo_ref.ref == secondary:
-                break
+        source = context.primary_obj.obj
+        repo_ref = context.reference_obj.obj
+        repository = self.grstate.dbstate.db.get_repository_from_handle(repo_ref.ref)
 
         groptions = GrampsOptions("options.active.source")
         source_frame = SourceGrampsFrame(
             self.grstate,
             groptions,
             source,
-        )
-        repository = self.grstate.dbstate.db.get_repository_from_handle(
-            secondary
         )
         groptions = GrampsOptions("options.active.repository")
         groptions.set_backlink(source.get_handle())

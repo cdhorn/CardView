@@ -74,11 +74,13 @@ class SourceProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, source, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not source:
+        if not context:
             return
+
+        source = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.source")
         self.active_profile = SourceGrampsFrame(

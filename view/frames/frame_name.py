@@ -30,13 +30,14 @@ NameGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-from ..common.common_utils import TextLink, get_person_color_css
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
+from ..common.common_utils import TextLink, get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -91,7 +92,6 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             prefix = ""
             if surname.get_prefix():
                 prefix = "{} ".format(surname.get_prefix())
-
             connector = ""
             if surname.get_connector():
                 connector = " {}".format(surname.get_connector())
@@ -126,7 +126,8 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         """
         Initiate switch to name page.
         """
-        self.switch_object(None, None, "Name", self.secondary.obj)
+        page_context = GrampsContext(self.primary.obj, None, self.secondary.obj)
+        return self.grstate.load_page(page_context.pickled)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """

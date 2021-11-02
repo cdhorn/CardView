@@ -82,11 +82,13 @@ class CitationProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, citation, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not citation:
+        if not context:
             return
+
+        citation = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.citation")
         self.active_profile = CitationGrampsFrame(

@@ -98,11 +98,13 @@ class PersonProfilePage(BaseProfilePage):
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
-    def render_page(self, header, vbox, person, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person:
+        if not context:
             return
+
+        person = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(

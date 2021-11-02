@@ -74,12 +74,14 @@ class EventProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, event, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not event:
+        if not context:
             return
 
+        event = context.primary_obj.obj
+        
         groptions = GrampsOptions("options.active.event")
         self.active_profile = EventGrampsFrame(
             self.grstate,

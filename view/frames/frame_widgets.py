@@ -58,7 +58,7 @@ from gramps.gui.utils import open_file_with_default_application
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsConfig
+from ..common.common_classes import GrampsConfig, GrampsContext
 from ..common.common_const import _LEFT_BUTTON
 from ..common.common_utils import (
     TextLink,
@@ -383,8 +383,8 @@ class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
         Request page for tag.
         """
         tag = self.fetch("Tag", handle)
-        data = pickle.dumps((self.obj_type, self.obj, "Tag", tag.handle))
-        return self.grstate.context_changed("Tag", data)
+        page_context = GrampsContext(tag, None, None)
+        return self.grstate.load_page(page_context.pickled)
 
 
 # ------------------------------------------------------------------------

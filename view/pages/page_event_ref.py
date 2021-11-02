@@ -86,12 +86,13 @@ class EventRefProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, primary, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not primary or not secondary:
+        if not context:
             return
 
+        primary = context.primary_obj.obj
         primary_type = get_gramps_object_type(primary)
         (option, frame) = FRAME_MAP[primary_type]
         groptions = GrampsOptions(option)
@@ -104,10 +105,7 @@ class EventRefProfilePage(BaseProfilePage):
             event_person = None
             event_family = primary
 
-        event_ref = None
-        for event_ref in primary.get_event_ref_list():
-            if event_ref.ref == secondary:
-                break
+        event_ref = context.reference_obj.obj
         event = self.grstate.fetch("Event", event_ref.ref)
 
         groptions = GrampsOptions("options.active.event")

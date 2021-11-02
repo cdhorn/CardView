@@ -72,12 +72,14 @@ class PlaceProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, place, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not place:
+        if not context:
             return
 
+        place = context.primary_obj.obj
+        
         groptions = GrampsOptions("options.active.place")
         self.active_profile = PlaceGrampsFrame(self.grstate, groptions, place)
 

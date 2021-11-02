@@ -107,22 +107,15 @@ class NameProfilePage(BaseProfilePage):
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
-    def render_page(self, header, vbox, person, secondary=None):
+    def render_page(self, header, vbox, page_context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person or not secondary:
+        if not page_context:
             return
 
-        name = person.get_primary_name()
-        sha256_hash = hashlib.sha256()
-        sha256_hash.update(str(name.serialize()).encode("utf-8"))
-        if sha256_hash.hexdigest() != secondary:
-            for name in person.get_alternate_names():
-                sha256_hash = hashlib.sha256()
-                sha256_hash.update(str(name.serialize()).encode("utf-8"))
-                if sha256_hash.hexdigest() == secondary:
-                    break
-
+        person = page_context.primary_obj.obj
+        name = page_context.secondary_obj.obj
+        
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(
             self.grstate, groptions, person

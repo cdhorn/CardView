@@ -95,19 +95,15 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
     def disable_actions(self, uimanager):
         return
 
-    def render_page(self, header, vbox, primary, secondary=None):
+    def render_page(self, header, vbox, context):
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not primary or not secondary:
+        if not context:
             return
 
-        ldsord = None
-        for ldsord in primary.get_lds_ord_list():
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(str(ldsord.serialize()).encode("utf-8"))
-            if sha256_hash.hexdigest() == secondary:
-                break
-
+        primary = context.primary_obj.obj
+        ldsord = context.secondary_obj.obj
+        
         self.focus_type = get_gramps_object_type(primary)
 
         (option, frame) = FRAME_MAP[self.focus_type]

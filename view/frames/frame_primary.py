@@ -88,6 +88,7 @@ from ..common.common_utils import (
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
 from .frame_base import GrampsFrame
 from .frame_selectors import get_attribute_types
 from .frame_widgets import GrampsImage
@@ -289,7 +290,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Change active person for the view.
         """
-        self.grstate.object_changed("Person", handle)
+        person = self.grstate.fetch("Person", handle)
+        context = GrampsContext(person, None, None)
+        self.grstate.load_page(context.pickled)
 
     def _attributes_option(self):
         """

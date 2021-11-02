@@ -32,13 +32,14 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
 
-from ..common.common_utils import TextLink, get_person_color_css
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
+from ..common.common_utils import TextLink, get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -109,7 +110,8 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
         """
         Initiate switch to ordinance page.
         """
-        self.switch_object(None, None, "LdsOrd", self.secondary.obj)
+        page_context = GrampsContext(self.primary.obj, None, self.secondary.obj)
+        return self.grstate.load_page(page_context.pickled)
 
     def get_color_css(self):
         """

@@ -32,6 +32,7 @@ Base classes for object and configuration management that others rely on.
 #
 # ------------------------------------------------------------------------
 import hashlib
+import pickle
 from html import escape
 
 # ------------------------------------------------------------------------
@@ -54,7 +55,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from .common_const import GRAMPS_OBJECTS
-from .common_utils import get_config_option
+from .common_utils import (
+    get_config_option,
+    find_reference,
+    find_secondary_object,
+)
 
 _ = glocale.translation.sgettext
 
@@ -124,10 +129,10 @@ class GrampsObject:
 
 # ------------------------------------------------------------------------
 #
-# GrampsNavigationContext class
+# GrampsContext class
 #
 # ------------------------------------------------------------------------
-class GrampsNavigationContext:
+class GrampsContext:
     """
     A simple class to encapsulate the Gramps navigation context.
     """
@@ -138,10 +143,55 @@ class GrampsNavigationContext:
         "secondary_obj",
     )
 
-    def __init__(self, primary_obj, reference_obj, secondary_obj):
-        self.primary_obj = primary_obj
-        self.reference_obj = reference_obj
-        self.secondary_obj = secondary_obj
+    def __init__(self, primary_obj=None, reference_obj=None, secondary_obj=None):
+        self.load(primary_obj, reference_obj, secondary_obj)
+
+    def __getstate__(self):
+        """
+        Return object state, used for pickling.
+        """
+        if self.reference_obj:
+            reference_obj = self.reference_obj.obj
+        else:
+            reference_obj = None
+
+        if self.secondary_obj:
+            secondary_obj = self.secondary_obj.obj
+        else:
+            secondary_obj = None
+
+        return (self.primary_obj.obj, reference_obj, secondary_obj)
+
+    def __setstate__(self, state):
+        """
+        Set object state, used for unpickling.
+        """
+        (primary_obj, reference_obj, secondary_obj) = state
+        self.load(primary_obj, reference_obj, secondary_obj)
+
+    @property
+    def pickled(self):
+        """
+        Return pickled self.
+        """
+        return pickle.dumps(self)
+
+    def load(self, primary_obj, reference_obj, secondary_obj):
+        """
+        Load objects that provide the context.
+        """
+        if isinstance(primary_obj, GrampsObject):
+            self.primary_obj = primary_obj
+        else:
+            self.primary_obj = GrampsObject(primary_obj)
+        if isinstance(reference_obj, GrampsObject):
+            self.reference_obj = reference_obj
+        else:
+            self.reference_obj = GrampsObject(reference_obj)
+        if isinstance(secondary_obj, GrampsObject):
+            self.secondary_obj = secondary_obj
+        else:
+            self.secondary_obj = GrampsObject(secondary_obj)
 
     @property
     def page_type(self):
@@ -159,26 +209,73 @@ class GrampsNavigationContext:
         return self.primary_obj.obj_type
 
     @property
-    def location(self):
+    def page_location(self):
         """
         Return location tuple for navigation history.
         """
-        full_tuple = (
-            self.page_type,
-            self.primary_obj.obj_type,
-            self.primary_obj.get_handle(),
-            None,
-            None,
-            None,
-            None,
-        )
         if self.reference_obj:
-            full_tuple[3] = self.reference_obj.obj_type
-            full_tuple[4] = self.reference_obj.ref
+            reference_obj_type = self.reference_obj.obj_type
+            reference_obj_handle = self.reference_obj.obj.ref
+        else:
+            reference_obj_type = None
+            reference_obj_handle = None
+
         if self.secondary_obj:
-            full_tuple[5] = self.secondary_obj.obj_type
-            full_tuple[6] = self.secondary_obj.obj_hash
-        return full_tuple
+            secondary_obj_type = self.secondary_obj.obj_type
+            if secondary_obj_type == "Tag":
+                secondary_obj_hash = self.secondary_obj.obj.get_handle()
+            else:
+                secondary_obj_hash = self.secondary_obj.obj_hash
+        else:
+            secondary_obj_type = None
+            secondary_obj_hash = None
+
+        return (
+            self.primary_obj.obj_type,
+            self.primary_obj.obj.get_handle(),
+            reference_obj_type,
+            reference_obj_handle,
+            secondary_obj_type,
+            secondary_obj_hash,
+        )
+
+    def load_page_location(self, grstate, history_page_location):
+        """
+        Load a navigation history location tuple.
+        """
+        (
+            primary_obj_type,
+            primary_obj_handle,
+            reference_obj_type,
+            reference_obj_handle,
+            secondary_obj_type,
+            secondary_obj_hash,
+        ) = history_page_location
+
+        primary_obj = grstate.fetch(primary_obj_type, primary_obj_handle)
+        if reference_obj_type and reference_obj_handle:
+            reference_obj = find_reference(
+                primary_obj, reference_obj_type, reference_obj_handle
+            )
+        else:
+            reference_obj = None
+
+        if secondary_obj_type and secondary_obj_hash:
+            if reference_obj:
+                secondary_obj = find_secondary_object(
+                    reference_obj,
+                    secondary_obj_type,
+                    secondary_obj_hash,
+                )
+            else:
+                secondary_obj = find_secondary_object(
+                    primary_obj,
+                    secondary_obj_type,
+                    secondary_obj_hash,
+                )
+        else:
+            secondary_obj = None
+        self.load(primary_obj, reference_obj, secondary_obj)
 
 
 # ------------------------------------------------------------------------
@@ -193,11 +290,17 @@ class GrampsState:
 
     __slots__ = ("dbstate", "uistate", "callbacks", "config", "page_type")
 
-    def __init__(self, dbstate, uistate, callbacks, config, page_type):
+    def __init__(self, dbstate, uistate, callbacks, config):
         self.dbstate = dbstate
         self.uistate = uistate
         self.callbacks = callbacks
         self.config = config
+        self.page_type = ""
+
+    def set_page_type(self, page_type):
+        """
+        Set the page type.
+        """
         self.page_type = page_type
 
     def fetch(self, obj_type, obj_handle):
@@ -212,17 +315,11 @@ class GrampsState:
         """
         return self.callbacks["fetch-thumbnail"](path, rectangle, size)
 
-    def object_changed(self, obj_type, handle):
+    def load_page(self, context):
         """
-        Change page object for simple primary objects.
+        Load the proper page for the given context.
         """
-        return self.callbacks["object-changed"](obj_type, handle)
-
-    def context_changed(self, obj_type, data):
-        """
-        Change page context across full navigatable spectrum.
-        """
-        return self.callbacks["context-changed"](obj_type, data)
+        return self.callbacks["load-page"](context)
 
     def copy_to_clipboard(self, data, handle):
         """

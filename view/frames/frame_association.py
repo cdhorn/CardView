@@ -55,6 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -234,15 +235,8 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            data = pickle.dumps(
-                (
-                    "Person",
-                    self.base_person,
-                    "PersonRef",
-                    self.ref_person.get_handle(),
-                )
-            )
-            return self.grstate.context_changed("PersonRef", data)
+            context = GrampsContext(self.base_person, self.secondary.obj, None)
+            return self.grstate.load_page(context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """

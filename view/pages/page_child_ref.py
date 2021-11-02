@@ -51,7 +51,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated
+from ..common.common_utils import button_activated, find_referencer
 from ..frames.frame_child import ChildGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from .page_base import BaseProfilePage
@@ -103,21 +103,18 @@ class ChildRefProfilePage(BaseProfilePage):
         Disable page actions.
         """
 
-    def render_page(self, header, vbox, person, secondary=None):
+    def render_page(self, header, vbox, context):
         """
         Render view for the page.
         """
         list(map(header.remove, header.get_children()))
         list(map(vbox.remove, vbox.get_children()))
-        if not person or not secondary:
+        if not context:
             return
 
-        family = self.grstate.dbstate.db.get_family_from_handle(secondary)
-
-        child_ref = None
-        for child_ref in family.get_child_ref_list():
-            if child_ref.ref == person.get_handle():
-                break
+        family = context.primary_obj.obj
+        child_ref = context.reference_obj.obj
+        person = self.grstate.fetch("Person", child_ref.ref)
 
         groptions = GrampsOptions("options.active.family")
         groptions.set_vertical(False)
