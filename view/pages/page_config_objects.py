@@ -227,6 +227,13 @@ def build_family_grid(configdialog, grstate, space, extra=False):
         "{}.family.show-matrilineal".format(space),
         start=1,
     )
+    configdialog.add_checkbox(
+        grid1,
+        _("Show relationship if related"),
+        8,
+        "{}.family.show-relationship".format(space),
+        start=1,
+    )
     grid.attach(grid1, 0, 0, 1, 1)
 
     grid2A = create_grid()

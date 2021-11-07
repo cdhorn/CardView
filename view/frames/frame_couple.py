@@ -91,13 +91,18 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             )
             self.widgets["title"].pack_start(title, True, True, 0)
 
-        event_cache = []
-        for event_ref in family.get_event_ref_list():
-            event_cache.append(self.fetch("Event", event_ref.ref))
         if "active" in groptions.option_space:
             anchor = "options.active.family"
         else:
             anchor = "options.group.family"
+
+        if self.get_option("{}.show-relationship".format(anchor)):
+            if self.parent1 and self.parent2:
+                self.load_relationship(self.parent1, self.parent2)
+
+        event_cache = []
+        for event_ref in family.get_event_ref_list():
+            event_cache.append(self.fetch("Event", event_ref.ref))
         self.load_fields(event_cache, anchor, "facts-field")
         if "active" in groptions.option_space:
             self.load_fields(event_cache, anchor, "extra-field", extra=True)
@@ -197,6 +202,23 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             data_content.pack_end(
                 self.widgets["image"], expand=False, fill=False, padding=0
             )
+
+    def load_relationship(self, person1, person2):
+        """
+        If couple are related show how.
+        """
+        relations = self.grstate.uistate.relationship.get_all_relationships(
+            self.grstate.dbstate.db, person1, person2
+        )
+        for relation in relations[0]:
+            if _("husband") not in relation and _("wife") not in relation:
+                label = self.make_label(_("Relationship"))
+                text = relation
+                if "(" in text:
+                    text = text.split("(")[0].strip()
+                relation = self.make_label(text.capitalize())
+                self.add_fact(relation, label=label)
+                break
 
     def load_fields(self, event_cache, anchor, field_type, extra=False):
         """
