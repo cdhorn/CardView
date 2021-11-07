@@ -110,7 +110,7 @@ class FamilyProfilePage(BaseProfilePage):
             return
 
         family = context.primary_obj.obj
-        
+
         groups = {
             "partner1": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "partner2": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),

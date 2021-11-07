@@ -49,6 +49,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
 from ..common.common_classes import GrampsState
+from ..common.common_const import GROUP_LABELS
+from ..groups.group_const import OBJECT_GROUPS
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
     CONFIDENCE_TYPE,
@@ -78,7 +80,6 @@ from .page_config_timeline import (
     build_family_timeline_grid,
     build_person_timeline_grid,
 )
-from .page_const import LABELS, OBJECT_GROUPS
 from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
@@ -170,11 +171,11 @@ class BaseProfilePage:
                 obj_groups[group], expand=False, fill=True, padding=0
             )
             if not title:
-                title = LABELS[group]
+                title = GROUP_LABELS[group]
             else:
                 if " & " in title:
                     title = title.replace(" &", ",")
-                title = "{} & {}".format(title, LABELS[group])
+                title = "{} & {}".format(title, GROUP_LABELS[group])
             if not self.config.get("{}.{}.stacked".format(space, group)):
                 if scrolled:
                     self.container.pack_start(
@@ -218,11 +219,11 @@ class BaseProfilePage:
                 obj_groups[group], expand=True, fill=True, padding=0
             )
             if not title:
-                title = LABELS[group]
+                title = GROUP_LABELS[group]
             else:
                 if " & " in title:
                     title = title.replace(" &", ",")
-                title = "{} & {}".format(title, LABELS[group])
+                title = "{} & {}".format(title, GROUP_LABELS[group])
             if self.config.get("{}.{}.stacked".format(space, group)):
                 in_stack = True
                 if not sbox:

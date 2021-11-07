@@ -59,7 +59,6 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext
-from ..common.common_const import _LEFT_BUTTON
 from ..common.common_utils import (
     TextLink,
     button_activated,
@@ -398,7 +397,7 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
     a Gramps object.
     """
 
-    def __init__(self, grstate, groptions, size=5):
+    def __init__(self, grstate, groptions, size=4):
         Gtk.HBox.__init__(self, halign=Gtk.Align.END, valign=Gtk.Align.END)
         GrampsConfig.__init__(self, grstate, groptions)
         self.flowbox = Gtk.FlowBox(
@@ -406,6 +405,7 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             homogeneous=False,
             valign=Gtk.Align.END,
         )
+        self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.pack_end(self.flowbox, True, True, 0)
         self.obj = None
         self.obj_type = None
@@ -438,37 +438,61 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             and check("options.global.indicate-children")
             and obj.get_child_ref_list()
         ):
-            self.add_icon("gramps-person", tooltip=_("Children"))
+            self.add_icon("gramps-person", "child", tooltip=_("Children"))
         if (
-            check("options.global.indicate-media")
-            and hasattr(obj, "media_list")
-            and obj.get_media_list()
+            check("options.global.indicate-events")
+            and hasattr(obj, "event_ref_list")
+            and obj.get_event_ref_list()
         ):
-            self.add_icon("gramps-media", tooltip=_("Media"))
+            self.add_icon("gramps-event", "event", tooltip=_("Events"))
+        if (
+            check("options.global.indicate-ordinances")
+            and hasattr(obj, "lds_ord_list")
+            and obj.get_lds_ord_list()
+        ):
+            self.add_icon(
+                "emblem-documents", "ordinance", tooltip=_("Ordinances")
+            )
         if (
             check("options.global.indicate-attributes")
             and hasattr(obj, "attribute_list")
             and obj.get_attribute_list()
         ):
-            self.add_icon("gramps-attribute", tooltip=_("Attributes"))
+            self.add_icon(
+                "gramps-attribute", "attribute", tooltip=_("Attributes")
+            )
+        if (
+            check("options.global.indicate-media")
+            and hasattr(obj, "media_list")
+            and obj.get_media_list()
+        ):
+            self.add_icon("gramps-media", "media", tooltip=_("Media"))
         if (
             check("options.global.indicate-citations")
             and hasattr(obj, "citation_list")
             and obj.get_citation_list()
         ):
-            self.add_icon("gramps-citation", tooltip=_("Citations"))
+            self.add_icon(
+                "gramps-citation", "citation", tooltip=_("Citations")
+            )
         if (
             check("options.global.indicate-notes")
             and hasattr(obj, "note_list")
             and obj.get_note_list()
         ):
-            self.add_icon("gramps-notes", tooltip=_("Notes"))
+            self.add_icon("gramps-notes", "note", tooltip=_("Notes"))
+        if (
+            check("options.global.indicate-addresses")
+            and hasattr(obj, "address_list")
+            and obj.get_address_list()
+        ):
+            self.add_icon("gramps-address", "address", tooltip=_("Addresses"))
         if (
             check("options.global.indicate-urls")
             and hasattr(obj, "urls")
             and obj.get_url_list()
         ):
-            self.add_icon("gramps-url", tooltip=_("Urls"))
+            self.add_icon("gramps-url", "url", tooltip=_("Urls"))
         self.show_all()
 
     def __load_person(self, obj, check):
@@ -476,27 +500,29 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
         Examine and load indicators for a person.
         """
         if (
-            check("options.global.indicate-addresses")
-            and obj.get_address_list()
+            check("options.global.indicate-names")
+            and obj.get_alternate_names()
         ):
-            self.add_icon("gramps-address", tooltip=_("Addresses"))
-        if (
-            check("options.global.indicate-associations")
-            and obj.get_person_ref_list()
-        ):
-            self.add_icon("gramps-person", tooltip=_("Associations"))
+            self.add_icon("user-info", "name", tooltip=_("Names"))
         if (
             check("options.global.indicate-parents")
             and obj.get_parent_family_handle_list()
         ):
-            self.add_icon("gramps-family", tooltip=_("Parents"))
+            self.add_icon("gramps-family", "parent", tooltip=_("Parents"))
         if (
             check("options.global.indicate-spouses")
             and obj.get_family_handle_list()
         ):
-            self.add_icon("gramps-spouse", tooltip=_("Spouses"))
+            self.add_icon("gramps-spouse", "spouse", tooltip=_("Spouses"))
+        if (
+            check("options.global.indicate-associations")
+            and obj.get_person_ref_list()
+        ):
+            self.add_icon(
+                "gramps-person", "association", tooltip=_("Associations")
+            )
 
-    def add_icon(self, icon_name, tooltip=None):
+    def add_icon(self, icon_name, group_type, tooltip=None):
         """
         Add an indicator icon.
         """
@@ -506,13 +532,14 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             tooltip_text="{} {}".format(_("Object has"), tooltip)
         )
         eventbox.add(icon)
-        eventbox.connect("button-press-event", self.__icon_click)
+        eventbox.connect("button-press-event", self.__icon_click, group_type)
         self.flowbox.add(eventbox)
 
-    def __icon_click(self, _dummy_obj, _dummy_event):
+    def __icon_click(self, _dummy_obj, _dummy_event, group_type):
         """
-        Ignore click.
+        Launch group dialog.
         """
+        self.grstate.show_group(self.obj, group_type)
 
 
 # ------------------------------------------------------------------------

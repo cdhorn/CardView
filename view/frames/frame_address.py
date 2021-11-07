@@ -30,13 +30,11 @@ AddressGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext
 from ..common.common_utils import get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 

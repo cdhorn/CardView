@@ -69,7 +69,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsObject, GrampsContext
+from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -94,26 +94,16 @@ class GrampsFrame(GrampsFrameView):
     Provides core methods for working with the Gramps objects it manages.
     """
 
-    def __init__(self, grstate, groptions, primary_obj, secondary_obj=None):
+    def __init__(self, grstate, groptions, primary_obj):
         GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
-        if self.primary.is_reference:
-            self.reference = self.primary
-            real_primary_obj = self.fetch(
-                self.primary.obj_type.replace("Ref", ""), self.primary.obj.ref
-            )
-            self.primary = GrampsObject(real_primary_obj)
-        else:
-            self.reference = None
-        self.secondary = GrampsObject(secondary_obj)
-        if self.secondary and not self.secondary.is_reference:
-            self.focus = self.secondary
-        else:
-            self.focus = self.primary
+        self.secondary = None
+        self.reference = None
+        self.focus = self.primary
         self.dnd_drop_targets = []
         self.css = ""
         self.action_menu = None
-        self.init_layout(secondary=self.secondary)
+        self.init_layout()
         self.eventbox.connect("button-press-event", self.route_action)
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
@@ -873,12 +863,7 @@ class GrampsFrame(GrampsFrameView):
         context = self.frame.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
-        if (
-            self.secondary
-            and self.secondary.is_reference
-            and self.ref_frame
-            and self.groptions.ref_mode != 1
-        ):
+        if self.groptions.ref_mode in [1, 3]:
             context = self.ref_frame.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class("frame")

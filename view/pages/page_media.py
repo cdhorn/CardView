@@ -79,7 +79,7 @@ class MediaProfilePage(BaseProfilePage):
             return
 
         media = context.primary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.media")
         self.active_profile = ImageGrampsFrame(self.grstate, groptions, media)
 

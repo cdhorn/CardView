@@ -70,20 +70,19 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         if "parent" in groptions.option_space:
             context = "sibling"
 
+        groptions.set_backlink(family.get_handle())
+        groptions.option_space = "options.group.{}".format(context)
+        groptions.set_ref_mode(
+            grstate.config.get(
+                "options.group.{}.reference-mode".format(context)
+            )
+        )
+
         child_number = 0
         for child_ref in self.family.get_child_ref_list():
             if child_ref:
-                child = self.fetch("Person", child_ref.ref)
+                #                child = self.fetch("Person", child_ref.ref)
                 groptions_copy = copy(groptions)
-                groptions_copy.set_backlink(family.get_handle())
-                groptions_copy.option_space = "options.group.{}".format(
-                    context
-                )
-                groptions_copy.set_ref_mode(
-                    self.grstate.config.get(
-                        "options.group.{}.reference-mode".format(context)
-                    )
-                )
                 child_number = child_number + 1
                 if self.grstate.config.get(
                     "options.group.{}.number-children".format(context)
@@ -92,7 +91,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                 profile = ChildGrampsFrame(
                     grstate,
                     groptions_copy,
-                    child,
+                    family,
                     child_ref,
                 )
                 self.add_frame(profile)

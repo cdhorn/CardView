@@ -55,7 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext
+from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -92,8 +92,10 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             grstate,
             groptions,
             self.ref_person,
-            obj_ref=person_ref,
         )
+        if not groptions.ref_mode:
+            return
+        self.reference = GrampsObject(person_ref)
         self.base_person = person
         self.dnd_drop_ref_targets = []
         self.ref_widgets["id"].load(
@@ -105,7 +107,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         association = person_ref.get_relation()
         if not association:
             association = _("[None Provided]")
-        if groptions.ref_mode == 1:
+        if groptions.ref_mode == 2:
             self.ref_widgets["body"].pack_start(
                 self.make_label(_("Association"), left=False), False, False, 0
             )
@@ -127,7 +129,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             grstate.dbstate.db, person, self.ref_person
         )
         if relation:
-            if groptions.ref_mode == 1:
+            if groptions.ref_mode == 2:
                 self.ref_widgets["body"].pack_start(
                     self.make_label(_("Relationship"), left=False),
                     False,
@@ -165,7 +167,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             )
 
         self.enable_drag(
-            obj=self.secondary,
+            obj=self.reference,
             eventbox=self.ref_eventbox,
             drag_data_get=self.drag_data_ref_get,
         )
@@ -181,15 +183,15 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Return requested data.
         """
-        if info == self.secondary.dnd_type.app_id:
+        if info == self.reference.dnd_type.app_id:
             returned_data = (
-                self.secondary.dnd_type.drag_type,
+                self.reference.dnd_type.drag_type,
                 id(self),
-                self.secondary.obj,
+                self.reference.obj,
                 0,
             )
             data.set(
-                self.secondary.dnd_type.atom_drag_type,
+                self.reference.dnd_type.atom_drag_type,
                 8,
                 pickle.dumps(returned_data),
             )
@@ -225,7 +227,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data and hasattr(self.secondary.obj, "note_list"):
+        if data and hasattr(self.reference.obj, "note_list"):
             self.add_new_ref_note(None, content=data)
 
     def route_ref_action(self, obj, event):
@@ -235,7 +237,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            context = GrampsContext(self.base_person, self.secondary.obj, None)
+            context = GrampsContext(self.base_person, self.reference, None)
             return self.grstate.load_page(context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
@@ -247,7 +249,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             action_menu.append(self._edit_person_ref_option())
             action_menu.append(
                 self._citations_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_citation,
                     self.add_existing_ref_citation,
                     self.remove_ref_citation,
@@ -255,7 +257,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             )
             action_menu.append(
                 self._notes_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -294,7 +296,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                self.secondary.obj,
+                self.reference.obj,
                 self.save_person_ref,
             )
         except WindowActiveError:
@@ -341,7 +343,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.secondary.obj.add_citation(handle):
+        if handle and self.reference.obj.add_citation(handle):
             citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
@@ -351,7 +353,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 _("PersonRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_person_ref(self.secondary.obj, action_text=action)
+            self.save_person_ref(self.reference.obj, action_text=action)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -416,7 +418,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 self.primary.obj.get_gramps_id(),
             )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.secondary.obj.remove_citation_references(
+                self.reference.obj.remove_citation_references(
                     [citation.get_handle()]
                 )
                 self.grstate.dbstate.db.commit_person(self.base_person, trans)
@@ -443,7 +445,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary.obj.add_note(handle):
+        if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
@@ -453,7 +455,7 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 _("PersonRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_person_ref(self.secondary.obj, action_text=action)
+            self.save_person_ref(self.reference.obj, action_text=action)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -490,14 +492,14 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                 self.primary.obj.get_gramps_id(),
             )
             with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.secondary.obj.remove_note(note.get_handle())
+                self.reference.obj.remove_note(note.get_handle())
                 self.grstate.dbstate.db.commit_person(self.base_person, trans)
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary.obj.get_privacy():
+        if self.reference.obj.get_privacy():
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),
@@ -526,5 +528,5 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             text,
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.secondary.obj.set_privacy(mode)
+            self.reference.obj.set_privacy(mode)
             self.grstate.dbstate.db.commit_person(self.base_person, trans)

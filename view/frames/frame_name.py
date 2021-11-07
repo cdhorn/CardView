@@ -30,7 +30,6 @@ NameGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -126,8 +125,8 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         """
         Initiate switch to name page.
         """
-        page_context = GrampsContext(self.primary.obj, None, self.secondary.obj)
-        return self.grstate.load_page(page_context.pickled)
+        grcontext = GrampsContext(self.primary, None, self.secondary)
+        return self.grstate.load_page(grcontext.pickled)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """

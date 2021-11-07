@@ -42,8 +42,9 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import ConfigReset
-from .page_const import LABELS, PAGES
+from .page_const import PAGES
 from .page_utils import create_grid, make_scrollable
 
 _ = glocale.translation.sgettext
@@ -112,7 +113,7 @@ class ProfilePageLayout(Gtk.VBox):
         for field in current_groups:
             space = "{}.{}".format(self.space, field)
             row = ProfileRowLayout(
-                self.config, space, LABELS[field], groups, number
+                self.config, space, GROUP_LABELS[field], groups, number
             )
             self.columns.add_row(row)
             number = number + 1

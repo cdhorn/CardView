@@ -230,7 +230,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             source = self.fetch("Source", self.groptions.backlink)
             context = GrampsContext(source, self.secondary.obj, None)
             return self.grstate.load_page(context.pickled)
-        
+
     def build_ref_action_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click on a reference object.

@@ -57,6 +57,7 @@ from gramps.gui.views.bookmarks import PersonBookmarks
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_utils import get_config_option, save_config_option
+from view.groups.group_widgets import FrameGroupWindow
 from view.pages.page_address import AddressProfilePage
 from view.pages.page_attribute import AttributeProfilePage
 from view.pages.page_child_ref import ChildRefProfilePage
@@ -125,6 +126,7 @@ class LinkedView(ExtendedNavigationView):
         self._init_pages()
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
+        self.group_window = None
 
         dbstate.connect("database-changed", self.change_db)
         uistate.connect("nameformat-changed", self.build_tree)
@@ -191,6 +193,7 @@ class LinkedView(ExtendedNavigationView):
             "fetch-thumbnail": self.fetch_thumbnail,
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
+            "show-group": self.show_group,
         }
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
@@ -263,7 +266,8 @@ class LinkedView(ExtendedNavigationView):
         Monitor configuration options for changes.
         """
         for item in self.CONFIGSETTINGS:
-            self._config.connect(item[0], self.config_update)
+            if item[0][:9] != "interface":
+                self._config.connect(item[0], self.config_update)
 
     def config_update(self, *_dummy_args):
         """
@@ -309,14 +313,16 @@ class LinkedView(ExtendedNavigationView):
             if obj_type == self.passed_navtype:
                 obj_history = self.passed_uistate.history_lookup[nav_obj]
                 if obj_history and obj_history.present():
-                    self.history.push((
-                        obj_type,
-                        obj_history.present(),
-                        None,
-                        None,
-                        None,
-                        None,
-                    ))
+                    self.history.push(
+                        (
+                            obj_type,
+                            obj_history.present(),
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                    )
                     return True
         return False
 
@@ -720,10 +726,14 @@ class LinkedView(ExtendedNavigationView):
         if self.active_page:
             self.active_page.disable_actions(self.uimanager)
 
+        if self.group_window:
+            self.group_window.close()
+
         self._clear_change()
         if not page_context.primary_obj:
             return
 
+        print("render_page: {}".format(page_context.page_type))
         page = self.pages[page_context.page_type]
         page.render_page(self.header, self.vbox, page_context)
         page.enable_actions(self.uimanager, page_context.primary_obj)
@@ -803,3 +813,20 @@ class LinkedView(ExtendedNavigationView):
         Add the given tag to the active object.
         """
         self.active_page.add_tag(trans, object_handle, tag_handle)
+
+    def show_group(self, obj, group_type):
+        """
+        Display a particular group of objects.
+        """
+        if self.group_window:
+            self.group_window.reload(obj, group_type)
+        else:
+            self.group_window = FrameGroupWindow(
+                self.grstate, obj, group_type, self._clear_window
+            )
+
+    def _clear_window(self):
+        """
+        Clear window.
+        """
+        self.group_window = None

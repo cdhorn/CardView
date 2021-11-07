@@ -116,7 +116,7 @@ class AddressProfilePage(BaseProfilePage):
 
         person = context.primary_obj.obj
         address = context.secondary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(
             self.grstate, groptions, person

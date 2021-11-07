@@ -57,7 +57,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext
+from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     TextLink,
@@ -101,7 +101,8 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         category=None,
         groups=None,
     ):
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, event, event_ref)
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, event)
+        self.reference = GrampsObject(event_ref)
         self.event = event
         self.event_ref = event_ref
         self.event_category = category

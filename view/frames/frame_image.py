@@ -36,13 +36,13 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-from ..common.common_utils import TextLink
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsObject
+from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -60,8 +60,12 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
 
     def __init__(self, grstate, groptions, media, media_ref=None):
         PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, media, secondary_obj=media_ref
+            self,
+            grstate,
+            groptions,
+            media,
         )
+        self.reference = GrampsObject(media_ref)
 
         title = TextLink(
             media.get_description(),

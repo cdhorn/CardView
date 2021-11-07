@@ -78,12 +78,12 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.ref_widgets = {}
         self.ref_eventbox = None
 
-    def init_layout(self, secondary=None):
+    def init_layout(self):
         """
         Initialize the default frame layout.
         """
         self._init_widgets()
-        if secondary and secondary.is_reference:
+        if self.groptions.ref_mode:
             self._prepare_ref_layout()
         else:
             self._prepare_normal_layout()
@@ -146,7 +146,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.ref_eventbox = Gtk.EventBox()
         self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.ref_eventbox.add(self.ref_frame)
-        if self.groptions.ref_mode == 1:
+        if self.groptions.ref_mode == 2:
             self._prepare_horizontal_ref_layout()
         else:
             self._prepare_vertical_ref_layout()
@@ -173,9 +173,13 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         ref_body.pack_start(
             self.ref_widgets["body"], expand=True, fill=True, padding=0
         )
-        ref_body.pack_end(
-            self.ref_widgets["indicators"], expand=False, fill=False, padding=0
-        )
+        if "indicators" in self.ref_widgets:
+            ref_body.pack_end(
+                self.ref_widgets["indicators"],
+                expand=False,
+                fill=False,
+                padding=0,
+            )
         self.ref_frame.add(ref_body)
         self.eventbox.add(self.widgets["body"])
 
@@ -184,10 +188,10 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Prepare a vertical reference layout, placing it on top or bottom.
         """
         self.set_spacing(3)
-        if self.groptions.ref_mode == 0:
+        if self.groptions.ref_mode == 1:
             self.pack_start(self.ref_eventbox, True, True, 0)
             self.pack_start(self.eventbox, True, True, 0)
-        elif self.groptions.ref_mode == 2:
+        elif self.groptions.ref_mode == 3:
             self.pack_start(self.eventbox, True, True, 0)
             self.pack_start(self.ref_eventbox, True, True, 0)
         ref_body = Gtk.HBox(hexpand=True, margin=3)
@@ -200,9 +204,13 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         attribute_block.pack_start(
             self.ref_widgets["id"], expand=False, fill=False, padding=0
         )
-        attribute_block.pack_end(
-            self.ref_widgets["indicators"], expand=False, fill=False, padding=0
-        )
+        if "indicators" in self.ref_widgets:
+            attribute_block.pack_end(
+                self.ref_widgets["indicators"],
+                expand=False,
+                fill=False,
+                padding=0,
+            )
         ref_body.pack_end(attribute_block, expand=False, fill=False, padding=0)
         self.ref_frame.add(ref_body)
         self.frame.add(self.widgets["body"])

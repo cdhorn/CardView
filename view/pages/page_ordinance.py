@@ -103,7 +103,7 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
 
         primary = context.primary_obj.obj
         ldsord = context.secondary_obj.obj
-        
+
         self.focus_type = get_gramps_object_type(primary)
 
         (option, frame) = FRAME_MAP[self.focus_type]

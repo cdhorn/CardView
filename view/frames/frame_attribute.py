@@ -30,7 +30,6 @@ AttributeGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.alive import probably_alive
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -53,13 +52,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
     The AttributeGrampsFrame exposes facts about an Attribute.
     """
 
-    def __init__(
-        self,
-        grstate,
-        groptions,
-        obj,
-        attribute,
-    ):
+    def __init__(self, grstate, groptions, obj, attribute):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, attribute)
 
         name = glocale.translation.sgettext(attribute.get_type().xml_str())

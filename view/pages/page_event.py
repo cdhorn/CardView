@@ -81,7 +81,7 @@ class EventProfilePage(BaseProfilePage):
             return
 
         event = context.primary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.event")
         self.active_profile = EventGrampsFrame(
             self.grstate,

@@ -115,7 +115,7 @@ class NameProfilePage(BaseProfilePage):
 
         person = page_context.primary_obj.obj
         name = page_context.secondary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(
             self.grstate, groptions, person

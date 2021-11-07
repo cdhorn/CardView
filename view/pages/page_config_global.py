@@ -227,71 +227,92 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable parents indicator"),
+        _("Enable names indicator"),
         2,
+        "options.global.indicate-names",
+        tooltip=_("Indicates whether to enable additional names indicator."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable parents indicator"),
+        3,
         "options.global.indicate-parents",
         tooltip=_("Indicates whether to enable parent indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable spouses indicator"),
-        3,
+        4,
         "options.global.indicate-spouses",
         tooltip=_("Indicates whether to enable spouse indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable children indicator"),
-        4,
+        5,
         "options.global.indicate-children",
         tooltip=_("Indicates whether to enable children indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable associations indicator"),
-        5,
+        6,
         "options.global.indicate-associations",
         tooltip=_("Indicates whether to enable associations indicator."),
     )
     configdialog.add_checkbox(
         grid3,
+        _("Enable events indicator"),
+        7,
+        "options.global.indicate-events",
+        tooltip=_("Indicates whether to enable event indicator."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable ordinances indicator"),
+        8,
+        "options.global.indicate-ordinances",
+        tooltip=_("Indicates whether to enable ordinance indicator."),
+    )
+    configdialog.add_checkbox(
+        grid3,
         _("Enable media indicator"),
-        6,
+        9,
         "options.global.indicate-media",
         tooltip=_("Indicates whether to enable media indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable attributes indicator"),
-        7,
+        10,
         "options.global.indicate-attributes",
         tooltip=_("Indicates whether to enable attributes indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable addresses indicator"),
-        8,
+        11,
         "options.global.indicate-addresses",
         tooltip=_("Indicates whether to enable addresses indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable citations indicator"),
-        9,
+        12,
         "options.global.indicate-citations",
         tooltip=_("Indicates whether to enable citations indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable notes indicator"),
-        10,
+        13,
         "options.global.indicate-notes",
         tooltip=_("Indicates whether to enable notes indicator."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable urls indicator"),
-        11,
+        14,
         "options.global.indicate-urls",
         tooltip=_("Indicates whether to enable urls indicator."),
     )

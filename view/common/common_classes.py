@@ -56,9 +56,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from .common_const import GRAMPS_OBJECTS
 from .common_utils import (
-    get_config_option,
     find_reference,
     find_secondary_object,
+    get_config_option,
 )
 
 _ = glocale.translation.sgettext
@@ -143,7 +143,9 @@ class GrampsContext:
         "secondary_obj",
     )
 
-    def __init__(self, primary_obj=None, reference_obj=None, secondary_obj=None):
+    def __init__(
+        self, primary_obj=None, reference_obj=None, secondary_obj=None
+    ):
         self.load(primary_obj, reference_obj, secondary_obj)
 
     def __getstate__(self):
@@ -333,6 +335,12 @@ class GrampsState:
         """
         return self.callbacks["update-history-reference"](old, new)
 
+    def show_group(self, obj, group_type):
+        """
+        Display a group of objects.
+        """
+        return self.callbacks["show-group"](obj, group_type)
+
 
 # ------------------------------------------------------------------------
 #
@@ -361,7 +369,7 @@ class GrampsOptions:
         self.option_space = option_space
         self.size_groups = size_groups
         self.frame_number = frame_number
-        self.ref_mode = 1
+        self.ref_mode = 0
         self.vertical_orientation = True
         self.backlink = None
         self.relation = None

@@ -52,6 +52,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsObject
 from .frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext
@@ -70,8 +71,12 @@ class SecondaryGrampsFrame(GrampsFrame):
 
     def __init__(self, grstate, groptions, primary_obj, secondary_obj):
         GrampsFrame.__init__(
-            self, grstate, groptions, primary_obj, secondary_obj
+            self,
+            grstate,
+            groptions,
+            primary_obj,
         )
+        self.secondary = GrampsObject(secondary_obj)
         self.build_layout()
         self.frame.set_size_request(160, -1)
         self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
@@ -79,7 +84,7 @@ class SecondaryGrampsFrame(GrampsFrame):
             if "active" in self.groptions.option_space:
                 size = 12
             else:
-                size = 5
+                size = 3
             self.widgets["indicators"].load(
                 self.secondary.obj, self.secondary.obj_type, size=size
             )

@@ -86,10 +86,12 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         grstate,
         groptions,
         person,
-        obj_ref=None,
     ):
         PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, person, secondary_obj=obj_ref
+            self,
+            grstate,
+            groptions,
+            person,
         )
         self.relation = groptions.relation
         self.backlink = groptions.backlink

@@ -42,23 +42,6 @@ from ..frames.frame_event import EventGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
-from ..groups.group_utils import (
-    get_addresses_group,
-    get_associations_group,
-    get_attributes_group,
-    get_children_group,
-    get_citations_group,
-    get_media_group,
-    get_names_group,
-    get_notes_group,
-    get_ordinances_group,
-    get_parents_group,
-    get_references_group,
-    get_repositories_group,
-    get_spouses_group,
-    get_timeline_group,
-    get_urls_group,
-)
 
 _ = glocale.translation.sgettext
 
@@ -118,35 +101,11 @@ TIMELINE_COLOR_MODES = [
 ]
 
 REF_DISPLAY_MODES = [
-    (0, _("Display on top")),
-    (1, _("Display on right")),
-    (2, _("Display on bottom")),
+    (0, _("Not displayed")),
+    (1, _("Display on top")),
+    (2, _("Display on right")),
+    (3, _("Display on bottom")),
 ]
-
-# For layout editor
-LABELS = {
-    "address": _("Addresses"),
-    "association": _("Associations"),
-    "attribute": _("Attributes"),
-    "child": _("Children"),
-    "citation": _("Citations"),
-    "event": _("Events"),
-    "family": _("Families"),
-    "media": _("Media"),
-    "name": _("Names"),
-    "note": _("Notes"),
-    "ldsord": _("Ordinances"),
-    "parent": _("Parents"),
-    "people": _("People"),
-    "person": _("People"),
-    "place": _("Places"),
-    "reference": _("References"),
-    "repository": _("Repositories"),
-    "spouse": _("Spouses"),
-    "timeline": _("Timeline"),
-    "source": _("Sources"),
-    "url": _("Urls"),
-}
 
 # For layout editor
 PAGES = [
@@ -168,25 +127,6 @@ PAGES = [
     ("Source", _("Source")),
     ("Tag", _("Tag")),
 ]
-
-
-OBJECT_GROUPS = {
-    "address": get_addresses_group,
-    "association": get_associations_group,
-    "attribute": get_attributes_group,
-    "child": get_children_group,
-    "citation": get_citations_group,
-    "media": get_media_group,
-    "name": get_names_group,
-    "note": get_notes_group,
-    "ldsord": get_ordinances_group,
-    "parent": get_parents_group,
-    "reference": get_references_group,
-    "repository": get_repositories_group,
-    "spouse": get_spouses_group,
-    "timeline": get_timeline_group,
-    "url": get_urls_group,
-}
 
 
 FRAME_MAP = {

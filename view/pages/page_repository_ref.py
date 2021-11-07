@@ -105,7 +105,9 @@ class RepositoryRefProfilePage(BaseProfilePage):
 
         source = context.primary_obj.obj
         repo_ref = context.reference_obj.obj
-        repository = self.grstate.dbstate.db.get_repository_from_handle(repo_ref.ref)
+        repository = self.grstate.dbstate.db.get_repository_from_handle(
+            repo_ref.ref
+        )
 
         groptions = GrampsOptions("options.active.source")
         source_frame = SourceGrampsFrame(

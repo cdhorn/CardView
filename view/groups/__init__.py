@@ -29,6 +29,7 @@ __all__ = [
     "group_children",
     "group_citations",
     "group_classes",
+    "group_const",
     "group_generic",
     "group_media",
     "group_names",
@@ -39,4 +40,5 @@ __all__ = [
     "group_timeline",
     "group_urls",
     "group_utils",
+    "group_widgets",
 ]

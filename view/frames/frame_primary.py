@@ -76,19 +76,18 @@ from gramps.gui.editors import (
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
-from ..common.common_utils import (
-    attribute_option_text,
-    get_bookmarks,
-    menu_item,
-    submenu_item,
-)
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
+from ..common.common_utils import (
+    attribute_option_text,
+    get_bookmarks,
+    menu_item,
+    submenu_item,
+)
 from .frame_base import GrampsFrame
 from .frame_selectors import get_attribute_types
 from .frame_widgets import GrampsImage
@@ -112,10 +111,12 @@ class PrimaryGrampsFrame(GrampsFrame):
         grstate,
         groptions,
         primary_obj,
-        secondary_obj=None,
     ):
         GrampsFrame.__init__(
-            self, grstate, groptions, primary_obj, secondary_obj=secondary_obj
+            self,
+            grstate,
+            groptions,
+            primary_obj,
         )
         self.build_layout()
         self.load_layout()
@@ -144,7 +145,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             if "active" in self.groptions.option_space:
                 size = 12
             else:
-                size = 5
+                size = 3
             self.widgets["indicators"].load(
                 self.primary.obj, self.primary.obj_type, size=size
             )

@@ -79,7 +79,7 @@ class NoteProfilePage(BaseProfilePage):
             return
 
         note = context.primary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.note")
         self.active_profile = NoteGrampsFrame(self.grstate, groptions, note)
 

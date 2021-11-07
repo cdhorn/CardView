@@ -79,7 +79,7 @@ class PlaceProfilePage(BaseProfilePage):
             return
 
         place = context.primary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.place")
         self.active_profile = PlaceGrampsFrame(self.grstate, groptions, place)
 

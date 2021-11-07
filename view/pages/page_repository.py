@@ -80,7 +80,7 @@ class RepositoryProfilePage(BaseProfilePage):
             return
 
         repository = context.primary_obj.obj
-        
+
         groptions = GrampsOptions("options.active.repository")
         self.active_profile = RepositoryGrampsFrame(
             self.grstate, groptions, repository

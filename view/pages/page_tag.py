@@ -41,10 +41,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
+from ..common.common_const import GROUP_LABELS
 from ..frames.frame_tag import TagGrampsFrame
 from ..groups.group_utils import get_references_group
 from .page_base import BaseProfilePage
-from .page_const import LABELS
 
 _ = glocale.translation.sgettext
 
@@ -108,8 +108,8 @@ class TagProfilePage(BaseProfilePage):
                             self.grstate,
                             None,
                             groptions=groptions,
-                            title_plural=LABELS[key.lower()],
-                            title_single=LABELS[key.lower()],
+                            title_plural=GROUP_LABELS[key.lower()],
+                            title_single=GROUP_LABELS[key.lower()],
                             obj_list=object_list[key],
                         )
                     }

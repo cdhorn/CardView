@@ -99,7 +99,7 @@ class PersonRefProfilePage(BaseProfilePage):
 
         person = context.primary_obj.obj
         person_ref = context.reference_obj.obj
-        
+
         groptions = GrampsOptions("options.active.person")
         person_frame = PersonGrampsFrame(self.grstate, groptions, person)
         groptions = GrampsOptions("options.active.association")

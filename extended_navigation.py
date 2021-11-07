@@ -120,6 +120,7 @@ class ExtendedNavigationView(PageView):
         Return a callback to update our view when a corresponding list
         view change is made.
         """
+
         def sync(handle):
             self.dirty = True
             self.change_active((history_type, handle))
@@ -130,9 +131,7 @@ class ExtendedNavigationView(PageView):
         """
         Handle bookmark change.
         """
-        self.change_active(
-            ("Person", handle, None, None, None, None)
-        )
+        self.change_active(("Person", handle, None, None, None, None))
 
     def navigation_type(self):
         """
@@ -579,7 +578,9 @@ class ExtendedNavigationView(PageView):
                 dummy_secondary_obj_type,
                 dummy_secondary_obj_hash,
             ) = handles[0]
-            return self.copy_to_clipboard(primary_obj_type, [primary_obj_handle])
+            return self.copy_to_clipboard(
+                primary_obj_type, [primary_obj_handle]
+            )
 
 
 def make_callback(func, handle):

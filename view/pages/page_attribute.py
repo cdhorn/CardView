@@ -42,15 +42,15 @@ import hashlib
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-from ..common.common_classes import GrampsOptions
-from ..common.common_utils import get_gramps_object_type
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..common.common_classes import GrampsContext, GrampsOptions
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_attribute import AttributeGrampsFrame
+from ..frames.frame_event import EventGrampsFrame
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
 
@@ -96,6 +96,9 @@ class AttributeProfilePage(BaseProfilePage):
         primary = context.primary_obj.obj
         attribute = context.secondary_obj.obj
         self.focus_type = context.primary_obj.obj_type
+        if context.reference_obj:
+            primary = context.reference_obj.obj
+            self.focus_type = context.reference_obj.obj_type
 
         (option, frame) = FRAME_MAP[self.focus_type]
         groptions = GrampsOptions(option)

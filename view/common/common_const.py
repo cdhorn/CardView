@@ -293,3 +293,29 @@ GRAMPS_OBJECTS = [
         "gramps-event",
     ),
 ]
+
+
+GROUP_LABELS = {
+    "address": _("Addresses"),
+    "association": _("Associations"),
+    "attribute": _("Attributes"),
+    "child": _("Children"),
+    "citation": _("Citations"),
+    "event": _("Events"),
+    "family": _("Families"),
+    "media": _("Media"),
+    "name": _("Names"),
+    "note": _("Notes"),
+    "ldsord": _("Ordinances"),
+    "ordinance": _("Ordinances"),
+    "parent": _("Parents"),
+    "people": _("People"),
+    "person": _("People"),
+    "place": _("Places"),
+    "reference": _("References"),
+    "repository": _("Repositories"),
+    "spouse": _("Spouses"),
+    "timeline": _("Timeline"),
+    "source": _("Sources"),
+    "url": _("Urls"),
+}

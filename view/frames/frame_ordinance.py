@@ -32,7 +32,6 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
 
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -110,7 +109,9 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
         """
         Initiate switch to ordinance page.
         """
-        page_context = GrampsContext(self.primary.obj, None, self.secondary.obj)
+        page_context = GrampsContext(
+            self.primary.obj, None, self.secondary.obj
+        )
         return self.grstate.load_page(page_context.pickled)
 
     def get_color_css(self):

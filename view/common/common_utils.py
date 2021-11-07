@@ -796,6 +796,7 @@ def find_reference(obj, reference_type, reference_handle):
             return reference
     return None
 
+
 def find_referencer(grstate, obj, reference_type, reference_hash):
     if reference_type == "ChildRef":
         seek = ["Family"]
@@ -809,11 +810,14 @@ def find_referencer(grstate, obj, reference_type, reference_hash):
     for (obj_type, obj_handle) in obj_list:
         if obj_type in seek:
             work_obj = grstate.fetch(obj_type, obj_handle)
-            reference = find_secondary_object(work_obj, reference_type, reference_hash)
+            reference = find_secondary_object(
+                work_obj, reference_type, reference_hash
+            )
             if reference:
                 return work_obj
     return None
-    
+
+
 def find_secondary_object(obj, secondary_type, secondary_hash):
     """
     Find secondary object inside a given object.

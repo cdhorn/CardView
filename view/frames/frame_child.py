@@ -56,7 +56,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext
+from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -83,16 +83,20 @@ class ChildGrampsFrame(PersonGrampsFrame):
         self,
         grstate,
         groptions,
-        child,
+        family,
         child_ref,
     ):
+        self.family = family
+        self.child = grstate.fetch("Person", child_ref.ref)
         PersonGrampsFrame.__init__(
             self,
             grstate,
             groptions,
-            child,
-            obj_ref=child_ref,
+            self.child,
         )
+        if not groptions.ref_mode:
+            return
+        self.reference = GrampsObject(child_ref)
         self.dnd_drop_ref_targets = []
         self.ref_widgets["id"].load(
             child_ref, "ChildRef", gramps_id=self.primary.obj.get_gramps_id()
@@ -102,7 +106,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         vbox = None
         if child_ref.get_father_relation():
             reltype = child_ref.get_father_relation()
-            if groptions.ref_mode == 1:
+            if groptions.ref_mode == 2:
                 self.ref_widgets["body"].pack_start(
                     self.make_label(_("Father"), left=False), False, False, 0
                 )
@@ -120,7 +124,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
 
         if child_ref.get_mother_relation():
             reltype = child_ref.get_mother_relation()
-            if groptions.ref_mode == 1:
+            if groptions.ref_mode == 2:
                 self.ref_widgets["body"].pack_start(
                     self.make_label(_("Mother"), left=False), False, False, 0
                 )
@@ -150,7 +154,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
             )
 
         self.enable_drag(
-            obj=self.secondary,
+            obj=self.reference,
             eventbox=self.ref_eventbox,
             drag_data_get=self.drag_data_ref_get,
         )
@@ -166,15 +170,15 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         Return requested data.
         """
-        if info == self.secondary.dnd_type.app_id:
+        if info == self.reference.dnd_type.app_id:
             returned_data = (
-                self.secondary.dnd_type.drag_type,
+                self.reference.dnd_type.drag_type,
                 id(self),
-                self.secondary.obj,
+                self.reference.obj,
                 0,
             )
             data.set(
-                self.secondary.dnd_type.atom_drag_type,
+                self.reference.dnd_type.atom_drag_type,
                 8,
                 pickle.dumps(returned_data),
             )
@@ -210,7 +214,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data and hasattr(self.secondary.obj, "note_list"):
+        if data and hasattr(self.reference.obj, "note_list"):
             self.add_new_ref_note(None, content=data)
 
     def route_ref_action(self, obj, event):
@@ -220,8 +224,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            family = self.fetch("Family", self.groptions.backlink)
-            page_context = GrampsContext(family, self.secondary.obj, None)
+            page_context = GrampsContext(self.family, self.reference.obj, None)
             return self.grstate.load_page(page_context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
@@ -233,7 +236,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
             action_menu.append(self._edit_child_ref_option())
             action_menu.append(
                 self._citations_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_citation,
                     self.add_existing_ref_citation,
                     self.remove_ref_citation,
@@ -241,7 +244,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
             )
             action_menu.append(
                 self._notes_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -282,7 +285,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                self.secondary.obj,
+                self.reference.obj,
                 self.save_child_ref,
             )
         except WindowActiveError:
@@ -341,7 +344,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.secondary.obj.add_citation(handle):
+        if handle and self.reference.obj.add_citation(handle):
             citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
@@ -351,7 +354,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("ChildRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_child_ref(self.secondary.obj, action_text=action)
+            self.save_child_ref(self.reference.obj, action_text=action)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -415,11 +418,11 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("ChildRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_citation_references(
+            self.reference.obj.remove_citation_references(
                 [citation.get_handle()]
             )
             self.save_child_ref(
-                self.secondary.obj, action_text=action, delete=True
+                self.reference.obj, action_text=action, delete=True
             )
 
     def add_new_ref_note(self, _dummy_obj, content=None):
@@ -444,7 +447,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary.obj.add_note(handle):
+        if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
@@ -454,7 +457,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("ChildRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_child_ref(self.secondary.obj, action_text=action)
+            self.save_child_ref(self.reference.obj, action_text=action)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -490,16 +493,16 @@ class ChildGrampsFrame(PersonGrampsFrame):
                 _("ChildRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_note(note.get_handle())
+            self.reference.obj.remove_note(note.get_handle())
             self.save_child_ref(
-                self.secondary.obj, action_text=action, delete=True
+                self.reference.obj, action_text=action, delete=True
             )
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary.obj.private:
+        if self.reference.obj.private:
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),
@@ -529,7 +532,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             for child_ref in family.get_child_ref_list():
-                if child_ref.ref == self.secondary.obj.ref:
+                if child_ref.ref == self.reference.obj.ref:
                     child_ref.set_privacy(mode)
                     break
             self.grstate.dbstate.db.commit_family(family, trans)
