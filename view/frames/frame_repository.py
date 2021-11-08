@@ -80,9 +80,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
     """
 
     def __init__(self, grstate, groptions, repository, repo_ref=None):
-        PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, repository
-        )
+        PrimaryGrampsFrame.__init__(self, grstate, groptions, repository)
         self.reference = GrampsObject(repo_ref)
 
         title = TextLink(

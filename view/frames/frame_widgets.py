@@ -111,7 +111,7 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         """
         list(map(self.remove, self.get_children()))
         self.load(obj, obj_type, gramps_id=gramps_id)
-        
+
     def add_gramps_id(self, obj=None, gramps_id=""):
         """
         Add the gramps id if needed.

@@ -271,7 +271,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 "button-press-event", self.route_ref_action
             )
             self.enable_drag(
-                obj=self.secondary,
+                obj=self.reference,
                 eventbox=self.ref_eventbox,
                 drag_data_get=self.drag_data_ref_get,
             )
@@ -660,15 +660,15 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Return requested data.
         """
-        if info == self.secondary.dnd_type.app_id:
+        if info == self.reference.dnd_type.app_id:
             returned_data = (
-                self.secondary.dnd_type.drag_type,
+                self.reference.dnd_type.drag_type,
                 id(self),
-                self.secondary.obj,
+                self.reference.obj,
                 0,
             )
             data.set(
-                self.secondary.dnd_type.atom_drag_type,
+                self.reference.dnd_type.atom_drag_type,
                 8,
                 pickle.dumps(returned_data),
             )
@@ -702,7 +702,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data and hasattr(self.secondary.obj, "note_list"):
+        if data and hasattr(self.reference.obj, "note_list"):
             self.add_new_ref_note(None, content=data)
 
     def route_ref_action(self, obj, event):
@@ -716,7 +716,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 participant = self.event_family
             else:
                 participant = self.event_person
-            context = GrampsContext(participant, self.secondary.obj, None)
+            context = GrampsContext(participant, self.reference.obj, None)
             return self.grstate.load_page(context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
@@ -728,7 +728,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             action_menu.append(self._edit_event_ref_option())
             action_menu.append(
                 self._notes_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -780,11 +780,11 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary.obj.add_note(handle):
+        if handle and self.reference.obj.add_note(handle):
             if self.event_ref.get_role().is_family():
-                self.update_family_event(self.secondary.obj)
+                self.update_family_event(self.reference.obj)
             else:
-                self.update_person_event(self.secondary.obj)
+                self.update_person_event(self.reference.obj)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -820,7 +820,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 _("EventRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_note(note.get_handle())
+            self.reference.obj.remove_note(note.get_handle())
             if self.event_ref.get_role().is_family():
                 with DbTxn(action, self.grstate.dbstate.db) as trans:
                     self.grstate.dbstate.db.commit_family(
@@ -836,7 +836,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary.obj.private:
+        if self.reference.obj.private:
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),

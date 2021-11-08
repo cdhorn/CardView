@@ -24,6 +24,20 @@ AttributeGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from html import escape
+
+# ------------------------------------------------------------------------
+#
+# GTK modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# ------------------------------------------------------------------------
+#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -36,7 +50,11 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_utils import TextLink, get_person_color_css
+from ..common.common_utils import (
+    TextLink,
+    get_gramps_object_type,
+    get_person_color_css,
+)
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -56,12 +74,22 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, attribute)
 
         name = glocale.translation.sgettext(attribute.get_type().xml_str())
-        label = TextLink(
-            name,
-            self.primary.obj_type,
-            self.primary.obj.get_handle(),
-            self.switch_attribute_page,
-        )
+        if "Ref" not in self.primary.obj_type:
+            label = TextLink(
+                name,
+                self.primary.obj_type,
+                self.primary.obj.get_handle(),
+                self.switch_attribute_page,
+            )
+        else:
+            name = "<b>{}</b>".format(escape(name))
+            label = Gtk.Label(
+                halign=Gtk.Align.START,
+                wrap=True,
+                xalign=0.0,
+                justify=Gtk.Justification.LEFT,
+            )
+            label.set_markup(name)
         self.widgets["title"].pack_start(label, False, False, 0)
 
         if attribute.get_value():
@@ -78,6 +106,22 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         """
         context = GrampsContext(self.primary.obj, None, self.secondary.obj)
         self.grstate.load_page(context.pickled)
+
+    def build_action_menu(self, _dummy_obj, event):
+        """
+        Build the action menu for a right click. First action will always be
+        edit, then any custom actions of the derived children, then the global
+        actions supported for all objects enabled for them.
+        """
+        if "Ref" not in self.primary.obj_type:
+            SecondaryGrampsFrame.build_action_menu(self, _dummy_obj, event)
+
+    def route_action(self, obj, event):
+        """
+        Route the action if the frame was clicked on.
+        """
+        if "Ref" not in self.primary.obj_type:
+            SecondaryGrampsFrame.route_action(self, obj, event)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """
