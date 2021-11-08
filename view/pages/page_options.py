@@ -805,8 +805,9 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Note Options
     ######################################################################
-    ("options.active.note.preview-mode", True),
-    ("options.active.note.preview-lines", 4),
+    ("options.active.note.text-on-top", False),
+    ("options.active.note.preview-mode", False),
+    ("options.active.note.preview-lines", 3),
     ("options.active.note.tag-format", 1),
     ("options.active.note.tag-width", 10),
     ######################################################################
@@ -1143,8 +1144,9 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Note Options
     ######################################################################
+    ("options.group.note.text-on-top", False),
     ("options.group.note.preview-mode", True),
-    ("options.group.note.preview-lines", 4),
+    ("options.group.note.preview-lines", 3),
     ("options.group.note.tag-format", 1),
     ("options.group.note.tag-width", 10),
     ######################################################################

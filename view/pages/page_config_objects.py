@@ -363,8 +363,17 @@ def build_note_grid(configdialog, grstate, space):
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
     configdialog.add_checkbox(
         grid,
-        _("Enable preview mode"),
+        _("Text on top"),
         1,
+        "{}.note.text-on-top".format(space),
+        tooltip=_(
+            "Indicates text should be shown first and then title and metadata."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable preview mode"),
+        2,
         "{}.note.preview-mode".format(space),
         tooltip=_(
             "Indicates only a portion of the full note should be displayed."
@@ -373,11 +382,11 @@ def build_note_grid(configdialog, grstate, space):
     configdialog.add_spinner(
         grid,
         _("Number of lines to preview"),
-        2,
+        3,
         "{}.note.preview-lines".format(space),
         (0, 8),
     )
-    config_tag_fields(configdialog, "{}.note".format(space), grid, 3)
+    config_tag_fields(configdialog, "{}.note".format(space), grid, 4)
     return add_config_reset(
         configdialog, grstate, "{}.note".format(space), grid
     )

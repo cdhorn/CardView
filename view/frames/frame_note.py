@@ -43,6 +43,7 @@ from gramps.gui.widgets import StyledTextBuffer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -88,16 +89,23 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         styled_text_buffer.set_text(text)
         self.text_view.set_buffer(styled_text_buffer)
 
-        text = ""
+        title = ""
         if note.type:
-            text = glocale.translation.sgettext(note.type.xml_str())
+            title = glocale.translation.sgettext(note.type.xml_str())
         if preview_mode:
-            if text:
-                text = "{} ({})".format(text, _("Preview Mode"))
+            if title:
+                title = "{} ({})".format(title, _("Preview"))
             else:
-                text = "{}".format(_("Preview Mode"))
-        if text:
-            self.add_fact(self.make_label(text))
+                title = "{}".format(_("Preview"))
+        if title:
+            label = TextLink(
+                title,
+                "Note",
+                note.get_handle(),
+                self.switch_object,
+                bold=True,
+            )
+            self.add_fact(label)
 
         self.enable_drag()
         self.enable_drop()
@@ -111,16 +119,30 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         self.widgets["body"].pack_start(
             vcontent, expand=True, fill=True, padding=0
         )
-        vcontent.pack_start(self.text_view, expand=True, fill=True, padding=0)
+
         hcontent = Gtk.HBox(hexpand=True)
         hcontent.pack_start(
             self.widgets["facts"], expand=True, fill=True, padding=0
         )
         hcontent.pack_start(
-            self.widgets["attributes"], expand=True, fill=True, padding=0
+            self.widgets["id"], expand=True, fill=True, padding=0
         )
-        vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-        if "tags" in self.widgets:
+
+        if self.get_option("text-on-top"):
             vcontent.pack_start(
-                self.widgets["tags"], expand=True, fill=True, padding=0
+                self.text_view, expand=True, fill=True, padding=0
+            )
+            vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+            if "tags" in self.widgets:
+                vcontent.pack_start(
+                    self.widgets["tags"], expand=True, fill=True, padding=0
+                )
+        else:
+            vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
+            if "tags" in self.widgets:
+                vcontent.pack_start(
+                    self.widgets["tags"], expand=True, fill=True, padding=0
+                )
+            vcontent.pack_start(
+                self.text_view, expand=True, fill=True, padding=0
             )
