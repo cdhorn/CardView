@@ -685,6 +685,7 @@ class ExtendedHistory(Callback):
         Pushes the page reference on the history stack and object on the
         mru stack.
         """
+        print("history.push start: {}".format(item))
         self.prune()
         if len(item) == 2:
             full_item = (item[0], item[1], None, None, None, None)
@@ -699,9 +700,9 @@ class ExtendedHistory(Callback):
                 self.mru.append(mru_item)
                 self.emit("mru-changed", (self.mru,))
             self.index += 1
-        if self.history:
-            self.emit("active-changed", (full_item,))
-        self.sync_other(full_item[0], full_item[1])
+            if self.history:
+                self.emit("active-changed", (full_item,))
+            self.sync_other(full_item[0], full_item[1])
 
     def forward(self, step=1):
         """

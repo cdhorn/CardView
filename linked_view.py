@@ -107,8 +107,9 @@ class LinkedView(ExtendedNavigationView):
         self.viewport = None
         self.dirty = False
         self.active_type = None
+        self.in_change_object = False
+        self.initial_object_loaded = False
 
-        self.loaded = False
         self.passed_uistate = uistate
         self.passed_navtype = None
         if uistate.viewmanager.active_page:
@@ -292,12 +293,12 @@ class LinkedView(ExtendedNavigationView):
     def change_page(self):
         if not self.history.history:
             if self.passed_uistate and self.passed_navtype:
-                self.loaded = self.seed_history()
-            if not self.loaded:
+                self.initial_object_loaded = self.seed_history()
+            if not self.initial_object_loaded:
                 obj_tuple = self._get_last()
                 if obj_tuple:
                     self.history.push(tuple(obj_tuple))
-                    self.loaded = True
+                    self.initial_object_loaded = True
         ExtendedNavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
@@ -693,7 +694,9 @@ class LinkedView(ExtendedNavigationView):
         """
         Change the page view to load a new active object.
         """
+        print("change_object start: {}".format(obj_tuple))
         if not self.dirty:
+            print("change_object not dirty, end")
             return False
 
         if not obj_tuple:
@@ -701,14 +704,20 @@ class LinkedView(ExtendedNavigationView):
             if not obj_tuple:
                 return self._clear_change()
             self.history.push(tuple(obj_tuple))
-            self.loaded = True
+            self.initial_object_loaded = True
+            print("change_object initial_object_loaded, end")
             return False
+
+        if self.in_change_object:
+            print("change_object already running, end")
+            return
+        self.in_change_object = True
 
         page_context = GrampsContext()
         page_context.load_page_location(self.grstate, obj_tuple)
         self.render_page(page_context)
 
-        if self.loaded:
+        if self.initial_object_loaded:
             dbid = self.dbstate.db.get_dbid()
             save_config_option(
                 self._config,
@@ -717,6 +726,8 @@ class LinkedView(ExtendedNavigationView):
                 page_context.primary_obj.obj.get_handle(),
                 dbid=dbid,
             )
+        self.in_change_object = False
+        print("change_object end")
         return True
 
     def render_page(self, page_context):
@@ -733,7 +744,6 @@ class LinkedView(ExtendedNavigationView):
         if not page_context.primary_obj:
             return
 
-        print("render_page: {}".format(page_context.page_type))
         page = self.pages[page_context.page_type]
         page.render_page(self.header, self.vbox, page_context)
         page.enable_actions(self.uimanager, page_context.primary_obj)

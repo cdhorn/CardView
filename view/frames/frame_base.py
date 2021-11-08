@@ -246,12 +246,12 @@ class GrampsFrame(GrampsFrameView):
         """
         Change active object for the view.
         """
-        if self.reference:
-            context = GrampsContext(self.primary.obj, self.reference.obj, None)
-        elif self.secondary:
-            context = GrampsContext(self.primary.obj, None, self.secondary.obj)
+        if "Ref" in obj_type:
+            context = GrampsContext(self.primary, obj, None)
+        elif obj_type in ["Address", "Attribute", "Name", "Url", "LdsOrd"]:
+            context = GrampsContext(self.primary, None, obj)
         else:
-            context = GrampsContext(self.primary.obj, None, None)
+            context = GrampsContext(self.primary, None, None)
         return self.grstate.load_page(context.pickled)
 
     def build_action_menu(self, obj, event):

@@ -55,7 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext
+from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     TextLink,
@@ -81,8 +81,9 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
 
     def __init__(self, grstate, groptions, repository, repo_ref=None):
         PrimaryGrampsFrame.__init__(
-            self, grstate, groptions, repository, repo_ref
+            self, grstate, groptions, repository
         )
+        self.reference = GrampsObject(repo_ref)
 
         title = TextLink(
             repository.name,
@@ -114,7 +115,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             if address.phone:
                 self.add_fact(self.make_label(address.phone))
 
-        if repo_ref:
+        if groptions.ref_mode and repo_ref:
             self.ref_widgets["id"].load(
                 repo_ref, "RepoRef", gramps_id=repository.get_gramps_id()
             )
@@ -150,7 +151,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 "button-press-event", self.route_ref_action
             )
             self.enable_drag(
-                obj=self.secondary,
+                obj=self.reference,
                 eventbox=self.ref_eventbox,
                 drag_data_get=self.drag_data_ref_get,
             )
@@ -175,15 +176,15 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         """
         Return requested data.
         """
-        if info == self.secondary.dnd_type.app_id:
+        if info == self.reference.dnd_type.app_id:
             returned_data = (
-                self.secondary.dnd_type.drag_type,
+                self.reference.dnd_type.drag_type,
                 id(self),
-                self.secondary.obj,
+                self.reference.obj,
                 0,
             )
             data.set(
-                self.secondary.dnd_type.atom_drag_type,
+                self.reference.dnd_type.atom_drag_type,
                 8,
                 pickle.dumps(returned_data),
             )
@@ -217,7 +218,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data and hasattr(self.secondary.obj, "note_list"):
+        if data and hasattr(self.reference.obj, "note_list"):
             self.add_new_ref_note(None, content=data)
 
     def route_ref_action(self, obj, event):
@@ -228,7 +229,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             source = self.fetch("Source", self.groptions.backlink)
-            context = GrampsContext(source, self.secondary.obj, None)
+            context = GrampsContext(source, self.reference.obj, None)
             return self.grstate.load_page(context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
@@ -240,7 +241,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             action_menu.append(self._edit_repo_ref_option())
             action_menu.append(
                 self._notes_option(
-                    self.secondary.obj,
+                    self.reference.obj,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -280,7 +281,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 self.grstate.uistate,
                 [],
                 self.primary.obj,
-                self.secondary.obj,
+                self.reference.obj,
                 self.save_repo_ref,
             )
         except WindowActiveError:
@@ -343,7 +344,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary.obj.add_note(handle):
+        if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {}".format(
                 _("Added"),
@@ -353,7 +354,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 _("RepoRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_repo_ref(self.secondary.obj, action_text=action)
+            self.save_repo_ref(self.reference.obj, action_text=action)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -389,16 +390,16 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                 _("RepoRef"),
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_note(note.get_handle())
+            self.reference.obj.remove_note(note.get_handle())
             self.save_repo_ref(
-                self.secondary.obj, action_text=action, delete=True
+                self.reference.obj, action_text=action, delete=True
             )
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary.obj.private:
+        if self.reference.obj.private:
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),
@@ -428,7 +429,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             for repo_ref in source.get_reporef_list():
-                if repo_ref.ref == self.secondary.obj.ref:
+                if repo_ref.ref == self.reference.obj.ref:
                     repo_ref.set_privacy(mode)
                     break
             self.grstate.dbstate.db.commit_source(source, trans)

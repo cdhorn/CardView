@@ -389,7 +389,7 @@ class GrampsOptions:
     def set_ref_mode(self, value):
         """
         Set reference view mode.
-        0 = top, 1 = right, 2 = bottom
+        0 = none, 1 = top, 2 = right, 3 = bottom
         """
         self.ref_mode = value
 
