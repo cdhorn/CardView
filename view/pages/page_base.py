@@ -161,15 +161,17 @@ class BaseProfilePage:
         scrolled = self.config.get("{}.scrolled".format(space))
         self.container = Gtk.HBox(spacing=3)
         for group in groups:
+            add_group = True
             if group not in obj_groups or not obj_groups[group]:
-                continue
+                add_group = False
             if not self.config.get("{}.{}.visible".format(space, group)):
-                continue
+                add_group = False
             if not gbox:
                 gbox = Gtk.VBox(spacing=3)
-            gbox.pack_start(
-                obj_groups[group], expand=False, fill=True, padding=0
-            )
+            if add_group:
+                gbox.pack_start(
+                    obj_groups[group], expand=False, fill=True, padding=0
+                )
             if not title:
                 title = GROUP_LABELS[group]
             else:
@@ -210,20 +212,22 @@ class BaseProfilePage:
         in_stack = False
         container = Gtk.Notebook()
         for group in groups:
+            add_group = True
             if group not in obj_groups or not obj_groups[group]:
-                continue
+                add_group = False
             if not self.config.get("{}.{}.visible".format(space, group)):
-                continue
+                add_group = False
             gbox = Gtk.VBox(spacing=3)
-            gbox.pack_start(
-                obj_groups[group], expand=True, fill=True, padding=0
-            )
-            if not title:
-                title = GROUP_LABELS[group]
-            else:
-                if " & " in title:
-                    title = title.replace(" &", ",")
-                title = "{} & {}".format(title, GROUP_LABELS[group])
+            if add_group:
+                gbox.pack_start(
+                    obj_groups[group], expand=True, fill=True, padding=0
+                )
+                if not title:
+                    title = GROUP_LABELS[group]
+                else:
+                    if " & " in title:
+                        title = title.replace(" &", ",")
+                    title = "{} & {}".format(title, GROUP_LABELS[group])
             if self.config.get("{}.{}.stacked".format(space, group)):
                 in_stack = True
                 if not sbox:
