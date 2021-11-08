@@ -862,4 +862,4 @@ class PrimaryGrampsFrame(GrampsFrame):
         else:
             if self.primary.obj.get_handle() in bookmark_list:
                 bookmarks.remove(self.primary.obj.get_handle())
-        self.load_gramps_id()
+        self.widgets["id"].reload(self.primary.obj, self.primary.obj_type)

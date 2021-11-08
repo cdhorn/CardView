@@ -103,7 +103,15 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         elif "Ref" in obj_type:
             pack_icon(self, "stock_link")
         self.add_privacy_indicator(obj)
+        self.show_all()
 
+    def reload(self, obj, obj_type, gramps_id=None):
+        """
+        Reload the field.
+        """
+        list(map(self.remove, self.get_children()))
+        self.load(obj, obj_type, gramps_id=gramps_id)
+        
     def add_gramps_id(self, obj=None, gramps_id=""):
         """
         Add the gramps id if needed.
