@@ -51,6 +51,11 @@ from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
 from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 
+# ------------------------------------------------------------------------
+#
+# Plugin modules
+#
+# ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsOptions
 from ..common.common_const import _RIGHT_BUTTON
 from ..common.common_utils import (
@@ -60,12 +65,6 @@ from ..common.common_utils import (
     menu_item,
     note_option_text,
 )
-
-# ------------------------------------------------------------------------
-#
-# Plugin modules
-#
-# ------------------------------------------------------------------------
 from ..frames.frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext
@@ -216,10 +215,10 @@ class GrampsMediaBarItem(GrampsFrame):
     def __init__(
         self, grstate, groptions, obj, media, media_ref, size=0, crop=False
     ):
-        GrampsFrame.__init__(
-            self, grstate, groptions, media, secondary_obj=media_ref
-        )
+        GrampsFrame.__init__(self, grstate, groptions, media)
         self.set_hexpand(False)
+        self.media = media
+        self.media_ref = media_ref
         self.obj, self.obj_type = obj
         if media_ref:
             thumbnail = self.get_thumbnail(media, media_ref, size, crop)
@@ -310,8 +309,15 @@ class GrampsMediaBarItem(GrampsFrame):
             action_menu = Gtk.Menu()
             action_menu.append(self._edit_media_ref_option())
             action_menu.append(
+                menu_item(
+                    "gramps-media",
+                    _("Make active media"),
+                    self._make_active_media,
+                )
+            )
+            action_menu.append(
                 self._citations_option(
-                    self.secondary.obj,
+                    self.media_ref,
                     self.add_new_ref_citation,
                     self.add_existing_ref_citation,
                     self.remove_ref_citation,
@@ -319,7 +325,7 @@ class GrampsMediaBarItem(GrampsFrame):
             )
             action_menu.append(
                 self._notes_option(
-                    self.secondary.obj,
+                    self.media_ref,
                     self.add_new_ref_note,
                     self.add_existing_ref_note,
                     self.remove_ref_note,
@@ -356,7 +362,7 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.grstate.uistate,
                 [],
                 self.primary.obj,
-                self.secondary.obj,
+                self.media_ref,
                 self.save_media_ref,
             )
         except WindowActiveError:
@@ -387,6 +393,38 @@ class GrampsMediaBarItem(GrampsFrame):
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             commit_method(self.obj, trans)
 
+    def _make_active_media(self, _dummy_var1):
+        """
+        Make the image the active media item.
+        """
+        new_list = []
+        image_ref = None
+        image_handle = self.media.get_handle()
+        for media_ref in self.obj.get_media_list():
+            if media_ref.ref == image_handle:
+                image_ref = media_ref
+            else:
+                new_list.append(media_ref)
+        if image_ref:
+            new_list.insert(0, image_ref)
+
+        action = "{} {} {} {} {} {} {}".format(
+            _("Set"),
+            _("Image"),
+            self.media.get_gramps_id(),
+            _("Active"),
+            _("for"),
+            self.obj_type,
+            self.obj.get_gramps_id(),
+        )
+
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
+        with DbTxn(action, self.grstate.dbstate.db) as trans:
+            self.obj.set_media_list(new_list)
+            commit_method(self.obj, trans)
+
     def add_new_ref_citation(self, _dummy_obj):
         """
         Add a new citation.
@@ -409,7 +447,7 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         Add the new or existing citation to the current object.
         """
-        if handle and self.secondary.obj.add_citation(handle):
+        if handle and self.media_ref.add_citation(handle):
             citation = self.fetch("Citation", handle)
             action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
@@ -424,7 +462,7 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.primary.obj_type,
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_media_ref(self.secondary.obj, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=action)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -493,10 +531,8 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.primary.obj_type,
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_citation_references(
-                [citation.get_handle()]
-            )
-            self.save_media_ref(self.secondary.obj, action_text=action)
+            self.media_ref.remove_citation_references([citation.get_handle()])
+            self.save_media_ref(self.media_ref, action_text=action)
 
     def add_new_ref_note(self, _dummy_obj, content=None):
         """
@@ -520,7 +556,7 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         Add the new or existing note to the current object.
         """
-        if handle and self.secondary.obj.add_note(handle):
+        if handle and self.media_ref.add_note(handle):
             note = self.fetch("Note", handle)
             action = "{} {} {} {} {} {} {} {} {} {} {}".format(
                 _("Added"),
@@ -535,7 +571,7 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.primary.obj_type,
                 self.primary.obj.get_gramps_id(),
             )
-            self.save_media_ref(self.secondary.obj, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=action)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -576,14 +612,14 @@ class GrampsMediaBarItem(GrampsFrame):
                 self.primary.obj_type,
                 self.primary.obj.get_gramps_id(),
             )
-            self.secondary.obj.remove_note(note.get_handle())
-            self.save_media_ref(self.secondary.obj, action_text=action)
+            self.media_ref.remove_note(note.get_handle())
+            self.save_media_ref(self.media_ref, action_text=action)
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.secondary.obj.private:
+        if self.media_ref.private:
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),
@@ -616,7 +652,7 @@ class GrampsMediaBarItem(GrampsFrame):
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             for media_ref in self.obj.get_media_list():
-                if media_ref.ref == self.secondary.obj.ref:
+                if media_ref.ref == self.media_ref.ref:
                     media_ref.set_privacy(mode)
                     break
             commit_method(self.obj, trans)
