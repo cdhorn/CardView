@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.db import DbTxn
 
 # ------------------------------------------------------------------------
 #
@@ -42,7 +43,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
-from ..common.common_utils import TextLink
+from ..common.common_utils import TextLink, menu_item
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -177,3 +178,49 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             else:
                 vcontent.pack_start(header_block, True, True, 0)
                 vcontent.pack_start(image_block, True, True, 0)
+
+    def add_custom_actions(self):
+        """
+        Add action menu items specific for the image.
+        """
+        if self.groptions.backlink:
+            self.action_menu.append(
+                menu_item(
+                    "gramps-media",
+                    _("Make active media"),
+                    self._make_active_media,
+                )
+            )
+
+    def _make_active_media(self, _dummy_var1):
+        """
+        Make the image the active media item.
+        """
+        (obj_type, obj_handle) = self.groptions.backlink
+        obj = self.grstate.fetch(obj_type, obj_handle)
+
+        new_list = []
+        image_ref = None
+        image_handle = self.primary.obj.get_handle()
+        for media_ref in obj.get_media_list():
+            if media_ref.ref == image_handle:
+                image_ref = media_ref
+            else:
+                new_list.append(media_ref)
+        if image_ref:
+            new_list.insert(0, image_ref)
+
+        action = "{} {} {} {} {} {} {}".format(
+            _("Set"),
+            _("Image"),
+            self.primary.obj.get_gramps_id(),
+            _("Active"),
+            _("for"),
+            obj_type,
+            obj.get_gramps_id(),
+        )
+
+        commit_method = self.grstate.dbstate.db.method("commit_%s", obj_type)
+        with DbTxn(action, self.grstate.dbstate.db) as trans:
+            obj.set_media_list(new_list)
+            commit_method(obj, trans)

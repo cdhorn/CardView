@@ -24,6 +24,13 @@ MediaGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from copy import copy
+
+# ------------------------------------------------------------------------
+#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -60,6 +67,8 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
+        media_groptions = copy(groptions)
+        media_groptions.set_backlink((self.obj_type, self.obj.get_handle()))
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
@@ -104,7 +113,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                 media_type,
             ) in media_list:
                 frame = ImageGrampsFrame(
-                    grstate, groptions, media, media_ref=media_ref
+                    grstate, media_groptions, media, media_ref=media_ref
                 )
                 self.add_frame(frame)
         self.show_all()
