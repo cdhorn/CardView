@@ -59,6 +59,7 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext
+from ..common.common_const import _LEFT_BUTTON
 from ..common.common_utils import (
     TextLink,
     button_activated,
@@ -589,7 +590,7 @@ class GrampsImage(Gtk.EventBox):
             thumbnail = self.__get_thumbnail(size, crop)
             if thumbnail:
                 self.add(thumbnail)
-                self.connect("button-press-event", self.view_photo)
+                self.connect("button-press-event", self.handle_click)
 
     def __get_thumbnail(self, size, crop):
         """
@@ -605,9 +606,15 @@ class GrampsImage(Gtk.EventBox):
             return image
         return None
 
-    def view_photo(self, _dummy_obj, event):
+    def handle_click(self, _dummy_obj, event):
         """
         Open the image in the default picture viewer.
         """
         if button_activated(event, _LEFT_BUTTON):
-            open_file_with_default_application(self.path, self.grstate.uistate)
+            if self.grstate.config.get("options.global.image-page-link"):
+                context = GrampsContext(self.media, None, None)
+                self.grstate.load_page(context.pickled)
+            else:
+                open_file_with_default_application(
+                    self.path, self.grstate.uistate
+                )

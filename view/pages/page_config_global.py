@@ -112,6 +112,15 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
+        _("Link image to media page"),
+        13,
+        "options.global.image-page-link",
+        tooltip=_(
+            "Indicates left click should open the media page instead of the media viewer."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid1,
         _("Link citation title to source page"),
         14,
         "options.global.link-citation-title-to-source",
@@ -211,6 +220,7 @@ def build_global_grid(configdialog, grstate):
         "options.global.media-bar-page-link",
         tooltip=_(
             "Indicates left click should open the media page instead of the media viewer."
+            "Applies only to media bar, see global option for everything else."
         ),
     )
 

@@ -327,7 +327,7 @@ def build_media_grid(configdialog, grstate, space, group=True):
         tooltip=_(
             "Indicates image should be shown first and then title and metadata."
         ),
-    )    
+    )
     configdialog.add_combo(
         grid,
         _("Image display mode"),

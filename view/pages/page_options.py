@@ -113,6 +113,7 @@ CONFIGSETTINGS = (
     ("options.global.enable-bookmarks", True),
     ("options.global.enable-gramps-ids", True),
     ("options.global.link-citation-title-to-source", True),
+    ("options.global.image-page-link", True),
     ("options.global.include-child-notes", True),
     ("options.global.include-note-urls", True),
     ("options.global.sort-tags-by-name", False),
