@@ -624,7 +624,12 @@ class GrampsFrame(GrampsFrameView):
                 "commit_%s", self.primary.obj_type
             )
             old_hash = None
-            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+            if self.focus.obj_type in [
+                "Attribute",
+                "Address",
+                "Name",
+                "LdsOrd",
+            ]:
                 old_hash = self.focus.obj_hash
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_citation_references(
@@ -728,7 +733,12 @@ class GrampsFrame(GrampsFrameView):
         """
         if handle:
             old_hash = None
-            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+            if self.focus.obj_type in [
+                "Attribute",
+                "Address",
+                "Name",
+                "LdsOrd",
+            ]:
                 old_hash = self.focus.obj_hash
             if self.focus.obj.add_note(handle):
                 if old_hash:
@@ -785,7 +795,12 @@ class GrampsFrame(GrampsFrameView):
                 "commit_%s", self.primary.obj_type
             )
             old_hash = None
-            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+            if self.focus.obj_type in [
+                "Attribute",
+                "Address",
+                "Name",
+                "LdsOrd",
+            ]:
                 old_hash = self.focus.obj_hash
             with DbTxn(action, self.grstate.dbstate.db) as trans:
                 self.focus.obj.remove_note(note.get_handle())
@@ -838,7 +853,7 @@ class GrampsFrame(GrampsFrameView):
             "commit_%s", self.primary.obj_type
         )
         old_hash = None
-        if self.focus.obj_type in ["Attribute", "Address", "Name"]:
+        if self.focus.obj_type in ["Attribute", "Address", "Name", "LdsOrd"]:
             old_hash = self.focus.obj_hash
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             self.focus.obj.set_privacy(mode)

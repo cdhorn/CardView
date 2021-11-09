@@ -77,6 +77,7 @@ class SecondaryGrampsFrame(GrampsFrame):
             primary_obj,
         )
         self.secondary = GrampsObject(secondary_obj)
+        self.focus = self.secondary
         self.build_layout()
         self.frame.set_size_request(160, -1)
         self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
