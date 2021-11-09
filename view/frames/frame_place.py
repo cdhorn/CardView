@@ -30,13 +30,12 @@ PlaceGrampsFrame
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
 
-from ..common.common_utils import TextLink
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -68,18 +67,49 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
         if place.get_type():
             text = glocale.translation.sgettext(place.get_type().xml_str())
             if text:
-                self.add_fact(self.make_label(text))
+                self.add_fact(
+                    self.make_label(text), label=self.make_label(_("Type"))
+                )
+        if place.get_code():
+            self.add_fact(
+                self.make_label(place.get_code()),
+                label=self.make_label(_("Code")),
+            )
 
         if place.get_latitude():
-            text = "{}: {}".format(_("Latitude"), place.get_latitude())
-            self.add_fact(self.make_label(text))
+            text = place.get_latitude()
+        else:
+            text = "[{} {}]".format(_("Missing"), _("Latitude"))
+        self.add_fact(
+            self.make_label(text), label=self.make_label(_("Latitude"))
+        )
         if place.get_longitude():
-            text = "{}: {}".format(_("Longitude"), place.get_longitude())
-            self.add_fact(self.make_label(text))
+            text = place.get_longitude()
+        else:
+            text = "[{} {}]".format(_("Missing"), _("Longitude"))
+        self.add_fact(
+            self.make_label(text), label=self.make_label(_("Longitude"))
+        )
 
-        if place.get_code():
-            label = self.make_label(place.get_code(), left=False)
-            self.attributes.add_fact(label)
+        if place.get_alternative_names():
+            for alternate_name in place.get_alternative_names():
+                value = alternate_name.get_value()
+                if alternate_name.get_language():
+                    value = "{} ({})".format(
+                        value, alternate_name.get_language()
+                    )
+
+                date = glocale.date_displayer.display(
+                    alternate_name.get_date_object()
+                )
+                if not date:
+                    date = ""
+                date = "{}  {}".format(_("Alternate Name"), date)
+                self.add_fact(
+                    self.make_label(value),
+                    label=self.make_label(date),
+                    extra=True,
+                )
 
         self.enable_drag()
         self.enable_drop()
