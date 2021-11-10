@@ -86,10 +86,10 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             if "age" in self.widgets and groptions.age_base:
                 self.load_age(groptions.age_base, media.get_date_object())
 
-        if media.get_path():
+        if self.get_option("show-path") and media.get_path():
             self.add_fact(self.make_label(media.get_path()))
 
-        if media.get_mime_type():
+        if self.get_option("show-mime-type") and media.get_mime_type():
             self.add_fact(self.make_label(media.get_mime_type()))
 
         self.enable_drag()
@@ -119,12 +119,12 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         self.widgets["body"].pack_start(
             hcontent, expand=True, fill=True, padding=0
         )
-            
-        if active:        
+
+        if active:
             hcontent.pack_start(
                 self.widgets["image"], expand=False, fill=False, padding=0
             )
-            
+
         fact_block = Gtk.VBox()
         fact_block.pack_start(
             self.widgets["title"], expand=True, fill=True, padding=0
@@ -134,14 +134,22 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                 self.widgets["facts"], expand=True, fill=True, padding=0
             )
         else:
-            fact_block.pack_start(
+            ncontent = Gtk.HBox(hexpand=False)
+            ncontent.pack_start(
                 self.widgets["image"], expand=False, fill=False, padding=0
-            )            
+            )
+            ncontent.pack_start(
+                self.widgets["facts"], expand=False, fill=False, padding=0
+            )
+            fact_block.pack_start(
+                ncontent, expand=False, fill=False, padding=0
+            )
+
         fact_block.pack_start(
             self.widgets["icons"], expand=True, fill=False, padding=0
         )
         hcontent.pack_start(fact_block, expand=True, fill=True, padding=0)
-        
+
         attribute_block = Gtk.VBox()
         attribute_block.pack_start(
             self.widgets["id"], expand=False, fill=True, padding=0

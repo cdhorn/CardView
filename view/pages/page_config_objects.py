@@ -332,6 +332,26 @@ def build_media_grid(configdialog, grstate, space, group=True):
             "Enabling this option will show the media date if it is available."
         ),
     )
+    configdialog.add_checkbox(
+        grid,
+        _("Show path"),
+        16,
+        "{}.media.show-path".format(space),
+        stop=2,
+        tooltip=_(
+            "Enabling this option will show the media file path if it is available."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show mime type"),
+        17,
+        "{}.media.show-mime-type".format(space),
+        stop=2,
+        tooltip=_(
+            "Enabling this option will show the media mime type if it is available."
+        ),
+    )
     configdialog.add_text(grid, _("Attributes Group"), 20, bold=True)
     config_facts_fields(
         configdialog,
