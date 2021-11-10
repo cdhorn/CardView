@@ -778,7 +778,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.active.media.image-mode", 3),
     ("options.active.media.show-date", True),
-    ("options.active.media.image-on-top", False),
     ("options.active.media.attributes-field-show-labels", False),
     ("options.active.media.attributes-field-1", "None"),
     ("options.active.media.attributes-field-2", "None"),
@@ -1088,7 +1087,6 @@ CONFIGSETTINGS = (
     ("options.group.media.filter-non-photos", False),
     ("options.group.media.image-mode", 2),
     ("options.group.media.show-date", True),
-    ("options.group.media.image-on-top", False),
     ("options.group.media.attributes-field-show-labels", False),
     ("options.group.media.attributes-field-1", "None"),
     ("options.group.media.attributes-field-2", "None"),

@@ -315,16 +315,6 @@ def build_media_grid(configdialog, grstate, space, group=True):
             ),
         )
     configdialog.add_text(grid, _("Object Display Options"), 10, bold=True)
-    configdialog.add_checkbox(
-        grid,
-        _("Image on top"),
-        11,
-        "{}.media.image-on-top".format(space),
-        stop=2,
-        tooltip=_(
-            "Indicates image should be shown first and then title and metadata."
-        ),
-    )
     configdialog.add_combo(
         grid,
         _("Image display mode"),
