@@ -22,13 +22,12 @@
 AddressesGrampsFrameGroup
 """
 
-from ..common.common_utils import get_gramps_object_type
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_address import AddressGrampsFrame
 from .group_list import GrampsFrameGroupList
 

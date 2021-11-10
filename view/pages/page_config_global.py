@@ -219,25 +219,34 @@ def build_global_grid(configdialog, grstate):
     )
 
     grid3 = create_grid()
-    configdialog.add_text(grid3, _("Icon Options"), 0, bold=True)
+    configdialog.add_text(
+        grid3, _("Group Window and Icon Options"), 0, bold=True
+    )
+    configdialog.add_spinner(
+        grid3,
+        _("Maximum number of object group windows"),
+        1,
+        "options.global.max-group-windows",
+        (1, 12),
+    )
     configdialog.add_spinner(
         grid3,
         _("Maximum icons per line in header frames."),
-        1,
+        2,
         "options.global.icons-active-width",
         (1, 40),
     )
     configdialog.add_spinner(
         grid3,
         _("Maximum icons per line in group frames."),
-        2,
+        3,
         "options.global.icons-group-width",
         (1, 40),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable tag icons"),
-        3,
+        4,
         "options.global.icons-enable-tags",
         tooltip=_(
             "Enables display of icons for each tag associated with an object."
@@ -246,7 +255,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid3,
         _("Sort tags by name not priority"),
-        4,
+        5,
         "options.global.sort-tags-by-name",
         tooltip=_(
             "Indicates if tags should be sorted by name and not priority. "
@@ -256,8 +265,8 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable associated object icons"),
-        5,
+        _("Enable associated object indicator icons"),
+        6,
         "options.global.icons-enable-indicators",
         tooltip=_(
             "Enables display of icons to indicate presence of notes, "
@@ -268,96 +277,96 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid3,
         _("Enable names icon"),
-        6,
+        7,
         "options.global.indicate-names",
         tooltip=_("Enables display of alternate names icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable parents icon"),
-        7,
+        8,
         "options.global.indicate-parents",
         tooltip=_("Enables display of parents icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable spouses icon"),
-        8,
+        9,
         "options.global.indicate-spouses",
         tooltip=_("Enables display of spouses icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable children icon"),
-        9,
+        10,
         "options.global.indicate-children",
         tooltip=_("Enables display of children icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable associations icon"),
-        10,
+        11,
         "options.global.indicate-associations",
         tooltip=_("Enables display of associations icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable events icon"),
-        11,
+        12,
         "options.global.indicate-events",
         tooltip=_("Enables display of events icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable ordinances icon"),
-        12,
+        13,
         "options.global.indicate-ordinances",
         tooltip=_("Enables display of ordinances icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable media icon"),
-        13,
+        14,
         "options.global.indicate-media",
         tooltip=_("Enables display of media icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable attributes icon"),
-        14,
+        15,
         "options.global.indicate-attributes",
         tooltip=_("Enables display of attributes icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable addresses icon"),
-        15,
+        16,
         "options.global.indicate-addresses",
         tooltip=_("Enables display of addresses icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable citations icon"),
-        16,
+        17,
         "options.global.indicate-citations",
         tooltip=_("Enables display of citations icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable notes icon"),
-        17,
+        18,
         "options.global.indicate-notes",
         tooltip=_("Enables display of notes icon."),
     )
     configdialog.add_checkbox(
         grid3,
         _("Enable urls icon"),
-        18,
+        19,
         "options.global.indicate-urls",
         tooltip=_("Enables display of urls icon."),
     )
 
     grid.attach(grid1, 0, 0, 1, 2)
-    grid.attach(grid2, 1, 0, 1, 1)
-    grid.attach(grid3, 1, 1, 1, 1)
+    grid.attach(grid2, 1, 1, 1, 1)
+    grid.attach(grid3, 1, 0, 1, 1)
     return add_config_reset(configdialog, grstate, "options.global", grid)

@@ -121,6 +121,7 @@ CONFIGSETTINGS = (
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
+    ("options.global.max-group-windows", 4),
     ("options.global.icons-active-width", 24),
     ("options.global.icons-group-width", 12),
     ("options.global.icons-enable-tags", True),

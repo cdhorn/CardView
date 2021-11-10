@@ -29,13 +29,12 @@ SourcesGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-from ..common.common_utils import get_gramps_object_type
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_source import SourceGrampsFrame
 from .group_list import GrampsFrameGroupList
 

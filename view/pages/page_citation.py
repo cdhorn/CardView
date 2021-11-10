@@ -42,13 +42,12 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
-from ..common.common_classes import GrampsOptions
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..common.common_classes import GrampsOptions
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
 from .page_base import BaseProfilePage

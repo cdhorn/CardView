@@ -30,13 +30,12 @@ CitationsGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 
-from ..common.common_utils import get_gramps_object_type
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_citation import CitationGrampsFrame
 from .group_list import GrampsFrameGroupList
 

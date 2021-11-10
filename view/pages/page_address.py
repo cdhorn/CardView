@@ -45,15 +45,14 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
 
-from ..common.common_classes import GrampsOptions
-from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..common.common_classes import GrampsOptions
+from ..common.common_const import _LEFT_BUTTON
+from ..common.common_utils import button_activated
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from .page_base import BaseProfilePage

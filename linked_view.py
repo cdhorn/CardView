@@ -31,6 +31,7 @@ Linked View
 # -------------------------------------------------------------------------
 import pickle
 import time
+import uuid
 from functools import lru_cache
 
 # -------------------------------------------------------------------------
@@ -127,7 +128,7 @@ class LinkedView(ExtendedNavigationView):
         self._init_pages()
         self.active_page = None
         self.additional_uis.append(self.additional_ui)
-        self.group_window = None
+        self.group_windows = {}
 
         dbstate.connect("database-changed", self.change_db)
         uistate.connect("nameformat-changed", self.build_tree)
@@ -605,6 +606,9 @@ class LinkedView(ExtendedNavigationView):
         self._change_db(db)
         if self.active:
             self.bookmarks.redraw()
+        for key in self.group_windows:
+            self.group_windows[key].close(defer_delete=True)
+        self.group_windows.clear()
         self.history.clear()
         self._init_cache()
         self.fetch_thumbnail.cache_clear()
@@ -630,6 +634,8 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(None)
         else:
             self.dirty = True
+        for key in self.group_windows:
+            self.group_windows[key].refresh()
 
     def _get_last(self):
         """
@@ -737,9 +743,6 @@ class LinkedView(ExtendedNavigationView):
         if self.active_page:
             self.active_page.disable_actions(self.uimanager)
 
-        if self.group_window:
-            self.group_window.close()
-
         self._clear_change()
         if not page_context.primary_obj:
             return
@@ -828,15 +831,31 @@ class LinkedView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        if self.group_window:
-            self.group_window.reload(obj, group_type)
+        max_windows = self._config.get("options.global.max-group-windows")
+        if hasattr(obj, "handle"):
+            key = "{}-{}".format(obj.get_handle(), group_type)
+            if key in self.group_windows:
+                return self.group_windows[key].refresh()
         else:
-            self.group_window = FrameGroupWindow(
-                self.grstate, obj, group_type, self._clear_window
-            )
+            key = uuid.uuid4().hex
 
-    def _clear_window(self):
+        if max_windows == 1:
+            if self.group_windows:
+                for entry in self.group_windows:
+                    self.group_windows[entry].reload(obj, group_type)
+                    break
+                return
+        if len(self.group_windows) >= max_windows:
+            return
+        self.group_windows[key] = FrameGroupWindow(
+            self.grstate, obj, group_type, key, self._clear_window
+        )
+        return
+
+    def _clear_window(self, key):
         """
         Clear window.
         """
-        self.group_window = None
+        if key in self.group_windows:
+            del self.group_windows[key]
+

@@ -38,13 +38,12 @@ from gramps.gen.config import config
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.managedwindow import ManagedWindow
 
-from ..common.common_const import GROUP_LABELS
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import get_gramps_object_type
 from .group_const import OBJECT_GROUPS
 
@@ -54,15 +53,18 @@ class FrameGroupWindow(ManagedWindow):
     Window to display a frame group.
     """
 
-    def __init__(self, grstate, obj, group_type, callback):
+    def __init__(self, grstate, obj, group_type, key, callback):
         """
         Initialize class.
         """
+        self.key = key
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
         self.grstate = grstate
         self.callback = callback
+        self.obj = obj
+        self.obj_type = get_gramps_object_type(obj)
+        self.group_type = group_type
 
-        title = self.get_menu_title(obj, group_type)
         group = OBJECT_GROUPS[group_type](grstate, obj, raw=True)
         self.group_box = Gtk.VBox(spacing=3, margin=3)
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
@@ -77,51 +79,72 @@ class FrameGroupWindow(ManagedWindow):
         self.root.set_transient_for(self.uistate.window)
         self.root.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         self.root.add(scroll)
-        self.set_window(self.root, None, title)
+        self.set_window(self.root, None, self.get_menu_title())
         self.show()
 
         width = grstate.config.get("interface.width")
         height = grstate.config.get("interface.height")
         self.window.resize(width, height)
-        horiz_position = grstate.config.get("interface.horiz-position")
-        vert_position = grstate.config.get("interface.vert-position")
-        if horiz_position != -1:
-            self.window.move(horiz_position, vert_position)
 
-    def get_menu_title(self, obj, group_type):
+    def build_window_key(self, obj):
+        """
+        Return window key.
+        """
+        return self.key
+
+    def get_menu_title(self):
         """
         Get the menu title.
         """
-        if hasattr(obj, "handle"):
+        if hasattr(self.obj, "handle"):
             name, dummy_obj = navigation_label(
                 self.grstate.dbstate.db,
-                get_gramps_object_type(obj),
-                obj.get_handle(),
+                self.obj_type,
+                self.obj.get_handle(),
             )
-            return "{} - {}".format(name, GROUP_LABELS[group_type])
-        return GROUP_LABELS[group_type]
+            return "{} - {}".format(name, GROUP_LABELS[self.group_type])
+        return GROUP_LABELS[self.group_type]
 
     def reload(self, obj, group_type):
         """
-        Load new group.
+        Load new group, replacing the current one.
         """
-        title = self.get_menu_title(obj, group_type)
+        self.obj = obj
+        self.obj_type = get_gramps_object_type(obj)
+        self.group_type = group_type
         group = OBJECT_GROUPS[group_type](self.grstate, obj, raw=True)
         list(map(self.group_box.remove, self.group_box.get_children()))
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
-        self.set_window(self.root, None, title)
+        self.set_window(self.root, None, self.get_menu_title())
         self.show()
 
-    def close(self, *args):
+    def refresh(self):
+        """
+        Refresh current group, if not possible close window.
+        """
+        print("refresh window")
+        if not hasattr(self.obj, "handle"):
+            return self.close()
+
+        self.obj = self.grstate.fetch(self.obj_type, self.obj.get_handle())
+        if not self.obj:
+            return self.close()
+
+        group = OBJECT_GROUPS[self.group_type](
+            self.grstate, self.obj, raw=True
+        )
+        list(map(self.group_box.remove, self.group_box.get_children()))
+        self.group_box.pack_start(group, expand=False, fill=True, padding=0)
+        self.show()
+
+    def close(self, *args, defer_delete=False):
         """
         Close the window.
         """
         (width, height) = self.window.get_size()
         self.grstate.config.set("interface.width", width)
         self.grstate.config.set("interface.height", height)
-        (horizontal, vertical) = self.window.get_position()
-        self.grstate.config.set("interface.horiz-position", horizontal)
-        self.grstate.config.set("interface.vert-position", vertical)
         self.grstate.config.save()
         ManagedWindow.close(self)
-        self.callback()
+        if not defer_delete:
+            self.callback(self.key)
