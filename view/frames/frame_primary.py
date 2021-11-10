@@ -139,24 +139,16 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.load_image(image_mode)
         self.widgets["id"].load(self.primary.obj, self.primary.obj_type)
         self.load_attributes()
-        if "tags" in self.widgets:
-            self.widgets["tags"].load(self.primary.obj, self.primary.obj_type)
-        if "indicators" in self.widgets:
-            if "active" in self.groptions.option_space:
-                size = 12
-            else:
-                size = 3
-            self.widgets["indicators"].load(
-                self.primary.obj, self.primary.obj_type, size=size
-            )
+        self.widgets["icons"].load(self.primary.obj, self.primary.obj_type)
 
     def load_image(self, image_mode, media_ref=None, crop=True):
         """
         Load primary image for the object if found.
         """
         size = int(image_mode in [2, 4])
+        active = "active" in self.groptions.option_space
         image = GrampsImage(
-            self.grstate, self.primary.obj, media_ref=media_ref
+            self.grstate, self.primary.obj, media_ref=media_ref, active=active
         )
         image.load(size, crop)
         self.widgets["image"].add(image)
@@ -205,7 +197,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 self.widgets["attributes"].add_fact(value, label=key)
 
         label = self.get_option("attributes-field-show-labels")
-        for number in range(1, 8):
+        for number in range(1, 9):
             option = self.get_option(
                 "attributes-field-{}".format(number),
                 full=False,

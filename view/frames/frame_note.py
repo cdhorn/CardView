@@ -133,16 +133,14 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
                 self.text_view, expand=True, fill=True, padding=0
             )
             vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            if "tags" in self.widgets:
-                vcontent.pack_start(
-                    self.widgets["tags"], expand=True, fill=True, padding=0
-                )
+            vcontent.pack_start(
+                self.widgets["icons"], expand=True, fill=True, padding=0
+            )
         else:
             vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            if "tags" in self.widgets:
-                vcontent.pack_start(
-                    self.widgets["tags"], expand=True, fill=True, padding=0
-                )
+            vcontent.pack_start(
+                self.widgets["icons"], expand=True, fill=True, padding=0
+            )
             vcontent.pack_start(
                 self.text_view, expand=True, fill=True, padding=0
             )

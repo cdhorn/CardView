@@ -256,15 +256,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
             self.ref_widgets["body"].pack_start(
                 self.make_label(str(role)), False, False, 0
             )
-
-            if "indicators" in self.ref_widgets:
-                if "active" in self.groptions.option_space:
-                    size = 12
-                else:
-                    size = 5
-                self.ref_widgets["indicators"].load(
-                    event_ref, "EventRef", size=size
-                )
+            self.ref_widgets["icons"].load(event_ref, "EventRef")
 
             self.dnd_drop_ref_targets = []
             self.ref_eventbox.connect(

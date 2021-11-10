@@ -182,7 +182,7 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         have_birth, have_death = self._get_birth_death(event_cache)
 
         count = 1
-        while count < 8:
+        while count < 9:
             option = self.get_option(
                 "{}-{}".format(field_type, count),
                 full=False,

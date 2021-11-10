@@ -144,14 +144,7 @@ class ChildGrampsFrame(PersonGrampsFrame):
         if vbox:
             self.ref_widgets["body"].pack_start(vbox, True, True, 0)
 
-        if "indicators" in self.ref_widgets:
-            if "active" in self.groptions.option_space:
-                size = 12
-            else:
-                size = 5
-            self.ref_widgets["indicators"].load(
-                child_ref, "ChildRef", size=size
-            )
+        self.ref_widgets["icons"].load(child_ref, "ChildRef")
 
         self.enable_drag(
             obj=self.reference,

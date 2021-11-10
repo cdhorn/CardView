@@ -146,15 +146,6 @@ def build_global_grid(configdialog, grstate):
             "Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list."
         ),
     )
-    configdialog.add_checkbox(
-        grid1,
-        _("Sort tags by name not priority"),
-        17,
-        "options.global.sort-tags-by-name",
-        tooltip=_(
-            "Indicates if tags should be sorted by name and not priority. By default they sort by the priority in which they are organized in the tag organization tool."
-        ),
-    )
     configdialog.add_spinner(
         grid1,
         _("Maximum citations per group"),
@@ -175,7 +166,9 @@ def build_global_grid(configdialog, grstate):
         20,
         "options.global.enable-warnings",
         tooltip=_(
-            "Indicates to show a warning dialog asking for confirmation before performing an action that removes or deletes data as a safeguard."
+            "Indicates to show a warning dialog asking for confirmation "
+            "before performing an action that removes or deletes data as "
+            "a safeguard."
         ),
     )
 
@@ -219,112 +212,149 @@ def build_global_grid(configdialog, grstate):
         5,
         "options.global.media-bar-page-link",
         tooltip=_(
-            "Indicates left click should open the media page instead of the media viewer."
-            "Applies only to media bar, see global option for everything else."
+            "Indicates left click should open the media page instead of the "
+            "media viewer. Applies only to the media bar, see the global "
+            "option with the same description for everything else."
         ),
     )
 
     grid3 = create_grid()
-    configdialog.add_text(grid3, _("Child Indicator Options"), 0, bold=True)
+    configdialog.add_text(grid3, _("Icon Options"), 0, bold=True)
+    configdialog.add_spinner(
+        grid3,
+        _("Maximum icons per line in header frames."),
+        1,
+        "options.global.icons-active-width",
+        (1, 40),
+    )
+    configdialog.add_spinner(
+        grid3,
+        _("Maximum icons per line in group frames."),
+        2,
+        "options.global.icons-group-width",
+        (1, 40),
+    )
     configdialog.add_checkbox(
         grid3,
-        _("Enable child object indicators"),
-        1,
-        "options.global.enable-child-indicators",
+        _("Enable tag icons"),
+        3,
+        "options.global.icons-enable-tags",
         tooltip=_(
-            "Indicates whether to enable child object indicators to identify objects with notes, citations, and so forth."
+            "Enables display of icons for each tag associated with an object."
         ),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable names indicator"),
-        2,
-        "options.global.indicate-names",
-        tooltip=_("Indicates whether to enable additional names indicator."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable parents indicator"),
-        3,
-        "options.global.indicate-parents",
-        tooltip=_("Indicates whether to enable parent indicator."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable spouses indicator"),
+        _("Sort tags by name not priority"),
         4,
-        "options.global.indicate-spouses",
-        tooltip=_("Indicates whether to enable spouse indicator."),
+        "options.global.sort-tags-by-name",
+        tooltip=_(
+            "Indicates if tags should be sorted by name and not priority. "
+            "By default they sort by the priority in which they are "
+            "organized in the tag organization tool."
+        ),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable children indicator"),
+        _("Enable associated object icons"),
         5,
-        "options.global.indicate-children",
-        tooltip=_("Indicates whether to enable children indicator."),
+        "options.global.icons-enable-indicators",
+        tooltip=_(
+            "Enables display of icons to indicate presence of notes, "
+            "citations, and so forth. Options to selectively control "
+            "which are shown follow below."
+        ),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable associations indicator"),
+        _("Enable names icon"),
         6,
-        "options.global.indicate-associations",
-        tooltip=_("Indicates whether to enable associations indicator."),
+        "options.global.indicate-names",
+        tooltip=_("Enables display of alternate names icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable events indicator"),
+        _("Enable parents icon"),
         7,
-        "options.global.indicate-events",
-        tooltip=_("Indicates whether to enable event indicator."),
+        "options.global.indicate-parents",
+        tooltip=_("Enables display of parents icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable ordinances indicator"),
+        _("Enable spouses icon"),
         8,
-        "options.global.indicate-ordinances",
-        tooltip=_("Indicates whether to enable ordinance indicator."),
+        "options.global.indicate-spouses",
+        tooltip=_("Enables display of spouses icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable media indicator"),
+        _("Enable children icon"),
         9,
-        "options.global.indicate-media",
-        tooltip=_("Indicates whether to enable media indicator."),
+        "options.global.indicate-children",
+        tooltip=_("Enables display of children icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable attributes indicator"),
+        _("Enable associations icon"),
         10,
-        "options.global.indicate-attributes",
-        tooltip=_("Indicates whether to enable attributes indicator."),
+        "options.global.indicate-associations",
+        tooltip=_("Enables display of associations icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable addresses indicator"),
+        _("Enable events icon"),
         11,
-        "options.global.indicate-addresses",
-        tooltip=_("Indicates whether to enable addresses indicator."),
+        "options.global.indicate-events",
+        tooltip=_("Enables display of events icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable citations indicator"),
+        _("Enable ordinances icon"),
         12,
-        "options.global.indicate-citations",
-        tooltip=_("Indicates whether to enable citations indicator."),
+        "options.global.indicate-ordinances",
+        tooltip=_("Enables display of ordinances icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable notes indicator"),
+        _("Enable media icon"),
         13,
-        "options.global.indicate-notes",
-        tooltip=_("Indicates whether to enable notes indicator."),
+        "options.global.indicate-media",
+        tooltip=_("Enables display of media icon."),
     )
     configdialog.add_checkbox(
         grid3,
-        _("Enable urls indicator"),
+        _("Enable attributes icon"),
         14,
+        "options.global.indicate-attributes",
+        tooltip=_("Enables display of attributes icon."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable addresses icon"),
+        15,
+        "options.global.indicate-addresses",
+        tooltip=_("Enables display of addresses icon."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable citations icon"),
+        16,
+        "options.global.indicate-citations",
+        tooltip=_("Enables display of citations icon."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable notes icon"),
+        17,
+        "options.global.indicate-notes",
+        tooltip=_("Enables display of notes icon."),
+    )
+    configdialog.add_checkbox(
+        grid3,
+        _("Enable urls icon"),
+        18,
         "options.global.indicate-urls",
-        tooltip=_("Indicates whether to enable urls indicator."),
+        tooltip=_("Enables display of urls icon."),
     )
 
     grid.attach(grid1, 0, 0, 1, 2)

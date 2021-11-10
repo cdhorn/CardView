@@ -46,12 +46,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig
-from .frame_widgets import (
-    GrampsFrameGrid,
-    GrampsFrameId,
-    GrampsFrameIndicators,
-    GrampsFrameTags,
-)
+from .frame_widgets import GrampsFrameGrid, GrampsFrameIcons, GrampsFrameId
 
 _ = glocale.translation.sgettext
 
@@ -113,19 +108,12 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.widgets["extra"] = GrampsFrameGrid(
             self.grstate, self.groptions, self.cbrouter
         )
-        if self.get_option("tag-format"):
-            self.widgets["tags"] = GrampsFrameTags(
-                self.grstate, self.groptions
-            )
+        self.widgets["icons"] = GrampsFrameIcons(self.grstate, self.groptions)
 
         self.widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
         self.widgets["attributes"] = GrampsFrameGrid(
             self.grstate, self.groptions, self.cbrouter, right=True
         )
-        if self.get_option("options.global.enable-child-indicators"):
-            self.widgets["indicators"] = GrampsFrameIndicators(
-                self.grstate, self.groptions
-            )
 
     def _init_ref_widgets(self):
         """
@@ -133,10 +121,9 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         self.ref_eventbox = Gtk.EventBox()
         self.ref_widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
-        if "indicators" in self.widgets:
-            self.ref_widgets["indicators"] = GrampsFrameIndicators(
-                self.grstate, self.groptions
-            )
+        self.ref_widgets["icons"] = GrampsFrameIcons(
+            self.grstate, self.groptions, right_justify=True
+        )
 
     def _prepare_ref_layout(self):
         """
@@ -173,13 +160,12 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         ref_body.pack_start(
             self.ref_widgets["body"], expand=True, fill=True, padding=0
         )
-        if "indicators" in self.ref_widgets:
-            ref_body.pack_end(
-                self.ref_widgets["indicators"],
-                expand=False,
-                fill=False,
-                padding=0,
-            )
+        ref_body.pack_end(
+            self.ref_widgets["icons"],
+            expand=False,
+            fill=False,
+            padding=0,
+        )
         self.ref_frame.add(ref_body)
         self.eventbox.add(self.widgets["body"])
 
@@ -204,13 +190,12 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         attribute_block.pack_start(
             self.ref_widgets["id"], expand=False, fill=False, padding=0
         )
-        if "indicators" in self.ref_widgets:
-            attribute_block.pack_end(
-                self.ref_widgets["indicators"],
-                expand=False,
-                fill=False,
-                padding=0,
-            )
+        attribute_block.pack_end(
+            self.ref_widgets["icons"],
+            expand=False,
+            fill=False,
+            padding=0,
+        )
         ref_body.pack_end(attribute_block, expand=False, fill=False, padding=0)
         self.ref_frame.add(ref_body)
         self.frame.add(self.widgets["body"])
@@ -263,10 +248,9 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             self.widgets["extra"], expand=True, fill=True, padding=0
         )
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        if "tags" in self.widgets:
-            fact_block.pack_end(
-                self.widgets["tags"], expand=False, fill=False, padding=0
-            )
+        fact_block.pack_end(
+            self.widgets["icons"], expand=False, fill=False, padding=0
+        )
 
         attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=False)
         if "attributes" in self.groptions.size_groups:
@@ -282,10 +266,6 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         attribute_block.pack_start(
             self.widgets["attributes"], expand=True, fill=True, padding=0
         )
-        if "indicators" in self.widgets:
-            attribute_block.pack_end(
-                self.widgets["indicators"], expand=False, fill=False, padding=0
-            )
 
         if image_mode in [1, 2]:
             self.widgets["body"].pack_start(

@@ -178,10 +178,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             self.widgets["extra"], expand=True, fill=True, padding=0
         )
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        if "tags" in self.widgets:
-            fact_block.pack_end(
-                self.widgets["tags"], expand=True, fill=True, padding=0
-            )
+        fact_block.pack_end(
+            self.widgets["icons"], expand=True, fill=True, padding=0
+        )
 
         attribute_block = Gtk.VBox(halign=Gtk.Align.END)
         data_content.pack_start(
@@ -193,10 +192,6 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         attribute_block.pack_start(
             self.widgets["attributes"], expand=True, fill=True, padding=0
         )
-        if "indicators" in self.widgets:
-            attribute_block.pack_end(
-                self.widgets["indicators"], expand=False, fill=False, padding=0
-            )
 
         if image_mode in [1, 2]:
             data_content.pack_end(
@@ -238,7 +233,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 self.divorced = True
 
         count = 1
-        while count < 8:
+        while count < 9:
             option = self.get_option(
                 "{}.{}-{}".format(anchor, field_type, count),
                 full=False,
@@ -389,7 +384,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         label = self.get_option(
             "{}.attributes-field-show-labels".format(prefix)
         )
-        for number in range(1, 8):
+        for number in range(1, 9):
             option = self.get_option(
                 "{}.attributes-field-{}".format(prefix, number),
                 full=False,

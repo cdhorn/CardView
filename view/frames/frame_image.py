@@ -111,8 +111,6 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         else:
             self.load_image(size, crop=crop)
 
-        tbox = Gtk.HBox(hexpand=False, vexpand=False)
-        tbox.pack_start(self.widgets["tags"], False, False, 0)
         if active:
             hcontent = Gtk.HBox(hexpand=True)
             hcontent.pack_start(
@@ -125,7 +123,9 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             fact_block.pack_start(
                 self.widgets["facts"], expand=True, fill=True, padding=0
             )
-            fact_block.pack_start(tbox, expand=True, fill=False, padding=0)
+            fact_block.pack_start(
+                self.widgets["icons"], expand=True, fill=False, padding=0
+            )
             hcontent.pack_start(fact_block, expand=True, fill=True, padding=0)
             attribute_block = Gtk.VBox()
             attribute_block.pack_start(
@@ -163,7 +163,9 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             title_block.pack_start(
                 self.widgets["title"], expand=True, fill=True, padding=0
             )
-            title_block.pack_start(tbox, expand=True, fill=False, padding=0)
+            title_block.pack_start(
+                self.widgets["icons"], expand=True, fill=False, padding=0
+            )
             header_block.pack_start(title_block, True, True, 0)
 
             meta_block = Gtk.VBox(hexpand=False)

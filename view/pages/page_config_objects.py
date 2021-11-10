@@ -57,7 +57,6 @@ from .page_const import (
 from .page_utils import (
     add_config_reset,
     config_facts_fields,
-    config_tag_fields,
     create_grid,
 )
 
@@ -137,7 +136,6 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         "{}.{}.image-mode".format(space, person),
         IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.{}".format(space, person), grid1, 5)
     if person in ["child", "sibling", "association"]:
         configdialog.add_combo(
             grid1,
@@ -212,7 +210,6 @@ def build_family_grid(configdialog, grstate, space, extra=False):
         "{}.family.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.family".format(space), grid1, 4)
     if "group" in space:
         configdialog.add_checkbox(
             grid1,
@@ -335,7 +332,6 @@ def build_media_grid(configdialog, grstate, space, group=True):
         "{}.media.image-mode".format(space),
         MEDIA_IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.media".format(space), grid, 13)
     configdialog.add_checkbox(
         grid,
         _("Show date"),
@@ -396,7 +392,6 @@ def build_note_grid(configdialog, grstate, space):
         "{}.note.preview-lines".format(space),
         (0, 8),
     )
-    config_tag_fields(configdialog, "{}.note".format(space), grid, 4)
     return add_config_reset(
         configdialog, grstate, "{}.note".format(space), grid
     )
@@ -408,7 +403,6 @@ def build_citation_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(configdialog, "{}.citation".format(space), grid, 1)
     configdialog.add_combo(
         grid,
         _("Image display mode"),
@@ -550,7 +544,6 @@ def build_source_grid(configdialog, grstate, space):
         "{}.source.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.source".format(space), grid, 4)
     configdialog.add_text(grid, _("Attributes Group"), 15, start=1, bold=True)
     config_facts_fields(
         configdialog,
@@ -576,7 +569,6 @@ def build_repository_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(configdialog, "{}.repository".format(space), grid, 1)
     configdialog.add_combo(
         grid,
         _("Reference display mode"),
@@ -623,7 +615,6 @@ def build_place_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    config_tag_fields(configdialog, "{}.place".format(space), grid, 4)
     return add_config_reset(
         configdialog, grstate, "{}.place".format(space), grid
     )
@@ -649,7 +640,6 @@ def build_event_grid(configdialog, grstate, space):
         "{}.event.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    config_tag_fields(configdialog, "{}.event".format(space), grid, 4)
     configdialog.add_text(grid, _("Attributes Group"), 11, start=1, bold=True)
     config_facts_fields(
         configdialog,

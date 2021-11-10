@@ -81,14 +81,7 @@ class SecondaryGrampsFrame(GrampsFrame):
         self.build_layout()
         self.frame.set_size_request(160, -1)
         self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
-        if "indicators" in self.widgets:
-            if "active" in self.groptions.option_space:
-                size = 12
-            else:
-                size = 3
-            self.widgets["indicators"].load(
-                self.secondary.obj, self.secondary.obj_type, size=size
-            )
+        self.widgets["icons"].load(self.secondary.obj, self.secondary.obj_type)
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time

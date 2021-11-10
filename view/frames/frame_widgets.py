@@ -292,153 +292,61 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameTags class
+# GrampsFrameIcons class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameTags(Gtk.FlowBox, GrampsConfig):
+class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
     """
-    A simple class for managing display of the tags for a Gramps object.
+    A simple class for managing display of the child indicator and tag
+    icons for a Gramps object.
     """
 
-    def __init__(self, grstate, groptions):
-        Gtk.FlowBox.__init__(
-            self,
-            orientation=Gtk.Orientation.HORIZONTAL,
-            homogeneous=False,
-            halign=Gtk.Align.START,
-            valign=Gtk.Align.END,
-        )
-        GrampsConfig.__init__(self, grstate, groptions)
-        self.obj = None
-        self.obj_type = None
-
-    def load(self, obj, obj_type):
-        """
-        Load tags for an object.
-        """
-        self.obj = obj
-        self.obj_type = obj_type
-
-        tag_mode = self.get_option("tag-format")
-        if not tag_mode:
-            return
-        tag_width = self.get_option("tag-width")
-        self.set_min_children_per_line(tag_width)
-        self.set_max_children_per_line(tag_width)
-
-        tags = []
-        for handle in obj.get_tag_list():
-            tag = self.fetch("Tag", handle)
-            tags.append(tag)
-
-        if self.grstate.config.get("options.global.sort-tags-by-name"):
-            tags.sort(key=lambda x: x.name)
+    def __init__(self, grstate, groptions, right_justify=False):
+        if right_justify:
+            justify = Gtk.Align.END
         else:
-            tags.sort(key=lambda x: x.priority)
-
-        for tag in tags:
-            if tag_mode == 1:
-                tag_view = Gtk.Image()
-                tag_view.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
-                tag_view.set_tooltip_text(tag.name)
-                css = (
-                    ".image {{ "
-                    "margin: 0px; "
-                    "padding: 0px; "
-                    "background-image: none; "
-                    "background-color: {}; }}".format(
-                        tag.color[:7],
-                    )
-                )
-                css_class = "image"
-            else:
-                tag_view = Gtk.Label(label=tag.name)
-                if tag_mode == 2:
-                    css = (
-                        ".label { "
-                        "margin: 0px; "
-                        "padding: 0px; "
-                        "font-size: x-small; }"
-                    )
-                else:
-                    css = (
-                        ".label {{ "
-                        "margin: 0px; "
-                        "padding: 0px; "
-                        "font-size: x-small; "
-                        "background-color: {}; }}".format(tag.color[:7])
-                    )
-                css_class = "label"
-            css = css.encode("utf-8")
-            provider = Gtk.CssProvider()
-            provider.load_from_data(css)
-            context = tag_view.get_style_context()
-            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-            context.add_class(css_class)
-            eventbox = Gtk.EventBox()
-            if tag_mode == 2:
-                frame = Gtk.Frame()
-                frame.add(tag_view)
-                eventbox.add(frame)
-            else:
-                eventbox.add(tag_view)
-            eventbox.connect("button-press-event", self.tag_click, tag.handle)
-            self.add(eventbox)
-        self.show_all()
-
-    def tag_click(self, _dummy_obj, _dummy_event, handle):
-        """
-        Request page for tag.
-        """
-        tag = self.fetch("Tag", handle)
-        page_context = GrampsContext(tag, None, None)
-        return self.grstate.load_page(page_context.pickled)
-
-
-# ------------------------------------------------------------------------
-#
-# GrampsFrameIndicators class
-#
-# ------------------------------------------------------------------------
-class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
-    """
-    A simple class for managing display of the child indicator icons for
-    a Gramps object.
-    """
-
-    def __init__(self, grstate, groptions, size=4):
-        Gtk.HBox.__init__(self, halign=Gtk.Align.END, valign=Gtk.Align.END)
+            justify = Gtk.Align.START            
+        Gtk.HBox.__init__(self, halign=justify, valign=Gtk.Align.END)
         GrampsConfig.__init__(self, grstate, groptions)
         self.flowbox = Gtk.FlowBox(
             orientation=Gtk.Orientation.HORIZONTAL,
             homogeneous=False,
             valign=Gtk.Align.END,
+            halign=justify
         )
         self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        if "active" in self.groptions.option_space:
+            size = self.grstate.config.get("options.global.icons-active-width")
+        else:
+            size = self.grstate.config.get("options.global.icons-group-width")
+        self.flowbox.set_min_children_per_line(size)
+        self.flowbox.set_max_children_per_line(size)
         self.pack_end(self.flowbox, True, True, 0)
         self.obj = None
         self.obj_type = None
-        self.set_size(size)
 
-    def set_size(self, size):
+    def load(self, obj, obj_type):
         """
-        Set size with respect to children per line.
+        Load icons for an object.
         """
-        self.flowbox.set_min_children_per_line(size)
-        self.flowbox.set_max_children_per_line(size)
+        self.obj = obj
+        self.obj_type = obj_type
 
-    def load(self, obj, obj_type, size=None):
+        if self.grstate.config.get("options.global.icons-enable-indicators"):
+            self.load_indicators()
+
+        if self.grstate.config.get("options.global.icons-enable-tags"):
+            if hasattr(obj, "tag_list"):
+                self.load_tags()
+        self.show_all()
+
+    def load_indicators(self):
         """
         Load child icon indicators for an object.
         """
+        obj = self.obj
+        obj_type = self.obj_type
         check = self.grstate.config.get
-        if not check("options.global.enable-child-indicators"):
-            return
-
-        self.obj = obj
-        self.obj_type = obj_type
-        if size:
-            self.set_size(size)
 
         if obj_type == "Person":
             self.__load_person(obj, check)
@@ -447,19 +355,19 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             and check("options.global.indicate-children")
             and obj.get_child_ref_list()
         ):
-            self.add_icon("gramps-person", "child", tooltip=_("Children"))
+            self.__add_icon("gramps-person", "child", tooltip=_("Children"))
         if (
             check("options.global.indicate-events")
             and hasattr(obj, "event_ref_list")
             and obj.get_event_ref_list()
         ):
-            self.add_icon("gramps-event", "event", tooltip=_("Events"))
+            self.__add_icon("gramps-event", "event", tooltip=_("Events"))
         if (
             check("options.global.indicate-ordinances")
             and hasattr(obj, "lds_ord_list")
             and obj.get_lds_ord_list()
         ):
-            self.add_icon(
+            self.__add_icon(
                 "emblem-documents", "ordinance", tooltip=_("Ordinances")
             )
         if (
@@ -467,7 +375,7 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             and hasattr(obj, "attribute_list")
             and obj.get_attribute_list()
         ):
-            self.add_icon(
+            self.__add_icon(
                 "gramps-attribute", "attribute", tooltip=_("Attributes")
             )
         if (
@@ -475,13 +383,13 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             and hasattr(obj, "media_list")
             and obj.get_media_list()
         ):
-            self.add_icon("gramps-media", "media", tooltip=_("Media"))
+            self.__add_icon("gramps-media", "media", tooltip=_("Media"))
         if (
             check("options.global.indicate-citations")
             and hasattr(obj, "citation_list")
             and obj.get_citation_list()
         ):
-            self.add_icon(
+            self.__add_icon(
                 "gramps-citation", "citation", tooltip=_("Citations")
             )
         if (
@@ -489,20 +397,21 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             and hasattr(obj, "note_list")
             and obj.get_note_list()
         ):
-            self.add_icon("gramps-notes", "note", tooltip=_("Notes"))
+            self.__add_icon("gramps-notes", "note", tooltip=_("Notes"))
         if (
             check("options.global.indicate-addresses")
             and hasattr(obj, "address_list")
             and obj.get_address_list()
         ):
-            self.add_icon("gramps-address", "address", tooltip=_("Addresses"))
+            self.__add_icon(
+                "gramps-address", "address", tooltip=_("Addresses")
+            )
         if (
             check("options.global.indicate-urls")
             and hasattr(obj, "urls")
             and obj.get_url_list()
         ):
-            self.add_icon("gramps-url", "url", tooltip=_("Urls"))
-        self.show_all()
+            self.__add_icon("gramps-url", "url", tooltip=_("Urls"))
 
     def __load_person(self, obj, check):
         """
@@ -512,43 +421,90 @@ class GrampsFrameIndicators(Gtk.HBox, GrampsConfig):
             check("options.global.indicate-names")
             and obj.get_alternate_names()
         ):
-            self.add_icon("user-info", "name", tooltip=_("Names"))
+            self.__add_icon("user-info", "name", tooltip=_("Names"))
         if (
             check("options.global.indicate-parents")
             and obj.get_parent_family_handle_list()
         ):
-            self.add_icon("gramps-family", "parent", tooltip=_("Parents"))
+            self.__add_icon("gramps-family", "parent", tooltip=_("Parents"))
         if (
             check("options.global.indicate-spouses")
             and obj.get_family_handle_list()
         ):
-            self.add_icon("gramps-spouse", "spouse", tooltip=_("Spouses"))
+            self.__add_icon("gramps-spouse", "spouse", tooltip=_("Spouses"))
         if (
             check("options.global.indicate-associations")
             and obj.get_person_ref_list()
         ):
-            self.add_icon(
+            self.__add_icon(
                 "gramps-person", "association", tooltip=_("Associations")
             )
 
-    def add_icon(self, icon_name, group_type, tooltip=None):
+    def __add_icon(self, icon_name, group_type, tooltip=None):
         """
         Add an indicator icon.
         """
         icon = Gtk.Image(halign=Gtk.Align.END)
         icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
-        eventbox = Gtk.EventBox(
-            tooltip_text="{} {}".format(_("Object has"), tooltip)
-        )
+        eventbox = Gtk.EventBox(tooltip_text=tooltip)
         eventbox.add(icon)
-        eventbox.connect("button-press-event", self.__icon_click, group_type)
+        eventbox.connect(
+            "button-press-event", self.__indicator_click, group_type
+        )
         self.flowbox.add(eventbox)
 
-    def __icon_click(self, _dummy_obj, _dummy_event, group_type):
+    def __indicator_click(self, _dummy_obj, _dummy_event, group_type):
         """
         Launch group dialog.
         """
         self.grstate.show_group(self.obj, group_type)
+
+    def load_tags(self):
+        """
+        Load tags for an object.
+        """
+        tags = []
+        for handle in self.obj.get_tag_list():
+            tag = self.fetch("Tag", handle)
+            tags.append(tag)
+
+        if self.grstate.config.get("options.global.sort-tags-by-name"):
+            tags.sort(key=lambda x: x.name)
+        else:
+            tags.sort(key=lambda x: x.priority)
+
+        for tag in tags:
+            icon = Gtk.Image()
+            icon.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
+            css = (
+                ".image {{ "
+                "margin: 0px; "
+                "padding: 0px; "
+                "background-image: none; "
+                "background-color: {}; }}".format(
+                    tag.color[:7],
+                )
+            )
+            css = css.encode("utf-8")
+            provider = Gtk.CssProvider()
+            provider.load_from_data(css)
+            context = icon.get_style_context()
+            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            context.add_class("image")
+            eventbox = Gtk.EventBox(tooltip_text=tag.name)
+            eventbox.add(icon)
+            eventbox.connect(
+                "button-press-event", self.__tag_click, tag.handle
+            )
+            self.flowbox.add(eventbox)
+
+    def __tag_click(self, _dummy_obj, _dummy_event, handle):
+        """
+        Request page for tag.
+        """
+        tag = self.fetch("Tag", handle)
+        page_context = GrampsContext(tag, None, None)
+        return self.grstate.load_page(page_context.pickled)
 
 
 # ------------------------------------------------------------------------
@@ -561,10 +517,11 @@ class GrampsImage(Gtk.EventBox):
     A simple class for managing display of an image for a GrampsFrame object.
     """
 
-    def __init__(self, grstate, obj=None, media_ref=None):
+    def __init__(self, grstate, obj=None, media_ref=None, active=False):
         Gtk.EventBox.__init__(self)
         self.grstate = grstate
         self.media_ref = None
+        self.active = active
 
         if isinstance(obj, Media):
             self.media = obj
@@ -611,10 +568,10 @@ class GrampsImage(Gtk.EventBox):
         Open the image in the default picture viewer.
         """
         if button_activated(event, _LEFT_BUTTON):
-            if self.grstate.config.get("options.global.image-page-link"):
-                context = GrampsContext(self.media, None, None)
-                self.grstate.load_page(context.pickled)
-            else:
-                open_file_with_default_application(
-                    self.path, self.grstate.uistate
-                )
+            if not self.active:
+                if self.grstate.config.get("options.global.image-page-link"):
+                    context = GrampsContext(self.media, None, None)
+                    return self.grstate.load_page(context.pickled)
+            return open_file_with_default_application(
+                self.path, self.grstate.uistate
+            )

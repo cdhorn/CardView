@@ -73,20 +73,6 @@ def build_person_timeline_grid(configdialog, grstate):
     )
     configdialog.add_combo(
         grid1,
-        _("Tag display mode"),
-        2,
-        "options.timeline.person.tag-format",
-        TAG_DISPLAY_MODES,
-    )
-    configdialog.add_spinner(
-        grid1,
-        _("Maximum tags per line"),
-        3,
-        "options.timeline.person.tag-width",
-        (1, 20),
-    )
-    configdialog.add_combo(
-        grid1,
         _("Image display mode"),
         4,
         "options.timeline.person.image-mode",
@@ -518,20 +504,6 @@ def build_family_timeline_grid(configdialog, grstate):
         1,
         "options.timeline.family.color-scheme",
         TIMELINE_COLOR_MODES,
-    )
-    configdialog.add_combo(
-        grid1,
-        _("Tag display mode"),
-        2,
-        "options.timeline.family.tag-format",
-        TAG_DISPLAY_MODES,
-    )
-    configdialog.add_spinner(
-        grid1,
-        _("Maximum tags per line"),
-        3,
-        "options.timeline.family.tag-width",
-        (1, 20),
     )
     configdialog.add_combo(
         grid1,

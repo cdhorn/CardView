@@ -134,15 +134,7 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
                         text = "{} {}: {}".format(_("Media"), _("type"), text)
                     vbox.pack_start(self.make_label(text), False, False, 0)
             self.ref_widgets["body"].pack_start(vbox, False, False, 0)
-
-            if "indicators" in self.ref_widgets:
-                if "active" in self.groptions.option_space:
-                    size = 12
-                else:
-                    size = 5
-                self.ref_widgets["indicators"].load(
-                    repo_ref, "RepoRef", size=size
-                )
+            self.ref_widgets["icons"].load(repo_ref, "RepoRef")
 
             self.dnd_drop_ref_targets = []
             self.ref_eventbox.connect(

@@ -121,7 +121,10 @@ CONFIGSETTINGS = (
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
     ("options.global.enable-tooltips", True),
-    ("options.global.enable-child-indicators", True),
+    ("options.global.icons-active-width", 24),
+    ("options.global.icons-group-width", 12),
+    ("options.global.icons-enable-tags", True),
+    ("options.global.icons-enable-indicators", True),
     ("options.global.indicate-names", True),
     ("options.global.indicate-parents", True),
     ("options.global.indicate-spouses", True),
@@ -539,8 +542,6 @@ CONFIGSETTINGS = (
     ("options.active.person.show-age", True),
     ("options.active.person.sex-mode", 1),
     ("options.active.person.image-mode", 3),
-    ("options.active.person.tag-format", 1),
-    ("options.active.person.tag-width", 10),
     ("options.active.person.facts-field-skip-birth-alternates", False),
     ("options.active.person.facts-field-skip-death-alternates", False),
     ("options.active.person.facts-field-1", "Event:Birth:False"),
@@ -577,8 +578,6 @@ CONFIGSETTINGS = (
     ("options.active.parent.show-age", False),
     ("options.active.parent.sex-mode", 1),
     ("options.active.parent.image-mode", 3),
-    ("options.active.parent.tag-format", 1),
-    ("options.active.parent.tag-width", 10),
     ("options.active.parent.show-matrilineal", False),
     ("options.active.parent.expand-children", True),
     ("options.active.parent.show-divorce", True),
@@ -608,8 +607,6 @@ CONFIGSETTINGS = (
     ("options.active.spouse.show-age", False),
     ("options.active.spouse.sex-mode", 1),
     ("options.active.spouse.image-mode", 3),
-    ("options.active.spouse.tag-format", 1),
-    ("options.active.spouse.tag-width", 10),
     ("options.active.spouse.expand-children", True),
     ("options.active.spouse.show-spouse-only", True),
     ("options.active.spouse.show-divorce", True),
@@ -639,8 +636,6 @@ CONFIGSETTINGS = (
     ("options.active.association.show-age", False),
     ("options.active.association.sex-mode", 1),
     ("options.active.association.image-mode", 3),
-    ("options.active.association.tag-format", 1),
-    ("options.active.association.tag-width", 10),
     ("options.active.association.facts-field-skip-birth-alternates", True),
     ("options.active.association.facts-field-skip-death-alternates", True),
     ("options.active.association.facts-field-1", "Event:Birth:False"),
@@ -667,8 +662,6 @@ CONFIGSETTINGS = (
     ("options.active.participant.show-age", False),
     ("options.active.participant.sex-mode", 1),
     ("options.active.participant.image-mode", 3),
-    ("options.active.participant.tag-format", 1),
-    ("options.active.participant.tag-width", 10),
     ("options.active.participant.facts-field-skip-birth-alternates", True),
     ("options.active.participant.facts-field-skip-death-alternates", True),
     ("options.active.participant.facts-field-1", "Event:Birth:False"),
@@ -693,8 +686,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.active.family.event-format", 1),
     ("options.active.family.image-mode", 3),
-    ("options.active.family.tag-format", 1),
-    ("options.active.family.tag-width", 10),
     ("options.active.family.show-years", True),
     ("options.active.family.show-matrilineal", False),
     ("options.active.family.show-relationship", True),
@@ -732,8 +723,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.active.event.event-format", 1),
     ("options.active.event.image-mode", 3),
-    ("options.active.event.tag-format", 1),
-    ("options.active.event.tag-width", 10),
     ("options.active.event.attributes-field-show-labels", False),
     ("options.active.event.attributes-field-1", "None"),
     ("options.active.event.attributes-field-2", "None"),
@@ -748,13 +737,9 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Place Options
     ######################################################################
-    ("options.active.place.tag-format", 1),
-    ("options.active.place.tag-width", 10),
     ######################################################################
     ## Citation Options
     ######################################################################
-    ("options.active.citation.tag-format", 1),
-    ("options.active.citation.tag-width", 10),
     ("options.active.citation.image-mode", 0),
     ("options.active.citation.sort-by-date", False),
     ("options.active.citation.include-indirect", True),
@@ -776,8 +761,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.active.source.event-format", 1),
     ("options.active.source.image-mode", 3),
-    ("options.active.source.tag-format", 1),
-    ("options.active.source.tag-width", 10),
     ("options.active.source.attributes-field-show-labels", False),
     ("options.active.source.attributes-field-1", "None"),
     ("options.active.source.attributes-field-2", "None"),
@@ -786,16 +769,12 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Repository Options
     ######################################################################
-    ("options.active.repository.tag-format", 1),
-    ("options.active.repository.tag-width", 10),
     ("options.active.repository.show-call-number", True),
     ("options.active.repository.show-media-type", True),
     ("options.active.repository.show-repository-type", True),
     ######################################################################
     ## Media Options
     ######################################################################
-    ("options.active.media.tag-format", 1),
-    ("options.active.media.tag-width", 10),
     ("options.active.media.image-mode", 3),
     ("options.active.media.show-date", True),
     ("options.active.media.image-on-top", False),
@@ -810,8 +789,6 @@ CONFIGSETTINGS = (
     ("options.active.note.text-on-top", False),
     ("options.active.note.preview-mode", False),
     ("options.active.note.preview-lines", 3),
-    ("options.active.note.tag-format", 1),
-    ("options.active.note.tag-width", 10),
     ######################################################################
     # Group Level Options
     # These apply when the frame is in a group and not the page header
@@ -823,8 +800,6 @@ CONFIGSETTINGS = (
     ("options.group.person.show-age", True),
     ("options.group.person.sex-mode", 1),
     ("options.group.person.image-mode", 3),
-    ("options.group.person.tag-format", 1),
-    ("options.group.person.tag-width", 10),
     ("options.group.person.facts-field-skip-birth-alternates", False),
     ("options.group.person.facts-field-skip-death-alternates", False),
     ("options.group.person.facts-field-1", "Event:Birth:False"),
@@ -861,8 +836,6 @@ CONFIGSETTINGS = (
     ("options.group.parent.show-age", False),
     ("options.group.parent.sex-mode", 1),
     ("options.group.parent.image-mode", 3),
-    ("options.group.parent.tag-format", 1),
-    ("options.group.parent.tag-width", 10),
     ("options.group.parent.show-matrilineal", False),
     ("options.group.parent.expand-children", True),
     ("options.group.parent.show-divorce", True),
@@ -892,8 +865,6 @@ CONFIGSETTINGS = (
     ("options.group.sibling.show-age", False),
     ("options.group.sibling.sex-mode", 1),
     ("options.group.sibling.image-mode", 3),
-    ("options.group.sibling.tag-format", 1),
-    ("options.group.sibling.tag-width", 10),
     ("options.group.sibling.number-children", True),
     ("options.group.sibling.reference-mode", 2),
     ("options.group.sibling.facts-field-skip-birth-alternates", True),
@@ -922,8 +893,6 @@ CONFIGSETTINGS = (
     ("options.group.spouse.show-age", False),
     ("options.group.spouse.sex-mode", 1),
     ("options.group.spouse.image-mode", 3),
-    ("options.group.spouse.tag-format", 1),
-    ("options.group.spouse.tag-width", 10),
     ("options.group.spouse.expand-children", True),
     ("options.group.spouse.show-spouse-only", True),
     ("options.group.spouse.show-divorce", True),
@@ -953,8 +922,6 @@ CONFIGSETTINGS = (
     ("options.group.child.show-age", False),
     ("options.group.child.sex-mode", 1),
     ("options.group.child.image-mode", 3),
-    ("options.group.child.tag-format", 1),
-    ("options.group.child.tag-width", 10),
     ("options.group.child.number-children", True),
     ("options.group.child.reference-mode", 2),
     ("options.group.child.facts-field-skip-birth-alternates", True),
@@ -983,8 +950,6 @@ CONFIGSETTINGS = (
     ("options.group.association.show-age", False),
     ("options.group.association.sex-mode", 1),
     ("options.group.association.image-mode", 3),
-    ("options.group.association.tag-format", 1),
-    ("options.group.association.tag-width", 10),
     ("options.group.association.reference-mode", 2),
     ("options.group.association.facts-field-skip-birth-alternates", True),
     ("options.group.association.facts-field-skip-death-alternates", True),
@@ -1012,8 +977,6 @@ CONFIGSETTINGS = (
     ("options.group.participant.show-age", False),
     ("options.group.participant.sex-mode", 1),
     ("options.group.participant.image-mode", 3),
-    ("options.group.participant.tag-format", 1),
-    ("options.group.participant.tag-width", 10),
     ("options.group.participant.facts-field-skip-birth-alternates", True),
     ("options.group.participant.facts-field-skip-death-alternates", True),
     ("options.group.participant.facts-field-1", "Event:Birth:False"),
@@ -1038,8 +1001,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.group.family.event-format", 1),
     ("options.group.family.image-mode", 3),
-    ("options.group.family.tag-format", 1),
-    ("options.group.family.tag-width", 10),
     ("options.group.family.show-years", True),
     ("options.group.family.show-matrilineal", False),
     ("options.group.family.show-spouse-only", False),
@@ -1068,8 +1029,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.group.event.event-format", 1),
     ("options.group.event.image-mode", 3),
-    ("options.group.event.tag-format", 1),
-    ("options.group.event.tag-width", 10),
     ("options.group.event.attributes-field-show-labels", False),
     ("options.group.event.attributes-field-1", "None"),
     ("options.group.event.attributes-field-2", "None"),
@@ -1084,13 +1043,9 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Place Options
     ######################################################################
-    ("options.group.place.tag-format", 1),
-    ("options.group.place.tag-width", 10),
     ######################################################################
     ## Citation Options
     ######################################################################
-    ("options.group.citation.tag-format", 1),
-    ("options.group.citation.tag-width", 10),
     ("options.group.citation.image-mode", 0),
     ("options.group.citation.sort-by-date", False),
     ("options.group.citation.include-indirect", True),
@@ -1112,8 +1067,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.group.source.event-format", 1),
     ("options.group.source.image-mode", 3),
-    ("options.group.source.tag-format", 1),
-    ("options.group.source.tag-width", 10),
     ("options.group.source.attributes-field-show-labels", False),
     ("options.group.source.attributes-field-1", "None"),
     ("options.group.source.attributes-field-2", "None"),
@@ -1122,8 +1075,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Repository Options
     ######################################################################
-    ("options.group.repository.tag-format", 1),
-    ("options.group.repository.tag-width", 10),
     ("options.group.repository.reference-mode", 0),
     ("options.group.repository.show-call-number", True),
     ("options.group.repository.show-media-type", True),
@@ -1134,8 +1085,6 @@ CONFIGSETTINGS = (
     ("options.group.media.sort-by-date", False),
     ("options.group.media.group-by-type", False),
     ("options.group.media.filter-non-photos", False),
-    ("options.group.media.tag-format", 1),
-    ("options.group.media.tag-width", 10),
     ("options.group.media.image-mode", 2),
     ("options.group.media.show-date", True),
     ("options.group.media.image-on-top", False),
@@ -1150,16 +1099,12 @@ CONFIGSETTINGS = (
     ("options.group.note.text-on-top", False),
     ("options.group.note.preview-mode", True),
     ("options.group.note.preview-lines", 3),
-    ("options.group.note.tag-format", 1),
-    ("options.group.note.tag-width", 10),
     ######################################################################
     # Timeline Options
     #
     ######################################################################
     ## Person Timeline
     ######################################################################
-    ("options.timeline.person.tag-format", 1),
-    ("options.timeline.person.tag-width", 10),
     ("options.timeline.person.image-mode", 0),
     ("options.timeline.person.reference-mode", 2),
     ("options.timeline.person.color-scheme", 0),
@@ -1213,8 +1158,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Family Timeline
     ######################################################################
-    ("options.timeline.family.tag-format", 1),
-    ("options.timeline.family.tag-width", 10),
     ("options.timeline.family.image-mode", 0),
     ("options.timeline.family.reference-mode", 2),
     ("options.timeline.family.color-scheme", 0),
@@ -1250,8 +1193,6 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Place Timeline
     ######################################################################
-    ("options.timeline.place.tag-format", 1),
-    ("options.timeline.place.tag-width", 10),
     ("options.timeline.place.image-mode", 0),
     ("options.timeline.place.reference-mode", 2),
     ("options.timeline.place.color-scheme", 0),
