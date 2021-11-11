@@ -101,9 +101,10 @@ TIMELINE_COLOR_MODES = [
 
 REF_DISPLAY_MODES = [
     (0, _("Not displayed")),
-    (1, _("Display on top")),
-    (2, _("Display on right")),
-    (3, _("Display on bottom")),
+    (1, _("Display on left")),
+    (2, _("Display on top")),
+    (3, _("Display on right")),
+    (4, _("Display on bottom")),
 ]
 
 # For layout editor

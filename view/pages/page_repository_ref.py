@@ -117,7 +117,7 @@ class RepositoryRefProfilePage(BaseProfilePage):
         )
         groptions = GrampsOptions("options.active.repository")
         groptions.set_backlink(source.get_handle())
-        groptions.set_ref_mode(0)
+        groptions.set_ref_mode(2)
         self.active_profile = RepositoryGrampsFrame(
             self.grstate,
             groptions,

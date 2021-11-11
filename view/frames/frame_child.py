@@ -106,12 +106,13 @@ class ChildGrampsFrame(PersonGrampsFrame):
         vbox = None
         if child_ref.get_father_relation():
             reltype = child_ref.get_father_relation()
-            if groptions.ref_mode == 2:
+            if groptions.ref_mode in [1, 3]:
+                left = groptions.ref_mode == 1
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(_("Father"), left=False), False, False, 0
+                    self.make_label(_("Father"), left=left), False, False, 0
                 )
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(str(reltype), left=False), False, False, 0
+                    self.make_label(str(reltype), left=left), False, False, 0
                 )
             else:
                 vbox = Gtk.VBox()
@@ -124,12 +125,13 @@ class ChildGrampsFrame(PersonGrampsFrame):
 
         if child_ref.get_mother_relation():
             reltype = child_ref.get_mother_relation()
-            if groptions.ref_mode == 2:
+            if groptions.ref_mode in [1, 3]:
+                left = groptions.ref_mode == 1
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(_("Mother"), left=False), False, False, 0
+                    self.make_label(_("Mother"), left=left), False, False, 0
                 )
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(str(reltype), left=False), False, False, 0
+                    self.make_label(str(reltype), left=left), False, False, 0
                 )
             else:
                 if not vbox:

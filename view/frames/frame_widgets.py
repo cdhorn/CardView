@@ -84,7 +84,7 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
     def __init__(self, grstate, groptions):
         Gtk.HBox.__init__(
             self,
-            hexpand=True,
+            hexpand=False,
             vexpand=False,
             halign=Gtk.Align.END,
             valign=Gtk.Align.START,
@@ -95,16 +95,25 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         """
         Load the id field as needed for the given object.
         """
-        if hasattr(obj, "gramps_id"):
-            self.add_gramps_id(obj=obj)
-        elif gramps_id:
-            self.add_gramps_id(gramps_id=gramps_id)
-        if hasattr(obj, "handle"):
-            self.add_bookmark_indicator(obj, obj_type)
-        elif "Ref" in obj_type:
+        if "Ref" in obj_type and self.groptions.ref_mode == 1:
+            self.set_halign(Gtk.Align.START)
+            self.add_privacy_indicator(obj)
             pack_icon(self, "stock_link")
-        self.add_privacy_indicator(obj)
-        self.show_all()
+            if hasattr(obj, "gramps_id"):
+                self.add_gramps_id(obj=obj)
+            elif gramps_id:
+                self.add_gramps_id(gramps_id=gramps_id)
+        else:
+            if hasattr(obj, "gramps_id"):
+                self.add_gramps_id(obj=obj)
+            elif gramps_id:
+                self.add_gramps_id(gramps_id=gramps_id)
+            if hasattr(obj, "handle"):
+                self.add_bookmark_indicator(obj, obj_type)
+            elif "Ref" in obj_type:
+                pack_icon(self, "stock_link")
+            self.add_privacy_indicator(obj)
+            self.show_all()
 
     def reload(self, obj, obj_type, gramps_id=None):
         """
@@ -305,14 +314,14 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         if right_justify:
             justify = Gtk.Align.END
         else:
-            justify = Gtk.Align.START            
+            justify = Gtk.Align.START
         Gtk.HBox.__init__(self, halign=justify, valign=Gtk.Align.END)
         GrampsConfig.__init__(self, grstate, groptions)
         self.flowbox = Gtk.FlowBox(
             orientation=Gtk.Orientation.HORIZONTAL,
             homogeneous=False,
             valign=Gtk.Align.END,
-            halign=justify
+            halign=justify,
         )
         self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
         if "active" in self.groptions.option_space:
@@ -529,7 +538,8 @@ class GrampsImage(Gtk.EventBox):
             self.media_ref = media_ref
             self.media = grstate.fetch("Media", media_ref.ref)
         elif hasattr(obj, "media_list") and obj.get_media_list():
-            self.media = grstate.fetch("Media", obj.get_media_list()[0].ref)
+            self.media_ref = obj.get_media_list()[0]
+            self.media = grstate.fetch("Media", self.media_ref.ref)
         else:
             self.media = None
 

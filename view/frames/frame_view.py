@@ -87,7 +87,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         Initialize primary frame widgets.
         """
-        self.widgets["image"] = Gtk.Box()
+        self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
         if self.get_option("show-age") or self.groptions.age_base:
             self.widgets["age"] = Gtk.VBox(
                 margin_right=3,
@@ -120,9 +120,10 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Initialize the reference frame widgets.
         """
         self.ref_eventbox = Gtk.EventBox()
+        right = self.groptions.ref_mode != 1
         self.ref_widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
         self.ref_widgets["icons"] = GrampsFrameIcons(
-            self.grstate, self.groptions, right_justify=True
+            self.grstate, self.groptions, right_justify=right
         )
 
     def _prepare_ref_layout(self):
@@ -133,25 +134,31 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.ref_eventbox = Gtk.EventBox()
         self.ref_frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.ref_eventbox.add(self.ref_frame)
-        if self.groptions.ref_mode == 2:
+        if self.groptions.ref_mode in [1, 3]:
             self._prepare_horizontal_ref_layout()
         else:
             self._prepare_vertical_ref_layout()
 
     def _prepare_horizontal_ref_layout(self):
         """
-        Prepare a horizontal reference layout, placing it on right side.
+        Prepare a horizontal reference layout, placing it on left or right.
         """
-        view_obj = Gtk.HBox(hexpand=True)
-        view_obj.pack_start(self.eventbox, True, True, 0)
-        view_obj.pack_start(self.ref_eventbox, True, True, 0)
+        view_obj = Gtk.HBox(hexpand=False)
+        if self.groptions.ref_mode == 1:
+            justify = Gtk.Align.START
+            view_obj.pack_start(self.ref_eventbox, True, True, 0)
+            view_obj.pack_start(self.eventbox, True, True, 0)
+        else:
+            justify = Gtk.Align.END
+            view_obj.pack_start(self.eventbox, True, True, 0)
+            view_obj.pack_start(self.ref_eventbox, True, True, 0)
         self.frame.add(view_obj)
         self.add(self.frame)
 
         self.ref_widgets["body"] = Gtk.VBox(
-            halign=Gtk.Align.END, valign=Gtk.Align.START
+            halign=justify, valign=Gtk.Align.START
         )
-        ref_body = Gtk.VBox(hexpand=True, halign=Gtk.Align.END, margin=3)
+        ref_body = Gtk.VBox(hexpand=False, halign=justify, margin=3)
         if "ref" in self.groptions.size_groups:
             self.groptions.size_groups["ref"].add_widget(ref_body)
         ref_body.pack_start(
@@ -174,19 +181,27 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Prepare a vertical reference layout, placing it on top or bottom.
         """
         self.set_spacing(3)
-        if self.groptions.ref_mode == 1:
+        if self.groptions.ref_mode == 2:
             self.pack_start(self.ref_eventbox, True, True, 0)
             self.pack_start(self.eventbox, True, True, 0)
-        elif self.groptions.ref_mode == 3:
+        else:
             self.pack_start(self.eventbox, True, True, 0)
             self.pack_start(self.ref_eventbox, True, True, 0)
         ref_body = Gtk.HBox(hexpand=True, margin=3)
 
         self.ref_widgets["body"] = Gtk.HBox(halign=Gtk.Align.START)
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(
+                self.ref_widgets["body"]
+            )
         ref_body.pack_start(
             self.ref_widgets["body"], expand=True, fill=True, padding=0
         )
         attribute_block = Gtk.VBox(hexpand=False)
+        if "attributes" in self.groptions.size_groups:
+            self.groptions.size_groups["attributes"].add_widget(
+                attribute_block
+            )
         attribute_block.pack_start(
             self.ref_widgets["id"], expand=False, fill=False, padding=0
         )
@@ -219,7 +234,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         image_mode = self.get_option("image-mode")
         if image_mode and image_mode in [3, 4]:
             self.widgets["body"].pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=0
+                self.widgets["image"], expand=False, fill=False, padding=3
             )
 
         if "age" in self.widgets:
@@ -257,7 +272,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             self.groptions.size_groups["attributes"].add_widget(
                 attribute_block
             )
-        self.widgets["body"].pack_end(
+        self.widgets["body"].pack_start(
             attribute_block, expand=False, fill=False, padding=0
         )
         attribute_block.pack_start(
@@ -268,6 +283,6 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         )
 
         if image_mode in [1, 2]:
-            self.widgets["body"].pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=0
+            self.widgets["body"].pack_end(
+                self.widgets["image"], expand=False, fill=False, padding=3
             )

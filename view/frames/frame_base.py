@@ -878,7 +878,7 @@ class GrampsFrame(GrampsFrameView):
         context = self.frame.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
-        if self.groptions.ref_mode in [1, 3]:
+        if self.groptions.ref_mode in [2, 4]:
             context = self.ref_frame.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class("frame")
