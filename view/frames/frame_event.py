@@ -273,7 +273,7 @@ class EventGrampsFrame(PrimaryGrampsFrame):
                 drag_data_received=self.drag_data_ref_received,
             )
         else:
-            if groptions.ref_mode in [1, 3]:
+            if groptions.ref_mode in [2, 4]:
                 list(
                     map(
                         self.ref_eventbox.remove,

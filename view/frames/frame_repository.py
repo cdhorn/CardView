@@ -117,23 +117,56 @@ class RepositoryGrampsFrame(PrimaryGrampsFrame):
             self.ref_widgets["id"].load(
                 repo_ref, "RepoRef", gramps_id=repository.get_gramps_id()
             )
-            vbox = Gtk.VBox()
-            if self.get_option("show-call-number"):
-                if repo_ref.call_number:
+
+            vbox = None
+            left = groptions.ref_mode == 1
+            if self.get_option("show-call-number") and repo_ref.call_number:
+                if groptions.ref_mode in [1, 3]:
+                    self.ref_widgets["body"].pack_start(
+                        self.make_label(_("Call number"), left=left),
+                        False,
+                        False,
+                        0,
+                    )
+                    self.ref_widgets["body"].pack_start(
+                        self.make_label(repo_ref.call_number, left=left),
+                        False,
+                        False,
+                        0,
+                    )
+                else:
+                    vbox = Gtk.VBox()
                     text = "{}: {}".format(
                         _("Call number"), repo_ref.call_number
                     ).replace("::", ":")
                     vbox.pack_start(self.make_label(text), False, False, 0)
 
-            if self.get_option("show-media-type"):
-                if repo_ref.media_type:
-                    text = glocale.translation.sgettext(
-                        repo_ref.media_type.xml_str()
+            if self.get_option("show-media-type") and repo_ref.media_type:
+                text = glocale.translation.sgettext(
+                    repo_ref.media_type.xml_str()
+                )
+                if groptions.ref_mode in [1, 3]:
+                    self.ref_widgets["body"].pack_start(
+                        self.make_label(
+                            "{} {}".format(_("Media"), _("type")), left=left
+                        ),
+                        False,
+                        False,
+                        0,
                     )
+                    self.ref_widgets["body"].pack_start(
+                        self.make_label(text, left=left), False, False, 0
+                    )
+                else:
+                    if not vbox:
+                        vbox = Gtk.VBox()
                     if text:
                         text = "{} {}: {}".format(_("Media"), _("type"), text)
                     vbox.pack_start(self.make_label(text), False, False, 0)
-            self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+
+            if vbox:
+                self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+
             self.ref_widgets["icons"].load(repo_ref, "RepoRef")
 
             self.dnd_drop_ref_targets = []

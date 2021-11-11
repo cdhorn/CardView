@@ -405,6 +405,7 @@ def get_references_group(
                     handle_cache.append(handle)
                     total = total + 1
     del handle_cache
+    tuple_list.sort(key=lambda x: x[0])
 
     not_shown = 0
     if not maximum:

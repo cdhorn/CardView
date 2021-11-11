@@ -1093,7 +1093,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Repository Options
     ######################################################################
-    ("options.group.repository.reference-mode", 0),
+    ("options.group.repository.reference-mode", 1),
     ("options.group.repository.show-call-number", True),
     ("options.group.repository.show-media-type", True),
     ("options.group.repository.show-repository-type", True),
@@ -1125,7 +1125,7 @@ CONFIGSETTINGS = (
     ## Person Timeline
     ######################################################################
     ("options.timeline.person.image-mode", 0),
-    ("options.timeline.person.reference-mode", 2),
+    ("options.timeline.person.reference-mode", 3),
     ("options.timeline.person.color-scheme", 0),
     ("options.timeline.person.include-media", False),
     ("options.timeline.person.include-names", False),
@@ -1178,7 +1178,7 @@ CONFIGSETTINGS = (
     ## Family Timeline
     ######################################################################
     ("options.timeline.family.image-mode", 0),
-    ("options.timeline.family.reference-mode", 2),
+    ("options.timeline.family.reference-mode", 3),
     ("options.timeline.family.color-scheme", 0),
     ("options.timeline.family.include-media", False),
     ("options.timeline.family.include-names", False),
@@ -1213,7 +1213,7 @@ CONFIGSETTINGS = (
     ## Place Timeline
     ######################################################################
     ("options.timeline.place.image-mode", 0),
-    ("options.timeline.place.reference-mode", 2),
+    ("options.timeline.place.reference-mode", 3),
     ("options.timeline.place.color-scheme", 0),
     ("options.timeline.place.show-description", True),
     ("options.timeline.place.show-participants", True),
