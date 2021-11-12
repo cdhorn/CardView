@@ -242,16 +242,18 @@ class GrampsFrame(GrampsFrameView):
         elif not button_activated(event, _LEFT_BUTTON):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
 
-    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj):
+    def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj_or_handle):
         """
         Change active object for the view.
         """
         if "Ref" in obj_type:
-            context = GrampsContext(self.primary, obj, None)
+            context = GrampsContext(self.primary, obj_or_handle, None)
         elif obj_type in ["Address", "Attribute", "Name", "Url", "LdsOrd"]:
-            context = GrampsContext(self.primary, None, obj)
+            context = GrampsContext(self.primary, None, obj_or_handle)
         else:
-            context = GrampsContext(self.primary, None, None)
+            if isinstance(obj_or_handle, str):
+                obj = self.grstate.fetch(obj_type, obj_or_handle)
+            context = GrampsContext(obj, None, None)
         return self.grstate.load_page(context.pickled)
 
     def build_action_menu(self, obj, event):
