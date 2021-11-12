@@ -88,14 +88,13 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         Initialize primary frame widgets.
         """
         self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
-        if self.get_option("show-age") or self.groptions.age_base:
-            self.widgets["age"] = Gtk.VBox(
-                margin_right=3,
-                margin_left=3,
-                margin_top=3,
-                margin_bottom=3,
-                spacing=2,
-            )
+        self.widgets["age"] = Gtk.VBox(
+            margin_right=3,
+            margin_left=3,
+            margin_top=3,
+            margin_bottom=3,
+            spacing=2,
+        )
         self.widgets["title"] = Gtk.HBox(
             hexpand=True,
             vexpand=False,
@@ -231,12 +230,6 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         Construct framework for default layout.
         """
-        image_mode = self.get_option("image-mode")
-        if image_mode and image_mode in [3, 4]:
-            self.widgets["body"].pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=3
-            )
-
         if "age" in self.widgets:
             self.widgets["body"].pack_start(
                 self.widgets["age"], expand=False, fill=False, padding=0
@@ -245,6 +238,12 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
                 self.groptions.size_groups["age"].add_widget(
                     self.widgets["age"]
                 )
+
+        image_mode = self.get_option("image-mode")
+        if image_mode and image_mode in [3, 4]:
+            self.widgets["body"].pack_start(
+                self.widgets["image"], expand=False, fill=False, padding=3
+            )
 
         fact_block = Gtk.VBox(hexpand=True)
         if "data" in self.groptions.size_groups:

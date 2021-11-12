@@ -103,7 +103,9 @@ class CitationProfilePage(BaseProfilePage):
         groups = self.config.get("options.page.citation.layout.groups").split(
             ","
         )
-        obj_groups = self.get_object_groups(groups, citation)
+        obj_groups = self.get_object_groups(
+            groups, citation, age_base=citation.get_date_object()
+        )
         body = self.render_group_view(obj_groups)
 
         hbox = Gtk.VBox()

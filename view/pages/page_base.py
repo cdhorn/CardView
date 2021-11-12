@@ -122,14 +122,20 @@ class BaseProfilePage:
                 )
                 commit_method(self.active_profile.obj, trans)
 
-    def get_object_groups(self, groups, obj):
+    def get_object_groups(self, groups, obj, age_base=None):
         """
         Gather the object groups.
         """
         obj_groups = {}
         for key in groups:
             if key in OBJECT_GROUPS:
-                obj_groups.update({key: OBJECT_GROUPS[key](self.grstate, obj)})
+                obj_groups.update(
+                    {
+                        key: OBJECT_GROUPS[key](
+                            self.grstate, obj, age_base=age_base
+                        )
+                    }
+                )
         return obj_groups
 
     def add_media_bar(self, widget, obj):

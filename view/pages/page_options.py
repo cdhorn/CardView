@@ -264,7 +264,7 @@ CONFIGSETTINGS = (
     ("options.page.person.layout.media.hideable", False),
     ("options.page.person.layout.reference.visible", False),
     ("options.page.person.layout.reference.stacked", False),
-    ("options.page.person.layout.reference.hideable", False),    
+    ("options.page.person.layout.reference.hideable", False),
     ######################################################################
     ## Family Page Options
     ######################################################################
@@ -816,7 +816,7 @@ CONFIGSETTINGS = (
     ("options.group.person.event-format", 1),
     ("options.group.person.show-age", True),
     ("options.group.person.sex-mode", 1),
-    ("options.group.person.image-mode", 3),
+    ("options.group.person.image-mode", 1),
     ("options.group.person.facts-field-skip-birth-alternates", False),
     ("options.group.person.facts-field-skip-death-alternates", False),
     ("options.group.person.facts-field-1", "Event:Birth:False"),

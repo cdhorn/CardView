@@ -54,11 +54,7 @@ from .page_const import (
     REF_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
 )
-from .page_utils import (
-    add_config_reset,
-    config_facts_fields,
-    create_grid,
-)
+from .page_utils import add_config_reset, config_facts_fields, create_grid
 
 _ = glocale.translation.sgettext
 

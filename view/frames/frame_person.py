@@ -135,11 +135,22 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             self.load_fields(event_cache, "facts-field")
             if "active" in groptions.option_space:
                 self.load_fields(event_cache, "extra-field", extra=True)
+        if groptions.age_base:
+            self.load_age_at_event(event_cache)
         del event_cache
 
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+    def load_age_at_event(self, event_cache):
+        """
+        Parse and if have birth load age field.
+        """
+        print("load_age_at_event")
+        birth, dummy_var1 = self._get_birth_death(event_cache)
+        if birth:
+            self.load_age(birth.date, self.groptions.age_base)
 
     def load_years(self, event_cache):
         """

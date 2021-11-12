@@ -67,6 +67,7 @@ from ..common.common_utils import (
     get_bookmarks,
     pack_icon,
 )
+from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext
 
@@ -483,25 +484,8 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
             tags.sort(key=lambda x: x.priority)
 
         for tag in tags:
-            icon = Gtk.Image()
-            icon.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
-            css = (
-                ".image {{ "
-                "margin: 0px; "
-                "padding: 0px; "
-                "background-image: none; "
-                "background-color: {}; }}".format(
-                    tag.color[:7],
-                )
-            )
-            css = css.encode("utf-8")
-            provider = Gtk.CssProvider()
-            provider.load_from_data(css)
-            context = icon.get_style_context()
-            context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-            context.add_class("image")
             eventbox = Gtk.EventBox(tooltip_text=tag.name)
-            eventbox.add(icon)
+            eventbox.add(get_tag_icon(tag))
             eventbox.connect(
                 "button-press-event", self.__tag_click, tag.handle
             )

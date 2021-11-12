@@ -103,6 +103,7 @@ def get_children_group(
     person=None,
     expanded=True,
     raw=False,
+    age_base=None,
 ):
     """
     Get the group for all the children in a family unit.
@@ -130,7 +131,7 @@ def get_children_group(
 
 
 def get_family_unit(
-    grstate, family, context="family", relation=None, raw=False
+    grstate, family, context="family", relation=None, raw=False, age_base=None
 ):
     """
     Get the group for a family unit.
@@ -168,7 +169,7 @@ def get_family_unit(
     return couple
 
 
-def get_parents_group(grstate, person, raw=False):
+def get_parents_group(grstate, person, raw=False, age_base=None):
     """
     Get the group for all the parents and siblings of a person.
     """
@@ -204,7 +205,7 @@ def get_parents_group(grstate, person, raw=False):
     return parents
 
 
-def get_spouses_group(grstate, person, raw=False):
+def get_spouses_group(grstate, person, raw=False, age_base=None):
     """
     Get the group for all the spouses and children of a person.
     """
@@ -234,7 +235,7 @@ def get_spouses_group(grstate, person, raw=False):
     return spouses
 
 
-def get_citations_group(grstate, obj, sources=True, raw=False):
+def get_citations_group(grstate, obj, sources=True, raw=False, age_base=None):
     """
     Get the group for all the cited sources associated with an object.
     """
@@ -264,6 +265,7 @@ def get_timeline_group(
     title_plural=_("Timeline Events"),
     title_single=_("Timeline Event"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of timeline events associated with an object.
@@ -288,6 +290,7 @@ def get_media_group(
     title_plural=_("Media Items"),
     title_single=_("Media Item"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of media items associated with an object.
@@ -311,6 +314,7 @@ def get_repositories_group(
     title_plural=_("Repositories"),
     title_single=_("Repository"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of repositories associated with an object.
@@ -334,6 +338,7 @@ def get_sources_group(
     title_plural=_("Sources"),
     title_single=_("Source"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of sources associated with an object.
@@ -352,7 +357,12 @@ def get_sources_group(
 
 
 def get_notes_group(
-    grstate, obj, title_plural=_("Notes"), title_single=_("Note"), raw=False
+    grstate,
+    obj,
+    title_plural=_("Notes"),
+    title_single=_("Note"),
+    raw=False,
+    age_base=None,
 ):
     """
     Get the group of notes associated with an object.
@@ -379,6 +389,7 @@ def get_references_group(
     maximum=0,
     obj_types=None,
     obj_list=None,
+    age_base=None,
 ):
     """
     Get the group of objects that reference the given object.
@@ -415,6 +426,7 @@ def get_references_group(
         tuple_list = tuple_list[:maximum]
 
     groptions = groptions or GrampsOptions("options.group.reference")
+    groptions.set_age_base(age_base)
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
     text = title_plural
     if len(group) == 1:
@@ -436,6 +448,7 @@ def get_associations_group(
     title_plural=_("Associations"),
     title_single=_("Association"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of associations associated with a person.
@@ -459,6 +472,7 @@ def get_addresses_group(
     title_plural=_("Addresses"),
     title_single=_("Address"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of addresses associated with an object.
@@ -482,6 +496,7 @@ def get_attributes_group(
     title_plural=_("Attributes"),
     title_single=_("Attribute"),
     raw=False,
+    age_base=None,
 ):
     """
     Get the group of attributes associated with an object.
@@ -500,7 +515,12 @@ def get_attributes_group(
 
 
 def get_names_group(
-    grstate, obj, title_plural=_("Names"), title_single=_("Name"), raw=False
+    grstate,
+    obj,
+    title_plural=_("Names"),
+    title_single=_("Name"),
+    raw=False,
+    age_base=None,
 ):
     """
     Get the group of names associated with an object.
@@ -519,7 +539,12 @@ def get_names_group(
 
 
 def get_urls_group(
-    grstate, obj, title_plural=_("Urls"), title_single=_("Url"), raw=False
+    grstate,
+    obj,
+    title_plural=_("Urls"),
+    title_single=_("Url"),
+    raw=False,
+    age_base=None,
 ):
     """
     Get the group of urls associated with an object.
@@ -542,6 +567,7 @@ def get_ordinances_group(
     obj,
     title_plural=_("Ordinances"),
     title_single=_("Ordinance"),
+    age_base=None,
     raw=False,
 ):
     """

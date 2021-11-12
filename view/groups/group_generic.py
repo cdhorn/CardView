@@ -71,6 +71,7 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
             tuple_list = [(frame_obj_type, x) for x in frame_obj_handles]
 
         groups = {
+            "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -89,18 +90,19 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
                 "Repository",
             ]:
                 continue
-            groptions = GrampsOptions(
+            ggroptions = GrampsOptions(
                 "options.group.{}".format(obj_type.lower()), size_groups=groups
             )
+            ggroptions.set_age_base(groptions.age_base)
             obj = self.fetch(obj_type, obj_handle)
             if obj_type == "Person":
-                frame = PersonGrampsFrame(grstate, groptions, obj)
+                frame = PersonGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Family":
-                frame = CoupleGrampsFrame(grstate, groptions, obj)
+                frame = CoupleGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Event":
                 frame = EventGrampsFrame(
                     grstate,
-                    groptions,
+                    ggroptions,
                     None,
                     obj,
                     None,
@@ -109,17 +111,17 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
                     None,
                 )
             elif obj_type == "Place":
-                frame = PlaceGrampsFrame(grstate, groptions, obj)
+                frame = PlaceGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Media":
-                frame = ImageGrampsFrame(grstate, groptions, obj)
+                frame = ImageGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Note":
-                frame = NoteGrampsFrame(grstate, groptions, obj)
+                frame = NoteGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Source":
-                frame = SourceGrampsFrame(grstate, groptions, obj)
+                frame = SourceGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Citation":
-                frame = CitationGrampsFrame(grstate, groptions, obj)
+                frame = CitationGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Repository":
-                frame = RepositoryGrampsFrame(grstate, groptions, obj)
+                frame = RepositoryGrampsFrame(grstate, ggroptions, obj)
             else:
                 continue
             self.add_frame(frame)

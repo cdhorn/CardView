@@ -95,7 +95,9 @@ class EventProfilePage(BaseProfilePage):
         )
 
         groups = self.config.get("options.page.event.layout.groups").split(",")
-        obj_groups = self.get_object_groups(groups, event)
+        obj_groups = self.get_object_groups(
+            groups, event, age_base=event.get_date_object()
+        )
 
         people_list = []
         family_list = []
@@ -122,6 +124,7 @@ class EventProfilePage(BaseProfilePage):
                         title_plural=_("Individual Participants"),
                         title_single=_("Individial Participants"),
                         obj_list=people_list,
+                        age_base=event.get_date_object(),
                     )
                 }
             )
@@ -136,6 +139,7 @@ class EventProfilePage(BaseProfilePage):
                         title_plural=_("Family Participants"),
                         title_single=_("Family Participants"),
                         obj_list=family_list,
+                        age_base=event.get_date_object(),
                     )
                 }
             )

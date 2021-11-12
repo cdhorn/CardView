@@ -84,7 +84,9 @@ class MediaProfilePage(BaseProfilePage):
         self.active_profile = ImageGrampsFrame(self.grstate, groptions, media)
 
         groups = self.config.get("options.page.media.layout.groups").split(",")
-        obj_groups = self.get_object_groups(groups, media)
+        obj_groups = self.get_object_groups(
+            groups, media, age_base=media.get_date_object()
+        )
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.global.pin-header"):
