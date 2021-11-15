@@ -72,6 +72,7 @@ from gramps.gui.selectors import SelectorFactory
 from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
+    attribute_option_text,
     button_activated,
     citation_option_text,
     menu_item,
@@ -474,6 +475,44 @@ class GrampsFrame(GrampsFrameView):
             self.primary.obj.get_gramps_id(),
         )
         self.primary.commit(self.grstate, message)
+
+    def _attributes_option(
+        self, obj, add_attribute, remove_attribute, edit_attribute
+    ):
+        """
+        Build the attributes submenu.
+        """
+        menu = Gtk.Menu()
+        menu.add(
+            menu_item("list-add", _("Add a new attribute"), add_attribute)
+        )
+        if len(obj.get_attribute_list()) > 0:
+            removemenu = Gtk.Menu()
+            menu.add(
+                submenu_item(
+                    "gramps-attribute", _("Remove an attribute"), removemenu
+                )
+            )
+            menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            attribute_list = []
+            for attribute in obj.get_attribute_list():
+                text = attribute_option_text(attribute)
+                attribute_list.append((text, attribute))
+            attribute_list.sort(key=lambda x: x[0])
+            for text, attribute in attribute_list:
+                removemenu.add(
+                    menu_item("list-remove", text, remove_attribute, attribute)
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-attribute",
+                        text,
+                        edit_attribute,
+                        attribute,
+                    )
+                )
+        return submenu_item("gramps-attribute", _("Attributes"), menu)
 
     def _citations_option(
         self, obj, add_new_citation, add_existing_citation, remove_citation

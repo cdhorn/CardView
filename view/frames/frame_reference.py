@@ -43,9 +43,9 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Citation, Note, Source
+from gramps.gen.lib import Attribute, Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditCitation, EditNote
+from gramps.gui.editors import EditAttribute, EditCitation, EditNote
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
@@ -56,12 +56,14 @@ from gramps.gui.selectors import SelectorFactory
 from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
+    attribute_option_text,
     button_activated,
     citation_option_text,
     menu_item,
     note_option_text,
 )
 from .frame_primary import PrimaryGrampsFrame
+from .frame_selectors import get_attribute_types
 
 _ = glocale.translation.sgettext
 
@@ -182,6 +184,15 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             action_menu = Gtk.Menu()
             self.add_ref_custom_actions(action_menu)
+            if hasattr(self.reference.obj, "attribute_list"):
+                action_menu.append(
+                    self._attributes_option(
+                        self.reference.obj,
+                        self.add_ref_attribute,
+                        self.remove_ref_attribute,
+                        self.edit_ref_attribute,
+                    )
+                )
             if hasattr(self.reference.obj, "citation_list"):
                 action_menu.append(
                     self._citations_option(
@@ -255,19 +266,22 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         )
         self.base.commit(self.grstate, message)
 
-    def _save_ref_message(self, obj_type, obj_gramps_id, add=True):
+    def _commit_ref_message(self, obj_type, obj_gramps_id, action="add"):
         """
         Construct commit message for a reference.
         """
-        if add:
-            action = _("Added")
+        if action == "add":
+            label = _("Added")
             preposition = _("to")
-        else:
-            action = _("Removed")
+        elif action == "remove":
+            label = _("Removed")
             preposition = _("from")
+        else:
+            label = _("Updated")
+            preposition = _("for")
 
         return "{} {} {} {} {} {} {} {} {}".format(
-            action,
+            label,
             obj_type,
             obj_gramps_id,
             preposition,
@@ -277,6 +291,88 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             self.base.obj_lang,
             self.base.obj.get_gramps_id(),
         )
+
+    def edit_ref_attribute(self, _dummy_obj, attribute):
+        """
+        Edit an attribute.
+        """
+        attribute_types = get_attribute_types(
+            self.grstate.dbstate.db, self.primary.obj_type
+        )
+        try:
+            EditAttribute(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                attribute,
+                "",
+                attribute_types,
+                self._edited_ref_attribute,
+            )
+        except WindowActiveError:
+            pass
+
+    def _edited_ref_attribute(self, attribute):
+        """
+        Save edited attribute.
+        """
+        if attribute:
+            message = self._commit_ref_message(
+                _("Attribute"), attribute.get_type(), action="update"
+            )
+            self.base.commit(self.grstate, message)
+
+    def add_ref_attribute(self, _dummy_obj):
+        """
+        Add a new attribute.
+        """
+        attribute_types = get_attribute_types(
+            self.grstate.dbstate.db, self.primary.obj_type
+        )
+        try:
+            attribute = Attribute()
+            EditAttribute(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                attribute,
+                "",
+                attribute_types,
+                self.added_ref_attribute,
+            )
+        except WindowActiveError:
+            pass
+
+    def added_ref_attribute(self, attribute):
+        """
+        Save the new attribute to finish adding it.
+        """
+        if attribute:
+            message = self._commit_ref_message(
+                _("Attribute"), attribute.get_type()
+            )
+            self.reference.obj.add_attribute(attribute)
+            self.base.commit(self.grstate, message)
+
+    def remove_ref_attribute(self, _dummy_obj, attribute):
+        """
+        Remove the given attribute from the current object.
+        """
+        if not attribute:
+            return
+        text = attribute_option_text(attribute)
+        prefix = _(
+            "You are about to remove the following attribute from this object:"
+        )
+        confirm = _("Are you sure you want to continue?")
+        if self.confirm_action(
+            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
+        ):
+            message = self._commit_ref_message(
+                _("Attribute"), attribute.get_type(), action="remove"
+            )
+            self.reference.obj.remove_attribute(attribute)
+            self.base.commit(self.grstate, message)
 
     def add_new_ref_citation(self, _dummy_obj):
         """
@@ -302,7 +398,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if handle and self.reference.obj.add_citation(handle):
             citation = self.fetch("Citation", handle)
-            message = self._save_ref_message(
+            message = self._commit_ref_message(
                 _("Citation"), citation.get_gramps_id()
             )
             self.base.commit(self.grstate, message)
@@ -361,8 +457,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            message = self._save_ref_message(
-                _("Citation"), citation.get_gramps_id(), add=False
+            message = self._commit_ref_message(
+                _("Citation"), citation.get_gramps_id(), action="remove"
             )
             self.reference.obj.remove_citation_references(
                 [citation.get_handle()]
@@ -393,7 +489,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
-            message = self._save_ref_message(_("Note"), note.get_gramps_id())
+            message = self._commit_ref_message(_("Note"), note.get_gramps_id())
             self.base.commit(self.grstate, message)
 
     def add_existing_ref_note(self, _dummy_obj):
@@ -422,8 +518,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            message = self._save_ref_message(
-                _("Note"), note.get_gramps_id(), add=False
+            message = self._commit_ref_message(
+                _("Note"), note.get_gramps_id(), action="remove"
             )
             self.reference.obj.remove_note(note.get_handle())
             self.base.commit(self.grstate, message)

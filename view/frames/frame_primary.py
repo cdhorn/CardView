@@ -221,7 +221,14 @@ class PrimaryGrampsFrame(GrampsFrame):
             action_menu.append(self._edit_object_option())
             self.add_custom_actions(action_menu)
             if hasattr(self.primary.obj, "attribute_list"):
-                action_menu.append(self._attributes_option())
+                action_menu.append(
+                    self._attributes_option(
+                        self.primary.obj,
+                        self.add_attribute,
+                        self.remove_attribute,
+                        self.edit_attribute,
+                    )
+                )
             if hasattr(self.primary.obj, "citation_list"):
                 action_menu.append(
                     self._citations_option(
@@ -282,44 +289,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         person = self.grstate.fetch("Person", handle)
         context = GrampsContext(person, None, None)
         self.grstate.load_page(context.pickled)
-
-    def _attributes_option(self):
-        """
-        Build the attributes submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item("list-add", _("Add an attribute"), self.add_attribute)
-        )
-        if len(self.primary.obj.get_attribute_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-attribute", _("Remove an attribute"), removemenu
-                )
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            attribute_list = []
-            for attribute in self.primary.obj.get_attribute_list():
-                text = attribute_option_text(attribute)
-                attribute_list.append((text, attribute))
-            attribute_list.sort(key=lambda x: x[0])
-            for text, attribute in attribute_list:
-                removemenu.add(
-                    menu_item(
-                        "list-remove", text, self.remove_attribute, attribute
-                    )
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-attribute",
-                        text,
-                        self.edit_attribute,
-                        attribute,
-                    )
-                )
-        return submenu_item("gramps-attribute", _("Attributes"), menu)
 
     def add_attribute(self, _dummy_obj):
         """
