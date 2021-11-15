@@ -49,7 +49,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..common.common_utils import ConfigReset
 from ..frames.frame_selectors import FrameFieldSelector
-from .page_const import TAG_DISPLAY_MODES
 
 _ = glocale.translation.sgettext
 
@@ -186,26 +185,6 @@ def config_facts_fields(
                 tooltip=tooltip,
             )
             row = row + 1
-
-
-def config_tag_fields(configdialog, space, grid, start_row):
-    """
-    Build tag display configuration section.
-    """
-    configdialog.add_combo(
-        grid,
-        _("Tag display mode"),
-        start_row,
-        "{}.tag-format".format(space),
-        TAG_DISPLAY_MODES,
-    )
-    configdialog.add_spinner(
-        grid,
-        _("Maximum tags per line"),
-        start_row + 1,
-        "{}.tag-width".format(space),
-        (1, 20),
-    )
 
 
 def make_scrollable(

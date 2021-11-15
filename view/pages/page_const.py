@@ -33,8 +33,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_classes import GrampsOptions
-from ..frames.frame_attribute import AttributeGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
@@ -82,13 +80,6 @@ SEX_DISPLAY_MODES = [
     (0, _("Not displayed")),
     (1, _("Indicator to left of name")),
     (2, _("Indicator to right of name")),
-]
-
-TAG_DISPLAY_MODES = [
-    (0, _("Not displayed")),
-    (1, _("Show icons")),
-    (2, _("Show tag names")),
-    (3, _("Show tag names with color")),
 ]
 
 TIMELINE_COLOR_MODES = [

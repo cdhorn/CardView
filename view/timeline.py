@@ -28,21 +28,13 @@ Timeline
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db.base import DbReadBase
-from gramps.gen.display.place import PlaceDisplay
-from gramps.gen.errors import HandleError
 from gramps.gen.lib import (
     Date,
-    Event,
-    EventRoleType,
     EventType,
-    Family,
-    Person,
     Span,
 )
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.alive import probably_alive_range
-from gramps.gen.utils.grampslocale import GrampsLocale
 
 event_type = EventType()
 
@@ -83,28 +75,26 @@ EVENT_CATEGORIES = [
 #
 # (Event, EventRef, Person, Family, relationship, category)
 #
-# A timeline may or may not have a reference person. If it does then relationships
-# are calculated with respect to them.
+# A timeline may or may not have a reference person. If it does then
+# relationships are calculated with respect to them.
 #
-# A person timeline is specifically for a given person and may optionally include
-# events for relatives spanning a couple generations. The time span covers the
-# estimated duration of the persons life.
+# A person timeline is specifically for a given person and may optionally
+# include events for relatives spanning a couple generations. The time span
+# covers the estimated duration of the persons life.
 #
-# A family timeline is specifically for a given family, including all events that
-# pertain to all members of the family, and may optionally include events for
-# relatives spanning a couple generations. The time span covers the birth of the
-# parents through the death of the last child.
+# A family timeline is specifically for a given family, including all events
+# that pertain to all members of the family, and may optionally include events
+# for relatives spanning a couple generations. The time span covers the birth
+# of the parents through the death of the last child.
 #
-# A group timeline will filter on all events for a specific grouping of people and
-# families.
+# A group timeline will filter on all events for a specific grouping of people
+# and families.
 #
 # A date timeline will filter on all events between a given set of dates.
 #
-# A place timeline will filter on all events in a given place between an optional
-# set of dates.
+# A place timeline will filter on all events in a given place between an
+# optional set of dates.
 
-
-# TODO: WIP, not done for other than person at moment
 class Timeline:
     """
     Timeline class for constructing an event timeline for a person, family,
@@ -240,15 +230,15 @@ class Timeline:
         """
         Return the category for groupig the event.
         """
-        event_type = event.get_type()
-        for entry in event_type.get_menu_standard_xml():
+        type_event = event.get_type()
+        for entry in type_event.get_menu_standard_xml():
             event_key = entry[0].lower().replace("life events", "vital")
             for event_id in entry[1]:
-                if event_type == event_id:
+                if type_event == event_id:
                     return event_key
         custom_event_types = self.db_handle.get_event_types()
         for event_name in custom_event_types:
-            if event_type.xml_str() == event_name:
+            if type_event.xml_str() == event_name:
                 return "custom"
         return "other"
 
@@ -355,9 +345,9 @@ class Timeline:
 
     def prepare_event_sortvals(self, events):
         """
-        Prepare keys for sorting constructing synthetic keys when we can for any
-        undated events based on the location the user placed them in the event list
-        or based on the type of event.
+        Prepare keys for sorting constructing synthetic keys when we can for
+        any undated events based on the location the user placed them in the
+        event list or based on the type of event.
         """
         if not events:
             return events
@@ -390,9 +380,10 @@ class Timeline:
 
     def generate_union_event_sortval(self, family, union=True):
         """
-        For an undated family union or disolution try to generate a synthetic sortval
-        based on birth of first or last child if one is present and does have a known date.
-        Will not always work but at least we attempted to place the event in sequence.
+        For an undated family union or disolution try to generate a synthetic
+        sortval based on birth of first or last child if one is present and
+        does have a known date. Will not always work but at least we attempted
+        to place the event in sequence.
         """
         index = int(bool(union)) - 1
         offset = -int(bool(union)) or 1
@@ -423,9 +414,10 @@ class Timeline:
 
     def extract_person_events(self, person, relative=False):
         """
-        Extract and prepare the full event list for an individual person. We do not filter yet
-        as we may need information from the filtered events to better handle undated events.
-        Note if being called to gather events for a relative we only want primary events.
+        Extract and prepare the full event list for an individual person. We
+        do not filter yet as we may need information from the filtered events
+        to better handle undated events. Note if being called to gather events
+        for a relative we only want primary events.
         """
         birth = None
         birth_fallback = None
@@ -537,7 +529,8 @@ class Timeline:
 
     def add_relative(self, handle, ancestors=1, offspring=1):
         """
-        Add events for a relative of the reference person to the master timeline.
+        Add events for a relative of the reference person to the
+        master timeline.
         """
         if not self.eligible_relatives:
             return
@@ -657,6 +650,6 @@ class Timeline:
         if raw:
             return self.timeline
         events = []
-        for sortval, event in self.timeline:
+        for dummy_sortval, event in self.timeline:
             events.append(event)
         return events

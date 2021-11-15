@@ -142,24 +142,24 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         )
     grid.attach(grid1, 0, 0, 1, 1)
 
-    grid2A = create_grid()
-    configdialog.add_text(grid2A, _("Primary Fact Group"), 0, bold=True)
-    config_facts_fields(configdialog, grstate, space, person, grid2A, 1)
-    grid.attach(grid2A, 0, 1, 1, 1)
+    grid2a = create_grid()
+    configdialog.add_text(grid2a, _("Primary Fact Group"), 0, bold=True)
+    config_facts_fields(configdialog, grstate, space, person, grid2a, 1)
+    grid.attach(grid2a, 0, 1, 1, 1)
 
-    grid2B = create_grid()
-    configdialog.add_text(grid2B, _("Attributes Group"), 0, bold=True)
+    grid2b = create_grid()
+    configdialog.add_text(grid2b, _("Attributes Group"), 0, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         person,
-        grid2B,
+        grid2b,
         1,
         mode="fact",
         key="attributes-field",
     )
-    grid.attach(grid2B, 1, 1, 1, 1)
+    grid.attach(grid2b, 1, 1, 1, 1)
 
     grid3 = create_grid()
     if extra:
@@ -229,34 +229,34 @@ def build_family_grid(configdialog, grstate, space, extra=False):
     )
     grid.attach(grid1, 0, 0, 1, 1)
 
-    grid2A = create_grid()
-    configdialog.add_text(grid2A, _("Primary Fact Group"), 0, bold=True)
+    grid2a = create_grid()
+    configdialog.add_text(grid2a, _("Primary Fact Group"), 0, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         "family",
-        grid2A,
+        grid2a,
         1,
         mode="event",
         obj_type="Family",
     )
-    grid.attach(grid2A, 0, 1, 1, 1)
+    grid.attach(grid2a, 0, 1, 1, 1)
 
-    grid2B = create_grid()
-    configdialog.add_text(grid2B, _("Attributes Group"), 0, bold=True)
+    grid2b = create_grid()
+    configdialog.add_text(grid2b, _("Attributes Group"), 0, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         "family",
-        grid2B,
+        grid2b,
         1,
         mode="fact",
         key="attributes-field",
         obj_type="Family",
     )
-    grid.attach(grid2B, 1, 1, 1, 1)
+    grid.attach(grid2b, 1, 1, 1, 1)
 
     grid3 = create_grid()
     if "active" in space:

@@ -23,18 +23,5 @@ Module containing the frame groups for the page views.
 """
 
 __all__ = [
-    "group_addresses",
-    "group_associations",
-    "group_children",
-    "group_citations",
-    "group_classes",
-    "group_generic",
-    "group_media",
-    "group_names",
-    "group_notes",
-    "group_repositories",
-    "group_sources",
-    "group_timeline",
-    "group_urls",
-    "group_utils",
+    "bar_media"
 ]

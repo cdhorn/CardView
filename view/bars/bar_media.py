@@ -89,7 +89,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         else:
             Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
             self.set_hexpand(True)
-            self.set_vexpand(False)            
+            self.set_vexpand(False)
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
         self.obj = obj
