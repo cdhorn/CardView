@@ -42,7 +42,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
 from gramps.gui.display import display_url
 
 # ------------------------------------------------------------------------
@@ -100,19 +99,3 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
             self.build_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
             display_url(self.link)
-
-    def edit_secondary_object(self, _dummy_var1=None):
-        """
-        Launch the desired editor for a secondary object.
-        """
-        try:
-            self.secondary.obj_edit(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                "",
-                self.secondary.obj,
-                self.save_object,
-            )
-        except WindowActiveError:
-            pass

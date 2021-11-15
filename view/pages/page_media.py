@@ -54,27 +54,26 @@ class MediaProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning page.
+        """
         return "Media"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Media"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render page contents.
+        """
         if not context:
             return
 

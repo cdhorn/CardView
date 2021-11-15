@@ -19,7 +19,7 @@
 #
 
 """
-AssociationsGrampsFrameGroup
+EventsGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -30,15 +30,16 @@ AssociationsGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import PersonRef
-from gramps.gui.editors import EditPersonRef
+from gramps.gen.lib import EventRef
+from gramps.gui.editors import EditEventRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_person_ref import PersonRefGrampsFrame
+from ..common.common_utils import get_gramps_object_type
+from ..frames.frame_event import EventGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -46,98 +47,109 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# AssociationsGrampsFrameGroup class
+# EventGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
+class EventGrampsFrameGroup(GrampsFrameGroupList):
     """
-    The AssociationsGrampsFrameGroup class provides a container for managing
-    all of the associations a person has with other people.
+    The EventGrampsFrameGroup class provides a container for managing
+    the events associated with an object like a person or family. It only
+    manages the list directly associated with the object, unlike a timeline
+    that will look for all events associated with an object.
     """
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(self, grstate, groptions)
         self.obj = obj
-        self.obj_type = "Person"
+        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
         groptions.set_ref_mode(
-            self.grstate.config.get("options.group.association.reference-mode")
+            self.grstate.config.get("options.group.event.reference-mode")
         )
-        for person_ref in obj.get_person_ref_list():
-            frame = PersonRefGrampsFrame(
+        groptions.set_relation(obj)
+        for event_ref in obj.get_event_ref_list():
+            event = self.grstate.fetch("Event", event_ref.ref)
+            frame = EventGrampsFrame(
                 grstate,
                 groptions,
-                obj,
-                person_ref,
+                event,
+                event_ref,
             )
             self.add_frame(frame)
         self.show_all()
 
     def save_reordered_list(self):
         """
-        Save a reordered list of associations.
+        Save a reordered list of events.
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_person_ref_list():
+            for ref in self.obj.get_event_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
         action = "{} {} {} {} {}".format(
             _("Reordered"),
-            _("Associations"),
+            _("Events"),
             _("for"),
-            _("Person"),
+            self.obj_type,
             self.obj.get_gramps_id(),
         )
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_person_ref_list(new_list)
-            self.grstate.dbstate.db.commit_person(self.obj, trans)
+            self.obj.set_event_ref_list(new_list)
+            commit_method(self.obj, trans)
 
     def save_new_object(self, handle, insert_row):
         """
-        Add a new person to the list of associations.
+        Add a new event to the list of events.
         """
         for frame in self.row_frames:
             if frame.primary.obj.get_handle() == handle:
                 return
 
-        person_ref = PersonRef()
-        person_ref.ref = handle
-        callback = lambda x: self.save_new_person(x, insert_row)
+        event_ref = EventRef()
+        event_ref.ref = handle
+        event = self.grstate.fetch("Event", handle)
+        callback = lambda x: self.save_new_event(x, insert_row)
         try:
-            EditPersonRef(
+            EditEventRef(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                person_ref,
+                event,
+                event_ref,
                 callback,
             )
         except WindowActiveError:
             pass
 
-    def save_new_person(self, person_ref, insert_row):
+    def save_new_event(self, event_ref, insert_row):
         """
-        Save the new person added to the list of associations.
+        Save the new event added to the list of events.
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_person_ref_list():
+            for ref in self.obj.get_event_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
-        new_list.insert(insert_row, person_ref)
-        person = self.fetch("Person", person_ref.ref)
-        action = "{} {} {} {} {} {} {}".format(
+        new_list.insert(insert_row, event_ref)
+        event = self.fetch("Event", event_ref.ref)
+        action = "{} {} {} {} {} {}".format(
             _("Added"),
-            _("Person"),
-            person.get_gramps_id(),
-            _("Association"),
+            _("Event"),
+            event.get_gramps_id(),
             _("to"),
-            _("Person"),
+            self.obj_type,
             self.obj.get_gramps_id(),
         )
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_person_ref_list(new_list)
-            self.grstate.dbstate.db.commit_person(self.obj, trans)
+            self.obj.set_event_ref_list(new_list)
+            commit_method(self.obj, trans)

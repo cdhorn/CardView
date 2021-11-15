@@ -851,6 +851,7 @@ class ExtendedHistory(Callback):
         """
         Replace old secondary handle or hash value with new one.
         """
+        replaced_item = False
         for item in self.history:
             if item[5] == old:
                 new_item = (
@@ -864,6 +865,8 @@ class ExtendedHistory(Callback):
                 index = self.history.index(item)
                 self.history.remove(item)
                 self.history.insert(index, new_item)
+                replaced_item = True
+        return replaced_item
 
     def history_changed(self):
         """

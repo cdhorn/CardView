@@ -66,7 +66,7 @@ from ..common.common_utils import (
     menu_item,
     submenu_item,
 )
-from .frame_primary import PrimaryGrampsFrame
+from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
 
@@ -76,22 +76,14 @@ _ = glocale.translation.sgettext
 # PersonGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class PersonGrampsFrame(PrimaryGrampsFrame):
+class PersonGrampsFrame(ReferenceGrampsFrame):
     """
     The PersonGrampsFrame exposes some of the basic facts about a Person.
     """
 
-    def __init__(
-        self,
-        grstate,
-        groptions,
-        person,
-    ):
-        PrimaryGrampsFrame.__init__(
-            self,
-            grstate,
-            groptions,
-            person,
+    def __init__(self, grstate, groptions, person, reference_tuple=None):
+        ReferenceGrampsFrame.__init__(
+            self, grstate, groptions, person, reference_tuple=reference_tuple
         )
         self.relation = groptions.relation
         self.backlink = groptions.backlink
@@ -147,7 +139,6 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
         """
         Parse and if have birth load age field.
         """
-        print("load_age_at_event")
         birth, dummy_var1 = self._get_birth_death(event_cache)
         if birth:
             self.load_age(birth.date, self.groptions.age_base)
@@ -365,27 +356,23 @@ class PersonGrampsFrame(PrimaryGrampsFrame):
             home=self.relation,
         )
 
-    def add_custom_actions(self):
+    def add_custom_actions(self, action_menu):
         """
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
-        self.action_menu.append(self._add_new_person_event_option())
+        action_menu.append(self._add_new_person_event_option())
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
-            self.action_menu.append(self._add_new_family_event_option())
+            action_menu.append(self._add_new_family_event_option())
         if self.context in ["parent", "spouse"]:
-            self.action_menu.append(self._add_new_child_to_family_option())
-            self.action_menu.append(
-                self._add_existing_child_to_family_option()
-            )
-            self.action_menu.append(
-                self._remove_as_parent_from_family_option()
-            )
+            action_menu.append(self._add_new_child_to_family_option())
+            action_menu.append(self._add_existing_child_to_family_option())
+            action_menu.append(self._remove_as_parent_from_family_option())
         if self.context in ["sibling", "child"]:
-            self.action_menu.append(self._remove_child_from_family_option())
-        self.action_menu.append(self._parents_option())
-        self.action_menu.append(self._partners_option())
-        self.action_menu.append(self._names_option())
+            action_menu.append(self._remove_child_from_family_option())
+        action_menu.append(self._parents_option())
+        action_menu.append(self._partners_option())
+        action_menu.append(self._names_option())
 
     def _names_option(self):
         """

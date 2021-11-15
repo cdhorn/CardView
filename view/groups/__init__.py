@@ -30,6 +30,7 @@ __all__ = [
     "group_citations",
     "group_classes",
     "group_const",
+    "group_events",
     "group_generic",
     "group_media",
     "group_names",

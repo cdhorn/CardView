@@ -48,11 +48,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_utils import get_gramps_object_type
-from ..frames.frame_couple import CoupleGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
-from ..groups.group_utils import get_references_group
+from ..frames.frame_event_ref import EventRefGrampsFrame
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
 
@@ -71,54 +67,41 @@ class EventRefProfilePage(BaseProfilePage):
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning page.
+        """
         return "Event"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "EventRef"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
         primary = context.primary_obj.obj
-        primary_type = get_gramps_object_type(primary)
+        primary_type = context.primary_obj.obj_type
         (option, frame) = FRAME_MAP[primary_type]
         groptions = GrampsOptions(option)
         primary_frame = frame(self.grstate, groptions, primary)
 
-        if primary_type == "Person":
-            event_person = primary
-            event_family = None
-        else:
-            event_person = None
-            event_family = primary
-
         event_ref = context.reference_obj.obj
-        event = self.grstate.fetch("Event", event_ref.ref)
 
         groptions = GrampsOptions("options.active.event")
         groptions.set_ref_mode(2)
-        self.active_profile = EventGrampsFrame(
+        groptions.set_relation(primary)
+        self.active_profile = EventRefGrampsFrame(
             self.grstate,
             groptions,
-            event_person,
-            event,
+            primary,
             event_ref,
-            event_person,
-            event_family,
-            "self",
         )
         vheader = Gtk.VBox(spacing=3)
         vheader.pack_start(primary_frame, False, False, 0)
@@ -135,7 +118,5 @@ class EventRefProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(vheader, False, False, 0)
-        self.child = body
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()
-        return

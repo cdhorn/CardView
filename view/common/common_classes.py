@@ -48,6 +48,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.db import DbTxn
 
 # ------------------------------------------------------------------------
 #
@@ -79,6 +80,7 @@ class GrampsObject:
         "obj_edit",
         "obj_type",
         "obj_lang",
+        "obj_current_hash",
         "dnd_type",
         "dnd_icon",
     )
@@ -86,6 +88,7 @@ class GrampsObject:
     def __init__(self, obj):
         self.obj = obj
         self.obj_type = None
+        self.obj_current_hash = None
 
         for obj_type in GRAMPS_OBJECTS:
             if isinstance(obj, obj_type[0]):
@@ -110,6 +113,13 @@ class GrampsObject:
         return None
 
     @property
+    def is_primary(self):
+        """
+        Return True if object is a primary object.
+        """
+        return hasattr(self.obj, "gramps_id")
+
+    @property
     def is_reference(self):
         """
         Return True if object is a reference.
@@ -125,6 +135,50 @@ class GrampsObject:
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(self.obj.serialize()).encode("utf-8"))
         return sha256_hash.hexdigest()
+
+    def save_hash(self):
+        """
+        Save current object hash.
+        """
+        if self.obj_type in [
+            "Address",
+            "Attribute",
+            "EventRef",
+            "LdsOrd",
+            "Name",
+        ]:
+            self.obj_current_hash = self.obj_hash
+
+    def sync_hash(self, grstate):
+        """
+        Update history with new hash value if needed
+        """
+        if self.obj_type in [
+            "Address",
+            "Attribute",
+            "EventRef",
+            "LdsOrd",
+            "Name",
+        ]:
+            current_hash = self.obj_hash
+            if current_hash != self.obj_current_hash:
+                grstate.update_history(self.obj_current_hash, current_hash)
+                self.obj_current_hash = current_hash
+
+    def commit(self, grstate, reason=None):
+        """
+        Commit self to the database.
+        """
+        assert self.is_primary
+        if reason:
+            message = reason
+        else:
+            message = "{} {} {}".format(
+                _("Updated"), self.obj_lang, self.obj.get_gramps_id()
+            )
+        commit_method = grstate.dbstate.db.method("commit_%s", self.obj_type)
+        with DbTxn(message, grstate.dbstate.db) as trans:
+            commit_method(self.obj, trans)
 
 
 # ------------------------------------------------------------------------
@@ -334,6 +388,16 @@ class GrampsState:
         Update a secondary reference in the navigation history.
         """
         return self.callbacks["update-history-reference"](old, new)
+
+    def update_history_object(self, old_hash, obj):
+        """
+        Update old secondary reference for object in the navigation history.
+        """
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(obj.serialize()).encode("utf-8"))
+        return self.callbacks["update-history-reference"](
+            old_hash, sha256_hash.hexdigest()
+        )
 
     def show_group(self, obj, group_type):
         """

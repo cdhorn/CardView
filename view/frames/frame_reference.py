@@ -19,7 +19,7 @@
 #
 
 """
-AssociationGrampsFrame
+ReferenceGrampsFrame
 """
 
 # ------------------------------------------------------------------------
@@ -42,12 +42,10 @@ from gi.repository import Gdk, Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditCitation, EditNote, EditPersonRef
+from gramps.gui.editors import EditCitation, EditNote
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
@@ -55,7 +53,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsContext, GrampsObject
+from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
@@ -63,102 +61,43 @@ from ..common.common_utils import (
     menu_item,
     note_option_text,
 )
-from .frame_person import PersonGrampsFrame
+from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AssociationGrampsFrame class
+# ReferenceGrampsFrame class
 #
 # ------------------------------------------------------------------------
-class AssociationGrampsFrame(PersonGrampsFrame):
+class ReferenceGrampsFrame(PrimaryGrampsFrame):
     """
-    The AssociationGrampsFrame exposes some of the basic facts about an
-    Association.
+    The ReferenceGrampsFrame class provides support for object References.
     """
 
-    def __init__(
-        self,
-        grstate,
-        groptions,
-        person,
-        person_ref,
-    ):
-        self.ref_person = grstate.fetch("Person", person_ref.ref)
-        PersonGrampsFrame.__init__(
+    def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
+        PrimaryGrampsFrame.__init__(
             self,
             grstate,
             groptions,
-            self.ref_person,
+            primary_obj,
+            reference_tuple=reference_tuple,
         )
-        if not groptions.ref_mode:
+        if not reference_tuple or not groptions.ref_mode:
             return
-        self.reference = GrampsObject(person_ref)
-        self.base_person = person
+
         self.dnd_drop_ref_targets = []
         self.ref_widgets["id"].load(
-            person_ref, "PersonRef", gramps_id=self.ref_person.get_gramps_id()
+            self.reference.obj,
+            self.reference.obj_type,
+            gramps_id=self.primary.obj.get_gramps_id(),
         )
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
-        vbox = None
-        association = person_ref.get_relation()
-        if not association:
-            association = _("[None Provided]")
-        left = groptions.ref_mode == 1
-        if groptions.ref_mode in [1, 3]:
-            self.ref_widgets["body"].pack_start(
-                self.make_label(_("Association"), left=left), False, False, 0
-            )
-            self.ref_widgets["body"].pack_start(
-                self.make_label(association, left=left), False, False, 0
-            )
-        else:
-            vbox = Gtk.VBox()
-            vbox.pack_start(
-                self.make_label(
-                    "{}: {}".format(_("Association"), association)
-                ),
-                True,
-                True,
-                0,
-            )
-
-        relation = grstate.uistate.relationship.get_one_relationship(
-            grstate.dbstate.db, person, self.ref_person
+        self.ref_widgets["icons"].load(
+            self.reference.obj, self.reference.obj_type
         )
-        if relation:
-            if groptions.ref_mode in [1, 3]:
-                self.ref_widgets["body"].pack_start(
-                    self.make_label(_("Relationship"), left=left),
-                    False,
-                    False,
-                    0,
-                )
-                self.ref_widgets["body"].pack_start(
-                    self.make_label(relation.capitalize(), left=left),
-                    False,
-                    False,
-                    0,
-                )
-            else:
-                vbox.pack_start(
-                    self.make_label(
-                        "{}: {}".format(
-                            _("Relationship"), relation.capitalize()
-                        )
-                    ),
-                    True,
-                    True,
-                    0,
-                )
-
-        if vbox:
-            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
-
-        self.ref_widgets["icons"].load(person_ref, "PersonRef")
 
         self.enable_drag(
             obj=self.reference,
@@ -204,18 +143,20 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         Handle dropped data.
         """
         if data and data.get_data():
+            try_dropped_text = False
             try:
                 dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
                     data.get_data()
                 )
             except pickle.UnpicklingError:
-                return self.dropped_ref_text(data.get_data().decode("utf-8"))
-            if id(self) == obj_id:
-                return
-            if DdTargets.CITATION_LINK.drag_type == dnd_type:
-                self.added_ref_citation(obj_handle)
-            elif DdTargets.NOTE_LINK.drag_type == dnd_type:
-                self.added_ref_note(obj_handle)
+                try_dropped_text = True
+            if id(self) != obj_id:
+                if try_dropped_text:
+                    self.dropped_ref_text(data.get_data().decode("utf-8"))
+                elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+                    self.added_ref_note(obj_handle)
+                elif DdTargets.CITATION_LINK.drag_type == dnd_type:
+                    self.added_ref_citation(obj_handle)
 
     def dropped_ref_text(self, data):
         """
@@ -231,8 +172,8 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         if button_activated(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
         elif not button_activated(event, _LEFT_BUTTON):
-            context = GrampsContext(self.base_person, self.reference, None)
-            return self.grstate.load_page(context.pickled)
+            page_context = GrampsContext(self.base, self.reference, None)
+            self.grstate.load_page(page_context.pickled)
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """
@@ -240,27 +181,30 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
             action_menu = Gtk.Menu()
-            action_menu.append(self._edit_person_ref_option())
-            action_menu.append(
-                self._citations_option(
-                    self.reference.obj,
-                    self.add_new_ref_citation,
-                    self.add_existing_ref_citation,
-                    self.remove_ref_citation,
+            self.add_ref_custom_actions(action_menu)
+            if hasattr(self.reference.obj, "citation_list"):
+                action_menu.append(
+                    self._citations_option(
+                        self.reference.obj,
+                        self.add_new_ref_citation,
+                        self.add_existing_ref_citation,
+                        self.remove_ref_citation,
+                    )
                 )
-            )
-            action_menu.append(
-                self._notes_option(
-                    self.reference.obj,
-                    self.add_new_ref_note,
-                    self.add_existing_ref_note,
-                    self.remove_ref_note,
-                    no_children=True,
+            if hasattr(self.reference.obj, "note_list"):
+                action_menu.append(
+                    self._notes_option(
+                        self.reference.obj,
+                        self.add_new_ref_note,
+                        self.add_existing_ref_note,
+                        self.remove_ref_note,
+                        no_children=True,
+                    )
                 )
-            )
             action_menu.append(self._change_ref_privacy_option())
             action_menu.add(Gtk.SeparatorMenuItem())
-            label = Gtk.MenuItem(label=_("Person reference"))
+            reference_type = self._get_reference_type()
+            label = Gtk.MenuItem(label=reference_type)
             label.set_sensitive(False)
             action_menu.append(label)
 
@@ -272,48 +216,67 @@ class AssociationGrampsFrame(PersonGrampsFrame):
                     None, None, None, None, event.button, event.time
                 )
 
-    def _edit_person_ref_option(self):
+    def add_ref_custom_actions(self, action_menu):
         """
-        Build the edit option.
+        For derived objects to inject their own actions into the menu.
         """
-        name = "{} {}".format(
-            _("Edit"), name_displayer.display(self.primary.obj)
-        )
-        return menu_item("gtk-edit", name, self.edit_person_ref)
 
-    def edit_person_ref(self, *_dummy_obj):
+    def _get_reference_type(self):
         """
-        Launch the editor.
+        Return textual string describing reference type.
         """
-        try:
-            EditPersonRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.reference.obj,
-                self.save_person_ref,
-            )
-        except WindowActiveError:
-            pass
+        if self.reference.obj_type == "ChildRef":
+            text = _("Child")
+        elif self.reference.obj_type == "PersonRef":
+            text = _("Person")
+        elif self.reference.obj_type == "EventRef":
+            text = _("Event")
+        elif self.reference.obj_type == "RepoRef":
+            text = _("Repository")
+        elif self.reference.obj_type == "MediaRef":
+            text = _("Media")
+        return "{} {}".format(text, _("reference"))
 
-    def save_person_ref(self, person_ref, action_text=None):
+    def save_ref(self, obj_ref, dummy_var1=None):
         """
-        Save the edited object.
+        Save the edited or modified object.
         """
-        if not person_ref:
+        print("save_ref: {} {}".format(obj_ref, dummy_var1))
+
+        if not obj_ref:
             return
-        action = "{} {} {} {} {} {}".format(
-            _("Edited"),
-            _("PersonRef"),
+        message = "{} {} {} {} {} {}".format(
+            _("Updated"),
+            self.reference.obj_lang,
             self.primary.obj.get_gramps_id(),
             _("for"),
-            _("Person"),
-            self.base_person.get_gramps_id(),
+            self.base.obj_lang,
+            self.base.obj.get_gramps_id(),
         )
-        if action_text:
-            action = action_text
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.grstate.dbstate.db.commit_person(self.base_person, trans)
+        self.base.commit(self.grstate, message)
+
+    def _save_ref_message(self, obj_type, obj_gramps_id, add=True):
+        """
+        Construct commit message for a reference.
+        """
+        if add:
+            action = _("Added")
+            preposition = _("to")
+        else:
+            action = _("Removed")
+            preposition = _("from")
+
+        return "{} {} {} {} {} {} {} {} {}".format(
+            action,
+            obj_type,
+            obj_gramps_id,
+            preposition,
+            self.reference.obj_lang,
+            self.primary.obj.get_gramps_id(),
+            _("for"),
+            self.base.obj_lang,
+            self.base.obj.get_gramps_id(),
+        )
 
     def add_new_ref_citation(self, _dummy_obj):
         """
@@ -339,15 +302,10 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         if handle and self.reference.obj.add_citation(handle):
             citation = self.fetch("Citation", handle)
-            action = "{} {} {} {} {} {}".format(
-                _("Added"),
-                _("Citation"),
-                citation.get_gramps_id(),
-                _("to"),
-                _("PersonRef"),
-                self.primary.obj.get_gramps_id(),
+            message = self._save_ref_message(
+                _("Citation"), citation.get_gramps_id()
             )
-            self.save_person_ref(self.reference.obj, action_text=action)
+            self.base.commit(self.grstate, message)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -403,19 +361,13 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {}".format(
-                _("Removed"),
-                _("Citation"),
-                citation.get_gramps_id(),
-                _("from"),
-                _("PersonRef"),
-                self.primary.obj.get_gramps_id(),
+            message = self._save_ref_message(
+                _("Citation"), citation.get_gramps_id(), add=False
             )
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.reference.obj.remove_citation_references(
-                    [citation.get_handle()]
-                )
-                self.grstate.dbstate.db.commit_person(self.base_person, trans)
+            self.reference.obj.remove_citation_references(
+                [citation.get_handle()]
+            )
+            self.base.commit(self.grstate, message)
 
     def add_new_ref_note(self, _dummy_obj, content=None):
         """
@@ -441,15 +393,8 @@ class AssociationGrampsFrame(PersonGrampsFrame):
         """
         if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
-            action = "{} {} {} {} {} {}".format(
-                _("Added"),
-                _("Note"),
-                note.get_gramps_id(),
-                _("to"),
-                _("PersonRef"),
-                self.primary.obj.get_gramps_id(),
-            )
-            self.save_person_ref(self.reference.obj, action_text=action)
+            message = self._save_ref_message(_("Note"), note.get_gramps_id())
+            self.base.commit(self.grstate, message)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -477,23 +422,17 @@ class AssociationGrampsFrame(PersonGrampsFrame):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = "{} {} {} {} {} {}".format(
-                _("Removed"),
-                _("Note"),
-                note.get_gramps_id(),
-                _("from"),
-                _("PersonRef"),
-                self.primary.obj.get_gramps_id(),
+            message = self._save_ref_message(
+                _("Note"), note.get_gramps_id(), add=False
             )
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.reference.obj.remove_note(note.get_handle())
-                self.grstate.dbstate.db.commit_person(self.base_person, trans)
+            self.reference.obj.remove_note(note.get_handle())
+            self.base.commit(self.grstate, message)
 
     def _change_ref_privacy_option(self):
         """
         Build privacy option based on current object state.
         """
-        if self.reference.obj.get_privacy():
+        if self.reference.obj.private:
             return menu_item(
                 "gramps-unlock",
                 _("Make public"),
@@ -506,21 +445,20 @@ class AssociationGrampsFrame(PersonGrampsFrame):
 
     def change_ref_privacy(self, _dummy_obj, mode):
         """
-        Update the privacy indicator for the current object.
+        Update the privacy indicator for the current ref object.
         """
         if mode:
             text = _("Private")
         else:
             text = _("Public")
-        action = "{} {} {} {} {} {} {}".format(
+        message = "{} {} {} {} {} {} {}".format(
             _("Made"),
-            _("PersonRef"),
+            self.reference.obj_lang,
             self.primary.obj.get_gramps_id(),
             _("for"),
-            _("Person"),
-            self.base_person.get_gramps_id(),
+            self.base.obj_lang,
+            self.base.obj.get_gramps_id(),
             text,
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.reference.obj.set_privacy(mode)
-            self.grstate.dbstate.db.commit_person(self.base_person, trans)
+        self.reference.obj.set_privacy(mode)
+        self.base.commit(self.grstate, message)

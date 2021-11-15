@@ -49,7 +49,7 @@ _ = glocale.translation.sgettext
 
 class RepositoryProfilePage(BaseProfilePage):
     """
-    Provides the repository profile page view with information about the repository.
+    Provides page view with information about the repository.
     """
 
     def __init__(self, dbstate, uistate, config, callbacks):
@@ -58,24 +58,22 @@ class RepositoryProfilePage(BaseProfilePage):
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning the page.
+        """
         return "Repository"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Repository"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 

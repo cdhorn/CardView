@@ -57,37 +57,34 @@ class TagProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning the page.
+        """
         return "Person"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Tag"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
+
         tag = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.tag")
         self.active_profile = TagGrampsFrame(self.grstate, groptions, tag)
-
-        groups = self.config.get("options.page.tag.layout.groups").split(",")
-        obj_groups = {}
-
+        
         object_list = {}
         for (
             obj_type,
@@ -97,6 +94,7 @@ class TagProfilePage(BaseProfilePage):
                 object_list.update({obj_type: []})
             object_list[obj_type].append((obj_type, obj_handle))
 
+        obj_groups = {}
         if object_list:
             for key in object_list:
                 groptions = GrampsOptions(

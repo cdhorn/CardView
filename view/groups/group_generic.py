@@ -100,16 +100,7 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
             elif obj_type == "Family":
                 frame = CoupleGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Event":
-                frame = EventGrampsFrame(
-                    grstate,
-                    ggroptions,
-                    None,
-                    obj,
-                    None,
-                    None,
-                    None,
-                    None,
-                )
+                frame = EventGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Place":
                 frame = PlaceGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Media":

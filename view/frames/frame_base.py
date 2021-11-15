@@ -94,15 +94,20 @@ class GrampsFrame(GrampsFrameView):
     Provides core methods for working with the Gramps objects it manages.
     """
 
-    def __init__(self, grstate, groptions, primary_obj):
+    def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
+        if reference_tuple:
+            (base_obj, reference_obj) = reference_tuple
+            assert reference_obj.ref == primary_obj.get_handle()
+            self.base = GrampsObject(base_obj)
+            self.reference = GrampsObject(reference_obj)
+        else:
+            self.reference = None
         GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
         self.secondary = None
-        self.reference = None
         self.focus = self.primary
         self.dnd_drop_targets = []
         self.css = ""
-        self.action_menu = None
         self.init_layout()
         self.eventbox.connect("button-press-event", self.route_action)
 
@@ -183,20 +188,22 @@ class GrampsFrame(GrampsFrameView):
         Handle dropped data, override in derived classes as needed.
         """
         if data and data.get_data():
+            try_dropped_text = False
             try:
                 dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
                     data.get_data()
                 )
             except pickle.UnpicklingError:
-                return self.dropped_text(data.get_data().decode("utf-8"))
-            if id(self) == obj_id:
-                return
-            if DdTargets.CITATION_LINK.drag_type == dnd_type:
-                self.added_citation(obj_handle)
-            elif DdTargets.NOTE_LINK.drag_type == dnd_type:
-                self.added_note(obj_handle)
+                try_dropped_text = True
+            if id(self) != obj_id:
+                if try_dropped_text:
+                    self._dropped_text(data.get_data().decode("utf-8"))
+                elif DdTargets.CITATION_LINK.drag_type == dnd_type:
+                    self._added_citation(obj_handle)
+                elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+                    self._added_note(obj_handle)
 
-    def dropped_text(self, data):
+    def _dropped_text(self, data):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
@@ -253,6 +260,8 @@ class GrampsFrame(GrampsFrameView):
         else:
             if isinstance(obj_or_handle, str):
                 obj = self.grstate.fetch(obj_type, obj_or_handle)
+            else:
+                obj = obj_or_handle
             context = GrampsContext(obj, None, None)
         return self.grstate.load_page(context.pickled)
 
@@ -268,7 +277,7 @@ class GrampsFrame(GrampsFrameView):
         """
         if self.secondary and not self.secondary.is_reference:
             name = "{} {}".format(_("Edit"), self.secondary.obj_lang.lower())
-            return menu_item("gtk-edit", name, self.edit_secondary_object)
+            return menu_item("gtk-edit", name, self._edit_secondary_object)
         if self.primary.obj_type == "Person":
             name = "{} {}".format(
                 _("Edit"), name_displayer.display(self.primary.obj)
@@ -290,7 +299,7 @@ class GrampsFrame(GrampsFrameView):
         except WindowActiveError:
             pass
 
-    def edit_secondary_object(self, _dummy_var1=None):
+    def _edit_secondary_object(self, _dummy_var1=None):
         """
         Launch the desired editor for a secondary object.
         """
@@ -327,15 +336,25 @@ class GrampsFrame(GrampsFrameView):
         with DbTxn(action, self.grstate.dbstate.db) as trans:
             commit_method(self.primary.obj, trans)
 
-    def _commit_message(self, action, obj_type, obj, preposition):
+    def _commit_message(self, obj_type, obj_label, action="add"):
         """
         Construct a commit message string.
         """
+        if action == "add":
+            action = _("Added")
+            preposition = _("to")
+        elif action == "remove":
+            action = _("Removed")
+            preposition = _("from")
+        else:
+            action = _("Updated")
+            preposition = _("for")
+
         if self.secondary:
             return "{} {} {} {} {} {} {} {}".format(
                 action,
                 obj_type,
-                obj.get_gramps_id(),
+                obj_label,
                 preposition,
                 self.secondary.obj_lang,
                 _("for"),
@@ -345,7 +364,7 @@ class GrampsFrame(GrampsFrameView):
         return "{} {} {} {} {} {}".format(
             action,
             obj_type,
-            obj.get_gramps_id(),
+            obj_label,
             preposition,
             self.primary.obj_lang,
             self.primary.obj.get_gramps_id(),
@@ -357,7 +376,7 @@ class GrampsFrame(GrampsFrameView):
         """
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(name.serialize()).encode("utf-8"))
-        callback = lambda x: self.edited_name(x, sha256_hash.hexdigest())
+        callback = lambda x: self._edited_name(x, sha256_hash.hexdigest())
         try:
             EditName(
                 self.grstate.dbstate,
@@ -369,23 +388,15 @@ class GrampsFrame(GrampsFrameView):
         except WindowActiveError:
             pass
 
-    def edited_name(self, name, old_hash):
+    def _edited_name(self, name, old_hash):
         """
         Save edited name.
         """
-        action = "{} {} {} {} {} {}".format(
-            _("Edited"),
-            _("Name"),
-            name.get_regular_name(),
-            _("for"),
-            _("Person"),
-            self.primary.obj.get_gramps_id(),
+        self.grstate.update_history_object(old_hash, name)
+        message = self._commit_message(
+            _("Name"), name.get_regular_name(), action="update"
         )
-        if old_hash:
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(str(name.serialize()).encode("utf-8"))
-            self.grstate.update_history(old_hash, sha256_hash.hexdigest())
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def edit_attribute(self, _dummy_obj, attribute):
         """
@@ -396,7 +407,7 @@ class GrampsFrame(GrampsFrameView):
         )
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
-        callback = lambda x: self.edited_attribute(x, sha256_hash.hexdigest())
+        callback = lambda x: self._edited_attribute(x, sha256_hash.hexdigest())
         try:
             if self.primary.obj_type in ["Source", "Citation"]:
                 EditSrcAttribute(
@@ -421,24 +432,16 @@ class GrampsFrame(GrampsFrameView):
         except WindowActiveError:
             pass
 
-    def edited_attribute(self, attribute, old_hash):
+    def _edited_attribute(self, attribute, old_hash):
         """
-        Save the edited attribute.
+        Save edited attribute.
         """
         if attribute:
-            action = "{} {} {} {} {} {}".format(
-                _("Updated"),
-                _("Attribute"),
-                attribute.get_type(),
-                _("for"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            self.grstate.update_history_object(old_hash, attribute)
+            message = self._commit_message(
+                _("Attribute"), attribute.get_type(), action="update"
             )
-            if old_hash:
-                sha256_hash = hashlib.sha256()
-                sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
-                self.grstate.update_history(old_hash, sha256_hash.hexdigest())
-            self.save_object(attribute, action_text=action)
+            self.primary.commit(self.grstate, message)
 
     def edit_address(self, _dummy_obj, address):
         """
@@ -446,7 +449,7 @@ class GrampsFrame(GrampsFrameView):
         """
         sha256_hash = hashlib.sha256()
         sha256_hash.update(str(address.serialize()).encode("utf-8"))
-        callback = lambda x: self.edited_address(x, sha256_hash.hexdigest())
+        callback = lambda x: self._edited_address(x, sha256_hash.hexdigest())
         try:
             EditAddress(
                 self.grstate.dbstate,
@@ -458,22 +461,19 @@ class GrampsFrame(GrampsFrameView):
         except WindowActiveError:
             pass
 
-    def edited_address(self, address, old_hash):
+    def _edited_address(self, address, old_hash):
         """
         Save edited address.
         """
-        action = "{} {} {} {} {}".format(
+        self.grstate.update_history_object(old_hash, address)
+        message = "{} {} {} {} {}".format(
             _("Edited"),
             _("Address"),
             _("for"),
             self.primary.obj_lang,
             self.primary.obj.get_gramps_id(),
         )
-        if old_hash:
-            sha256_hash = hashlib.sha256()
-            sha256_hash.update(str(address.serialize()).encode("utf-8"))
-            self.grstate.update_history(old_hash, sha256_hash.hexdigest())
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def _citations_option(
         self, obj, add_new_citation, add_existing_citation, remove_citation
@@ -531,33 +531,24 @@ class GrampsFrame(GrampsFrameView):
                 [],
                 citation,
                 source,
-                self.added_citation,
+                self._added_citation,
             )
         except WindowActiveError:
             pass
 
-    def added_citation(self, handle):
+    def _added_citation(self, handle):
         """
         Add the new or existing citation to the current object.
         """
         if handle:
-            old_hash = None
-            if self.focus.obj_type in ["Attribute", "Address", "Name"]:
-                old_hash = self.focus.obj_hash
+            citation = self.fetch("Citation", handle)
+            message = self._commit_message(
+                _("Citation"), citation.get_gramps_id()
+            )
+            self.focus.save_hash()
             if self.focus.obj.add_citation(handle):
-                if old_hash:
-                    sha256_hash = hashlib.sha256()
-                    sha256_hash.update(
-                        str(self.focus.obj.serialize()).encode("utf-8")
-                    )
-                    self.grstate.update_history(
-                        old_hash, sha256_hash.hexdigest()
-                    )
-                citation = self.fetch("Citation", handle)
-                action = self._commit_message(
-                    _("Added"), _("Citation"), citation, _("to")
-                )
-                self.save_object(self.focus.obj, action_text=action)
+                self.focus.sync_hash(self.grstate)
+                self.focus.commit(self.grstate, message)
 
     def add_existing_citation(self, _dummy_obj):
         """
@@ -577,7 +568,7 @@ class GrampsFrame(GrampsFrameView):
                         [],
                         Citation(),
                         selection,
-                        callback=self.added_citation,
+                        callback=self._added_citation,
                     )
                 except WindowActiveError:
                     pass
@@ -588,7 +579,7 @@ class GrampsFrame(GrampsFrameView):
                         self.grstate.uistate,
                         [],
                         selection,
-                        callback=self.added_citation,
+                        callback=self._added_citation,
                     )
                 except WindowActiveError:
                     pass
@@ -619,33 +610,13 @@ class GrampsFrame(GrampsFrameView):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = self._commit_message(
-                _("Removed"), _("Citation"), citation, _("from")
+            message = self._commit_message(
+                _("Citation"), citation.get_gramps_id(), action="remove"
             )
-            commit_method = self.grstate.dbstate.db.method(
-                "commit_%s", self.primary.obj_type
-            )
-            old_hash = None
-            if self.focus.obj_type in [
-                "Attribute",
-                "Address",
-                "Name",
-                "LdsOrd",
-            ]:
-                old_hash = self.focus.obj_hash
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.focus.obj.remove_citation_references(
-                    [citation.get_handle()]
-                )
-                if old_hash:
-                    sha256_hash = hashlib.sha256()
-                    sha256_hash.update(
-                        str(self.focus.obj.serialize()).encode("utf-8")
-                    )
-                    self.grstate.update_history(
-                        old_hash, sha256_hash.hexdigest()
-                    )
-                commit_method(self.primary.obj, trans)
+            self.focus.save_hash()
+            self.focus.obj.remove_citation_references([citation.get_handle()])
+            self.focus.sync_hash(self.grstate)
+            self.primary.commit(self.grstate, message)
 
     def _notes_option(
         self,
@@ -724,38 +695,22 @@ class GrampsFrame(GrampsFrameView):
                 self.grstate.uistate,
                 [],
                 note,
-                self.added_note,
+                self._added_note,
             )
         except WindowActiveError:
             pass
 
-    def added_note(self, handle):
+    def _added_note(self, handle):
         """
         Add the new or existing note to the current object.
         """
         if handle:
-            old_hash = None
-            if self.focus.obj_type in [
-                "Attribute",
-                "Address",
-                "Name",
-                "LdsOrd",
-            ]:
-                old_hash = self.focus.obj_hash
+            note = self.fetch("Note", handle)
+            message = self._commit_message(_("Note"), note.get_gramps_id())
+            self.focus.save_hash()
             if self.focus.obj.add_note(handle):
-                if old_hash:
-                    sha256_hash = hashlib.sha256()
-                    sha256_hash.update(
-                        str(self.focus.obj.serialize()).encode("utf-8")
-                    )
-                    self.grstate.update_history(
-                        old_hash, sha256_hash.hexdigest()
-                    )
-                note = self.fetch("Note", handle)
-                action = self._commit_message(
-                    _("Added"), _("Note"), note, _("to")
-                )
-                self.save_object(self.focus.obj, action_text=action)
+                self.focus.sync_hash(self.grstate)
+                self.primary.commit(self.grstate, message)
 
     def add_existing_note(self, _dummy_obj):
         """
@@ -765,7 +720,7 @@ class GrampsFrame(GrampsFrameView):
         selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
         selection = selector.run()
         if selection:
-            self.added_note(selection.handle)
+            self._added_note(selection.handle)
 
     def edit_note(self, _dummy_obj, handle):
         """
@@ -790,31 +745,13 @@ class GrampsFrame(GrampsFrameView):
             _("Warning"),
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
-            action = self._commit_message(
-                _("Removed"), _("Note"), note, _("from")
+            message = self._commit_message(
+                _("Note"), note.get_gramps_id(), action="remove"
             )
-            commit_method = self.grstate.dbstate.db.method(
-                "commit_%s", self.primary.obj_type
-            )
-            old_hash = None
-            if self.focus.obj_type in [
-                "Attribute",
-                "Address",
-                "Name",
-                "LdsOrd",
-            ]:
-                old_hash = self.focus.obj_hash
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.focus.obj.remove_note(note.get_handle())
-                if old_hash:
-                    sha256_hash = hashlib.sha256()
-                    sha256_hash.update(
-                        str(self.focus.obj.serialize()).encode("utf-8")
-                    )
-                    self.grstate.update_history(
-                        old_hash, sha256_hash.hexdigest()
-                    )
-                commit_method(self.primary.obj, trans)
+            self.focus.save_hash()
+            self.focus.obj.remove_note(note.get_handle())
+            self.focus.sync_hash(self.grstate)
+            self.primary.commit(self.grstate, message)
 
     def _change_privacy_option(self):
         """
@@ -822,13 +759,13 @@ class GrampsFrame(GrampsFrameView):
         """
         if self.focus.obj.get_privacy():
             return menu_item(
-                "gramps-unlock", _("Make public"), self.change_privacy, False
+                "gramps-unlock", _("Make public"), self._change_privacy, False
             )
         return menu_item(
-            "gramps-lock", _("Make private"), self.change_privacy, True
+            "gramps-lock", _("Make private"), self._change_privacy, True
         )
 
-    def change_privacy(self, _dummy_obj, mode):
+    def _change_privacy(self, _dummy_obj, mode):
         """
         Update the privacy indicator for the current object.
         """
@@ -836,7 +773,7 @@ class GrampsFrame(GrampsFrameView):
         if mode:
             text = _("Private")
         if self.secondary:
-            action = "{} {} {} {} {} {}".format(
+            message = "{} {} {} {} {} {}".format(
                 _("Made"),
                 self.secondary.obj_lang,
                 _("for"),
@@ -845,27 +782,16 @@ class GrampsFrame(GrampsFrameView):
                 text,
             )
         else:
-            action = "{} {} {} {}".format(
+            message = "{} {} {} {}".format(
                 _("Made"),
                 self.primary.obj_lang,
                 self.primary.obj.get_gramps_id(),
                 text,
             )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.primary.obj_type
-        )
-        old_hash = None
-        if self.focus.obj_type in ["Attribute", "Address", "Name", "LdsOrd"]:
-            old_hash = self.focus.obj_hash
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.focus.obj.set_privacy(mode)
-            if old_hash:
-                sha256_hash = hashlib.sha256()
-                sha256_hash.update(
-                    str(self.focus.obj.serialize()).encode("utf-8")
-                )
-                self.grstate.update_history(old_hash, sha256_hash.hexdigest())
-            commit_method(self.primary.obj, trans)
+        self.focus.save_hash()
+        self.focus.obj.set_privacy(mode)
+        self.focus.sync_hash(self.grstate)
+        self.primary.commit(self.grstate, message)
 
     def set_css_style(self):
         """

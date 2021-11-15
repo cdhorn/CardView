@@ -37,7 +37,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..common.common_utils import get_gramps_object_type, get_key_person_events
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
+from ..frames.frame_event_ref import EventRefGrampsFrame
 from ..frames.frame_image import ImageGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
@@ -99,9 +99,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for (sortval, item) in self.timeline.events(raw=True):
             timeline.append((sortval, "event", None, item))
 
-        person = None
         if self.obj_type == "Person" and self.get_option("show-age"):
-            person = self.obj
             key_events = get_key_person_events(
                 grstate.dbstate.db, self.obj, birth_only=True
             )
@@ -120,28 +118,29 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         except AttributeError:
             groptions.set_ref_mode(0)
 
+        if self.obj_type == "Person":
+            groptions.set_relation(self.obj)
+
         timeline.sort(key=lambda x: x[0])
         for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
             if timeline_obj_type == "event":
                 (
-                    event,
+                    dummy_event,
                     event_ref,
                     event_person,
                     event_family,
-                    relation,
-                    category,
+                    dummy_relation,
+                    dummy_category,
                 ) = item
+                obj = event_person
+                if event_family:
+                    obj = event_family
                 self.add_frame(
-                    EventGrampsFrame(
+                    EventRefGrampsFrame(
                         grstate,
                         groptions,
-                        person,
-                        event,
+                        obj,
                         event_ref,
-                        event_person,
-                        event_family,
-                        relation,
-                        category,
                     )
                 )
             elif timeline_obj_type == "media":

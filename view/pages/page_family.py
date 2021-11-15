@@ -61,31 +61,26 @@ class FamilyProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.order_action = None
-        self.family_action = None
-        self.reorder_sensitive = None
-        self.child = None
-        self.colors = None
         self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object underpinning page.
+        """
         return "Family"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Family"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def _get_primary_parents(self, grstate, person, groups):
+        """
+        Return widget with primary parents of person.
+        """
         if person:
             primary_handle = person.get_main_parents_family_handle()
             if primary_handle:
@@ -104,8 +99,9 @@ class FamilyProfilePage(BaseProfilePage):
         return None
 
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 

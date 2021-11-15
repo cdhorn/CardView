@@ -46,7 +46,7 @@ from gramps.gui.editors import EditChildRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_child import ChildGrampsFrame
+from ..frames.frame_child_ref import ChildRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -88,7 +88,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                     "options.group.{}.number-children".format(context)
                 ):
                     groptions_copy.set_number(child_number)
-                profile = ChildGrampsFrame(
+                profile = ChildRefGrampsFrame(
                     grstate,
                     groptions_copy,
                     family,

@@ -93,9 +93,11 @@ class BaseProfilePage:
     def __init__(self, dbstate, uistate, config, callbacks):
         self.grstate = GrampsState(dbstate, uistate, callbacks, config)
         self.grstate.set_page_type(self.page_type.lower())
+        self.active_profile = None
+        self.child = None
+        self.colors = None
         self.config = config
         self.container = None
-        self.active_profile = None
 
     @property
     def page_type(self):
@@ -103,24 +105,42 @@ class BaseProfilePage:
         Return page type.
         """
 
+    def define_actions(self, view):
+        """
+        Define page specific actions.
+        """
+
+    def enable_actions(self, uimanager, obj):
+        """
+        Enable page specific actions.
+        """
+
+    def disable_actions(self, uimanager):
+        """
+        Disable page specific actions.
+        """
+
     def edit_active(self, *_dummy_obj):
         """
         Edit the active page object.
         """
         if self.active_profile:
-            self.active_profile.edit_object()
+            self.active_profile.edit_primary_object()
 
     def add_tag(self, trans, object_handle, tag_handle):
         """
         Add a tag to the active page object.
         """
         if self.active_profile:
-            if self.active_profile.obj.get_handle() == object_handle[1]:
-                self.active_profile.obj.add_tag(tag_handle)
+            if (
+                self.active_profile.primary.obj.get_handle()
+                == object_handle[1]
+            ):
+                self.active_profile.primary.obj.add_tag(tag_handle)
                 commit_method = self.grstate.dbstate.db.method(
-                    "commit_%s", self.active_profile.obj_type
+                    "commit_%s", self.active_profile.primary.obj_type
                 )
-                commit_method(self.active_profile.obj, trans)
+                commit_method(self.active_profile.primary.obj, trans)
 
     def get_object_groups(self, groups, obj, age_base=None):
         """
@@ -258,6 +278,9 @@ class BaseProfilePage:
         return container
 
     def _scrolled(self, widget):
+        """
+        Prepare a scrollable widget.
+        """
         scroll = Gtk.ScrolledWindow(hexpand=False, vexpand=True)
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         viewport = Gtk.Viewport()

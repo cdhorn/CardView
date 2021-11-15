@@ -41,8 +41,6 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.widgets.reorderfam import Reorder
 
 # -------------------------------------------------------------------------
 #
@@ -50,9 +48,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated
-from ..frames.frame_association import AssociationGrampsFrame
+from ..frames.frame_person_ref import PersonRefGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from .page_base import BaseProfilePage
 
@@ -67,33 +63,26 @@ class PersonRefProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.order_action = None
-        self.family_action = None
-        self.reorder_sensitive = None
-        self.child = None
-        self.colors = None
         self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning the page.
+        """
         return "Person"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "PersonRef"
 
-    def define_actions(self, view):
-        pass
-
-    def enable_actions(self, uimanager, person):
-        pass
-
-    def disable_actions(self, uimanager):
-        pass
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
@@ -104,7 +93,7 @@ class PersonRefProfilePage(BaseProfilePage):
         person_frame = PersonGrampsFrame(self.grstate, groptions, person)
         groptions = GrampsOptions("options.active.association")
         groptions.set_ref_mode(2)
-        self.active_profile = AssociationGrampsFrame(
+        self.active_profile = PersonRefGrampsFrame(
             self.grstate,
             groptions,
             person,
@@ -125,35 +114,5 @@ class PersonRefProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(vheader, False, False, 0)
-        self.child = body
-        vbox.pack_start(self.child, True, True, 0)
+        vbox.pack_start(body, True, True, 0)
         vbox.show_all()
-        return
-
-    def reorder_button_press(self, obj, event, _dummy_handle):
-        if button_activated(event, _LEFT_BUTTON):
-            self.reorder(obj)
-
-    def reorder(self, *_dummy_obj):
-        if self.active_profile:
-            try:
-                Reorder(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.active_profile.obj.get_handle(),
-                )
-            except WindowActiveError:
-                pass
-
-    def add_spouse(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_spouse()
-
-    def select_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_parents()

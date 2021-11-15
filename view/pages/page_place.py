@@ -54,27 +54,26 @@ class PlaceProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+        self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning the page.
+        """
         return "Place"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Place"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
@@ -95,4 +94,3 @@ class PlaceProfilePage(BaseProfilePage):
         self.add_media_bar(vbox, place)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
-        return

@@ -30,20 +30,10 @@ LDSOrdinance Profile Page
 
 # -------------------------------------------------------------------------
 #
-# Python Modules
-#
-# -------------------------------------------------------------------------
-import hashlib
-
-# -------------------------------------------------------------------------
-#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.uimanager import ActionGroup
-from gramps.gui.widgets.reorderfam import Reorder
 
 # -------------------------------------------------------------------------
 #
@@ -51,11 +41,8 @@ from gramps.gui.widgets.reorderfam import Reorder
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated, get_gramps_object_type
-from ..frames.frame_couple import CoupleGrampsFrame
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
 
@@ -70,34 +57,27 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.order_action = None
-        self.family_action = None
-        self.reorder_sensitive = None
-        self.child = None
-        self.colors = None
         self.active_profile = None
         self.focus_type = "Person"
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning page.
+        """
         return self.focus_type
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "LdsOrd"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
@@ -128,7 +108,5 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
             vbox.pack_start(frame, False, False, 0)
-        self.child = body
-        vbox.pack_start(self.child, True, True, 0)
+        vbox.pack_start(body, True, True, 0)
         vbox.show_all()
-        return

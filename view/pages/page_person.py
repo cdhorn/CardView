@@ -68,39 +68,54 @@ class PersonProfilePage(BaseProfilePage):
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning the page.
+        """
         return "Person"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Person"
 
     def define_actions(self, view):
+        """
+        Define page specific actions.
+        """
         self.order_action = ActionGroup(name="ChangeOrder")
         self.order_action.add_actions([("ChangeOrder", self.reorder)])
 
         self.family_action = ActionGroup(name="Family")
         self.family_action.add_actions(
             [
-                ("AddSpouse", self.add_spouse),
-                ("AddParents", self.add_parents),
-                ("ShareFamily", self.select_parents),
+                ("AddSpouse", self.add_new_family),
+                ("AddParents", self.add_new_parents),
+                ("ShareFamily", self.add_existing_parents),
             ]
         )
-
         view._add_action_group(self.order_action)
         view._add_action_group(self.family_action)
 
-    def enable_actions(self, uimanager, person):
+    def enable_actions(self, uimanager, dummy_obj):
+        """
+        Enable page specific actions.
+        """
         uimanager.set_actions_visible(self.family_action, True)
         uimanager.set_actions_visible(self.order_action, True)
 
     def disable_actions(self, uimanager):
+        """
+        Disable page specific actions.
+        """
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
@@ -135,29 +150,44 @@ class PersonProfilePage(BaseProfilePage):
         return
 
     def reorder_button_press(self, obj, event, _dummy_handle):
+        """
+        Trigger reorder families.
+        """
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
     def reorder(self, *_dummy_obj):
+        """
+        Reorder families.
+        """
         if self.active_profile:
             try:
                 Reorder(
                     self.grstate.dbstate,
                     self.grstate.uistate,
                     [],
-                    self.active_profile.obj.get_handle(),
+                    self.active_profile.primary.obj.get_handle(),
                 )
             except WindowActiveError:
                 pass
 
-    def add_spouse(self, *_dummy_obj):
+    def add_new_family(self, *_dummy_obj):
+        """
+        Add new family with or without spouse.
+        """
         if self.active_profile:
-            self.active_profile.add_new_spouse()
+            self.active_profile.add_new_family()
 
-    def select_parents(self, *_dummy_obj):
+    def add_existing_parents(self, *_dummy_obj):
+        """
+        Add an existing set of parents.
+        """
         if self.active_profile:
             self.active_profile.add_existing_parents()
 
-    def add_parents(self, *_dummy_obj):
+    def add_new_parents(self, *_dummy_obj):
+        """
+        Add a new set of parents.
+        """
         if self.active_profile:
             self.active_profile.add_new_parents()

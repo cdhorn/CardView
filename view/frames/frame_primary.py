@@ -106,17 +106,13 @@ class PrimaryGrampsFrame(GrampsFrame):
     view and working with the primary Gramps object it exposes.
     """
 
-    def __init__(
-        self,
-        grstate,
-        groptions,
-        primary_obj,
-    ):
+    def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
         GrampsFrame.__init__(
             self,
             grstate,
             groptions,
             primary_obj,
+            reference_tuple=reference_tuple,
         )
         self.build_layout()
         self.load_layout()
@@ -221,13 +217,13 @@ class PrimaryGrampsFrame(GrampsFrame):
         actions supported for all objects enabled for them.
         """
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            self.action_menu = Gtk.Menu()
-            self.action_menu.append(self._edit_object_option())
-            self.add_custom_actions()
+            action_menu = Gtk.Menu()
+            action_menu.append(self._edit_object_option())
+            self.add_custom_actions(action_menu)
             if hasattr(self.primary.obj, "attribute_list"):
-                self.action_menu.append(self._attributes_option())
+                action_menu.append(self._attributes_option())
             if hasattr(self.primary.obj, "citation_list"):
-                self.action_menu.append(
+                action_menu.append(
                     self._citations_option(
                         self.primary.obj,
                         self.add_new_citation,
@@ -236,7 +232,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                     )
                 )
             if hasattr(self.primary.obj, "note_list"):
-                self.action_menu.append(
+                action_menu.append(
                     self._notes_option(
                         self.primary.obj,
                         self.add_new_note,
@@ -245,14 +241,14 @@ class PrimaryGrampsFrame(GrampsFrame):
                     )
                 )
             if hasattr(self.primary.obj, "tag_list"):
-                self.action_menu.append(self._tags_option())
+                action_menu.append(self._tags_option())
             if hasattr(self.primary.obj, "urls"):
-                self.action_menu.append(self._urls_option())
-            self.action_menu.append(self._copy_to_clipboard_option())
+                action_menu.append(self._urls_option())
+            action_menu.append(self._copy_to_clipboard_option())
             if self.grstate.config.get("options.global.enable-bookmarks"):
-                self.action_menu.append(self._bookmark_option())
-            self.action_menu.append(self._change_privacy_option())
-            self.action_menu.add(Gtk.SeparatorMenuItem())
+                action_menu.append(self._bookmark_option())
+            action_menu.append(self._change_privacy_option())
+            action_menu.add(Gtk.SeparatorMenuItem())
             if self.primary.obj.change:
                 text = "{} {}".format(
                     _("Last changed"),
@@ -264,17 +260,17 @@ class PrimaryGrampsFrame(GrampsFrame):
                 text = _("Never changed")
             label = Gtk.MenuItem(label=text)
             label.set_sensitive(False)
-            self.action_menu.append(label)
+            action_menu.append(label)
 
-            self.action_menu.show_all()
+            action_menu.show_all()
             if Gtk.get_minor_version() >= 22:
-                self.action_menu.popup_at_pointer(event)
+                action_menu.popup_at_pointer(event)
             else:
-                self.action_menu.popup(
+                action_menu.popup(
                     None, None, None, None, event.button, event.time
                 )
 
-    def add_custom_actions(self):
+    def add_custom_actions(self, action_menu):
         """
         For derived objects to inject their own actions into the menu.
         """
@@ -363,16 +359,11 @@ class PrimaryGrampsFrame(GrampsFrame):
         Save the new attribute to finish adding it.
         """
         if attribute:
-            action = "{} {} {} {} {} {}".format(
-                _("Added"),
-                _("Attribute"),
-                attribute.get_type(),
-                _("to"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            message = self._commit_message(
+                _("Attribute"), attribute.get_type()
             )
             self.primary.obj.add_attribute(attribute)
-            self.save_object(self.primary.obj, action_text=action)
+            self.primary.commit(self.grstate, message)
 
     def remove_attribute(self, _dummy_obj, attribute):
         """
@@ -388,16 +379,11 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.confirm_action(
             _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
         ):
-            action = "{} {} {} {} {} {}".format(
-                _("Deleted"),
-                _("Attribute"),
-                attribute.get_type(),
-                _("from"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            message = self._commit_message(
+                _("Attribute"), attribute.get_type(), action="remove"
             )
             self.primary.obj.remove_attribute(attribute)
-            self.save_object(self.primary.obj, action_text=action)
+            self.primary.commit(self.grstate, message)
 
     def _tags_option(self):
         """
@@ -466,15 +452,10 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if not handle:
             return
-        action = "{} {} {} {} {}".format(
-            _("Added"),
-            _("Tag"),
-            _("to"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
-        )
+        tag = self.grstate.fetch("Tag", handle)
+        message = self._commit_message(_("Tag"), tag.get_name())
         self.primary.obj.add_tag(handle)
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def remove_tag(self, _dummy_obj, handle):
         """
@@ -482,15 +463,12 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if not handle:
             return
-        action = "{} {} {} {} {}".format(
-            _("Removed"),
-            _("Tag"),
-            _("from"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
+        tag = self.grstate.fetch("Tag", handle)
+        message = self._commit_message(
+            _("Tag"), tag.get_name(), action="remove"
         )
         if self.primary.obj.remove_tag(handle):
-            self.save_object(self.primary.obj, action_text=action)
+            self.primary.commit(self.grstate, message)
 
     def _urls_option(self):
         """
@@ -548,16 +526,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if not url:
             return
-        action = "{} {} {} {} {} {}".format(
-            _("Added"),
-            _("Url"),
-            url.get_path(),
-            _("to"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
-        )
+        message = self._commit_message(_("Url"), url.get_path())
         self.primary.obj.add_url(url)
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def edit_url(self, _dummy_obj, url):
         """
@@ -581,15 +552,10 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if not url:
             return
-        action = "{} {} {} {} {} {}".format(
-            _("Updated"),
-            _("Url"),
-            url.get_path(),
-            _("for"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
+        message = self._commit_message(
+            _("Url"), url.get_path(), action="update"
         )
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def remove_url(self, _dummy_obj, url):
         """
@@ -607,16 +573,11 @@ class PrimaryGrampsFrame(GrampsFrame):
         if self.confirm_action(
             _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
         ):
-            action = "{} {} {} {} {} {}".format(
-                _("Deleted"),
-                _("Url"),
-                url.get_path(),
-                _("from"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            message = self._commit_message(
+                _("Url"), url.get_path(), action="remove"
             )
             if self.primary.obj.remove_url(url):
-                self.save_object(self.primary.obj, action_text=action)
+                self.primary.commit(self.grstate, message)
 
     def launch_url(self, _dummy_obj, url):
         """

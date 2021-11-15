@@ -159,12 +159,12 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
         )
         hcontent.pack_start(attribute_block, expand=True, fill=True, padding=0)
 
-    def add_custom_actions(self):
+    def add_custom_actions(self, action_menu):
         """
         Add action menu items specific for the image.
         """
         if self.groptions.backlink:
-            self.action_menu.append(
+            action_menu.append(
                 menu_item(
                     "gramps-media",
                     _("Make active media"),

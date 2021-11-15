@@ -75,20 +75,27 @@ _ = glocale.translation.sgettext
 # GrampsMediaBarGroup class
 #
 # ------------------------------------------------------------------------
-class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
+class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
     """
     The MediaBarGroup class provides a container for managing a horizontal
     scrollable list of media items for a given primary Gramps object.
     """
 
-    def __init__(self, grstate, groptions, obj, css=""):
-        Gtk.HBox.__init__(self, hexpand=True, vexpand=False)
+    def __init__(self, grstate, groptions, obj, css="", vertical=False):
+        if vertical:
+            Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+            self.set_hexpand(False)
+            self.set_vexpand(True)
+        else:
+            Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
+            self.set_hexpand(True)
+            self.set_vexpand(False)            
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
         self.total = 0
-        self.hbox = self.init_layout(css)
+        self.box = self.init_layout(css, vertical)
 
         media_list = self.collect_media()
         if not media_list:
@@ -119,33 +126,43 @@ class GrampsMediaBarGroup(Gtk.HBox, GrampsConfig):
                 size=size,
                 crop=crop,
             )
-            self.hbox.pack_start(frame, False, False, 0)
+            self.box.pack_start(frame, False, False, 0)
         self.total = len(media_list)
         self.show_all()
 
-    def init_layout(self, css):
+    def init_layout(self, css, vertical):
         """
         Initialize layout.
         """
         frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.add(frame)
-        window = Gtk.ScrolledWindow(hexpand=True, vexpand=False)
-        frame.add(window)
-        viewport = Gtk.Viewport()
-        window.add(viewport)
-        hbox = Gtk.HBox(hexpand=True, vexpand=False, spacing=3, margin=3)
-        viewport.add(hbox)
         if css:
             provider = Gtk.CssProvider()
             provider.load_from_data(css)
             context = frame.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class("frame")
-        window.set_policy(
-            hscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
-            vscrollbar_policy=Gtk.PolicyType.NEVER,
-        )
-        return hbox
+
+        if vertical:
+            window = Gtk.ScrolledWindow(hexpand=False, vexpand=True)
+            window.set_policy(
+                hscrollbar_policy=Gtk.PolicyType.NEVER,
+                vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+            )
+            box = Gtk.VBox(hexpand=False, vexpand=True, spacing=3, margin=3)
+        else:
+            window = Gtk.ScrolledWindow(hexpand=True, vexpand=False)
+            window.set_policy(
+                hscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+                vscrollbar_policy=Gtk.PolicyType.NEVER,
+            )
+            box = Gtk.HBox(hexpand=True, vexpand=False, spacing=3, margin=3)
+
+        viewport = Gtk.Viewport()
+        viewport.add(box)
+        window.add(viewport)
+        frame.add(window)
+        self.add(frame)
+        return box
 
     def collect_media(self):
         """

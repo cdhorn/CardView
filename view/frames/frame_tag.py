@@ -66,7 +66,6 @@ class TagGrampsFrame(GrampsFrame):
 
     def __init__(self, grstate, groptions, tag):
         GrampsFrame.__init__(self, grstate, groptions, tag)
-        self.action_menu = None
 
         fact_block = Gtk.VBox()
         self.widgets["body"].pack_start(

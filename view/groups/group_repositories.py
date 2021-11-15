@@ -24,13 +24,6 @@ RepositoriesGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from copy import copy
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -42,7 +35,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_gramps_object_type
-from ..frames.frame_repository import RepositoryGrampsFrame
+from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -68,32 +61,14 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
-        repository_list = []
+        groptions.set_ref_mode(
+            self.grstate.config.get("options.group.repository.reference-mode")
+        )
         for repo_ref in obj.get_reporef_list():
-            repository = self.fetch("Repository", repo_ref.ref)
-            repository_list.append((repository, repo_ref))
-
-        if repository_list:
-            if self.get_option("sort-by-date"):
-                repository_list.sort(
-                    key=lambda x: x[0][0].get_date_object().get_sort_value()
-                )
-
-            groptions_copy = copy(groptions)
-            groptions_copy.set_backlink(self.obj.get_handle())
-            groptions_copy.set_ref_mode(
-                self.grstate.config.get(
-                    "options.group.repository.reference-mode"
-                )
+            profile = RepositoryRefGrampsFrame(
+                grstate, groptions, obj, repo_ref
             )
-            for repository, repo_ref in repository_list:
-                frame = RepositoryGrampsFrame(
-                    grstate,
-                    groptions_copy,
-                    repository,
-                    repo_ref,
-                )
-                self.add_frame(frame)
+            self.add_frame(profile)
         self.show_all()
 
     # Todo: Add drag and drop to reorder or add to repo list

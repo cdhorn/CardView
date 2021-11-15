@@ -30,20 +30,10 @@ Name Profile Page
 
 # -------------------------------------------------------------------------
 #
-# Python Modules
-#
-# -------------------------------------------------------------------------
-import hashlib
-
-# -------------------------------------------------------------------------
-#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.uimanager import ActionGroup
-from gramps.gui.widgets.reorderfam import Reorder
 
 # -------------------------------------------------------------------------
 #
@@ -51,8 +41,6 @@ from gramps.gui.widgets.reorderfam import Reorder
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from .page_base import BaseProfilePage
@@ -68,48 +56,26 @@ class NameProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.order_action = None
-        self.family_action = None
-        self.reorder_sensitive = None
-        self.child = None
-        self.colors = None
         self.active_profile = None
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning page.
+        """
         return "Person"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Name"
 
-    def define_actions(self, view):
-        self.order_action = ActionGroup(name="ChangeOrder")
-        self.order_action.add_actions([("ChangeOrder", self.reorder)])
-
-        self.family_action = ActionGroup(name="Family")
-        self.family_action.add_actions(
-            [
-                ("AddSpouse", self.add_spouse),
-                ("AddParents", self.add_parents),
-                ("ShareFamily", self.select_parents),
-            ]
-        )
-
-        view._add_action_group(self.order_action)
-        view._add_action_group(self.family_action)
-
-    def enable_actions(self, uimanager, person):
-        uimanager.set_actions_visible(self.family_action, True)
-        uimanager.set_actions_visible(self.order_action, True)
-
-    def disable_actions(self, uimanager):
-        uimanager.set_actions_visible(self.family_action, False)
-        uimanager.set_actions_visible(self.order_action, False)
-
     def render_page(self, header, vbox, page_context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not page_context:
             return
 
@@ -135,41 +101,5 @@ class NameProfilePage(BaseProfilePage):
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
             vbox.pack_start(frame, False, False, 0)
-        self.child = body
-        vbox.pack_start(self.child, True, True, 0)
+        vbox.pack_start(body, True, True, 0)
         vbox.show_all()
-
-        family_handle_list = person.get_parent_family_handle_list()
-        self.reorder_sensitive = len(family_handle_list) > 1
-        family_handle_list = person.get_family_handle_list()
-        if not self.reorder_sensitive:
-            self.reorder_sensitive = len(family_handle_list) > 1
-        return
-
-    def reorder_button_press(self, obj, event, _dummy_handle):
-        if button_activated(event, _LEFT_BUTTON):
-            self.reorder(obj)
-
-    def reorder(self, *_dummy_obj):
-        if self.active_profile:
-            try:
-                Reorder(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.active_profile.obj.get_handle(),
-                )
-            except WindowActiveError:
-                pass
-
-    def add_spouse(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_spouse()
-
-    def select_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_parents(self, *_dummy_obj):
-        if self.active_profile:
-            self.active_profile.add_new_parents()

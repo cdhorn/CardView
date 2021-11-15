@@ -59,24 +59,22 @@ class EventProfilePage(BaseProfilePage):
 
     @property
     def obj_type(self):
+        """
+        Primary object type underpinning page.
+        """
         return "Event"
 
     @property
     def page_type(self):
+        """
+        Page type.
+        """
         return "Event"
 
-    def define_actions(self, view):
-        return
-
-    def enable_actions(self, uimanager, person):
-        return
-
-    def disable_actions(self, uimanager):
-        return
-
     def render_page(self, header, vbox, context):
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
+        """
+        Render the page contents.
+        """
         if not context:
             return
 
@@ -86,12 +84,7 @@ class EventProfilePage(BaseProfilePage):
         self.active_profile = EventGrampsFrame(
             self.grstate,
             groptions,
-            None,
             event,
-            None,
-            None,
-            None,
-            None,
         )
 
         groups = self.config.get("options.page.event.layout.groups").split(",")

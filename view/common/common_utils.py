@@ -486,37 +486,74 @@ def get_participants(db, event):
     Returns people and also a descriptive string.
     """
     participants = []
-    text = ""
-    comma = ""
     result_list = list(
         db.find_backlink_handles(
             event.handle, include_classes=["Person", "Family"]
         )
     )
-    people = set([x[1] for x in result_list if x[0] == "Person"])
+    people = [x[1] for x in result_list if x[0] == "Person"]
     for handle in people:
         person = db.get_person_from_handle(handle)
         if not person:
             continue
         for event_ref in person.get_event_ref_list():
             if event.handle == event_ref.ref:
-                participants.append(("Person", person, event_ref))
-                text = "{}{}{}".format(
-                    text, comma, name_displayer.display(person)
+                participants.append(
+                    (
+                        "Person",
+                        person,
+                        event_ref,
+                        name_displayer.display(person),
+                    )
                 )
-                comma = ", "
-    family = set([x[1] for x in result_list if x[0] == "Family"])
-    for handle in family:
+    families = [x[1] for x in result_list if x[0] == "Family"]
+    for handle in families:
         family = db.get_family_from_handle(handle)
         if not family:
             continue
         for event_ref in family.get_event_ref_list():
             if event.handle == event_ref.ref:
-                participants.append(("Family", family, event_ref))
-                family_text = family_name(family, db)
-                text = "{}{}{}".format(text, comma, family_text)
-                comma = ", "
-    return participants, text
+                participants.append(
+                    ("Family", family, event_ref, family_name(family, db))
+                )
+    return participants
+
+
+def get_primary_participant(participants):
+    """
+    Return first primary participant found, or first if none found
+    """
+    for participant in participants:
+        (obj_type, dummy_obj, obj_event_ref, dummy_obj_name) = participant
+        role = obj_event_ref.get_role()
+        if obj_type == "Person" and role.is_primary():
+            return participant
+        if obj_type == "Family" and role.is_family():
+            return participant
+    return participants[0]
+
+
+def get_participants_text(participants, primary=None):
+    """
+    Return textual string of participant names.
+    """
+    if not primary:
+        primary_participant = get_primary_participant(participants)
+    else:
+        primary_participant = primary
+    (
+        dummy_primary_type,
+        primary_obj,
+        dummy_primary_obj_event_ref,
+        text,
+    ) = primary_participant
+
+    for participant in participants:
+        (dummy_obj_type, obj, dummy_obj_event_ref, obj_name) = participant
+        if obj.get_handle() == primary_obj.get_handle():
+            continue
+        text = "{}; {}".format(text, obj_name)
+    return text
 
 
 def get_config_option(config, option, full=False, dbid=None):
@@ -777,7 +814,7 @@ def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
 
 def find_reference(obj, reference_type, reference_handle):
     """
-    Find reference object inside a given object.
+    Find a specific reference object inside a given object.
     """
     if reference_type == "EventRef":
         reference_list = obj.get_event_ref_list()
@@ -798,6 +835,9 @@ def find_reference(obj, reference_type, reference_handle):
 
 
 def find_referencer(grstate, obj, reference_type, reference_hash):
+    """
+    Given a referenced object and reference hash find the referencing object.
+    """
     if reference_type == "ChildRef":
         seek = ["Family"]
     elif reference_type == "PersonRef":
@@ -820,7 +860,7 @@ def find_referencer(grstate, obj, reference_type, reference_hash):
 
 def find_secondary_object(obj, secondary_type, secondary_hash):
     """
-    Find secondary object inside a given object.
+    Find a specific secondary object inside a given object.
     """
     if secondary_type == "Name":
         secondary_list = [obj.get_primary_name()] + obj.get_alternate_names()
@@ -834,6 +874,8 @@ def find_secondary_object(obj, secondary_type, secondary_hash):
         secondary_list = obj.get_child_ref_list()
     elif secondary_type == "PersonRef":
         secondary_list = obj.get_person_ref_list()
+    elif secondary_type == "RepoRef":
+        secondary_list = obj.get_reporef_list()
     else:
         return None
     for secondary_obj in secondary_list:
@@ -842,3 +884,20 @@ def find_secondary_object(obj, secondary_type, secondary_hash):
         if sha256_hash.hexdigest() == secondary_hash:
             return secondary_obj
     return None
+
+
+def get_event_category(self, event):
+    """
+    Return the category for grouping an event.
+    """
+    event_type = event.get_type()
+    for entry in event_type.get_menu_standard_xml():
+        event_key = entry[0].lower().replace("life events", "vital")
+        for event_id in entry[1]:
+            if event_type == event_id:
+                return event_key
+    custom_event_types = self.db_handle.get_event_types()
+    for event_name in custom_event_types:
+        if event_type.xml_str() == event_name:
+            return "custom"
+    return "other"

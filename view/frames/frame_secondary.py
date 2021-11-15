@@ -115,11 +115,11 @@ class SecondaryGrampsFrame(GrampsFrame):
         actions supported for all objects enabled for them.
         """
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            self.action_menu = Gtk.Menu()
-            self.action_menu.append(self._edit_object_option())
-            self.add_custom_actions()
+            action_menu = Gtk.Menu()
+            action_menu.append(self._edit_object_option())
+            self.add_custom_actions(action_menu)
             if hasattr(self.secondary.obj, "citation_list"):
-                self.action_menu.append(
+                action_menu.append(
                     self._citations_option(
                         self.secondary.obj,
                         self.add_new_citation,
@@ -128,7 +128,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                     )
                 )
             if hasattr(self.secondary.obj, "note_list"):
-                self.action_menu.append(
+                action_menu.append(
                     self._notes_option(
                         self.secondary.obj,
                         self.add_new_note,
@@ -136,16 +136,16 @@ class SecondaryGrampsFrame(GrampsFrame):
                         self.remove_note,
                     )
                 )
-            self.action_menu.append(self._change_privacy_option())
-            self.action_menu.show_all()
+            action_menu.append(self._change_privacy_option())
+            action_menu.show_all()
             if Gtk.get_minor_version() >= 22:
-                self.action_menu.popup_at_pointer(event)
+                action_menu.popup_at_pointer(event)
             else:
-                self.action_menu.popup(
+                action_menu.popup(
                     None, None, None, None, event.button, event.time
                 )
 
-    def add_custom_actions(self):
+    def add_custom_actions(self, action_menu):
         """
         For derived objects to inject their own actions into the menu.
         """

@@ -48,7 +48,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames.frame_repository import RepositoryGrampsFrame
+from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
 from .page_base import BaseProfilePage
 
@@ -68,7 +68,7 @@ class RepositoryRefProfilePage(BaseProfilePage):
     @property
     def obj_type(self):
         """
-        Primary object page focused on.
+        Primary object type underpinning the page.
         """
         return "Source"
 
@@ -79,35 +79,15 @@ class RepositoryRefProfilePage(BaseProfilePage):
         """
         return "RepoRef"
 
-    def define_actions(self, view):
-        """
-        Define page actions.
-        """
-
-    def enable_actions(self, uimanager, person):
-        """
-        Enable page actions.
-        """
-
-    def disable_actions(self, uimanager):
-        """
-        Disable page actions.
-        """
-
     def render_page(self, header, vbox, context):
         """
-        Render view for the page.
+        Render the page contents.
         """
-        list(map(header.remove, header.get_children()))
-        list(map(vbox.remove, vbox.get_children()))
         if not context:
             return
 
         source = context.primary_obj.obj
         repo_ref = context.reference_obj.obj
-        repository = self.grstate.dbstate.db.get_repository_from_handle(
-            repo_ref.ref
-        )
 
         groptions = GrampsOptions("options.active.source")
         source_frame = SourceGrampsFrame(
@@ -118,11 +98,8 @@ class RepositoryRefProfilePage(BaseProfilePage):
         groptions = GrampsOptions("options.active.repository")
         groptions.set_backlink(source.get_handle())
         groptions.set_ref_mode(2)
-        self.active_profile = RepositoryGrampsFrame(
-            self.grstate,
-            groptions,
-            repository,
-            repo_ref,
+        self.active_profile = RepositoryRefGrampsFrame(
+            self.grstate, groptions, source, repo_ref
         )
         vheader = Gtk.VBox(spacing=3)
         vheader.pack_start(source_frame, False, False, 0)
@@ -139,6 +116,5 @@ class RepositoryRefProfilePage(BaseProfilePage):
             header.show_all()
         else:
             vbox.pack_start(vheader, False, False, 0)
-        self.child = body
-        vbox.pack_start(self.child, True, True, 0)
+        vbox.pack_start(body, True, True, 0)
         vbox.show_all()
