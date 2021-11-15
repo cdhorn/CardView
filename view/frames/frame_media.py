@@ -118,7 +118,7 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
 
         if active:
             hcontent.pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=0
+                self.widgets["image"], expand=False, fill=False, padding=3
             )
 
         fact_block = Gtk.VBox(halign=Gtk.Align.START, hexpand=True)
@@ -134,7 +134,7 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         else:
             ncontent = Gtk.HBox(hexpand=True)
             ncontent.pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=0
+                self.widgets["image"], expand=False, fill=False, padding=3
             )
             ncontent.pack_start(
                 self.widgets["facts"], expand=True, fill=True, padding=0
