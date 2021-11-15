@@ -443,11 +443,11 @@ class GrampsOptions:
 
         if size_groups is None:
             self.size_groups = {
+                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "attributes": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-                "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             }
 
     def set_ref_mode(self, value):

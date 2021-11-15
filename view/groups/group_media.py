@@ -24,13 +24,6 @@ MediaGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from copy import copy
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -43,7 +36,7 @@ from gramps.gen.db import DbTxn
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_gramps_object_type
-from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_media_ref import MediaRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -66,10 +59,13 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
-        media_groptions = copy(groptions)
-        media_groptions.set_backlink((self.obj_type, self.obj.get_handle()))
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
+
+        groptions.set_backlink((self.obj_type, self.obj.get_handle()))
+        groptions.set_ref_mode(
+            self.grstate.config.get("options.group.media.reference-mode")
+        )
 
         media_list = self.collect_media()
         if media_list:
@@ -111,9 +107,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                 media_ref,
                 media_type,
             ) in media_list:
-                frame = ImageGrampsFrame(
-                    grstate, media_groptions, media, media_ref=media_ref
-                )
+                frame = MediaRefGrampsFrame(grstate, groptions, obj, media_ref)
                 self.add_frame(frame)
         self.show_all()
 

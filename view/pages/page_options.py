@@ -1046,6 +1046,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.group.event.event-format", 1),
     ("options.group.event.image-mode", 3),
+    ("options.group.event.reference-mode", 1),
     ("options.group.event.attributes-field-show-labels", False),
     ("options.group.event.attributes-field-1", "None"),
     ("options.group.event.attributes-field-2", "None"),
@@ -1104,6 +1105,7 @@ CONFIGSETTINGS = (
     ("options.group.media.group-by-type", False),
     ("options.group.media.filter-non-photos", False),
     ("options.group.media.image-mode", 2),
+    ("options.group.media.reference-mode", 1),
     ("options.group.media.show-date", True),
     ("options.group.media.show-path", True),
     ("options.group.media.show-mime-type", True),

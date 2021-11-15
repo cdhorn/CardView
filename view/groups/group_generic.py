@@ -38,7 +38,7 @@ from ..common.common_classes import GrampsOptions
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_couple import CoupleGrampsFrame
 from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_media import MediaGrampsFrame
 from ..frames.frame_note import NoteGrampsFrame
 from ..frames.frame_person import PersonGrampsFrame
 from ..frames.frame_place import PlaceGrampsFrame
@@ -71,9 +71,10 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
             tuple_list = [(frame_obj_type, x) for x in frame_obj_handles]
 
         groups = {
+            "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "age": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "attributes": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
 
@@ -104,7 +105,7 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
             elif obj_type == "Place":
                 frame = PlaceGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Media":
-                frame = ImageGrampsFrame(grstate, ggroptions, obj)
+                frame = MediaGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Note":
                 frame = NoteGrampsFrame(grstate, ggroptions, obj)
             elif obj_type == "Source":

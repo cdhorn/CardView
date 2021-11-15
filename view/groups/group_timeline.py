@@ -38,7 +38,7 @@ from ..common.common_utils import get_gramps_object_type, get_key_person_events
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event_ref import EventRefGrampsFrame
-from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_media import MediaGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
 from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
@@ -145,11 +145,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
             elif timeline_obj_type == "media":
                 (media, media_ref) = item
-                self.add_frame(
-                    ImageGrampsFrame(
-                        grstate, groptions, media, media_ref=media_ref
-                    )
-                )
+                self.add_frame(MediaGrampsFrame(grstate, groptions, media))
             elif timeline_obj_type == "address":
                 self.add_frame(
                     AddressGrampsFrame(

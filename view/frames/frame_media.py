@@ -19,7 +19,7 @@
 #
 
 """
-ImageGrampsFrame
+MediaGrampsFrame
 """
 
 # ------------------------------------------------------------------------
@@ -44,29 +44,25 @@ from gramps.gen.db import DbTxn
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
 from ..common.common_utils import TextLink, menu_item
-from .frame_primary import PrimaryGrampsFrame
+from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# ImageGrampsFrame Class
+# MediaGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class ImageGrampsFrame(PrimaryGrampsFrame):
+class MediaGrampsFrame(ReferenceGrampsFrame):
     """
-    The ImageGrampsFrame exposes the image and some facts about Media.
+    The MediaGrampsFrame exposes the image and some facts about Media.
     """
 
-    def __init__(self, grstate, groptions, media, media_ref=None):
-        PrimaryGrampsFrame.__init__(
-            self,
-            grstate,
-            groptions,
-            media,
+    def __init__(self, grstate, groptions, media, reference_tuple=None):
+        ReferenceGrampsFrame.__init__(
+            self, grstate, groptions, media, reference_tuple=reference_tuple
         )
-        self.reference = GrampsObject(media_ref)
 
         title = TextLink(
             media.get_description(),
@@ -115,7 +111,7 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
             self.widgets["body"].pack_start(
                 self.widgets["age"], expand=False, fill=False, padding=0
             )
-        hcontent = Gtk.HBox(hexpand=True)
+        hcontent = Gtk.HBox(hexpand=False)
         self.widgets["body"].pack_start(
             hcontent, expand=True, fill=True, padding=0
         )
@@ -125,7 +121,9 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                 self.widgets["image"], expand=False, fill=False, padding=0
             )
 
-        fact_block = Gtk.VBox()
+        fact_block = Gtk.VBox(halign=Gtk.Align.START, hexpand=True)
+        if "data" in self.groptions.size_groups:
+            self.groptions.size_groups["data"].add_widget(fact_block)
         fact_block.pack_start(
             self.widgets["title"], expand=True, fill=True, padding=0
         )
@@ -134,30 +132,34 @@ class ImageGrampsFrame(PrimaryGrampsFrame):
                 self.widgets["facts"], expand=True, fill=True, padding=0
             )
         else:
-            ncontent = Gtk.HBox(hexpand=False)
+            ncontent = Gtk.HBox(hexpand=True)
             ncontent.pack_start(
                 self.widgets["image"], expand=False, fill=False, padding=0
             )
             ncontent.pack_start(
-                self.widgets["facts"], expand=False, fill=False, padding=0
+                self.widgets["facts"], expand=True, fill=True, padding=0
             )
-            fact_block.pack_start(
-                ncontent, expand=False, fill=False, padding=0
-            )
+            fact_block.pack_start(ncontent, expand=True, fill=True, padding=0)
 
         fact_block.pack_start(
-            self.widgets["icons"], expand=True, fill=False, padding=0
+            self.widgets["icons"], expand=True, fill=True, padding=0
         )
         hcontent.pack_start(fact_block, expand=True, fill=True, padding=0)
 
-        attribute_block = Gtk.VBox()
+        attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=False)
+        if "attributes" in self.groptions.size_groups:
+            self.groptions.size_groups["attributes"].add_widget(
+                attribute_block
+            )
         attribute_block.pack_start(
-            self.widgets["id"], expand=False, fill=True, padding=0
+            self.widgets["id"], expand=False, fill=False, padding=0
         )
         attribute_block.pack_start(
-            self.widgets["attributes"], expand=False, fill=True, padding=0
+            self.widgets["attributes"], expand=False, fill=False, padding=0
         )
-        hcontent.pack_start(attribute_block, expand=True, fill=True, padding=0)
+        hcontent.pack_start(
+            attribute_block, expand=False, fill=False, padding=0
+        )
 
     def add_custom_actions(self, action_menu):
         """

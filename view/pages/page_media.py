@@ -41,7 +41,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions, GrampsState
-from ..frames.frame_image import ImageGrampsFrame
+from ..frames.frame_media import MediaGrampsFrame
 from .page_base import BaseProfilePage
 
 _ = glocale.translation.sgettext
@@ -80,7 +80,7 @@ class MediaProfilePage(BaseProfilePage):
         media = context.primary_obj.obj
 
         groptions = GrampsOptions("options.active.media")
-        self.active_profile = ImageGrampsFrame(self.grstate, groptions, media)
+        self.active_profile = MediaGrampsFrame(self.grstate, groptions, media)
 
         groups = self.config.get("options.page.media.layout.groups").split(",")
         obj_groups = self.get_object_groups(
