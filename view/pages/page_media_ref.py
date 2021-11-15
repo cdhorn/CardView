@@ -25,8 +25,15 @@
 #
 
 """
-Tag Profile Page
+MediaRef Profile Page
 """
+
+# ------------------------------------------------------------------------
+#
+# GTK modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
 
 # -------------------------------------------------------------------------
 #
@@ -41,18 +48,17 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_const import GROUP_LABELS
-from ..frames.frame_tag import TagGrampsFrame
-from ..groups.group_utils import get_references_group
+from ..frames.frame_media_ref import MediaRefGrampsFrame
 from .page_base import BaseProfilePage
+from .page_const import FRAME_MAP
 
 _ = glocale.translation.sgettext
 
 
-class TagProfilePage(BaseProfilePage):
+class MediaRefProfilePage(BaseProfilePage):
     """
-    Provides the tag profile page view with information about the tagged
-    objects.
+    Provides the media reference page view with information about the media
+    reference itself.
     """
 
     def __init__(self, dbstate, uistate, config, callbacks):
@@ -62,62 +68,52 @@ class TagProfilePage(BaseProfilePage):
     @property
     def obj_type(self):
         """
-        Primary object type underpinning the page.
+        Primary object type underpinning page.
         """
-        return "Person"
+        return "Media"
 
     @property
     def page_type(self):
         """
         Page type.
         """
-        return "Tag"
+        return "MediaRef"
 
     def render_page(self, header, vbox, context):
         """
-        Render the page contents.
+        Render page contents.
         """
         if not context:
             return
 
-        tag = context.primary_obj.obj
+        primary = context.primary_obj.obj
+        primary_type = context.primary_obj.obj_type
+        (option, frame) = FRAME_MAP[primary_type]
+        groptions = GrampsOptions(option)
+        primary_frame = frame(self.grstate, groptions, primary)
 
-        groptions = GrampsOptions("options.active.tag")
-        self.active_profile = TagGrampsFrame(self.grstate, groptions, tag)
+        media_ref = context.reference_obj.obj
 
-        object_list = {}
-        for (
-            obj_type,
-            obj_handle,
-        ) in self.grstate.dbstate.db.find_backlink_handles(tag.get_handle()):
-            if obj_type not in object_list:
-                object_list.update({obj_type: []})
-            object_list[obj_type].append((obj_type, obj_handle))
+        groptions = GrampsOptions("options.active.media")
+        groptions.set_ref_mode(4)
+        self.active_profile = MediaRefGrampsFrame(
+            self.grstate, groptions, primary, media_ref
+        )
 
-        obj_groups = {}
-        if object_list:
-            for key in object_list:
-                groptions = GrampsOptions(
-                    "options.group.{}".format(key.lower())
-                )
-                obj_groups.update(
-                    {
-                        key.lower(): get_references_group(
-                            self.grstate,
-                            None,
-                            groptions=groptions,
-                            title_plural=GROUP_LABELS[key.lower()],
-                            title_single=GROUP_LABELS[key.lower()],
-                            obj_list=object_list[key],
-                        )
-                    }
-                )
+        vheader = Gtk.VBox(spacing=3)
+        vheader.pack_start(primary_frame, False, False, 0)
+        vheader.pack_start(self.active_profile, False, False, 0)
+
+        groups = self.config.get("options.page.mediaref.layout.groups").split(
+            ","
+        )
+        obj_groups = self.get_object_groups(groups, media_ref)
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.global.pin-header"):
-            header.pack_start(self.active_profile, False, False, 0)
+            header.pack_start(vheader, False, False, 0)
             header.show_all()
         else:
-            vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(vheader, False, False, 0)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()

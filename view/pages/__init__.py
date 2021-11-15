@@ -28,8 +28,10 @@ __all__ = [
     "page_child_ref",
     "page_citation",
     "page_event",
+    "page_event_ref",
     "page_family",
     "page_media",
+    "page_media_ref",
     "page_name",
     "page_note",
     "page_options",
@@ -38,6 +40,7 @@ __all__ = [
     "page_person_ref",
     "page_place",
     "page_repository",
+    "page_repository_ref",
     "page_source",
     "page_tag",
 ]

@@ -491,6 +491,24 @@ CONFIGSETTINGS = (
     ("options.page.media.layout.reference.stacked", False),
     ("options.page.media.layout.reference.hideable", False),
     ######################################################################
+    ## MediaRef Page Options
+    ######################################################################
+    ("options.page.mediaref.layout.tabbed", False),
+    ("options.page.mediaref.layout.scrolled", False),
+    ("options.page.mediaref.layout.groups", "attribute,citation,note,url"),
+    ("options.page.mediaref.layout.attribute.visible", True),
+    ("options.page.mediaref.layout.attribute.stacked", False),
+    ("options.page.mediaref.layout.attribute.hideable", False),
+    ("options.page.mediaref.layout.citation.visible", True),
+    ("options.page.mediaref.layout.citation.stacked", False),
+    ("options.page.mediaref.layout.citation.hideable", False),
+    ("options.page.mediaref.layout.note.visible", True),
+    ("options.page.mediaref.layout.note.stacked", False),
+    ("options.page.mediaref.layout.note.hideable", False),
+    ("options.page.mediaref.layout.url.visible", True),
+    ("options.page.mediaref.layout.url.stacked", False),
+    ("options.page.mediaref.layout.url.hideable", False),
+    ######################################################################
     ## Place Page Options
     ######################################################################
     ("options.page.place.layout.tabbed", False),

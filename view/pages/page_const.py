@@ -108,6 +108,7 @@ PAGES = [
     ("Family", _("Family")),
     ("LdsOrd", _("LdsOrd")),
     ("Media", _("Media")),
+    ("MediaRef", _("MediaRef")),
     ("Name", _("Name")),
     ("Note", _("Note")),
     ("Person", _("Person")),

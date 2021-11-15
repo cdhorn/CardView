@@ -67,6 +67,7 @@ from view.pages.page_event import EventProfilePage
 from view.pages.page_event_ref import EventRefProfilePage
 from view.pages.page_family import FamilyProfilePage
 from view.pages.page_media import MediaProfilePage
+from view.pages.page_media_ref import MediaRefProfilePage
 from view.pages.page_name import NameProfilePage
 from view.pages.page_note import NoteProfilePage
 from view.pages.page_options import CONFIGSETTINGS
@@ -211,6 +212,7 @@ class LinkedView(ExtendedNavigationView):
             FamilyProfilePage,
             LDSOrdinanceProfilePage,
             MediaProfilePage,
+            MediaRefProfilePage,
             NameProfilePage,
             NoteProfilePage,
             PersonProfilePage,
