@@ -39,6 +39,7 @@ from gramps.gui.editors import EditPersonRef
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_person_ref import PersonRefGrampsFrame
+from ..frames.frame_person_backref import PersonBackRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -73,6 +74,22 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
                 person_ref,
             )
             self.add_frame(frame)
+
+        obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+        if obj_list:
+            for item in obj_list:
+                if item[0] == "Person":
+                    person = grstate.fetch("Person", item[1])
+                    for person_ref in person.get_person_ref_list():
+                        if person_ref.ref == obj.get_handle():
+                            frame = PersonBackRefGrampsFrame(
+                                grstate,
+                                groptions,
+                                person,
+                                person_ref,
+                            )
+                            self.add_frame(frame)
+                            break
         self.show_all()
 
     def save_reordered_list(self):

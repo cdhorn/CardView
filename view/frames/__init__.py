@@ -38,6 +38,7 @@ __all__ = [
     "frame_ordinance",
     "frame_person",
     "frame_person_ref",
+    "frame_person_backref",
     "frame_place",
     "frame_repository",
     "frame_repository_ref",
