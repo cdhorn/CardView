@@ -174,25 +174,27 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         (
             primary_obj_type,
             primary_obj,
-            dummy_primary_obj_event_ref,
+            primary_obj_event_ref,
             primary_obj_name,
         ) = primary_participant
 
+        relation = self.groptions.relation
+        if not self.base or not self.reference or not relation:
+            role = str(primary_obj_event_ref.get_role())
+            title = event_type
+            return title, role
+
         role = ""
         title = ""
-        if (
-            self.reference
-            and self.reference.obj_type == "Person"
-            and primary_obj_type == "Person"
-        ):
-            if self.reference.obj.get_handle() == primary_obj.get_handle():
+        if self.base.obj_type == "Person":
+            if self.base.obj.get_handle() == relation.get_handle():
                 title = event_type
-                role = "Primary"
+                role = _("Primary")
             else:
                 relationship = get_relation(
                     self.grstate.dbstate.db,
-                    primary_obj,
-                    self.reference.obj,
+                    relation,
+                    self.base.obj,
                 )
                 if relationship:
                     title = "{} {} {}".format(
@@ -200,8 +202,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     )
                     inverse_relationship = get_relation(
                         self.grstate.dbstate.db,
-                        self.reference.obj,
-                        primary_obj,
+                        self.base.obj,
+                        relation,
                     )
                     role = "{}: {}".format(
                         _("Implicit Family"),
@@ -209,16 +211,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     )
         if not title:
             title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
-            if self.reference and self.reference.obj_type == "Person":
-                for (
-                    dummy_var1,
-                    obj,
-                    obj_event_ref,
-                    dummy_var2,
-                ) in self.participants:
-                    if self.reference.obj.get_handle() == obj.get_handle():
-                        role = str(obj_event_ref.get_role())
-                        break
+            role = str(self.reference.obj.get_role())
         return title, role
 
     def _load_participants(self):

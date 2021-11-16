@@ -33,6 +33,7 @@ from .group_utils import (
     get_attributes_group,
     get_children_group,
     get_citations_group,
+    get_events_group,
     get_media_group,
     get_names_group,
     get_notes_group,
@@ -51,6 +52,7 @@ OBJECT_GROUPS = {
     "attribute": get_attributes_group,
     "child": get_children_group,
     "citation": get_citations_group,
+    "event": get_events_group,
     "media": get_media_group,
     "name": get_names_group,
     "note": get_notes_group,
@@ -60,6 +62,5 @@ OBJECT_GROUPS = {
     "repository": get_repositories_group,
     "spouse": get_spouses_group,
     "timeline": get_timeline_group,
-    "event": get_timeline_group,
     "url": get_urls_group,
 }

@@ -42,6 +42,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
+from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_addresses import AddressesGrampsFrameGroup
 from .group_associations import AssociationsGrampsFrameGroup
@@ -49,6 +50,7 @@ from .group_attributes import AttributesGrampsFrameGroup
 from .group_children import ChildrenGrampsFrameGroup
 from .group_citations import CitationsGrampsFrameGroup
 from .group_classes import GrampsFrameGroupExpander
+from .group_events import EventsGrampsFrameGroup
 from .group_generic import GenericGrampsFrameGroup
 from .group_media import MediaGrampsFrameGroup
 from .group_names import NamesGrampsFrameGroup
@@ -584,3 +586,58 @@ def get_ordinances_group(
         expanded=True,
         raw=raw,
     )
+
+
+def get_events_group(grstate, obj, raw=False, age_base=None):
+    """
+    Get the group for all the events related to a person or family
+    """
+    obj_type = get_gramps_object_type(obj)
+    group_set = Gtk.VBox(spacing=6)
+
+    if obj_type == "Person":
+        group = prepare_event_group(grstate, obj, obj_type)
+        if group:
+            group_set.add(group)
+
+        for handle in obj.get_family_handle_list():
+            family = grstate.fetch("Family", handle)
+            group = prepare_event_group(grstate, family, "Family")
+            if group:
+                group_set.add(group)
+    elif obj_type == "Family":
+        group = prepare_event_group(grstate, obj, obj_type)
+        if group:
+            group_set.add(group)
+    return group_set
+
+
+def prepare_event_group(grstate, obj, obj_type):
+    """
+    Prepare and return an event group for use in a group set.
+    """
+    if not obj.get_event_ref_list():
+        return None
+
+    groptions = GrampsOptions("options.group.event")
+    groptions.set_context("event")
+    group = EventsGrampsFrameGroup(grstate, groptions, obj)
+    elements = Gtk.VBox(spacing=6)
+    elements.add(group)
+
+    if obj_type == "Person":
+        event_type = _("Personal")
+    else:
+        event_type = _("Family")
+
+    if len(group) == 1:
+        title = "1 {} {}".format(event_type, _("Event"))
+    else:
+        title = "{} {} {}".format(len(group), event_type, _("Events"))
+
+    header = GrampsFrameGroupExpander(
+        grstate, groptions, expanded=True, use_markup=True
+    )
+    header.set_label("<small><b>{}</b></small>".format(title))
+    header.add(elements)
+    return header

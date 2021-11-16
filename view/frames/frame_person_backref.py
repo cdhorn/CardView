@@ -98,7 +98,7 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
             vbox = Gtk.VBox()
             vbox.pack_start(
                 self.make_label(reference_type, left=left), False, False, 0
-            )            
+            )
             vbox.pack_start(
                 self.make_label(
                     "{}: {}".format(_("Association"), association)

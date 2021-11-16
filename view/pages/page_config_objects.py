@@ -646,14 +646,76 @@ def build_event_grid(configdialog, grstate, space):
         "{}.event.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    configdialog.add_text(grid, _("Attributes Group"), 11, start=1, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Reference display mode"),
+        4,
+        "{}.event.reference-mode".format(space),
+        REF_DISPLAY_MODES,
+    )
+    configdialog.add_text(grid, _("Display Attributes"), 12, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Show role always not just secondary events"),
+        13,
+        "{}.event.show-role-always".format(space),
+        tooltip=_(
+            "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show description"),
+        14,
+        "{}.event.show-description".format(space),
+        tooltip=_(
+            "Enabling this option will show the event description if one is available."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show registered participants if more than one person"),
+        15,
+        "{}.event.show-participants".format(space),
+        tooltip=_(
+            "Enabling this option will show the other participants in shared events."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show source count"),
+        16,
+        "{}.event.show-source-count".format(space),
+        tooltip=_(
+            "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show citation count"),
+        17,
+        "{}.event.show-citation-count".format(space),
+        tooltip=_(
+            "Enabling this option will include a count of the number of citations in support of the information about the event."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show best confidence rating"),
+        18,
+        "{}.event.show-best-confidence".format(space),
+        tooltip=_(
+            "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
+        ),
+    )
+    configdialog.add_text(grid, _("Attributes Group"), 31, start=1, bold=True)
     config_facts_fields(
         configdialog,
         grstate,
         space,
         "event",
         grid,
-        16,
+        32,
         start_col=1,
         number=4,
         mode="fact",

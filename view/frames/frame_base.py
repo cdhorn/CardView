@@ -102,6 +102,7 @@ class GrampsFrame(GrampsFrameView):
             self.base = GrampsObject(base_obj)
             self.reference = GrampsObject(reference_obj)
         else:
+            self.base = None
             self.reference = None
         GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)

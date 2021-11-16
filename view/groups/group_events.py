@@ -39,7 +39,7 @@ from gramps.gui.editors import EditEventRef
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_gramps_object_type
-from ..frames.frame_event import EventGrampsFrame
+from ..frames.frame_event_ref import EventRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -47,12 +47,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# EventGrampsFrameGroup class
+# EventsGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class EventGrampsFrameGroup(GrampsFrameGroupList):
+class EventsGrampsFrameGroup(GrampsFrameGroupList):
     """
-    The EventGrampsFrameGroup class provides a container for managing
+    The EventsGrampsFrameGroup class provides a container for managing
     the events associated with an object like a person or family. It only
     manages the list directly associated with the object, unlike a timeline
     that will look for all events associated with an object.
@@ -71,7 +71,7 @@ class EventGrampsFrameGroup(GrampsFrameGroupList):
         groptions.set_relation(obj)
         for event_ref in obj.get_event_ref_list():
             event = self.grstate.fetch("Event", event_ref.ref)
-            frame = EventGrampsFrame(
+            frame = EventRefGrampsFrame(
                 grstate,
                 groptions,
                 event,

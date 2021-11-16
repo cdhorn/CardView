@@ -28,8 +28,10 @@ EventRefGrampsFrame.
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.editors import EditEventRef
+from gramps.gen.utils.db import family_name
 
 # ------------------------------------------------------------------------
 #
@@ -55,11 +57,25 @@ class EventRefGrampsFrame(EventGrampsFrame):
 
     def __init__(self, grstate, groptions, obj, event_ref):
         event = grstate.fetch("Event", event_ref.ref)
+        reference_tuple = (obj, event_ref)
         EventGrampsFrame.__init__(
-            self, grstate, groptions, event, reference_tuple=(obj, event_ref)
+            self, grstate, groptions, event, reference_tuple=reference_tuple
         )
         if not groptions.ref_mode:
             return
+
+        if groptions.relation:
+            if groptions.relation.get_handle() != self.base.obj.get_handle():
+                name = None
+                if self.base.obj_type == "Person":
+                    name = name_displayer.display(self.base.obj)
+                elif self.base.obj_type == "Family":
+                    name = family_name(self.base.obj, grstate.dbstate.db)
+                if name:
+                    text = "[{}]".format(name)
+                    self.ref_widgets["body"].pack_start(
+                        self.make_label(text), False, False, 0
+                    )
 
         self.ref_widgets["body"].pack_start(
             self.make_label(str(event_ref.get_role())), False, False, 0
