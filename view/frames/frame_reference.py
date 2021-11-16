@@ -252,8 +252,6 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         Save the edited or modified object.
         """
-        print("save_ref: {} {}".format(obj_ref, dummy_var1))
-
         if not obj_ref:
             return
         message = "{} {} {} {} {} {}".format(

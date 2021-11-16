@@ -74,7 +74,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
             frame = EventRefGrampsFrame(
                 grstate,
                 groptions,
-                event,
+                obj,
                 event_ref,
             )
             self.add_frame(frame)
@@ -115,7 +115,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         event_ref = EventRef()
         event_ref.ref = handle
         event = self.grstate.fetch("Event", handle)
-        callback = lambda x: self.save_new_event(x, insert_row)
+        callback = lambda x, y: self.save_new_event(x, insert_row)
         try:
             EditEventRef(
                 self.grstate.dbstate,
