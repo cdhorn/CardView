@@ -49,6 +49,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsObject
 from ..common.common_utils import (
     TextLink,
     get_confidence,
@@ -348,19 +349,15 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         Launch the desired editor based on object type.
         """
-        if self.event_person.handle == self.reference_person.handle:
-            if self.event_ref.get_role().is_family():
-                callback = self.update_family_event
-            else:
-                callback = self.update_person_event
+        if self.base and self.reference:
             try:
                 EditEventRef(
                     self.grstate.dbstate,
                     self.grstate.uistate,
                     [],
                     self.event,
-                    self.event_ref,
-                    callback,
+                    self.reference,
+                    self.save_ref,
                 )
             except WindowActiveError:
                 pass
@@ -374,38 +371,6 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             )
         except WindowActiveError:
             pass
-
-    def update_person_event(self, event_ref, *_dummy_var1):
-        """
-        Commit person to save an event reference update.
-        """
-        event = self.fetch("Event", event_ref.ref)
-        action = "{} {} {} {} {} {}".format(
-            _("Update"),
-            _("Person"),
-            self.event_person.get_gramps_id(),
-            _("Event"),
-            event.get_gramps_id(),
-            _("Reference"),
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.grstate.dbstate.db.commit_person(self.event_person, trans)
-
-    def update_family_event(self, event_ref, *_dummy_var1):
-        """
-        Commit family to save an event reference update.
-        """
-        event = self.fetch("Event", event_ref.ref)
-        action = "{} {} {} {} {} {}".format(
-            _("Update"),
-            _("Family"),
-            self.event_family.get_gramps_id(),
-            _("Event"),
-            event.get_gramps_id(),
-            _("Reference"),
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.grstate.dbstate.db.commit_family(self.event_family, trans)
 
     def _participants_option(self):
         """
@@ -490,56 +455,59 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 removesubmenu.destroy()
         return submenu_item("gramps-person", _("Participants"), menu)
 
-    def edit_participant(self, _dummy_obj, person, event_ref):
+    def edit_participant(self, _dummy_obj, participant, event_ref):
         """
         Edit the event participant refererence.
         """
-        if self.event_ref.get_role().is_family():
-            callback = self.update_family_event
-        else:
-            callback = self.update_participant_event
+        callback = lambda x, y: self.save_participant(x, participant)
         try:
-            self.event_participant = person
             EditEventRef(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                self.event,
+                self.primary.obj,
                 event_ref,
                 callback,
             )
         except WindowActiveError:
             pass
 
-    def update_participant_event(self, event_ref, event):
+    def save_participant(self, event_ref, obj):
         """
-        Save the event participant to save any update.
+        Save the event participant.
         """
-        if self.event_participant:
-            event = self.fetch("Event", event_ref.ref)
-            action = "{} {} {} {} {}".format(
-                _("Update Participant"),
-                self.event_family.get_gramps_id(),
-                _("Event"),
-                event.get_gramps_id(),
-                _("Reference"),
+        if event_ref and obj:
+            print("save_participant")
+            participant = GrampsObject(obj)
+            message = "{} {} {} {} {} {}".format(
+                _("Updated"),
+                _("EventRef"),
+                self.primary.obj.get_gramps_id(),
+                _("for"),
+                participant.obj_lang,
+                participant.obj.get_gramps_id(),
             )
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.grstate.dbstate.db.commit_person(
-                    self.event_participant, trans
-                )
+            participant.obj.add_event_ref(event_ref)
+            participant.commit(self.grstate, message)
 
     def add_new_participant(self, _dummy_obj):
         """
         Add a new person as participant to an event.
         """
-        person = Person()
+        participant = Person()
         event_ref = EventRef()
-        event_ref.ref = self.event.handle
+        event_ref.ref = self.primary.obj.get_handle()
         event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
-        person.add_event_ref(event_ref)
+        participant.add_event_ref(event_ref)
+        callback = lambda x: self.edit_participant(x, participant, event_ref)
         try:
-            EditPerson(self.grstate.dbstate, self.grstate.uistate, [], person)
+            EditPerson(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                participant,
+                callback=callback,
+            )
         except WindowActiveError:
             pass
 
@@ -549,36 +517,31 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         select_person = SelectorFactory("Person")
         dialog = select_person(self.grstate.dbstate, self.grstate.uistate)
-        person = dialog.run()
-        if person:
+        participant = dialog.run()
+        if participant:
             event_ref = EventRef()
-            event_ref.ref = self.event.handle
+            event_ref.ref = self.primary.obj.get_handle()
             event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
-            person.add_event_ref(event_ref)
-            if self.event_ref.get_role().is_primary():
-                callback = self.update_participant_event
-            elif self.event_ref.get_role().is_family():
-                callback = self.update_family_event
-            else:
-                callback = self.update_participant_event
-            self.event_participant = person
+            participant.add_event_ref(event_ref)
+            callback = lambda x, y: self.save_participant(x, participant)
             try:
                 EditEventRef(
                     self.grstate.dbstate,
                     self.grstate.uistate,
                     [],
-                    self.event,
+                    self.primary.obj,
                     event_ref,
                     callback,
                 )
             except WindowActiveError:
                 pass
 
-    def remove_participant(self, _dummy_obj, person, event_ref):
+    def remove_participant(self, _dummy_obj, obj, event_ref):
         """
         Remove a participant from an event.
         """
-        name = name_displayer.display(person)
+        participant = GrampsObject(obj)
+        name = name_displayer.display(participant.obj)
         role = str(event_ref.get_role())
         text = "{}: {}".format(role, name)
         prefix = _(
@@ -594,18 +557,17 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
         ):
             new_list = []
-            for ref in person.get_event_ref_list():
+            for ref in participant.obj.get_event_ref_list():
                 if not event_ref.is_equal(ref):
                     new_list.append(ref)
-            event = self.fetch("Event", event_ref.ref)
-            action = "{} {} {} {} {} {}".format(
-                _("Remove"),
-                _("Person"),
-                person.get_gramps_id(),
+
+            message = "{} {} {} {} {} {}".format(
+                _("Removed"),
+                participant.obj_lang,
+                participant.obj.get_gramps_id(),
+                _("from"),
                 _("Event"),
-                event.get_gramps_id(),
-                _("Reference"),
+                self.primary.obj.get_gramps_id(),
             )
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                person.set_event_ref_list(new_list)
-                self.grstate.dbstate.db.commit_person(person, trans)
+            participant.obj.set_event_ref_list(new_list)
+            participant.commit(self.grstate, message)

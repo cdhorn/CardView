@@ -703,10 +703,6 @@ class LinkedView(ExtendedNavigationView):
         Change the page view to load a new active object.
         """
         print("change_object start: {}".format(obj_tuple))
-        if not self.dirty:
-            print("change_object not dirty, end")
-            return False
-
         if not obj_tuple:
             obj_tuple = self._get_last()
             if not obj_tuple:
