@@ -248,7 +248,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             text = _("Media")
         return "{} {}".format(text, _("reference"))
 
-    def save_ref(self, obj_ref, dummy_var1=None):
+    def save_ref(self, obj_ref, _dummy_var1=None):
         """
         Save the edited or modified object.
         """

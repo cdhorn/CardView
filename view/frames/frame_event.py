@@ -35,7 +35,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
@@ -88,7 +87,6 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         groptions,
         event,
         reference_tuple=None,
-        groups=None,
     ):
         ReferenceGrampsFrame.__init__(
             self, grstate, groptions, event, reference_tuple=reference_tuple
@@ -173,8 +171,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         Calculate event title and role if there is a reference person.
         """
         (
-            primary_obj_type,
-            primary_obj,
+            dummy_primary_obj_type,
+            dummy_primary_obj,
             primary_obj_event_ref,
             primary_obj_name,
         ) = primary_participant

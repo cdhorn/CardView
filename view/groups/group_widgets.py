@@ -34,7 +34,6 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.managedwindow import ManagedWindow
 

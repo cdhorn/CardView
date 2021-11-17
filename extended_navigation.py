@@ -685,7 +685,7 @@ class ExtendedHistory(Callback):
         Pushes the page reference on the history stack and object on the
         mru stack.
         """
-        print("history.push start: {}".format(item))
+        print("history.push: {}".format(item))
         self.prune()
         if len(item) == 2:
             full_item = (item[0], item[1], None, None, None, None)

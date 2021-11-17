@@ -50,11 +50,7 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_utils import (
-    TextLink,
-    get_gramps_object_type,
-    get_person_color_css,
-)
+from ..common.common_utils import TextLink, get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext

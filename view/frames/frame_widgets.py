@@ -31,7 +31,6 @@ Widgets supporting various sections of the frame.
 # Python modules
 #
 # ------------------------------------------------------------------------
-import pickle
 from html import escape
 
 # ------------------------------------------------------------------------

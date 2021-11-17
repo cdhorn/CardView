@@ -702,18 +702,15 @@ class LinkedView(ExtendedNavigationView):
         """
         Change the page view to load a new active object.
         """
-        print("change_object start: {}".format(obj_tuple))
         if not obj_tuple:
             obj_tuple = self._get_last()
             if not obj_tuple:
                 return self._clear_change()
             self.history.push(tuple(obj_tuple))
             self.initial_object_loaded = True
-            print("change_object initial_object_loaded, end")
-            return False
+            return
 
         if self.in_change_object:
-            print("change_object already running, end")
             return
         self.in_change_object = True
 
@@ -731,8 +728,7 @@ class LinkedView(ExtendedNavigationView):
                 dbid=dbid,
             )
         self.in_change_object = False
-        print("change_object end")
-        return True
+        return
 
     def render_page(self, page_context):
         """

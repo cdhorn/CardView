@@ -42,7 +42,6 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsObject
 from ..common.common_utils import TextLink, menu_item
 from .frame_reference import ReferenceGrampsFrame
 
