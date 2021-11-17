@@ -29,6 +29,9 @@ MediaGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import MediaRef
+from gramps.gui.editors import EditMediaRef
 
 # ------------------------------------------------------------------------
 #
@@ -55,7 +58,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, enable_drop=True
         )
         self.obj = obj
         self.obj_type = get_gramps_object_type(obj)
@@ -71,7 +74,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         if media_list:
             if self.get_option("sort-by-date"):
                 media_list.sort(
-                    key=lambda x: x[0].get_date_object().get_sort_value()
+                    key=lambda x: x[1].get_date_object().get_sort_value()
                 )
 
             if self.get_option("group-by-type"):
@@ -103,42 +106,99 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                 media_list = new_list
 
             for (
-                media,
                 media_ref,
-                media_type,
+                media,
+                dummy_media_type,
             ) in media_list:
-                frame = MediaRefGrampsFrame(grstate, groptions, obj, media_ref)
+                frame = MediaRefGrampsFrame(
+                    grstate, groptions, self.obj, media_ref
+                )
                 self.add_frame(frame)
         self.show_all()
 
-    # Revisit probably needs to be media ref not media
-    def save_new_object(self, handle, insert_row):
+    def save_reordered_list(self):
         """
-        Add new media to the list.
+        Save a reordered list of media items.
         """
-        media = self.fetch("Media", handle)
-        action = "{} {} {} {}".format(
-            _("Added Media"),
-            media.get_gramps_id(),
-            _("to"),
+        new_list = []
+        for frame in self.row_frames:
+            for ref in self.obj.get_media_list():
+                if ref.ref == frame.primary.obj.get_handle():
+                    new_list.append(ref)
+                    break
+        action = "{} {} {} {} {}".format(
+            _("Reordered"),
+            _("Media"),
+            _("for"),
+            self.obj_type,
             self.obj.get_gramps_id(),
         )
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.obj_type
         )
         with DbTxn(action, self.grstate.dbstate.db) as trans:
-            if self.obj.add_media(handle):
-                commit_method(self.obj, trans)
+            self.obj.set_media_list(new_list)
+            commit_method(self.obj, trans)
+
+    def save_new_object(self, handle, insert_row):
+        """
+        Add new media to the list.
+        """
+        for frame in self.row_frames:
+            if frame.primary.obj.get_handle() == handle:
+                return
+
+        media_ref = MediaRef()
+        media_ref.ref = handle
+        media = self.grstate.fetch("Media", handle)
+        callback = lambda x, y: self.save_new_media(x, insert_row)
+        try:
+            EditMediaRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                media,
+                media_ref,
+                callback,
+            )
+        except WindowActiveError:
+            pass
+
+    def save_new_media(self, media_ref, insert_row):
+        """
+        Save the new media reference.
+        """
+        new_list = []
+        for frame in self.row_frames:
+            for ref in self.obj.get_media_list():
+                if ref.ref == frame.primary.obj.get_handle():
+                    new_list.append(ref)
+        new_list.insert(insert_row, media_ref)
+        media = self.fetch("Media", media_ref.ref)
+        message = "{} {} {} {} {} {}".format(
+            _("Added"),
+            _("Media"),
+            media.get_gramps_id(),
+            _("to"),
+            self.obj_type,
+            self.obj.get_gramps_id(),
+        )
+        commit_method = self.grstate.dbstate.db.method(
+            "commit_%s", self.obj_type
+        )
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
+            self.obj.set_media_list(new_list)
+            commit_method(self.obj, trans)
 
     def collect_media(self):
         """
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(media_list, self.obj, self.obj_type)
+        self.extract_media(media_list, self.obj)
         return media_list
 
-    def extract_media(self, media_list, obj, obj_type):
+    def extract_media(self, media_list, obj):
         """
         Helper to extract a set of media references from an object.
         """
@@ -151,4 +211,4 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
             for attribute in media.get_attribute_list():
                 if attribute.get_type().xml_str() == "Media-Type":
                     media_type = attribute.get_value()
-            media_list.append((media, media_ref, media_type))
+            media_list.append((media_ref, media, media_type))
