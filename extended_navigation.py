@@ -48,11 +48,14 @@ from gi.repository import Gdk, Gtk
 # ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.constfunc import mod_key
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.callback import Callback
 from gramps.gen.utils.db import navigation_label
+from gramps.gui.dialog import WarningDialog
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.utils import match_primary_mask
 from gramps.gui.views.pageview import PageView
+
 
 _ = glocale.translation.sgettext
 
@@ -135,11 +138,10 @@ class ExtendedNavigationView(PageView):
 
     def navigation_type(self):
         """
-        Indictates the navigation type. Navigation type can be the string
-        name of any of the primary Objects. A History object will be
-        created for it, see DisplayState.History
+        Should be overridden in derived classes. Indictates the navigation
+        type, a string representing any of the primary Gramps objects.
         """
-        return None
+        return ""
 
     def define_actions(self):
         """
@@ -301,8 +303,6 @@ class ExtendedNavigationView(PageView):
         """
         Add a bookmark to the list.
         """
-        from gramps.gen.display.name import displayer as name_displayer
-
         active_handle = self.uistate.get_active("Person")
         active_person = self.dbstate.db.get_person_from_handle(active_handle)
         if active_person:
@@ -312,8 +312,6 @@ class ExtendedNavigationView(PageView):
                 self.dbstate, _("%s has been bookmarked") % name
             )
         else:
-            from gramps.gui.dialog import WarningDialog
-
             WarningDialog(
                 _("Could Not Set a Bookmark"),
                 _(
@@ -386,8 +384,6 @@ class ExtendedNavigationView(PageView):
         if defperson:
             self.change_active(("Person", defperson.get_handle()))
         else:
-            from ..dialog import WarningDialog
-
             WarningDialog(
                 _("No Home Person"),
                 _(
@@ -578,7 +574,7 @@ class ExtendedNavigationView(PageView):
                 dummy_secondary_obj_type,
                 dummy_secondary_obj_hash,
             ) = handles[0]
-            return self.copy_to_clipboard(
+            self.copy_to_clipboard(
                 primary_obj_type, [primary_obj_handle]
             )
 
@@ -659,8 +655,8 @@ class ExtendedHistory(Callback):
         """
         Connects database signals when the database has changed.
         """
-        for sig in self.signal_map:
-            db.connect(sig, self.signal_map[sig])
+        for sig, callback in self.signal_map.items():
+            db.connect(sig, callback)
 
     def clear(self):
         """

@@ -50,6 +50,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..bars.bar_media import GrampsMediaBarGroup
 from ..common.common_classes import GrampsState
 from ..common.common_const import GROUP_LABELS
+from ..common.common_utils import make_scrollable
 from ..groups.group_const import OBJECT_GROUPS
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
@@ -182,6 +183,20 @@ class BaseProfilePage:
         """
         Generate untabbed full page view for the groups.
         """
+
+        def pack_container(scrolled, gbox):
+            """
+            Pack container with widget.
+            """
+            if scrolled:
+                self.container.pack_start(
+                    make_scrollable(gbox), expand=True, fill=True, padding=0
+                )
+            else:
+                self.container.pack_start(
+                    gbox, expand=False, fill=True, padding=0
+                )
+
         gbox = None
         title = ""
         scrolled = self.config.get("{}.scrolled".format(space))
@@ -205,28 +220,11 @@ class BaseProfilePage:
                     title = title.replace(" &", ",")
                 title = "{} & {}".format(title, GROUP_LABELS[group])
             if not self.config.get("{}.{}.stacked".format(space, group)):
-                if scrolled:
-                    self.container.pack_start(
-                        self._scrolled(gbox),
-                        expand=False,
-                        fill=True,
-                        padding=0,
-                    )
-                else:
-                    self.container.pack_start(
-                        gbox, expand=False, fill=True, padding=0
-                    )
+                pack_container(scrolled, gbox)
                 gbox = None
                 title = ""
         if gbox and title:
-            if scrolled:
-                self.container.pack_start(
-                    self._scrolled(gbox), expand=True, fill=True, padding=0
-                )
-            else:
-                self.container.pack_start(
-                    gbox, expand=False, fill=True, padding=0
-                )
+            pack_container(scrolled, gbox)
         return self.container
 
     def render_tabbed_group(self, obj_groups, space, groups):
@@ -251,9 +249,9 @@ class BaseProfilePage:
                 if not title:
                     title = GROUP_LABELS[group]
                 else:
-                    if " & " in title:
-                        title = title.replace(" &", ",")
-                    title = "{} & {}".format(title, GROUP_LABELS[group])
+                    title = "{} & {}".format(
+                        title.replace(" &", ","), GROUP_LABELS[group]
+                    )
             if self.config.get("{}.{}.stacked".format(space, group)):
                 in_stack = True
                 if not sbox:
@@ -269,24 +267,13 @@ class BaseProfilePage:
                     in_stack = False
             if not in_stack:
                 label = Gtk.Label(label=title)
-                container.append_page(self._scrolled(obox), tab_label=label)
+                container.append_page(make_scrollable(obox), tab_label=label)
                 sbox = None
                 title = ""
         if obox and title:
             label = Gtk.Label(label=title)
-            container.append_page(self._scrolled(obox), tab_label=label)
+            container.append_page(make_scrollable(obox), tab_label=label)
         return container
-
-    def _scrolled(self, widget):
-        """
-        Prepare a scrollable widget.
-        """
-        scroll = Gtk.ScrolledWindow(hexpand=False, vexpand=True)
-        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        viewport = Gtk.Viewport()
-        viewport.add(widget)
-        scroll.add(viewport)
-        return scroll
 
     def _object_panel(self, configdialog, space, extra=False):
         """

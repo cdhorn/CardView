@@ -224,7 +224,8 @@ CONFIGSETTINGS = (
     ("options.page.person.layout.scrolled", False),
     (
         "options.page.person.layout.groups",
-        "parent,event,timeline,ldsord,spouse,name,attribute,association,citation,address,url,note,media,reference",
+        "parent,event,timeline,ldsord,spouse,name,attribute,association,"
+        "citation,address,url,note,media,reference",
     ),
     ("options.page.person.layout.parent.visible", True),
     ("options.page.person.layout.parent.stacked", False),
@@ -275,7 +276,8 @@ CONFIGSETTINGS = (
     ("options.page.family.layout.scrolled", False),
     (
         "options.page.family.layout.groups",
-        "child,event,timeline,ldsord,attribute,citation,url,note,media,reference",
+        "child,event,timeline,ldsord,attribute,citation,url,note,media,"
+        "reference",
     ),
     ("options.page.family.layout.child.visible", True),
     ("options.page.family.layout.child.stacked", False),

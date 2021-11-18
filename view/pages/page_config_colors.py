@@ -156,7 +156,8 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     configdialog.add_text(
         grid,
         _(
-            "See global preferences for option to switch between light and dark color schemes"
+            "See global preferences for option to switch between light and "
+            "dark color schemes"
         ),
         0,
         bold=True,
@@ -164,7 +165,8 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     configdialog.add_text(
         grid,
         _(
-            "The default Gramps person color scheme is also managed under global preferences"
+            "The default Gramps person color scheme is also managed under "
+            "global preferences"
         ),
         1,
         bold=True,
@@ -185,15 +187,16 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     for label, key, row, column in scheme_options:
         option = "{}.{}".format(space, key)
         colors[option] = add_color(
-            grstate.config, colors_grid, label, option, row, column
+            grstate.config, colors_grid, label, option, (row, column)
         )
     return add_config_reset(configdialog, grstate, space, grid)
 
 
-def add_color(config, grid, text, option, row, column):
+def add_color(config, grid, text, option, coordinates):
     """
     Add color chooser widget with label and hex value to the grid.
     """
+    row, column = coordinates
     label = BasicLabel(text)
     colors = config.get(option)
     if isinstance(colors, list):

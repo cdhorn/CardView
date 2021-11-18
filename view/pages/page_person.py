@@ -95,10 +95,10 @@ class PersonProfilePage(BaseProfilePage):
                 ("ShareFamily", self.add_existing_parents),
             ]
         )
-        view._add_action_group(self.order_action)
-        view._add_action_group(self.family_action)
+        view.add_action_group(self.order_action)
+        view.add_action_group(self.family_action)
 
-    def enable_actions(self, uimanager, dummy_obj):
+    def enable_actions(self, uimanager, _dummy_obj):
         """
         Enable page specific actions.
         """

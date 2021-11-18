@@ -901,3 +901,14 @@ def get_event_category(self, event):
         if event_type.xml_str() == event_name:
             return "custom"
     return "other"
+
+def make_scrollable(widget, hexpand=False, vexpand=True, placement=Gtk.CornerType.BOTTOM_LEFT):
+    """
+    Prepare a scrollable widget.
+    """
+    scroll = Gtk.ScrolledWindow(hexpand=hexpand, vexpand=vexpand)
+    scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+    viewport = Gtk.Viewport()
+    viewport.add(widget)
+    scroll.add(viewport)
+    return scroll

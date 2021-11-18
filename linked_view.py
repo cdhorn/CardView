@@ -296,7 +296,7 @@ class LinkedView(ExtendedNavigationView):
     def change_page(self):
         if not self.history.history:
             if self.passed_uistate and self.passed_navtype:
-                self.initial_object_loaded = self.seed_history()
+                self.initial_object_loaded = self._seed_history()
             if not self.initial_object_loaded:
                 obj_tuple = self._get_last()
                 if obj_tuple:
@@ -305,7 +305,7 @@ class LinkedView(ExtendedNavigationView):
         ExtendedNavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
-    def seed_history(self):
+    def _seed_history(self):
         """
         Attempt to seed our history cache with last object using the uistate
         copy as the views may be using divergent history navigation classes.
@@ -589,7 +589,16 @@ class LinkedView(ExtendedNavigationView):
         self._add_action("FilterEdit", callback=self.filter_editor)
         self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
 
+    def add_action_group(self, action_group):
+        """
+        Wrapper to expose private _add_action_group to pages.
+        """
+        self._add_action_group(action_group)
+
     def filter_editor(self, *_dummy_obj):
+        """
+        Run filter editor.
+        """
         try:
             FilterEditor("Person", CUSTOM_FILTERS, self.dbstate, self.uistate)
         except WindowActiveError:
@@ -608,8 +617,8 @@ class LinkedView(ExtendedNavigationView):
         self._change_db(db)
         if self.active:
             self.bookmarks.redraw()
-        for key in self.group_windows:
-            self.group_windows[key].close(defer_delete=True)
+        for dummy_key, window in self.group_windows.items():
+            window.close(defer_delete=True)
         self.group_windows.clear()
         self.history.clear()
         self._init_cache()
@@ -636,8 +645,8 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(None)
         else:
             self.dirty = True
-        for key in self.group_windows:
-            self.group_windows[key].refresh()
+        for dummy_key, window in self.group_windows.items():
+            window.refresh()
 
     def _get_last(self):
         """
@@ -705,7 +714,8 @@ class LinkedView(ExtendedNavigationView):
         if not obj_tuple:
             obj_tuple = self._get_last()
             if not obj_tuple:
-                return self._clear_change()
+                self._clear_change()
+                return
             self.history.push(tuple(obj_tuple))
             self.initial_object_loaded = True
             return
@@ -829,14 +839,15 @@ class LinkedView(ExtendedNavigationView):
         if hasattr(obj, "handle"):
             key = "{}-{}".format(obj.get_handle(), group_type)
             if key in self.group_windows:
-                return self.group_windows[key].refresh()
+                self.group_windows[key].refresh()
+                return
         else:
             key = uuid.uuid4().hex
 
         if max_windows == 1:
             if self.group_windows:
-                for entry in self.group_windows:
-                    self.group_windows[entry].reload(obj, group_type)
+                for dummy_key, window in self.group_windows.items():
+                    window.reload(obj, group_type)
                     break
                 return
         if len(self.group_windows) >= max_windows:
@@ -852,4 +863,3 @@ class LinkedView(ExtendedNavigationView):
         """
         if key in self.group_windows:
             del self.group_windows[key]
-

@@ -47,7 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_utils import ConfigReset
+from ..common.common_utils import ConfigReset, make_scrollable
 from ..frames.frame_selectors import FrameFieldSelector
 
 _ = glocale.translation.sgettext
@@ -76,7 +76,7 @@ def add_config_reset(configdialog, grstate, space, grid):
     vbox.pack_start(grid, True, True, 0)
     reset = ConfigReset(configdialog, grstate, space)
     vbox.pack_end(reset, False, False, 0)
-    return make_scrollable(vbox)
+    return make_scrollable(vbox, hexpand=True)
 
 
 def config_facts_fields(
@@ -129,7 +129,9 @@ def config_facts_fields(
                     ),
                     _("Skip birth alternatives if birth found"),
                     _(
-                        "If enabled then if a birth event was found other events considered to be birth alternatives such as baptism or christening will not be displayed."
+                        "If enabled then if a birth event was found other "
+                        "events considered to be birth alternatives such "
+                        "as baptism or christening will not be displayed."
                     ),
                 ),
                 (
@@ -138,7 +140,9 @@ def config_facts_fields(
                     ),
                     _("Skip death alternatives if death found"),
                     _(
-                        "If enabled then if a death event was found other events considered to be death alternatives such as burial or cremation will not be displayed."
+                        "If enabled then if a death event was found other "
+                        "events considered to be death alternatives such as "
+                        "burial or cremation will not be displayed."
                     ),
                 ),
             ]
@@ -150,7 +154,9 @@ def config_facts_fields(
                     ),
                     _("Skip marriage alternatives if marriage found"),
                     _(
-                        "If enabled then if a marriage event was found other events considered to be marriage alternatives such as marriage banns or license will not be displayed."
+                        "If enabled then if a marriage event was found other "
+                        "events considered to be marriage alternatives such "
+                        "as marriage banns or license will not be displayed."
                     ),
                 ),
                 (
@@ -159,7 +165,9 @@ def config_facts_fields(
                     ),
                     _("Skip divorce alternatives if divorce found"),
                     _(
-                        "If enabled then if a divorce event was found other events considered to be divorce alternatives such as divorce filing or annulment will not be displayed."
+                        "If enabled then if a divorce event was found other "
+                        "events considered to be divorce alternatives such "
+                        "as divorce filing or annulment will not be displayed."
                     ),
                 ),
             ]
@@ -169,7 +177,8 @@ def config_facts_fields(
                 "{}.{}.{}-show-labels".format(space, context, key),
                 _("Show attribute labels"),
                 _(
-                    "If enabled then the attribute and fact labels will be display."
+                    "If enabled then both the attribute name and value will "
+                    "be displayed."
                 ),
             ),
         ]
@@ -185,18 +194,3 @@ def config_facts_fields(
                 tooltip=tooltip,
             )
             row = row + 1
-
-
-def make_scrollable(
-    widget, hexpand=True, vexpand=True, placement=Gtk.CornerType.BOTTOM_LEFT
-):
-    """
-    Make configuration widget scrollable.
-    """
-    viewport = Gtk.Viewport()
-    viewport.add(widget)
-    scroll = Gtk.ScrolledWindow(hexpand=hexpand, vexpand=vexpand)
-    scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-    scroll.set_placement(placement)
-    scroll.add(viewport)
-    return scroll

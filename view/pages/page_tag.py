@@ -96,7 +96,7 @@ class TagProfilePage(BaseProfilePage):
 
         obj_groups = {}
         if object_list:
-            for key in object_list:
+            for key, value in object_list.items():
                 groptions = GrampsOptions(
                     "options.group.{}".format(key.lower())
                 )
@@ -108,7 +108,7 @@ class TagProfilePage(BaseProfilePage):
                             groptions=groptions,
                             title_plural=GROUP_LABELS[key.lower()],
                             title_single=GROUP_LABELS[key.lower()],
-                            obj_list=object_list[key],
+                            obj_list=value,
                         )
                     }
                 )

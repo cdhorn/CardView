@@ -59,7 +59,8 @@ def build_global_grid(configdialog, grstate):
         1,
         "options.global.pin-header",
         tooltip=_(
-            "Enabling this option pins the header so it will not scroll with the rest of the view."
+            "Enabling this option pins the page header so it will not scroll "
+            "with the rest of the view."
         ),
     )
     configdialog.add_checkbox(
@@ -68,7 +69,11 @@ def build_global_grid(configdialog, grstate):
         2,
         "options.global.use-color-scheme",
         tooltip=_(
-            "Enabling this option enables coloring schemes for the rendered frames. People and families currently use the default Gramps color scheme defined in the global preferences. This view also supports other user customizable color schemes to choose from for some of the object groups such as the timeline and citations."
+            "Enabling this option enables coloring schemes for the rendered "
+            "frames. People and families currently use the default Gramps "
+            "color scheme defined in the global preferences. This view also "
+            "supports other user customizable color schemes to choose from "
+            "for some of the object groups such as the timeline and citations."
         ),
     )
     configdialog.add_checkbox(
@@ -77,7 +82,8 @@ def build_global_grid(configdialog, grstate):
         3,
         "options.global.use-smaller-detail-font",
         tooltip=_(
-            "Indicates whether to use a smaller font for the details than used for the title."
+            "Indicates whether to use a smaller font for the details than "
+            "used for the title."
         ),
     )
     configdialog.add_spinner(
@@ -93,7 +99,8 @@ def build_global_grid(configdialog, grstate):
         10,
         "options.global.enable-gramps-ids",
         tooltip=_(
-            "Indicates whether to show the Gramps id for primary objects or not."
+            "Indicates whether to show the Gramps id for primary objects "
+            "or not."
         ),
     )
     configdialog.add_combo(
@@ -116,7 +123,9 @@ def build_global_grid(configdialog, grstate):
         13,
         "options.global.image-page-link",
         tooltip=_(
-            "Indicates left click should open the media page instead of the media viewer."
+            "Indicates left click on an image should open the media page "
+            "instead of the media viewer. Note this only applies to the "
+            "images in object groups and not in the page header."
         ),
     )
     configdialog.add_checkbox(
@@ -125,7 +134,8 @@ def build_global_grid(configdialog, grstate):
         14,
         "options.global.link-citation-title-to-source",
         tooltip=_(
-            "Indicates whether the source title link in a citation record links to the source page instead of the citation page."
+            "Indicates whether the source title link in a citation record "
+            "links to the source page instead of the citation page."
         ),
     )
     configdialog.add_checkbox(
@@ -134,7 +144,9 @@ def build_global_grid(configdialog, grstate):
         15,
         "options.global.include-child-notes",
         tooltip=_(
-            "Enabling this option will include notes on children of the primary object in the Notes edit selection section of the action menu if any are present."
+            "Enabling this option will include notes on children of the "
+            "primary object in the Notes edit selection section of the "
+            "action menu if any are present."
         ),
     )
     configdialog.add_checkbox(
@@ -143,7 +155,9 @@ def build_global_grid(configdialog, grstate):
         16,
         "options.global.include-note-urls",
         tooltip=_(
-            "Enabling this option will parse the notes for the primary object and extract any identifiable urls for inclusion in the url group list."
+            "Enabling this option will parse the notes for the primary "
+            "object and extract any identifiable urls for inclusion in "
+            "the url group list."
         ),
     )
     configdialog.add_spinner(

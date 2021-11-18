@@ -84,7 +84,7 @@ class ConfigNotebook(Gtk.Notebook):
         index = self.append_page(container, tab_label=tab_label)
         self.deferred_pages.update({index: (container, render_page)})
 
-    def handle_page_switch(self, widget, tab, index):
+    def handle_page_switch(self, widget, _dummy_tab, index):
         """
         Handle a page switch, rendering the page if needed.
         """
@@ -179,7 +179,7 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
     )
 
 
-def build_family_grid(configdialog, grstate, space, extra=False):
+def build_family_grid(configdialog, grstate, space):
     """
     Builds a family options section for the configuration dialog
     """
@@ -298,7 +298,8 @@ def build_media_grid(configdialog, grstate, space, group=True):
             2,
             "{}.media.group-by-type".format(space),
             tooltip=_(
-                "Indicates whether to group like media, based on Media-Type."
+                "Indicates whether to group like media, based on the "
+                "custom Media-Type attribute."
             ),
         )
         configdialog.add_checkbox(
@@ -307,7 +308,8 @@ def build_media_grid(configdialog, grstate, space, group=True):
             3,
             "{}.media.filter-non-photos".format(space),
             tooltip=_(
-                "Indicates only photos should be displayed, based on Media-Type."
+                "Indicates only photos should be displayed, based on "
+                "the custom Media-Type attribute."
             ),
         )
     configdialog.add_text(grid, _("Object Display Options"), 10, bold=True)
@@ -335,7 +337,8 @@ def build_media_grid(configdialog, grstate, space, group=True):
         "{}.media.show-path".format(space),
         stop=2,
         tooltip=_(
-            "Enabling this option will show the media file path if it is available."
+            "Enabling this option will show the media file path if it is "
+            "available."
         ),
     )
     configdialog.add_checkbox(
@@ -345,7 +348,8 @@ def build_media_grid(configdialog, grstate, space, group=True):
         "{}.media.show-mime-type".format(space),
         stop=2,
         tooltip=_(
-            "Enabling this option will show the media mime type if it is available."
+            "Enabling this option will show the media mime type if it is "
+            "available."
         ),
     )
     configdialog.add_text(grid, _("Attributes Group"), 20, bold=True)
@@ -429,40 +433,49 @@ def build_citation_grid(configdialog, grstate, space):
         5,
         "{}.citation.include-indirect".format(space),
         tooltip=_(
-            "Enabling this option will include citations on nested attributes like names and person associations in addition to the ones directly on the person themselves."
+            "Enabling this option will include citations on nested "
+            "attributes like names and person associations in addition "
+            "to the ones directly on the person themselves."
         ),
     )
     configdialog.add_checkbox(
         grid,
         _(
-            "Include citations related to the persons family membership as a child"
+            "Include citations related to the persons family membership "
+            "as a child"
         ),
         6,
         "{}.citation.include-parent-family".format(space),
         tooltip=_(
-            "Enabling this option will include citations related to the membership of the person as a child in other families."
+            "Enabling this option will include citations related to the "
+            "membership of the person as a child in other families."
         ),
     )
     configdialog.add_checkbox(
         grid,
         _(
-            "Include citations related to the persons family membership as a head of household"
+            "Include citations related to the persons family membership "
+            "as a head of household"
         ),
         7,
         "{}.citation.include-family".format(space),
         tooltip=_(
-            "Enabling this option will include citations on the families this person formed with other partners."
+            "Enabling this option will include citations on the families "
+            "this person formed with other partners."
         ),
     )
     configdialog.add_checkbox(
         grid,
         _(
-            "Include indirect citations related to the persons family membership as a head of household"
+            "Include indirect citations related to the persons family "
+            "membership as a head of household"
         ),
         8,
         "{}.citation.include-family-indirect".format(space),
         tooltip=_(
-            "Enabling this option will include citations on nested attributes about the families this person formed with other partners."
+            "Enabling this option will include citations on nested "
+            "attributes about the families this person formed with "
+            "other partners."
         ),
     )
     configdialog.add_text(grid, _("Attributes"), 9, bold=True)
@@ -472,7 +485,8 @@ def build_citation_grid(configdialog, grstate, space):
         10,
         "{}.citation.show-date".format(space),
         tooltip=_(
-            "Enabling this option will show the citation date if it is available."
+            "Enabling this option will show the citation date if it is "
+            "available."
         ),
     )
     configdialog.add_checkbox(
@@ -481,7 +495,8 @@ def build_citation_grid(configdialog, grstate, space):
         11,
         "{}.citation.show-publisher".format(space),
         tooltip=_(
-            "Enabling this option will show the publisher information if it is available."
+            "Enabling this option will show the publisher information if it "
+            "is available."
         ),
     )
     configdialog.add_checkbox(
@@ -490,7 +505,10 @@ def build_citation_grid(configdialog, grstate, space):
         12,
         "{}.citation.show-reference-type".format(space),
         tooltip=_(
-            "Enabling this option will display what type of citation it is. Direct is one related to the person or a family they formed, indirect would be related to some nested attribute like a name or person association."
+            "Enabling this option will display what type of citation it is. "
+            "Direct is one related to the person or a family they formed, "
+            "indirect would be related to some nested attribute like a name "
+            "or person association."
         ),
     )
     configdialog.add_checkbox(
@@ -499,7 +517,10 @@ def build_citation_grid(configdialog, grstate, space):
         13,
         "{}.citation.show-reference-description".format(space),
         tooltip=_(
-            "Enabling this option will display a description of the type of data the citation supports. For direct citations this would be person or family, indirect ones could be primary name, an attribute, association, address, and so forth."
+            "Enabling this option will display a description of the type of "
+            "data the citation supports. For direct citations this would be "
+            "person or family, indirect ones could be primary name, an "
+            "attribute, association, address, and so forth."
         ),
     )
     configdialog.add_checkbox(
@@ -508,7 +529,8 @@ def build_citation_grid(configdialog, grstate, space):
         14,
         "{}.citation.show-confidence".format(space),
         tooltip=_(
-            "Enabling this option will display the user selected confidence level for the citation."
+            "Enabling this option will display the user selected confidence "
+            "level for the citation."
         ),
     )
     configdialog.add_text(grid, _("Attributes Group"), 15, start=1, bold=True)
@@ -589,7 +611,8 @@ def build_repository_grid(configdialog, grstate, space):
         10,
         "{}.repository.show-call-number".format(space),
         tooltip=_(
-            "Enabling this option will show the source call number at the repository if it is available."
+            "Enabling this option will show the source call number at the "
+            "repository if it is available."
         ),
     )
     configdialog.add_checkbox(
@@ -598,7 +621,8 @@ def build_repository_grid(configdialog, grstate, space):
         11,
         "{}.repository.show-media-type".format(space),
         tooltip=_(
-            "Enabling this option will show the source media type at the repository if it is available."
+            "Enabling this option will show the source media type at the "
+            "repository if it is available."
         ),
     )
     configdialog.add_checkbox(
@@ -607,7 +631,8 @@ def build_repository_grid(configdialog, grstate, space):
         12,
         "{}.repository.show-repository-type".format(space),
         tooltip=_(
-            "Enabling this option will show the repository type if it is available."
+            "Enabling this option will show the repository type if it "
+            "is available."
         ),
     )
     return add_config_reset(
@@ -660,7 +685,10 @@ def build_event_grid(configdialog, grstate, space):
         13,
         "{}.event.show-role-always".format(space),
         tooltip=_(
-            "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
+            "Enabling this option will always show the role of the active "
+            "person in the event. This is normally implicit if they had none "
+            "or they were the primary participant. Note their role is always "
+            "displayed for secondary events."
         ),
     )
     configdialog.add_checkbox(
@@ -669,7 +697,8 @@ def build_event_grid(configdialog, grstate, space):
         14,
         "{}.event.show-description".format(space),
         tooltip=_(
-            "Enabling this option will show the event description if one is available."
+            "Enabling this option will show the event description if one is "
+            "available."
         ),
     )
     configdialog.add_checkbox(
@@ -678,7 +707,8 @@ def build_event_grid(configdialog, grstate, space):
         15,
         "{}.event.show-participants".format(space),
         tooltip=_(
-            "Enabling this option will show the other participants in shared events."
+            "Enabling this option will show the other participants in shared "
+            "events."
         ),
     )
     configdialog.add_checkbox(
@@ -687,7 +717,9 @@ def build_event_grid(configdialog, grstate, space):
         16,
         "{}.event.show-source-count".format(space),
         tooltip=_(
-            "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
+            "Enabling this option will include a count of the number of "
+            "unique sources cited from in support of the information about "
+            "the event."
         ),
     )
     configdialog.add_checkbox(
@@ -696,7 +728,8 @@ def build_event_grid(configdialog, grstate, space):
         17,
         "{}.event.show-citation-count".format(space),
         tooltip=_(
-            "Enabling this option will include a count of the number of citations in support of the information about the event."
+            "Enabling this option will include a count of the number of "
+            "citations in support of the information about the event."
         ),
     )
     configdialog.add_checkbox(
@@ -705,7 +738,9 @@ def build_event_grid(configdialog, grstate, space):
         18,
         "{}.event.show-best-confidence".format(space),
         tooltip=_(
-            "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
+            "Enabling this option will show the highest user defined "
+            "confidence rating found among all the citations in support of "
+            "the information about the event."
         ),
     )
     configdialog.add_text(grid, _("Attributes Group"), 31, start=1, bold=True)

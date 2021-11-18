@@ -90,7 +90,8 @@ def build_person_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.person.show-age",
         tooltip=_(
-            "Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated."
+            "Enabling this option will show the year of the event and the "
+            "age of the active person at that time if it can be calculated."
         ),
     )
     configdialog.add_checkbox(
@@ -99,7 +100,8 @@ def build_person_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.person.include-media",
         tooltip=_(
-            "Enabling this option will include media items if they have a valid date set."
+            "Enabling this option will include media items if they have a "
+            "valid date set."
         ),
     )
     configdialog.add_checkbox(
@@ -108,7 +110,8 @@ def build_person_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.person.include-names",
         tooltip=_(
-            "Enabling this option will include names if they have a valid date set."
+            "Enabling this option will include names if they have a "
+            "valid date set."
         ),
     )
     configdialog.add_checkbox(
@@ -117,7 +120,8 @@ def build_person_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.person.include-addresses",
         tooltip=_(
-            "Enabling this option will include addresses if they have a valid date."
+            "Enabling this option will include addresses if they have a "
+            "valid date set."
         ),
     )
     configdialog.add_checkbox(
@@ -126,7 +130,8 @@ def build_person_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.person.include-ldsords",
         tooltip=_(
-            "Enabling this option will include LDS ordinances if they have a valid date."
+            "Enabling this option will include LDS ordinances if they have "
+            "a valid date."
         ),
     )
     configdialog.add_checkbox(
@@ -135,7 +140,8 @@ def build_person_timeline_grid(configdialog, grstate):
         11,
         "options.timeline.person.include-citations",
         tooltip=_(
-            "Enabling this option will include citations if they have a valid date."
+            "Enabling this option will include citations if they have a "
+            "valid date."
         ),
     )
     configdialog.add_text(grid1, _("Display Attributes"), 12, bold=True)
@@ -145,7 +151,10 @@ def build_person_timeline_grid(configdialog, grstate):
         13,
         "options.timeline.person.show-role-always",
         tooltip=_(
-            "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
+            "Enabling this option will always show the role of the active "
+            "person in the event. This is normally implicit if they had none "
+            "or they were the primary participant. Note their role is always "
+            "displayed for secondary events."
         ),
     )
     configdialog.add_checkbox(
@@ -154,7 +163,8 @@ def build_person_timeline_grid(configdialog, grstate):
         14,
         "options.timeline.person.show-description",
         tooltip=_(
-            "Enabling this option will show the event description if one is available."
+            "Enabling this option will show the event description if one is "
+            "available."
         ),
     )
     configdialog.add_checkbox(
@@ -163,7 +173,8 @@ def build_person_timeline_grid(configdialog, grstate):
         15,
         "options.timeline.person.show-participants",
         tooltip=_(
-            "Enabling this option will show the other participants in shared events."
+            "Enabling this option will show the other participants in shared "
+            "events."
         ),
     )
     configdialog.add_checkbox(
@@ -172,7 +183,8 @@ def build_person_timeline_grid(configdialog, grstate):
         16,
         "options.timeline.person.show-source-count",
         tooltip=_(
-            "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
+            "Enabling this option will include a count of the number of unique "
+            "sources cited from in support of the information about the event."
         ),
     )
     configdialog.add_checkbox(
@@ -181,7 +193,8 @@ def build_person_timeline_grid(configdialog, grstate):
         17,
         "options.timeline.person.show-citation-count",
         tooltip=_(
-            "Enabling this option will include a count of the number of citations in support of the information about the event."
+            "Enabling this option will include a count of the number of "
+            "citations in support of the information about the event."
         ),
     )
     configdialog.add_checkbox(
@@ -190,7 +203,9 @@ def build_person_timeline_grid(configdialog, grstate):
         18,
         "options.timeline.person.show-best-confidence",
         tooltip=_(
-            "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
+            "Enabling this option will show the highest user defined "
+            "confidence rating found among all the citations in support "
+            "of the information about the event."
         ),
     )
     configdialog.add_text(grid1, _("Attributes Group"), 19, start=1, bold=True)
@@ -215,7 +230,12 @@ def build_person_timeline_grid(configdialog, grstate):
         1,
         "options.timeline.person.show-class-vital",
         tooltip=_(
-            "Enabling this option will show all vital events for the person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others."
+            "Enabling this option will show all vital events for the person "
+            "on the timeline. In the event editor these are identfied as "
+            "birth, baptism, death, burial, cremation and adopted. Note if "
+            "this is disabled that birth and death events or their "
+            "equivalents will always included regardless, so disabling it "
+            "only filters out the others."
         ),
     )
     configdialog.add_checkbox(
@@ -224,7 +244,9 @@ def build_person_timeline_grid(configdialog, grstate):
         2,
         "options.timeline.person.show-class-family",
         tooltip=_(
-            "Enabling this option will show all family related events for the active person on the timeline. The list of family events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all family related events for "
+            "the active person on the timeline. The list of family events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -233,7 +255,9 @@ def build_person_timeline_grid(configdialog, grstate):
         3,
         "options.timeline.person.show-class-religious",
         tooltip=_(
-            "Enabling this option will show all religious events for the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all religious events for the "
+            "active person on the timeline. The list of religious events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -242,7 +266,9 @@ def build_person_timeline_grid(configdialog, grstate):
         4,
         "options.timeline.person.show-class-vocational",
         tooltip=_(
-            "Enabling this option will show all vocational events for the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all vocational events for the "
+            "active person on the timeline. The list of vocational events is "
+            "the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -251,7 +277,9 @@ def build_person_timeline_grid(configdialog, grstate):
         5,
         "options.timeline.person.show-class-academic",
         tooltip=_(
-            "Enabling this option will show all academic events for the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all academic events for the "
+            "active person on the timeline. The list of academic events is "
+            "the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -260,7 +288,9 @@ def build_person_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.person.show-class-travel",
         tooltip=_(
-            "Enabling this option will show all travel events for the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all travel events for the active "
+            "person on the timeline. The list of travel events is the same as "
+            "in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -269,7 +299,9 @@ def build_person_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.person.show-class-legal",
         tooltip=_(
-            "Enabling this option will show all legal events for the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all legal events for the active "
+            "person on the timeline. The list of legal events is the same as "
+            "in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -278,7 +310,9 @@ def build_person_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.person.show-class-residence",
         tooltip=_(
-            "Enabling this option will show all residence events for the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all residence events for the "
+            "active person on the timeline. The list of residence events is "
+            "the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -287,7 +321,10 @@ def build_person_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.person.show-class-other",
         tooltip=_(
-            "Enabling this option will show all other events for the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all other events for the active "
+            "person on the timeline except custom user defined ones. The list "
+            "of other events is the same as in the event type selector in the "
+            "event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -296,7 +333,9 @@ def build_person_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.person.show-class-custom",
         tooltip=_(
-            "Enabling this option will show all user defined custom events for the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all user defined custom events "
+            "for the active person on the timeline. The list of custom events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     grid3 = create_grid()
@@ -321,7 +360,12 @@ def build_person_timeline_grid(configdialog, grstate):
         3,
         "options.timeline.person.show-family-father",
         tooltip=_(
-            "Enabling this option will include events for fathers, stepfathers, and grandfathers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for fathers, "
+            "stepfathers, and grandfathers of the active person in the "
+            "timeline if they occurred during the life of the active person. "
+            "Note if no relationship category filters are enabled that the "
+            "birth and death events of these relations are always evaluated "
+            "for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -330,7 +374,12 @@ def build_person_timeline_grid(configdialog, grstate):
         4,
         "options.timeline.person.show-family-mother",
         tooltip=_(
-            "Enabling this option will include events for mothers, stepmothers, and grandmothers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for mothers, "
+            "stepmothers, and grandmothers of the active person in the "
+            "timeline if they occurred during the life of the active person. "
+            "Note if no relationship category filters are enabled that the "
+            "birth and death events of these relations are always evaluated "
+            "for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -339,7 +388,12 @@ def build_person_timeline_grid(configdialog, grstate):
         5,
         "options.timeline.person.show-family-brother",
         tooltip=_(
-            "Enabling this option will include events for brothers and stepbrothers of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for brothers and "
+            "stepbrothers of the active person in the timeline if they "
+            "occurred during the life of the active person. Note if no "
+            "relationship category filters are enabled that the birth and "
+            "death events of these relations are always evaluated for "
+            "inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -348,7 +402,12 @@ def build_person_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.person.show-family-sister",
         tooltip=_(
-            "Enabling this option will include events for sisters and stepsisters of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for sisters and "
+            "stepsisters of the active person in the timeline if they "
+            "occurred during the life of the active person. Note if no "
+            "relationship category filters are enabled that the birth "
+            "and death events of these relations are always evaluated "
+            "for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -357,7 +416,11 @@ def build_person_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.person.show-family-wife",
         tooltip=_(
-            "Enabling this option will include events for the wives of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for the wives of "
+            "the active person in the timeline if they occurred during "
+            "the life of the active person. Note if no relationship category "
+            "filters are enabled that the birth and death events of these "
+            "relations are always evaluated for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -366,7 +429,11 @@ def build_person_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.person.show-family-husband",
         tooltip=_(
-            "Enabling this option will include events for the husbands of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for the husbands of "
+            "the active person in the timeline if they occurred during the "
+            "life of the active person. Note if no relationship category "
+            "filters are enabled that the birth and death events of these "
+            "relations are always evaluated for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -375,7 +442,11 @@ def build_person_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.person.show-family-son",
         tooltip=_(
-            "Enabling this option will include events for the sons and grandsons of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for the sons and "
+            "grandsons of the active person in the timeline if they occurred "
+            "during the life of the active person. Note if no relationship "
+            "category filters are enabled that the birth and death events of "
+            "these relations are always evaluated for inclusion."
         ),
     )
     configdialog.add_checkbox(
@@ -384,7 +455,12 @@ def build_person_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.person.show-family-daughter",
         tooltip=_(
-            "Enabling this option will include events for the daughters and granddaughters of the active person in the timeline if they occurred during the life of the active person. Note if no relationship category filters are enabled that the birth and death events of these relations are always evaluated for inclusion."
+            "Enabling this option will include events for the daughters and "
+            "granddaughters of the active person in the timeline if they "
+            "occurred during the life of the active person. Note if no "
+            "relationship category filters are enabled that the birth and "
+            "death events of these relations are always evaluated for "
+            "inclusion."
         ),
     )
     grid4 = create_grid()
@@ -397,7 +473,12 @@ def build_person_timeline_grid(configdialog, grstate):
         1,
         "options.timeline.person.show-family-class-vital",
         tooltip=_(
-            "Enabling this option will show all vital events for the eligible relations of the active person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others."
+            "Enabling this option will show all vital events for the eligible "
+            "relations of the active person on the timeline. In the event "
+            "editor these are identfied as birth, baptism, death, burial, "
+            "cremation and adopted. Note if this is disabled that birth and "
+            "death events or their equivalents will always be included "
+            "regardless, so disabling it only filters out the others."
         ),
     )
     configdialog.add_checkbox(
@@ -406,7 +487,10 @@ def build_person_timeline_grid(configdialog, grstate):
         2,
         "options.timeline.person.show-family-class-family",
         tooltip=_(
-            "Enabling this option will show all family related events for the eligible relations of the active person on the timeline. The list of family events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all family related events for "
+            "the eligible relations of the active person on the timeline. "
+            "The list of family events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -415,7 +499,10 @@ def build_person_timeline_grid(configdialog, grstate):
         3,
         "options.timeline.person.show-family-class-religious",
         tooltip=_(
-            "Enabling this option will show all religious related events for the eligible relations of the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all religious related events "
+            "for the eligible relations of the active person on the timeline. "
+            "The list of religious events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -424,7 +511,10 @@ def build_person_timeline_grid(configdialog, grstate):
         4,
         "options.timeline.person.show-family-class-vocational",
         tooltip=_(
-            "Enabling this option will show all vocational related events for the eligible relations of the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all vocational related events "
+            "for the eligible relations of the active person on the timeline. "
+            "The list of vocational events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -433,7 +523,10 @@ def build_person_timeline_grid(configdialog, grstate):
         5,
         "options.timeline.person.show-family-class-academic",
         tooltip=_(
-            "Enabling this option will show all academic related events for the eligible relations of the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all academic related events for "
+            "the eligible relations of the active person on the timeline. "
+            "The list of academic events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -442,7 +535,10 @@ def build_person_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.person.show-family-class-travel",
         tooltip=_(
-            "Enabling this option will show all travel related events for the eligible relations of the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all travel related events for "
+            "the eligible relations of the active person on the timeline. "
+            "The list of travel events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -451,7 +547,10 @@ def build_person_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.person.show-family-class-legal",
         tooltip=_(
-            "Enabling this option will show all legal related events for the eligible relations of the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all legal related events for "
+            "the eligible relations of the active person on the timeline. "
+            "The list of legal events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -460,7 +559,10 @@ def build_person_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.person.show-family-class-residence",
         tooltip=_(
-            "Enabling this option will show all residence related events for the eligible relations of the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all residence related events for "
+            "the eligible relations of the active person on the timeline. "
+            "The list of residence events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -469,7 +571,10 @@ def build_person_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.person.show-family-class-other",
         tooltip=_(
-            "Enabling this option will show all other events for the eligible relations of the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all other events for the eligible "
+            "relations of the active person on the timeline except custom "
+            "user defined ones. The list of other events is the same as in "
+            "the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -478,7 +583,10 @@ def build_person_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.person.show-family-class-custom",
         tooltip=_(
-            "Enabling this option will show all user defined custom events for the eligible relations of the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all user defined custom events "
+            "for the eligible relations of the active person on the timeline. "
+            "The list of custom events is the same as in the event type "
+            "selector in the event editor."
         ),
     )
     grid = Gtk.Grid()
@@ -524,7 +632,8 @@ def build_family_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.family.show-age",
         tooltip=_(
-            "Enabling this option will show the year of the event and the age of the active person at that time if it can be calculated."
+            "Enabling this option will show the year of the event and the age "
+            "of the active person at that time if it can be calculated."
         ),
     )
     configdialog.add_checkbox(
@@ -533,7 +642,8 @@ def build_family_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.family.include-media",
         tooltip=_(
-            "Enabling this option will include media items if they have a valid date set."
+            "Enabling this option will include media items if they have a "
+            "valid date set."
         ),
     )
     configdialog.add_checkbox(
@@ -542,7 +652,8 @@ def build_family_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.family.include-names",
         tooltip=_(
-            "Enabling this option will include names if they have a valid date set."
+            "Enabling this option will include names if they have a valid "
+            "date set."
         ),
     )
     configdialog.add_checkbox(
@@ -551,7 +662,8 @@ def build_family_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.family.include-addresses",
         tooltip=_(
-            "Enabling this option will include addresses if they have a valid date."
+            "Enabling this option will include addresses if they have a valid "
+            "date set."
         ),
     )
     configdialog.add_checkbox(
@@ -560,7 +672,8 @@ def build_family_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.family.include-ldsords",
         tooltip=_(
-            "Enabling this option will include LDS ordinances if they have a valid date."
+            "Enabling this option will include LDS ordinances if they have a "
+            "valid date set."
         ),
     )
     configdialog.add_checkbox(
@@ -569,7 +682,8 @@ def build_family_timeline_grid(configdialog, grstate):
         11,
         "options.timeline.family.include-citations",
         tooltip=_(
-            "Enabling this option will include citations if they have a valid date."
+            "Enabling this option will include citations if they have a valid "
+            "date set."
         ),
     )
     configdialog.add_text(grid1, _("Display Attributes"), 12, bold=True)
@@ -579,7 +693,10 @@ def build_family_timeline_grid(configdialog, grstate):
         13,
         "options.timeline.family.show-role-always",
         tooltip=_(
-            "Enabling this option will always show the role of the active person in the event. This is normally implicit if they had none or they were the primary participant. Note their role is always displayed for secondary events."
+            "Enabling this option will always show the role of the active "
+            "person in the event. This is normally implicit if they had none "
+            "or they were the primary participant. Note their role is always "
+            "displayed for secondary events."
         ),
     )
     configdialog.add_checkbox(
@@ -588,7 +705,8 @@ def build_family_timeline_grid(configdialog, grstate):
         14,
         "options.timeline.family.show-description",
         tooltip=_(
-            "Enabling this option will show the event description if one is available."
+            "Enabling this option will show the event description if one is "
+            "available."
         ),
     )
     configdialog.add_checkbox(
@@ -597,7 +715,8 @@ def build_family_timeline_grid(configdialog, grstate):
         15,
         "options.timeline.family.show-participants",
         tooltip=_(
-            "Enabling this option will show the other participants in shared events."
+            "Enabling this option will show the other participants in shared "
+            "events."
         ),
     )
     configdialog.add_checkbox(
@@ -606,7 +725,9 @@ def build_family_timeline_grid(configdialog, grstate):
         16,
         "options.timeline.family.show-source-count",
         tooltip=_(
-            "Enabling this option will include a count of the number of unique sources cited from in support of the information about the event."
+            "Enabling this option will include a count of the number of "
+            "unique sources cited from in support of the information "
+            "about the event."
         ),
     )
     configdialog.add_checkbox(
@@ -615,7 +736,8 @@ def build_family_timeline_grid(configdialog, grstate):
         17,
         "options.timeline.family.show-citation-count",
         tooltip=_(
-            "Enabling this option will include a count of the number of citations in support of the information about the event."
+            "Enabling this option will include a count of the number of "
+            "citations in support of the information about the event."
         ),
     )
     configdialog.add_checkbox(
@@ -624,7 +746,9 @@ def build_family_timeline_grid(configdialog, grstate):
         18,
         "options.timeline.family.show-best-confidence",
         tooltip=_(
-            "Enabling this option will show the highest user defined confidence rating found among all the citations in support of the information about the event."
+            "Enabling this option will show the highest user defined "
+            "confidence rating found among all the citations in support "
+            "of the information about the event."
         ),
     )
     configdialog.add_text(grid1, _("Attributes Group"), 19, start=1, bold=True)
@@ -649,7 +773,12 @@ def build_family_timeline_grid(configdialog, grstate):
         1,
         "options.timeline.family.show-class-vital",
         tooltip=_(
-            "Enabling this option will show all vital events for the person on the timeline. In the event editor these are identfied as birth, baptism, death, burial, cremation and adopted. Note if this is disabled that birth and death events or their equivalents will always included regardless, so disabling it only filters out the others."
+            "Enabling this option will show all vital events for the person "
+            "on the timeline. In the event editor these are identfied as "
+            "birth, baptism, death, burial, cremation and adopted. Note if "
+            "this is disabled that birth and death events or their "
+            "equivalents will always included regardless, so disabling it "
+            "only filters out the others."
         ),
     )
     configdialog.add_checkbox(
@@ -658,7 +787,9 @@ def build_family_timeline_grid(configdialog, grstate):
         2,
         "options.timeline.family.show-class-family",
         tooltip=_(
-            "Enabling this option will show all family related events for the active person on the timeline. The list of family events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all family related events for "
+            "the active person on the timeline. The list of family events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -667,7 +798,9 @@ def build_family_timeline_grid(configdialog, grstate):
         3,
         "options.timeline.family.show-class-religious",
         tooltip=_(
-            "Enabling this option will show all religious events for the active person on the timeline. The list of religious events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all religious events for the "
+            "active person on the timeline. The list of religious events is "
+            "the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -676,7 +809,9 @@ def build_family_timeline_grid(configdialog, grstate):
         4,
         "options.timeline.family.show-class-vocational",
         tooltip=_(
-            "Enabling this option will show all vocational events for the active person on the timeline. The list of vocational events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all vocational events for the "
+            "active person on the timeline. The list of vocational events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -685,7 +820,9 @@ def build_family_timeline_grid(configdialog, grstate):
         5,
         "options.timeline.family.show-class-academic",
         tooltip=_(
-            "Enabling this option will show all academic events for the active person on the timeline. The list of academic events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all academic events for the "
+            "active person on the timeline. The list of academic events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -694,7 +831,9 @@ def build_family_timeline_grid(configdialog, grstate):
         6,
         "options.timeline.family.show-class-travel",
         tooltip=_(
-            "Enabling this option will show all travel events for the active person on the timeline. The list of travel events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all travel events for the active "
+            "person on the timeline. The list of travel events is the same as "
+            "in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -703,7 +842,9 @@ def build_family_timeline_grid(configdialog, grstate):
         7,
         "options.timeline.family.show-class-legal",
         tooltip=_(
-            "Enabling this option will show all legal events for the active person on the timeline. The list of legal events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all legal events for the active "
+            "person on the timeline. The list of legal events is the same as "
+            "in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -712,7 +853,9 @@ def build_family_timeline_grid(configdialog, grstate):
         8,
         "options.timeline.family.show-class-residence",
         tooltip=_(
-            "Enabling this option will show all residence events for the active person on the timeline. The list of residence events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all residence events for the "
+            "active person on the timeline. The list of residence events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -721,7 +864,10 @@ def build_family_timeline_grid(configdialog, grstate):
         9,
         "options.timeline.family.show-class-other",
         tooltip=_(
-            "Enabling this option will show all other events for the active person on the timeline except custom user defined ones. The list of other events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all other events for the active "
+            "person on the timeline except custom user defined ones. The "
+            "list of other events is the same as in the event type selector "
+            "in the event editor."
         ),
     )
     configdialog.add_checkbox(
@@ -730,7 +876,9 @@ def build_family_timeline_grid(configdialog, grstate):
         10,
         "options.timeline.family.show-class-custom",
         tooltip=_(
-            "Enabling this option will show all user defined custom events for the active person on the timeline. The list of custom events is the same as in the event type selector in the event editor."
+            "Enabling this option will show all user defined custom events "
+            "for the active person on the timeline. The list of custom events "
+            "is the same as in the event type selector in the event editor."
         ),
     )
     grid = Gtk.Grid()

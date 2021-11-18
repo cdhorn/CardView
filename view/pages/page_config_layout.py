@@ -43,9 +43,9 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
-from ..common.common_utils import ConfigReset
+from ..common.common_utils import ConfigReset, make_scrollable
 from .page_const import PAGES
-from .page_utils import create_grid, make_scrollable
+from .page_utils import create_grid
 
 _ = glocale.translation.sgettext
 
@@ -61,7 +61,9 @@ def build_layout_grid(configdialog, grstate):
     for tab in PAGES:
         page = ProfilePageLayout(configdialog, grstate, tab)
         label = Gtk.Label(label=tab[1])
-        notebook.append_page(make_scrollable(page), tab_label=label)
+        notebook.append_page(
+            make_scrollable(page, hexpand=True), tab_label=label
+        )
     vbox.add(notebook)
     grid.add(vbox)
     return grid
@@ -167,7 +169,7 @@ class ProfilePageLayout(Gtk.VBox):
                     groups.append(setting.split(".")[3])
         return groups
 
-    def apply_changes(self, *obj):
+    def apply_changes(self, *_dummy_obj):
         """
         Apply changes if any found.
         """
@@ -206,7 +208,7 @@ class ProfilePageLayout(Gtk.VBox):
             self.undo.set_visible(True)
         self.draw()
 
-    def apply_defaults(self, *obj):
+    def apply_defaults(self, *_dummy_obj):
         """
         Apply defaults if any changes found.
         """
@@ -244,14 +246,14 @@ class ProfilePageLayout(Gtk.VBox):
             self.config.save()
         self.draw()
 
-    def undo_hide(self, *obj):
+    def undo_hide(self, *_dummy_obj):
         """
         Hide button if nothing available to undo.
         """
         if not self.revert:
             self.undo.set_visible(False)
 
-    def undo_changes(self, *obj):
+    def undo_changes(self, *_dummy_obj):
         """
         Undo the last set of changes.
         """
@@ -262,7 +264,7 @@ class ProfilePageLayout(Gtk.VBox):
             self.revert = []
             self.draw()
 
-    def toggle_mode(self, *obj):
+    def toggle_mode(self, *_dummy_obj):
         """
         Toggle option visibility based on mode.
         """
@@ -311,7 +313,14 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.add(row)
 
     def on_drag_data_received(
-        self, widget, drag_context, x, y, data, info, time
+        self,
+        _dummy_widget,
+        _dummy_drag_context,
+        _dummy_x,
+        _dummy_y,
+        data,
+        _dummy_info,
+        _dummy_time,
     ):
         """
         Extract the data and handle any required actions.
@@ -343,18 +352,19 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.row_previous = 0
         self.row_current = 0
 
-    def on_drag_motion(self, widget, context, x, y, time):
+    def on_drag_motion(
+        self, _dummy_widget, _dummy_context, _dummy_x, y_location, _dummy_time
+    ):
         """
         Update the view while a user drag and drop is underway.
         """
         self.reset_dnd_css()
-        current_row = self.get_row_at_y(y)
+        current_row = self.get_row_at_y(y_location)
         allocation = current_row.get_allocation()
-        if y < allocation.y + allocation.height / 2:
+        if y_location < allocation.y + allocation.height / 2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1
-            if self.row_previous < 0:
-                self.row_previous = 0
+            self.row_previous = max(self.row_previous, 0)
         else:
             self.row_previous = current_row.get_index()
             self.row_current = self.row_previous + 1
@@ -362,29 +372,29 @@ class ProfileColumnLayout(Gtk.ListBox):
                 self.row_current = len(self) - 1
 
         if self.row_current == 0 and self.row_previous == 0:
-            self.row_current_provider = self.set_dnd_css(
+            self.row_current_provider = set_dnd_css(
                 self.rows[self.row_current], top=True
             )
         elif self.row_current == self.row_previous:
-            self.row_current_provider = self.set_dnd_css(
+            self.row_current_provider = set_dnd_css(
                 self.rows[self.row_current], top=False
             )
         elif self.row_current > self.row_previous:
-            self.row_previous_provider = self.set_dnd_css(
+            self.row_previous_provider = set_dnd_css(
                 self.rows[self.row_previous], top=False
             )
-            self.row_current_provider = self.set_dnd_css(
+            self.row_current_provider = set_dnd_css(
                 self.rows[self.row_current], top=True
             )
         else:
-            self.row_previous_provider = self.set_dnd_css(
+            self.row_previous_provider = set_dnd_css(
                 self.rows[self.row_previous], top=True
             )
-            self.row_current_provider = self.set_dnd_css(
+            self.row_current_provider = set_dnd_css(
                 self.rows[self.row_current], top=False
             )
 
-    def on_drag_leave(self, *obj):
+    def on_drag_leave(self, *_dummy_obj):
         """
         Reset custom CSS if drag no longer in focus.
         """
@@ -405,24 +415,23 @@ class ProfileColumnLayout(Gtk.ListBox):
             self.row_current_provider = None
         self.rows[self.row_current].set_css_style()
 
-    def set_dnd_css(self, row, top):
-        """
-        Set custom CSS for the drag and drop view.
-        """
-        if top:
-            css = ".frame { border-top-width: 3px; border-top-color: #4e9a06; }".encode(
-                "utf-8"
-            )
-        else:
-            css = ".frame { border-bottom-width: 3px; border-bottom-color: #4e9a06; }".encode(
-                "utf-8"
-            )
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-        context = row.get_style_context()
-        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        context.add_class("frame")
-        return provider
+
+def set_dnd_css(row, top):
+    """
+    Set custom CSS for the drag and drop view.
+    """
+    if top:
+        text = "top"
+    else:
+        text = "bottom"
+    css = ".frame { border-{}-width: 3px; border-{}-color: #4e9a06; }"
+    css = css.format(text).encode("utf-8")
+    provider = Gtk.CssProvider()
+    provider.load_from_data(css)
+    context = row.get_style_context()
+    context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    context.add_class("frame")
+    return provider
 
 
 class ProfileRowLayout(Gtk.Frame):
@@ -475,7 +484,9 @@ class ProfileRowLayout(Gtk.Frame):
         hbox.pack_start(self.hideable, False, False, 6)
         self.set_css_style()
 
-    def drag_data_get(self, widget, context, data, info, time):
+    def drag_data_get(
+        self, _dummy_widget, _dummy_context, data, _dummy_info, _dummy_time
+    ):
         """
         Return current object identifier.
         """

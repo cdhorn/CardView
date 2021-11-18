@@ -64,6 +64,7 @@ class ChildRefProfilePage(BaseProfilePage):
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
         self.active_profile = None
+        self.child = None
 
     @property
     def obj_type(self):

@@ -146,8 +146,10 @@ class FamilyProfilePage(BaseProfilePage):
             groups["partner2"].add_widget(p2parents)
             pbox.pack_start(p2parents, expand=True, fill=True, padding=0)
 
-        vbox.pack_start(pbox, expand=True, fill=True, padding=0)
-        vbox.pack_start(self.active_profile, expand=True, fill=True, padding=0)
+        header.pack_start(pbox, expand=True, fill=True, padding=0)
+        header.pack_start(
+            self.active_profile, expand=True, fill=True, padding=0
+        )
         self.add_media_bar(vbox, family)
 
         groups = self.config.get("options.page.family.layout.groups").split(

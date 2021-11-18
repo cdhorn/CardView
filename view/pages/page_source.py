@@ -90,28 +90,9 @@ class SourceProfilePage(BaseProfilePage):
         )
         obj_groups = self.get_object_groups(groups, source)
 
-        people_list = []
-        events_list = []
-        if "person" in groups or "event" in groups:
-            for (
-                obj_type,
-                obj_handle,
-            ) in self.grstate.dbstate.db.find_backlink_handles(
-                source.get_handle()
-            ):
-                if obj_type == "Citation":
-                    for (
-                        sub_obj_type,
-                        sub_obj_handle,
-                    ) in self.grstate.dbstate.db.find_backlink_handles(
-                        obj_handle
-                    ):
-                        if sub_obj_type == "Person":
-                            if sub_obj_handle not in people_list:
-                                people_list.append(("Person", sub_obj_handle))
-                        elif sub_obj_type == "Event":
-                            if sub_obj_handle not in events_list:
-                                events_list.append(("Event", sub_obj_handle))
+        people_list, events_list = self._get_referenced_subjects(
+            groups, source
+        )
 
         if people_list:
             groptions = GrampsOptions("options.group.people")
@@ -151,3 +132,30 @@ class SourceProfilePage(BaseProfilePage):
         self.add_media_bar(vbox, source)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
+
+    def _get_referenced_subjects(self, groups, source):
+        """
+        Check backlinks as needed to get referenced subjects.
+        """
+        people_list = []
+        events_list = []
+        if "person" in groups or "event" in groups:
+            for (
+                obj_type,
+                obj_handle,
+            ) in self.grstate.dbstate.db.find_backlink_handles(
+                source.get_handle()
+            ):
+                if obj_type != "Citation":
+                    continue
+                for (
+                    sub_obj_type,
+                    sub_obj_handle,
+                ) in self.grstate.dbstate.db.find_backlink_handles(obj_handle):
+                    if sub_obj_type == "Person":
+                        if sub_obj_handle not in people_list:
+                            people_list.append(("Person", sub_obj_handle))
+                    elif sub_obj_type == "Event":
+                        if sub_obj_handle not in events_list:
+                            events_list.append(("Event", sub_obj_handle))
+        return people_list, events_list
