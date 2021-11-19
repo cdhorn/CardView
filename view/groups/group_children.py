@@ -63,9 +63,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, family):
-        GrampsFrameGroupList.__init__(self, grstate, groptions)
-        self.family = family
-
+        GrampsFrameGroupList.__init__(self, grstate, groptions, family)
         context = "child"
         if "parent" in groptions.option_space:
             context = "sibling"
@@ -79,9 +77,8 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         )
 
         child_number = 0
-        for child_ref in self.family.get_child_ref_list():
+        for child_ref in family.get_child_ref_list():
             if child_ref:
-                #                child = self.fetch("Person", child_ref.ref)
                 groptions_copy = copy(groptions)
                 child_number = child_number + 1
                 if self.grstate.config.get(
@@ -103,27 +100,26 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.family.get_child_ref_list():
+            for ref in self.group_base.obj.get_child_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        action = "{} {} {} {}".format(
+        message = "{} {} {} {}".format(
             _("Reordered Children"),
             _("for"),
             _("Family"),
-            self.family.get_gramps_id(),
+            self.group_base.obj.get_gramps_id(),
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.family.set_child_ref_list(new_list)
-            self.grstate.dbstate.db.commit_family(self.family, trans)
+        self.group_base.obj.set_child_ref_list(new_list)
+        self.group_base.commit(self.grstate, message)
 
     def save_new_object(self, handle, insert_row):
         """
         Add a new child to the list of children.
         """
-        if self.family.get_father_handle() == handle:
+        if self.group_base.obj.get_father_handle() == handle:
             return
-        if self.family.get_mother_handle() == handle:
+        if self.group_base.obj.get_mother_handle() == handle:
             return
         for frame in self.row_frames:
             if frame.primary.obj.get_handle() == handle:
@@ -152,20 +148,20 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.family.get_child_ref_list():
+            for ref in self.group_base.obj.get_child_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, child_ref)
         child = self.fetch("Person", child_ref.ref)
-        action = "{} {} {} {} {}".format(
+        message = "{} {} {} {} {}".format(
             _("Added Child"),
             child.get_gramps_id(),
             _("to"),
             _("Family"),
-            self.family.get_gramps_id(),
+            self.group_base.obj.get_gramps_id(),
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.family.set_child_ref_list(new_list)
-            self.grstate.dbstate.db.commit_family(self.family, trans)
-            child.add_parent_family_handle(self.family.get_handle())
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
+            self.group_base.obj.set_child_ref_list(new_list)
+            self.grstate.dbstate.db.commit_family(self.group_base.obj, trans)
+            child.add_parent_family_handle(self.group_base.obj.get_handle())
             self.grstate.dbstate.db.commit_person(child, trans)

@@ -104,16 +104,6 @@ def button_activated(event, mouse_button):
     )
 
 
-def get_gramps_object_type(obj):
-    """
-    Return information for primary and some secondary Gramps objects.
-    """
-    for obj_type in GRAMPS_OBJECTS:
-        if isinstance(obj, obj_type[0]):
-            return obj_type[2]
-    return ""
-
-
 def format_date_string(event1, event2):
     """
     Format a simple one line date string.
@@ -902,7 +892,10 @@ def get_event_category(self, event):
             return "custom"
     return "other"
 
-def make_scrollable(widget, hexpand=False, vexpand=True, placement=Gtk.CornerType.BOTTOM_LEFT):
+
+def make_scrollable(
+    widget, hexpand=False, vexpand=True, placement=Gtk.CornerType.BOTTOM_LEFT
+):
     """
     Prepare a scrollable widget.
     """
@@ -912,3 +905,20 @@ def make_scrollable(widget, hexpand=False, vexpand=True, placement=Gtk.CornerTyp
     viewport.add(widget)
     scroll.add(viewport)
     return scroll
+
+
+def set_dnd_css(row, top):
+    """
+    Set custom CSS for the drag and drop view.
+    """
+    if top:
+        text = "top"
+    else:
+        text = "bottom"
+    css = ".frame {{ border-{}-width: 3px; border-{}-color: #4e9a06; }}"
+    provider = Gtk.CssProvider()
+    provider.load_from_data(css.format(text, text).encode("utf-8"))
+    context = row.get_style_context()
+    context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    context.add_class("frame")
+    return provider

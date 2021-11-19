@@ -28,7 +28,6 @@ AssociationsGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import PersonRef
 from gramps.gui.editors import EditPersonRef
@@ -57,9 +56,7 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions)
-        self.obj = obj
-        self.obj_type = "Person"
+        GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
@@ -98,20 +95,19 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_person_ref_list():
+            for ref in self.group_base.obj.get_person_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        action = "{} {} {} {} {}".format(
+        message = "{} {} {} {} {}".format(
             _("Reordered"),
             _("Associations"),
             _("for"),
             _("Person"),
-            self.obj.get_gramps_id(),
+            self.group_base.obj.get_gramps_id(),
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_person_ref_list(new_list)
-            self.grstate.dbstate.db.commit_person(self.obj, trans)
+        self.group_base.obj.set_person_ref_list(new_list)
+        self.group_base.commit(self.grstate, message)
 
     def save_new_object(self, handle, insert_row):
         """
@@ -141,20 +137,19 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_person_ref_list():
+            for ref in self.group_base.obj.get_person_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, person_ref)
         person = self.fetch("Person", person_ref.ref)
-        action = "{} {} {} {} {} {} {}".format(
+        message = "{} {} {} {} {} {} {}".format(
             _("Added"),
             _("Person"),
             person.get_gramps_id(),
             _("Association"),
             _("to"),
             _("Person"),
-            self.obj.get_gramps_id(),
+            self.group_base.obj.get_gramps_id(),
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_person_ref_list(new_list)
-            self.grstate.dbstate.db.commit_person(self.obj, trans)
+        self.group_base.obj.set_person_ref_list(new_list)
+        self.group_base.commit(self.grstate, message)

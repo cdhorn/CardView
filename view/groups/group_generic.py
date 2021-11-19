@@ -60,7 +60,7 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, frame_obj_type, frame_obj_handles):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, None, enable_drop=False
         )
         self.obj_type = frame_obj_type
         self.obj_handles = frame_obj_handles

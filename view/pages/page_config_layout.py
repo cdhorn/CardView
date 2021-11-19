@@ -43,7 +43,7 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
-from ..common.common_utils import ConfigReset, make_scrollable
+from ..common.common_utils import ConfigReset, make_scrollable, set_dnd_css
 from .page_const import PAGES
 from .page_utils import create_grid
 
@@ -414,24 +414,6 @@ class ProfileColumnLayout(Gtk.ListBox):
             context.remove_provider(self.row_current_provider)
             self.row_current_provider = None
         self.rows[self.row_current].set_css_style()
-
-
-def set_dnd_css(row, top):
-    """
-    Set custom CSS for the drag and drop view.
-    """
-    if top:
-        text = "top"
-    else:
-        text = "bottom"
-    css = ".frame { border-{}-width: 3px; border-{}-color: #4e9a06; }"
-    css = css.format(text).encode("utf-8")
-    provider = Gtk.CssProvider()
-    provider.load_from_data(css)
-    context = row.get_style_context()
-    context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-    context.add_class("frame")
-    return provider
 
 
 class ProfileRowLayout(Gtk.Frame):

@@ -41,7 +41,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
 from .page_base import BaseProfilePage
 from .page_const import FRAME_MAP
@@ -84,7 +83,7 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
         primary = context.primary_obj.obj
         ldsord = context.secondary_obj.obj
 
-        self.focus_type = get_gramps_object_type(primary)
+        self.focus_type = context.primary_obj.obj_type
 
         (option, frame) = FRAME_MAP[self.focus_type]
         groptions = GrampsOptions(option)

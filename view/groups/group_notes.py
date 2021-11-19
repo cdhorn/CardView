@@ -27,7 +27,6 @@ NotesGrampsFrameGroup
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_note import NoteGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -45,13 +44,11 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, obj, enable_drop=False
         )
         if not hasattr(obj, "note_list"):
             return
 
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 

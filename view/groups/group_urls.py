@@ -34,7 +34,6 @@ import re
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_note_url import NoteUrlGrampsFrame
 from ..frames.frame_url import UrlGrampsFrame
 from .group_list import GrampsFrameGroupList
@@ -54,10 +53,8 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, obj, enable_drop=False
         )
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
@@ -70,10 +67,10 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse all urls associated with object.
         """
-        if hasattr(self.obj, "urls"):
-            for url in self.obj.get_url_list():
+        if hasattr(self.group_base.obj, "urls"):
+            for url in self.group_base.obj.get_url_list():
                 frame = UrlGrampsFrame(
-                    self.grstate, self.groptions, self.obj, url
+                    self.grstate, self.groptions, self.group_base.obj, url
                 )
                 self.add_frame(frame)
 
@@ -81,11 +78,11 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse all notes associated with object.
         """
-        if hasattr(self.obj, "note_list"):
-            for handle in self.obj.get_note_list():
+        if hasattr(self.group_base.obj, "note_list"):
+            for handle in self.group_base.obj.get_note_list():
                 self.parse_note(handle)
 
-            for obj in self.obj.get_note_child_list():
+            for obj in self.group_base.obj.get_note_child_list():
                 for handle in obj.get_note_list():
                     self.parse_note(handle)
 

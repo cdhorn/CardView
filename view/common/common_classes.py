@@ -86,6 +86,17 @@ class GrampsObject:
     )
 
     def __init__(self, obj):
+        self.load(obj)
+
+    def __new__(cls, obj):
+        if obj:
+            return super().__new__(cls)
+        return None
+
+    def load(self, obj):
+        """
+        Load object state. Valid for any object type.
+        """
         self.obj = obj
         self.obj_type = None
         self.obj_current_hash = None
@@ -107,10 +118,13 @@ class GrampsObject:
         if not self.obj_type:
             raise AttributeError
 
-    def __new__(cls, obj):
-        if obj:
-            return super().__new__(cls)
-        return None
+    def refresh(self, grstate):
+        """
+        Refresh object state. Only valid if a primary object.
+        """
+        assert self.is_primary
+        obj = grstate.fetch(self.obj_type, self.obj.get_handle())
+        self.load(obj)
 
     @property
     def is_primary(self):

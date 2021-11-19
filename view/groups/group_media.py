@@ -28,7 +28,6 @@ MediaGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import MediaRef
 from gramps.gui.editors import EditMediaRef
@@ -38,7 +37,6 @@ from gramps.gui.editors import EditMediaRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_media_ref import MediaRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -58,14 +56,14 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=True
+            self, grstate, groptions, obj, enable_drop=True
         )
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
-        groptions.set_backlink((self.obj_type, self.obj.get_handle()))
+        groptions.set_backlink(
+            (self.group_base.obj_type, self.group_base.obj.get_handle())
+        )
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.media.reference-mode")
         )
@@ -111,7 +109,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                 dummy_media_type,
             ) in media_list:
                 frame = MediaRefGrampsFrame(
-                    grstate, groptions, self.obj, media_ref
+                    grstate, groptions, self.group_base.obj, media_ref
                 )
                 self.add_frame(frame)
         self.show_all()
@@ -122,23 +120,19 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_media_list():
+            for ref in self.group_base.obj.get_media_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        action = "{} {} {} {} {}".format(
+        message = "{} {} {} {} {}".format(
             _("Reordered"),
             _("Media"),
             _("for"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
+            self.group_base.obj_type,
+            self.group_base.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_media_list(new_list)
-            commit_method(self.obj, trans)
+        self.group_base.obj.set_media_list(new_list)
+        self.group_base.commit(self.grstate, message)
 
     def save_new_object(self, handle, insert_row):
         """
@@ -170,7 +164,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_media_list():
+            for ref in self.group_base.obj.get_media_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, media_ref)
@@ -180,22 +174,18 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
             _("Media"),
             media.get_gramps_id(),
             _("to"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
+            self.group_base.obj_type,
+            self.group_base.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            self.obj.set_media_list(new_list)
-            commit_method(self.obj, trans)
+        self.group_base.obj.set_media_list(new_list)
+        self.group_base.commit(self.grstate, message)
 
     def collect_media(self):
         """
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(media_list, self.obj)
+        self.extract_media(media_list, self.group_base.obj)
         return media_list
 
     def extract_media(self, media_list, obj):

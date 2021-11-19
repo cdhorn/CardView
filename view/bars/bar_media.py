@@ -61,7 +61,6 @@ from ..common.common_const import _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,
     citation_option_text,
-    get_gramps_object_type,
     menu_item,
     note_option_text,
 )
@@ -92,8 +91,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             self.set_vexpand(False)
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
+        self.base = GrampsObject(obj)
         self.total = 0
         self.box = self.init_layout(css, vertical)
 
@@ -120,7 +118,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             frame = GrampsMediaBarItem(
                 grstate,
                 groptions,
-                (self.obj, self.obj_type),
+                (self.base.obj, self.base.obj_type),
                 media,
                 media_ref,
                 size=size,
@@ -169,7 +167,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         Helper to collect the media for the current object.
         """
         media_list = []
-        self.extract_media(media_list, self.obj, self.obj_type)
+        self.extract_media(media_list, self.base.obj, self.base.obj_type)
         return media_list
 
     def extract_media(self, media_list, obj, _dummy_obj_type):

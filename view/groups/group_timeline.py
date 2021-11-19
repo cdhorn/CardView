@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type, get_key_person_events
+from ..common.common_utils import get_key_person_events
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event_ref import EventRefGrampsFrame
@@ -60,10 +60,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, obj, enable_drop=False
         )
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         self.options = {
             "categories": [],
             "relations": [],
@@ -82,13 +80,13 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             relatives=self.options["relations"],
             relative_events=self.options["relation_categories"],
         )
-        if self.obj_type == "Person":
+        if self.group_base.obj_type == "Person":
             self.timeline.set_person(
                 obj.get_handle(),
                 ancestors=self.options["ancestors"],
                 offspring=self.options["offspring"],
             )
-        elif self.obj_type == "Family":
+        elif self.group_base.obj_type == "Family":
             self.timeline.set_family(
                 obj.get_handle(),
                 ancestors=self.options["ancestors"],
@@ -99,9 +97,11 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for (sortval, item) in self.timeline.events(raw=True):
             timeline.append((sortval, "event", None, item))
 
-        if self.obj_type == "Person" and self.get_option("show-age"):
+        if self.group_base.obj_type == "Person" and self.get_option(
+            "show-age"
+        ):
             key_events = get_key_person_events(
-                grstate.dbstate.db, self.obj, birth_only=True
+                grstate.dbstate.db, obj, birth_only=True
             )
             if key_events["birth"] and key_events["birth"].date:
                 self.groptions.set_age_base(key_events["birth"].date)
@@ -111,15 +111,15 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             groptions.set_ref_mode(
                 self.grstate.config.get(
                     "options.timeline.{}.reference-mode".format(
-                        self.obj_type.lower()
+                        self.group_base.obj_type.lower()
                     )
                 )
             )
         except AttributeError:
             groptions.set_ref_mode(0)
 
-        if self.obj_type == "Person":
-            groptions.set_relation(self.obj)
+        if self.group_base.obj_type == "Person":
+            groptions.set_relation(obj)
 
         timeline.sort(key=lambda x: x[0])
         for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
@@ -144,7 +144,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                     )
                 )
             elif timeline_obj_type == "media":
-                (media, media_ref) = item
+                (media, dummy_media_ref) = item
                 self.add_frame(MediaGrampsFrame(grstate, groptions, media))
             elif timeline_obj_type == "address":
                 self.add_frame(
@@ -190,11 +190,11 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for category in EVENT_CATEGORIES:
             if self.get_option("show-class-{}".format(category)):
                 self.options["categories"].append(category)
-            if self.obj_type == "Person":
+            if self.group_base.obj_type == "Person":
                 if self.get_option("show-family-class-{}".format(category)):
                     self.options["relation_categories"].append(category)
 
-        if self.obj_type == "Person":
+        if self.group_base.obj_type == "Person":
             for relation in RELATIVES:
                 if self.get_option("show-family-{}".format(relation)):
                     self.options["relations"].append(relation)
@@ -234,17 +234,21 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             extract = extract_ordinances
 
         obj_list = []
-        if self.obj_type == "Person":
-            obj_list = extract(self.obj)
-        elif self.obj_type == "Family":
-            if self.obj.get_mother_handle():
-                mother = self.fetch("Person", self.obj.get_mother_handle())
+        if self.group_base.obj_type == "Person":
+            obj_list = extract(self.group_base.obj)
+        elif self.group_base.obj_type == "Family":
+            if self.group_base.obj.get_mother_handle():
+                mother = self.fetch(
+                    "Person", self.group_base.obj.get_mother_handle()
+                )
                 obj_list = obj_list + extract(mother)
-            if self.obj.get_father_handle():
-                father = self.fetch("Person", self.obj.get_father_handle())
+            if self.group_base.obj.get_father_handle():
+                father = self.fetch(
+                    "Person", self.group_base.obj.get_father_handle()
+                )
                 obj_list = obj_list + extract(father)
-            if self.obj.get_child_ref_list():
-                for child_ref in self.obj.get_child_ref_list():
+            if self.group_base.obj.get_child_ref_list():
+                for child_ref in self.group_base.obj.get_child_ref_list():
                     child = self.fetch("Person", child_ref.ref)
                     obj_list = obj_list + extract(child)
         return obj_list

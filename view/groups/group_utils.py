@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib import Person, Family
 
 # ------------------------------------------------------------------------
 #
@@ -42,7 +43,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_addresses import AddressesGrampsFrameGroup
 from .group_associations import AssociationsGrampsFrameGroup
@@ -592,11 +592,10 @@ def get_events_group(grstate, obj, raw=False, age_base=None):
     """
     Get the group for all the events related to a person or family
     """
-    obj_type = get_gramps_object_type(obj)
     group_set = Gtk.VBox(spacing=6)
 
-    if obj_type == "Person":
-        group = prepare_event_group(grstate, obj, obj_type)
+    if isinstance(obj, Person):
+        group = prepare_event_group(grstate, obj, "Person")
         if group:
             group_set.add(group)
 
@@ -605,8 +604,8 @@ def get_events_group(grstate, obj, raw=False, age_base=None):
             group = prepare_event_group(grstate, family, "Family")
             if group:
                 group_set.add(group)
-    elif obj_type == "Family":
-        group = prepare_event_group(grstate, obj, obj_type)
+    elif isinstance(obj, Family):
+        group = prepare_event_group(grstate, obj, "Family")
         if group:
             group_set.add(group)
     return group_set

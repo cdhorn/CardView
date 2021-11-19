@@ -34,7 +34,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -54,10 +53,8 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, obj, enable_drop=False
         )
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 

@@ -28,7 +28,6 @@ EventsGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import EventRef
 from gramps.gui.editors import EditEventRef
@@ -38,7 +37,6 @@ from gramps.gui.editors import EditEventRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_event_ref import EventRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -59,9 +57,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions)
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
+        GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
 
@@ -70,7 +66,6 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         )
         groptions.set_relation(obj)
         for event_ref in obj.get_event_ref_list():
-            event = self.grstate.fetch("Event", event_ref.ref)
             frame = EventRefGrampsFrame(
                 grstate,
                 groptions,
@@ -86,23 +81,19 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_event_ref_list():
+            for ref in self.group_base.obj.get_event_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        action = "{} {} {} {} {}".format(
+        message = "{} {} {} {} {}".format(
             _("Reordered"),
             _("Events"),
             _("for"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
+            self.group_base.obj_type,
+            self.group_base.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_event_ref_list(new_list)
-            commit_method(self.obj, trans)
+        self.group_base.obj.set_event_ref_list(new_list)
+        self.group_base.commit(self.grstate, message)
 
     def save_new_object(self, handle, insert_row):
         """
@@ -134,22 +125,18 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.obj.get_event_ref_list():
+            for ref in self.group_base.obj.get_event_ref_list():
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, event_ref)
         event = self.fetch("Event", event_ref.ref)
-        action = "{} {} {} {} {} {}".format(
+        message = "{} {} {} {} {} {}".format(
             _("Added"),
             _("Event"),
             event.get_gramps_id(),
             _("to"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
+            self.group_base.obj_type,
+            self.group_base.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            self.obj.set_event_ref_list(new_list)
-            commit_method(self.obj, trans)
+        self.group_base.obj.set_event_ref_list(new_list)
+        self.group_base.commit(self.grstate, message)

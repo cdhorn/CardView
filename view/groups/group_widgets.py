@@ -42,8 +42,9 @@ from gramps.gui.managedwindow import ManagedWindow
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsObject
 from ..common.common_const import GROUP_LABELS
-from ..common.common_utils import get_gramps_object_type
+from ..common.common_utils import make_scrollable
 from .group_const import OBJECT_GROUPS
 
 
@@ -60,19 +61,13 @@ class FrameGroupWindow(ManagedWindow):
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
         self.grstate = grstate
         self.callback = callback
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
+        self.group_base = GrampsObject(obj)
         self.group_type = group_type
 
         group = OBJECT_GROUPS[group_type](grstate, obj, raw=True)
         self.group_box = Gtk.VBox(spacing=3, margin=3)
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
-
-        scroll = Gtk.ScrolledWindow(hexpand=False, vexpand=True)
-        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        viewport = Gtk.Viewport()
-        viewport.add(self.group_box)
-        scroll.add(viewport)
+        scroll = make_scrollable(self.group_box)
 
         self.root = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.root.set_transient_for(self.uistate.window)
@@ -95,48 +90,47 @@ class FrameGroupWindow(ManagedWindow):
         """
         Get the menu title.
         """
-        if hasattr(self.obj, "handle"):
+        if hasattr(self.group_base.obj, "handle"):
             name, dummy_obj = navigation_label(
                 self.grstate.dbstate.db,
-                self.obj_type,
-                self.obj.get_handle(),
+                self.group_base.obj_type,
+                self.group_base.obj.get_handle(),
             )
             return "{} - {}".format(name, GROUP_LABELS[self.group_type])
         return GROUP_LABELS[self.group_type]
 
-    def reload(self, obj, group_type):
+    def rebuild(self):
         """
-        Load new group, replacing the current one.
+        Rebuild current group contents.
         """
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
-        self.group_type = group_type
-        group = OBJECT_GROUPS[group_type](self.grstate, obj, raw=True)
+        group = OBJECT_GROUPS[self.group_type](
+            self.grstate, self.group_base.obj, raw=True
+        )
         list(map(self.group_box.remove, self.group_box.get_children()))
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
         self.set_window(self.root, None, self.get_menu_title())
         self.show()
 
+    def reload(self, obj, group_type=None):
+        """
+        Load new group, replacing the current one.
+        """
+        self.group_base = GrampsObject(obj)
+        if group_type:
+            self.group_type = group_type
+        self.rebuild()
+
     def refresh(self):
         """
         Refresh current group, if not possible close window.
         """
-        print("refresh window")
-        if not hasattr(self.obj, "handle"):
+        if not hasattr(self.group_base.obj, "handle"):
             return self.close()
 
-        self.obj = self.grstate.fetch(self.obj_type, self.obj.get_handle())
-        if not self.obj:
-            return self.close()
+        self.group_base.refresh(self.grstate)
+        return self.rebuild()
 
-        group = OBJECT_GROUPS[self.group_type](
-            self.grstate, self.obj, raw=True
-        )
-        list(map(self.group_box.remove, self.group_box.get_children()))
-        self.group_box.pack_start(group, expand=False, fill=True, padding=0)
-        self.show()
-
-    def close(self, *args, defer_delete=False):
+    def close(self, *_dummy_args, defer_delete=False):
         """
         Close the window.
         """

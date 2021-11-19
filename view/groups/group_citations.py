@@ -28,14 +28,12 @@ CitationsGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_gramps_object_type
 from ..frames.frame_citation import CitationGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -55,10 +53,8 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(
-            self, grstate, groptions, enable_drop=False
+            self, grstate, groptions, obj, enable_drop=False
         )
-        self.obj = obj
-        self.obj_type = get_gramps_object_type(obj)
         self.maximum = grstate.config.get(
             "options.global.max-citations-per-group"
         )
@@ -85,18 +81,15 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         Add new citation to the list.
         """
         citation = self.fetch("Citation", handle)
-        action = "{} {} {} {}".format(
-            _("Added Citation"),
+        message = "{} {} {} {} {}".format(
+            _("Added"),
+            _("Citation"),
             citation.get_gramps_id(),
             _("to"),
-            self.obj.get_gramps_id(),
+            self.group_base.obj.get_gramps_id(),
         )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            if self.obj.add_citation(handle):
-                commit_method(self.obj, trans)
+        self.group_base.obj.add_citation(handle)
+        self.group_base.commit(self.grstate, message)
 
     def collect_citations(self):
         """
@@ -104,51 +97,69 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         """
         citation_list = []
         self.extract_citations(
-            0, self.obj_type, citation_list, None, [self.obj]
+            0,
+            self.group_base.obj_type,
+            citation_list,
+            None,
+            [self.group_base.obj],
         )
 
-        if self.obj_type == "Person":
+        if self.group_base.obj_type == "Person":
             if self.get_option("include-indirect"):
                 self.extract_citations(
                     1,
                     _("Primary Name"),
                     citation_list,
                     None,
-                    [self.obj.primary_name],
+                    [self.group_base.obj.primary_name],
                 )
                 self.extract_citations(
-                    1, _("Media"), citation_list, self.obj.get_media_list
+                    1,
+                    _("Media"),
+                    citation_list,
+                    self.group_base.obj.get_media_list,
                 )
                 self.extract_citations(
                     1,
                     _("Alternate Name"),
                     citation_list,
-                    self.obj.get_alternate_names,
+                    self.group_base.obj.get_alternate_names,
                 )
                 self.extract_citations(
-                    1, _("Address"), citation_list, self.obj.get_address_list
+                    1,
+                    _("Address"),
+                    citation_list,
+                    self.group_base.obj.get_address_list,
                 )
                 self.extract_citations(
                     1,
                     _("Attribute"),
                     citation_list,
-                    self.obj.get_attribute_list,
+                    self.group_base.obj.get_attribute_list,
                 )
                 self.extract_citations(
-                    1, _("LDS Event"), citation_list, self.obj.get_lds_ord_list
+                    1,
+                    _("LDS Event"),
+                    citation_list,
+                    self.group_base.obj.get_lds_ord_list,
                 )
                 self.extract_citations(
                     1,
                     _("Association"),
                     citation_list,
-                    self.obj.get_person_ref_list,
+                    self.group_base.obj.get_person_ref_list,
                 )
                 self.extract_citations(
-                    1, _("Event"), citation_list, self.obj.get_event_ref_list
+                    1,
+                    _("Event"),
+                    citation_list,
+                    self.group_base.obj.get_event_ref_list,
                 )
 
             if self.get_option("include-family"):
-                for family_handle in self.obj.get_family_handle_list():
+                for (
+                    family_handle
+                ) in self.group_base.obj.get_family_handle_list():
                     family = self.fetch("Family", family_handle)
                     self.extract_citations(
                         0, "Family", citation_list, None, [family]
@@ -159,10 +170,12 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                         )
 
             if self.get_option("include-parent-family"):
-                for family_handle in self.obj.get_parent_family_handle_list():
+                for (
+                    family_handle
+                ) in self.group_base.obj.get_parent_family_handle_list():
                     family = self.fetch("Family", family_handle)
                     for child_ref in family.get_child_ref_list():
-                        if child_ref.ref == self.obj.get_handle():
+                        if child_ref.ref == self.group_base.obj.get_handle():
                             for handle in child_ref.get_citation_list():
                                 citation = self.fetch("Citation", handle)
                                 citation_list.append(
@@ -174,20 +187,24 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                                     )
                                 )
 
-        if self.obj_type == "Family":
+        if self.group_base.obj_type == "Family":
             if self.get_option("include-indirect"):
-                self.extract_family_indirect_citations(citation_list, self.obj)
+                self.extract_family_indirect_citations(
+                    citation_list, self.group_base.obj
+                )
 
-        if self.obj_type == "Source":
+        if self.group_base.obj_type == "Source":
             for (
                 obj_type,
                 obj_handle,
             ) in self.grstate.dbstate.db.find_backlink_handles(
-                self.obj.get_handle()
+                self.group_base.obj.get_handle()
             ):
                 if obj_type == "Citation":
                     citation = self.fetch("Citation", obj_handle)
-                    citation_list.append((citation, [self.obj], 0, obj_type))
+                    citation_list.append(
+                        (citation, [self.group_base.obj], 0, obj_type)
+                    )
                     if len(citation_list) >= self.maximum:
                         break
 
