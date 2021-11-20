@@ -597,13 +597,14 @@ def build_repository_grid(configdialog, grstate, space):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
-    configdialog.add_combo(
-        grid,
-        _("Reference display mode"),
-        3,
-        "{}.repository.reference-mode".format(space),
-        REF_DISPLAY_MODES,
-    )
+    if "group" in space:
+        configdialog.add_combo(
+            grid,
+            _("Reference display mode"),
+            3,
+            "{}.repository.reference-mode".format(space),
+            REF_DISPLAY_MODES,
+        )
     configdialog.add_text(grid, _("Attributes"), 9, bold=True)
     configdialog.add_checkbox(
         grid,
