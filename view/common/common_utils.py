@@ -876,7 +876,7 @@ def find_secondary_object(obj, secondary_type, secondary_hash):
     return None
 
 
-def get_event_category(self, event):
+def get_event_category(event):
     """
     Return the category for grouping an event.
     """

@@ -32,16 +32,16 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Confidence Color Scheme
     ######################################################################
-    ("options.colors.confidence.very-high", ["#99c1f1", "#304918"]),
-    ("options.colors.confidence.high", ["#8ff0a4", "#454545"]),
-    ("options.colors.confidence.normal", ["#f9f06b", "#454545"]),
-    ("options.colors.confidence.low", ["#ffbe6f", "#454545"]),
-    ("options.colors.confidence.very-low", ["#f66161", "#454545"]),
-    ("options.colors.confidence.border-very-high", ["#1a5fb4", "#000000"]),
-    ("options.colors.confidence.border-high", ["#26a269", "#000000"]),
-    ("options.colors.confidence.border-normal", ["#e5a50a", "#000000"]),
-    ("options.colors.confidence.border-low", ["#c64600", "#000000"]),
-    ("options.colors.confidence.border-very-low", ["#a51d2d", "#000000"]),
+    ("options.colors.confidence.very-high", ["#bbe68a", "#304918"]),
+    ("options.colors.confidence.high", ["#b8cee6", "#1f344a"]),
+    ("options.colors.confidence.normal", ["#f3dbb6", "#75507b"]),
+    ("options.colors.confidence.low", ["#ffdede", "#5c3636"]),
+    ("options.colors.confidence.very-low", ["#feccf0", "#62242d"]),
+    ("options.colors.confidence.border-very-high", ["#304918", "#bbe68a"]),
+    ("options.colors.confidence.border-high", ["#1f4986", "#171d26"]),
+    ("options.colors.confidence.border-normal", ["#8e5801", "#8e5801"]),
+    ("options.colors.confidence.border-low", ["#ff7373", "#720b0b"]),
+    ("options.colors.confidence.border-very-low", ["#861f69", "#261111"]),
     ######################################################################
     ## Relationship Color Scheme
     ######################################################################
@@ -90,13 +90,15 @@ CONFIGSETTINGS = (
     ## Event Role Color Scheme
     ######################################################################
     ("options.colors.roles.primary", ["#bbe68e", "#304918"]),
-    ("options.colors.roles.secondary", ["#eeeeee", "#454545"]),
-    ("options.colors.roles.family", ["#eeeeee", "#454545"]),
-    ("options.colors.roles.other", ["#eeeeee", "#454545"]),
-    ("options.colors.roles.border-primary", ["#cccccc", "#000000"]),
-    ("options.colors.roles.border-secondary", ["#cccccc", "#000000"]),
-    ("options.colors.roles.border-family", ["#cccccc", "#000000"]),
-    ("options.colors.roles.border-other", ["#cccccc", "#000000"]),
+    ("options.colors.roles.secondary", ["#f3dbb6", "#75507b"]),
+    ("options.colors.roles.family", ["#b8cee6", "#1f344a"]),
+    ("options.colors.roles.implicit", ["#eeeeee", "#454545"]),
+    ("options.colors.roles.other", ["#ffdede", "#5c3636"]),
+    ("options.colors.roles.border-primary", ["#304918", "#bbe68a"]),
+    ("options.colors.roles.border-secondary", ["#8e5801", "#8e5801"]),
+    ("options.colors.roles.border-family", ["#1f4986", "#171d26"]),
+    ("options.colors.roles.border-implicit", ["#cccccc", "#252525"]),
+    ("options.colors.roles.border-other", ["#ff7373", "#720b0b"]),
     ######################################################################
     # Global Options
     ######################################################################
@@ -765,6 +767,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.active.event.event-format", 1),
     ("options.active.event.image-mode", 3),
+    ("options.active.event.color-scheme", 1),
     ("options.active.event.attributes-field-show-labels", False),
     ("options.active.event.attributes-field-1", "None"),
     ("options.active.event.attributes-field-2", "None"),
@@ -1073,6 +1076,7 @@ CONFIGSETTINGS = (
     ("options.group.event.event-format", 1),
     ("options.group.event.image-mode", 0),
     ("options.group.event.reference-mode", 1),
+    ("options.group.event.color-scheme", 1),
     ("options.group.event.attributes-field-show-labels", False),
     ("options.group.event.attributes-field-1", "None"),
     ("options.group.event.attributes-field-2", "None"),
@@ -1153,8 +1157,8 @@ CONFIGSETTINGS = (
     ## Person Timeline
     ######################################################################
     ("options.timeline.person.image-mode", 0),
-    ("options.timeline.person.reference-mode", 3),
-    ("options.timeline.person.color-scheme", 0),
+    ("options.timeline.person.reference-mode", 1),
+    ("options.timeline.person.color-scheme", 1),
     ("options.timeline.person.include-media", False),
     ("options.timeline.person.include-names", False),
     ("options.timeline.person.include-addresses", False),
@@ -1206,8 +1210,8 @@ CONFIGSETTINGS = (
     ## Family Timeline
     ######################################################################
     ("options.timeline.family.image-mode", 0),
-    ("options.timeline.family.reference-mode", 3),
-    ("options.timeline.family.color-scheme", 0),
+    ("options.timeline.family.reference-mode", 1),
+    ("options.timeline.family.color-scheme", 1),
     ("options.timeline.family.include-media", False),
     ("options.timeline.family.include-names", False),
     ("options.timeline.family.include-addresses", False),

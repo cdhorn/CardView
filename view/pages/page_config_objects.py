@@ -48,6 +48,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from .page_const import (
+    EVENT_COLOR_MODES,
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
     MEDIA_IMAGE_DISPLAY_MODES,
@@ -132,7 +133,7 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         "{}.{}.image-mode".format(space, person),
         IMAGE_DISPLAY_MODES,
     )
-    if person in ["child", "sibling", "association"]:
+    if "group" in space and person in ["child", "sibling", "association"]:
         configdialog.add_combo(
             grid1,
             _("Reference display mode"),
@@ -320,6 +321,14 @@ def build_media_grid(configdialog, grstate, space, group=True):
         "{}.media.image-mode".format(space),
         MEDIA_IMAGE_DISPLAY_MODES,
     )
+    if "group" in space:
+        configdialog.add_combo(
+            grid,
+            _("Reference display mode"),
+            13,
+            "{}.media.reference-mode".format(space),
+            REF_DISPLAY_MODES,
+        )
     configdialog.add_checkbox(
         grid,
         _("Show date"),
@@ -660,8 +669,15 @@ def build_event_grid(configdialog, grstate, space):
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
     configdialog.add_combo(
         grid,
-        _("Event display format"),
+        _("Event color scheme"),
         1,
+        "{}.event.color-scheme".format(space),
+        EVENT_COLOR_MODES,
+    )
+    configdialog.add_combo(
+        grid,
+        _("Event display format"),
+        2,
         "{}.event.event-format".format(space),
         EVENT_DISPLAY_MODES,
     )
@@ -672,13 +688,14 @@ def build_event_grid(configdialog, grstate, space):
         "{}.event.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    configdialog.add_combo(
-        grid,
-        _("Reference display mode"),
-        4,
-        "{}.event.reference-mode".format(space),
-        REF_DISPLAY_MODES,
-    )
+    if "group" in space:
+        configdialog.add_combo(
+            grid,
+            _("Reference display mode"),
+            4,
+            "{}.event.reference-mode".format(space),
+            REF_DISPLAY_MODES,
+        )
     configdialog.add_text(grid, _("Display Attributes"), 12, bold=True)
     configdialog.add_checkbox(
         grid,

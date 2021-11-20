@@ -116,7 +116,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
         if len(vbox) > 0:
             self.ref_widgets["body"].pack_start(vbox, False, False, 0)
         else:
-            del(vbox)
+            del vbox
 
     def add_ref_custom_actions(self, action_menu):
         """

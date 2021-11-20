@@ -92,6 +92,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             self, grstate, groptions, event, reference_tuple=reference_tuple
         )
         self.event_confidence = 0
+        self.event_role_type = "primary"
+        self.event_relationship = "self"
 
         if event and event.get_date_object() and groptions.age_base:
             self.load_age(groptions.age_base, event.get_date_object())
@@ -172,46 +174,55 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         (
             dummy_primary_obj_type,
-            dummy_primary_obj,
+            primary_obj,
             primary_obj_event_ref,
             primary_obj_name,
         ) = primary_participant
 
-        relation = self.groptions.relation
-        if not self.base or not self.reference or not relation:
-            role = str(primary_obj_event_ref.get_role())
-            title = event_type
-            return title, role
+        if self.reference:
+            role = self.reference.obj.get_role()
+        else:
+            role = primary_obj_event_ref.get_role()
 
-        role = ""
-        title = ""
-        if self.base.obj_type == "Person":
-            if self.base.obj.get_handle() == relation.get_handle():
+        if role.is_family():
+            self.event_role_type = "family"
+        elif role.is_primary():
+            self.event_role_type = "primary"
+        else:
+            self.event_role_type = "secondary"
+
+        role_name = str(role)
+        title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
+        if self.base.obj.get_handle() == primary_obj.get_handle():
+            if "person" in self.groptions.option_space:
                 title = event_type
-                role = _("Primary")
-            else:
-                relationship = get_relation(
-                    self.grstate.dbstate.db,
-                    relation,
-                    self.base.obj,
+
+        if "Unknown" in role.xml_str():
+            self.event_role_type = "other"
+
+        relation = self.groptions.relation
+        if self.base.obj_type == "Person" and relation:
+            relationship = get_relation(
+                self.grstate.dbstate.db,
+                relation,
+                self.base.obj,
+            )
+            if relationship:
+                self.event_role_type = "implicit"
+                self.event_relationship = relationship
+                title = "{} {} {}".format(
+                    event_type, _("of"), relationship.split()[0].title()
                 )
-                if relationship:
-                    title = "{} {} {}".format(
-                        event_type, _("of"), relationship.split()[0].title()
-                    )
-                    inverse_relationship = get_relation(
-                        self.grstate.dbstate.db,
-                        self.base.obj,
-                        relation,
-                    )
-                    role = "{}: {}".format(
-                        _("Implicit Family"),
-                        inverse_relationship.split()[0].title(),
-                    )
-        if not title:
-            title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
-            role = str(self.reference.obj.get_role())
-        return title, role
+                inverse_relationship = get_relation(
+                    self.grstate.dbstate.db,
+                    self.base.obj,
+                    relation,
+                )
+                role_name = "{}: {}".format(
+                    _("Implicit Family"),
+                    inverse_relationship.split()[0].title(),
+                )
+        return title, role_name
 
     def _load_participants(self):
         """
@@ -309,19 +320,19 @@ class EventGrampsFrame(ReferenceGrampsFrame):
 
         scheme = self.get_option("color-scheme")
         if scheme == 1:
-            return get_relationship_color_css(
-                self.relation_to_reference, self.grstate.config
+            return get_event_role_color_css(
+                self.event_role_type, self.grstate.config
             )
         if scheme == 2:
-            return get_event_role_color_css(
-                self.role_type, self.grstate.config
-            )
-        if scheme == 3:
             category = get_event_category(self.primary.obj)
             return get_event_category_color_css(category, self.grstate.config)
-        if scheme == 4:
+        if scheme == 3:
             return get_confidence_color_css(
                 self.event_confidence, self.grstate.config
+            )
+        if scheme == 4:
+            return get_relationship_color_css(
+                self.event_relationship, self.grstate.config
             )
 
         if self.primary_participant[0] == "Person":
