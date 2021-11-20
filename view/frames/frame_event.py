@@ -209,14 +209,16 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             )
             if relationship:
                 self.event_role_type = "implicit"
-                self.event_relationship = relationship
-                title = "{} {} {}".format(
-                    event_type, _("of"), relationship.split()[0].title()
-                )
                 inverse_relationship = get_relation(
                     self.grstate.dbstate.db,
                     self.base.obj,
                     relation,
+                )
+                self.event_relationship = inverse_relationship
+                title = "{} {} {}".format(
+                    event_type,
+                    _("of"),
+                    inverse_relationship.split()[0].title(),
                 )
                 role_name = "{}: {}".format(
                     _("Implicit Family"),
@@ -324,7 +326,9 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 self.event_role_type, self.grstate.config
             )
         if scheme == 2:
-            category = get_event_category(self.primary.obj)
+            category = get_event_category(
+                self.grstate.dbstate.db, self.primary.obj
+            )
             return get_event_category_color_css(category, self.grstate.config)
         if scheme == 3:
             return get_confidence_color_css(

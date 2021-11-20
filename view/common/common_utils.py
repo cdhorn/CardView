@@ -371,26 +371,28 @@ def get_confidence_color_css(index, config):
     return format_color_css(background, border)
 
 
-def get_relationship_color_css(index, config):
+def get_relationship_color_css(relationship, config):
     """
     Return css color string based on relationship.
     """
-    if not index:
+    if not relationship:
         return ""
 
+    index = relationship.lower()
     key = None
     if index == "self":
         key = "active"
     else:
         key = "none"
         for relative in RELATIVES:
-            if relative in ["wife", "husband"]:
-                if "spouse" in index:
+            if relative in index:
+                if relative in ["wife", "husband"]:
                     key = "spouse"
-            elif relative in index:
-                key = relative
+                else:
+                    key = relative
                 break
 
+    print("index: {}  key: {}".format(index, key))
     background = config.get("options.colors.relations.{}".format(key))
     border = config.get("options.colors.relations.border-{}".format(key))
     return format_color_css(background, border)
@@ -876,7 +878,7 @@ def find_secondary_object(obj, secondary_type, secondary_hash):
     return None
 
 
-def get_event_category(event):
+def get_event_category(db, event):
     """
     Return the category for grouping an event.
     """
@@ -886,7 +888,7 @@ def get_event_category(event):
         for event_id in entry[1]:
             if event_type == event_id:
                 return event_key
-    custom_event_types = self.db_handle.get_event_types()
+    custom_event_types = db.get_event_types()
     for event_name in custom_event_types:
         if event_type.xml_str() == event_name:
             return "custom"
