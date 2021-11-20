@@ -166,8 +166,8 @@ class LinkedView(ExtendedNavigationView):
             obj = self.cache[handle][0]
             self.cache.update({handle: (obj, int(time.time()))})
             return obj
-        if len(self.cache) > 1000:
-            refs = [(x, self.cache[x][1]) for x in self.cache.items()]
+        if len(self.cache) > 500:
+            refs = [(x, y[1]) for x, y in self.cache.items()]
             refs.sort(key=lambda x: x[1])
             for ref in refs[:100]:
                 del self.cache[ref[0]]
@@ -299,9 +299,8 @@ class LinkedView(ExtendedNavigationView):
                 self.initial_object_loaded = self._seed_history()
             if not self.initial_object_loaded:
                 obj_tuple = self._get_last()
-                if obj_tuple:
-                    self.history.push(tuple(obj_tuple))
-                    self.initial_object_loaded = True
+                self.history.push(tuple(obj_tuple))
+                self.initial_object_loaded = True
         ExtendedNavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
@@ -329,6 +328,33 @@ class LinkedView(ExtendedNavigationView):
                     )
                     return True
         return False
+
+    def _get_last(self):
+        """
+        Try to determine last accessed object.
+        """
+        dbid = self.dbstate.db.get_dbid()
+        if not dbid:
+            return None
+        try:
+            obj_tuple = get_config_option(
+                self._config, "options.active.last_object", dbid=dbid
+            )
+        except ValueError:
+            obj_tuple = None
+        if not obj_tuple or len(obj_tuple) != 2:
+            initial_person = self.dbstate.db.find_initial_person()
+            if not initial_person:
+                return None
+            obj_tuple = ("Person", initial_person.get_handle())
+        return (
+            obj_tuple[0],
+            obj_tuple[1],
+            None,
+            None,
+            None,
+            None,
+        )
 
     def update_history_reference(self, old, new):
         """
@@ -647,33 +673,6 @@ class LinkedView(ExtendedNavigationView):
             self.dirty = True
         for dummy_key, window in self.group_windows.items():
             window.refresh()
-
-    def _get_last(self):
-        """
-        Try to determine last accessed object.
-        """
-        dbid = self.dbstate.db.get_dbid()
-        if not dbid:
-            return None
-        try:
-            obj_tuple = get_config_option(
-                self._config, "options.active.last_object", dbid=dbid
-            )
-        except ValueError:
-            return None
-        if not obj_tuple or len(obj_tuple) != 2:
-            initial_person = self.dbstate.db.find_initial_person()
-            if not initial_person:
-                return None
-            obj_tuple = ("Person", initial_person.get_handle())
-        return (
-            obj_tuple[0],
-            obj_tuple[1],
-            None,
-            None,
-            None,
-            None,
-        )
 
     def clipboard_copy(self, data, handle):
         """
