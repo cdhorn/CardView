@@ -24,6 +24,13 @@ EventRefGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
+# GTK modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# ------------------------------------------------------------------------
+#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -77,9 +84,11 @@ class EventRefGrampsFrame(EventGrampsFrame):
                         self.make_label(text), False, False, 0
                     )
 
-        self.ref_widgets["body"].pack_start(
-            self.make_label(str(event_ref.get_role())), False, False, 0
-        )
+        vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
+        vbox.pack_start(self.make_label(str(event_ref.get_role())), False, False, 0)
+        self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+#            self.make_label(str(event_ref.get_role())), False, False, 0
+#        )
 
     def add_ref_custom_actions(self, action_menu):
         """

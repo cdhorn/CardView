@@ -72,7 +72,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
         if not groptions.ref_mode:
             return
 
-        vbox = None
+        vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
         left = groptions.ref_mode == 1
         if self.get_option("show-call-number") and repo_ref.call_number:
             if groptions.ref_mode in [1, 3]:
@@ -89,7 +89,6 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
                     0,
                 )
             else:
-                vbox = Gtk.VBox()
                 text = "{}: {}".format(
                     _("Call number"), repo_ref.call_number
                 ).replace("::", ":")
@@ -110,14 +109,14 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
                     self.make_label(text, left=left), False, False, 0
                 )
             else:
-                if not vbox:
-                    vbox = Gtk.VBox()
                 if text:
                     text = "{} {}: {}".format(_("Media"), _("type"), text)
                 vbox.pack_start(self.make_label(text), False, False, 0)
 
-            if vbox:
-                self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+        if len(vbox) > 0:
+            self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+        else:
+            del(vbox)
 
     def add_ref_custom_actions(self, action_menu):
         """
