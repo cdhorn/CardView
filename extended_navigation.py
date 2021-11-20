@@ -676,7 +676,7 @@ class ExtendedHistory(Callback):
             if sync_hist.present() != obj_handle:
                 sync_hist.push(obj_handle)
 
-    def push(self, item):
+    def push(self, item, quiet=False):
         """
         Pushes the page reference on the history stack and object on the
         mru stack.
@@ -689,16 +689,19 @@ class ExtendedHistory(Callback):
             full_item = item
         if len(self.history) == 0 or full_item != self.history[-1]:
             self.history.append(full_item)
+            self.index += 1
+            if quiet:
+                return
             if full_item[0] != "Tag":
                 mru_item = (full_item[0], full_item[1])
                 if mru_item in self.mru:
                     self.mru.remove(mru_item)
                 self.mru.append(mru_item)
                 self.emit("mru-changed", (self.mru,))
-            self.index += 1
             if self.history:
                 self.emit("active-changed", (full_item,))
             self.sync_other(full_item[0], full_item[1])
+        return
 
     def forward(self, step=1):
         """

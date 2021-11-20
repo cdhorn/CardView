@@ -82,6 +82,18 @@ from view.pages.page_tag import TagProfilePage
 
 _ = glocale.translation.sgettext
 
+EDIT_TOOLTIPS = {
+    "Person": _("Edit the active person"),
+    "Family": _("Edit the active family"),
+    "Event": _("Edit the active event"),
+    "Note": _("Edit the active note"),
+    "Media": _("Edit the active media"),
+    "Place": _("Edit the active place"),
+    "Citation": _("Edit the active citation"),
+    "Source": _("Edit the active source"),
+    "Repository": _("Edit the active repository"),
+}
+
 
 class LinkedView(ExtendedNavigationView):
     """
@@ -120,10 +132,8 @@ class LinkedView(ExtendedNavigationView):
             )
 
         self.grstate = None
-
-        self.cache = {}
         self.methods = {}
-        self._init_cache()
+        self._init_methods()
 
         self.pages = {}
         self._init_pages()
@@ -135,11 +145,14 @@ class LinkedView(ExtendedNavigationView):
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
 
-    def _init_cache(self):
+        self.hits = 0
+        self.miss = 0
+        self.purge = 0
+
+    def _init_methods(self):
         """
-        Initialize simple Gramps object cache.
+        Initialize query methods cache.
         """
-        self.cache = {}
         self.methods = {}
         for obj_type in [
             "Person",
@@ -162,24 +175,12 @@ class LinkedView(ExtendedNavigationView):
         """
         Fetch an object from cache when possible.
         """
-        if handle in self.cache:
-            obj = self.cache[handle][0]
-            self.cache.update({handle: (obj, int(time.time()))})
-            return obj
-        if len(self.cache) > 500:
-            refs = [(x, y[1]) for x, y in self.cache.items()]
-            refs.sort(key=lambda x: x[1])
-            for ref in refs[:100]:
-                del self.cache[ref[0]]
-            del refs
         try:
-            obj = self.methods[obj_type](handle)
+            return self.methods[obj_type](handle)
         except HandleError:
             return None
-        self.cache.update({handle: (obj, int(time.time()))})
-        return obj
 
-    @lru_cache(maxsize=300)
+    @lru_cache(maxsize=32)
     def fetch_thumbnail(self, path, rectangle, size):
         """
         Fetch a thumbnail from cache when possible.
@@ -299,8 +300,9 @@ class LinkedView(ExtendedNavigationView):
                 self.initial_object_loaded = self._seed_history()
             if not self.initial_object_loaded:
                 obj_tuple = self._get_last()
-                self.history.push(tuple(obj_tuple))
-                self.initial_object_loaded = True
+                if obj_tuple:
+                    self.history.push(tuple(obj_tuple))
+                    self.initial_object_loaded = True
         ExtendedNavigationView.change_page(self)
         self.uistate.clear_filter_results()
 
@@ -324,7 +326,8 @@ class LinkedView(ExtendedNavigationView):
                             None,
                             None,
                             None,
-                        )
+                        ),
+                        quiet=True,
                     )
                     return True
         return False
@@ -641,28 +644,21 @@ class LinkedView(ExtendedNavigationView):
         Reset page if database changed.
         """
         self._change_db(db)
+        self._init_methods()
         if self.active:
             self.bookmarks.redraw()
         for dummy_key, window in self.group_windows.items():
             window.close(defer_delete=True)
         self.group_windows.clear()
         self.history.clear()
-        self._init_cache()
         self.fetch_thumbnail.cache_clear()
         self.dirty = True
         self.redraw(None)
 
     def redraw(self, handle_list=None):
         """
-        Redraw current view if needed, invalidating cached objects
-        if called as result of anything changing.
+        Redraw current view if needed.
         """
-        if handle_list:
-            for handle in handle_list:
-                if handle in self.cache:
-                    del self.cache[handle]
-                    self.dirty = True
-
         if self.active:
             active_object = self.get_active()
             if active_object:
@@ -715,9 +711,8 @@ class LinkedView(ExtendedNavigationView):
             if not obj_tuple:
                 self._clear_change()
                 return
-            self.history.push(tuple(obj_tuple))
+            self.history.push(tuple(obj_tuple), quiet=True)
             self.initial_object_loaded = True
-            return
 
         if self.in_change_object:
             return
@@ -725,17 +720,18 @@ class LinkedView(ExtendedNavigationView):
 
         page_context = GrampsContext()
         page_context.load_page_location(self.grstate, obj_tuple)
-        self.render_page(page_context)
+        if page_context.primary_obj:
+            self.render_page(page_context)
 
-        if self.initial_object_loaded:
-            dbid = self.dbstate.db.get_dbid()
-            save_config_option(
-                self._config,
-                "options.active.last_object",
-                page_context.primary_obj.obj_type,
-                page_context.primary_obj.obj.get_handle(),
-                dbid=dbid,
-            )
+            if self.initial_object_loaded:
+                dbid = self.dbstate.db.get_dbid()
+                save_config_option(
+                    self._config,
+                    "options.active.last_object",
+                    page_context.primary_obj.obj_type,
+                    page_context.primary_obj.obj.get_handle(),
+                    dbid=dbid,
+                )
         self.in_change_object = False
         return
 
@@ -743,43 +739,21 @@ class LinkedView(ExtendedNavigationView):
         """
         Render a new page view.
         """
+        start = time.time()
         if self.active_page:
             self.active_page.disable_actions(self.uimanager)
 
         self._clear_change()
-        if not page_context.primary_obj:
-            return
-
         page = self.pages[page_context.page_type]
         page.render_page(self.header, self.vbox, page_context)
         page.enable_actions(self.uimanager, page_context.primary_obj)
         self.uimanager.update_menu()
 
         primary_obj_type = page_context.primary_obj.obj_type
-
         edit_button = self.uimanager.get_widget("EditButton")
-        if edit_button:
-            tooltip = ""
-            if primary_obj_type == "Person":
-                tooltip = _("Edit the active person")
-            elif primary_obj_type == "Family":
-                tooltip = _("Edit the active family")
-            elif primary_obj_type == "Event":
-                tooltip = _("Edit the active event")
-            elif primary_obj_type == "Note":
-                tooltip = _("Edit the active note")
-            elif primary_obj_type == "Media":
-                tooltip = _("Edit the active media")
-            elif primary_obj_type == "Place":
-                tooltip = _("Edit the active place")
-            elif primary_obj_type == "Citation":
-                tooltip = _("Edit the active citation")
-            elif primary_obj_type == "Source":
-                tooltip = _("Edit the active source")
-            elif primary_obj_type == "Repository":
-                tooltip = _("Edit the active repository")
-            if tooltip:
-                edit_button.set_tooltip_text(tooltip)
+        if edit_button and primary_obj_type in EDIT_TOOLTIPS:
+            tooltip = EDIT_TOOLTIPS[primary_obj_type]
+            edit_button.set_tooltip_text(tooltip)
 
         self.uistate.modify_statusbar(self.dbstate)
 
@@ -803,6 +777,12 @@ class LinkedView(ExtendedNavigationView):
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)
         self.dirty = False
+        print(
+            "render_page: {} {}".format(
+                page_context.primary_obj.obj.get_gramps_id(),
+                time.time() - start,
+            )
+        )
 
     def set_active(self):
         """
