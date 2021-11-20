@@ -190,15 +190,17 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             self.event_role_type = "primary"
         else:
             self.event_role_type = "secondary"
+        if "Unknown" in role.xml_str():
+            self.event_role_type = "other"
 
         role_name = str(role)
         title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
+        if not self.base:
+            return title, role_name
+        
         if self.base.obj.get_handle() == primary_obj.get_handle():
             if "person" in self.groptions.option_space:
                 title = event_type
-
-        if "Unknown" in role.xml_str():
-            self.event_role_type = "other"
 
         relation = self.groptions.relation
         if self.base.obj_type == "Person" and relation:

@@ -392,7 +392,6 @@ def get_relationship_color_css(relationship, config):
                     key = relative
                 break
 
-    print("index: {}  key: {}".format(index, key))
     background = config.get("options.colors.relations.{}".format(key))
     border = config.get("options.colors.relations.border-{}".format(key))
     return format_color_css(background, border)
