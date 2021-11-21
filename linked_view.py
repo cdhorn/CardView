@@ -145,10 +145,6 @@ class LinkedView(ExtendedNavigationView):
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
 
-        self.hits = 0
-        self.miss = 0
-        self.purge = 0
-
     def _init_methods(self):
         """
         Initialize query methods cache.
@@ -288,7 +284,6 @@ class LinkedView(ExtendedNavigationView):
         return self.active_page.get_configure_page_funcs()
 
     def goto_handle(self, handle):
-        self.dirty = True
         self.change_object(handle)
 
     def build_tree(self):
@@ -652,21 +647,19 @@ class LinkedView(ExtendedNavigationView):
         self.group_windows.clear()
         self.history.clear()
         self.fetch_thumbnail.cache_clear()
-        self.dirty = True
         self.redraw(None)
 
     def redraw(self, handle_list=None):
         """
         Redraw current view if needed.
         """
+        self.dirty = True
         if self.active:
             active_object = self.get_active()
             if active_object:
                 self.change_object(active_object)
             else:
                 self.change_object(None)
-        else:
-            self.dirty = True
         for dummy_key, window in self.group_windows.items():
             window.refresh()
 
@@ -706,6 +699,8 @@ class LinkedView(ExtendedNavigationView):
         """
         Change the page view to load a new active object.
         """
+        if not self.dirty:
+            return
         if not obj_tuple:
             obj_tuple = self._get_last()
             if not obj_tuple:
