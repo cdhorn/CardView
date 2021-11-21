@@ -95,13 +95,17 @@ class PersonProfilePage(BaseProfilePage):
                 ("ShareFamily", self.add_existing_parents),
             ]
         )
+        self.person_action = ActionGroup(name="Person")
+        self.person_action.add_actions([("SetActive", self.set_default_person)])
         view.add_action_group(self.order_action)
         view.add_action_group(self.family_action)
+        view.add_action_group(self.person_action)
 
     def enable_actions(self, uimanager, _dummy_obj):
         """
         Enable page specific actions.
         """
+        uimanager.set_actions_visible(self.person_action, True)
         uimanager.set_actions_visible(self.family_action, True)
         uimanager.set_actions_visible(self.order_action, True)
 
@@ -109,6 +113,7 @@ class PersonProfilePage(BaseProfilePage):
         """
         Disable page specific actions.
         """
+        uimanager.set_actions_visible(self.person_action, False)        
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
@@ -191,3 +196,10 @@ class PersonProfilePage(BaseProfilePage):
         """
         if self.active_profile:
             self.active_profile.add_new_parents()
+
+    def set_default_person(self, *_dummy_obj):
+        """
+        Set new default person.
+        """
+        if self.active_profile:
+            self.active_profile.set_default_person()        

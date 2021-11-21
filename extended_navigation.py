@@ -21,22 +21,21 @@
 #
 
 """
-Provide the base classes for GRAMPS' DataView classes
+ExtendedNavigation class
 """
-
-import html
-import logging
 
 # ----------------------------------------------------------------
 #
 # Python modules
 #
 # ----------------------------------------------------------------
+import html
+import logging
 from abc import abstractmethod
 
 # ----------------------------------------------------------------
 #
-# Gnome/Gtk modules
+# Gtk modules
 #
 # ----------------------------------------------------------------
 from gi.repository import Gdk, Gtk
@@ -49,13 +48,18 @@ from gi.repository import Gdk, Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.constfunc import mod_key
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.utils.callback import Callback
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.dialog import WarningDialog
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.utils import match_primary_mask
 from gramps.gui.views.pageview import PageView
 
+# ----------------------------------------------------------------
+#
+# Plugin modules
+#
+# ----------------------------------------------------------------
+from extended_history import ExtendedHistory
 
 _ = glocale.translation.sgettext
 
@@ -98,7 +102,7 @@ class ExtendedNavigationView(PageView):
         self.mru_ui = None
         self.active_type = None
 
-        self.other_history = {}
+        other_history = {}
         for history_type in (
             "Person",
             "Family",
@@ -110,13 +114,13 @@ class ExtendedNavigationView(PageView):
             "Source",
             "Repository",
         ):
-            self.other_history[history_type] = self.uistate.get_history(
+            other_history[history_type] = self.uistate.get_history(
                 history_type
             )
-            self.other_history[history_type].connect(
+            other_history[history_type].connect(
                 "active-changed", self.sync(history_type)
             )
-        self.history = ExtendedHistory(self.dbstate, self.other_history)
+        self.history = ExtendedHistory(self.dbstate, other_history)
 
     def sync(self, history_type):
         """
@@ -136,12 +140,12 @@ class ExtendedNavigationView(PageView):
         """
         self.change_active(("Person", handle, None, None, None, None))
 
+    @abstractmethod        
     def navigation_type(self):
         """
-        Should be overridden in derived classes. Indictates the navigation
+        Must be set in derived classes. Indictates the navigation
         type, a string representing any of the primary Gramps objects.
         """
-        return ""
 
     def define_actions(self):
         """
@@ -190,9 +194,6 @@ class ExtendedNavigationView(PageView):
         )
         self.uimanager.set_actions_sensitive(
             self.back_action, not hobj.at_front()
-        )
-        self.uimanager.set_actions_sensitive(
-            self.other_action, not self.dbstate.db.readonly
         )
         self.uistate.modify_statusbar(self.dbstate)
 
@@ -360,13 +361,8 @@ class ExtendedNavigationView(PageView):
         )
 
         self._add_action("HomePerson", self.home, "%sHome" % mod_key())
-
-        self.other_action = ActionGroup(name=self.title + "/PersonOther")
-        self.other_action.add_actions([("SetActive", self.set_default_person)])
-
         self._add_action_group(self.back_action)
         self._add_action_group(self.fwd_action)
-        self._add_action_group(self.other_action)
 
     def set_default_person(self, *_dummy_obj):
         """
@@ -519,7 +515,7 @@ class ExtendedNavigationView(PageView):
             data.append(
                 (
                     "%s%02d" % (nav_type, index),
-                    make_callback(hobj.push, items[index]),
+                    make_callback(hobj.push, items[index]),                    
                     "%s%d" % (mod_key(), menu_len - 1 - index),
                 )
             )
@@ -574,9 +570,7 @@ class ExtendedNavigationView(PageView):
                 dummy_secondary_obj_type,
                 dummy_secondary_obj_hash,
             ) = handles[0]
-            self.copy_to_clipboard(
-                primary_obj_type, [primary_obj_handle]
-            )
+            self.copy_to_clipboard(primary_obj_type, [primary_obj_handle])
 
 
 def make_callback(func, handle):
@@ -584,293 +578,3 @@ def make_callback(func, handle):
     Generates a callback function based off the passed arguments
     """
     return lambda x, y: func(handle)
-
-
-# ------------------------------------------------------------------------------
-#
-# ExtendedHistory class
-#
-# ------------------------------------------------------------------------------
-class ExtendedHistory(Callback):
-    """
-    The ExtendedHistory manages the pages that have been viewed, with ability to
-    go backward or forward. Unlike a list view History class it can track pages
-    for embedded secondary objects. It will also attempt to keep the list view
-    history in sync.
-
-    In this extended class a history item or page reference is a tuple
-    consisting of:
-
-        (
-            primary_object_type,
-            primary_object_handle,
-            reference_object_type,
-            reference_object_handle,
-            secondary_object_type,
-            secondary_object_hash
-        )
-
-    The secondary_object_hash is a sha256 hash of the json serialized object
-    that is used as a signature for the object so it can be identified. In
-    order for this hash to remain valid when secondary objects are updated
-    the replace_secondary method should be called to update the hash as part
-    of the update process.
-    """
-
-    __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
-
-    def __init__(self, dbstate, other_history):
-        Callback.__init__(self)
-        self.dbstate = dbstate
-        self.history = []
-        self.other_history = other_history
-        self.mru = []
-        self.index = -1
-        self.lock = False
-
-        dbstate.connect("database-changed", self.connect_signals)
-        self.signal_map = {}
-        self.signal_map["person-delete"] = self.person_removed
-        self.signal_map["person-rebuild"] = self.history_changed
-        self.signal_map["family-delete"] = self.family_removed
-        self.signal_map["family-rebuild"] = self.history_changed
-        self.signal_map["event-delete"] = self.event_removed
-        self.signal_map["event-rebuild"] = self.history_changed
-        self.signal_map["place-delete"] = self.place_removed
-        self.signal_map["place-rebuild"] = self.history_changed
-        self.signal_map["media-delete"] = self.media_removed
-        self.signal_map["media-rebuild"] = self.history_changed
-        self.signal_map["note-delete"] = self.note_removed
-        self.signal_map["note-rebuild"] = self.history_changed
-        self.signal_map["citation-delete"] = self.citation_removed
-        self.signal_map["citation-rebuild"] = self.history_changed
-        self.signal_map["source-delete"] = self.source_removed
-        self.signal_map["source-rebuild"] = self.history_changed
-        self.signal_map["repository-delete"] = self.repository_removed
-        self.signal_map["repository-rebuild"] = self.history_changed
-        self.signal_map["tag-delete"] = self.tag_removed
-        self.connect_signals(dbstate.db)
-
-    def connect_signals(self, db):
-        """
-        Connects database signals when the database has changed.
-        """
-        for sig, callback in self.signal_map.items():
-            db.connect(sig, callback)
-
-    def clear(self):
-        """
-        Clears the history, resetting the values back to their defaults.
-        """
-        self.history = []
-        self.mru = []
-        self.index = -1
-        self.lock = False
-
-    def sync_other(self, obj_type, obj_handle):
-        """
-        Updates the history object for the list view if needed.
-        """
-        if obj_type in self.other_history:
-            sync_hist = self.other_history[obj_type]
-            if sync_hist.present() != obj_handle:
-                sync_hist.push(obj_handle)
-
-    def push(self, item, quiet=False):
-        """
-        Pushes the page reference on the history stack and object on the
-        mru stack.
-        """
-        print("history.push: {}".format(item))
-        self.prune()
-        if len(item) == 2:
-            full_item = (item[0], item[1], None, None, None, None)
-        else:
-            full_item = item
-        if len(self.history) == 0 or full_item != self.history[-1]:
-            self.history.append(full_item)
-            self.index += 1
-            if quiet:
-                return
-            if full_item[0] != "Tag":
-                mru_item = (full_item[0], full_item[1])
-                if mru_item in self.mru:
-                    self.mru.remove(mru_item)
-                self.mru.append(mru_item)
-                self.emit("mru-changed", (self.mru,))
-            if self.history:
-                self.emit("active-changed", (full_item,))
-            self.sync_other(full_item[0], full_item[1])
-        return
-
-    def forward(self, step=1):
-        """
-        Moves forward in the history list.
-        """
-        self.index += step
-        item = self.history[self.index]
-        if item[0] != "Tag":
-            mru_item = (item[0], item[1])
-            if mru_item in self.mru:
-                self.mru.remove(mru_item)
-            self.mru.append(mru_item)
-            self.emit("mru-changed", (self.mru,))
-        self.emit("active-changed", (item,))
-        self.sync_other(item[0], item[1])
-        return item
-
-    def back(self, step=1):
-        """
-        Moves backward in the history list.
-        """
-        self.index -= step
-        try:
-            item = self.history[self.index]
-            if item[0] != "Tag":
-                mru_item = (item[0], item[1])
-                if mru_item in self.mru:
-                    self.mru.remove(mru_item)
-                self.mru.append(mru_item)
-                self.emit("mru-changed", (self.mru,))
-            self.emit("active-changed", (item,))
-            self.sync_other(item[0], item[1])
-            return item
-        except IndexError:
-            return ""
-
-    def present(self):
-        """
-        Return the active/current history object.
-        """
-        try:
-            if self.history:
-                return self.history[self.index]
-            return ""
-        except IndexError:
-            return ""
-
-    def at_end(self):
-        """
-        Return True if at the end of the history list.
-        """
-        return self.index + 1 == len(self.history)
-
-    def at_front(self):
-        """
-        Return True if at the front of the history list.
-        """
-        return self.index <= 0
-
-    def prune(self):
-        """
-        Truncate the history list at the current object.
-        """
-        if not self.at_end():
-            self.history = self.history[0 : self.index + 1]
-
-    def person_removed(self, handle_list):
-        """
-        Remove a person from the history.
-        """
-        self.handles_removed("Person", handle_list)
-
-    def family_removed(self, handle_list):
-        """
-        Remove a family from the history.
-        """
-        self.handles_removed("Family", handle_list)
-
-    def event_removed(self, handle_list):
-        """
-        Remove an event from the history.
-        """
-        self.handles_removed("Event", handle_list)
-
-    def place_removed(self, handle_list):
-        """
-        Remove a place from the history.
-        """
-        self.handles_removed("Place", handle_list)
-
-    def media_removed(self, handle_list):
-        """
-        Remove a media item from the history.
-        """
-        self.handles_removed("Media", handle_list)
-
-    def note_removed(self, handle_list):
-        """
-        Remove a note from the history.
-        """
-        self.handles_removed("Note", handle_list)
-
-    def citation_removed(self, handle_list):
-        """
-        Remove a citation from the history.
-        """
-        self.handles_removed("Citation", handle_list)
-
-    def source_removed(self, handle_list):
-        """
-        Remove a source from the history.
-        """
-        self.handles_removed("Source", handle_list)
-
-    def repository_removed(self, handle_list):
-        """
-        Remove a repository from the history.
-        """
-        self.handles_removed("Repository", handle_list)
-
-    def tag_removed(self, handle_list):
-        """
-        Remove a tag from the history.
-        """
-        self.handles_removed("Tag", handle_list, silent=True)
-
-    def handles_removed(self, _dummy_var, handle_list, silent=False):
-        """
-        Removes pages for a specific object from the history.
-        """
-        for handle in handle_list:
-            for item in self.history:
-                if handle in [item[1], item[3]]:
-                    self.history.remove(item)
-                    self.index -= 1
-
-            for item in self.mru:
-                if item[1] == handle:
-                    self.mru.remove(item)
-        if not silent:
-            if self.history:
-                self.emit("active-changed", (self.history[self.index],))
-            self.emit("mru-changed", (self.mru,))
-
-    def replace_secondary(self, old, new):
-        """
-        Replace old secondary handle or hash value with new one.
-        """
-        replaced_item = False
-        for item in self.history:
-            if item[5] == old:
-                new_item = (
-                    item[0],
-                    item[1],
-                    item[2],
-                    item[3],
-                    item[4],
-                    new,
-                )
-                index = self.history.index(item)
-                self.history.remove(item)
-                self.history.insert(index, new_item)
-                replaced_item = True
-        return replaced_item
-
-    def history_changed(self):
-        """
-        Called in response to an object-rebuild signal.
-        Objects in the history list may have been deleted.
-        """
-        self.clear()
-        self.emit("mru-changed", (self.mru,))

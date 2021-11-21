@@ -197,7 +197,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
         if not self.base:
             return title, role_name
-        
+
         if self.base.obj.get_handle() == primary_obj.get_handle():
             if "person" in self.groptions.option_space:
                 title = event_type

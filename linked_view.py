@@ -21,7 +21,7 @@
 #
 
 """
-Linked View
+LinkedView class
 """
 
 # -------------------------------------------------------------------------
@@ -412,6 +412,19 @@ class LinkedView(ExtendedNavigationView):
 """,
         """
     <placeholder id='BarCommonEdit'>
+    <child groups='Person'>
+      <object class="GtkToolButton">
+        <property name="icon-name">gramps-person</property>
+        <property name="action-name">win.SetActive</property>
+        <property name="tooltip_text" translatable="yes">"""
+        """Make default person</property>
+        <property name="label" translatable="yes">_Set Active</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
     <child groups='RO'>
       <object class="GtkToolButton" id="EditButton">
         <property name="icon-name">gtk-edit</property>

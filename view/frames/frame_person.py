@@ -361,6 +361,13 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
+        action_menu.append(
+            menu_item(
+                "gramps-person",
+                _("Make default person"),
+                self.set_default_person,
+            )
+        )
         action_menu.append(self._add_new_person_event_option())
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
             action_menu.append(self._add_new_family_event_option())
@@ -699,3 +706,11 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             self.grstate.dbstate.db.remove_child_from_family(
                 self.primary.obj.get_handle(), self.backlink
             )
+
+    def set_default_person(self, *_dummy_obj):
+        """
+        Set the default person.
+        """
+        self.grstate.dbstate.db.set_default_person_handle(
+            self.primary.obj.get_handle()
+        )
