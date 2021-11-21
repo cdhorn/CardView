@@ -438,7 +438,6 @@ class GrampsOptions:
         "vertical_orientation",
         "backlink",
         "relation",
-        "parent",
         "context",
         "age_base",
     )
@@ -451,7 +450,6 @@ class GrampsOptions:
         self.vertical_orientation = True
         self.backlink = None
         self.relation = None
-        self.parent = None
         self.context = option_space.split(".")[-1]
         self.age_base = None
 
@@ -467,7 +465,7 @@ class GrampsOptions:
     def set_ref_mode(self, value):
         """
         Set reference view mode.
-        0 = none, 1 = top, 2 = right, 3 = bottom
+        0 = none, 1 = left, 2 = top, 3 = right, 4 = bottom
         """
         self.ref_mode = value
 
@@ -494,12 +492,6 @@ class GrampsOptions:
         Set the relation.
         """
         self.relation = value
-
-    def set_parent(self, value):
-        """
-        Set the relation.
-        """
-        self.parent = value
 
     def set_context(self, value):
         """

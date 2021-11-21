@@ -47,17 +47,24 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
-from gramps.gen.const import CUSTOM_FILTERS
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError, WindowActiveError
+from gramps.gen.errors import HandleError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
-from gramps.gui.editors import FilterEditor
 from gramps.gui.views.bookmarks import PersonBookmarks
 
+# -------------------------------------------------------------------------
+#
+# Plugin Modules
+#
+# -------------------------------------------------------------------------
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
-from view.common.common_utils import get_config_option, save_config_option
+from view.common.common_utils import (
+    get_config_option,
+    make_scrollable,
+    save_config_option,
+)
 from view.groups.group_widgets import FrameGroupWindow
 from view.pages.page_address import AddressProfilePage
 from view.pages.page_attribute import AttributeProfilePage
@@ -97,8 +104,7 @@ EDIT_TOOLTIPS = {
 
 class LinkedView(ExtendedNavigationView):
     """
-    View showing a textual representation of the relationships and events of
-    the active person.
+    A browseable view across all the associated objects in a tree.
     """
 
     # Kept separate due to sheer number of them
@@ -114,34 +120,27 @@ class LinkedView(ExtendedNavigationView):
             PersonBookmarks,
             nav_group,
         )
-        self.header = None
-        self.vbox = None
-        self.child = None
-        self.scroll = None
-        self.viewport = None
-        self.dirty = False
-        self.active_type = None
-        self.in_change_object = False
-        self.initial_object_loaded = False
-
         self.passed_uistate = uistate
         self.passed_navtype = None
         if uistate.viewmanager.active_page:
             self.passed_navtype = (
                 uistate.viewmanager.active_page.navigation_type()
             )
-
+        self.header = None
+        self.vbox = None
+        self.child = None
         self.grstate = None
         self.methods = {}
         self._init_methods()
-
         self.pages = {}
         self._init_pages()
         self.active_page = None
-        self.additional_uis.append(self.additional_ui)
+        self.active_type = None
         self.group_windows = {}
-
-        dbstate.connect("database-changed", self.change_db)
+        self.in_change_object = False
+        self.initial_object_loaded = False
+        self.additional_uis.append(self.additional_ui)
+        dbstate.connect("database-changed", self._handle_db_change)
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
 
@@ -149,7 +148,6 @@ class LinkedView(ExtendedNavigationView):
         """
         Initialize query methods cache.
         """
-        self.methods = {}
         for obj_type in [
             "Person",
             "Family",
@@ -169,7 +167,7 @@ class LinkedView(ExtendedNavigationView):
 
     def fetch_object(self, obj_type, handle):
         """
-        Fetch an object from cache when possible.
+        Fetch an object from the database.
         """
         try:
             return self.methods[obj_type](handle)
@@ -241,24 +239,28 @@ class LinkedView(ExtendedNavigationView):
             "note",
             "tag",
         ]:
-            self.callman.add_db_signal("{}-add".format(obj_type), self.redraw)
             self.callman.add_db_signal(
-                "{}-update".format(obj_type), self.redraw
+                "{}-add".format(obj_type), self.build_tree
             )
             self.callman.add_db_signal(
-                "{}-delete".format(obj_type), self.redraw
+                "{}-update".format(obj_type), self.build_tree
             )
             self.callman.add_db_signal(
-                "{}-rebuild".format(obj_type), self.redraw
+                "{}-delete".format(obj_type), self.build_tree
+            )
+            self.callman.add_db_signal(
+                "{}-rebuild".format(obj_type), self.build_tree
             )
 
     def navigation_type(self):
+        """
+        Return active navigation type.
+        """
         return self.active_type
 
     def can_configure(self):
         """
-        See :class:`~gui.views.pageview.PageView
-        :return: bool
+        Return indicator view is configurable.
         """
         return True
 
@@ -268,98 +270,13 @@ class LinkedView(ExtendedNavigationView):
         """
         for item in self.CONFIGSETTINGS:
             if item[0][:9] != "interface":
-                self._config.connect(item[0], self.config_update)
-
-    def config_update(self, *_dummy_args):
-        """
-        Redraw if configuration option changed.
-        """
-        self.dirty = True
-        self.redraw()
+                self._config.connect(item[0], self.build_tree)
 
     def _get_configure_page_funcs(self):
         """
-        Return functions to build configuration dialog for a page.
+        Return functions to build the configuration dialogs.
         """
         return self.active_page.get_configure_page_funcs()
-
-    def goto_handle(self, handle):
-        self.change_object(handle)
-
-    def build_tree(self):
-        self.redraw()
-
-    def change_page(self):
-        if not self.history.history:
-            if self.passed_uistate and self.passed_navtype:
-                self.initial_object_loaded = self._seed_history()
-            if not self.initial_object_loaded:
-                obj_tuple = self._get_last()
-                if obj_tuple:
-                    self.history.push(tuple(obj_tuple))
-                    self.initial_object_loaded = True
-        ExtendedNavigationView.change_page(self)
-        self.uistate.clear_filter_results()
-
-    def _seed_history(self):
-        """
-        Attempt to seed our history cache with last object using the uistate
-        copy as the views may be using divergent history navigation classes.
-        """
-        if not self.passed_uistate.history_lookup:
-            return False
-        for nav_obj in self.passed_uistate.history_lookup:
-            obj_type, dummy_nav_type = nav_obj
-            if obj_type == self.passed_navtype:
-                obj_history = self.passed_uistate.history_lookup[nav_obj]
-                if obj_history and obj_history.present():
-                    self.history.push(
-                        (
-                            obj_type,
-                            obj_history.present(),
-                            None,
-                            None,
-                            None,
-                            None,
-                        ),
-                        quiet=True,
-                    )
-                    return True
-        return False
-
-    def _get_last(self):
-        """
-        Try to determine last accessed object.
-        """
-        dbid = self.dbstate.db.get_dbid()
-        if not dbid:
-            return None
-        try:
-            obj_tuple = get_config_option(
-                self._config, "options.active.last_object", dbid=dbid
-            )
-        except ValueError:
-            obj_tuple = None
-        if not obj_tuple or len(obj_tuple) != 2:
-            initial_person = self.dbstate.db.find_initial_person()
-            if not initial_person:
-                return None
-            obj_tuple = ("Person", initial_person.get_handle())
-        return (
-            obj_tuple[0],
-            obj_tuple[1],
-            None,
-            None,
-            None,
-            None,
-        )
-
-    def update_history_reference(self, old, new):
-        """
-        Replace secondary reference in history entries with a new one.
-        Used to keep history in sync with secondary object updates.
-        """
-        return self.history.replace_secondary(old, new)
 
     def get_stock(self):
         """
@@ -370,28 +287,22 @@ class LinkedView(ExtendedNavigationView):
         return "gramps-relation"
 
     def get_viewtype_stock(self):
-        """Type of view in category"""
+        """
+        Type of view in category.
+        """
         return "gramps-relation"
 
     def build_widget(self):
         """
-        Build the widget that contains the view, see
-        :class:`~gui.views.pageview.PageView
+        Build the widget that contains the view.
         """
-        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        container.set_border_width(6)
-        self.header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.child = None
-        self.scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
-        self.scroll.set_policy(
-            Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC
-        )
-        self.viewport = Gtk.Viewport()
-        self.viewport.add(self.vbox)
-        self.scroll.add(self.viewport)
+        self.header = Gtk.VBox(spacing=3)
+        self.vbox = Gtk.VBox()
+        scroll = make_scrollable(self.vbox)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        container = Gtk.VBox(spacing=3, border_width=3)
         container.pack_start(self.header, False, False, 0)
-        container.pack_end(self.scroll, True, True, 0)
+        container.pack_end(scroll, True, True, 0)
         container.show_all()
         return container
 
@@ -440,15 +351,6 @@ class LinkedView(ExtendedNavigationView):
         <item>
           <attribute name="action">win.ChangeOrder</attribute>
           <attribute name="label" translatable="yes">_Reorder</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddParticipant</attribute>
-          <attribute name="label" translatable="yes">Add Participant...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.FilterEdit</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Person Filter Editor</attribute>
         </item>
       </placeholder>
 """,
@@ -609,8 +511,7 @@ class LinkedView(ExtendedNavigationView):
         for page in self.pages.values():
             page.define_actions(self)
 
-        self._add_action("Edit", self.edit_active, "<PRIMARY>Return")
-        self._add_action("FilterEdit", callback=self.filter_editor)
+        self._add_action("Edit", self._edit_active, "<PRIMARY>Return")
         self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
 
     def add_action_group(self, action_group):
@@ -619,22 +520,13 @@ class LinkedView(ExtendedNavigationView):
         """
         self._add_action_group(action_group)
 
-    def filter_editor(self, *_dummy_obj):
-        """
-        Run filter editor.
-        """
-        try:
-            FilterEditor("Person", CUSTOM_FILTERS, self.dbstate, self.uistate)
-        except WindowActiveError:
-            return
-
-    def edit_active(self, *_dummy_obj):
+    def _edit_active(self, *_dummy_obj):
         """
         Edit active object.
         """
         self.active_page.edit_active()
 
-    def change_db(self, db):
+    def _handle_db_change(self, db):
         """
         Reset page if database changed.
         """
@@ -647,11 +539,24 @@ class LinkedView(ExtendedNavigationView):
         self.group_windows.clear()
         self.history.clear()
         self.fetch_thumbnail.cache_clear()
-        self.redraw(None)
+        self.build_tree()
 
-    def redraw(self, handle_list=None):
+    def change_page(self):
         """
-        Redraw current view if needed.
+        Called when the page changes.
+        """
+        ExtendedNavigationView.change_page(self)
+        self.uistate.clear_filter_results()
+
+    def goto_handle(self, handle):
+        """
+        Goto a specific object.
+        """
+        self.change_object(handle)
+
+    def build_tree(self, *_dummy_args):
+        """
+        Perform redraw to populate tree.
         """
         self.dirty = True
         if self.active:
@@ -662,12 +567,6 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(None)
         for dummy_key, window in self.group_windows.items():
             window.refresh()
-
-    def clipboard_copy(self, data, handle):
-        """
-        Copy current object to clipboard.
-        """
-        return self.copy_to_clipboard(data, [handle])
 
     def _clear_change(self):
         """
@@ -716,8 +615,7 @@ class LinkedView(ExtendedNavigationView):
         page_context = GrampsContext()
         page_context.load_page_location(self.grstate, obj_tuple)
         if page_context.primary_obj:
-            self.render_page(page_context)
-
+            self._render_page(page_context)
             if self.initial_object_loaded:
                 dbid = self.dbstate.db.get_dbid()
                 save_config_option(
@@ -730,7 +628,7 @@ class LinkedView(ExtendedNavigationView):
         self.in_change_object = False
         return
 
-    def render_page(self, page_context):
+    def _render_page(self, page_context):
         """
         Render a new page view.
         """
@@ -783,8 +681,76 @@ class LinkedView(ExtendedNavigationView):
         """
         Called when the page is displayed.
         """
+        if not self.initial_object_loaded and not self.history.history:
+            if self.passed_uistate and self.passed_navtype:
+                self.initial_object_loaded = self._seed_history()
+            if not self.initial_object_loaded:
+                obj_tuple = self._get_last()
+                if obj_tuple:
+                    self.history.push(tuple(obj_tuple))
+                    self.initial_object_loaded = True
         ExtendedNavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
+
+    def _seed_history(self):
+        """
+        Attempt to seed our history cache with last object using the uistate
+        copy as the views may be using divergent history navigation classes.
+        """
+        if not self.passed_uistate.history_lookup:
+            return False
+        for nav_obj in self.passed_uistate.history_lookup:
+            obj_type, dummy_nav_type = nav_obj
+            if obj_type == self.passed_navtype:
+                obj_history = self.passed_uistate.history_lookup[nav_obj]
+                if obj_history and obj_history.present():
+                    self.history.push(
+                        (
+                            obj_type,
+                            obj_history.present(),
+                            None,
+                            None,
+                            None,
+                            None,
+                        ),
+                        quiet=True,
+                    )
+                    return True
+        return False
+
+    def _get_last(self):
+        """
+        Try to determine last accessed object.
+        """
+        dbid = self.dbstate.db.get_dbid()
+        if not dbid:
+            return None
+        try:
+            obj_tuple = get_config_option(
+                self._config, "options.active.last_object", dbid=dbid
+            )
+        except ValueError:
+            obj_tuple = None
+        if not obj_tuple or len(obj_tuple) != 2:
+            initial_person = self.dbstate.db.find_initial_person()
+            if not initial_person:
+                return None
+            obj_tuple = ("Person", initial_person.get_handle())
+        return (
+            obj_tuple[0],
+            obj_tuple[1],
+            None,
+            None,
+            None,
+            None,
+        )
+
+    def update_history_reference(self, old, new):
+        """
+        Replace secondary reference in history entries with a new one.
+        Used to keep history in sync with secondary object updates.
+        """
+        return self.history.replace_secondary(old, new)
 
     def set_inactive(self):
         """
@@ -798,6 +764,12 @@ class LinkedView(ExtendedNavigationView):
         Return current active handle.
         """
         return [self.get_active()]
+
+    def clipboard_copy(self, data, handle):
+        """
+        Copy current object to clipboard.
+        """
+        return self.copy_to_clipboard(data, [handle])
 
     def add_tag(self, trans, object_handle, tag_handle):
         """
