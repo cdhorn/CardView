@@ -140,7 +140,7 @@ class ExtendedNavigationView(PageView):
         """
         self.change_active(("Person", handle, None, None, None, None))
 
-    @abstractmethod        
+    @abstractmethod
     def navigation_type(self):
         """
         Must be set in derived classes. Indictates the navigation
@@ -515,7 +515,7 @@ class ExtendedNavigationView(PageView):
             data.append(
                 (
                     "%s%02d" % (nav_type, index),
-                    make_callback(hobj.push, items[index]),                    
+                    make_callback(hobj.push, items[index]),
                     "%s%d" % (mod_key(), menu_len - 1 - index),
                 )
             )

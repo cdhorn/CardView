@@ -206,25 +206,21 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         if self.base.obj_type == "Person" and relation:
             relationship = get_relation(
                 self.grstate.dbstate.db,
-                relation,
                 self.base.obj,
+                relation,
+                depth=3
             )
             if relationship:
                 self.event_role_type = "implicit"
-                inverse_relationship = get_relation(
-                    self.grstate.dbstate.db,
-                    self.base.obj,
-                    relation,
-                )
-                self.event_relationship = inverse_relationship
+                self.event_relationship = relationship
                 title = "{} {} {}".format(
                     event_type,
                     _("of"),
-                    inverse_relationship.split()[0].title(),
+                    relationship.split()[0].title(),
                 )
                 role_name = "{}: {}".format(
                     _("Implicit Family"),
-                    inverse_relationship.split()[0].title(),
+                    relationship.split()[0].title(),
                 )
         return title, role_name
 

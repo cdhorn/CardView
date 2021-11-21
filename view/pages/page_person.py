@@ -96,7 +96,9 @@ class PersonProfilePage(BaseProfilePage):
             ]
         )
         self.person_action = ActionGroup(name="Person")
-        self.person_action.add_actions([("SetActive", self.set_default_person)])
+        self.person_action.add_actions(
+            [("SetActive", self.set_default_person)]
+        )
         view.add_action_group(self.order_action)
         view.add_action_group(self.family_action)
         view.add_action_group(self.person_action)
@@ -113,7 +115,7 @@ class PersonProfilePage(BaseProfilePage):
         """
         Disable page specific actions.
         """
-        uimanager.set_actions_visible(self.person_action, False)        
+        uimanager.set_actions_visible(self.person_action, False)
         uimanager.set_actions_visible(self.family_action, False)
         uimanager.set_actions_visible(self.order_action, False)
 
@@ -202,4 +204,4 @@ class PersonProfilePage(BaseProfilePage):
         Set new default person.
         """
         if self.active_profile:
-            self.active_profile.set_default_person()        
+            self.active_profile.set_default_person()

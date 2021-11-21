@@ -54,7 +54,6 @@ CONFIGSETTINGS = (
     ("options.colors.relations.son", ["#b8cee6", "#1f344a"]),
     ("options.colors.relations.daughter", ["#b8cee6", "#1f344a"]),
     ("options.colors.relations.none", ["#ffdede", "#5c3636"]),
-    
     ("options.colors.relations.border-active", ["#304918", "#bbe68a"]),
     ("options.colors.relations.border-spouse", ["#304918", "#bbe68a"]),
     ("options.colors.relations.border-father", ["#861f69", "#261111"]),

@@ -95,6 +95,7 @@ EVENT_CATEGORIES = [
 # A place timeline will filter on all events in a given place between an
 # optional set of dates.
 
+
 class Timeline:
     """
     Timeline class for constructing an event timeline for a person, family,
