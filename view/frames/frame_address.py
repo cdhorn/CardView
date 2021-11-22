@@ -84,7 +84,7 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
                 self.load_age(groptions.age_base, address.get_date_object())
 
         if len(self.widgets["facts"]) == 0:
-            self.add_fact(self.make_label("[{}]".format(_("Empty"))))
+            self.add_fact(self.make_label("".join(("[", _("Empty"), "]"))))
         self.show_all()
         self.enable_drag()
         self.enable_drop()

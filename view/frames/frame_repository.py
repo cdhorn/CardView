@@ -79,12 +79,12 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
                 text = address.city
                 comma = ", "
             if address.state:
-                text = "{}{}{}".format(text, comma, address.state)
+                text = "".join((text, comma, address.state))
                 comma = ", "
             if address.country:
-                text = "{}{}{}".format(text, comma, address.country)
+                text = "".join((text, comma, address.country))
             if address.postal:
-                text = "{} {}".format(text, address.postal)
+                text = " ".join((text, address.postal))
             if text:
                 self.add_fact(self.make_label(text))
             if address.phone:

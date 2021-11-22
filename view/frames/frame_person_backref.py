@@ -83,7 +83,7 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         if not association:
             association = _("[None Provided]")
         left = groptions.ref_mode == 1
-        reference_type = "[{}]".format(_("Back Reference"))
+        reference_type = "".join(("[", _("Back Reference"), "]"))
         if groptions.ref_mode in [1, 3]:
             self.ref_widgets["body"].pack_start(
                 self.make_label(reference_type, left=left), False, False, 0
@@ -101,7 +101,7 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
             )
             vbox.pack_start(
                 self.make_label(
-                    "{}: {}".format(_("Association"), association)
+                    "".join((_("Association"), ": ", association))
                 ),
                 True,
                 True,
@@ -128,8 +128,8 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
             else:
                 vbox.pack_start(
                     self.make_label(
-                        "{}: {}".format(
-                            _("Relationship"), relation.capitalize()
+                        "".join(
+                            (_("Relationship"), ": ", relation.capitalize())
                         )
                     ),
                     True,
@@ -150,7 +150,7 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_person_ref)
 
     def edit_person_ref(self, *_dummy_obj):

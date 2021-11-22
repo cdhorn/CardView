@@ -89,8 +89,8 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
                     0,
                 )
             else:
-                text = "{}: {}".format(
-                    _("Call number"), repo_ref.call_number
+                text = ": ".join(
+                    (_("Call number"), repo_ref.call_number)
                 ).replace("::", ":")
                 vbox.pack_start(self.make_label(text), False, False, 0)
 
@@ -99,7 +99,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
             if groptions.ref_mode in [1, 3]:
                 self.ref_widgets["body"].pack_start(
                     self.make_label(
-                        "{} {}".format(_("Media"), _("type")), left=left
+                        " ".join((_("Media"), _("type"))), left=left
                     ),
                     False,
                     False,
@@ -110,7 +110,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
                 )
             else:
                 if text:
-                    text = "{} {}: {}".format(_("Media"), _("type"), text)
+                    text = "".join((_("Media"), " ", _("type"), ": ", text))
                 vbox.pack_start(self.make_label(text), False, False, 0)
 
         if len(vbox) > 0:
@@ -128,7 +128,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_repo_ref)
 
     def edit_repo_ref(self, *_dummy_obj):

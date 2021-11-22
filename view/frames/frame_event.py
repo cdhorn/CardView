@@ -143,8 +143,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         if self.get_option("show-description"):
             text = event.get_description()
             if not text:
-                text = "{} {} {}".format(
-                    event_type, _("of"), self.primary_participant[3]
+                text = " ".join(
+                    (event_type, _("of"), self.primary_participant[3])
                 )
             self.add_fact(self.make_label(text))
 
@@ -157,7 +157,9 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     primary=self.primary_participant,
                 )
                 self.add_fact(
-                    self.make_label("Participants {}".format(participant_text))
+                    self.make_label(
+                        " ".join((_("Participants"), participant_text))
+                    )
                 )
 
         text = self.get_quality_text()
@@ -194,7 +196,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             self.event_role_type = "other"
 
         role_name = str(role)
-        title = "{} {} {}".format(event_type, _("of"), primary_obj_name)
+        title = " ".join((event_type, _("of"), primary_obj_name))
         if not self.base:
             return title, role_name
 
@@ -205,23 +207,14 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         relation = self.groptions.relation
         if self.base.obj_type == "Person" and relation:
             relationship = get_relation(
-                self.grstate.dbstate.db,
-                self.base.obj,
-                relation,
-                depth=3
+                self.grstate.dbstate.db, self.base.obj, relation, depth=4
             )
             if relationship:
                 self.event_role_type = "implicit"
                 self.event_relationship = relationship
-                title = "{} {} {}".format(
-                    event_type,
-                    _("of"),
-                    relationship.split()[0].title(),
-                )
-                role_name = "{}: {}".format(
-                    _("Implicit Family"),
-                    relationship.split()[0].title(),
-                )
+                text = relationship.split()[0].title()
+                title = " ".join((event_type, _("of"), text))
+                role_name = ": ".join((_("Implicit Family"), text))
         return title, role_name
 
     def _load_participants(self):
@@ -269,10 +262,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             text = source_text
             comma = ", "
         if self.get_option("show-citation-count") and citation_text:
-            text = "{}{}{}".format(text, comma, citation_text)
+            text = "".join((text, comma, citation_text))
             comma = ", "
         if self.get_option("show-best-confidence") and confidence_text:
-            text = "{}{}{}".format(text, comma, confidence_text)
+            text = "".join((text, comma, confidence_text))
         return text
 
     def get_quality_labels(self):
@@ -291,17 +284,17 @@ class EventGrampsFrame(ReferenceGrampsFrame):
 
         if sources:
             if len(sources) == 1:
-                source_text = "1 {}".format(_("Source"))
+                source_text = " ".join(("1", _("Source")))
             else:
-                source_text = "{} {}".format(len(sources), _("Sources"))
+                source_text = " ".join((str(len(sources)), _("Sources")))
         else:
             source_text = _("No Sources")
 
         if citations:
             if citations == 1:
-                citation_text = "1 {}".format(_("Citation"))
+                citation_text = " ".join(("1", _("Citation")))
             else:
-                citation_text = "{} {}".format(citations, _("Citations"))
+                citation_text = " ".join((str(citations), _("Citations")))
         else:
             citation_text = _("No Citations")
 
@@ -425,8 +418,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             participant_list = []
             for (obj_type, obj, obj_event_ref, obj_name) in self.participants:
                 if obj_type == "Person":
-                    text = "{}: {}".format(
-                        str(obj_event_ref.get_role()), obj_name
+                    text = "".join(
+                        (str(obj_event_ref.get_role()), ": ", obj_name)
                     )
                     participant_list.append((text, obj, obj_event_ref))
             participant_list.sort(key=lambda x: x[0])
@@ -490,13 +483,15 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         if event_ref and obj:
             print("save_participant")
             participant = GrampsObject(obj)
-            message = "{} {} {} {} {} {}".format(
-                _("Updated"),
-                _("EventRef"),
-                self.primary.obj.get_gramps_id(),
-                _("for"),
-                participant.obj_lang,
-                participant.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Updated"),
+                    _("EventRef"),
+                    self.primary.obj.get_gramps_id(),
+                    _("for"),
+                    participant.obj_lang,
+                    participant.obj.get_gramps_id(),
+                )
             )
             participant.obj.add_event_ref(event_ref)
             participant.commit(self.grstate, message)
@@ -552,9 +547,13 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         Remove a participant from an event.
         """
         participant = GrampsObject(obj)
-        name = name_displayer.display(participant.obj)
-        role = str(event_ref.get_role())
-        text = "{}: {}".format(role, name)
+        text = "".join(
+            (
+                str(event_ref.get_role()),
+                ": ",
+                name_displayer.display(participant.obj),
+            )
+        )
         prefix = _(
             "You are about to remove the following participant from this event:"
         )
@@ -562,23 +561,23 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             "Note this does not delete the event or the participant. You can "
             "also use the undo option under edit if you change your mind later."
         )
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             new_list = []
             for ref in participant.obj.get_event_ref_list():
                 if not event_ref.is_equal(ref):
                     new_list.append(ref)
 
-            message = "{} {} {} {} {} {}".format(
-                _("Removed"),
-                participant.obj_lang,
-                participant.obj.get_gramps_id(),
-                _("from"),
-                _("Event"),
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Removed"),
+                    participant.obj_lang,
+                    participant.obj.get_gramps_id(),
+                    _("from"),
+                    _("Event"),
+                    self.primary.obj.get_gramps_id(),
+                )
             )
             participant.obj.set_event_ref_list(new_list)
             participant.commit(self.grstate, message)

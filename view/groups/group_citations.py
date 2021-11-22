@@ -81,12 +81,14 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         Add new citation to the list.
         """
         citation = self.fetch("Citation", handle)
-        message = "{} {} {} {} {}".format(
-            _("Added"),
-            _("Citation"),
-            citation.get_gramps_id(),
-            _("to"),
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Citation"),
+                citation.get_gramps_id(),
+                _("to"),
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.add_citation(handle)
         self.group_base.commit(self.grstate, message)

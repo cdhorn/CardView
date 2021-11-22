@@ -187,8 +187,8 @@ class GrampsObject:
         if reason:
             message = reason
         else:
-            message = "{} {} {}".format(
-                _("Updated"), self.obj_lang, self.obj.get_gramps_id()
+            message = " ".join(
+                (_("Updated"), self.obj_lang, self.obj.get_gramps_id())
             )
         commit_method = grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(message, grstate.dbstate.db) as trans:
@@ -270,8 +270,8 @@ class GrampsContext:
         """
         if self.reference_obj:
             if self.secondary_obj:
-                return "{}{}".format(
-                    self.reference_obj.obj_type, self.secondary_obj.obj_type
+                return "".join(
+                    (self.reference_obj.obj_type, self.secondary_obj.obj_type)
                 )
             return self.reference_obj.obj_type
         if self.secondary_obj:
@@ -536,7 +536,7 @@ class GrampsConfig:
         if key[:8] == "options.":
             option = key
         else:
-            option = "{}.{}".format(self.groptions.option_space, key)
+            option = ".".join((self.groptions.option_space, key))
         try:
             return get_config_option(
                 self.grstate.config, option, full=full, dbid=dbid
@@ -548,8 +548,8 @@ class GrampsConfig:
         """
         Fetches an option in the page layout name space.
         """
-        option = "options.page.{}.layout.{}".format(
-            self.grstate.page_type, key
+        option = ".".join(
+            ("options.page", self.grstate.page_type, "layout", key)
         )
         try:
             return self.grstate.config.get(option)
@@ -584,7 +584,7 @@ class GrampsConfig:
         label.set_markup(self.markup.format(escape(text)))
         return label
 
-    def confirm_action(self, title, message):
+    def confirm_action(self, title, *args):
         """
         If enabled display message and confirm a user requested action.
         """
@@ -603,7 +603,9 @@ class GrampsConfig:
             justify=Gtk.Justification.CENTER,
             use_markup=True,
             wrap=True,
-            label=message,
+            label="".join(
+                args + ("\n\n", _("Are you sure you want to continue?"))
+            ),
         )
         dialog.vbox.add(label)
         dialog.show_all()

@@ -59,25 +59,21 @@ class GrampsFrameGroupExpander(Gtk.Expander):
         )
         self.set_resize_toplevel(True)
         self.grstate = grstate
+
+        prefix = "".join(("options.page.", grstate.page_type, ".layout."))
         try:
             self.hideable = grstate.config.get(
-                "options.page.{}.layout.{}.hideable".format(
-                    grstate.page_type, groptions.context
-                )
+                "".join((prefix, groptions.context, ".hideable"))
             )
         except AttributeError:
             self.hideable = False
         try:
-            self.tabbed = grstate.config.get(
-                "options.page.{}.layout.tabbed".format(grstate.page_type)
-            )
+            self.tabbed = grstate.config.get("".join((prefix, "tabbed")))
         except AttributeError:
             self.tabbed = False
         try:
-            self.scrolled = grstate.config.get(
-                "options.page.{}.layout.scrolled".format(grstate.page_type)
-            )
-        except:
+            self.scrolled = grstate.config.get("".join((prefix, "scrolled")))
+        except AttributeError:
             self.scrolled = False
         self.connect("activate", self.collapse)
 

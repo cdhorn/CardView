@@ -87,7 +87,8 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         Initialize primary frame widgets.
         """
-        self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
+        if self.get_option("image-mode"):
+            self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
         self.widgets["age"] = Gtk.VBox(
             margin_right=3,
             margin_left=3,
@@ -104,9 +105,10 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         self.widgets["facts"] = GrampsFrameGrid(
             self.grstate, self.groptions, self.cbrouter
         )
-        self.widgets["extra"] = GrampsFrameGrid(
-            self.grstate, self.groptions, self.cbrouter
-        )
+        if "active" in self.groptions.option_space:
+            self.widgets["extra"] = GrampsFrameGrid(
+                self.grstate, self.groptions, self.cbrouter
+            )
         self.widgets["icons"] = GrampsFrameIcons(self.grstate, self.groptions)
 
         self.widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
@@ -258,9 +260,10 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         fact_section.pack_start(
             self.widgets["facts"], expand=True, fill=True, padding=0
         )
-        fact_section.pack_start(
-            self.widgets["extra"], expand=True, fill=True, padding=0
-        )
+        if "active" in self.groptions.option_space:
+            fact_section.pack_start(
+                self.widgets["extra"], expand=True, fill=True, padding=0
+            )
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
         fact_block.pack_end(
             self.widgets["icons"], expand=False, fill=False, padding=0

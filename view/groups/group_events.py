@@ -85,12 +85,14 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        message = "{} {} {} {} {}".format(
-            _("Reordered"),
-            _("Events"),
-            _("for"),
-            self.group_base.obj_type,
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Reordered"),
+                _("Events"),
+                _("for"),
+                self.group_base.obj_type,
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.set_event_ref_list(new_list)
         self.group_base.commit(self.grstate, message)
@@ -130,13 +132,15 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
                     new_list.append(ref)
         new_list.insert(insert_row, event_ref)
         event = self.fetch("Event", event_ref.ref)
-        message = "{} {} {} {} {} {}".format(
-            _("Added"),
-            _("Event"),
-            event.get_gramps_id(),
-            _("to"),
-            self.group_base.obj_type,
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Event"),
+                event.get_gramps_id(),
+                _("to"),
+                self.group_base.obj_type,
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.set_event_ref_list(new_list)
         self.group_base.commit(self.grstate, message)

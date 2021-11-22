@@ -36,13 +36,12 @@ def get_tag_icon(tag):
     """
     icon = Gtk.Image()
     icon.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
-    css = (
-        ".image {{ "
-        "margin: 0px; "
-        "padding: 0px; "
-        "background-image: none; "
-        "background-color: {}; }}".format(
+    css = "".join(
+        (
+            ".image { margin: 0px; padding: 0px; background-image: none; ",
+            "background-color: ",
             tag.color[:7],
+            "; }",
         )
     )
     css = css.encode("utf-8")

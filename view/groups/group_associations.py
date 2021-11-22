@@ -99,12 +99,14 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        message = "{} {} {} {} {}".format(
-            _("Reordered"),
-            _("Associations"),
-            _("for"),
-            _("Person"),
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Reordered"),
+                _("Associations"),
+                _("for"),
+                _("Person"),
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.set_person_ref_list(new_list)
         self.group_base.commit(self.grstate, message)
@@ -142,14 +144,16 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
                     new_list.append(ref)
         new_list.insert(insert_row, person_ref)
         person = self.fetch("Person", person_ref.ref)
-        message = "{} {} {} {} {} {} {}".format(
-            _("Added"),
-            _("Person"),
-            person.get_gramps_id(),
-            _("Association"),
-            _("to"),
-            _("Person"),
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Person"),
+                person.get_gramps_id(),
+                _("Association"),
+                _("to"),
+                _("Person"),
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.set_person_ref_list(new_list)
         self.group_base.commit(self.grstate, message)

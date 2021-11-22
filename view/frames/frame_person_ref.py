@@ -93,9 +93,7 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         else:
             vbox = Gtk.VBox()
             vbox.pack_start(
-                self.make_label(
-                    "{}: {}".format(_("Association"), association)
-                ),
+                self.make_label(": ".join((_("Association"), association))),
                 True,
                 True,
                 0,
@@ -121,9 +119,7 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
             else:
                 vbox.pack_start(
                     self.make_label(
-                        "{}: {}".format(
-                            _("Relationship"), relation.capitalize()
-                        )
+                        ": ".join((_("Relationship"), relation.capitalize()))
                     ),
                     True,
                     True,
@@ -143,7 +139,7 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_person_ref)
 
     def edit_person_ref(self, *_dummy_obj):

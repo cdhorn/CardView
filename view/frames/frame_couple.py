@@ -96,7 +96,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         else:
             anchor = "options.group.family"
 
-        if self.get_option("{}.show-relationship".format(anchor)):
+        if self.get_option("".join((anchor, ".show-relationship"))):
             if self.parent1 and self.parent2:
                 self.load_relationship(self.parent1, self.parent2)
 
@@ -174,9 +174,10 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         fact_section.pack_start(
             self.widgets["facts"], expand=True, fill=True, padding=0
         )
-        fact_section.pack_start(
-            self.widgets["extra"], expand=True, fill=True, padding=0
-        )
+        if "active" in self.groptions.option_space:
+            fact_section.pack_start(
+                self.widgets["extra"], expand=True, fill=True, padding=0
+            )
         fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
         fact_block.pack_end(
             self.widgets["icons"], expand=True, fill=True, padding=0
@@ -219,9 +220,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Parse and load a set of facts about a couple.
         """
-        key = "{}.{}-skip-marriage-alternates".format(anchor, field_type)
+        key = "".join((anchor, ".", field_type, "-skip-marriage-alternates"))
         skip_marriage_alternates = self.get_option(key)
-        key = "{}.{}-skip-divorce-alternates".format(anchor, field_type)
+        key = "".join((anchor, ".", field_type, "-skip-divorce-alternates"))
         skip_divorce_alternates = self.get_option(key)
         have_marriage = False
         have_divorce = False
@@ -235,7 +236,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         count = 1
         while count < 9:
             option = self.get_option(
-                "{}.{}-{}".format(anchor, field_type, count),
+                "".join((anchor, ".", field_type, "-", str(count))),
                 full=False,
                 keyed=True,
             )
@@ -382,11 +383,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             prefix = "options.group.family"
 
         label = self.get_option(
-            "{}.attributes-field-show-labels".format(prefix)
+            "".join((prefix, ".attributes-field-show-labels"))
         )
         for number in range(1, 9):
             option = self.get_option(
-                "{}.attributes-field-{}".format(prefix, number),
+                "".join((prefix, ".attributes-field-", str(number))),
                 full=False,
                 keyed=True,
             )
@@ -462,8 +463,8 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             or "spouse" in self.groptions.option_space
         ):
             action_menu.append(self._add_new_family_event_option())
-            action_menu.append(self._add_new_child_to_family_option())
-            action_menu.append(self._add_existing_child_to_family_option())
+            action_menu.append(self._add_new_child_option())
+            action_menu.append(self._add_existing_child_option())
 
     def get_color_css(self):
         """

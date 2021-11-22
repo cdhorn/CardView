@@ -91,7 +91,9 @@ def get_generic_group(
     content = GrampsFrameGroupExpander(
         grstate, groptions, expanded=expanded, use_markup=True
     )
-    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.set_label(
+        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
+    )
     content.add(group)
     return content
 
@@ -110,7 +112,7 @@ def get_children_group(
     """
     Get the group for all the children in a family unit.
     """
-    groptions = GrampsOptions("options.group.{}".format(context))
+    groptions = GrampsOptions("".join(("options.group.", context)))
     groptions.set_relation(person)
     groptions.set_context(context)
     group = ChildrenGrampsFrameGroup(grstate, groptions, family)
@@ -127,7 +129,9 @@ def get_children_group(
     content = GrampsFrameGroupExpander(
         grstate, groptions, expanded=expanded, use_markup=True
     )
-    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.set_label(
+        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
+    )
     content.add(group)
     return content
 
@@ -138,7 +142,7 @@ def get_family_unit(
     """
     Get the group for a family unit.
     """
-    groptions = GrampsOptions("options.group.{}".format(context))
+    groptions = GrampsOptions("".join(("options.group.", context)))
     groptions.set_relation(relation)
     couple = CoupleGrampsFrame(
         grstate,
@@ -149,7 +153,7 @@ def get_family_unit(
         expanded = True
     else:
         expanded = grstate.config.get(
-            "options.group.{}.expand-children".format(context)
+            "".join(("options.group.", context, ".expand-children"))
         )
     title_plural = _("Children")
     title_single = _("Child")
@@ -186,7 +190,9 @@ def get_parents_group(grstate, person, raw=False, age_base=None):
                 grstate, groptions, expanded=True, use_markup=True
             )
             parents.set_label(
-                "<small><b>{}</b></small>".format(_("Parents and Siblings"))
+                "".join(
+                    ("<small><b>", _("Parents and Siblings"), "</b></small>")
+                )
             )
             parents.add(elements)
         else:
@@ -222,8 +228,12 @@ def get_spouses_group(grstate, person, raw=False, age_base=None):
                     grstate, groptions, expanded=True, use_markup=True
                 )
                 spouses.set_label(
-                    "<small><b>{}</b></small>".format(
-                        _("Spouses and Children")
+                    "".join(
+                        (
+                            "<small><b>",
+                            _("Spouses and Children"),
+                            "</b></small>",
+                        )
                     )
                 )
                 spouses.add(elements)
@@ -272,7 +282,9 @@ def get_timeline_group(
     """
     Get the group of timeline events associated with an object.
     """
-    groptions = GrampsOptions("options.timeline.{}".format(grstate.page_type))
+    groptions = GrampsOptions(
+        "".join(("options.timeline.", grstate.page_type))
+    )
     groptions.set_context("timeline")
     return get_generic_group(
         grstate,
@@ -434,12 +446,14 @@ def get_references_group(
     if len(group) == 1:
         text = title_single
     if not_shown:
-        text = "{} ({} {})".format(text, not_shown, _("Not Shown"))
+        text = "".join((text, " (", not_shown, " ", _("Not Shown"), ")"))
 
     content = GrampsFrameGroupExpander(
         grstate, groptions, expanded=True, use_markup=True
     )
-    content.set_label("<small><b>{} {}</b></small>".format(len(group), text))
+    content.set_label(
+        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
+    )
     content.add(group)
     return content
 
@@ -630,13 +644,13 @@ def prepare_event_group(grstate, obj, obj_type):
         event_type = _("Family")
 
     if len(group) == 1:
-        title = "1 {} {}".format(event_type, _("Event"))
+        title = " ".join(("1", event_type, _("Event")))
     else:
-        title = "{} {} {}".format(len(group), event_type, _("Events"))
+        title = " ".join((str(len(group)), event_type, _("Events")))
 
     header = GrampsFrameGroupExpander(
         grstate, groptions, expanded=True, use_markup=True
     )
-    header.set_label("<small><b>{}</b></small>".format(title))
+    header.set_label("".join(("<small><b>", title, "</b></small>")))
     header.add(elements)
     return header

@@ -246,7 +246,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             text = _("Repository")
         elif self.reference.obj_type == "MediaRef":
             text = _("Media")
-        return "{} {}".format(text, _("reference"))
+        return " ".join((text, _("reference")))
 
     def save_ref(self, obj_ref, _dummy_var1=None):
         """
@@ -254,13 +254,15 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if not obj_ref:
             return
-        message = "{} {} {} {} {} {}".format(
-            _("Updated"),
-            self.reference.obj_lang,
-            self.primary.obj.get_gramps_id(),
-            _("for"),
-            self.base.obj_lang,
-            self.base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Updated"),
+                self.reference.obj_lang,
+                self.primary.obj.get_gramps_id(),
+                _("for"),
+                self.base.obj_lang,
+                self.base.obj.get_gramps_id(),
+            )
         )
         self.base.commit(self.grstate, message)
 
@@ -278,16 +280,18 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             label = _("Updated")
             preposition = _("for")
 
-        return "{} {} {} {} {} {} {} {} {}".format(
-            label,
-            obj_type,
-            obj_gramps_id,
-            preposition,
-            self.reference.obj_lang,
-            self.primary.obj.get_gramps_id(),
-            _("for"),
-            self.base.obj_lang,
-            self.base.obj.get_gramps_id(),
+        return " ".join(
+            (
+                label,
+                obj_type,
+                obj_gramps_id,
+                preposition,
+                self.reference.obj_lang,
+                self.primary.obj.get_gramps_id(),
+                _("for"),
+                self.base.obj_lang,
+                self.base.obj.get_gramps_id(),
+            )
         )
 
     def edit_ref_attribute(self, _dummy_obj, attribute):
@@ -347,7 +351,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if attribute:
             message = self._commit_ref_message(
-                _("Attribute"), attribute.get_type()
+                _("Attribute"), str(attribute.get_type())
             )
             self.reference.obj.add_attribute(attribute)
             self.base.commit(self.grstate, message)
@@ -362,12 +366,9 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         prefix = _(
             "You are about to remove the following attribute from this object:"
         )
-        confirm = _("Are you sure you want to continue?")
-        if self.confirm_action(
-            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
-        ):
+        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = self._commit_ref_message(
-                _("Attribute"), attribute.get_type(), action="remove"
+                _("Attribute"), str(attribute.get_type()), action="remove"
             )
             self.reference.obj.remove_attribute(attribute)
             self.base.commit(self.grstate, message)
@@ -450,10 +451,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         extra = _(
             "This removes the reference but does not delete the citation."
         )
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             message = self._commit_ref_message(
                 _("Citation"), citation.get_gramps_id(), action="remove"
@@ -511,10 +510,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             "You are about to remove the following note from this object:"
         )
         extra = _("This removes the reference but does not delete the note.")
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             message = self._commit_ref_message(
                 _("Note"), note.get_gramps_id(), action="remove"
@@ -545,14 +542,16 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             text = _("Private")
         else:
             text = _("Public")
-        message = "{} {} {} {} {} {} {}".format(
-            _("Made"),
-            self.reference.obj_lang,
-            self.primary.obj.get_gramps_id(),
-            _("for"),
-            self.base.obj_lang,
-            self.base.obj.get_gramps_id(),
-            text,
+        message = " ".join(
+            (
+                _("Made"),
+                self.reference.obj_lang,
+                self.primary.obj.get_gramps_id(),
+                _("for"),
+                self.base.obj_lang,
+                self.base.obj.get_gramps_id(),
+                text,
+            )
         )
         self.reference.obj.set_privacy(mode)
         self.base.commit(self.grstate, message)

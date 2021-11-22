@@ -96,7 +96,7 @@ class FrameGroupWindow(ManagedWindow):
                 self.group_base.obj_type,
                 self.group_base.obj.get_handle(),
             )
-            return "{} - {}".format(name, GROUP_LABELS[self.group_type])
+            return "".join((name, " - ", GROUP_LABELS[self.group_type]))
         return GROUP_LABELS[self.group_type]
 
     def rebuild(self):

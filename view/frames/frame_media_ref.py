@@ -77,7 +77,7 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_media_ref)
 
     def edit_media_ref(self, *_dummy_obj):
@@ -111,14 +111,16 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         if image_ref:
             new_list.insert(0, image_ref)
 
-        message = "{} {} {} {} {} {} {}".format(
-            _("Set"),
-            _("Media"),
-            self.primary.obj.get_gramps_id(),
-            _("Active"),
-            _("for"),
-            self.base.obj_type,
-            self.base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Set"),
+                _("Media"),
+                self.primary.obj.get_gramps_id(),
+                _("Active"),
+                _("for"),
+                self.base.obj_type,
+                self.base.obj.get_gramps_id(),
+            )
         )
         self.base.obj.set_media_list(new_list)
         self.base.commit(self.grstate, message)

@@ -79,7 +79,7 @@ class EventRefGrampsFrame(EventGrampsFrame):
                 elif self.base.obj_type == "Family":
                     name = family_name(self.base.obj, grstate.dbstate.db)
                 if name:
-                    text = "[{}]".format(name)
+                    text = "".join(("[", name, "]"))
                     self.ref_widgets["body"].pack_start(
                         self.make_label(text), False, False, 0
                     )
@@ -100,7 +100,7 @@ class EventRefGrampsFrame(EventGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_event_ref)
 
     def edit_event_ref(self, *_dummy_obj):

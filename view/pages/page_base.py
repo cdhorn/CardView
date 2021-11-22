@@ -173,11 +173,22 @@ class BaseProfilePage:
         """
         Identify group view type and call method to render it.
         """
-        space = "options.page.{}.layout".format(self.page_type.lower())
-        groups = self.config.get("{}.groups".format(space)).split(",")
-        if self.config.get("{}.tabbed".format(space)):
+        space = "".join(("options.page.", self.page_type.lower(), ".layout"))
+        groups = self.config.get("".join((space, ".groups"))).split(",")
+        if self.config.get("".join((space, ".tabbed"))):
             return self.render_tabbed_group(obj_groups, space, groups)
         return self.render_untabbed_group(obj_groups, space, groups)
+
+    def _add_to_title(self, title, group):
+        """
+        Add group label to title.
+        """
+        if not title:
+            title = GROUP_LABELS[group]
+        else:
+            if " & " in title:
+                title = title.replace(" &", ",")
+            title = "".join((title, " & ", GROUP_LABELS[group]))
 
     def render_untabbed_group(self, obj_groups, space, groups):
         """
@@ -199,13 +210,13 @@ class BaseProfilePage:
 
         gbox = None
         title = ""
-        scrolled = self.config.get("{}.scrolled".format(space))
+        scrolled = self.config.get("".join((space, ".scrolled")))
         self.container = Gtk.HBox(spacing=3)
         for group in groups:
             add_group = True
             if group not in obj_groups or not obj_groups[group]:
                 add_group = False
-            if not self.config.get("{}.{}.visible".format(space, group)):
+            if not self.config.get("".join((space, ".", group, ".visible"))):
                 add_group = False
             if not gbox:
                 gbox = Gtk.VBox(spacing=3)
@@ -213,13 +224,8 @@ class BaseProfilePage:
                 gbox.pack_start(
                     obj_groups[group], expand=False, fill=True, padding=0
                 )
-            if not title:
-                title = GROUP_LABELS[group]
-            else:
-                if " & " in title:
-                    title = title.replace(" &", ",")
-                title = "{} & {}".format(title, GROUP_LABELS[group])
-            if not self.config.get("{}.{}.stacked".format(space, group)):
+            self._add_to_title(title, group)
+            if not self.config.get("".join((space, ".", group, ".stacked"))):
                 pack_container(scrolled, gbox)
                 gbox = None
                 title = ""
@@ -239,20 +245,15 @@ class BaseProfilePage:
             add_group = True
             if group not in obj_groups or not obj_groups[group]:
                 add_group = False
-            if not self.config.get("{}.{}.visible".format(space, group)):
+            if not self.config.get("".join((space, ".", group, ".visible"))):
                 add_group = False
             gbox = Gtk.VBox(spacing=3)
             if add_group:
                 gbox.pack_start(
                     obj_groups[group], expand=True, fill=True, padding=0
                 )
-                if not title:
-                    title = GROUP_LABELS[group]
-                else:
-                    title = "{} & {}".format(
-                        title.replace(" &", ","), GROUP_LABELS[group]
-                    )
-            if self.config.get("{}.{}.stacked".format(space, group)):
+                self._add_to_title(title, group)
+            if self.config.get("".join((space, ".", group, ".stacked"))):
                 in_stack = True
                 if not sbox:
                     sbox = Gtk.HBox(spacing=3)

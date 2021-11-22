@@ -49,7 +49,6 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Note, Source, Span
@@ -227,14 +226,16 @@ class GrampsFrame(GrampsFrameView):
         if "age" in self.widgets:
             span = Span(base_date, current_date)
             if span.is_valid():
-                year = current_date.get_year()
+                year = str(current_date.get_year())
                 precision = global_config.get(
                     "preferences.age-display-precision"
                 )
                 age = str(span.format(precision=precision).strip("()"))
                 if age[:2] == "0 ":
                     age = ""
-                text = "<b>{}</b>\n{}".format(year, age.replace(", ", ",\n"))
+                text = "".join(
+                    ("<b>", year, "</b>\n", age.replace(", ", ",\n"))
+                )
                 label = Gtk.Label(
                     label=self.markup.format(text.strip()),
                     use_markup=True,
@@ -278,14 +279,14 @@ class GrampsFrame(GrampsFrameView):
         Build the edit option.
         """
         if self.secondary and not self.secondary.is_reference:
-            name = "{} {}".format(_("Edit"), self.secondary.obj_lang.lower())
+            name = " ".join((_("Edit"), self.secondary.obj_lang.lower()))
             return menu_item("gtk-edit", name, self._edit_secondary_object)
         if self.primary.obj_type == "Person":
-            name = "{} {}".format(
-                _("Edit"), name_displayer.display(self.primary.obj)
+            name = " ".join(
+                (_("Edit"), name_displayer.display(self.primary.obj))
             )
         else:
-            name = "{} {}".format(_("Edit"), self.primary.obj_lang.lower())
+            name = " ".join((_("Edit"), self.primary.obj_lang.lower()))
         return menu_item("gtk-edit", name, self.edit_primary_object)
 
     def edit_primary_object(self, _dummy_var1=None, obj=None, obj_type=None):
@@ -323,20 +324,18 @@ class GrampsFrame(GrampsFrameView):
         if not obj:
             return
         if action_text:
-            action = action_text
+            message = action_text
         else:
-            action = "{} {} {} {} {}".format(
-                _("Edited"),
-                self.secondary.obj_lang,
-                _("for"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Edited"),
+                    self.secondary.obj_lang,
+                    _("for"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.primary.obj_type
-        )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
-            commit_method(self.primary.obj, trans)
+        self.primary.commit(self.grstate, message)
 
     def _commit_message(self, obj_type, obj_label, action="add"):
         """
@@ -353,23 +352,27 @@ class GrampsFrame(GrampsFrameView):
             preposition = _("for")
 
         if self.secondary:
-            return "{} {} {} {} {} {} {} {}".format(
+            return " ".join(
+                (
+                    action,
+                    obj_type,
+                    obj_label,
+                    preposition,
+                    self.secondary.obj_lang,
+                    _("for"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                )
+            )
+        return " ".join(
+            (
                 action,
                 obj_type,
                 obj_label,
                 preposition,
-                self.secondary.obj_lang,
-                _("for"),
                 self.primary.obj_lang,
                 self.primary.obj.get_gramps_id(),
             )
-        return "{} {} {} {} {} {}".format(
-            action,
-            obj_type,
-            obj_label,
-            preposition,
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
         )
 
     def edit_name(self, _dummy_obj, name):
@@ -468,12 +471,14 @@ class GrampsFrame(GrampsFrameView):
         Save edited address.
         """
         self.grstate.update_history_object(old_hash, address)
-        message = "{} {} {} {} {}".format(
-            _("Edited"),
-            _("Address"),
-            _("for"),
-            self.primary.obj_lang,
-            self.primary.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Edited"),
+                _("Address"),
+                _("for"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
         )
         self.primary.commit(self.grstate, message)
 
@@ -645,10 +650,8 @@ class GrampsFrame(GrampsFrameView):
         extra = _(
             "This removes the reference but does not delete the citation."
         )
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             message = self._commit_message(
                 _("Citation"), citation.get_gramps_id(), action="remove"
@@ -780,10 +783,8 @@ class GrampsFrame(GrampsFrameView):
             "You are about to remove the following note from this object:"
         )
         extra = _("This removes the reference but does not delete the note.")
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             message = self._commit_message(
                 _("Note"), note.get_gramps_id(), action="remove"
@@ -813,20 +814,24 @@ class GrampsFrame(GrampsFrameView):
         if mode:
             text = _("Private")
         if self.secondary:
-            message = "{} {} {} {} {} {}".format(
-                _("Made"),
-                self.secondary.obj_lang,
-                _("for"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-                text,
+            message = " ".join(
+                (
+                    _("Made"),
+                    self.secondary.obj_lang,
+                    _("for"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                    text,
+                )
             )
         else:
-            message = "{} {} {} {}".format(
-                _("Made"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-                text,
+            message = " ".join(
+                (
+                    _("Made"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                    text,
+                )
             )
         self.focus.save_hash()
         self.focus.obj.set_privacy(mode)
@@ -839,8 +844,9 @@ class GrampsFrame(GrampsFrameView):
         """
         border = self.grstate.config.get("options.global.border-width")
         color = self.get_color_css()
-        css = ".frame {{ border-width: {}px; {} }}".format(border, color)
-        self.css = css.encode("utf-8")
+        self.css = "".join(
+            (".frame { border-width: ", str(border), "px; ", color, " }")
+        ).encode("utf-8")
         provider = Gtk.CssProvider()
         provider.load_from_data(self.css)
         context = self.frame.get_style_context()

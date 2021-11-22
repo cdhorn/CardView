@@ -92,7 +92,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
             else:
                 vbox = Gtk.VBox()
                 vbox.pack_start(
-                    self.make_label("{}: {}".format(_("Father"), reltype)),
+                    self.make_label(": ".join((_("Father"), reltype))),
                     True,
                     True,
                     0,
@@ -112,7 +112,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
                 if not vbox:
                     vbox = Gtk.VBox()
                 vbox.pack_start(
-                    self.make_label("{}: {}".format(_("Mother"), reltype)),
+                    self.make_label(": ".join((_("Mother"), reltype))),
                     True,
                     True,
                     0,
@@ -131,7 +131,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_child_ref)
 
     def edit_child_ref(self, *_dummy_obj):

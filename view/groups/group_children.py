@@ -69,29 +69,30 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
             context = "sibling"
 
         groptions.set_backlink(family.get_handle())
-        groptions.option_space = "options.group.{}".format(context)
+        groptions.option_space = "".join(("options.group.", context))
         groptions.set_ref_mode(
             grstate.config.get(
-                "options.group.{}.reference-mode".format(context)
+                "".join((groptions.option_space, ".reference-mode"))
             )
         )
 
         child_number = 0
+        number_children = self.grstate.config.get(
+            "".join((groptions.option_space, ".number-children"))
+        )
+        groptions_child = groptions
         for child_ref in family.get_child_ref_list():
-            if child_ref:
-                groptions_copy = copy(groptions)
+            if number_children:
+                groptions_child = copy(groptions)
                 child_number = child_number + 1
-                if self.grstate.config.get(
-                    "options.group.{}.number-children".format(context)
-                ):
-                    groptions_copy.set_number(child_number)
-                profile = ChildRefGrampsFrame(
-                    grstate,
-                    groptions_copy,
-                    family,
-                    child_ref,
-                )
-                self.add_frame(profile)
+                groptions_child.set_number(child_number)
+            profile = ChildRefGrampsFrame(
+                grstate,
+                groptions_child,
+                family,
+                child_ref,
+            )
+            self.add_frame(profile)
         self.show_all()
 
     def save_reordered_list(self):
@@ -104,11 +105,13 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
                     break
-        message = "{} {} {} {}".format(
-            _("Reordered Children"),
-            _("for"),
-            _("Family"),
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Reordered Children"),
+                _("for"),
+                _("Family"),
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         self.group_base.obj.set_child_ref_list(new_list)
         self.group_base.commit(self.grstate, message)
@@ -153,12 +156,14 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
                     new_list.append(ref)
         new_list.insert(insert_row, child_ref)
         child = self.fetch("Person", child_ref.ref)
-        message = "{} {} {} {} {}".format(
-            _("Added Child"),
-            child.get_gramps_id(),
-            _("to"),
-            _("Family"),
-            self.group_base.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added Child"),
+                child.get_gramps_id(),
+                _("to"),
+                _("Family"),
+                self.group_base.obj.get_gramps_id(),
+            )
         )
         with DbTxn(message, self.grstate.dbstate.db) as trans:
             self.group_base.obj.set_child_ref_list(new_list)

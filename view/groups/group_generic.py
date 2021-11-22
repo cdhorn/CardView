@@ -46,6 +46,18 @@ from ..frames.frame_repository import RepositoryGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
 from .group_list import GrampsFrameGroupList
 
+FRAME_MAP = {
+    "Person": PersonGrampsFrame,
+    "Family": CoupleGrampsFrame,
+    "Event": EventGrampsFrame,
+    "Place": PlaceGrampsFrame,
+    "Media": MediaGrampsFrame,
+    "Note": NoteGrampsFrame,
+    "Source": SourceGrampsFrame,
+    "Citation": CitationGrampsFrame,
+    "Repository": RepositoryGrampsFrame,
+}
+
 
 # ------------------------------------------------------------------------
 #
@@ -79,42 +91,12 @@ class GenericGrampsFrameGroup(GrampsFrameGroupList):
         }
 
         for obj_type, obj_handle in tuple_list:
-            if obj_type not in [
-                "Person",
-                "Family",
-                "Event",
-                "Place",
-                "Media",
-                "Note",
-                "Source",
-                "Citation",
-                "Repository",
-            ]:
+            if obj_type not in FRAME_MAP:
                 continue
-            ggroptions = GrampsOptions(
-                "options.group.{}".format(obj_type.lower()), size_groups=groups
-            )
-            ggroptions.set_age_base(groptions.age_base)
+            group_space = "".join(("options.group.", obj_type.lower()))
+            group_groptions = GrampsOptions(group_space, size_groups=groups)
+            group_groptions.set_age_base(groptions.age_base)
             obj = self.fetch(obj_type, obj_handle)
-            if obj_type == "Person":
-                frame = PersonGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Family":
-                frame = CoupleGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Event":
-                frame = EventGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Place":
-                frame = PlaceGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Media":
-                frame = MediaGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Note":
-                frame = NoteGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Source":
-                frame = SourceGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Citation":
-                frame = CitationGrampsFrame(grstate, ggroptions, obj)
-            elif obj_type == "Repository":
-                frame = RepositoryGrampsFrame(grstate, ggroptions, obj)
-            else:
-                continue
+            frame = FRAME_MAP[obj_type](grstate, group_groptions, obj)
             self.add_frame(frame)
         self.show_all()

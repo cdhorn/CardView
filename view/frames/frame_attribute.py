@@ -78,7 +78,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
                 self.switch_attribute_page,
             )
         else:
-            name = "<b>{}</b>".format(escape(name))
+            name = "".join(("<b>", escape(name), "</b>"))
             label = Gtk.Label(
                 halign=Gtk.Align.START,
                 wrap=True,

@@ -148,9 +148,9 @@ class FrameFieldSelector(Gtk.HBox):
             self.dbid = self.grstate.dbstate.db.get_dbid()
 
         if text:
-            label_text = "{} {}:".format(text, number)
+            label_text = "".join((text, " ", str(number), ":"))
         else:
-            label_text = "{} {}:".format(_("Field"), number)
+            label_text = "".join((_("Field"), " ", str(number), ":"))
         label = Gtk.Label(label=label_text)
         self.pack_start(label, False, False, 0)
         self.type_selector = Gtk.ComboBoxText()
@@ -348,7 +348,7 @@ class FrameFieldSelector(Gtk.HBox):
                 self.grstate.config,
                 self.option,
                 self.user_field_types[current_index],
-                "{}:{}".format(self.event_itoe[current_value], current_option),
+                ":".join((self.event_itoe[current_value], current_option)),
                 dbid=self.dbid,
             )
 

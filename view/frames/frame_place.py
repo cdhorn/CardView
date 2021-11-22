@@ -79,14 +79,14 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
         if place.get_latitude():
             text = place.get_latitude()
         else:
-            text = "[{} {}]".format(_("Missing"), _("Latitude"))
+            text = "".join(("[", _("Missing"), " ", _("Latitude"), "]"))
         self.add_fact(
             self.make_label(text), label=self.make_label(_("Latitude"))
         )
         if place.get_longitude():
             text = place.get_longitude()
         else:
-            text = "[{} {}]".format(_("Missing"), _("Longitude"))
+            text = "".join(("[", _("Missing"), " ", _("Longitude"), "]"))
         self.add_fact(
             self.make_label(text), label=self.make_label(_("Longitude"))
         )
@@ -95,8 +95,8 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
             for alternate_name in place.get_alternative_names():
                 value = alternate_name.get_value()
                 if alternate_name.get_language():
-                    value = "{} ({})".format(
-                        value, alternate_name.get_language()
+                    value = "".join(
+                        (value, " (", alternate_name.get_language(), ")")
                     )
 
                 date = glocale.date_displayer.display(
@@ -104,7 +104,7 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
                 )
                 if not date:
                     date = ""
-                date = "{}  {}".format(_("Alternate Name"), date)
+                date = "  ".join((_("Alternate Name"), date))
                 self.add_fact(
                     self.make_label(value),
                     label=self.make_label(date),

@@ -240,16 +240,16 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
         join = ""
         date = glocale.date_displayer.display(event.date)
         if date:
-            description = "{} {}".format(description, date).strip()
-            join = " {}".format(_("in"))
+            description = " ".join((description, date)).strip()
+            join = _("in")
 
         place = place_displayer.display_event(self.grstate.dbstate.db, event)
         if event_format in [1, 3] and place:
-            description = "{}{} {}".format(description, join, place).strip()
+            description = " ".join((description, join, place)).strip()
 
         if show_age:
-            description = "{} {}".format(
-                description, get_age(reference, event)
+            description = " ".join(
+                (description, get_age(reference, event))
             ).strip()
 
         if date:
@@ -266,7 +266,7 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
 
         if event_format in [5, 6] and place:
             if event_format in [6]:
-                text = "{} {}".format(_("in"), place)
+                text = " ".join(((_("in")), place))
             else:
                 text = place
             label = TextLink(
@@ -292,10 +292,10 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
         event_format = self.get_option("event-format")
         if event_format in [1, 2, 5]:
             label = self.make_label(_("Living"))
-            value = self.make_label("{}".format(age.strip("()")))
+            value = self.make_label(age.strip("()"))
             self.add_fact(value, label=label)
         elif event_format in [3, 4, 6]:
-            value = self.make_label("{}. {}".format(_("liv"), age.strip("()")))
+            value = self.make_label("".join((_("liv"), ". ", age.strip("()"))))
             self.add_fact(value)
 
 

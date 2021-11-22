@@ -39,7 +39,6 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.lib import ChildRef, Event, EventRef, Family, Name, Person
@@ -102,7 +101,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             label = Gtk.Label(
                 use_markup=True,
                 label=self.markup.format(
-                    "{}. ".format(groptions.frame_number)
+                    "".join((str(groptions.frame_number), ". "))
                 ),
             )
             name_box.pack_start(label, False, False, 0)
@@ -177,16 +176,16 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         Parse and load a set of facts about a person.
         """
-        key = "{}-skip-birth-alternates".format(field_type)
+        key = "".join((field_type, "-skip-birth-alternates"))
         skip_birth_alternates = self.get_option(key)
-        key = "{}-skip-death-alternates".format(field_type)
+        key = "".join((field_type, "-skip-death-alternates"))
         skip_death_alternates = self.get_option(key)
         have_birth, have_death = self._get_birth_death(event_cache)
 
         count = 1
         while count < 9:
             option = self.get_option(
-                "{}-{}".format(field_type, count),
+                "".join((field_type, "-", str(count))),
                 full=False,
                 keyed=True,
             )
@@ -328,7 +327,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                     text = relationship.title()
                 else:
                     name = name_displayer.display(relation)
-                    text = "{} {}".format(_("Not related to"), name)
+                    text = " ".join((_("Not related to"), name))
                 label = TextLink(
                     text,
                     "Person",
@@ -338,7 +337,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                     markup=self.markup,
                 )
             except HandleError:
-                text = "[{}]".format(_("Missing Person"))
+                text = "".join(("[", _("Missing Person"), "]"))
                 label = self.make_label(text)
         if text:
             self.add_fact(label, extra=extra)
@@ -372,11 +371,11 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
             action_menu.append(self._add_new_family_event_option())
         if self.context in ["parent", "spouse"]:
-            action_menu.append(self._add_new_child_to_family_option())
-            action_menu.append(self._add_existing_child_to_family_option())
-            action_menu.append(self._remove_as_parent_from_family_option())
+            action_menu.append(self._add_new_child_option())
+            action_menu.append(self._add_existing_child_option())
+            action_menu.append(self._remove_family_parent_option())
         if self.context in ["sibling", "child"]:
-            action_menu.append(self._remove_child_from_family_option())
+            action_menu.append(self._remove_family_child_option())
         action_menu.append(self._parents_option())
         action_menu.append(self._partners_option())
         action_menu.append(self._names_option())
@@ -434,16 +433,18 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         Save the new name to finish adding it.
         """
         if name:
-            action = "{} {} {} {} {} {}".format(
-                _("Added"),
-                _("Name"),
-                name.get_regular_name(),
-                _("to"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Added"),
+                    _("Name"),
+                    name.get_regular_name(),
+                    _("to"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
             self.primary.obj.add_alternate_name(name)
-            self.save_object(self.primary.obj, action_text=action)
+            self.primary.commit(self.grstate, message)
 
     def remove_name(self, _dummy_obj, name):
         """
@@ -455,25 +456,23 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         prefix = _(
             "You are about to remove the following name from this object:"
         )
-        confirm = _("Are you sure you want to continue?")
-        if self.confirm_action(
-            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
-        ):
-            action = "{} {} {} {} {} {}".format(
-                _("Deleted"),
-                _("Name"),
-                text,
-                _("from"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
+        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
+            message = " ".join(
+                (
+                    _("Deleted"),
+                    _("Name"),
+                    text,
+                    _("from"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
             name_list = []
             for alternate_name in self.primary.obj.get_alternate_names():
                 if alternate_name.serialize() != name.serialize():
                     name_list.append(alternate_name)
-            with DbTxn(action, self.grstate.dbstate.db) as trans:
-                self.primary.obj.set_alternate_names(name_list)
-                self.grstate.dbstate.db.commit_person(self.primary.obj, trans)
+            self.primary.obj.set_alternate_names(name_list)
+            self.primary.commit(self.grstate, message)
 
     def _add_new_person_event_option(self):
         """
@@ -509,16 +508,18 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         Finish adding a new event for a person.
         """
         event = self.fetch("Event", reference.ref)
-        action = "{} {} {} {} {} {}".format(
-            _("Added"),
-            _("Person"),
-            self.primary.obj.get_gramps_id(),
-            _("to"),
-            _("Event"),
-            event.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Person"),
+                self.primary.obj.get_gramps_id(),
+                _("to"),
+                _("Event"),
+                event.get_gramps_id(),
+            )
         )
         self.primary.obj.add_event_ref(reference)
-        self.save_object(self.primary.obj, action_text=action)
+        self.primary.commit(self.grstate, message)
 
     def _parents_option(self):
         """
@@ -625,7 +626,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def _remove_as_parent_from_family_option(self):
+    def _remove_family_parent_option(self):
         """
         Build menu item for removing as parent from a family.
         """
@@ -635,10 +636,10 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             image=image,
             label=_("Remove parent from this family"),
         )
-        item.connect("activate", self.remove_as_parent_from_family)
+        item.connect("activate", self.remove_family_parent)
         return item
 
-    def remove_as_parent_from_family(self, _dummy_obj):
+    def remove_family_parent(self, _dummy_obj):
         """
         Remove a parent from a family.
         """
@@ -658,36 +659,39 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if partner_handle:
             partner = self.fetch("Person", partner_handle)
             partner_name = name_displayer.display(partner)
-            text = (
-                "You are about to remove {} as the partner of {} "
-                "and a parent of this family.".format(
-                    person_name, partner_name
+            message = " ".join(
+                (
+                    _("You are about to remove"),
+                    person_name,
+                    _("as the partner of"),
+                    partner_name,
+                    _("and a parent of this family."),
                 )
             )
         else:
-            text = (
-                "You are about to remove {} as a parent of this "
-                "family.".format(person_name)
+            message = " ".join(
+                (
+                    _("You are about to remove"),
+                    person_name,
+                    _("as a parent of this family."),
+                )
             )
-        if not self.confirm_action(
-            "Warning",
-            "{}\n\nAre you sure you want to continue?".format(text),
-        ):
+        if self.confirm_action(_("Warning"), message):
             self.grstate.dbstate.db.remove_parent_from_family(
                 self.primary.obj.get_handle(), self.groptions.backlink
             )
 
-    def _remove_child_from_family_option(self):
+    def _remove_family_child_option(self):
         """
         Build menu item for removing child from a family.
         """
         return menu_item(
             "list-remove",
             _("Remove child from this family"),
-            self.remove_child_from_family,
+            self.remove_family_child,
         )
 
-    def remove_child_from_family(self, _dummy_obj):
+    def remove_family_child(self, _dummy_obj):
         """
         Remove a child from the family.
         """
@@ -696,13 +700,16 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         person_name = name_displayer.display(self.primary.obj)
         family = self.fetch("Family", self.groptions.backlink)
         family_text = family_name(family, self.grstate.dbstate.db)
-        if self.confirm_action(
-            "Warning",
-            "You are about to remove {} from the family of {}.\n\n"
-            "Are you sure you want to continue?".format(
-                person_name, family_text
-            ),
-        ):
+        message = " ".join(
+            (
+                _("You are about to remove"),
+                person_name,
+                "from the family of",
+                family_text,
+                ".",
+            )
+        )
+        if self.confirm_action(_("Warning"), message):
             self.grstate.dbstate.db.remove_child_from_family(
                 self.primary.obj.get_handle(), self.backlink
             )

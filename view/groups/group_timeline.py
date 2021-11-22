@@ -110,8 +110,12 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         try:
             groptions.set_ref_mode(
                 self.grstate.config.get(
-                    "options.timeline.{}.reference-mode".format(
-                        self.group_base.obj_type.lower()
+                    "".join(
+                        (
+                            "options.timeline.",
+                            self.group_base.obj_type.lower(),
+                            ".reference-mode",
+                        )
                     )
                 )
             )
@@ -188,15 +192,15 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         Parse and prepare filter groups and options.
         """
         for category in EVENT_CATEGORIES:
-            if self.get_option("show-class-{}".format(category)):
+            if self.get_option("".join(("show-class-", category))):
                 self.options["categories"].append(category)
             if self.group_base.obj_type == "Person":
-                if self.get_option("show-family-class-{}".format(category)):
+                if self.get_option("".join(("show-family-class-", category))):
                     self.options["relation_categories"].append(category)
 
         if self.group_base.obj_type == "Person":
             for relation in RELATIVES:
-                if self.get_option("show-family-{}".format(relation)):
+                if self.get_option("".join(("show-family-", relation))):
                     self.options["relations"].append(relation)
 
         self.options["ancestors"] = self.get_option("generations-ancestors")

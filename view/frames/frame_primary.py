@@ -195,7 +195,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         label = self.get_option("attributes-field-show-labels")
         for number in range(1, 9):
             option = self.get_option(
-                "attributes-field-{}".format(number),
+                "".join(("attributes-field-", str(number))),
                 full=False,
                 keyed=True,
             )
@@ -257,11 +257,13 @@ class PrimaryGrampsFrame(GrampsFrame):
             action_menu.append(self._change_privacy_option())
             action_menu.add(Gtk.SeparatorMenuItem())
             if self.primary.obj.change:
-                text = "{} {}".format(
-                    _("Last changed"),
-                    time.strftime(
-                        "%x %X", time.localtime(self.primary.obj.change)
-                    ),
+                text = " ".join(
+                    (
+                        _("Last changed"),
+                        time.strftime(
+                            "%x %X", time.localtime(self.primary.obj.change)
+                        ),
+                    )
                 )
             else:
                 text = _("Never changed")
@@ -329,7 +331,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if attribute:
             message = self._commit_message(
-                _("Attribute"), attribute.get_type()
+                _("Attribute"), str(attribute.get_type())
             )
             self.primary.obj.add_attribute(attribute)
             self.primary.commit(self.grstate, message)
@@ -344,12 +346,9 @@ class PrimaryGrampsFrame(GrampsFrame):
         prefix = _(
             "You are about to remove the following attribute from this object:"
         )
-        confirm = _("Are you sure you want to continue?")
-        if self.confirm_action(
-            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
-        ):
+        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = self._commit_message(
-                _("Attribute"), attribute.get_type(), action="remove"
+                _("Attribute"), str(attribute.get_type()), action="remove"
             )
             self.primary.obj.remove_attribute(attribute)
             self.primary.commit(self.grstate, message)
@@ -534,14 +533,11 @@ class PrimaryGrampsFrame(GrampsFrame):
             return
         text = url.get_path()
         if url.get_description():
-            text = "{}\n{}".format(url.get_description(), text)
+            text = "".join((url.get_description(), "\n", text))
         prefix = _(
             "You are about to remove the following url from this object:"
         )
-        confirm = _("Are you sure you want to continue?")
-        if self.confirm_action(
-            _("Warning"), "{}\n\n<b>{}</b>\n\n{}".format(prefix, text, confirm)
-        ):
+        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = self._commit_message(
                 _("Url"), url.get_path(), action="remove"
             )
@@ -619,19 +615,21 @@ class PrimaryGrampsFrame(GrampsFrame):
         else:
             family = self.fetch("Family", self.groptions.backlink)
         event = self.fetch("Event", event_ref.ref)
-        action = "{} {} {} {} {} {}".format(
-            _("Added"),
-            _("Event"),
-            event.get_gramps_id(),
-            _("for"),
-            _("Family"),
-            family.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Event"),
+                event.get_gramps_id(),
+                _("for"),
+                _("Family"),
+                family.get_gramps_id(),
+            )
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             if family.add_event_ref(event_ref):
                 self.grstate.dbstate.db.commit_family(family, trans)
 
-    def _add_new_child_to_family_option(self):
+    def _add_new_child_option(self):
         """
         Build menu item for adding a new child to the family.
         """
@@ -639,11 +637,11 @@ class PrimaryGrampsFrame(GrampsFrame):
             return menu_item(
                 "gramps-person",
                 _("Add a new child to the family"),
-                self.add_new_child_to_family,
+                self.add_new_child,
             )
         return None
 
-    def add_new_child_to_family(self, *_dummy_obj):
+    def add_new_child(self, *_dummy_obj):
         """
         Add a new child to a family. First create the person.
         """
@@ -702,21 +700,23 @@ class PrimaryGrampsFrame(GrampsFrame):
         Finish adding the child to the family.
         """
         family = self.fetch("Family", family_handle)
-        action = "{} {} {} {} {} {}".format(
-            _("Added"),
-            _("Child"),
-            child.get_gramps_id(),
-            _("to"),
-            _("Family"),
-            family.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Added"),
+                _("Child"),
+                child.get_gramps_id(),
+                _("to"),
+                _("Family"),
+                family.get_gramps_id(),
+            )
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             family.add_child_ref(child_ref)
             self.grstate.dbstate.db.commit_family(family, trans)
             child.add_parent_family_handle(family_handle)
             self.grstate.dbstate.db.commit_person(child, trans)
 
-    def _add_existing_child_to_family_option(self):
+    def _add_existing_child_option(self):
         """
         Build menu item for adding existing child to the family.
         """
@@ -724,11 +724,11 @@ class PrimaryGrampsFrame(GrampsFrame):
             return menu_item(
                 "gramps-person",
                 _("Add an existing child to the family"),
-                self.add_existing_child_to_family,
+                self.add_existing_child,
             )
         return None
 
-    def add_existing_child_to_family(self, *_dummy_obj):
+    def add_existing_child(self, *_dummy_obj):
         """
         Add the child to the family. First select the person.
         """

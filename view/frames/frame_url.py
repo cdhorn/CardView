@@ -77,7 +77,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         self.link = url.get_full_path()
 
         label = Gtk.Label(
-            use_markup=True, label="<b>{}</b>".format(escape(self.link))
+            use_markup=True, label="".join(("<b>", escape(self.link), "</b>"))
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 

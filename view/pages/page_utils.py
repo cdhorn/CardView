@@ -97,8 +97,9 @@ def config_facts_fields(
     """
     count = 1
     row = start_row
+    prefix = "".join((space, ".", context, ".", key, "-"))
     while row < start_row + number:
-        option = "{}.{}.{}-{}".format(space, context, key, count)
+        option = "".join((prefix, str(count)))
         user_select = FrameFieldSelector(
             option,
             grstate,
@@ -124,9 +125,7 @@ def config_facts_fields(
         ]:
             args = [
                 (
-                    "{}.{}.{}-skip-birth-alternates".format(
-                        space, context, key
-                    ),
+                    "".join((prefix, "skip-birth-alternates")),
                     _("Skip birth alternatives if birth found"),
                     _(
                         "If enabled then if a birth event was found other "
@@ -135,9 +134,7 @@ def config_facts_fields(
                     ),
                 ),
                 (
-                    "{}.{}.{}-skip-death-alternates".format(
-                        space, context, key
-                    ),
+                    "".join((prefix, "skip-death-alternates")),
                     _("Skip death alternatives if death found"),
                     _(
                         "If enabled then if a death event was found other "
@@ -149,9 +146,7 @@ def config_facts_fields(
         elif context == "family":
             args = [
                 (
-                    "{}.{}.{}-skip-marriage-alternates".format(
-                        space, context, key
-                    ),
+                    "".join((prefix, "skip-marriage-alternates")),
                     _("Skip marriage alternatives if marriage found"),
                     _(
                         "If enabled then if a marriage event was found other "
@@ -160,9 +155,7 @@ def config_facts_fields(
                     ),
                 ),
                 (
-                    "{}.{}.{}-skip-divorce-alternates".format(
-                        space, context, key
-                    ),
+                    "".join((prefix, "skip-divorce-alternates")),
                     _("Skip divorce alternatives if divorce found"),
                     _(
                         "If enabled then if a divorce event was found other "
@@ -174,7 +167,7 @@ def config_facts_fields(
     else:
         args = [
             (
-                "{}.{}.{}-show-labels".format(space, context, key),
+                "".join((prefix, "show-labels")),
                 _("Show attribute labels"),
                 _(
                     "If enabled then both the attribute name and value will "

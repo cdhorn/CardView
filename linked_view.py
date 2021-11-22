@@ -240,16 +240,16 @@ class LinkedView(ExtendedNavigationView):
             "tag",
         ]:
             self.callman.add_db_signal(
-                "{}-add".format(obj_type), self.build_tree
+                "".join((obj_type, "-add")), self.build_tree
             )
             self.callman.add_db_signal(
-                "{}-update".format(obj_type), self.build_tree
+                "".join((obj_type, "-update")), self.build_tree
             )
             self.callman.add_db_signal(
-                "{}-delete".format(obj_type), self.build_tree
+                "".join((obj_type, "-delete")), self.build_tree
             )
             self.callman.add_db_signal(
-                "{}-rebuild".format(obj_type), self.build_tree
+                "".join((obj_type, "-rebuild")), self.build_tree
             )
 
     def navigation_type(self):
@@ -652,6 +652,8 @@ class LinkedView(ExtendedNavigationView):
         self._clear_change()
         page = self.pages[page_context.page_type]
         page.render_page(self.header, self.vbox, page_context)
+        self.header.show_all()
+        self.vbox.show_all()
         page.enable_actions(self.uimanager, page_context.primary_obj)
         self.uimanager.update_menu()
 
@@ -678,17 +680,18 @@ class LinkedView(ExtendedNavigationView):
                 self.dbstate, page_context.primary_obj.obj.get_handle()
             )
             if relation:
-                name = "{} ({})".format(name, relation.strip())
+                name = "".join((name, " (", relation.strip(), ")"))
         if name:
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)
         self.dirty = False
-        print(
-            "render_page: {} {}".format(
-                page_context.primary_obj.obj.get_gramps_id(),
-                time.time() - start,
+        if page_context.primary_obj.obj_type != "Tag":
+            print(
+                "render_page: {} {}".format(
+                    page_context.primary_obj.obj.get_gramps_id(),
+                    time.time() - start,
+                )
             )
-        )
 
     def set_active(self):
         """
@@ -796,7 +799,7 @@ class LinkedView(ExtendedNavigationView):
         """
         max_windows = self._config.get("options.global.max-group-windows")
         if hasattr(obj, "handle"):
-            key = "{}-{}".format(obj.get_handle(), group_type)
+            key = "-".join((obj.get_handle(), group_type))
             if key in self.group_windows:
                 self.group_windows[key].refresh()
                 return

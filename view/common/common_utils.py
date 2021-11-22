@@ -64,7 +64,6 @@ from .common_const import (
     _RETURN,
     _SPACE,
     CONFIDENCE_COLOR_SCHEME,
-    GRAMPS_OBJECTS,
 )
 
 _ = glocale.translation.sgettext
@@ -111,9 +110,9 @@ def format_date_string(event1, event2):
     text = ""
     if event1:
         text = glocale.date_displayer.display(event1.date)
-    text = "{} - ".format(text)
+    text = "".join((text, " - "))
     if event2:
-        text = "{}{}".format(text, glocale.date_displayer.display(event2.date))
+        text = "".join((text, glocale.date_displayer.display(event2.date)))
     text.strip()
     if text == "-":
         return ""
@@ -136,9 +135,7 @@ def get_relation(db, person, relation, depth=15):
         db, base_person, person, extra_info=True
     )
     if result[0]:
-        return "{} {} {}".format(
-            result[0].capitalize(), _("of"), base_person_name
-        )
+        return " ".join((result[0].capitalize(), _("of"), base_person_name))
     return None
 
 
@@ -315,7 +312,7 @@ class TextLink(Gtk.EventBox):
         if markup:
             self.name = markup.format(self.name)
         if bold:
-            self.name = "<b>{}</b>".format(self.name)
+            self.name = "".join(("<b>", self.name, "</b>"))
         self.label = Gtk.Label(
             hexpand=hexpand,
             halign=Gtk.Align.START,
@@ -336,7 +333,7 @@ class TextLink(Gtk.EventBox):
         """
         Cursor entered so highlight.
         """
-        self.label.set_markup("<u>{}</u>".format(self.name))
+        self.label.set_markup("".join(("<u>", self.name, "</u>")))
 
     def leave(self, _dummy_obj, _dummy_event):
         """
@@ -352,9 +349,9 @@ def format_color_css(background, border):
     scheme = global_config.get("colors.scheme")
     css = ""
     if background:
-        css = "background-color: {};".format(background[scheme])
+        css = "".join(("background-color: ", background[scheme], ";"))
     if border:
-        css = "{} border-color: {};".format(css, border[scheme])
+        css = "".join((css, " border-color: ", border[scheme], ";"))
     return css
 
 
@@ -366,8 +363,8 @@ def get_confidence_color_css(index, config):
         return ""
 
     key = CONFIDENCE_COLOR_SCHEME[index]
-    background = config.get("options.colors.confidence.{}".format(key))
-    border = config.get("options.colors.confidence.border-{}".format(key))
+    background = config.get("".join(("options.colors.confidence.", key)))
+    border = config.get("".join(("options.colors.confidence.border-", key)))
     return format_color_css(background, border)
 
 
@@ -392,8 +389,8 @@ def get_relationship_color_css(relationship, config):
                     key = relative
                 break
 
-    background = config.get("options.colors.relations.{}".format(key))
-    border = config.get("options.colors.relations.border-{}".format(key))
+    background = config.get("".join(("options.colors.relations.", key)))
+    border = config.get("".join(("options.colors.relations.border-", key)))
     return format_color_css(background, border)
 
 
@@ -404,8 +401,8 @@ def get_event_category_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("options.colors.events.{}".format(index))
-    border = config.get("options.colors.events.border-{}".format(index))
+    background = config.get("".join(("options.colors.events.", index)))
+    border = config.get("".join(("options.colors.events.border-", index)))
     return format_color_css(background, border)
 
 
@@ -416,8 +413,8 @@ def get_event_role_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("options.colors.roles.{}".format(index))
-    border = config.get("options.colors.roles.border-{}".format(index))
+    background = config.get("".join(("options.colors.roles.", index)))
+    border = config.get("".join(("options.colors.roles.border-", index)))
     return format_color_css(background, border)
 
 
@@ -439,11 +436,11 @@ def get_person_color_css(person, living=False, home=None):
     else:
         value = "dead"
 
-    border = global_config.get("colors.border-{}-{}".format(key, value))
+    border = global_config.get("".join(("colors.border-", key, "-", value)))
     if home and home.handle == person.handle:
         key = "home"
         value = "person"
-    background = global_config.get("colors.{}-{}".format(key, value))
+    background = global_config.get("".join(("colors.", key, "-", value)))
     return format_color_css(background, border)
 
 
@@ -467,7 +464,7 @@ def get_family_color_css(family, divorced=False):
             4: "",
             99: "-divorced",
         }
-        background = global_config.get("colors.family{}".format(values[key]))
+        background = global_config.get("".join(("colors.family", values[key])))
     return format_color_css(background, border)
 
 
@@ -477,18 +474,19 @@ def get_participants(db, event):
     Returns people and also a descriptive string.
     """
     participants = []
+    event_handle = event.get_handle()
     result_list = list(
         db.find_backlink_handles(
-            event.handle, include_classes=["Person", "Family"]
+            event_handle, include_classes=["Person", "Family"]
         )
     )
-    people = [x[1] for x in result_list if x[0] == "Person"]
+    people = [x[1] for x in result_list if x[0] in ["Person"]]
     for handle in people:
         person = db.get_person_from_handle(handle)
         if not person:
             continue
         for event_ref in person.get_event_ref_list():
-            if event.handle == event_ref.ref:
+            if event_handle in [event_ref.ref]:
                 participants.append(
                     (
                         "Person",
@@ -497,16 +495,18 @@ def get_participants(db, event):
                         name_displayer.display(person),
                     )
                 )
-    families = [x[1] for x in result_list if x[0] == "Family"]
+                break
+    families = [x[1] for x in result_list if x[0] in ["Family"]]
     for handle in families:
         family = db.get_family_from_handle(handle)
         if not family:
             continue
         for event_ref in family.get_event_ref_list():
-            if event.handle == event_ref.ref:
+            if event_handle in [event_ref.ref]:
                 participants.append(
                     ("Family", family, event_ref, family_name(family, db))
                 )
+                break
     return participants
 
 
@@ -517,9 +517,9 @@ def get_primary_participant(participants):
     for participant in participants:
         (obj_type, dummy_obj, obj_event_ref, dummy_obj_name) = participant
         role = obj_event_ref.get_role()
-        if obj_type == "Person" and role.is_primary():
+        if obj_type in ["Person"] and role.is_primary():
             return participant
-        if obj_type == "Family" and role.is_family():
+        if obj_type in ["Family"] and role.is_family():
             return participant
     return participants[0]
 
@@ -539,11 +539,12 @@ def get_participants_text(participants, primary=None):
         text,
     ) = primary_participant
 
+    primary_obj_handle = primary_obj.get_handle()
     for participant in participants:
         (dummy_obj_type, obj, dummy_obj_event_ref, obj_name) = participant
-        if obj.get_handle() == primary_obj.get_handle():
+        if obj.get_handle() == primary_obj_handle:
             continue
-        text = "{}; {}".format(text, obj_name)
+        text = "; ".join((text, obj_name))
     return text
 
 
@@ -590,10 +591,10 @@ def save_config_option(
                 if len(option_parts) >= 3:
                     if option_parts[0] != dbid:
                         option_list.append(current_option)
-        option_list.append("{}:{}:{}".format(dbid, option_type, option_value))
+        option_list.append(":".join((dbid, option_type, option_value)))
         config.set(option, ",".join(option_list))
     else:
-        config.set(option, "{}:{}".format(option_type, option_value))
+        config.set(option, ":".join((option_type, option_value)))
 
 
 class ConfigReset(Gtk.ButtonBox):
@@ -693,7 +694,7 @@ class ConfigReset(Gtk.ButtonBox):
         options = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
-                options.append("options.{}".format(setting))
+                options.append("".join(("options.", setting)))
         return options
 
 
@@ -701,9 +702,9 @@ def attribute_option_text(attribute):
     """
     Helper to build attribute description string.
     """
-    text = "{}: {}".format(attribute.get_type(), attribute.get_value())
+    text = ": ".join((str(attribute.get_type()), attribute.get_value()))
     if len(text) > 50:
-        text = text[:50] + "..."
+        text = "".join((text[:50], "..."))
     return text
 
 
@@ -716,11 +717,11 @@ def citation_option_text(db, citation):
         if source.get_title():
             text = source.get_title()
         else:
-            text = "[{}]".format(_("Missing Source"))
+            text = "".join(("[", _("Missing Source"), "]"))
     if citation.page:
-        text = "{}: {}".format(text, citation.page)
+        text = ": ".join((text, citation.page))
     else:
-        text = "{}: [{}]".format(text, _("Missing Page"))
+        text = "".join((text, ": [", _("Missing Page"), "]"))
     return text
 
 
@@ -731,8 +732,8 @@ def note_option_text(note):
     notetype = str(note.get_type())
     text = note.get()[:50].replace("\n", " ")
     if len(text) > 40:
-        text = text[:40] + "..."
-    return "{}: {}".format(notetype, text)
+        text = "".join((text[:40], "..."))
+    return ": ".join((notetype, text))
 
 
 def menu_item(icon, label, callback, data1=None, data2=None):
@@ -916,9 +917,17 @@ def set_dnd_css(row, top):
         text = "top"
     else:
         text = "bottom"
-    css = ".frame {{ border-{}-width: 3px; border-{}-color: #4e9a06; }}"
+    css = "".join(
+        (
+            ".frame { border-",
+            text,
+            "-width: 3px; border-",
+            text,
+            "-color: #4e9a06; }",
+        )
+    )
     provider = Gtk.CssProvider()
-    provider.load_from_data(css.format(text, text).encode("utf-8"))
+    provider.load_from_data(css.encode("utf-8"))
     context = row.get_style_context()
     context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
     context.add_class("frame")

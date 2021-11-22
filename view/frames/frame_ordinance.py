@@ -57,7 +57,7 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
     def __init__(self, grstate, groptions, obj, ordinance):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, ordinance)
 
-        title = "{}: {}".format(_("LDS"), ordinance.type2str())
+        title = ": ".join((_("LDS"), ordinance.type2str()))
         label = TextLink(
             title,
             self.primary.obj,
@@ -92,14 +92,14 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
                 "Family", ordinance.get_family_handle()
             )
             text = family_name(family, self.grstate.dbstate.db)
-            self.add_fact(self.make_label("{}: {}".format(_("Family"), text)))
+            self.add_fact(self.make_label(": ".join((_("Family"), text))))
 
         if ordinance.get_temple():
-            temple = "{}: {}".format(_("Temple"), ordinance.get_temple())
+            temple = ": ".join((_("Temple"), ordinance.get_temple()))
             self.add_fact(self.make_label(temple))
 
         if ordinance.get_status():
-            status = "{}: {}".format(_("Status"), ordinance.status2str())
+            status = ": ".join((_("Status"), ordinance.status2str()))
             self.add_fact(self.make_label(status))
 
         self.show_all()

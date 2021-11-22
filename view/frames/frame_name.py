@@ -60,9 +60,9 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         else:
             name_type = _("Unknown")
         if obj.primary_name.serialize() == name.serialize():
-            title = "{}: {}".format(_("Primary"), name_type)
+            title = ": ".join((_("Primary"), name_type))
         else:
-            title = "{}: {}".format(_("Alternate"), name_type)
+            title = ": ".join((_("Alternate"), name_type))
         label = TextLink(
             title, "Person", obj.get_handle(), self.switch_name_page
         )
@@ -70,15 +70,15 @@ class NameGrampsFrame(SecondaryGrampsFrame):
 
         given_name = name.get_regular_name()
         if name.get_title():
-            given_name = "{} {}".format(name.get_title(), given_name)
+            given_name = " ".join((name.get_title(), given_name))
         self.add_fact(self.make_label(given_name))
 
         if name.get_call_name():
-            call_name = "{} {}".format(_("Call Name:"), name.get_call_name())
+            call_name = " ".join((_("Call Name:"), name.get_call_name()))
             self.add_fact(self.make_label(call_name))
 
         if name.get_nick_name():
-            nick_name = "{} {}".format(_("Nick Name:"), name.get_nick_name())
+            nick_name = " ".join((_("Nick Name:"), name.get_nick_name()))
             self.add_fact(self.make_label(nick_name))
 
         origin_type = ""
@@ -86,25 +86,23 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             if surname.get_origintype():
                 origin_type = str(surname.get_origintype())
             if not origin_type:
-                origin_type = "[{}]".format(_("Missing Origin"))
+                origin_type = "".join(("[", _("Missing Origin"), "]"))
 
             prefix = ""
             if surname.get_prefix():
-                prefix = "{} ".format(surname.get_prefix())
+                prefix = "".join((surname.get_prefix(), " "))
             connector = ""
             if surname.get_connector():
-                connector = " {}".format(surname.get_connector())
+                connector = "".join((" ", surname.get_connector()))
 
-            text = "{}{}{}".format(
-                prefix, name.get_surname(), connector
-            ).strip()
+            text = "".join((prefix, name.get_surname(), connector)).strip()
             if text:
-                text = "{}: {}".format(origin_type, text)
+                text = ": ".join((origin_type, text))
                 self.add_fact(self.make_label(text))
 
         if name.get_family_nick_name():
-            nick_name = "{} {}".format(
-                _("Family Nick Name:"), name.get_family_nick_name()
+            nick_name = " ".join(
+                (_("Family Nick Name:"), name.get_family_nick_name())
             )
             self.add_fact(self.make_label(nick_name))
 

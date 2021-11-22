@@ -364,7 +364,7 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         Build the edit option.
         """
-        name = "{} {}".format(_("Edit"), _("reference"))
+        name = " ".join((_("Edit"), _("reference")))
         return menu_item("gtk-edit", name, self.edit_media_ref)
 
     def edit_media_ref(self, *_dummy_obj):
@@ -390,22 +390,24 @@ class GrampsMediaBarItem(GrampsFrame):
         if not media_ref:
             return
         if action_text:
-            action = action_text
+            message = action_text
         else:
-            action = "{} {} {} {} {} {} {} {}".format(
-                _("Edited"),
-                _("MediaRef"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                _("to"),
-                self.primary.obj_type,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Edited"),
+                    _("MediaRef"),
+                    _("for"),
+                    self.obj_type,
+                    self.obj.get_gramps_id(),
+                    _("to"),
+                    self.primary.obj_type,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.obj_type
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             commit_method(self.obj, trans)
 
     def _make_active_media(self, _dummy_var1):
@@ -423,20 +425,21 @@ class GrampsMediaBarItem(GrampsFrame):
         if image_ref:
             new_list.insert(0, image_ref)
 
-        action = "{} {} {} {} {} {} {}".format(
-            _("Set"),
-            _("Image"),
-            self.media.get_gramps_id(),
-            _("Active"),
-            _("for"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Set"),
+                _("Image"),
+                self.media.get_gramps_id(),
+                _("Active"),
+                _("for"),
+                self.obj_type,
+                self.obj.get_gramps_id(),
+            )
         )
-
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.obj_type
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             self.obj.set_media_list(new_list)
             commit_method(self.obj, trans)
 
@@ -464,20 +467,22 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         if handle and self.media_ref.add_citation(handle):
             citation = self.fetch("Citation", handle)
-            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
-                _("Added"),
-                _("Citation"),
-                citation.get_gramps_id(),
-                _("to"),
-                _("MediaRef"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                _("to"),
-                self.primary.obj_type,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Added"),
+                    _("Citation"),
+                    citation.get_gramps_id(),
+                    _("to"),
+                    _("MediaRef"),
+                    _("for"),
+                    self.obj_type,
+                    self.obj.get_gramps_id(),
+                    _("to"),
+                    self.primary.obj_type,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
-            self.save_media_ref(self.media_ref, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=message)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -528,26 +533,26 @@ class GrampsMediaBarItem(GrampsFrame):
         extra = _(
             "This removes the reference but does not delete the citation."
         )
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
-            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
-                _("Removed"),
-                _("Citation"),
-                citation.get_gramps_id(),
-                _("from"),
-                _("MediaRef"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                _("to"),
-                self.primary.obj_type,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("Citation"),
+                    citation.get_gramps_id(),
+                    _("from"),
+                    _("MediaRef"),
+                    _("for"),
+                    self.obj_type,
+                    self.obj.get_gramps_id(),
+                    _("to"),
+                    self.primary.obj_type,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
             self.media_ref.remove_citation_references([citation.get_handle()])
-            self.save_media_ref(self.media_ref, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=message)
 
     def add_new_ref_note(self, _dummy_obj, content=None):
         """
@@ -573,20 +578,22 @@ class GrampsMediaBarItem(GrampsFrame):
         """
         if handle and self.media_ref.add_note(handle):
             note = self.fetch("Note", handle)
-            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
-                _("Added"),
-                _("Note"),
-                note.get_gramps_id(),
-                _("to"),
-                _("MediaRef"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                _("to"),
-                self.primary.obj_type,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Added"),
+                    _("Note"),
+                    note.get_gramps_id(),
+                    _("to"),
+                    _("MediaRef"),
+                    _("for"),
+                    self.obj_type,
+                    self.obj.get_gramps_id(),
+                    _("to"),
+                    self.primary.obj_type,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
-            self.save_media_ref(self.media_ref, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=message)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -609,26 +616,26 @@ class GrampsMediaBarItem(GrampsFrame):
             "You are about to remove the following note from this object:"
         )
         extra = _("This removes the reference but does not delete the note.")
-        confirm = _("Are you sure you want to continue?")
         if self.confirm_action(
-            _("Warning"),
-            "{}\n\n<b>{}</b>\n\n{}\n\n{}".format(prefix, text, extra, confirm),
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
-            action = "{} {} {} {} {} {} {} {} {} {} {}".format(
-                _("Removed"),
-                _("Note"),
-                note.get_gramps_id(),
-                _("from"),
-                _("MediaRef"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                _("to"),
-                self.primary.obj_type,
-                self.primary.obj.get_gramps_id(),
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("Note"),
+                    note.get_gramps_id(),
+                    _("from"),
+                    _("MediaRef"),
+                    _("for"),
+                    self.obj_type,
+                    self.obj.get_gramps_id(),
+                    _("to"),
+                    self.primary.obj_type,
+                    self.primary.obj.get_gramps_id(),
+                )
             )
             self.media_ref.remove_note(note.get_handle())
-            self.save_media_ref(self.media_ref, action_text=action)
+            self.save_media_ref(self.media_ref, action_text=message)
 
     def _change_ref_privacy_option(self):
         """
@@ -653,19 +660,21 @@ class GrampsMediaBarItem(GrampsFrame):
             text = _("Private")
         else:
             text = _("Public")
-        action = "{} {} {} {} {} {} {}".format(
-            _("Made"),
-            _("MediaRef"),
-            self.primary.obj.get_gramps_id(),
-            _("for"),
-            self.obj_type,
-            self.obj.get_gramps_id(),
-            text,
+        message = " ".join(
+            (
+                _("Made"),
+                _("MediaRef"),
+                self.primary.obj.get_gramps_id(),
+                _("for"),
+                self.obj_type,
+                self.obj.get_gramps_id(),
+                text,
+            )
         )
         commit_method = self.grstate.dbstate.db.method(
             "commit_%s", self.obj_type
         )
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             for media_ref in self.obj.get_media_list():
                 if media_ref.ref == self.media_ref.ref:
                     media_ref.set_privacy(mode)

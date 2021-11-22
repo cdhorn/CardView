@@ -94,9 +94,9 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
             title = glocale.translation.sgettext(note.type.xml_str())
         if preview_mode:
             if title:
-                title = "{} ({})".format(title, _("Preview"))
+                title = "".join((title, " (", _("Preview"), ")"))
             else:
-                title = "{}".format(_("Preview"))
+                title = _("Preview")
         if title:
             label = TextLink(
                 title,

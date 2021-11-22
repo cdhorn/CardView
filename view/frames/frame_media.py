@@ -191,17 +191,18 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         if image_ref:
             new_list.insert(0, image_ref)
 
-        action = "{} {} {} {} {} {} {}".format(
-            _("Set"),
-            _("Image"),
-            self.primary.obj.get_gramps_id(),
-            _("Active"),
-            _("for"),
-            obj_type,
-            obj.get_gramps_id(),
+        message = " ".join(
+            (
+                _("Set"),
+                _("Image"),
+                self.primary.obj.get_gramps_id(),
+                _("Active"),
+                _("for"),
+                obj_type,
+                obj.get_gramps_id(),
+            )
         )
-
         commit_method = self.grstate.dbstate.db.method("commit_%s", obj_type)
-        with DbTxn(action, self.grstate.dbstate.db) as trans:
+        with DbTxn(message, self.grstate.dbstate.db) as trans:
             obj.set_media_list(new_list)
             commit_method(obj, trans)

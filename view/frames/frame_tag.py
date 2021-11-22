@@ -83,13 +83,12 @@ class TagGrampsFrame(GrampsFrame):
         self.widgets["title"].set_spacing(6)
         self.widgets["title"].pack_start(image, False, False, 0)
 
-        css = (
-            ".image {{ "
-            "margin: 0px; "
-            "padding: 0px; "
-            "background-image: none; "
-            "background-color: {}; }}".format(
+        css = "".join(
+            (
+                ".image { margin: 0px; padding: 0px; background-image: none; ",
+                "background-color: ",
                 tag.color[:7],
+                "; }",
             )
         )
         css = css.encode("utf-8")
@@ -99,18 +98,19 @@ class TagGrampsFrame(GrampsFrame):
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("image")
 
-        label = Gtk.Label(use_markup=True, label="<b>{}</b>".format(tag.name))
+        label = Gtk.Label(
+            use_markup=True, label="".join(("<b>", tag.name, "</b>"))
+        )
         self.widgets["title"].pack_start(label, False, False, 0)
 
         self.widgets["facts"].attach(
-            self.make_label("{}:".format(_("Priority"))), 0, 0, 1, 1
+            self.make_label("".join((_("Priority"), ":"))), 0, 0, 1, 1
         )
         self.widgets["facts"].attach(
             self.make_label(str(tag.priority)), 1, 0, 1, 1
         )
-        label = Gtk.Label(label="{}:".format(_("Color")))
         self.widgets["facts"].attach(
-            self.make_label("{}:".format(_("Color"))), 0, 1, 1, 1
+            self.make_label("".join((_("Color"), ":"))), 0, 1, 1, 1
         )
         label = self.make_label(tag.color)
         self.widgets["facts"].attach(label, 1, 1, 1, 1)
@@ -162,7 +162,9 @@ class TagGrampsFrame(GrampsFrame):
         """
         border = self.grstate.config.get("options.global.border-width")
         color = self.get_color_css()
-        css = ".frame {{ border-width: {}px; {} }}".format(border, color)
+        css = "".join(
+            (".frame { border-width: ", str(border), "px; ", color, " }")
+        )
         css = css.encode("utf-8")
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
