@@ -446,7 +446,7 @@ def get_references_group(
     if len(group) == 1:
         text = title_single
     if not_shown:
-        text = "".join((text, " (", not_shown, " ", _("Not Shown"), ")"))
+        text = "".join((text, " (", str(not_shown), " ", _("Not Shown"), ")"))
 
     content = GrampsFrameGroupExpander(
         grstate, groptions, expanded=True, use_markup=True
