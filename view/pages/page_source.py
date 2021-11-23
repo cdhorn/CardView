@@ -96,28 +96,28 @@ class SourceProfilePage(BaseProfilePage):
 
         if people_list:
             groptions = GrampsOptions("options.group.people")
+            args = {"title": (_("Referenced People"), _("Referenced People"))}
             obj_groups.update(
                 {
                     "people": get_references_group(
                         self.grstate,
                         None,
+                        args,
                         groptions=groptions,
-                        title_plural=_("Referenced People"),
-                        title_single=_("Referenced People"),
                         obj_list=people_list,
                     )
                 }
             )
         if events_list:
             groptions = GrampsOptions("options.group.event")
+            args = {"title": (_("Referenced Event"), _("Referenced Events"))}
             obj_groups.update(
                 {
                     "event": get_references_group(
                         self.grstate,
                         None,
+                        args,
                         groptions=groptions,
-                        title_plural=_("Referenced Events"),
-                        title_single=_("Referenced Events"),
                         obj_list=events_list,
                     )
                 }

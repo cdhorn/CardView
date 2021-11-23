@@ -105,9 +105,8 @@ class TagProfilePage(BaseProfilePage):
                         key.lower(): get_references_group(
                             self.grstate,
                             None,
+                            None,
                             groptions=groptions,
-                            title_plural=GROUP_LABELS[key.lower()],
-                            title_single=GROUP_LABELS[key.lower()],
                             obj_list=value,
                         )
                     }

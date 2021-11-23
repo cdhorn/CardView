@@ -51,7 +51,7 @@ from ..bars.bar_media import GrampsMediaBarGroup
 from ..common.common_classes import GrampsState
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
-from ..groups.group_const import OBJECT_GROUPS
+from ..groups.group_utils import build_group
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
     CONFIDENCE_TYPE,
@@ -147,16 +147,12 @@ class BaseProfilePage:
         """
         Gather the object groups.
         """
+        args = {}
+        if age_base:
+            args["age_base"] = age_base
         obj_groups = {}
         for key in groups:
-            if key in OBJECT_GROUPS:
-                obj_groups.update(
-                    {
-                        key: OBJECT_GROUPS[key](
-                            self.grstate, obj, age_base=age_base
-                        )
-                    }
-                )
+            obj_groups.update({key: build_group(self.grstate, key, obj, args)})
         return obj_groups
 
     def add_media_bar(self, widget, obj):

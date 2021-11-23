@@ -24,43 +24,90 @@ Group constants
 
 # ------------------------------------------------------------------------
 #
+# Gramps modules
+#
+# ------------------------------------------------------------------------
+from gramps.gen.const import GRAMPS_LOCALE as glocale
+
+# ------------------------------------------------------------------------
+#
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .group_utils import (
-    get_addresses_group,
-    get_associations_group,
-    get_attributes_group,
-    get_children_group,
-    get_citations_group,
-    get_events_group,
-    get_media_group,
-    get_names_group,
-    get_notes_group,
-    get_ordinances_group,
-    get_parents_group,
-    get_references_group,
-    get_repositories_group,
-    get_spouses_group,
-    get_timeline_group,
-    get_urls_group,
-)
+from .group_addresses import AddressesGrampsFrameGroup
+from .group_associations import AssociationsGrampsFrameGroup
+from .group_attributes import AttributesGrampsFrameGroup
+from .group_citations import CitationsGrampsFrameGroup
+from .group_media import MediaGrampsFrameGroup
+from .group_names import NamesGrampsFrameGroup
+from .group_notes import NotesGrampsFrameGroup
+from .group_ordinances import LDSOrdinancesGrampsFrameGroup
+from .group_repositories import RepositoriesGrampsFrameGroup
+from .group_sources import SourcesGrampsFrameGroup
+from .group_timeline import TimelineGrampsFrameGroup
+from .group_urls import UrlsGrampsFrameGroup
 
-OBJECT_GROUPS = {
-    "address": get_addresses_group,
-    "association": get_associations_group,
-    "attribute": get_attributes_group,
-    "child": get_children_group,
-    "citation": get_citations_group,
-    "event": get_events_group,
-    "media": get_media_group,
-    "name": get_names_group,
-    "note": get_notes_group,
-    "ordinance": get_ordinances_group,
-    "parent": get_parents_group,
-    "reference": get_references_group,
-    "repository": get_repositories_group,
-    "spouse": get_spouses_group,
-    "timeline": get_timeline_group,
-    "url": get_urls_group,
+_ = glocale.translation.sgettext
+
+GRAMPS_GROUPS = {
+    "citation": (
+        CitationsGrampsFrameGroup,
+        _("Citation"),
+        _("Citations"),
+    ),
+    "timeline": (
+        TimelineGrampsFrameGroup,
+        _("Timeline Event"),
+        _("Timeline Events"),
+    ),
+    "media": (
+        MediaGrampsFrameGroup,
+        _("Media Item"),
+        _("Media Items"),
+    ),
+    "ordinance": (
+        LDSOrdinancesGrampsFrameGroup,
+        _("Ordinance"),
+        _("Ordinances"),
+    ),
+    "source": (
+        SourcesGrampsFrameGroup,
+        _("Source"),
+        _("Sources"),
+    ),
+    "repository": (
+        RepositoriesGrampsFrameGroup,
+        _("Repository"),
+        _("Repositories"),
+    ),
+    "note": (
+        NotesGrampsFrameGroup,
+        _("Note"),
+        _("Notes"),
+    ),
+    "association": (
+        AssociationsGrampsFrameGroup,
+        _("Association"),
+        _("Associations"),
+    ),
+    "address": (
+        AddressesGrampsFrameGroup,
+        _("Address"),
+        _("Addresses"),
+    ),
+    "attribute": (
+        AttributesGrampsFrameGroup,
+        _("Attribute"),
+        _("Attributes"),
+    ),
+    "name": (
+        NamesGrampsFrameGroup,
+        _("Name"),
+        _("Names"),
+    ),
+    "url": (
+        UrlsGrampsFrameGroup,
+        _("Url"),
+        _("Urls"),
+    ),
 }

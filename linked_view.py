@@ -652,8 +652,6 @@ class LinkedView(ExtendedNavigationView):
         self._clear_change()
         page = self.pages[page_context.page_type]
         page.render_page(self.header, self.vbox, page_context)
-        self.header.show_all()
-        self.vbox.show_all()
         page.enable_actions(self.uimanager, page_context.primary_obj)
         self.uimanager.update_menu()
 

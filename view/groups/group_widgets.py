@@ -45,7 +45,7 @@ from gramps.gui.managedwindow import ManagedWindow
 from ..common.common_classes import GrampsObject
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
-from .group_const import OBJECT_GROUPS
+from .group_utils import build_group
 
 
 class FrameGroupWindow(ManagedWindow):
@@ -64,7 +64,8 @@ class FrameGroupWindow(ManagedWindow):
         self.group_base = GrampsObject(obj)
         self.group_type = group_type
 
-        group = OBJECT_GROUPS[group_type](grstate, obj, raw=True)
+        group_args = {"raw": True}
+        group = build_group(grstate, group_type, obj, group_args)
         self.group_box = Gtk.VBox(spacing=3, margin=3)
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
         scroll = make_scrollable(self.group_box)

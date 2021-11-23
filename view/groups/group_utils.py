@@ -44,70 +44,88 @@ from gramps.gen.lib import Person, Family
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
-from .group_addresses import AddressesGrampsFrameGroup
-from .group_associations import AssociationsGrampsFrameGroup
-from .group_attributes import AttributesGrampsFrameGroup
 from .group_children import ChildrenGrampsFrameGroup
-from .group_citations import CitationsGrampsFrameGroup
 from .group_classes import GrampsFrameGroupExpander
 from .group_events import EventsGrampsFrameGroup
 from .group_generic import GenericGrampsFrameGroup
-from .group_media import MediaGrampsFrameGroup
-from .group_names import NamesGrampsFrameGroup
-from .group_notes import NotesGrampsFrameGroup
-from .group_ordinances import LDSOrdinancesGrampsFrameGroup
-from .group_repositories import RepositoriesGrampsFrameGroup
-from .group_sources import SourcesGrampsFrameGroup
-from .group_timeline import TimelineGrampsFrameGroup
-from .group_urls import UrlsGrampsFrameGroup
+
+from .group_const import GRAMPS_GROUPS
 
 _ = glocale.translation.sgettext
 
 
-def get_generic_group(
-    grstate,
-    groptions,
-    obj,
-    framegroup,
-    title_plural,
-    title_single,
-    expanded=True,
-    raw=False,
-):
+def build_group(grstate, group_type, obj, args):
     """
-    Get the group associated with a simple object.
+    Generate and return group for a given object.
     """
+    if group_type in GRAMPS_GROUPS:
+        return build_simple_group(grstate, group_type, obj, args)
+    if group_type == "event":
+        return get_events_group(grstate, obj)
+    if group_type == "parent":
+        return get_parents_group(grstate, obj, args)
+    if group_type == "spouse":
+        return get_spouses_group(grstate, obj, args)
+    if group_type == "reference":
+        return get_references_group(grstate, obj, args)
+    return None
+
+
+def build_simple_group(grstate, group_type, obj, args):
+    """
+    Generate and return a simple group for a given object.
+    """
+    framegroup, single, plural = GRAMPS_GROUPS[group_type]
+    if group_type == "timeline":
+        groptions = GrampsOptions(
+            "".join(("options.timeline.", grstate.page_type))
+        )
+        groptions.set_context("timeline")
+    else:
+        groptions = GrampsOptions("".join(("options.group.", group_type)))
+
+    if "sources" in args and args["sources"]:
+        single, plural = _("Cited Source"), _("Cited Sources")
+
     group = framegroup(grstate, groptions, obj)
     if not group or len(group) == 0:
         return None
-
-    if raw:
+    if "raw" in args and args["raw"]:
         return group
+    return group_wrapper(grstate, groptions, group, (single, plural, None))
 
-    text = title_plural
-    if len(group) == 1:
-        text = title_single
 
-    content = GrampsFrameGroupExpander(
-        grstate, groptions, expanded=expanded, use_markup=True
-    )
-    content.set_label(
-        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
-    )
+def group_wrapper(grstate, groptions, group, title):
+    """
+    Wrap a frame group widget with an expander.
+    """
+    group_title = get_group_title(group, title)
+    content = GrampsFrameGroupExpander(grstate, groptions)
+    content.set_label("".join(("<small><b>", group_title, "</b></small>")))
     content.add(group)
     return content
+
+
+def get_group_title(group, title):
+    """
+    Build title for a frame group.
+    """
+    (single, plural, fixed) = title
+    group_title = fixed
+    if not group_title:
+        if len(group) == 1:
+            group_title = " ".join(("1", single))
+        else:
+            group_title = " ".join((str(len(group)), plural))
+    return group_title
 
 
 def get_children_group(
     grstate,
     family,
+    args,
     context="child",
-    title_plural=_("Children"),
-    title_single=_("Child"),
     person=None,
-    expanded=True,
-    raw=False,
-    age_base=None,
 ):
     """
     Get the group for all the children in a family unit.
@@ -118,27 +136,16 @@ def get_children_group(
     group = ChildrenGrampsFrameGroup(grstate, groptions, family)
     if not group or len(group) == 0:
         return None
-
-    if raw:
+    if "raw" in args and args["raw"]:
         return group
-
-    text = title_plural
-    if len(group) == 1:
-        text = title_single
-
-    content = GrampsFrameGroupExpander(
-        grstate, groptions, expanded=expanded, use_markup=True
-    )
-    content.set_label(
-        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
-    )
-    content.add(group)
-    return content
+    if context == "parent":
+        title_tuple = (_("Sibling"), _("Siblings"), None)
+    else:
+        title_tuple = (_("Child"), _("Children"), None)
+    return group_wrapper(grstate, groptions, group, title_tuple)
 
 
-def get_family_unit(
-    grstate, family, context="family", relation=None, raw=False, age_base=None
-):
+def get_family_unit(grstate, family, args, context="family", relation=None):
     """
     Get the group for a family unit.
     """
@@ -149,33 +156,19 @@ def get_family_unit(
         groptions,
         family,
     )
-    if raw:
-        expanded = True
-    else:
-        expanded = grstate.config.get(
-            "".join(("options.group.", context, ".expand-children"))
-        )
-    title_plural = _("Children")
-    title_single = _("Child")
-    if context == "parent":
-        title_plural = _("Siblings")
-        title_single = _("Sibling")
-
     children = get_children_group(
         grstate,
         family,
-        context,
-        title_plural,
-        title_single,
+        args,
+        context=context,
         person=relation,
-        expanded=expanded,
     )
     if children and len(children) > 0:
         couple.pack_start(children, expand=True, fill=True, padding=0)
     return couple
 
 
-def get_parents_group(grstate, person, raw=False, age_base=None):
+def get_parents_group(grstate, person, args):
     """
     Get the group for all the parents and siblings of a person.
     """
@@ -183,7 +176,7 @@ def get_parents_group(grstate, person, raw=False, age_base=None):
     primary_handle = person.get_main_parents_family_handle()
     if primary_handle:
         elements = Gtk.VBox(spacing=6)
-        if not raw:
+        if "raw" not in args or not args["raw"]:
             groptions = GrampsOptions("options.group.parent")
             groptions.set_context("parent")
             parents = GrampsFrameGroupExpander(
@@ -199,7 +192,7 @@ def get_parents_group(grstate, person, raw=False, age_base=None):
             parents = elements
         family = grstate.fetch("Family", primary_handle)
         group = get_family_unit(
-            grstate, family, "parent", relation=person, raw=raw
+            grstate, family, args, context="parent", relation=person
         )
         elements.add(group)
 
@@ -207,13 +200,13 @@ def get_parents_group(grstate, person, raw=False, age_base=None):
         if handle != primary_handle:
             family = grstate.fetch("Family", handle)
             group = get_family_unit(
-                grstate, family, "parent", relation=person, raw=raw
+                grstate, family, args, context="parent", relation=person
             )
             elements.add(group)
     return parents
 
 
-def get_spouses_group(grstate, person, raw=False, age_base=None):
+def get_spouses_group(grstate, person, args):
     """
     Get the group for all the spouses and children of a person.
     """
@@ -221,7 +214,7 @@ def get_spouses_group(grstate, person, raw=False, age_base=None):
     for handle in person.family_list:
         if spouses is None:
             elements = Gtk.VBox(spacing=6)
-            if not raw:
+            if "raw" not in args or not args["raw"]:
                 groptions = GrampsOptions("options.group.spouse")
                 groptions.set_context("spouse")
                 spouses = GrampsFrameGroupExpander(
@@ -241,165 +234,17 @@ def get_spouses_group(grstate, person, raw=False, age_base=None):
                 spouses = elements
         family = grstate.fetch("Family", handle)
         group = get_family_unit(
-            grstate, family, "spouse", relation=person, raw=raw
+            grstate, family, args, context="spouse", relation=person
         )
         elements.add(group)
     return spouses
 
 
-def get_citations_group(grstate, obj, sources=True, raw=False, age_base=None):
-    """
-    Get the group for all the cited sources associated with an object.
-    """
-    if sources:
-        title_plural = _("Cited Sources")
-        title_single = _("Cited Source")
-    else:
-        title_plural = _("Citations")
-        title_single = _("Citation")
-
-    groptions = GrampsOptions("options.group.citation")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        CitationsGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_timeline_group(
-    grstate,
-    obj,
-    title_plural=_("Timeline Events"),
-    title_single=_("Timeline Event"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of timeline events associated with an object.
-    """
-    groptions = GrampsOptions(
-        "".join(("options.timeline.", grstate.page_type))
-    )
-    groptions.set_context("timeline")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        TimelineGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_media_group(
-    grstate,
-    obj,
-    title_plural=_("Media Items"),
-    title_single=_("Media Item"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of media items associated with an object.
-    """
-    groptions = GrampsOptions("options.group.media")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        MediaGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_repositories_group(
-    grstate,
-    obj,
-    title_plural=_("Repositories"),
-    title_single=_("Repository"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of repositories associated with an object.
-    """
-    groptions = GrampsOptions("options.group.repository")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        RepositoriesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_sources_group(
-    grstate,
-    obj,
-    title_plural=_("Sources"),
-    title_single=_("Source"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of sources associated with an object.
-    """
-    groptions = GrampsOptions("options.group.source")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        SourcesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_notes_group(
-    grstate,
-    obj,
-    title_plural=_("Notes"),
-    title_single=_("Note"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of notes associated with an object.
-    """
-    groptions = GrampsOptions("options.group.note")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        NotesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
 def get_references_group(
     grstate,
     obj,
+    args,
     groptions=None,
-    title_plural=_("References"),
-    title_single=_("Reference"),
     maximum=0,
     obj_types=None,
     obj_list=None,
@@ -410,8 +255,8 @@ def get_references_group(
     """
     if not obj_list:
         obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
-    if not obj_list:
-        return None
+        if not obj_list:
+            return None
 
     total = 0
     tuple_list = []
@@ -442,172 +287,23 @@ def get_references_group(
     groptions = groptions or GrampsOptions("options.group.reference")
     groptions.set_age_base(age_base)
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
-    text = title_plural
-    if len(group) == 1:
-        text = title_single
+
+    single, plural = _("Reference"), _("References")
+    if args and "title" in args:
+        (single, plural) = args["title"]
+    title = get_group_title(group, (single, plural, None))
     if not_shown:
-        text = "".join((text, " (", str(not_shown), " ", _("Not Shown"), ")"))
-
-    content = GrampsFrameGroupExpander(
-        grstate, groptions, expanded=True, use_markup=True
-    )
-    content.set_label(
-        "".join(("<small><b>", str(len(group)), " ", text, "</b></small>"))
-    )
-    content.add(group)
-    return content
+        title = "".join(
+            (title, " (", str(not_shown), " ", _("Not Shown"), ")")
+        )
+    return group_wrapper(grstate, groptions, group, (None, None, title))
 
 
-def get_associations_group(
-    grstate,
-    obj,
-    title_plural=_("Associations"),
-    title_single=_("Association"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of associations associated with a person.
-    """
-    groptions = GrampsOptions("options.group.association")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        AssociationsGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_addresses_group(
-    grstate,
-    obj,
-    title_plural=_("Addresses"),
-    title_single=_("Address"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of addresses associated with an object.
-    """
-    groptions = GrampsOptions("options.group.address")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        AddressesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_attributes_group(
-    grstate,
-    obj,
-    title_plural=_("Attributes"),
-    title_single=_("Attribute"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of attributes associated with an object.
-    """
-    groptions = GrampsOptions("options.group.attribute")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        AttributesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_names_group(
-    grstate,
-    obj,
-    title_plural=_("Names"),
-    title_single=_("Name"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of names associated with an object.
-    """
-    groptions = GrampsOptions("options.group.name")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        NamesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_urls_group(
-    grstate,
-    obj,
-    title_plural=_("Urls"),
-    title_single=_("Url"),
-    raw=False,
-    age_base=None,
-):
-    """
-    Get the group of urls associated with an object.
-    """
-    groptions = GrampsOptions("options.group.url")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        UrlsGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_ordinances_group(
-    grstate,
-    obj,
-    title_plural=_("Ordinances"),
-    title_single=_("Ordinance"),
-    age_base=None,
-    raw=False,
-):
-    """
-    Get the group of ordinances associated with an object.
-    """
-    groptions = GrampsOptions("options.group.ldsord")
-    return get_generic_group(
-        grstate,
-        groptions,
-        obj,
-        LDSOrdinancesGrampsFrameGroup,
-        title_plural,
-        title_single,
-        expanded=True,
-        raw=raw,
-    )
-
-
-def get_events_group(grstate, obj, raw=False, age_base=None):
+def get_events_group(grstate, obj):
     """
     Get the group for all the events related to a person or family
     """
     group_set = Gtk.VBox(spacing=6)
-
     if isinstance(obj, Person):
         group = prepare_event_group(grstate, obj, "Person")
         if group:
@@ -647,10 +343,4 @@ def prepare_event_group(grstate, obj, obj_type):
         title = " ".join(("1", event_type, _("Event")))
     else:
         title = " ".join((str(len(group)), event_type, _("Events")))
-
-    header = GrampsFrameGroupExpander(
-        grstate, groptions, expanded=True, use_markup=True
-    )
-    header.set_label("".join(("<small><b>", title, "</b></small>")))
-    header.add(elements)
-    return header
+    return group_wrapper(grstate, groptions, elements, (None, None, title))

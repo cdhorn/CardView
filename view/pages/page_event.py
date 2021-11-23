@@ -108,14 +108,19 @@ class EventProfilePage(BaseProfilePage):
 
         if people_list:
             groptions = GrampsOptions("options.group.people")
+            args = {
+                "title": (
+                    _("Individual Participants"),
+                    _("Individual Participants"),
+                )
+            }
             obj_groups.update(
                 {
                     "people": get_references_group(
                         self.grstate,
                         None,
+                        args,
                         groptions=groptions,
-                        title_plural=_("Individual Participants"),
-                        title_single=_("Individial Participants"),
                         obj_list=people_list,
                         age_base=event.get_date_object(),
                     )
@@ -123,14 +128,16 @@ class EventProfilePage(BaseProfilePage):
             )
         if family_list:
             groptions = GrampsOptions("options.group.family")
+            args = {
+                "title": (_("Family Participants"), _("Family Participants"))
+            }
             obj_groups.update(
                 {
                     "family": get_references_group(
                         self.grstate,
                         None,
+                        args,
                         groptions=groptions,
-                        title_plural=_("Family Participants"),
-                        title_single=_("Family Participants"),
                         obj_list=family_list,
                         age_base=event.get_date_object(),
                     )
