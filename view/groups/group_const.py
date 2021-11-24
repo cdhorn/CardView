@@ -49,6 +49,7 @@ from .group_urls import UrlsGrampsFrameGroup
 
 _ = glocale.translation.sgettext
 
+
 GRAMPS_GROUPS = {
     "citation": (
         CitationsGrampsFrameGroup,

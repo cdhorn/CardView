@@ -69,7 +69,8 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext, GrampsObject
-from ..common.common_const import _EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import GRAMPS_EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     attribute_option_text,
     button_activated,
@@ -296,7 +297,7 @@ class GrampsFrame(GrampsFrameView):
         obj = obj or self.primary.obj
         obj_type = obj_type or self.primary.obj_type
         try:
-            _EDITORS[obj_type](
+            GRAMPS_EDITORS[obj_type](
                 self.grstate.dbstate, self.grstate.uistate, [], obj
             )
         except WindowActiveError:
@@ -307,7 +308,7 @@ class GrampsFrame(GrampsFrameView):
         Launch the desired editor for a secondary object.
         """
         try:
-            self.secondary.obj_edit(
+            GRAMPS_EDITORS[self.secondary.obj_type](
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],

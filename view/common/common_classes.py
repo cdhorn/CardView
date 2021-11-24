@@ -77,7 +77,6 @@ class GrampsObject:
 
     __slots__ = (
         "obj",
-        "obj_edit",
         "obj_type",
         "obj_lang",
         "obj_current_hash",
@@ -105,7 +104,6 @@ class GrampsObject:
             if isinstance(obj, obj_type[0]):
                 (
                     dummy_var1,
-                    self.obj_edit,
                     self.obj_type,
                     self.obj_lang,
                     self.dnd_type,

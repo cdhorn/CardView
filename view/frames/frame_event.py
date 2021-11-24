@@ -40,7 +40,7 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import EventRef, EventRoleType, Person
 from gramps.gen.utils.alive import probably_alive
-from gramps.gui.editors import EditEventRef, EditPerson
+from gramps.gui.editors import EditEvent, EditEventRef, EditPerson
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
@@ -367,7 +367,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 pass
             return
         try:
-            self.primary.obj_edit(
+            EditEvent(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],

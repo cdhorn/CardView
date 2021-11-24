@@ -104,8 +104,9 @@ class FrameGroupWindow(ManagedWindow):
         """
         Rebuild current group contents.
         """
-        group = OBJECT_GROUPS[self.group_type](
-            self.grstate, self.group_base.obj, raw=True
+        group_args = {"raw": True}
+        group = build_group(
+            self.grstate, self.group_type, self.group_base.obj, group_args
         )
         list(map(self.group_box.remove, self.group_box.get_children()))
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
