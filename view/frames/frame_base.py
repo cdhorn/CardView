@@ -32,6 +32,7 @@ GrampsFrame
 #
 # ------------------------------------------------------------------------
 import hashlib
+import os
 import pickle
 import re
 
@@ -51,12 +52,23 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Citation, Note, Source, Span
+from gramps.gen.lib import Citation, Media, MediaRef, Note, Source, Span
+from gramps.gen.mime import get_description, get_type
+from gramps.gen.utils.file import (
+    create_checksum,
+    find_file,
+    media_path,
+    media_path_full,
+    relative_path,
+)
 from gramps.gui.ddtargets import DdTargets
+from gramps.gui.dialog import ErrorDialog
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
     EditCitation,
+    EditMedia,
+    EditMediaRef,
     EditName,
     EditNote,
     EditSrcAttribute,
@@ -69,7 +81,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext, GrampsObject
-from ..common.common_const import GRAMPS_EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON, GRAMPS_EDITORS
 from ..common.common_utils import (
     attribute_option_text,
     button_activated,
@@ -227,6 +239,12 @@ class GrampsFrame(GrampsFrameView):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
+        if hasattr(self.focus.obj, "media_list"):
+            links = re.findall(r"(?P<url>file?://[^\s]+)", data)
+            if links:
+                for link in links:
+                    self.add_dropped_local_media(link)
+            return
         added_urls = 0
         if hasattr(self.focus.obj, "urls"):
             links = re.findall(r"(?P<url>https?://[^\s]+)", data)
@@ -237,6 +255,7 @@ class GrampsFrame(GrampsFrameView):
         if not added_urls or (len(data) > (2 * added_urls)):
             if hasattr(self.focus.obj, "note_list"):
                 self.add_new_note(None, content=data)
+        return
 
     def load_age(self, base_date, current_date):
         """
@@ -858,6 +877,79 @@ class GrampsFrame(GrampsFrameView):
         self.focus.save_hash()
         self.focus.obj.set_privacy(mode)
         self.focus.sync_hash(self.grstate)
+        self.primary.commit(self.grstate, message)
+
+    def add_dropped_local_media(self, filepath):
+        """
+        Add a new media item.
+        """
+        if filepath[:5] != "file:":
+            return
+        filename = filepath[5:]
+        while filename[:2] == "//":
+            filename = filename[1:]
+        if not os.path.isfile(filename):
+            return
+
+        if global_config.get("behavior.addmedia-relative-path"):
+            base_path = str(media_path(self.grstate.dbstate.db))
+            if not os.path.exists(base_path):
+                return
+            filename = relative_path(filename, base_path)
+
+        media = Media()
+        media.set_path(filename)
+        try:
+            EditMedia(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                media,
+                self.add_new_media_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_new_media_ref(self, obj_or_handle):
+        """
+        Add a new media reference.
+        """
+        if isinstance(obj_or_handle, str):
+            media = self.fetch("Media", obj_or_handle)
+        else:
+            media = obj_or_handle
+        for media_ref in self.primary.obj.get_media_list():
+            if media_ref.ref == media.get_handle():
+                return
+        ref = MediaRef()
+        ref.ref = media.get_handle()
+        try:
+            EditMediaRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                media,
+                ref,
+                self._added_new_media_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def _added_new_media_ref(self, reference, media):
+        """
+        Finish adding a new media reference.
+        """
+        message = " ".join(
+            (
+                _("Added"),
+                _("MediaRef"),
+                media.get_gramps_id(),
+                _("to"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+        )
+        self.primary.obj.add_media_reference(reference)
         self.primary.commit(self.grstate, message)
 
     def set_css_style(self):

@@ -37,8 +37,8 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditEventRef
 from gramps.gen.utils.db import family_name
+from gramps.gui.editors import EditEventRef
 
 # ------------------------------------------------------------------------
 #
