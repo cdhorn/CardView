@@ -35,7 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Person, Family
+from gramps.gen.lib import Family, Person
 
 # ------------------------------------------------------------------------
 #
@@ -46,10 +46,9 @@ from ..common.common_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_children import ChildrenGrampsFrameGroup
 from .group_classes import GrampsFrameGroupExpander
+from .group_const import GRAMPS_GROUPS
 from .group_events import EventsGrampsFrameGroup
 from .group_generic import GenericGrampsFrameGroup
-
-from .group_const import GRAMPS_GROUPS
 
 _ = glocale.translation.sgettext
 

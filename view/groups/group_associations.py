@@ -32,13 +32,14 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import PersonRef
 from gramps.gui.editors import EditPersonRef
 
+from ..frames.frame_person_backref import PersonBackRefGrampsFrame
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from ..frames.frame_person_ref import PersonRefGrampsFrame
-from ..frames.frame_person_backref import PersonBackRefGrampsFrame
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -63,6 +64,11 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.association.reference-mode")
         )
+        back_references = grstate.dbstate.db.find_backlink_handles(
+            obj.get_handle()
+        )
+        back_list = [y for (x, y) in back_references if x == "Person"]
+
         for person_ref in obj.get_person_ref_list():
             frame = PersonRefGrampsFrame(
                 grstate,
@@ -71,23 +77,31 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
                 person_ref,
             )
             self.add_frame(frame)
+            if person_ref.ref in back_list:
+                self._add_back_person(person_ref.ref)
+                back_list.remove(person_ref.ref)
 
-        obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
-        if obj_list:
-            for item in obj_list:
-                if item[0] == "Person":
-                    person = grstate.fetch("Person", item[1])
-                    for person_ref in person.get_person_ref_list():
-                        if person_ref.ref == obj.get_handle():
-                            frame = PersonBackRefGrampsFrame(
-                                grstate,
-                                groptions,
-                                person,
-                                person_ref,
-                            )
-                            self.add_frame(frame)
-                            break
+        if back_list:
+            for person_handle in back_list:
+                self._add_back_person(person_handle)
         self.show_all()
+
+    def _add_back_person(self, person_handle):
+        """
+        Add a person with a back reference.
+        """
+        back_person = self.grstate.fetch("Person", person_handle)
+        main_person = self.group_base.obj.get_handle()
+        for back_person_ref in back_person.get_person_ref_list():
+            if back_person_ref.ref == main_person:
+                frame = PersonBackRefGrampsFrame(
+                    self.grstate,
+                    self.groptions,
+                    back_person,
+                    back_person_ref,
+                )
+                self.add_frame(frame)
+                return
 
     def save_reordered_list(self):
         """

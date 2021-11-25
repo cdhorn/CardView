@@ -140,8 +140,21 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
-        _("Include notes on child objects"),
+        _("Create reciprocal associations"),
         15,
+        "options.global.create-reciprocal-associations",
+        tooltip=_(
+            "When this option is enabled and a person reference, also known"
+            "as an association, is being added then after the association is"
+            "added in one direction the editor will reopen so you can add"
+            "a reciprocal one from the associated person back to the current"
+            "one."
+        ),
+    )    
+    configdialog.add_checkbox(
+        grid1,
+        _("Include notes on child objects"),
+        16,
         "options.global.include-child-notes",
         tooltip=_(
             "Enabling this option will include notes on children of the "
@@ -152,7 +165,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include urls from notes"),
-        16,
+        17,
         "options.global.include-note-urls",
         tooltip=_(
             "Enabling this option will parse the notes for the primary "

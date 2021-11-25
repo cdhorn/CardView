@@ -84,6 +84,9 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
             association = _("[None Provided]")
         left = groptions.ref_mode == 1
         reference_type = "".join(("[", _("Back Reference"), "]"))
+        for active_person_ref in active_person.get_person_ref_list():
+            if active_person_ref.ref == person.get_handle():
+                reference_type = "".join(("[", _("Reciprocal"), "]"))
         if groptions.ref_mode in [1, 3]:
             self.ref_widgets["body"].pack_start(
                 self.make_label(reference_type, left=left), False, False, 0

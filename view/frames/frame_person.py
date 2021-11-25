@@ -67,6 +67,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_classes import GrampsObject
 from ..common.common_const import (
     _BIRTH_EQUIVALENTS,
     _DEATH_EQUIVALENTS,
@@ -594,6 +595,41 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         )
         self.primary.obj.add_person_ref(reference)
         self.primary.commit(self.grstate, message)
+
+        if self.get_option("options.global.create-reciprocal-associations"):
+            ref = PersonRef()
+            ref.ref = self.primary.obj.get_handle()
+            callback = lambda x: self._added_reciprocal_person_ref(
+                x, reference.ref
+            )
+            try:
+                EditPersonRef(
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    ref,
+                    callback,
+                )
+            except WindowActiveError:
+                pass
+
+    def _added_reciprocal_person_ref(self, reference, reciprocal_handle):
+        """
+        Finish adding a reciprocal reference for a person.
+        """
+        person = GrampsObject(self.fetch("Person", reciprocal_handle))
+        message = " ".join(
+            (
+                _("Added"),
+                _("PersonRef"),
+                self.primary.obj.get_gramps_id(),
+                _("to"),
+                _("Person"),
+                person.obj.get_gramps_id(),
+            )
+        )
+        person.obj.add_person_ref(reference)
+        person.commit(self.grstate, message)
 
     def _parents_option(self):
         """

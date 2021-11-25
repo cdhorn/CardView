@@ -113,6 +113,7 @@ CONFIGSETTINGS = (
     ("options.global.image-page-link", True),
     ("options.global.include-child-notes", True),
     ("options.global.include-note-urls", True),
+    ("options.global.create-reciprocal-associations", True),
     ("options.global.sort-tags-by-name", False),
     ("options.global.max-citations-per-group", 100),
     ("options.global.max-references-per-group", 100),
