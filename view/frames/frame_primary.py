@@ -56,6 +56,7 @@ from gramps.gen.lib import (
     EventRef,
     EventRoleType,
     EventType,
+    MediaRef,
     Name,
     Person,
     SrcAttribute,
@@ -69,11 +70,13 @@ from gramps.gui.editors import (
     EditAttribute,
     EditChildRef,
     EditEventRef,
+    EditMediaRef,
     EditPerson,
     EditSrcAttribute,
     EditUrl,
 )
 from gramps.gui.selectors import SelectorFactory
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
 # ------------------------------------------------------------------------
@@ -210,6 +213,19 @@ class PrimaryGrampsFrame(GrampsFrame):
                         add_attribute(attribute)
                         break
 
+    def _primary_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing largely common to all primary objects.
+        """
+        if DdTargets.MEDIAOBJ.drag_type == dnd_type:
+            self.add_new_media_ref(obj_or_handle)
+        elif DdTargets.ATTRIBUTE.drag_type == dnd_type:
+            self.added_attribute(obj_or_handle)
+        elif DdTargets.URL.drag_type == dnd_type:
+            self.added_url(obj_or_handle)
+        else:
+            self._base_drop_handler(dnd_type, obj_or_handle, data)
+
     def build_action_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click. First action will always be
@@ -291,6 +307,45 @@ class PrimaryGrampsFrame(GrampsFrame):
         person = self.grstate.fetch("Person", handle)
         context = GrampsContext(person, None, None)
         self.grstate.load_page(context.pickled)
+
+    def add_new_media_ref(self, media_handle):
+        """
+        Add a new media reference.
+        """
+        for media_ref in self.primary.obj.get_media_list():
+            if media_ref.ref == media_handle:
+                return
+        media = self.fetch("Media", media_handle)
+        ref = MediaRef()
+        ref.ref = media_handle
+        try:
+            EditMediaRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                media,
+                ref,
+                self._added_new_media_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def _added_new_media_ref(self, reference, media):
+        """
+        Finish adding a new media reference.
+        """
+        message = " ".join(
+            (
+                _("Added"),
+                _("MediaRef"),
+                media.get_gramps_id(),
+                _("to"),
+                self.primary.obj_lang,
+                self.primary.obj.get_gramps_id(),
+            )
+        )
+        self.primary.obj.add_media_reference(reference)
+        self.primary.commit(self.grstate, message)
 
     def add_attribute(self, _dummy_obj):
         """

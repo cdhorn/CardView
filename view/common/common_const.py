@@ -64,25 +64,19 @@ from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
-    EditChildRef,
     EditCitation,
     EditEvent,
-    EditEventRef,
     EditFamily,
     EditLdsOrd,
     EditMedia,
-    EditMediaRef,
     EditName,
     EditNote,
     EditPerson,
-    EditPersonRef,
     EditPlace,
-    EditRepoRef,
     EditRepository,
     EditSource,
     EditUrl,
 )
-from gramps.gui.views.tags import EditTag
 
 # ------------------------------------------------------------------------
 #

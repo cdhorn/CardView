@@ -56,7 +56,7 @@ from gramps.gui.utils import open_file_with_default_application
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsConfig, GrampsOptions
+from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import _RIGHT_BUTTON
 from ..common.common_utils import (
     button_activated,

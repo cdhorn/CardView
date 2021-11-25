@@ -66,7 +66,7 @@ GRAMPS_GROUPS = {
         _("Media Item"),
         _("Media Items"),
     ),
-    "ordinance": (
+    "ldsord": (
         LDSOrdinancesGrampsFrameGroup,
         _("Ordinance"),
         _("Ordinances"),

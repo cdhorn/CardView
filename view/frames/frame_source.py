@@ -22,14 +22,26 @@
 SourceGrampsFrame.
 """
 
-from ..common.common_utils import TextLink
+# ------------------------------------------------------------------------
+#
+# Gramps modules
+#
+# ------------------------------------------------------------------------
+from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib import RepoRef
+from gramps.gui.ddtargets import DdTargets
+from gramps.gui.editors import EditRepoRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
+
+_ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
@@ -64,5 +76,55 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
             self.add_fact(self.make_label(source.get_abbreviation()))
 
         self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.REPO_LINK.target())
         self.enable_drop()
         self.set_css_style()
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        if DdTargets.REPO_LINK.drag_type == dnd_type:
+            self.add_new_repository(obj_or_handle)
+        else:
+            self._primary_drop_handler(dnd_type, obj_or_handle, data)
+
+    def add_new_repository(self, obj_or_handle):
+        """
+        Add new repository reference to source.
+        """
+        for repo_ref in self.primary.obj.get_reporef_list():
+            if repo_ref.ref == obj_or_handle:
+                return
+        repo_ref = RepoRef()
+        repo_ref.ref = obj_or_handle
+        repository = self.fetch("Repository", obj_or_handle)
+        try:
+            EditRepoRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                repository,
+                repo_ref,
+                self._save_repo_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def _save_repo_ref(self, repo_tuple):
+        """
+        Save updated source.
+        """
+        (repo_ref, repository) = repo_tuple
+        message = " ".join(
+            (
+                _("Added"),
+                _("RepoRef"),
+                repository.get_gramps_id(),
+                _("to"),
+                _("Source"),
+                self.primary.obj.get_gramps_id(),
+            )
+        )
+        self.primary.obj.add_repo_reference(repo_ref)
+        self.primary.commit(self.grstate, message)

@@ -103,6 +103,7 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
             self.add_fact(self.make_label(status))
 
         self.show_all()
+        self.enable_drop()
         self.set_css_style()
 
     def switch_ordinance_page(self, *_dummy_obj):

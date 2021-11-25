@@ -69,7 +69,6 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext, GrampsObject
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_const import GRAMPS_EDITORS, _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     attribute_option_text,
@@ -157,20 +156,28 @@ class GrampsFrame(GrampsFrameView):
         self, eventbox=None, dnd_drop_targets=None, drag_data_received=None
     ):
         """
-        Enable self as a basic drop target, override in derived classes as
-        needed.
+        Enable self as a basic drop target.
         """
         eventbox = eventbox or self.eventbox
         dnd_drop_targets = dnd_drop_targets or self.dnd_drop_targets
         drag_data_received = drag_data_received or self.drag_data_received
         if eventbox:
-            dnd_drop_targets.append(DdTargets.URI_LIST.target())
-            for target in DdTargets.all_text_targets():
-                dnd_drop_targets.append(target)
-            dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
-            dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
-            dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-            dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            if hasattr(self.focus.obj, "note_list"):
+                for target in DdTargets.all_text_targets():
+                    dnd_drop_targets.append(target)
+                dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+                dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+            if hasattr(self.primary.obj, "media_list"):
+                dnd_drop_targets.append(DdTargets.MEDIAOBJ.target())
+            if hasattr(self.focus.obj, "attribute_list"):
+                dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
+            if hasattr(self.focus.obj, "citation_list"):
+                dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+                dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+            if hasattr(self.focus.obj, "urls"):
+                dnd_drop_targets.append(DdTargets.URL.target())
+                dnd_drop_targets.append(DdTargets.URI_LIST.target())
+                dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
             eventbox.drag_dest_set(
                 Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
             )
@@ -190,20 +197,31 @@ class GrampsFrame(GrampsFrameView):
         Handle dropped data, override in derived classes as needed.
         """
         if data and data.get_data():
-            try_dropped_text = False
             try:
-                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
+                dnd_type, obj_id, obj_or_handle, dummy_var1 = pickle.loads(
                     data.get_data()
                 )
             except pickle.UnpicklingError:
-                try_dropped_text = True
+                return self._dropped_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
-                if try_dropped_text:
-                    self._dropped_text(data.get_data().decode("utf-8"))
-                elif DdTargets.CITATION_LINK.drag_type == dnd_type:
-                    self._added_citation(obj_handle)
-                elif DdTargets.NOTE_LINK.drag_type == dnd_type:
-                    self._added_note(obj_handle)
+                self._child_drop_handler(dnd_type, obj_or_handle, data)
+            return
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing, should be defined in derived classes.
+        """
+
+    def _base_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing largely common to all objects.
+        """
+        if DdTargets.CITATION_LINK.drag_type == dnd_type:
+            self._added_citation(obj_or_handle)
+        elif DdTargets.SOURCE_LINK.drag_type == dnd_type:
+            self.add_new_citation(None, source_handle=obj_or_handle)
+        elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+            self._added_note(obj_or_handle)
 
     def _dropped_text(self, data):
         """
@@ -564,12 +582,15 @@ class GrampsFrame(GrampsFrameView):
                 )
         return submenu_item("gramps-citation", _("Citations"), menu)
 
-    def add_new_citation(self, _dummy_obj):
+    def add_new_citation(self, _dummy_obj, source_handle=None):
         """
         Add a new citation.
         """
+        if source_handle:
+            source = self.fetch("Source", source_handle)
+        else:
+            source = Source()
         citation = Citation()
-        source = Source()
         try:
             EditCitation(
                 self.grstate.dbstate,
@@ -594,7 +615,7 @@ class GrampsFrame(GrampsFrameView):
             self.focus.save_hash()
             if self.focus.obj.add_citation(handle):
                 self.focus.sync_hash(self.grstate)
-                self.focus.commit(self.grstate, message)
+                self.primary.commit(self.grstate, message)
 
     def add_existing_citation(self, _dummy_obj):
         """

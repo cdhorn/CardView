@@ -41,10 +41,24 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import HandleError, WindowActiveError
-from gramps.gen.lib import ChildRef, Event, EventRef, Family, Name, Person
+from gramps.gen.lib import (
+    ChildRef,
+    Event,
+    EventRef,
+    Family,
+    Name,
+    Person,
+    PersonRef,
+)
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.db import family_name
-from gramps.gui.editors import EditEventRef, EditFamily, EditName
+from gramps.gui.ddtargets import DdTargets
+from gramps.gui.editors import (
+    EditEventRef,
+    EditFamily,
+    EditName,
+    EditPersonRef,
+)
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
@@ -131,8 +145,21 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         del event_cache
 
         self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.EVENT.target())
+        self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
         self.enable_drop()
         self.set_css_style()
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        if DdTargets.EVENT.drag_type == dnd_type:
+            self.add_new_person_event(None, event_handle=obj_or_handle)
+        elif DdTargets.PERSON_LINK.drag_type == dnd_type:
+            self.add_new_person_ref(obj_or_handle)
+        else:
+            self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def load_age_at_event(self, event_cache):
         """
@@ -484,13 +511,22 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             self.add_new_person_event,
         )
 
-    def add_new_person_event(self, _dummy_obj):
+    def add_new_person_event(self, _dummy_obj, event_handle=None):
         """
         Add a new event for a person.
         """
-        event = Event()
-        ref = EventRef()
-        ref.ref = self.primary.obj.get_handle()
+        if event_handle:
+            for event_ref in self.primary.obj.get_event_ref_list():
+                if event_ref.ref == event_handle:
+                    print("person already event participant")
+                    return
+            event = self.fetch("Event", event_handle)
+            ref = EventRef()
+            ref.ref = event.get_handle()
+        else:
+            event = Event()
+            ref = EventRef()
+            ref.ref = self.primary.obj.get_handle()
         try:
             EditEventRef(
                 self.grstate.dbstate,
@@ -503,11 +539,10 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def added_new_person_event(self, reference, _dummy_primary):
+    def added_new_person_event(self, reference, event):
         """
         Finish adding a new event for a person.
         """
-        event = self.fetch("Event", reference.ref)
         message = " ".join(
             (
                 _("Added"),
@@ -519,6 +554,44 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             )
         )
         self.primary.obj.add_event_ref(reference)
+        self.primary.commit(self.grstate, message)
+
+    def add_new_person_ref(self, person_handle):
+        """
+        Add a new person reference aka association.
+        """
+        for person_ref in self.primary.obj.get_person_ref_list():
+            if person_ref.ref == person_handle:
+                return
+        ref = PersonRef()
+        ref.ref = person_handle
+        try:
+            EditPersonRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                ref,
+                self._added_new_person_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def _added_new_person_ref(self, reference):
+        """
+        Finish adding a new reference for a person.
+        """
+        person = self.fetch("Person", reference.ref)
+        message = " ".join(
+            (
+                _("Added"),
+                _("PersonRef"),
+                person.get_gramps_id(),
+                _("to"),
+                _("Person"),
+                self.primary.obj.get_gramps_id(),
+            )
+        )
+        self.primary.obj.add_person_ref(reference)
         self.primary.commit(self.grstate, message)
 
     def _parents_option(self):

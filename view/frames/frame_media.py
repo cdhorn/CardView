@@ -91,6 +91,12 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         self.enable_drop()
         self.set_css_style()
 
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        self._primary_drop_handler(dnd_type, obj_or_handle, data)
+
     def build_layout(self):
         """
         Construct framework for media layout, overrides base class.

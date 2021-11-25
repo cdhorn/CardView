@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
@@ -110,8 +111,24 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         self.show_all()
         self.enable_drag()
+        #        self.dnd_drop_targets.append(DdTargets.EVENT.target())
+        if not self.parent2:
+            if (
+                not family.get_father_handle()
+                or not family.get_mother_handle()
+            ):
+                self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
         self.enable_drop()
         self.set_css_style()
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        if DdTargets.PERSON_LINK.drag_type == dnd_type:
+            self.add_missing_spouse(obj_or_handle)
+        else:
+            self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def build_layout(self):
         """
@@ -474,3 +491,15 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             return ""
 
         return get_family_color_css(self.primary.obj, divorced=self.divorced)
+
+    def add_missing_spouse(self, spouse_handle):
+        """
+        Add missing spouse for the family.
+        """
+        if not self.primary.obj.get_father_handle():
+            self.primary.obj.set_father_handle(spouse_handle)
+        elif not self.primary.obj.get_mother_handle():
+            self.primary.obj.set_mother_handle(spouse_handle)
+        else:
+            return
+        self.edit_primary_object()

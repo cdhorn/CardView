@@ -40,6 +40,7 @@ from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import EventRef, EventRoleType, Person
 from gramps.gen.utils.alive import probably_alive
+from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditEvent, EditEventRef, EditPerson
 from gramps.gui.selectors import SelectorFactory
 
@@ -167,8 +168,18 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             self.add_fact(self.make_label(text.lower().capitalize()))
 
         self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
         self.enable_drop()
         self.set_css_style()
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        if DdTargets.PERSON_LINK.drag_type == dnd_type:
+            self.add_existing_participant(None, person_handle=obj_or_handle)
+        else:
+            self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def _get_title_and_role(self, event_type, primary_participant):
         """
@@ -517,13 +528,16 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def add_existing_participant(self, _dummy_obj):
+    def add_existing_participant(self, _dummy_obj, person_handle=None):
         """
         Add an existing person as participant to an event.
         """
-        select_person = SelectorFactory("Person")
-        dialog = select_person(self.grstate.dbstate, self.grstate.uistate)
-        participant = dialog.run()
+        if person_handle:
+            participant = self.fetch("Person", person_handle)
+        else:
+            select_person = SelectorFactory("Person")
+            dialog = select_person(self.grstate.dbstate, self.grstate.uistate)
+            participant = dialog.run()
         if participant:
             event_ref = EventRef()
             event_ref.ref = self.primary.obj.get_handle()

@@ -102,6 +102,12 @@ class SecondaryGrampsFrame(GrampsFrame):
                 pickle.dumps(returned_data),
             )
 
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        self._base_drop_handler(dnd_type, obj_or_handle, data)
+
     def add_fact(self, fact, label=None):
         """
         Add a simple fact.
