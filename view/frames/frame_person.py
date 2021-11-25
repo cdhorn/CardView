@@ -45,6 +45,7 @@ from gramps.gen.lib import (
     ChildRef,
     Event,
     EventRef,
+    EventRoleType,
     Family,
     Name,
     Person,
@@ -518,11 +519,11 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if event_handle:
             for event_ref in self.primary.obj.get_event_ref_list():
                 if event_ref.ref == event_handle:
-                    print("person already event participant")
                     return
             event = self.fetch("Event", event_handle)
             ref = EventRef()
             ref.ref = event.get_handle()
+            ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
         else:
             event = Event()
             ref = EventRef()
