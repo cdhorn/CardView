@@ -599,6 +599,8 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if self.get_option("options.global.create-reciprocal-associations"):
             ref = PersonRef()
             ref.ref = self.primary.obj.get_handle()
+            ref.set_note_list(reference.get_note_list())
+            ref.set_citation_list(reference.get_citation_list())
             callback = lambda x: self._added_reciprocal_person_ref(
                 x, reference.ref
             )
