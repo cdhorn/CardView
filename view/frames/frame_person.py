@@ -408,6 +408,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             action_menu.append(self._remove_family_child_option())
         action_menu.append(self._parents_option())
         action_menu.append(self._partners_option())
+        action_menu.append(self._associations_option())
         action_menu.append(self._names_option())
 
     def _names_option(self):
@@ -559,10 +560,94 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         self.primary.obj.add_event_ref(reference)
         self.primary.commit(self.grstate, message)
 
-    def add_new_person_ref(self, person_handle):
+    def _associations_option(self):
+        """
+        Build the associations submenu.
+        """
+        menu = Gtk.Menu()
+        menu.add(
+            menu_item(
+                "list-add", _("Add an association"), self.add_new_association
+            )
+        )
+        if len(self.primary.obj.get_person_ref_list()) > 0:
+            removemenu = Gtk.Menu()
+            menu.add(
+                submenu_item(
+                    "gramps-person", _("Remove an association"), removemenu
+                )
+            )
+            menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            for person_ref in self.primary.obj.get_person_ref_list():
+                person = self.fetch("Person", person_ref.ref)
+                person_name = name_displayer.display(person)
+                removemenu.add(
+                    menu_item(
+                        "list-remove",
+                        person_name,
+                        self.remove_person_ref,
+                        person_ref,
+                    )
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-person",
+                        person_name,
+                        self.edit_person_ref,
+                        person_ref,
+                    )
+                )
+        return submenu_item("gramps-person", _("Associations"), menu)
+
+    def edit_person_ref(self, _dummy_obj, person_ref):
+        """
+        Launch the person reference editor.
+        """
+        try:
+            EditPersonRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                person_ref,
+                self._save_person_ref_edit,
+            )
+        except WindowActiveError:
+            pass
+
+    def _save_person_ref_edit(self, person_ref):
+        """
+        Save the person ref edit.
+        """
+        if person_ref:
+            person = self.fetch("Person", person_ref.ref)
+            message = self._commit_message(
+                _("PersonRef"), person.get_gramps_id(), action="update"
+            )
+            self.primary.commit(self.grstate, message)
+
+    def add_new_association(self, _dummy_obj):
+        """
+        Select person to add new association.
+        """
+        select_person = SelectorFactory("Person")
+        skip = set([x.ref for x in self.primary.obj.get_person_ref_list()])
+        skip.add(self.primary.obj.get_handle())
+        dialog = select_person(
+            self.grstate.dbstate, self.grstate.uistate, skip=skip
+        )
+        person_handle = dialog.run()
+        if person_handle:
+            self.add_new_person_ref(person_handle)
+
+    def add_new_person_ref(self, person_obj_or_handle):
         """
         Add a new person reference aka association.
         """
+        if isinstance(person_obj_or_handle, str):
+            person_handle = person_obj_or_handle
+        else:
+            person_handle = person_obj_or_handle.get_handle()
         for person_ref in self.primary.obj.get_person_ref_list():
             if person_ref.ref == person_handle:
                 return
@@ -603,7 +688,9 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             ref.set_note_list(reference.get_note_list())
             ref.set_citation_list(reference.get_citation_list())
             if reference.get_relation() in _RECIPROCAL_ASSOCIATIONS:
-                ref.set_relation(_RECIPROCAL_ASSOCIATIONS[reference.get_relation()])
+                ref.set_relation(
+                    _RECIPROCAL_ASSOCIATIONS[reference.get_relation()]
+                )
             callback = lambda x: self._added_reciprocal_person_ref(
                 x, reference.ref
             )
@@ -635,6 +722,40 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         )
         person.obj.add_person_ref(reference)
         person.commit(self.grstate, message)
+
+    def remove_person_ref(self, _dummy_obj, person_ref):
+        """
+        Remove person reference.
+        """
+        person = self.fetch("Person", person_ref.ref)
+        text = "".join((name_displayer.display(person),))
+        prefix = _(
+            "You are about to remove the following association with this "
+            "person:"
+        )
+        extra = _(
+            "Note this does not delete the person. You can also use the "
+            "undo option under edit if you change your mind later."
+        )
+        if self.confirm_action(
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
+        ):
+            new_list = []
+            for ref in self.primary.obj.get_person_ref_list():
+                if not ref.ref == person_ref.ref:
+                    new_list.append(ref)
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("PersonRef"),
+                    person.get_gramps_id(),
+                    _("from"),
+                    _("Person"),
+                    self.primary.obj.get_gramps_id(),
+                )
+            )
+            self.primary.obj.set_person_ref_list(new_list)
+            self.primary.commit(self.grstate, message)
 
     def _parents_option(self):
         """

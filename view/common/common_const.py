@@ -106,6 +106,25 @@ _MARRIAGE_EQUIVALENTS = ["Marriage License", "Marriage Banns"]
 
 _DIVORCE_EQUIVALENTS = ["Annulment"]
 
+# Note we don't do reverse lookups as some are not one to one.
+_RECIPROCAL_ASSOCIATIONS = {
+    _("Godfather"): _("Godchild"),
+    _("Godmother"): _("Godchild"),
+    _("Godparent"): _("Godchild"),
+    _("Godchild"): _("Godparent"),
+    _("Landlord"): _("Tenant"),
+    _("Tenant"): _("Landlord"),
+    _("DNA"): _("DNA"),
+    _("cm"): _("cm"),
+    _("Best Man"): _("Groom"),
+    _("Maid of Honor"): _("Bride"),
+    _("Friend"): _("Friend"),
+    _("Employer"): _("Employee"),
+    _("Employee"): _("Employer"),
+    _("Lawyer"): _("Client"),
+    _("Doctor"): _("Patient"),
+}
+
 _CONFIDENCE = {
     Citation.CONF_VERY_LOW: _("Very Low"),
     Citation.CONF_LOW: _("Low"),
