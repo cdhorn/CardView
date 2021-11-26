@@ -72,6 +72,7 @@ from ..common.common_const import (
     _BIRTH_EQUIVALENTS,
     _DEATH_EQUIVALENTS,
     _GENDERS,
+    _RECIPROCAL_ASSOCIATIONS,
 )
 from ..common.common_utils import (
     TextLink,
@@ -601,6 +602,8 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             ref.ref = self.primary.obj.get_handle()
             ref.set_note_list(reference.get_note_list())
             ref.set_citation_list(reference.get_citation_list())
+            if reference.get_relation() in _RECIPROCAL_ASSOCIATIONS:
+                ref.set_relation(_RECIPROCAL_ASSOCIATIONS[reference.get_relation()])
             callback = lambda x: self._added_reciprocal_person_ref(
                 x, reference.ref
             )
