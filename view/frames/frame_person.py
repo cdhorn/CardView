@@ -58,6 +58,7 @@ from gramps.gui.editors import (
     EditEventRef,
     EditFamily,
     EditName,
+    EditPerson,
     EditPersonRef,
 )
 from gramps.gui.selectors import SelectorFactory
@@ -416,7 +417,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         Build the names submenu.
         """
         menu = Gtk.Menu()
-        menu.add(menu_item("list-add", _("Add a name"), self.add_name))
+        menu.add(menu_item("list-add", _("Add a new name"), self.add_name))
         if len(self.primary.obj.get_alternate_names()) > 0:
             removemenu = Gtk.Menu()
             menu.add(
@@ -567,7 +568,16 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         menu = Gtk.Menu()
         menu.add(
             menu_item(
-                "list-add", _("Add an association"), self.add_new_association
+                "list-add",
+                _("Add an association for a new person"),
+                self.add_association_new_person,
+            )
+        )
+        menu.add(
+            menu_item(
+                "list-add",
+                _("Add an association for an existing person"),
+                self.add_association_existing_person,
             )
         )
         if len(self.primary.obj.get_person_ref_list()) > 0:
@@ -586,7 +596,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                     menu_item(
                         "list-remove",
                         person_name,
-                        self.remove_person_ref,
+                        self.remove_association,
                         person_ref,
                     )
                 )
@@ -594,13 +604,13 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                     menu_item(
                         "gramps-person",
                         person_name,
-                        self.edit_person_ref,
+                        self.edit_association,
                         person_ref,
                     )
                 )
         return submenu_item("gramps-person", _("Associations"), menu)
 
-    def edit_person_ref(self, _dummy_obj, person_ref):
+    def edit_association(self, _dummy_obj, person_ref):
         """
         Launch the person reference editor.
         """
@@ -610,12 +620,12 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                 self.grstate.uistate,
                 [],
                 person_ref,
-                self._save_person_ref_edit,
+                self._save_association_edit,
             )
         except WindowActiveError:
             pass
 
-    def _save_person_ref_edit(self, person_ref):
+    def _save_association_edit(self, person_ref):
         """
         Save the person ref edit.
         """
@@ -626,9 +636,25 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             )
             self.primary.commit(self.grstate, message)
 
-    def add_new_association(self, _dummy_obj):
+    def add_association_new_person(self, _dummy_obj):
         """
-        Select person to add new association.
+        Create a new person for the association.
+        """
+        person = Person()
+        try:
+            EditPerson(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                person,
+                self.add_new_person_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_association_existing_person(self, _dummy_obj):
+        """
+        Select an existing person for the association.
         """
         select_person = SelectorFactory("Person")
         skip = set([x.ref for x in self.primary.obj.get_person_ref_list()])
@@ -723,9 +749,9 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         person.obj.add_person_ref(reference)
         person.commit(self.grstate, message)
 
-    def remove_person_ref(self, _dummy_obj, person_ref):
+    def remove_association(self, _dummy_obj, person_ref):
         """
-        Remove person reference.
+        Remove an association.
         """
         person = self.fetch("Person", person_ref.ref)
         text = "".join((name_displayer.display(person),))
