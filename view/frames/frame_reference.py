@@ -45,7 +45,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Attribute, Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditAttribute, EditCitation, EditNote
+from gramps.gui.editors import (
+    EditAttribute,
+    EditCitation,
+    EditNote,
+    EditSource,
+)
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
@@ -197,7 +202,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 action_menu.append(
                     self._citations_option(
                         self.reference.obj,
-                        self.add_new_ref_citation,
+                        self.add_new_ref_source_citation,
+                        self.add_existing_ref_source_citation,
                         self.add_existing_ref_citation,
                         self.remove_ref_citation,
                     )
@@ -373,12 +379,42 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             self.reference.obj.remove_attribute(attribute)
             self.base.commit(self.grstate, message)
 
-    def add_new_ref_citation(self, _dummy_obj):
+    def add_new_ref_source_citation(self, _dummy_obj):
+        """
+        Add a new source from which to create a new citation.
+        """
+        source = Source()
+        try:
+            EditSource(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                source,
+                self._add_new_ref_citation,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_existing_ref_source_citation(self, _dummy_obj):
+        """
+        Select an existing source from which to create a citation.
+        """
+        select_source = SelectorFactory("Source")
+        dialog = select_source(self.grstate.dbstate, self.grstate.uistate)
+        source_handle = dialog.run()
+        if source_handle:
+            self._add_new_ref_citation(source_handle)
+
+    def _add_new_ref_citation(self, obj_or_handle):
         """
         Add a new citation.
         """
+        if isinstance(obj_or_handle, str):
+            source = self.fetch("Source", obj_or_handle)
+        else:
+            source = obj_or_handle
         citation = Citation()
-        source = Source()
+        citation.set_reference_handle(source.get_handle())
         try:
             EditCitation(
                 self.grstate.dbstate,
@@ -386,12 +422,12 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 [],
                 citation,
                 source,
-                self.added_ref_citation,
+                self._added_ref_citation,
             )
         except WindowActiveError:
             pass
 
-    def added_ref_citation(self, handle):
+    def _added_ref_citation(self, handle):
         """
         Add the new or existing citation to the current object.
         """
@@ -420,7 +456,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                         [],
                         Citation(),
                         selection,
-                        callback=self.added_ref_citation,
+                        callback=self._added_ref_citation,
                     )
                 except WindowActiveError:
                     pass
@@ -431,7 +467,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                         self.grstate.uistate,
                         [],
                         selection,
-                        callback=self.added_ref_citation,
+                        callback=self._added_ref_citation,
                     )
                 except WindowActiveError:
                     pass

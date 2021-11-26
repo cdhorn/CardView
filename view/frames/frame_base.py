@@ -71,6 +71,7 @@ from gramps.gui.editors import (
     EditMediaRef,
     EditName,
     EditNote,
+    EditSource,
     EditSrcAttribute,
 )
 from gramps.gui.selectors import SelectorFactory
@@ -559,14 +560,30 @@ class GrampsFrame(GrampsFrameView):
         return submenu_item("gramps-attribute", _("Attributes"), menu)
 
     def _citations_option(
-        self, obj, add_new_citation, add_existing_citation, remove_citation
+        self,
+        obj,
+        add_new_source_citation,
+        add_existing_source_citation,
+        add_existing_citation,
+        remove_citation,
     ):
         """
         Build the citations submenu.
         """
         menu = Gtk.Menu()
         menu.add(
-            menu_item("list-add", _("Add a new citation"), add_new_citation)
+            menu_item(
+                "list-add",
+                _("Add new citation for a new source"),
+                add_new_source_citation,
+            )
+        )
+        menu.add(
+            menu_item(
+                "list-add",
+                _("Add new citation for an existing source"),
+                add_existing_source_citation,
+            )
         )
         menu.add(
             menu_item(
@@ -601,15 +618,42 @@ class GrampsFrame(GrampsFrameView):
                 )
         return submenu_item("gramps-citation", _("Citations"), menu)
 
-    def add_new_citation(self, _dummy_obj, source_handle=None):
+    def add_new_source_citation(self, _dummy_obj):
+        """
+        Add a new source from which to create a new citation.
+        """
+        source = Source()
+        try:
+            EditSource(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                source,
+                self._add_new_citation,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_existing_source_citation(self, _dummy_obj):
+        """
+        Select an existing source from which to create a citation.
+        """
+        select_source = SelectorFactory("Source")
+        dialog = select_source(self.grstate.dbstate, self.grstate.uistate)
+        source_handle = dialog.run()
+        if source_handle:
+            self._add_new_citation(source_handle)
+
+    def _add_new_citation(self, obj_or_handle):
         """
         Add a new citation.
         """
-        if source_handle:
-            source = self.fetch("Source", source_handle)
+        if isinstance(obj_or_handle, str):
+            source = self.fetch("Source", obj_or_handle)
         else:
-            source = Source()
+            source = obj_or_handle
         citation = Citation()
+        citation.set_reference_handle(source.get_handle())
         try:
             EditCitation(
                 self.grstate.dbstate,

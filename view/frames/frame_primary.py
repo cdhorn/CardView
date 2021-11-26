@@ -249,7 +249,8 @@ class PrimaryGrampsFrame(GrampsFrame):
                 action_menu.append(
                     self._citations_option(
                         self.primary.obj,
-                        self.add_new_citation,
+                        self.add_new_source_citation,
+                        self.add_existing_source_citation,
                         self.add_existing_citation,
                         self.remove_citation,
                     )
