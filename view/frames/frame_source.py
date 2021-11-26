@@ -24,21 +24,29 @@ SourceGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
+# GTK modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# ------------------------------------------------------------------------
+#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import RepoRef
+from gramps.gen.lib import Repository, RepoRef
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditRepoRef
+from gramps.gui.editors import EditRepository, EditRepoRef
+from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink
+from ..common.common_utils import TextLink, menu_item, submenu_item
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -85,20 +93,136 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         Handle drop processing for a person.
         """
         if DdTargets.REPO_LINK.drag_type == dnd_type:
-            self.add_new_repository(obj_or_handle)
+            self.add_new_repo_ref(obj_or_handle)
         else:
             self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
-    def add_new_repository(self, obj_or_handle):
+    def add_custom_actions(self, action_menu):
+        """
+        Add action menu items for the event.
+        """
+        action_menu.append(self._repositories_option())
+
+    def _repositories_option(self):
+        """
+        Build the repositories submenu.
+        """
+        menu = Gtk.Menu()
+        menu.add(
+            menu_item(
+                "list-add", _("Add a new repository"), self.add_new_repository
+            )
+        )
+        menu.add(
+            menu_item(
+                "list-add",
+                _("Add an existing repository"),
+                self.add_existing_repository,
+            )
+        )
+        if len(self.primary.obj.get_reporef_list()) > 0:
+            removemenu = Gtk.Menu()
+            menu.add(
+                submenu_item(
+                    "gramps-repository", _("Remove a repository"), removemenu
+                )
+            )
+            menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            for repo_ref in self.primary.obj.get_reporef_list():
+                repository = self.fetch("Repository", repo_ref.ref)
+                repository_name = repository.get_name()
+                removemenu.add(
+                    menu_item(
+                        "list-remove",
+                        repository_name,
+                        self.remove_repo_ref,
+                        repo_ref,
+                    )
+                )
+                menu.add(
+                    menu_item(
+                        "gramps-repository",
+                        repository_name,
+                        self.edit_repo_ref,
+                        repo_ref,
+                    )
+                )
+        return submenu_item("gramps-repository", _("Repositories"), menu)
+
+    def edit_repo_ref(self, _dummy_obj, repo_ref):
+        """
+        Launch the editor.
+        """
+        repository = self.fetch("Repository", repo_ref.ref)
+        try:
+            EditRepoRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                repository,
+                repo_ref,
+                self._save_repo_ref_edit,
+            )
+        except WindowActiveError:
+            pass
+
+    def _save_repo_ref_edit(self, repository_tuple):
+        """
+        Save the repository reference edit.
+        """
+        if not repository_tuple:
+            return
+        (dummy_repo_ref, repository) = repository_tuple
+        message = self._commit_message(
+            _("RepoRef"), repository.get_gramps_id(), action="update"
+        )
+        self.primary.commit(self.grstate, message)
+
+    def add_new_repository(self, *_dummy_obj):
+        """
+        Add a new repository.
+        """
+        repository = Repository()
+        try:
+            EditRepository(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                repository,
+                self.add_new_repo_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_existing_repository(self, *_dummy_obj):
+        """
+        Add an existing repository.
+        """
+        select_repository = SelectorFactory("Repository")
+        skip = set([x.ref for x in self.primary.obj.get_reporef_list()])
+        dialog = select_repository(
+            self.grstate.dbstate, self.grstate.uistate, skip=skip
+        )
+        repository_handle = dialog.run()
+        if repository_handle:
+            self.add_new_repo_ref(repository_handle)
+
+    def add_new_repo_ref(self, obj_or_handle):
         """
         Add new repository reference to source.
         """
+        if isinstance(obj_or_handle, str):
+            repository_handle = obj_or_handle
+            repository = self.fetch("Repository", repository_handle)
+        else:
+            repository_handle = obj_or_handle.get_handle()
+            repository = obj_or_handle
         for repo_ref in self.primary.obj.get_reporef_list():
-            if repo_ref.ref == obj_or_handle:
+            if repo_ref.ref == repository_handle:
                 return
         repo_ref = RepoRef()
-        repo_ref.ref = obj_or_handle
-        repository = self.fetch("Repository", obj_or_handle)
+        repo_ref.ref = repository_handle
         try:
             EditRepoRef(
                 self.grstate.dbstate,
@@ -128,3 +252,37 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         )
         self.primary.obj.add_repo_reference(repo_ref)
         self.primary.commit(self.grstate, message)
+
+    def remove_repo_ref(self, _dummy_obj, repo_ref):
+        """
+        Remove repository reference.
+        """
+        repository = self.fetch("Repository", repo_ref.ref)
+        text = repository.get_name()
+        prefix = _(
+            "You are about to remove the following repository for this "
+            "source:"
+        )
+        extra = _(
+            "Note this does not delete the repository. You can also use "
+            "the undo option under edit if you change your mind later."
+        )
+        if self.confirm_action(
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
+        ):
+            new_list = []
+            for ref in self.primary.obj.get_reporef_list():
+                if not ref.ref == repo_ref.ref:
+                    new_list.append(ref)
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("RepoRef"),
+                    repository.get_gramps_id(),
+                    _("from"),
+                    _("Source"),
+                    self.primary.obj.get_gramps_id(),
+                )
+            )
+            self.primary.obj.set_reporef_list(new_list)
+            self.primary.commit(self.grstate, message)
