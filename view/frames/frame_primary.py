@@ -254,6 +254,8 @@ class PrimaryGrampsFrame(GrampsFrame):
                         self.remove_citation,
                     )
                 )
+            if hasattr(self.primary.obj, "media_list"):
+                action_menu.append(self._media_option())
             if hasattr(self.primary.obj, "note_list"):
                 action_menu.append(
                     self._notes_option(
@@ -801,3 +803,154 @@ class PrimaryGrampsFrame(GrampsFrame):
             if self.primary.obj.get_handle() in bookmark_list:
                 bookmarks.remove(self.primary.obj.get_handle())
         self.widgets["id"].reload(self.primary.obj, self.primary.obj_type)
+
+    def _media_option(self):
+        """
+        Build the media submenu.
+        """
+        menu = Gtk.Menu()
+        menu.add(
+            menu_item(
+                "list-add", _("Add a new media item"), self.add_new_media
+            )
+        )
+        menu.add(
+            menu_item(
+                "list-add",
+                _("Add an existing media item"),
+                self.add_existing_media,
+            )
+        )
+        if len(self.primary.obj.get_media_list()) > 0:
+            removemenu = Gtk.Menu()
+            menu.add(
+                submenu_item(
+                    "gramps-media", _("Remove a media item"), removemenu
+                )
+            )
+            menu.add(Gtk.SeparatorMenuItem())
+            menu.add(Gtk.SeparatorMenuItem())
+            for media_ref in self.primary.obj.get_media_list():
+                media = self.fetch("Media", media_ref.ref)
+                text = media.get_description()
+                removemenu.add(
+                    menu_item(
+                        "list-remove", text, self.remove_media_ref, media
+                    )
+                )
+                menu.add(
+                    menu_item("gramps-media", text, self.edit_media_ref, media)
+                )
+        return submenu_item("gramps-media", _("Media"), menu)
+
+    def add_existing_media(self, _dummy_obj):
+        """
+        Add an existing media item.
+        """
+        select_media = SelectorFactory("Media")
+        selector = select_media(self.grstate.dbstate, self.grstate.uistate, [])
+        selection = selector.run()
+        if selection:
+            self.add_new_media_ref(selection.handle)
+
+    def remove_media_ref(self, _dummy_obj, media):
+        """
+        Remove a media reference.
+        """
+        if not media:
+            return
+        text = media.get_description()
+        prefix = _(
+            "You are about to remove the following media from this object:"
+        )
+        extra = _("This removes the reference but does not delete the media.")
+        if self.confirm_action(
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
+        ):
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("MediaRef"),
+                    media.get_gramps_id(),
+                    _("from"),
+                    self.primary.obj_lang,
+                    self.primary.obj.get_gramps_id(),
+                )
+            )
+            self.primary.obj.remove_media_references([media.get_handle()])
+            self.primary.commit(self.grstate, message)
+
+    def edit_media_ref(self, _dummy_obj, media):
+        """
+        Edit a media reference.
+        """
+        for media_ref in self.primary.obj.get_media_list():
+            if media_ref.ref == media.get_handle():
+                break
+        try:
+            EditMediaRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                media,
+                media_ref,
+                self._edited_media_ref,
+            )
+        except WindowActiveError:
+            pass
+
+    def _edited_media_ref(self, media_ref, media):
+        """
+        Save the edited media reference.
+        """
+        if not media_ref and media:
+            return
+        message = self._commit_message(
+            _("MediaRef"), media.get_gramps_id(), action="update"
+        )
+        self.primary.commit(self.grstate, message)
+
+    def new_tag(self, _dummy_obj):
+        """
+        Create a new tag.
+        """
+        tag = Tag()
+        try:
+            EditTag(self.grstate.dbstate.db, self.grstate.uistate, [], tag)
+        except WindowActiveError:
+            pass
+
+    def organize_tags(self, _dummy_obj):
+        """
+        Organize tags.
+        """
+        try:
+            OrganizeTagsDialog(
+                self.grstate.dbstate.db, self.grstate.uistate, []
+            )
+        except WindowActiveError:
+            pass
+
+    def add_tag(self, _dummy_obj, handle):
+        """
+        Add the given tag to the current object.
+        """
+        if not handle:
+            return
+        tag = self.grstate.fetch("Tag", handle)
+        message = self._commit_message(_("Tag"), tag.get_name())
+        self.primary.obj.add_tag(handle)
+        self.primary.commit(self.grstate, message)
+
+    def remove_tag(self, _dummy_obj, handle):
+        """
+        Remove the given tag from the current object.
+        """
+        if not handle:
+            return
+        tag = self.grstate.fetch("Tag", handle)
+        message = self._commit_message(
+            _("Tag"), tag.get_name(), action="remove"
+        )
+        if self.primary.obj.remove_tag(handle):
+            self.primary.commit(self.grstate, message)

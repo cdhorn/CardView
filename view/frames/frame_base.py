@@ -243,7 +243,7 @@ class GrampsFrame(GrampsFrameView):
             links = re.findall(r"(?P<url>file?://[^\s]+)", data)
             if links:
                 for link in links:
-                    self.add_dropped_local_media(link)
+                    self.add_new_media(None, filepath=link)
             return
         added_urls = 0
         if hasattr(self.focus.obj, "urls"):
@@ -879,26 +879,26 @@ class GrampsFrame(GrampsFrameView):
         self.focus.sync_hash(self.grstate)
         self.primary.commit(self.grstate, message)
 
-    def add_dropped_local_media(self, filepath):
+    def add_new_media(self, _dummy_obj, filepath=None):
         """
         Add a new media item.
         """
-        if filepath[:5] != "file:":
-            return
-        filename = filepath[5:]
-        while filename[:2] == "//":
-            filename = filename[1:]
-        if not os.path.isfile(filename):
-            return
-
-        if global_config.get("behavior.addmedia-relative-path"):
-            base_path = str(media_path(self.grstate.dbstate.db))
-            if not os.path.exists(base_path):
-                return
-            filename = relative_path(filename, base_path)
-
         media = Media()
-        media.set_path(filename)
+        if filepath:
+            if filepath[:5] != "file:":
+                return
+            filename = filepath[5:]
+            while filename[:2] == "//":
+                filename = filename[1:]
+            if not os.path.isfile(filename):
+                return
+
+            if global_config.get("behavior.addmedia-relative-path"):
+                base_path = str(media_path(self.grstate.dbstate.db))
+                if not os.path.exists(base_path):
+                    return
+                filename = relative_path(filename, base_path)
+            media.set_path(filename)
         try:
             EditMedia(
                 self.grstate.dbstate,
