@@ -713,6 +713,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             ref.ref = self.primary.obj.get_handle()
             ref.set_note_list(reference.get_note_list())
             ref.set_citation_list(reference.get_citation_list())
+            ref.set_privacy(reference.get_privacy())
             if reference.get_relation() in _RECIPROCAL_ASSOCIATIONS:
                 ref.set_relation(
                     _RECIPROCAL_ASSOCIATIONS[reference.get_relation()]
