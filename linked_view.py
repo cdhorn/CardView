@@ -513,7 +513,27 @@ class LinkedView(ExtendedNavigationView):
       </packing>
     </child>
     </placeholder>
-     """,
+""",
+        """
+    <placeholder id='MoreButtons'>
+    <child groups='RO'>
+      <object class="GtkToolButton">
+        <property name="icon-name">help-contents</property>
+        <property name="action-name">win.ViewHelp</property>
+        <property name="tooltip_text" translatable="yes">"""
+        """Help for Linked View</property>
+        <property name="label" translatable="yes">_Linked View Help</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
+    <child groups='RO'>
+      <object class="GtkSeparatorToolItem" id="sep2"/>
+    </child>
+    </placeholder>
+""",
     ]
 
     def define_actions(self):
