@@ -284,13 +284,13 @@ class LinkedView(ExtendedNavigationView):
         This assumes that this icon has already been registered with
         GNOME as a stock icon.
         """
-        return "gramps-relation"
+        return "gramps-linked-view"
 
     def get_viewtype_stock(self):
         """
         Type of view in category.
         """
-        return "gramps-relation"
+        return "gramps-linked-view"
 
     def build_widget(self):
         """

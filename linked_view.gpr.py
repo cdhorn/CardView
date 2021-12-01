@@ -2,6 +2,7 @@
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2020      Nick Hall
+# Copyright (C) 2020      Christian Schulze
 # Copyright (C) 2021      Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,6 +20,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+import os
+from gi.repository import Gtk
+from gramps.gen.const import USER_PLUGINS
+
+fname = os.path.join(USER_PLUGINS, "LinkedView")
+icons = Gtk.IconTheme().get_default()
+icons.append_search_path(fname)
+
 register(
     VIEW,
     id="linked_view",
@@ -32,5 +41,6 @@ register(
     authors_email=["http://gramps-project.org"],
     category=("Relationships", _("Relationships")),
     viewclass="LinkedView",
+    stock_icon="gramps-linked-view",
     order=END,
 )
