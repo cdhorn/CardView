@@ -99,7 +99,7 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
 
     def add_custom_actions(self, action_menu):
         """
-        Add action menu items for the event.
+        Add action menu items for the source.
         """
         action_menu.append(self._repositories_option())
 

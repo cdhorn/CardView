@@ -39,6 +39,7 @@ from ..common.common_utils import (
     TextLink,
     get_confidence,
     get_confidence_color_css,
+    menu_item,
 )
 from .frame_primary import PrimaryGrampsFrame
 
@@ -57,8 +58,8 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
 
     def __init__(self, grstate, groptions, citation, reference=None):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, citation)
-        source = self.fetch("Source", citation.source_handle)
-        self.populate_layout(source, citation, reference)
+        self.source = self.fetch("Source", citation.source_handle)
+        self.populate_layout(self.source, citation, reference)
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
@@ -145,3 +146,21 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         return get_confidence_color_css(
             self.primary.obj.confidence, self.grstate.config
         )
+
+    def add_custom_actions(self, action_menu):
+        """
+        Add action menu items for the citation.
+        """
+        action_menu.append(
+            menu_item(
+                "gtk-edit",
+                _("Edit citation source"),
+                self.edit_citation_source,
+            )
+        )
+
+    def edit_citation_source(self, *_dummy_args):
+        """
+        Edit citation source.
+        """
+        self.edit_primary_object(obj=self.source, obj_type="Source")
