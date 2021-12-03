@@ -394,11 +394,24 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         action_menu.append(
             menu_item(
                 "gramps-person",
-                _("Make default person"),
+                _("Make the default person"),
                 self.set_default_person,
             )
         )
-        action_menu.append(self._add_new_person_event_option())
+        action_menu.append(
+            menu_item(
+                "gramps-event",
+                _("Add a new primary event"),
+                self.add_new_person_event,
+            )
+        )
+        action_menu.append(
+            menu_item(
+                "gramps-event",
+                _("Add as participant to an existing event"),
+                self.add_existing_person_event,
+            )
+        )
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
             action_menu.append(self._add_new_family_event_option())
         if self.context in ["parent", "spouse"]:
@@ -506,15 +519,18 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             self.primary.obj.set_alternate_names(name_list)
             self.primary.commit(self.grstate, message)
 
-    def _add_new_person_event_option(self):
+    def add_existing_person_event(self, *_dummy_args):
         """
-        Build menu item for adding a new event for a person.
+        Add person to existing event.
         """
-        return menu_item(
-            "gramps-event",
-            _("Add a new person event"),
-            self.add_new_person_event,
+        select_event = SelectorFactory("Event")
+        skip = set([x.ref for x in self.primary.obj.get_event_ref_list()])
+        dialog = select_event(
+            self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
+        event = dialog.run()
+        if event:
+            self.add_new_person_event(None, event_handle=event.get_handle())
 
     def add_new_person_event(self, _dummy_obj, event_handle=None):
         """
