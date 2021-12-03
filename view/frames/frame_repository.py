@@ -107,7 +107,7 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
-        Handle drop processing for a person.
+        Handle drop processing for a repository.
         """
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
             self.add_new_source(obj_or_handle)

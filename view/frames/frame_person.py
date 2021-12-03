@@ -984,3 +984,18 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         self.grstate.dbstate.db.set_default_person_handle(
             self.primary.obj.get_handle()
         )
+
+    def edit_person_ref(self, *_dummy_obj):
+        """
+        Launch the editor.
+        """
+        try:
+            EditPersonRef(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.reference.obj,
+                self.save_ref,
+            )
+        except WindowActiveError:
+            pass

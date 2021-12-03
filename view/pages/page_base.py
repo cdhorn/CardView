@@ -116,13 +116,15 @@ class BaseProfilePage:
         """
         Enable page specific actions.
         """
-        uimanager.set_actions_visible(self.action_group, True)
+        if self.action_group:
+            uimanager.set_actions_visible(self.action_group, True)
 
     def disable_actions(self, uimanager):
         """
         Disable page specific actions.
         """
-        uimanager.set_actions_visible(self.action_group, False)
+        if self.action_group:
+            uimanager.set_actions_visible(self.action_group, False)
 
     def edit_active(self, *_dummy_obj):
         """

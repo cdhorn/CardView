@@ -94,14 +94,18 @@ class EventRefGrampsFrame(EventGrampsFrame):
         """
         Add custom action menu items for the event reference.
         """
-        action_menu.append(self._edit_event_ref_option())
-
-    def _edit_event_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_event_ref)
+        label = " ".join((_("Edit"), _("reference")))
+        action_menu.append(menu_item("gtk-edit", label, self.edit_event_ref))
+        label = " ".join((_("Delete"), _("reference")))
+        action_menu.append(
+            menu_item(
+                "list-remove",
+                label,
+                self.remove_participant,
+                self.base.obj,
+                self.reference.obj,
+            )
+        )
 
     def edit_event_ref(self, *_dummy_obj):
         """

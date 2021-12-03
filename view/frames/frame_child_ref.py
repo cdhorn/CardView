@@ -125,14 +125,12 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
         """
         Build the action menu for a right click on a reference object.
         """
-        action_menu.append(self._edit_child_ref_option())
-
-    def _edit_child_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_child_ref)
+        label = " ".join((_("Edit"), _("reference")))
+        action_menu.append(menu_item("gtk-edit", label, self.edit_child_ref))
+        label = " ".join((_("Delete"), _("reference")))
+        action_menu.append(
+            menu_item("list-remove", label, self.remove_family_child)
+        )
 
     def edit_child_ref(self, *_dummy_obj):
         """

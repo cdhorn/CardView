@@ -147,26 +147,14 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         """
         Add custom action menu items for an associate.
         """
-        action_menu.append(self._edit_person_ref_option())
-
-    def _edit_person_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_person_ref)
-
-    def edit_person_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            EditPersonRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
+        label = " ".join((_("Edit"), _("reference")))
+        action_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
+        label = " ".join((_("Delete"), _("reference")))
+        action_menu.append(
+            menu_item(
+                "list-remove",
+                label,
+                self.remove_association,
                 self.reference.obj,
-                self.save_ref,
             )
-        except WindowActiveError:
-            pass
+        )

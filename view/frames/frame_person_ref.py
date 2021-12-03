@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.editors import EditPersonRef
 
@@ -133,26 +134,48 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         """
         Add custom action menu items for an associate.
         """
-        action_menu.append(self._edit_person_ref_option())
-
-    def _edit_person_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_person_ref)
-
-    def edit_person_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            EditPersonRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
+        label = " ".join((_("Edit"), _("reference")))
+        action_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
+        label = " ".join((_("Delete"), _("reference")))
+        action_menu.append(
+            menu_item(
+                "list-remove",
+                label,
+                self.remove_person_ref,
                 self.reference.obj,
-                self.save_ref,
             )
-        except WindowActiveError:
-            pass
+        )
+
+    def remove_person_ref(self, _dummy_obj, person_ref):
+        """
+        Remove an association.
+        """
+        person = self.fetch("Person", person_ref.ref)
+        text = "".join((name_displayer.display(person),))
+        prefix = _(
+            "You are about to remove the following association with this "
+            "person:"
+        )
+        extra = _(
+            "Note this does not delete the person. You can also use the "
+            "undo option under edit if you change your mind later."
+        )
+        if self.confirm_action(
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
+        ):
+            new_list = []
+            for ref in self.base.obj.get_person_ref_list():
+                if not ref.ref == person_ref.ref:
+                    new_list.append(ref)
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("PersonRef"),
+                    person.get_gramps_id(),
+                    _("from"),
+                    _("Person"),
+                    self.base.obj.get_gramps_id(),
+                )
+            )
+            self.base.obj.set_person_ref_list(new_list)
+            self.base.commit(self.grstate, message)
