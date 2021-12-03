@@ -137,16 +137,16 @@ ROLE_TYPE = (
 )
 
 ROLE_OPTIONS = [
-    (_("Background for Primary Events"), "primary", 1, 1),
-    (_("Background for Secondary Events"), "secondary", 2, 1),
-    (_("Background for Family Events"), "family", 3, 1),
-    (_("Background for Implicit Family Events"), "implicit", 4, 1),
-    (_("Background for Other Events"), "other", 5, 1),
-    (_("Border for Primary Events"), "border-primary", 1, 4),
-    (_("Border for Secondary Events"), "border-secondary", 2, 4),
-    (_("Border for Family Events"), "border-family", 3, 4),
-    (_("Border for Implicit Family Events"), "border-implicit", 4, 4),
-    (_("Border for Other Events"), "border-other", 5, 4),
+    (_("Background for Primary Role"), "primary", 1, 1),
+    (_("Background for Secondary Role"), "secondary", 2, 1),
+    (_("Background for Family Role"), "family", 3, 1),
+    (_("Background for Implicit Family Role"), "implicit", 4, 1),
+    (_("Background for Unknown Role"), "unknown", 5, 1),
+    (_("Border for Primary Role"), "border-primary", 1, 4),
+    (_("Border for Secondary Role"), "border-secondary", 2, 4),
+    (_("Border for Family Role"), "border-family", 3, 4),
+    (_("Border for Implicit Family Role"), "border-implicit", 4, 4),
+    (_("Border for Unknown Role"), "border-unknown", 5, 4),
 ]
 
 

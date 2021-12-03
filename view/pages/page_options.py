@@ -35,13 +35,13 @@ CONFIGSETTINGS = (
     ("options.colors.confidence.very-high", ["#bbe68a", "#304918"]),
     ("options.colors.confidence.high", ["#b8cee6", "#1f344a"]),
     ("options.colors.confidence.normal", ["#f3dbb6", "#75507b"]),
-    ("options.colors.confidence.low", ["#ffdede", "#5c3636"]),
-    ("options.colors.confidence.very-low", ["#feccf0", "#62242d"]),
+    ("options.colors.confidence.low", ["#feccf0", "#62242d"]),
+    ("options.colors.confidence.very-low", ["#ffdede", "#5c3636"]),
     ("options.colors.confidence.border-very-high", ["#304918", "#bbe68a"]),
     ("options.colors.confidence.border-high", ["#1f4986", "#171d26"]),
     ("options.colors.confidence.border-normal", ["#8e5801", "#8e5801"]),
-    ("options.colors.confidence.border-low", ["#ff7373", "#720b0b"]),
-    ("options.colors.confidence.border-very-low", ["#861f69", "#261111"]),
+    ("options.colors.confidence.border-low", ["#861f69", "#261111"]),
+    ("options.colors.confidence.border-very-low", ["#ff7373", "#720b0b"]),
     ######################################################################
     ## Relationship Color Scheme
     ######################################################################
@@ -93,12 +93,12 @@ CONFIGSETTINGS = (
     ("options.colors.roles.secondary", ["#f3dbb6", "#75507b"]),
     ("options.colors.roles.family", ["#b8cee6", "#1f344a"]),
     ("options.colors.roles.implicit", ["#eeeeee", "#454545"]),
-    ("options.colors.roles.other", ["#ffdede", "#5c3636"]),
+    ("options.colors.roles.unknown", ["#ffdede", "#5c3636"]),
     ("options.colors.roles.border-primary", ["#304918", "#bbe68a"]),
     ("options.colors.roles.border-secondary", ["#8e5801", "#8e5801"]),
     ("options.colors.roles.border-family", ["#1f4986", "#171d26"]),
     ("options.colors.roles.border-implicit", ["#cccccc", "#252525"]),
-    ("options.colors.roles.border-other", ["#ff7373", "#720b0b"]),
+    ("options.colors.roles.border-unknown", ["#ff7373", "#720b0b"]),
     ######################################################################
     # Global Options
     ######################################################################

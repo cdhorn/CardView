@@ -204,7 +204,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         else:
             self.event_role_type = "secondary"
         if "Unknown" in role.xml_str():
-            self.event_role_type = "other"
+            self.event_role_type = "unknown"
 
         role_name = str(role)
         title = " ".join((event_type, _("of"), primary_obj_name))
