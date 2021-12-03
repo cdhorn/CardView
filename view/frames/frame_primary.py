@@ -601,13 +601,20 @@ class PrimaryGrampsFrame(GrampsFrame):
             )
         return None
 
-    def add_new_family_event(self, _dummy_obj):
+    def add_new_family_event(self, _dummy_obj, event_handle=None):
         """
         Add a new event for a family.
         """
-        event = Event()
-        event.set_type(EventType(EventType.MARRIAGE))
         event_ref = EventRef()
+        if event_handle:
+            for event_ref in self.primary.obj.get_event_ref_list():
+                if event_ref.ref == event_handle:
+                    return
+            event = self.fetch("Event", event_handle)
+            event_ref.ref = event_handle
+        else:
+            event = Event()
+            event.set_type(EventType(EventType.MARRIAGE))
         event_ref.set_role(EventRoleType(EventRoleType.FAMILY))
         if self.primary.obj_type == "Family":
             event_ref.ref = self.primary.obj.handle
@@ -625,7 +632,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         except WindowActiveError:
             pass
 
-    def added_new_family_event(self, event_ref, _dummy_var1):
+    def added_new_family_event(self, event_ref, event):
         """
         Finish adding a new event for a family.
         """
@@ -633,20 +640,20 @@ class PrimaryGrampsFrame(GrampsFrame):
             family = self.primary.obj
         else:
             family = self.fetch("Family", self.groptions.backlink)
-        event = self.fetch("Event", event_ref.ref)
         message = " ".join(
             (
                 _("Added"),
-                _("Event"),
-                event.get_gramps_id(),
-                _("for"),
                 _("Family"),
                 family.get_gramps_id(),
+                _("to"),
+                _("Event"),
+                event.get_gramps_id(),
             )
         )
         with DbTxn(message, self.grstate.dbstate.db) as trans:
-            if family.add_event_ref(event_ref):
-                self.grstate.dbstate.db.commit_family(family, trans)
+            self.grstate.dbstate.db.commit_event(event, trans)
+            family.add_event_ref(event_ref)
+            self.grstate.dbstate.db.commit_family(family, trans)
 
     def _add_new_child_option(self):
         """
