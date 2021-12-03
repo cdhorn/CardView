@@ -95,6 +95,7 @@ class BaseProfilePage:
         self.grstate = GrampsState(dbstate, uistate, callbacks, config)
         self.grstate.set_page_type(self.page_type.lower())
         self.active_profile = None
+        self.action_group = None
         self.child = None
         self.colors = None
         self.config = config
@@ -111,15 +112,17 @@ class BaseProfilePage:
         Define page specific actions.
         """
 
-    def enable_actions(self, uimanager, obj):
+    def enable_actions(self, uimanager, _dummy_obj):
         """
         Enable page specific actions.
         """
+        uimanager.set_actions_visible(self.action_group, True)
 
     def disable_actions(self, uimanager):
         """
         Disable page specific actions.
         """
+        uimanager.set_actions_visible(self.action_group, False)
 
     def edit_active(self, *_dummy_obj):
         """
@@ -446,3 +449,59 @@ class BaseProfilePage:
             self.timeline_panel,
             self.color_panel,
         ]
+
+    def _set_default_person(self, *_dummy_obj):
+        """
+        Set new default person.
+        """
+        if self.active_profile:
+            self.active_profile.set_default_person()
+
+    def _add_new_parents(self, *_dummy_obj):
+        """
+        Add a new set of parents.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_parents()
+
+    def _add_existing_parents(self, *_dummy_obj):
+        """
+        Add an existing set of parents.
+        """
+        if self.active_profile:
+            self.active_profile.add_existing_parents()
+
+    def _add_new_family(self, *_dummy_obj):
+        """
+        Add new family with or without spouse.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_family()
+
+    def _add_new_child(self, *_dummy_obj):
+        """
+        Add a new person as a child member of the family.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_child()
+
+    def _add_existing_child(self, *_dummy_obj):
+        """
+        Add an existing person as a child member of the family.
+        """
+        if self.active_profile:
+            self.active_profile.add_existing_child()
+
+    def _add_new_participant(self, *_dummy_obj):
+        """
+        Add a new person as a participant in the event.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_participant()
+
+    def _add_existing_participant(self, *_dummy_obj):
+        """
+        Add an existing person as a participant in the event.
+        """
+        if self.active_profile:
+            self.active_profile.add_existing_participant()

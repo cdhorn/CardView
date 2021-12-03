@@ -150,7 +150,7 @@ def build_global_grid(configdialog, grstate):
             "a reciprocal one from the associated person back to the current"
             "one."
         ),
-    )    
+    )
     configdialog.add_checkbox(
         grid1,
         _("Include notes on child objects"),

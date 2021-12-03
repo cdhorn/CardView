@@ -41,6 +41,7 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.uimanager import ActionGroup
 
 # -------------------------------------------------------------------------
 #
@@ -78,6 +79,19 @@ class EventRefProfilePage(BaseProfilePage):
         Page type.
         """
         return "EventRef"
+
+    def define_actions(self, view):
+        """
+        Define page specific actions.
+        """
+        self.action_group = ActionGroup(name="Event")
+        self.action_group.add_actions(
+            [
+                ("AddNewPart", self._add_new_participant),
+                ("AddExistingPart", self._add_existing_participant),
+            ]
+        )
+        view.add_action_group(self.action_group)
 
     def render_page(self, header, vbox, context):
         """

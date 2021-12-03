@@ -59,8 +59,6 @@ class PersonProfilePage(BaseProfilePage):
 
     def __init__(self, dbstate, uistate, config, callbacks):
         BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.order_action = None
-        self.family_action = None
         self.reorder_sensitive = None
         self.child = None
         self.colors = None
@@ -84,40 +82,17 @@ class PersonProfilePage(BaseProfilePage):
         """
         Define page specific actions.
         """
-        self.order_action = ActionGroup(name="ChangeOrder")
-        self.order_action.add_actions([("ChangeOrder", self.reorder)])
-
-        self.family_action = ActionGroup(name="Family")
-        self.family_action.add_actions(
+        self.action_group = ActionGroup(name="Person")
+        self.action_group.add_actions(
             [
-                ("AddSpouse", self.add_new_family),
-                ("AddParents", self.add_new_parents),
-                ("ShareFamily", self.add_existing_parents),
+                ("SetActive", self._set_default_person),
+                ("AddSpouse", self._add_new_family),
+                ("AddNewParents", self._add_new_parents),
+                ("AddExistingParents", self._add_existing_parents),
+                ("ChangeOrder", self.reorder),
             ]
         )
-        self.person_action = ActionGroup(name="Person")
-        self.person_action.add_actions(
-            [("SetActive", self.set_default_person)]
-        )
-        view.add_action_group(self.order_action)
-        view.add_action_group(self.family_action)
-        view.add_action_group(self.person_action)
-
-    def enable_actions(self, uimanager, _dummy_obj):
-        """
-        Enable page specific actions.
-        """
-        uimanager.set_actions_visible(self.person_action, True)
-        uimanager.set_actions_visible(self.family_action, True)
-        uimanager.set_actions_visible(self.order_action, True)
-
-    def disable_actions(self, uimanager):
-        """
-        Disable page specific actions.
-        """
-        uimanager.set_actions_visible(self.person_action, False)
-        uimanager.set_actions_visible(self.family_action, False)
-        uimanager.set_actions_visible(self.order_action, False)
+        view.add_action_group(self.action_group)
 
     def render_page(self, header, vbox, context):
         """
@@ -177,31 +152,3 @@ class PersonProfilePage(BaseProfilePage):
                 )
             except WindowActiveError:
                 pass
-
-    def add_new_family(self, *_dummy_obj):
-        """
-        Add new family with or without spouse.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_family()
-
-    def add_existing_parents(self, *_dummy_obj):
-        """
-        Add an existing set of parents.
-        """
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def add_new_parents(self, *_dummy_obj):
-        """
-        Add a new set of parents.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_parents()
-
-    def set_default_person(self, *_dummy_obj):
-        """
-        Set new default person.
-        """
-        if self.active_profile:
-            self.active_profile.set_default_person()

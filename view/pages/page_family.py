@@ -41,6 +41,7 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.uimanager import ActionGroup
 
 # -------------------------------------------------------------------------
 #
@@ -76,6 +77,19 @@ class FamilyProfilePage(BaseProfilePage):
         Page type.
         """
         return "Family"
+
+    def define_actions(self, view):
+        """
+        Define page specific actions.
+        """
+        self.action_group = ActionGroup(name="Family")
+        self.action_group.add_actions(
+            [
+                ("AddNewChild", self._add_new_child),
+                ("AddExistingChild", self._add_existing_child),
+            ]
+        )
+        view.add_action_group(self.action_group)
 
     def _get_primary_parents(self, grstate, person, groups):
         """

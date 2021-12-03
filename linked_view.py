@@ -284,13 +284,13 @@ class LinkedView(ExtendedNavigationView):
         This assumes that this icon has already been registered with
         GNOME as a stock icon.
         """
-        return "gramps-linked-view"
+        return "gramps-relation-linked"
 
     def get_viewtype_stock(self):
         """
         Type of view in category.
         """
-        return "gramps-linked-view"
+        return "gramps-relation-linked"
 
     def build_widget(self):
         """
@@ -333,24 +333,6 @@ class LinkedView(ExtendedNavigationView):
         <item>
           <attribute name="action">win.Edit</attribute>
           <attribute name="label" translatable="yes">Edit...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddParents</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Add New Parents...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.ShareFamily</attribute>
-          <attribute name="label" translatable="yes">"""
-        """Add Existing Parents...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.AddSpouse</attribute>
-          <attribute name="label" translatable="yes">Add Partner...</attribute>
-        </item>
-        <item>
-          <attribute name="action">win.ChangeOrder</attribute>
-          <attribute name="label" translatable="yes">_Reorder</attribute>
         </item>
       </placeholder>
 """,
@@ -417,7 +399,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="icon-name">gramps-person</property>
         <property name="action-name">win.SetActive</property>
         <property name="tooltip_text" translatable="yes">"""
-        """Make default person</property>
+        """Make active person the default</property>
         <property name="label" translatable="yes">_Set Active</property>
         <property name="use-underline">True</property>
       </object>
@@ -437,43 +419,43 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
-        <property name="action-name">win.AddParents</property>
+        <property name="action-name">win.AddNewParents</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new set of parents</property>
-        <property name="label" translatable="yes">Add</property>
+        <property name="label" translatable="yes">_Add New Parents</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
-        <property name="action-name">win.ShareFamily</property>
+        <property name="action-name">win.AddExistingParents</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add person as child to an existing family</property>
-        <property name="label" translatable="yes">Share</property>
+        <property name="label" translatable="yes">_Add Existing Parents</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-spouse</property>
         <property name="action-name">win.AddSpouse</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new family with person as parent</property>
-        <property name="label" translatable="yes">Partner</property>
+        <property name="label" translatable="yes">_Add New Spouse</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='ChangeOrder'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">view-sort-ascending</property>
         <property name="action-name">win.ChangeOrder</property>
@@ -486,14 +468,37 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
+    <child groups='Family'>
+      <object class="GtkToolButton">
+        <property name="icon-name">gramps-parents-add</property>
+        <property name="action-name">win.AddNewChild</property>
+        <property name="tooltip_text" translatable="yes">"""
+        """Add a new person as a child of the family</property>
+        <property name="label" translatable="yes">_Add New Child</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
+    <child groups='Family'>
+      <object class="GtkToolButton">
+        <property name="icon-name">gramps-parents-open</property>
+        <property name="action-name">win.AddExistingChild</property>
+        <property name="tooltip_text" translatable="yes">"""
+        """Add an existing person as a child of the family</property>
+        <property name="label" translatable="yes">_Add Existing Child</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
     <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
-        <property name="action-name">win.AddParticipant</property>
+        <property name="action-name">win.AddNewPart</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new participant to the event</property>
-        <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
+        <property name="label" translatable="yes">_Add New Participant</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -502,11 +507,10 @@ class LinkedView(ExtendedNavigationView):
     <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
-        <property name="action-name">win.ShareParticipant</property>
+        <property name="action-name">win.AddExistingPart</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add an existing participant to the event</property>
-        <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
+        <property name="label" translatable="yes">_Add Existing Participant</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -518,7 +522,7 @@ class LinkedView(ExtendedNavigationView):
     <placeholder id='MoreButtons'>
     <child groups='RO'>
       <object class="GtkToolButton">
-        <property name="icon-name">help-contents</property>
+        <property name="icon-name">help-browser</property>
         <property name="action-name">win.ViewHelp</property>
         <property name="tooltip_text" translatable="yes">"""
         """Help for Linked View</property>

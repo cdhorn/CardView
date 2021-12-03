@@ -24,7 +24,7 @@ import os
 from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
 
-fname = os.path.join(USER_PLUGINS, "LinkedView")
+fname = os.path.join(USER_PLUGINS, "LinkedView", "icons")
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(fname)
 
@@ -41,6 +41,6 @@ register(
     authors_email=["http://gramps-project.org"],
     category=("Relationships", _("Relationships")),
     viewclass="LinkedView",
-    stock_icon="gramps-linked-view",
+    stock_icon="gramps-relation-linked",
     order=END,
 )

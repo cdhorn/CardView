@@ -507,7 +507,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             participant.obj.add_event_ref(event_ref)
             participant.commit(self.grstate, message)
 
-    def add_new_participant(self, _dummy_obj):
+    def add_new_participant(self, *_dummy_obj):
         """
         Add a new person as participant to an event.
         """
@@ -528,7 +528,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def add_existing_participant(self, _dummy_obj, person_handle=None):
+    def add_existing_participant(self, *_dummy_obj, person_handle=None):
         """
         Add an existing person as participant to an event.
         """
