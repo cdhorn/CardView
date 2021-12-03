@@ -64,7 +64,14 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         """
         Add custom action menu items for the reference.
         """
-        action_menu.append(self._edit_media_ref_option())
+        label = " ".join((_("Edit"), _("reference")))
+        action_menu.append(menu_item("gtk-edit", label, self.edit_media_ref))
+        label = " ".join((_("Delete"), _("reference")))
+        action_menu.append(
+            menu_item(
+                "list-remove", label, self.remove_media_ref, self.primary.obj
+            )
+        )
         action_menu.append(
             menu_item(
                 "gramps-media",
@@ -72,13 +79,6 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
                 self._make_active_media,
             )
         )
-
-    def _edit_media_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_media_ref)
 
     def edit_media_ref(self, *_dummy_obj):
         """
@@ -95,6 +95,33 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
             )
         except WindowActiveError:
             pass
+
+    def remove_media_ref(self, _dummy_obj, media):
+        """
+        Remove a media reference.
+        """
+        if not media:
+            return
+        text = media.get_description()
+        prefix = _(
+            "You are about to remove the following media from this object:"
+        )
+        extra = _("This removes the reference but does not delete the media.")
+        if self.confirm_action(
+            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
+        ):
+            message = " ".join(
+                (
+                    _("Removed"),
+                    _("MediaRef"),
+                    media.get_gramps_id(),
+                    _("from"),
+                    self.base.obj_lang,
+                    self.base.obj.get_gramps_id(),
+                )
+            )
+            self.base.obj.remove_media_references([media.get_handle()])
+            self.base.commit(self.grstate, message)
 
     def _make_active_media(self, _dummy_var1):
         """
