@@ -80,7 +80,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
 
         vbox = None
         if child_ref.get_father_relation():
-            reltype = child_ref.get_father_relation()
+            reltype = str(child_ref.get_father_relation())
             if groptions.ref_mode in [1, 3]:
                 left = groptions.ref_mode == 1
                 self.ref_widgets["body"].pack_start(
@@ -99,7 +99,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
                 )
 
         if child_ref.get_mother_relation():
-            reltype = child_ref.get_mother_relation()
+            reltype = str(child_ref.get_mother_relation())
             if groptions.ref_mode in [1, 3]:
                 left = groptions.ref_mode == 1
                 self.ref_widgets["body"].pack_start(
