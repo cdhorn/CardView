@@ -60,7 +60,7 @@ def build_group(grstate, group_type, obj, args):
     if group_type in GRAMPS_GROUPS:
         return build_simple_group(grstate, group_type, obj, args)
     if group_type == "event":
-        return get_events_group(grstate, obj)
+        return get_events_group(grstate, obj, args)
     if group_type == "parent":
         return get_parents_group(grstate, obj, args)
     if group_type == "spouse":
@@ -82,6 +82,9 @@ def build_simple_group(grstate, group_type, obj, args):
         groptions.set_context("timeline")
     else:
         groptions = GrampsOptions("".join(("options.group.", group_type)))
+
+    if "age_base" in args and args["age_base"]:
+        groptions.set_age_base(args["age_base"])
 
     if "sources" in args and args["sources"]:
         single, plural = _("Cited Source"), _("Cited Sources")
@@ -284,7 +287,8 @@ def get_references_group(
         tuple_list = tuple_list[:maximum]
 
     groptions = groptions or GrampsOptions("options.group.reference")
-    groptions.set_age_base(age_base)
+    if "age_base" in args and args["age_base"]:
+        groptions.set_age_base(args["age_base"])
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
 
     single, plural = _("Reference"), _("References")
@@ -298,29 +302,29 @@ def get_references_group(
     return group_wrapper(grstate, groptions, group, (None, None, title))
 
 
-def get_events_group(grstate, obj):
+def get_events_group(grstate, obj, args):
     """
     Get the group for all the events related to a person or family
     """
     group_set = Gtk.VBox(spacing=6)
     if isinstance(obj, Person):
-        group = prepare_event_group(grstate, obj, "Person")
+        group = prepare_event_group(grstate, obj, "Person", args)
         if group:
             group_set.add(group)
 
         for handle in obj.get_family_handle_list():
             family = grstate.fetch("Family", handle)
-            group = prepare_event_group(grstate, family, "Family")
+            group = prepare_event_group(grstate, family, "Family", args)
             if group:
                 group_set.add(group)
     elif isinstance(obj, Family):
-        group = prepare_event_group(grstate, obj, "Family")
+        group = prepare_event_group(grstate, obj, "Family", args)
         if group:
             group_set.add(group)
     return group_set
 
 
-def prepare_event_group(grstate, obj, obj_type):
+def prepare_event_group(grstate, obj, obj_type, args):
     """
     Prepare and return an event group for use in a group set.
     """
@@ -329,6 +333,8 @@ def prepare_event_group(grstate, obj, obj_type):
 
     groptions = GrampsOptions("options.group.event")
     groptions.set_context("event")
+    if "age_base" in args and args["age_base"]:
+        groptions.set_age_base(args["age_base"])
     group = EventsGrampsFrameGroup(grstate, groptions, obj)
     elements = Gtk.VBox(spacing=6)
     elements.add(group)

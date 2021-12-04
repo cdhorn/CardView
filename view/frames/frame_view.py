@@ -87,8 +87,7 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         Initialize primary frame widgets.
         """
-        if self.get_option("image-mode"):
-            self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
+        self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
         self.widgets["age"] = Gtk.VBox(
             margin_right=3,
             margin_left=3,
