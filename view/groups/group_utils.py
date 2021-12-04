@@ -289,7 +289,7 @@ def get_references_group(
         tuple_list = tuple_list[:maximum]
 
     groptions = groptions or GrampsOptions("options.group.reference")
-    if "age_base" in args and args["age_base"]:
+    if args and "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
     if not isinstance(obj, Media):
         groptions.set_age_base(None)
