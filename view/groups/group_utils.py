@@ -65,6 +65,8 @@ def build_group(grstate, group_type, obj, args):
         return get_parents_group(grstate, obj, args)
     if group_type == "spouse":
         return get_spouses_group(grstate, obj, args)
+    if group_type == "child":
+        return get_children_group(grstate, obj, args)
     if group_type == "reference":
         return get_references_group(grstate, obj, args)
     return None
