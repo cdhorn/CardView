@@ -99,10 +99,13 @@ class MediaRefProfilePage(BaseProfilePage):
         self.active_profile = MediaRefGrampsFrame(
             self.grstate, groptions, primary, media_ref
         )
+        focal = self.wrap_focal_widget(self.active_profile)
 
-        vheader = Gtk.VBox(spacing=3)
+        vheader = Gtk.VBox()
+        if focal == self.active_profile:
+            vheader.set_spacing(3)
         vheader.pack_start(primary_frame, False, False, 0)
-        vheader.pack_start(self.active_profile, False, False, 0)
+        vheader.pack_start(focal, False, False, 0)
 
         groups = self.config.get("options.page.mediaref.layout.groups").split(
             ","

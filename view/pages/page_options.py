@@ -105,6 +105,8 @@ CONFIGSETTINGS = (
     ("options.global.pin-header", True),
     ("options.global.use-color-scheme", True),
     ("options.global.use-smaller-detail-font", True),
+    ("options.global.focal-object-highlight", False),
+    ("options.global.focal-object-color", ["#bbe68a", "#304918"]),
     ("options.global.border-width", 2),
     ("options.global.privacy-mode", 1),
     ("options.global.enable-bookmarks", True),

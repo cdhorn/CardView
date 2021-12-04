@@ -91,6 +91,7 @@ class CitationProfilePage(BaseProfilePage):
         self.active_profile = CitationGrampsFrame(
             self.grstate, groptions, citation
         )
+        focal = self.wrap_focal_widget(self.active_profile)
 
         source = self.grstate.dbstate.db.get_source_from_handle(
             self.active_profile.primary.obj.source_handle
@@ -108,7 +109,7 @@ class CitationProfilePage(BaseProfilePage):
 
         hbox = Gtk.VBox()
         hbox.pack_start(source_frame, True, True, 0)
-        hbox.pack_start(self.active_profile, True, True, 0)
+        hbox.pack_start(focal, True, True, 0)
         if self.config.get("options.global.pin-header"):
             header.pack_start(hbox, False, False, 0)
             header.show_all()

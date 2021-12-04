@@ -88,7 +88,9 @@ class AddressProfilePage(BaseProfilePage):
         )
 
         groptions = GrampsOptions("options.active.address")
-        frame = AddressGrampsFrame(self.grstate, groptions, person, address)
+        focal = self.wrap_focal_widget(
+            AddressGrampsFrame(self.grstate, groptions, person, address)
+        )
 
         groups = self.config.get("options.page.address.layout.groups").split(
             ","
@@ -98,10 +100,10 @@ class AddressProfilePage(BaseProfilePage):
 
         if self.config.get("options.global.pin-header"):
             header.pack_start(self.active_profile, False, False, 0)
-            header.pack_start(frame, False, False, 0)
+            header.pack_start(focal, False, False, 0)
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-            vbox.pack_start(frame, False, False, 0)
+            vbox.pack_start(focal, False, False, 0)
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()

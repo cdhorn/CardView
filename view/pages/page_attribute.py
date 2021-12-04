@@ -92,8 +92,8 @@ class AttributeProfilePage(BaseProfilePage):
         self.active_profile = frame(self.grstate, groptions, primary)
 
         groptions = GrampsOptions("options.active.attribute")
-        frame = AttributeGrampsFrame(
-            self.grstate, groptions, primary, attribute
+        focal = self.wrap_focal_widget(
+            AttributeGrampsFrame(self.grstate, groptions, primary, attribute)
         )
 
         groups = self.config.get("options.page.attribute.layout.groups").split(
@@ -104,10 +104,10 @@ class AttributeProfilePage(BaseProfilePage):
 
         if self.config.get("options.global.pin-header"):
             header.pack_start(self.active_profile, False, False, 0)
-            header.pack_start(frame, False, False, 0)
+            header.pack_start(focal, False, False, 0)
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-            vbox.pack_start(frame, False, False, 0)
+            vbox.pack_start(focal, False, False, 0)
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()

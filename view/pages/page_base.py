@@ -40,6 +40,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # -------------------------------------------------------------------------
@@ -150,6 +151,32 @@ class BaseProfilePage:
                     "commit_%s", self.active_profile.primary.obj_type
                 )
                 commit_method(self.active_profile.primary.obj, trans)
+
+    def wrap_focal_widget(self, widget):
+        """
+        Wrap focal widget with colored background so it stands out.
+        """
+        if not self.config.get("options.global.focal-object-highlight"):
+            return widget
+        scheme = global_config.get("colors.scheme")
+        background = self.config.get("options.global.focal-object-color")
+        frame = Gtk.Frame()
+        css = "".join(
+            (
+                ".frame { border: 0px; padding: 3px; ",
+                "background-image: none; background-color: ",
+                background[scheme],
+                "; }",
+            )
+        )
+        css = css.encode("utf-8")
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        context = frame.get_style_context()
+        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        context.add_class("frame")
+        frame.add(widget)
+        return frame
 
     def get_object_groups(self, groups, obj, age_base=None):
         """

@@ -90,8 +90,8 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
         self.active_profile = frame(self.grstate, groptions, primary)
 
         groptions = GrampsOptions("options.active.ldsord")
-        frame = LDSOrdinanceGrampsFrame(
-            self.grstate, groptions, primary, ldsord
+        focal = self.wrap_focal_widget(
+            LDSOrdinanceGrampsFrame(self.grstate, groptions, primary, ldsord)
         )
 
         groups = self.config.get("options.page.ldsord.layout.groups").split(
@@ -102,10 +102,10 @@ class LDSOrdinanceProfilePage(BaseProfilePage):
 
         if self.config.get("options.global.pin-header"):
             header.pack_start(self.active_profile, False, False, 0)
-            header.pack_start(frame, False, False, 0)
+            header.pack_start(focal, False, False, 0)
             header.show_all()
         else:
             vbox.pack_start(self.active_profile, False, False, 0)
-            vbox.pack_start(frame, False, False, 0)
+            vbox.pack_start(focal, False, False, 0)
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()

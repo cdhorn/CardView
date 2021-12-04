@@ -86,6 +86,7 @@ class NameProfilePage(BaseProfilePage):
         self.active_profile = PersonGrampsFrame(
             self.grstate, groptions, person
         )
+        focal = self.wrap_focal_widget(self.active_profile)
 
         groptions = GrampsOptions("options.active.name")
         frame = NameGrampsFrame(self.grstate, groptions, person, name)
@@ -95,11 +96,11 @@ class NameProfilePage(BaseProfilePage):
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):
-            header.pack_start(self.active_profile, False, False, 0)
+            header.pack_start(focal, False, False, 0)
             header.pack_start(frame, False, False, 0)
             header.show_all()
         else:
-            vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(focal, False, False, 0)
             vbox.pack_start(frame, False, False, 0)
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()

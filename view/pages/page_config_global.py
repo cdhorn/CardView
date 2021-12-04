@@ -40,6 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from .page_config_colors import add_color, update_color
 from .page_const import MEDIA_IMAGE_DISPLAY_MODES, PRIVACY_DISPLAY_MODES
 from .page_utils import add_config_reset, create_grid
 
@@ -92,6 +93,23 @@ def build_global_grid(configdialog, grstate):
         4,
         "options.global.border-width",
         (0, 5),
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Highlight focal object"),
+        5,
+        "options.global.focal-object-highlight",
+        tooltip=_(
+            "Indicates whether to highlight the focal object frame in the "
+            "page header or not."
+        ),
+    )
+    add_color(
+        grstate.config,
+        grid1,
+        _("Focal object highlight color"),
+        "options.global.focal-object-color",
+        (6, 1),
     )
     configdialog.add_checkbox(
         grid1,

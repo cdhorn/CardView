@@ -143,9 +143,10 @@ class FamilyProfilePage(BaseProfilePage):
             groptions,
             family,
         )
+        focal = self.wrap_focal_widget(self.active_profile)
 
         pbox = Gtk.HBox(
-            vexpand=False, hexpand=True, spacing=3, margin_bottom=3
+            vexpand=False, hexpand=True, spacing=3, margin_bottom=0
         )
         p1parents = self._get_primary_parents(
             self.grstate, self.active_profile.parent1, p1groups
@@ -160,17 +161,24 @@ class FamilyProfilePage(BaseProfilePage):
             groups["partner2"].add_widget(p2parents)
             pbox.pack_start(p2parents, expand=True, fill=True, padding=0)
 
-        header.pack_start(pbox, expand=True, fill=True, padding=0)
-        header.pack_start(
-            self.active_profile, expand=True, fill=True, padding=0
-        )
-        self.add_media_bar(vbox, family)
-
         groups = self.config.get("options.page.family.layout.groups").split(
             ","
         )
         obj_groups = self.get_object_groups(groups, family)
         body = self.render_group_view(obj_groups)
+
+        vheader = Gtk.VBox()
+        if focal == self.active_profile:
+            vheader.set_spacing(3)
+        vheader.pack_start(pbox, False, False, 0)
+        vheader.pack_start(focal, False, False, 0)
+
+        if self.config.get("options.global.pin-header"):
+            header.pack_start(vheader, False, False, 0)
+            header.show_all()
+        else:
+            vbox.pack_start(vheader, False, False, 0)
+        self.add_media_bar(vbox, family)
 
         vbox.pack_start(body, True, True, 0)
         vbox.show_all()

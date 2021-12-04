@@ -99,9 +99,13 @@ class PersonRefProfilePage(BaseProfilePage):
             person,
             person_ref,
         )
-        vheader = Gtk.VBox(spacing=3)
+        focal = self.wrap_focal_widget(self.active_profile)
+
+        vheader = Gtk.VBox()
+        if focal == self.active_profile:
+            vheader.set_spacing(3)
         vheader.pack_start(person_frame, False, False, 0)
-        vheader.pack_start(self.active_profile, False, False, 0)
+        vheader.pack_start(focal, False, False, 0)
 
         groups = self.config.get("options.page.personref.layout.groups").split(
             ","

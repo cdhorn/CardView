@@ -81,6 +81,7 @@ class MediaProfilePage(BaseProfilePage):
 
         groptions = GrampsOptions("options.active.media")
         self.active_profile = MediaGrampsFrame(self.grstate, groptions, media)
+        focal = self.wrap_focal_widget(self.active_profile)
 
         groups = self.config.get("options.page.media.layout.groups").split(",")
         obj_groups = self.get_object_groups(
@@ -89,9 +90,9 @@ class MediaProfilePage(BaseProfilePage):
 
         body = self.render_group_view(obj_groups)
         if self.config.get("options.global.pin-header"):
-            header.pack_start(self.active_profile, False, False, 0)
+            header.pack_start(focal, False, False, 0)
             header.show_all()
         else:
-            vbox.pack_start(self.active_profile, False, False, 0)
+            vbox.pack_start(focal, False, False, 0)
         vbox.pack_start(body, False, False, 0)
         vbox.show_all()
