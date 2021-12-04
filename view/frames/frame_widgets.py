@@ -388,7 +388,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
             and obj.get_lds_ord_list()
         ):
             self.__add_icon(
-                "emblem-documents", "ordinance", tooltip=_("Ordinances")
+                "emblem-documents", "ldsord", tooltip=_("Ordinances")
             )
         if (
             check("options.global.indicate-attributes")
