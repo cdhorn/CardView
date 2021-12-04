@@ -108,6 +108,7 @@ CONFIGSETTINGS = (
     ("options.global.border-width", 2),
     ("options.global.privacy-mode", 1),
     ("options.global.enable-bookmarks", True),
+    ("options.global.enable-home", True),
     ("options.global.enable-gramps-ids", True),
     ("options.global.link-citation-title-to-source", True),
     ("options.global.image-page-link", True),

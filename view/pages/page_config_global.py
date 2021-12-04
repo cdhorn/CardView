@@ -119,8 +119,17 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
-        _("Link image to media page"),
+        _("Enable home indicator"),
         13,
+        "options.global.enable-home",
+        tooltip=_(
+            "Indicates whether to enable default person indicator or not."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Link image to media page"),
+        14,
         "options.global.image-page-link",
         tooltip=_(
             "Indicates left click on an image should open the media page "
@@ -131,7 +140,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Link citation title to source page"),
-        14,
+        15,
         "options.global.link-citation-title-to-source",
         tooltip=_(
             "Indicates whether the source title link in a citation record "
@@ -141,7 +150,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Create reciprocal associations"),
-        15,
+        16,
         "options.global.create-reciprocal-associations",
         tooltip=_(
             "When this option is enabled and a person reference, also known"
@@ -154,7 +163,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include notes on child objects"),
-        16,
+        17,
         "options.global.include-child-notes",
         tooltip=_(
             "Enabling this option will include notes on children of the "
@@ -165,7 +174,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include urls from notes"),
-        17,
+        18,
         "options.global.include-note-urls",
         tooltip=_(
             "Enabling this option will parse the notes for the primary "
@@ -176,21 +185,21 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid1,
         _("Maximum citations per group"),
-        18,
+        19,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
         grid1,
         _("Maximum references per group"),
-        19,
+        20,
         "options.global.max-references-per-group",
         (1, 500),
     )
     configdialog.add_checkbox(
         grid1,
         _("Enable warnings"),
-        20,
+        21,
         "options.global.enable-warnings",
         tooltip=_(
             "Indicates to show a warning dialog asking for confirmation "

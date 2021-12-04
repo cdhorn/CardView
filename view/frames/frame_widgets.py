@@ -113,6 +113,8 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
             elif "Ref" in obj_type:
                 pack_icon(self, "stock_link")
             self.add_privacy_indicator(obj)
+            if obj_type == "Person":
+                self.add_home_indicator(obj)
             self.show_all()
 
     def reload(self, obj, obj_type, gramps_id=None):
@@ -167,6 +169,15 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
                         "gramps-unlock", Gtk.IconSize.BUTTON
                     )
             self.pack_end(image, False, False, 0)
+
+    def add_home_indicator(self, obj):
+        """
+        Add the home indicator if needed.
+        """
+        if self.grstate.config.get("options.global.enable-home"):
+            default = self.grstate.dbstate.db.get_default_person()
+            if default and default.get_handle() == obj.get_handle():
+                pack_icon(self, "go-home")
 
 
 # ------------------------------------------------------------------------
