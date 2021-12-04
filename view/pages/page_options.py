@@ -737,6 +737,7 @@ CONFIGSETTINGS = (
     ("options.active.family.show-years", True),
     ("options.active.family.show-matrilineal", False),
     ("options.active.family.show-relationship", True),
+    ("options.active.family.show-parents", True),
     ("options.active.family.facts-field-skip-marriage-alternates", False),
     ("options.active.family.facts-field-skip-divorce-alternates", False),
     ("options.active.family.facts-field-1", "Event:Marriage Banns:False"),

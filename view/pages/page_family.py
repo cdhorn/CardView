@@ -120,22 +120,10 @@ class FamilyProfilePage(BaseProfilePage):
             return
 
         family = context.primary_obj.obj
-
         groups = {
             "partner1": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "partner2": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        p1groups = {
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
-        p2groups = {
-            "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-        }
-
         groptions = GrampsOptions("options.active.spouse", size_groups=groups)
         groptions.set_vertical(False)
         self.active_profile = CoupleGrampsFrame(
@@ -145,21 +133,33 @@ class FamilyProfilePage(BaseProfilePage):
         )
         focal = self.wrap_focal_widget(self.active_profile)
 
-        pbox = Gtk.HBox(
-            vexpand=False, hexpand=True, spacing=3, margin_bottom=0
-        )
-        p1parents = self._get_primary_parents(
-            self.grstate, self.active_profile.parent1, p1groups
-        )
-        p2parents = self._get_primary_parents(
-            self.grstate, self.active_profile.parent2, p2groups
-        )
-        if p1parents:
-            groups["partner1"].add_widget(p1parents)
-            pbox.pack_start(p1parents, expand=True, fill=True, padding=0)
-        if p2parents:
-            groups["partner2"].add_widget(p2parents)
-            pbox.pack_start(p2parents, expand=True, fill=True, padding=0)
+        pbox = None
+        if self.config.get("options.active.family.show-parents"):
+            p1groups = {
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            }
+            p2groups = {
+                "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+                "metadata": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            }
+            pbox = Gtk.HBox(
+                vexpand=False, hexpand=True, spacing=3, margin_bottom=0
+            )
+            p1parents = self._get_primary_parents(
+                self.grstate, self.active_profile.parent1, p1groups
+            )
+            p2parents = self._get_primary_parents(
+                self.grstate, self.active_profile.parent2, p2groups
+            )
+            if p1parents:
+                groups["partner1"].add_widget(p1parents)
+                pbox.pack_start(p1parents, expand=True, fill=True, padding=0)
+            if p2parents:
+                groups["partner2"].add_widget(p2parents)
+                pbox.pack_start(p2parents, expand=True, fill=True, padding=0)
 
         groups = self.config.get("options.page.family.layout.groups").split(
             ","
@@ -168,9 +168,10 @@ class FamilyProfilePage(BaseProfilePage):
         body = self.render_group_view(obj_groups)
 
         vheader = Gtk.VBox()
-        if focal == self.active_profile:
-            vheader.set_spacing(3)
-        vheader.pack_start(pbox, False, False, 0)
+        if pbox:
+            if focal == self.active_profile:
+                vheader.set_spacing(3)
+            vheader.pack_start(pbox, False, False, 0)
         vheader.pack_start(focal, False, False, 0)
 
         if self.config.get("options.global.pin-header"):

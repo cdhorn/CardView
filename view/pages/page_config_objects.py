@@ -228,6 +228,14 @@ def build_family_grid(configdialog, grstate, space):
         "{}.family.show-relationship".format(space),
         start=1,
     )
+    if "active" in space:
+        configdialog.add_checkbox(
+            grid1,
+            _("Show parents of couple"),
+            9,
+            "{}.family.show-parents".format(space),
+            start=1,
+        )
     grid.attach(grid1, 0, 0, 1, 1)
 
     grid2a = create_grid()
