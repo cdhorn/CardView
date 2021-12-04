@@ -109,9 +109,16 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                     self.add_fact(self.make_label(text))
 
             if self.groptions.age_base:
-                self.load_age(
-                    self.groptions.age_base, citation.get_date_object()
-                )
+                if self.groptions.context in ["timeline"]:
+                    self.load_age(
+                        self.groptions.age_base, citation.get_date_object()
+                    )
+                elif self.grstate.config.get(
+                    "options.group.citation.show-age"
+                ):
+                    self.load_age(
+                        self.groptions.age_base, citation.get_date_object()
+                    )
 
         if self.get_option("show-publisher"):
             if source.pubinfo:

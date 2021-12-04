@@ -279,6 +279,75 @@ def build_family_grid(configdialog, grstate, space):
     )
 
 
+def build_name_grid(configdialog, grstate, space, group=True):
+    """
+    Builds a name options section for the configuration dialog
+    """
+    grid = create_grid()
+    if group:
+        configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Show year and age"),
+            1,
+            "{}.name.show-age".format(space),
+            tooltip=_(
+                "Valid when name is for a person. If name is "
+                "dated will show year and age of person on that "
+                "date."
+            ),
+        )
+    return add_config_reset(
+        configdialog, grstate, "{}.name".format(space), grid
+    )
+
+
+def build_ldsord_grid(configdialog, grstate, space, group=True):
+    """
+    Builds a ordinance options section for the configuration dialog
+    """
+    grid = create_grid()
+    if group:
+        configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Show year and age"),
+            1,
+            "{}.ldsord.show-age".format(space),
+            tooltip=_(
+                "Valid when ordinance is for a person. If ordinance "
+                "is dated will show year and age of person on that "
+                "date."
+            ),
+        )
+    return add_config_reset(
+        configdialog, grstate, "{}.ldsord".format(space), grid
+    )
+
+
+def build_address_grid(configdialog, grstate, space, group=True):
+    """
+    Builds an address options section for the configuration dialog
+    """
+    grid = create_grid()
+    if group:
+        configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
+        configdialog.add_checkbox(
+            grid,
+            _("Show year and age"),
+            1,
+            "{}.address.show-age".format(space),
+            tooltip=_(
+                "Valid when address is for a person. If address is "
+                "dated will show year and age of person on that "
+                "date."
+            ),
+        )
+    return add_config_reset(
+        configdialog, grstate, "{}.address".format(space), grid
+    )
+
+
 def build_media_grid(configdialog, grstate, space, group=True):
     """
     Builds a media options section for the configuration dialog
@@ -288,15 +357,26 @@ def build_media_grid(configdialog, grstate, space, group=True):
         configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
         configdialog.add_checkbox(
             grid,
-            _("Sort media by date"),
+            _("Show year and age"),
             1,
+            "{}.media.show-age".format(space),
+            tooltip=_(
+                "Valid when media is for a person. If media is "
+                "dated will show year and age of person on that "
+                "date."
+            ),
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Sort media by date"),
+            2,
             "{}.media.sort-by-date".format(space),
             tooltip=_("Indicates whether to sort media items by date."),
         )
         configdialog.add_checkbox(
             grid,
             _("Group media by type"),
-            2,
+            3,
             "{}.media.group-by-type".format(space),
             tooltip=_(
                 "Indicates whether to group like media, based on the "
@@ -306,7 +386,7 @@ def build_media_grid(configdialog, grstate, space, group=True):
         configdialog.add_checkbox(
             grid,
             _("Filter out non-photos"),
-            3,
+            4,
             "{}.media.filter-non-photos".format(space),
             tooltip=_(
                 "Indicates only photos should be displayed, based on "
@@ -425,9 +505,20 @@ def build_citation_grid(configdialog, grstate, space):
     configdialog.add_combo(
         grid,
         _("Image display mode"),
-        3,
+        1,
         "{}.citation.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show year and age"),
+        2,
+        "{}.citation.show-age".format(space),
+        tooltip=_(
+            "Valid when citation is for a person. If citation "
+            "is dated will show year and age of person on that "
+            "date."
+        ),
     )
     configdialog.add_checkbox(
         grid,
@@ -695,6 +786,17 @@ def build_event_grid(configdialog, grstate, space):
             4,
             "{}.event.reference-mode".format(space),
             REF_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Show year and age"),
+            5,
+            "{}.event.show-age".format(space),
+            tooltip=_(
+                "Valid when event is for a person. If event "
+                "is dated will show year and age of person on that "
+                "date."
+            ),
         )
     configdialog.add_text(grid, _("Display Attributes"), 12, bold=True)
     configdialog.add_checkbox(

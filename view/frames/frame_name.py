@@ -112,7 +112,10 @@ class NameGrampsFrame(SecondaryGrampsFrame):
                 self.add_fact(self.make_label(text))
 
             if groptions.age_base:
-                self.load_age(groptions.age_base, name.get_date_object())
+                if groptions.context in ["timeline"]:
+                    self.load_age(groptions.age_base, name.get_date_object())
+                elif self.grstate.config.get("options.group.name.show-age"):
+                    self.load_age(groptions.age_base, name.get_date_object())
 
         self.show_all()
         self.enable_drag()

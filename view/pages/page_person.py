@@ -45,7 +45,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated
+from ..common.common_utils import button_activated, get_key_person_events
 from ..frames.frame_person import PersonGrampsFrame
 from .page_base import BaseProfilePage
 
@@ -101,7 +101,13 @@ class PersonProfilePage(BaseProfilePage):
         if not context:
             return
 
+        age_base = None
         person = context.primary_obj.obj
+        key_events = get_key_person_events(
+            self.grstate.dbstate.db, person, birth_only=True
+        )
+        if key_events["birth"] and key_events["birth"].date:
+            age_base = key_events["birth"].date
 
         groptions = GrampsOptions("options.active.person")
         self.active_profile = PersonGrampsFrame(
@@ -111,7 +117,7 @@ class PersonProfilePage(BaseProfilePage):
         groups = self.config.get("options.page.person.layout.groups").split(
             ","
         )
-        obj_groups = self.get_object_groups(groups, person)
+        obj_groups = self.get_object_groups(groups, person, age_base=age_base)
         body = self.render_group_view(obj_groups)
 
         if self.config.get("options.global.pin-header"):

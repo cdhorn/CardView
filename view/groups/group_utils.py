@@ -35,7 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Family, Person
+from gramps.gen.lib import Family, Media, Person
 
 # ------------------------------------------------------------------------
 #
@@ -289,6 +289,8 @@ def get_references_group(
     groptions = groptions or GrampsOptions("options.group.reference")
     if "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
+    if not isinstance(obj, Media):
+        groptions.set_age_base(None)
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
 
     single, plural = _("Reference"), _("References")

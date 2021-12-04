@@ -67,10 +67,13 @@ from .page_config_global import build_global_grid
 from .page_config_layout import build_layout_grid
 from .page_config_objects import (
     ConfigNotebook,
+    build_address_grid,
     build_citation_grid,
     build_event_grid,
     build_family_grid,
+    build_ldsord_grid,
     build_media_grid,
+    build_name_grid,
     build_note_grid,
     build_person_grid,
     build_place_grid,
@@ -339,6 +342,13 @@ class BaseProfilePage:
         render_page = lambda: build_place_grid(
             configdialog, self.grstate, space
         )
+        if "group" in space:
+            render_page = lambda: build_ldsord_grid(
+                configdialog, self.grstate, space, "ldsord"
+            )
+            notebook.append_deferred_page(
+                Gtk.Label(label=_("LdsOrd")), render_page
+            )
         notebook.append_deferred_page(Gtk.Label(label=_("Place")), render_page)
         render_page = lambda: build_citation_grid(
             configdialog, self.grstate, space
@@ -366,6 +376,19 @@ class BaseProfilePage:
             configdialog, self.grstate, space
         )
         notebook.append_deferred_page(Gtk.Label(label=_("Note")), render_page)
+        if "group" in space:
+            render_page = lambda: build_name_grid(
+                configdialog, self.grstate, space, "name"
+            )
+            notebook.append_deferred_page(
+                Gtk.Label(label=_("Name")), render_page
+            )
+            render_page = lambda: build_address_grid(
+                configdialog, self.grstate, space, "address"
+            )
+            notebook.append_deferred_page(
+                Gtk.Label(label=_("Address")), render_page
+            )
         grid.attach(notebook, 1, 0, 1, 1)
         return grid
 

@@ -97,14 +97,13 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for (sortval, item) in self.timeline.events(raw=True):
             timeline.append((sortval, "event", None, item))
 
-        if self.group_base.obj_type == "Person" and self.get_option(
-            "show-age"
-        ):
-            key_events = get_key_person_events(
-                grstate.dbstate.db, obj, birth_only=True
-            )
-            if key_events["birth"] and key_events["birth"].date:
-                self.groptions.set_age_base(key_events["birth"].date)
+        if not groptions.age_base and self.group_base.obj_type == "Person":
+            if self.get_option("show-age"):
+                key_events = get_key_person_events(
+                    grstate.dbstate.db, obj, birth_only=True
+                )
+                if key_events["birth"] and key_events["birth"].date:
+                    self.groptions.set_age_base(key_events["birth"].date)
 
         timeline = self.extract_objects(timeline)
         try:

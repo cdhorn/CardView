@@ -97,7 +97,11 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         self.event_relationship = "self"
 
         if event and event.get_date_object() and groptions.age_base:
-            self.load_age(groptions.age_base, event.get_date_object())
+            if groptions.context in ["timeline"]:
+                if self.grstate.config.get("options.timeline.person.show-age"):
+                    self.load_age(groptions.age_base, event.get_date_object())
+            elif self.grstate.config.get("options.group.event.show-age"):
+                self.load_age(groptions.age_base, event.get_date_object())
 
         self.participants = get_participants(grstate.dbstate.db, event)
         self.primary_participant = get_primary_participant(self.participants)

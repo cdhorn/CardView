@@ -1044,6 +1044,14 @@ CONFIGSETTINGS = (
     ("options.group.participant.attributes-field-7", "None"),
     ("options.group.participant.attributes-field-8", "None"),
     ######################################################################
+    ## Name Options
+    ######################################################################
+    ("options.group.name.show-age", False),
+    ######################################################################
+    ## Address Options
+    ######################################################################
+    ("options.group.address.show-age", False),
+    ######################################################################
     ## Family Options
     ######################################################################
     ("options.group.family.event-format", 1),
@@ -1075,6 +1083,7 @@ CONFIGSETTINGS = (
     ## Event Options
     ######################################################################
     ("options.group.event.event-format", 1),
+    ("options.group.event.show-age", False),
     ("options.group.event.image-mode", 0),
     ("options.group.event.reference-mode", 1),
     ("options.group.event.color-scheme", 1),
@@ -1090,6 +1099,10 @@ CONFIGSETTINGS = (
     ("options.group.event.show-citation-count", True),
     ("options.group.event.show-best-confidence", True),
     ######################################################################
+    ## Ordinance Options
+    ######################################################################
+    ("options.group.ldsord.show-age", False),
+    ######################################################################
     ## Place Options
     ######################################################################
     ("options.group.place.image-mode", 0),
@@ -1097,6 +1110,7 @@ CONFIGSETTINGS = (
     ## Citation Options
     ######################################################################
     ("options.group.citation.image-mode", 0),
+    ("options.group.citation.show-age", False),
     ("options.group.citation.sort-by-date", False),
     ("options.group.citation.include-indirect", True),
     ("options.group.citation.include-parent-family", True),
@@ -1132,6 +1146,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Media Options
     ######################################################################
+    ("options.group.media.show-age", False),
     ("options.group.media.sort-by-date", False),
     ("options.group.media.group-by-type", False),
     ("options.group.media.filter-non-photos", False),

@@ -72,7 +72,14 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
                 self.add_fact(self.make_label(date))
 
             if groptions.age_base:
-                self.load_age(groptions.age_base, ordinance.get_date_object())
+                if groptions.context in ["timeline"]:
+                    self.load_age(
+                        groptions.age_base, ordinance.get_date_object()
+                    )
+                elif self.grstate.config.get("options.group.ldsord.show-age"):
+                    self.load_age(
+                        groptions.age_base, ordinance.get_date_object()
+                    )
 
         text = place_displayer.display_event(grstate.dbstate.db, ordinance)
         if text:

@@ -78,8 +78,11 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
                 if text:
                     self.add_fact(self.make_label(text))
 
-            if "age" in self.widgets and groptions.age_base:
-                self.load_age(groptions.age_base, media.get_date_object())
+            if groptions.age_base:
+                if groptions.context in ["timeline"]:
+                    self.load_age(groptions.age_base, media.get_date_object())
+                elif grstate.config.get("options.group.media.show-age"):
+                    self.load_age(groptions.age_base, media.get_date_object())
 
         if self.get_option("show-path") and media.get_path():
             self.add_fact(self.make_label(media.get_path()))
@@ -116,6 +119,10 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
             self.widgets["body"].pack_start(
                 self.widgets["age"], expand=False, fill=False, padding=0
             )
+            if "age" in self.groptions.size_groups:
+                self.groptions.size_groups["age"].add_widget(
+                    self.widgets["age"]
+                )
         hcontent = Gtk.HBox(hexpand=False)
         self.widgets["body"].pack_start(
             hcontent, expand=True, fill=True, padding=0
