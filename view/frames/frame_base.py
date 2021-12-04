@@ -1019,7 +1019,11 @@ class GrampsFrame(GrampsFrameView):
         """
         For derived objects to set their color scheme if in use.
         """
-        return ""
+        scheme = global_config.get("colors.scheme")
+        background = self.grstate.config.get(
+            "options.global.default-background-color"
+        )
+        return "".join(("background-color: ", background[scheme], ";"))
 
     def get_css_style(self):
         """

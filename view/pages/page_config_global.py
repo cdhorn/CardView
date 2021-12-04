@@ -111,6 +111,13 @@ def build_global_grid(configdialog, grstate):
         "options.global.focal-object-color",
         (6, 1),
     )
+    add_color(
+        grstate.config,
+        grid1,
+        _("Default frame background color"),
+        "options.global.default-background-color",
+        (7, 1),
+    )
     configdialog.add_checkbox(
         grid1,
         _("Enable gramps ids"),
