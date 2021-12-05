@@ -411,11 +411,11 @@ class GrampsState:
             old_hash, sha256_hash.hexdigest()
         )
 
-    def show_group(self, obj, group_type):
+    def show_group(self, obj, group_type, title=None):
         """
         Display a group of objects.
         """
-        return self.callbacks["show-group"](obj, group_type)
+        return self.callbacks["show-group"](obj, group_type, title)
 
 
 # ------------------------------------------------------------------------
@@ -428,27 +428,16 @@ class GrampsOptions:
     A simple class to encapsulate the options for a Gramps frame or list.
     """
 
-    __slots__ = (
-        "option_space",
-        "size_groups",
-        "frame_number",
-        "ref_mode",
-        "vertical_orientation",
-        "backlink",
-        "relation",
-        "context",
-        "age_base",
-    )
-
     def __init__(self, option_space, size_groups=None, frame_number=0):
         self.option_space = option_space
-        self.size_groups = size_groups
+        self.context = option_space.split(".")[-1]
         self.frame_number = frame_number
+        self.size_groups = size_groups
         self.ref_mode = 0
         self.vertical_orientation = True
         self.backlink = None
         self.relation = None
-        self.context = option_space.split(".")[-1]
+
         self.age_base = None
 
         if size_groups is None:
@@ -459,6 +448,12 @@ class GrampsOptions:
                 "attributes": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             }
+
+    def __getattr__(self, key):
+        """
+        If there is no key set return None.
+        """
+        return None
 
     def set_ref_mode(self, value):
         """

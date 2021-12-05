@@ -34,7 +34,7 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.utils.db import navigation_label
+from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.managedwindow import ManagedWindow
 
 # ------------------------------------------------------------------------
@@ -47,39 +47,52 @@ from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
 from .group_utils import build_group
 
+_ = glocale.translation.sgettext
+
 
 class FrameGroupWindow(ManagedWindow):
     """
     Window to display a frame group.
     """
 
-    def __init__(self, grstate, obj, group_type, key, callback):
+    def __init__(self, grstate, obj, group_type, key, callback, title=None):
         """
         Initialize class.
         """
         self.key = key
-        ManagedWindow.__init__(self, grstate.uistate, [], obj)
         self.grstate = grstate
         self.callback = callback
         self.group_base = GrampsObject(obj)
         self.group_type = group_type
+        if "Ref" in self.group_base.obj_type:
+            self.base_title = "".join(
+                (
+                    title,
+                    " ",
+                    _("Reference"),
+                    ": ",
+                    GROUP_LABELS[self.group_type],
+                )
+            )
+        else:
+            self.base_title = "".join(
+                (title, ": ", GROUP_LABELS[self.group_type])
+            )
+        prefix = ".".join(("interface.linked-view.group", self.group_type))
+        ManagedWindow.__init__(self, grstate.uistate, [], obj)
 
-        group_args = {"raw": True}
+        group_args = {"raw": True, "title": self.base_title}
         group = build_group(grstate, group_type, obj, group_args)
         self.group_box = Gtk.VBox(spacing=3, margin=3)
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
         scroll = make_scrollable(self.group_box)
 
-        self.root = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        self.root.set_transient_for(self.uistate.window)
-        self.root.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-        self.root.add(scroll)
-        self.set_window(self.root, None, self.get_menu_title())
+        window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+        window.set_transient_for(self.uistate.window)
+        window.add(scroll)
+        self.set_window(window, None, self.base_title)
+        self.setup_configs(prefix, 768, 768)
         self.show()
-
-        width = grstate.config.get("interface.width")
-        height = grstate.config.get("interface.height")
-        self.window.resize(width, height)
 
     def build_window_key(self, obj):
         """
@@ -87,18 +100,21 @@ class FrameGroupWindow(ManagedWindow):
         """
         return self.key
 
-    def get_menu_title(self):
+    def build_menu_names(self, obj):
         """
-        Get the menu title.
+        Build menu names.
         """
-        if hasattr(self.group_base.obj, "handle"):
-            name, dummy_obj = navigation_label(
-                self.grstate.dbstate.db,
-                self.group_base.obj_type,
-                self.group_base.obj.get_handle(),
+        title = self.base_title
+        if "]" in title:
+            title = title.split("] ")[1].strip()
+        menu_label = "".join(
+            (
+                self.group_base.obj_lang,
+                ": ",
+                title,
             )
-            return "".join((name, " - ", GROUP_LABELS[self.group_type]))
-        return GROUP_LABELS[self.group_type]
+        )
+        return (menu_label, None)
 
     def rebuild(self):
         """
@@ -110,7 +126,6 @@ class FrameGroupWindow(ManagedWindow):
         )
         list(map(self.group_box.remove, self.group_box.get_children()))
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
-        self.set_window(self.root, None, self.get_menu_title())
         self.show()
 
     def reload(self, obj, group_type=None):
@@ -136,10 +151,6 @@ class FrameGroupWindow(ManagedWindow):
         """
         Close the window.
         """
-        (width, height) = self.window.get_size()
-        self.grstate.config.set("interface.width", width)
-        self.grstate.config.set("interface.height", height)
-        self.grstate.config.save()
         ManagedWindow.close(self)
         if not defer_delete:
             self.callback(self.key)

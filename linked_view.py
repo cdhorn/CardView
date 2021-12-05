@@ -815,7 +815,7 @@ class LinkedView(ExtendedNavigationView):
         """
         self.active_page.add_tag(trans, object_handle, tag_handle)
 
-    def show_group(self, obj, group_type):
+    def show_group(self, obj, group_type, title):
         """
         Display a particular group of objects.
         """
@@ -837,7 +837,7 @@ class LinkedView(ExtendedNavigationView):
         if len(self.group_windows) >= max_windows:
             return
         self.group_windows[key] = FrameGroupWindow(
-            self.grstate, obj, group_type, key, self._clear_window
+            self.grstate, obj, group_type, key, self._clear_window, title=title
         )
         return
 

@@ -1292,12 +1292,4 @@ CONFIGSETTINGS = (
     ("options.timeline.place.show-class-custom", True),
     ("options.timeline.place.generations-ancestors", 1),
     ("options.timeline.place.generations-offspring", 1),
-    ######################################################################
-    # Display Group Options
-    #
-    ######################################################################
-    ("interface.width", 500),
-    ("interface.height", 500),
-    ("interface.horiz-position", 10),
-    ("interface.vert-position", 10),
 )

@@ -65,6 +65,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
             self.grstate.config.get("options.group.event.reference-mode")
         )
         groptions.set_relation(obj)
+
         for event_ref in obj.get_event_ref_list():
             frame = EventRefGrampsFrame(
                 grstate,

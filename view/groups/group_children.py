@@ -24,13 +24,6 @@ ChildrenGrampsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-from copy import copy
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -80,15 +73,13 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
         number_children = self.grstate.config.get(
             "".join((groptions.option_space, ".number-children"))
         )
-        groptions_child = groptions
         for child_ref in family.get_child_ref_list():
             if number_children:
-                groptions_child = copy(groptions)
                 child_number = child_number + 1
-                groptions_child.set_number(child_number)
+                groptions.set_number(child_number)
             profile = ChildRefGrampsFrame(
                 grstate,
-                groptions_child,
+                groptions,
                 family,
                 child_ref,
             )

@@ -46,6 +46,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.utils.db import navigation_label
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.lib import Media, MediaRef
 from gramps.gen.lib.date import Today
@@ -477,7 +478,15 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         """
         Launch group dialog.
         """
-        self.grstate.show_group(self.obj, group_type)
+        if hasattr(self.obj, "handle"):
+            title, dummy_obj = navigation_label(
+                self.grstate.dbstate.db,
+                self.obj_type,
+                self.obj.get_handle(),
+            )
+        else:
+            title = self.groptions.title
+        self.grstate.show_group(self.obj, group_type, title=title)
 
     def load_tags(self):
         """

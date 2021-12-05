@@ -91,6 +91,9 @@ def build_simple_group(grstate, group_type, obj, args):
     if "sources" in args and args["sources"]:
         single, plural = _("Cited Source"), _("Cited Sources")
 
+    if "title" in args and args["title"]:
+        groptions.title = args["title"]
+
     group = framegroup(grstate, groptions, obj)
     if not group or len(group) == 0:
         return None
@@ -137,6 +140,8 @@ def get_children_group(
     groptions = GrampsOptions("".join(("options.group.", context)))
     groptions.set_relation(person)
     groptions.set_context(context)
+    if "title" in args and args["title"]:
+        groptions.title = args["title"]
     group = ChildrenGrampsFrameGroup(grstate, groptions, family)
     if not group or len(group) == 0:
         return None
@@ -155,6 +160,8 @@ def get_family_unit(grstate, family, args, context="family", relation=None):
     """
     groptions = GrampsOptions("".join(("options.group.", context)))
     groptions.set_relation(relation)
+    if "title" in args and args["title"]:
+        groptions.title = args["title"]
     couple = CoupleGrampsFrame(
         grstate,
         groptions,
@@ -293,6 +300,8 @@ def get_references_group(
         groptions.set_age_base(args["age_base"])
     if not isinstance(obj, Media):
         groptions.set_age_base(None)
+    if args and "title" in args and args["title"]:
+        groptions.title = args["title"]
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
 
     single, plural = _("Reference"), _("References")
@@ -339,6 +348,8 @@ def prepare_event_group(grstate, obj, obj_type, args):
     groptions.set_context("event")
     if "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
+    if "title" in args and args["title"]:
+        groptions.title = args["title"]
     group = EventsGrampsFrameGroup(grstate, groptions, obj)
     elements = Gtk.VBox(spacing=6)
     elements.add(group)
