@@ -120,7 +120,7 @@ class FrameGroupWindow(ManagedWindow):
         """
         Rebuild current group contents.
         """
-        group_args = {"raw": True}
+        group_args = {"raw": True, "title": self.base_title}
         group = build_group(
             self.grstate, self.group_type, self.group_base.obj, group_args
         )
