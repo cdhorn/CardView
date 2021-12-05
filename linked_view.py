@@ -602,7 +602,7 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(active_object)
             else:
                 self.change_object(None)
-        for dummy_key, window in self.group_windows.items():
+        for window in [y for x, y in self.group_windows.items()]:
             window.refresh()
 
     def _clear_change(self):
