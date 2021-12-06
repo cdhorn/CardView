@@ -40,7 +40,6 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # -------------------------------------------------------------------------
@@ -49,10 +48,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..bars.bar_media import GrampsMediaBarGroup
-from ..common.common_classes import GrampsState
-from ..common.common_const import GROUP_LABELS
-from ..common.common_utils import make_scrollable
-from ..groups.group_utils import build_group
 from .page_config_colors import (
     CONFIDENCE_OPTIONS,
     CONFIDENCE_TYPE,
