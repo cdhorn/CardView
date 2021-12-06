@@ -850,9 +850,9 @@ def find_referencer(grstate, obj, reference_type, reference_hash):
     return None
 
 
-def find_secondary_object(obj, secondary_type, secondary_hash):
+def get_secondary_object_list(obj, secondary_type):
     """
-    Find a specific secondary object inside a given object.
+    Return list of secondary objects.
     """
     if secondary_type == "Name":
         secondary_list = [obj.get_primary_name()] + obj.get_alternate_names()
@@ -870,11 +870,39 @@ def find_secondary_object(obj, secondary_type, secondary_hash):
         secondary_list = obj.get_reporef_list()
     else:
         return None
-    for secondary_obj in secondary_list:
-        sha256_hash = hashlib.sha256()
-        sha256_hash.update(str(secondary_obj.serialize()).encode("utf-8"))
-        if sha256_hash.hexdigest() == secondary_hash:
-            return secondary_obj
+    return secondary_list
+
+
+def find_secondary_object(obj, secondary_type, secondary_hash):
+    """
+    Find a specific secondary object inside a given object.
+    """
+    secondary_list = get_secondary_object_list(obj, secondary_type)
+    if secondary_list:
+        for secondary_obj in secondary_list:
+            sha256_hash = hashlib.sha256()
+            sha256_hash.update(str(secondary_obj.serialize()).encode("utf-8"))
+            if sha256_hash.hexdigest() == secondary_hash:
+                return secondary_obj
+    return None
+
+
+def find_modified_secondary_object(secondary_type, old_obj, updated_obj):
+    """
+    Compares an old and updated object to find the updated secondary object.
+    This is assumed to be used in a specific context where no one added a
+    new one, and it is okay if they deleted and old one.
+    """
+    old_list = get_secondary_object_list(old_obj, secondary_type)
+    new_list = get_secondary_object_list(updated_obj, secondary_type)
+    for obj in old_list:
+        obj_serialized = obj.serialize()
+        for new_obj in new_list:
+            if new_obj.serialize() == obj_serialized:
+                new_list.remove(new_obj)
+                break
+    if len(new_list) == 1:
+        return new_list[0]
     return None
 
 

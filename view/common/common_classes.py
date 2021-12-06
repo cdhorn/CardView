@@ -59,6 +59,7 @@ from .common_const import GRAMPS_OBJECTS
 from .common_utils import (
     find_reference,
     find_secondary_object,
+    find_modified_secondary_object,
     get_config_option,
 )
 
@@ -366,7 +367,7 @@ class GrampsContext:
         new_primary_obj = grstate.fetch(
             "Person", self.primary_obj.obj.get_handle()
         )
-        old_primary_obj = self.primary_obj
+        old_primary_obj = self.primary_obj.obj
         self.primary_obj = GrampsObject(new_primary_obj)
 
         if self.reference_obj:
@@ -376,6 +377,12 @@ class GrampsContext:
                 self.reference_obj.obj.ref,
             )
             self.reference_obj = GrampsObject(new_reference_obj)
+
+        if self.secondary_obj:
+            new_secondary_obj = find_modified_secondary_object(
+                self.secondary_obj.obj_type, old_primary_obj, new_primary_obj
+            )
+            self.secondary_obj = GrampsObject(new_secondary_obj)
 
 
 # ------------------------------------------------------------------------

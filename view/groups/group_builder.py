@@ -45,9 +45,9 @@ from gramps.gen.lib import Family, Media, Person
 from ..common.common_classes import GrampsOptions
 from ..frames.frame_couple import CoupleGrampsFrame
 from .group_children import ChildrenGrampsFrameGroup
-from .group_classes import GrampsFrameGroupExpander
 from .group_const import GRAMPS_GROUPS
 from .group_events import EventsGrampsFrameGroup
+from .group_expander import GrampsFrameGroupExpander
 from .group_generic import GenericGrampsFrameGroup
 
 _ = glocale.translation.sgettext
