@@ -65,7 +65,7 @@ from view.common.common_utils import (
     get_config_option,
     save_config_option,
 )
-from view.groups.group_widgets import FrameGroupWindow
+from view.groups.group_window import FrameGroupWindow
 from view.pages.page_builder import page_builder
 from view.pages.page_const import PAGES
 from view.pages.page_options import CONFIGSETTINGS
@@ -541,7 +541,7 @@ class LinkedView(ExtendedNavigationView):
             self.bookmarks.redraw()
         for window in [y for x, y in self.page_windows.items()]:
             window.close()
-        self.page_windows.clear()            
+        self.page_windows.clear()
         for window in [y for x, y in self.group_windows.items()]:
             window.close()
         self.group_windows.clear()
@@ -809,7 +809,12 @@ class LinkedView(ExtendedNavigationView):
         if len(self.group_windows) >= max_windows:
             return
         self.group_windows[key] = FrameGroupWindow(
-            self.grstate, obj, group_type, key, self._clear_group_window, title=title
+            self.grstate,
+            obj,
+            group_type,
+            key,
+            self._clear_group_window,
+            title=title,
         )
         return
 

@@ -21,5 +21,3 @@
 """
 Module containing the frame groups for the page views.
 """
-
-__all__ = ["bar_media"]

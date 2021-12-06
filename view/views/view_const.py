@@ -18,7 +18,7 @@
 #
 
 """
-View related constants
+GrampObjectView related constants
 """
 
 # -------------------------------------------------------------------------

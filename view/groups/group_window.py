@@ -19,7 +19,7 @@
 #
 
 """
-Group widgets
+FrameGroupWindow
 """
 
 # ------------------------------------------------------------------------
@@ -45,7 +45,7 @@ from gramps.gui.managedwindow import ManagedWindow
 from ..common.common_classes import GrampsObject
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
-from .group_utils import build_group
+from .group_builder import group_builder
 
 _ = glocale.translation.sgettext
 
@@ -82,7 +82,7 @@ class FrameGroupWindow(ManagedWindow):
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
 
         group_args = {"raw": True, "title": self.base_title}
-        group = build_group(grstate, group_type, obj, group_args)
+        group = group_builder(grstate, group_type, obj, group_args)
         self.group_box = Gtk.VBox(spacing=3, margin=3)
         self.group_box.pack_start(group, expand=False, fill=True, padding=0)
         scroll = make_scrollable(self.group_box)
@@ -121,7 +121,7 @@ class FrameGroupWindow(ManagedWindow):
         Rebuild current group contents.
         """
         group_args = {"raw": True, "title": self.base_title}
-        group = build_group(
+        group = group_builder(
             self.grstate, self.group_type, self.group_base.obj, group_args
         )
         list(map(self.group_box.remove, self.group_box.get_children()))

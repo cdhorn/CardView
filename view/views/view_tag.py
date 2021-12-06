@@ -27,7 +27,7 @@ TagObjectView
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..groups.group_utils import get_references_group
+from ..groups.group_builder import get_references_group
 from .view_base import GrampsObjectView
 from .view_const import FRAME_MAP
 

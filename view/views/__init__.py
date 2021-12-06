@@ -21,7 +21,3 @@
 """
 Module containing the object views.
 """
-
-__all__ = [
-    "view_base_classes",
-]

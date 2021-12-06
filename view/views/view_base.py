@@ -44,7 +44,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..bars.bar_media import GrampsMediaBarGroup
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
-from ..groups.group_utils import build_group
+from ..groups.group_builder import group_builder
 
 _ = glocale.translation.sgettext
 
@@ -149,7 +149,7 @@ class GrampsObjectView(Gtk.VBox):
         object_groups = {}
         for key in group_list:
             object_groups.update(
-                {key: build_group(self.grstate, key, obj, args)}
+                {key: group_builder(self.grstate, key, obj, args)}
             )
         return object_groups
 

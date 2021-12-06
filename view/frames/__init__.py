@@ -21,28 +21,3 @@
 """
 Module containing the frames for the frame groups and page views.
 """
-
-__all__ = [
-    "frame_address",
-    "frame_attribute",
-    "frame_child_ref",
-    "frame_citation",
-    "frame_couple",
-    "frame_event",
-    "frame_event_ref",
-    "frame_media",
-    "frame_media_ref",
-    "frame_name",
-    "frame_note",
-    "frame_note_url",
-    "frame_ordinance",
-    "frame_person",
-    "frame_person_ref",
-    "frame_person_backref",
-    "frame_place",
-    "frame_repository",
-    "frame_repository_ref",
-    "frame_selectors",
-    "frame_source",
-    "frame_url",
-]
