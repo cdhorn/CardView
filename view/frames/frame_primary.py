@@ -138,7 +138,9 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.load_image(image_mode)
         self.widgets["id"].load(self.primary.obj, self.primary.obj_type)
         self.load_attributes()
-        self.widgets["icons"].load(self.primary.obj, self.primary.obj_type)
+        self.widgets["icons"].load(
+            self.primary.obj, self.primary.obj_type, title=self.get_title()
+        )
 
     def load_image(self, image_mode, media_ref=None, crop=True):
         """

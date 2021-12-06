@@ -81,7 +81,9 @@ class SecondaryGrampsFrame(GrampsFrame):
         self.build_layout()
         self.frame.set_size_request(160, -1)
         self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
-        self.widgets["icons"].load(self.secondary.obj, self.secondary.obj_type)
+        self.widgets["icons"].load(
+            self.secondary.obj, self.secondary.obj_type, title=self.get_title()
+        )
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time

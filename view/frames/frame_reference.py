@@ -103,7 +103,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         self.ref_widgets["icons"].load(
-            self.reference.obj, self.reference.obj_type
+            self.reference.obj, self.reference.obj_type, title=self.get_title()
         )
 
         self.enable_drag(

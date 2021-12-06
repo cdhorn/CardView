@@ -54,6 +54,7 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Media, MediaRef, Note, Source, Span
 from gramps.gen.mime import get_description, get_type
+from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.file import (
     create_checksum,
     find_file,
@@ -124,6 +125,26 @@ class GrampsFrame(GrampsFrameView):
         self.css = ""
         self.init_layout()
         self.eventbox.connect("button-press-event", self.route_action)
+
+    def get_title(self):
+        """
+        Generate a title describing the framed object.
+        """
+        if not hasattr(self.primary.obj, "handle"):
+            title = self.primary.obj_lang
+            if self.secondary:
+                title = "".join((title, ": ", self.secondary.obj_lang))
+            return title
+        title, dummy_obj = navigation_label(
+            self.grstate.dbstate.db,
+            self.primary.obj_type,
+            self.primary.obj.get_handle(),
+        )
+        if self.reference:
+            return "".join((title, ": ", self.reference.obj_lang))
+        if self.secondary:
+            return "".join((title, ": ", self.secondary.obj_lang))
+        return title
 
     def enable_drag(self, obj=None, eventbox=None, drag_data_get=None):
         """

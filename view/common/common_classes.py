@@ -115,8 +115,6 @@ class GrampsObject:
                 break
 
         if not self.obj_type:
-            print(str(obj))
-            print(str(self.obj_type))
             raise AttributeError
 
     def refresh(self, grstate):

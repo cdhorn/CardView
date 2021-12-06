@@ -46,7 +46,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.db import navigation_label
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.lib import Media, MediaRef
 from gramps.gen.lib.date import Today
@@ -346,13 +345,15 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         self.pack_end(self.flowbox, True, True, 0)
         self.obj = None
         self.obj_type = None
+        self.title = None
 
-    def load(self, obj, obj_type):
+    def load(self, obj, obj_type, title=None):
         """
         Load icons for an object.
         """
         self.obj = obj
         self.obj_type = obj_type
+        self.title = title
 
         if self.grstate.config.get("options.global.icons-enable-indicators"):
             self.load_indicators()
@@ -479,15 +480,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         """
         Launch group dialog.
         """
-        if hasattr(self.obj, "handle"):
-            title, dummy_obj = navigation_label(
-                self.grstate.dbstate.db,
-                self.obj_type,
-                self.obj.get_handle(),
-            )
-        else:
-            title = self.groptions.title
-        self.grstate.show_group(self.obj, group_type, title=title)
+        self.grstate.show_group(self.obj, group_type, title=self.title)
 
     def load_tags(self):
         """
@@ -589,3 +582,4 @@ class GrampsImage(Gtk.EventBox):
             return open_file_with_default_application(
                 self.path, self.grstate.uistate
             )
+        return False

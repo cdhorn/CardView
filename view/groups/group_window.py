@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.utils.db import navigation_label
 from gramps.gui.managedwindow import ManagedWindow
 
 # ------------------------------------------------------------------------
@@ -64,10 +65,11 @@ class FrameGroupWindow(ManagedWindow):
         self.callback = callback
         self.group_base = GrampsObject(obj)
         self.group_type = group_type
+        working_title = self.build_title(title)
         if "Ref" in self.group_base.obj_type:
             self.base_title = "".join(
                 (
-                    title,
+                    working_title,
                     " ",
                     _("Reference"),
                     ": ",
@@ -76,7 +78,7 @@ class FrameGroupWindow(ManagedWindow):
             )
         else:
             self.base_title = "".join(
-                (title, ": ", GROUP_LABELS[self.group_type])
+                (working_title, ": ", GROUP_LABELS[self.group_type])
             )
         prefix = ".".join(("interface.linked-view.group", self.group_type))
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
@@ -99,6 +101,21 @@ class FrameGroupWindow(ManagedWindow):
         Return window key.
         """
         return self.key
+
+    def build_title(self, title):
+        """
+        Build title if one not provided.
+        """
+        if title:
+            return title
+        if hasattr(self.group_base.obj, "handle"):
+            title, dummy_obj = navigation_label(
+                self.grstate.dbstate.db,
+                self.group_base.obj_type,
+                self.group_base.obj.get_handle(),
+            )
+            return title
+        return ""
 
     def build_menu_names(self, obj):
         """
