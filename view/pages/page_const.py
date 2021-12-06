@@ -18,7 +18,7 @@
 #
 
 """
-Page related constants
+GrampsPageView related constants
 """
 
 # -------------------------------------------------------------------------
@@ -27,18 +27,6 @@ Page related constants
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-
-# -------------------------------------------------------------------------
-#
-# Plugin Modules
-#
-# -------------------------------------------------------------------------
-from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_couple import CoupleGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_media import MediaGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_source import SourceGrampsFrame
 
 _ = glocale.translation.sgettext
 
@@ -105,7 +93,6 @@ REF_DISPLAY_MODES = [
     (4, _("Display on bottom")),
 ]
 
-# For layout editor
 PAGES = [
     ("Address", _("Address")),
     ("ChildRef", _("ChildRef")),
@@ -126,13 +113,3 @@ PAGES = [
     ("Source", _("Source")),
     ("Tag", _("Tag")),
 ]
-
-
-FRAME_MAP = {
-    "Person": ("options.active.person", PersonGrampsFrame),
-    "Family": ("options.active.family", CoupleGrampsFrame),
-    "Event": ("options.active.event", EventGrampsFrame),
-    "Media": ("options.active.media", MediaGrampsFrame),
-    "Source": ("options.active.source", SourceGrampsFrame),
-    "Citation": ("options.active.citation", CitationGrampsFrame),
-}

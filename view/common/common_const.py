@@ -123,6 +123,9 @@ _RECIPROCAL_ASSOCIATIONS = {
     _("Employee"): _("Employer"),
     _("Lawyer"): _("Client"),
     _("Doctor"): _("Patient"),
+    _("Patient"): _("Doctor"),
+    _("Teacher"): _("Student"),
+    _("Student"): _("Teacher"),
 }
 
 _CONFIDENCE = {

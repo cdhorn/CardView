@@ -129,6 +129,7 @@ CONFIGSETTINGS = (
     ("options.global.media-bar-filter-non-photos", False),
     ("options.global.media-bar-page-link", True),
     ("options.global.max-group-windows", 4),
+    ("options.global.max-page-windows", 4),
     ("options.global.icons-active-width", 24),
     ("options.global.icons-group-width", 12),
     ("options.global.icons-enable-tags", True),

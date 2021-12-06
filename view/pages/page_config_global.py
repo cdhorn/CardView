@@ -54,10 +54,17 @@ def build_global_grid(configdialog, grstate):
     grid = create_grid()
     grid1 = create_grid()
     configdialog.add_text(grid1, _("Global Options"), 0, bold=True)
+    configdialog.add_spinner(
+        grid1,
+        _("Maximum number of page copy windows"),
+        1,
+        "options.global.max-page-windows",
+        (1, 12),
+    )
     configdialog.add_checkbox(
         grid1,
         _("Pin active header so it does not scroll"),
-        1,
+        2,
         "options.global.pin-header",
         tooltip=_(
             "Enabling this option pins the page header so it will not scroll "
@@ -67,7 +74,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Enable coloring schemes"),
-        2,
+        3,
         "options.global.use-color-scheme",
         tooltip=_(
             "Enabling this option enables coloring schemes for the rendered "
@@ -80,7 +87,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Use smaller font for details"),
-        3,
+        4,
         "options.global.use-smaller-detail-font",
         tooltip=_(
             "Indicates whether to use a smaller font for the details than "
@@ -90,14 +97,14 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid1,
         _("Desired border width"),
-        4,
+        5,
         "options.global.border-width",
         (0, 5),
     )
     configdialog.add_checkbox(
         grid1,
         _("Highlight focal object"),
-        5,
+        6,
         "options.global.focal-object-highlight",
         tooltip=_(
             "Indicates whether to highlight the focal object frame in the "
@@ -109,14 +116,14 @@ def build_global_grid(configdialog, grstate):
         grid1,
         _("Focal object highlight color"),
         "options.global.focal-object-color",
-        (6, 1),
+        (7, 1),
     )
     add_color(
         grstate.config,
         grid1,
         _("Default frame background color"),
         "options.global.default-background-color",
-        (7, 1),
+        (8, 1),
     )
     configdialog.add_checkbox(
         grid1,

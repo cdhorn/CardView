@@ -50,7 +50,6 @@ from gramps.gen.constfunc import mod_key
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.dialog import WarningDialog
-from gramps.gui.display import display_url
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.utils import match_primary_mask
 from gramps.gui.views.pageview import PageView
@@ -157,7 +156,6 @@ class ExtendedNavigationView(PageView):
         PageView.define_actions(self)
         self.bookmark_actions()
         self.navigation_actions()
-        self.help_actions()
 
     def disable_action_group(self):
         """
@@ -575,18 +573,6 @@ class ExtendedNavigationView(PageView):
                 dummy_secondary_obj_hash,
             ) = handles[0]
             self.copy_to_clipboard(primary_obj_type, [primary_obj_handle])
-
-    def help_actions(self):
-        """
-        Define the help menu actions.
-        """
-        self._add_action("ViewHelp", self.launch_help)
-
-    def launch_help(self, *_dummy_args):
-        """
-        Launch help page.
-        """
-        display_url(HELP_URL)
 
 
 def make_callback(func, handle):

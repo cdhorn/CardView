@@ -1,12 +1,5 @@
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2001-2007  Donald N. Allingham
-# Copyright (C) 2008       Raphael Ackermann
-# Copyright (C) 2009-2010  Gary Burton
-# Copyright (C) 2010       Benny Malengier
-# Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
-# Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2015       Serge Noiraud
 # Copyright (C) 2021       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,15 +18,8 @@
 #
 
 """
-Tag Profile Page
+TagObjectView
 """
-
-# -------------------------------------------------------------------------
-#
-# Gramps Modules
-#
-# -------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # -------------------------------------------------------------------------
 #
@@ -41,50 +27,26 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_const import GROUP_LABELS
-from ..frames.frame_tag import TagGrampsFrame
 from ..groups.group_utils import get_references_group
-from .page_base import BaseProfilePage
+from .view_base import GrampsObjectView
+from .view_const import FRAME_MAP
 
-_ = glocale.translation.sgettext
 
-
-class TagProfilePage(BaseProfilePage):
+class TagObjectView(GrampsObjectView):
     """
-    Provides the tag profile page view with information about the tagged
-    objects.
+    Provides the tag object view.
     """
 
-    def __init__(self, dbstate, uistate, config, callbacks):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.active_profile = None
-
-    @property
-    def obj_type(self):
+    def build_view(self):
         """
-        Primary object type underpinning the page.
+        Build the view header and body and set the focus.
         """
-        return "Person"
-
-    @property
-    def page_type(self):
-        """
-        Page type.
-        """
-        return "Tag"
-
-    def render_page(self, header, vbox, context):
-        """
-        Render the page contents.
-        """
-        if not context:
-            return
-
-        tag = context.primary_obj.obj
+        tag = self.grcontext.primary_obj.obj
 
         groptions = GrampsOptions("options.active.tag")
-        self.active_profile = TagGrampsFrame(self.grstate, groptions, tag)
-        focal = self.wrap_focal_widget(self.active_profile)
+        self.view_object = FRAME_MAP["Tag"](self.grstate, groptions, tag)
+        self.view_focus = self.wrap_focal_widget(self.view_object)
+        self.view_header.pack_start(self.view_focus, False, False, 0)
 
         object_list = {}
         for (
@@ -95,13 +57,13 @@ class TagProfilePage(BaseProfilePage):
                 object_list.update({obj_type: []})
             object_list[obj_type].append((obj_type, obj_handle))
 
-        obj_groups = {}
+        object_groups = {}
         if object_list:
             for key, value in object_list.items():
                 groptions = GrampsOptions(
                     "options.group.{}".format(key.lower())
                 )
-                obj_groups.update(
+                object_groups.update(
                     {
                         key.lower(): get_references_group(
                             self.grstate,
@@ -112,12 +74,4 @@ class TagProfilePage(BaseProfilePage):
                         )
                     }
                 )
-
-        body = self.render_group_view(obj_groups)
-        if self.config.get("options.global.pin-header"):
-            header.pack_start(focal, False, False, 0)
-            header.show_all()
-        else:
-            vbox.pack_start(focal, False, False, 0)
-        vbox.pack_start(body, False, False, 0)
-        vbox.show_all()
+        self.view_body = self.render_group_view(object_groups)

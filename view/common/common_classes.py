@@ -114,6 +114,8 @@ class GrampsObject:
                 break
 
         if not self.obj_type:
+            print(str(obj))
+            print(str(self.obj_type))
             raise AttributeError
 
     def refresh(self, grstate):
@@ -344,6 +346,23 @@ class GrampsContext:
         else:
             secondary_obj = None
         self.load(primary_obj, reference_obj, secondary_obj)
+
+    @property
+    def obj_key(self):
+        """
+        Return a unique object key
+        """
+        key = self.primary_obj.obj.get_handle()
+        if self.reference_obj:
+            key = "-".join((key, self.reference_obj.obj.ref))
+        if self.secondary_obj:
+            key = "-".join((key, self.secondary_obj.obj_hash))
+        return key
+
+    def refresh(self, grstate):
+        """
+        TODO: Refresh context state.
+        """
 
 
 # ------------------------------------------------------------------------

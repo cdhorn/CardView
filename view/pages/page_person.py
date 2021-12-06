@@ -25,7 +25,7 @@
 #
 
 """
-Person Profile Page
+PersonPageView
 """
 
 # -------------------------------------------------------------------------
@@ -33,7 +33,6 @@ Person Profile Page
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.widgets.reorderfam import Reorder
@@ -43,40 +42,21 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_classes import GrampsOptions
 from ..common.common_const import _LEFT_BUTTON
-from ..common.common_utils import button_activated, get_key_person_events
-from ..frames.frame_person import PersonGrampsFrame
-from .page_base import BaseProfilePage
-
-_ = glocale.translation.sgettext
+from ..common.common_utils import button_activated
+from .page_base import GrampsPageView
 
 
-class PersonProfilePage(BaseProfilePage):
+class PersonPageView(GrampsPageView):
     """
-    Provides the person profile page view with information about the person.
+    Provides the person anchored page view.
     """
 
-    def __init__(self, dbstate, uistate, config, callbacks):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
+    def __init__(self, page_type, grstate):
+        GrampsPageView.__init__(self, page_type, grstate)
         self.reorder_sensitive = None
         self.child = None
         self.colors = None
-        self.active_profile = None
-
-    @property
-    def obj_type(self):
-        """
-        Primary object type underpinning the page.
-        """
-        return "Person"
-
-    @property
-    def page_type(self):
-        """
-        Page type.
-        """
-        return "Person"
 
     def define_actions(self, view):
         """
@@ -89,54 +69,21 @@ class PersonProfilePage(BaseProfilePage):
                 ("AddSpouse", self._add_new_family),
                 ("AddNewParents", self._add_new_parents),
                 ("AddExistingParents", self._add_existing_parents),
-                ("ChangeOrder", self.reorder),
+                ("ChangeOrder", self._reorder_families),
             ]
         )
         view.add_action_group(self.action_group)
 
-    def render_page(self, header, vbox, context):
+    def post_render_page(self):
         """
-        Render the page contents.
+        Perform any post render page setup tasks.
         """
-        if not context:
-            return
-
-        age_base = None
-        person = context.primary_obj.obj
-        key_events = get_key_person_events(
-            self.grstate.dbstate.db, person, birth_only=True
-        )
-        if key_events["birth"] and key_events["birth"].date:
-            age_base = key_events["birth"].date
-
-        groptions = GrampsOptions("options.active.person")
-        self.active_profile = PersonGrampsFrame(
-            self.grstate, groptions, person
-        )
-        focal = self.wrap_focal_widget(self.active_profile)
-
-        groups = self.config.get("options.page.person.layout.groups").split(
-            ","
-        )
-        obj_groups = self.get_object_groups(groups, person, age_base=age_base)
-        body = self.render_group_view(obj_groups)
-
-        if self.config.get("options.global.pin-header"):
-            header.pack_start(focal, False, False, 0)
-            header.show_all()
-        else:
-            vbox.pack_start(focal, False, False, 0)
-        self.add_media_bar(vbox, person)
-        self.child = body
-        vbox.pack_start(self.child, True, True, 0)
-        vbox.show_all()
-
+        person = self.active_profile.primary.obj
         family_handle_list = person.get_parent_family_handle_list()
         self.reorder_sensitive = len(family_handle_list) > 1
         family_handle_list = person.get_family_handle_list()
         if not self.reorder_sensitive:
             self.reorder_sensitive = len(family_handle_list) > 1
-        return
 
     def reorder_button_press(self, obj, event, _dummy_handle):
         """
@@ -145,7 +92,7 @@ class PersonProfilePage(BaseProfilePage):
         if button_activated(event, _LEFT_BUTTON):
             self.reorder(obj)
 
-    def reorder(self, *_dummy_obj):
+    def _reorder_families(self, *_dummy_obj):
         """
         Reorder families.
         """
@@ -159,3 +106,31 @@ class PersonProfilePage(BaseProfilePage):
                 )
             except WindowActiveError:
                 pass
+
+    def _set_default_person(self, *_dummy_obj):
+        """
+        Set new default person.
+        """
+        if self.active_profile:
+            self.active_profile.set_default_person()
+
+    def _add_new_parents(self, *_dummy_obj):
+        """
+        Add a new set of parents.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_parents()
+
+    def _add_existing_parents(self, *_dummy_obj):
+        """
+        Add an existing set of parents.
+        """
+        if self.active_profile:
+            self.active_profile.add_existing_parents()
+
+    def _add_new_family(self, *_dummy_obj):
+        """
+        Add new family with or without spouse.
+        """
+        if self.active_profile:
+            self.active_profile.add_new_family()

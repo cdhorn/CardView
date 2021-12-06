@@ -51,6 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import HandleError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gui.display import display_url
 from gramps.gui.views.bookmarks import PersonBookmarks
 
 # -------------------------------------------------------------------------
@@ -62,30 +63,13 @@ from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_utils import (
     get_config_option,
-    make_scrollable,
     save_config_option,
 )
 from view.groups.group_widgets import FrameGroupWindow
-from view.pages.page_address import AddressProfilePage
-from view.pages.page_attribute import AttributeProfilePage
-from view.pages.page_child_ref import ChildRefProfilePage
-from view.pages.page_citation import CitationProfilePage
-from view.pages.page_event import EventProfilePage
-from view.pages.page_event_ref import EventRefProfilePage
-from view.pages.page_family import FamilyProfilePage
-from view.pages.page_media import MediaProfilePage
-from view.pages.page_media_ref import MediaRefProfilePage
-from view.pages.page_name import NameProfilePage
-from view.pages.page_note import NoteProfilePage
+from view.pages.page_builder import page_builder
+from view.pages.page_const import PAGES
 from view.pages.page_options import CONFIGSETTINGS
-from view.pages.page_ordinance import LDSOrdinanceProfilePage
-from view.pages.page_person import PersonProfilePage
-from view.pages.page_person_ref import PersonRefProfilePage
-from view.pages.page_place import PlaceProfilePage
-from view.pages.page_repository import RepositoryProfilePage
-from view.pages.page_repository_ref import RepositoryRefProfilePage
-from view.pages.page_source import SourceProfilePage
-from view.pages.page_tag import TagProfilePage
+from view.pages.page_window import PageViewWindow
 
 _ = glocale.translation.sgettext
 
@@ -126,17 +110,17 @@ class LinkedView(ExtendedNavigationView):
             self.passed_navtype = (
                 uistate.viewmanager.active_page.navigation_type()
             )
-        self.header = None
-        self.vbox = None
         self.child = None
         self.grstate = None
         self.methods = {}
         self._init_methods()
         self.pages = {}
         self._init_pages()
+        self.page_view = None
         self.active_page = None
         self.active_type = None
         self.group_windows = {}
+        self.page_windows = {}
         self.in_change_object = False
         self.initial_object_loaded = False
         self.additional_uis.append(self.additional_ui)
@@ -196,32 +180,8 @@ class LinkedView(ExtendedNavigationView):
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
         )
-
-        for page_class in [
-            AddressProfilePage,
-            AttributeProfilePage,
-            ChildRefProfilePage,
-            CitationProfilePage,
-            EventProfilePage,
-            EventRefProfilePage,
-            FamilyProfilePage,
-            LDSOrdinanceProfilePage,
-            MediaProfilePage,
-            MediaRefProfilePage,
-            NameProfilePage,
-            NoteProfilePage,
-            PersonProfilePage,
-            PersonRefProfilePage,
-            PlaceProfilePage,
-            RepositoryProfilePage,
-            RepositoryRefProfilePage,
-            SourceProfilePage,
-            TagProfilePage,
-        ]:
-            page = page_class(
-                self.dbstate, self.uistate, self._config, callbacks
-            )
-            self.pages[page.page_type] = page
+        for (page_type, page_lang) in PAGES:
+            self.pages[page_type] = page_builder(page_type, self.grstate)
 
     def _connect_db_signals(self):
         """
@@ -296,15 +256,8 @@ class LinkedView(ExtendedNavigationView):
         """
         Build the widget that contains the view.
         """
-        self.header = Gtk.VBox(spacing=3)
-        self.vbox = Gtk.VBox()
-        scroll = make_scrollable(self.vbox)
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        container = Gtk.VBox(spacing=3, border_width=3)
-        container.pack_start(self.header, False, False, 0)
-        container.pack_end(scroll, True, True, 0)
-        container.show_all()
-        return container
+        self.page_view = Gtk.VBox()
+        return self.page_view
 
     additional_ui = [  # Defines the UI string for UIManager
         """
@@ -536,6 +489,19 @@ class LinkedView(ExtendedNavigationView):
     <child groups='RO'>
       <object class="GtkSeparatorToolItem" id="sep2"/>
     </child>
+    <child groups='RO'>
+      <object class="GtkToolButton">
+        <property name="icon-name">edit-copy</property>
+        <property name="action-name">win.CopyPageView</property>
+        <property name="tooltip_text" translatable="yes">"""
+        """Copy page</property>
+        <property name="label" translatable="yes">_Copy Page</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
     </placeholder>
 """,
     ]
@@ -548,6 +514,8 @@ class LinkedView(ExtendedNavigationView):
         for page in self.pages.values():
             page.define_actions(self)
 
+        self._add_action("ViewHelp", self.launch_help)
+        self._add_action("CopyPageView", self.launch_copy)
         self._add_action("Edit", self._edit_active, "<PRIMARY>Return")
         self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
 
@@ -571,8 +539,11 @@ class LinkedView(ExtendedNavigationView):
         self._init_methods()
         if self.active:
             self.bookmarks.redraw()
-        for dummy_key, window in self.group_windows.items():
-            window.close(defer_delete=True)
+        for window in [y for x, y in self.page_windows.items()]:
+            window.close()
+        self.page_windows.clear()            
+        for window in [y for x, y in self.group_windows.items()]:
+            window.close()
         self.group_windows.clear()
         self.history.clear()
         self.fetch_thumbnail.cache_clear()
@@ -602,6 +573,8 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(active_object)
             else:
                 self.change_object(None)
+        for window in [y for x, y in self.page_windows.items()]:
+            window.refresh()
         for window in [y for x, y in self.group_windows.items()]:
             window.refresh()
 
@@ -609,8 +582,7 @@ class LinkedView(ExtendedNavigationView):
         """
         Clear view for object change.
         """
-        list(map(self.header.remove, self.header.get_children()))
-        list(map(self.vbox.remove, self.vbox.get_children()))
+        list(map(self.page_view.remove, self.page_view.get_children()))
         if not self.dbstate.is_open():
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(
@@ -675,7 +647,7 @@ class LinkedView(ExtendedNavigationView):
 
         self._clear_change()
         page = self.pages[page_context.page_type]
-        page.render_page(self.header, self.vbox, page_context)
+        page.render_page(self.page_view, page_context)
         page.enable_actions(self.uimanager, page_context.primary_obj)
         self.uimanager.update_menu()
 
@@ -837,13 +809,50 @@ class LinkedView(ExtendedNavigationView):
         if len(self.group_windows) >= max_windows:
             return
         self.group_windows[key] = FrameGroupWindow(
-            self.grstate, obj, group_type, key, self._clear_window, title=title
+            self.grstate, obj, group_type, key, self._clear_group_window, title=title
         )
         return
 
-    def _clear_window(self, key):
+    def _clear_group_window(self, key):
         """
         Clear window.
         """
         if key in self.group_windows:
             del self.group_windows[key]
+
+    def launch_help(self, *_dummy_args):
+        """
+        Launch help page.
+        """
+        display_url(HELP_URL)
+
+    def launch_copy(self, *_dummy_args):
+        """
+        Display a particular group of objects.
+        """
+        grcontext = GrampsContext()
+        grcontext.load_page_location(self.grstate, self.get_active())
+        max_windows = self._config.get("options.global.max-page-windows")
+        key = grcontext.obj_key
+        if key in self.group_windows:
+            self.page_windows[key].refresh()
+            return
+        if max_windows == 1:
+            if self.page_windows:
+                for dummy_key, window in self.page_windows.items():
+                    window.reload(grcontext)
+                    break
+                return
+        if len(self.page_windows) >= max_windows:
+            return
+        self.page_windows[key] = PageViewWindow(
+            self.grstate, grcontext, key, self._clear_page_window
+        )
+        return
+
+    def _clear_page_window(self, key):
+        """
+        Clear window.
+        """
+        if key in self.page_windows:
+            del self.page_windows[key]

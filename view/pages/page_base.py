@@ -25,7 +25,7 @@
 #
 
 """
-Base Profile Page
+GrampsPageView
 """
 
 # -------------------------------------------------------------------------
@@ -86,30 +86,26 @@ from .page_config_timeline import (
     build_person_timeline_grid,
 )
 from .page_utils import create_grid
+from ..views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
 
 
-class BaseProfilePage:
+class GrampsPageView:
     """
-    Provides functionality common to all object profile page views.
+    Provides functionality common to all page views.
     """
 
-    def __init__(self, dbstate, uistate, config, callbacks):
-        self.grstate = GrampsState(dbstate, uistate, callbacks, config)
-        self.grstate.set_page_type(self.page_type.lower())
+    def __init__(self, page_type, grstate):
+        self.grstate = grstate
+        self.page_type = page_type
+        self.grstate.set_page_type(page_type)
         self.active_profile = None
         self.action_group = None
         self.child = None
         self.colors = None
-        self.config = config
+        self.config = self.grstate.config
         self.container = None
-
-    @property
-    def page_type(self):
-        """
-        Return page type.
-        """
 
     def define_actions(self, view):
         """
@@ -129,6 +125,23 @@ class BaseProfilePage:
         """
         if self.action_group:
             uimanager.set_actions_visible(self.action_group, False)
+
+    def render_page(self, window, context):
+        """
+        Render the page contents.
+        """
+        if not context:
+            return
+
+        object_view = view_builder(self.grstate, context)
+        self.active_profile = object_view.view_object
+        window.pack_start(object_view, True, True, 0)
+        self.post_render_page()
+
+    def post_render_page(self):
+        """
+        Perform any post render page setup tasks.
+        """
 
     def edit_active(self, *_dummy_obj):
         """
@@ -151,161 +164,6 @@ class BaseProfilePage:
                     "commit_%s", self.active_profile.primary.obj_type
                 )
                 commit_method(self.active_profile.primary.obj, trans)
-
-    def wrap_focal_widget(self, widget):
-        """
-        Wrap focal widget with colored background so it stands out.
-        """
-        if not self.config.get("options.global.focal-object-highlight"):
-            return widget
-        scheme = global_config.get("colors.scheme")
-        background = self.config.get("options.global.focal-object-color")
-        frame = Gtk.Frame()
-        css = "".join(
-            (
-                ".frame { border: 0px; padding: 3px; ",
-                "background-image: none; background-color: ",
-                background[scheme],
-                "; }",
-            )
-        )
-        css = css.encode("utf-8")
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-        context = frame.get_style_context()
-        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        context.add_class("frame")
-        frame.add(widget)
-        return frame
-
-    def get_object_groups(self, groups, obj, age_base=None):
-        """
-        Gather the object groups.
-        """
-        args = {}
-        if age_base:
-            args["age_base"] = age_base
-        obj_groups = {}
-        for key in groups:
-            obj_groups.update({key: build_group(self.grstate, key, obj, args)})
-        return obj_groups
-
-    def add_media_bar(self, widget, obj):
-        """
-        Check and if need and can build media bar add to widget for viewing.
-        """
-        if self.config.get("options.global.media-bar-display-mode"):
-            css = self.active_profile.get_css_style()
-            mediabar = GrampsMediaBarGroup(self.grstate, None, obj, css=css)
-            if mediabar.total:
-                widget.pack_start(mediabar, False, False, 0)
-
-    def render_group_view(self, obj_groups):
-        """
-        Identify group view type and call method to render it.
-        """
-        space = "".join(("options.page.", self.page_type.lower(), ".layout"))
-        groups = self.config.get("".join((space, ".groups"))).split(",")
-        if self.config.get("".join((space, ".tabbed"))):
-            return self.render_tabbed_group(obj_groups, space, groups)
-        return self.render_untabbed_group(obj_groups, space, groups)
-
-    def _add_to_title(self, title, group):
-        """
-        Add group label to title.
-        """
-        if not title:
-            title = GROUP_LABELS[group]
-        else:
-            if " & " in title:
-                title = title.replace(" &", ",")
-            title = "".join((title, " & ", GROUP_LABELS[group]))
-
-    def render_untabbed_group(self, obj_groups, space, groups):
-        """
-        Generate untabbed full page view for the groups.
-        """
-
-        def pack_container(scrolled, gbox):
-            """
-            Pack container with widget.
-            """
-            if scrolled:
-                self.container.pack_start(
-                    make_scrollable(gbox), expand=True, fill=True, padding=0
-                )
-            else:
-                self.container.pack_start(
-                    gbox, expand=False, fill=True, padding=0
-                )
-
-        gbox = None
-        title = ""
-        scrolled = self.config.get("".join((space, ".scrolled")))
-        self.container = Gtk.HBox(spacing=3)
-        for group in groups:
-            add_group = True
-            if group not in obj_groups or not obj_groups[group]:
-                add_group = False
-            if not self.config.get("".join((space, ".", group, ".visible"))):
-                add_group = False
-            if not gbox:
-                gbox = Gtk.VBox(spacing=3)
-            if add_group:
-                gbox.pack_start(
-                    obj_groups[group], expand=False, fill=True, padding=0
-                )
-            self._add_to_title(title, group)
-            if not self.config.get("".join((space, ".", group, ".stacked"))):
-                pack_container(scrolled, gbox)
-                gbox = None
-                title = ""
-        if gbox and title:
-            pack_container(scrolled, gbox)
-        return self.container
-
-    def render_tabbed_group(self, obj_groups, space, groups):
-        """
-        Generate tabbed notebook view for the groups.
-        """
-        sbox = None
-        title = ""
-        in_stack = False
-        container = Gtk.Notebook()
-        for group in groups:
-            add_group = True
-            if group not in obj_groups or not obj_groups[group]:
-                add_group = False
-            if not self.config.get("".join((space, ".", group, ".visible"))):
-                add_group = False
-            gbox = Gtk.VBox(spacing=3)
-            if add_group:
-                gbox.pack_start(
-                    obj_groups[group], expand=True, fill=True, padding=0
-                )
-                self._add_to_title(title, group)
-            if self.config.get("".join((space, ".", group, ".stacked"))):
-                in_stack = True
-                if not sbox:
-                    sbox = Gtk.HBox(spacing=3)
-                sbox.pack_start(gbox, expand=True, fill=True, padding=0)
-            else:
-                if not in_stack:
-                    obox = gbox
-                else:
-                    sbox.pack_start(gbox, expand=True, fill=True, padding=0)
-                    obox = Gtk.VBox()
-                    obox.add(sbox)
-                    in_stack = False
-            if not in_stack:
-                label = Gtk.Label(label=title)
-                container.append_page(make_scrollable(obox), tab_label=label)
-                sbox = None
-                title = ""
-        if obox and title:
-            label = Gtk.Label(label=title)
-            container.append_page(make_scrollable(obox), tab_label=label)
-        return container
 
     def _object_panel(self, configdialog, space, extra=False):
         """
@@ -501,59 +359,3 @@ class BaseProfilePage:
             self.timeline_panel,
             self.color_panel,
         ]
-
-    def _set_default_person(self, *_dummy_obj):
-        """
-        Set new default person.
-        """
-        if self.active_profile:
-            self.active_profile.set_default_person()
-
-    def _add_new_parents(self, *_dummy_obj):
-        """
-        Add a new set of parents.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_parents()
-
-    def _add_existing_parents(self, *_dummy_obj):
-        """
-        Add an existing set of parents.
-        """
-        if self.active_profile:
-            self.active_profile.add_existing_parents()
-
-    def _add_new_family(self, *_dummy_obj):
-        """
-        Add new family with or without spouse.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_family()
-
-    def _add_new_child(self, *_dummy_obj):
-        """
-        Add a new person as a child member of the family.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_child()
-
-    def _add_existing_child(self, *_dummy_obj):
-        """
-        Add an existing person as a child member of the family.
-        """
-        if self.active_profile:
-            self.active_profile.add_existing_child()
-
-    def _add_new_participant(self, *_dummy_obj):
-        """
-        Add a new person as a participant in the event.
-        """
-        if self.active_profile:
-            self.active_profile.add_new_participant()
-
-    def _add_existing_participant(self, *_dummy_obj):
-        """
-        Add an existing person as a participant in the event.
-        """
-        if self.active_profile:
-            self.active_profile.add_existing_participant()

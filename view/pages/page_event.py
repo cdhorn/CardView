@@ -25,7 +25,7 @@
 #
 
 """
-Event Profile Page
+EventPageView
 """
 
 # -------------------------------------------------------------------------
@@ -33,7 +33,6 @@ Event Profile Page
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.uimanager import ActionGroup
 
 # -------------------------------------------------------------------------
@@ -41,36 +40,13 @@ from gramps.gui.uimanager import ActionGroup
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_classes import GrampsOptions
-from ..frames.frame_event import EventGrampsFrame
-from ..groups.group_utils import get_references_group
-from .page_base import BaseProfilePage
-
-_ = glocale.translation.sgettext
+from .page_base import GrampsPageView
 
 
-class EventProfilePage(BaseProfilePage):
+class EventPageView(GrampsPageView):
     """
-    Provides the event profile page view with information about the event.
+    Provides the event anchored page view.
     """
-
-    def __init__(self, dbstate, uistate, config, callbacks):
-        BaseProfilePage.__init__(self, dbstate, uistate, config, callbacks)
-        self.active_profile = None
-
-    @property
-    def obj_type(self):
-        """
-        Primary object type underpinning page.
-        """
-        return "Event"
-
-    @property
-    def page_type(self):
-        """
-        Page type.
-        """
-        return "Event"
 
     def define_actions(self, view):
         """
@@ -85,86 +61,16 @@ class EventProfilePage(BaseProfilePage):
         )
         view.add_action_group(self.action_group)
 
-    def render_page(self, header, vbox, context):
+    def _add_new_participant(self, *_dummy_obj):
         """
-        Render the page contents.
+        Add a new person as a participant in the event.
         """
-        if not context:
-            return
+        if self.active_profile:
+            self.active_profile.add_new_participant()
 
-        event = context.primary_obj.obj
-
-        groptions = GrampsOptions("options.active.event")
-        self.active_profile = EventGrampsFrame(
-            self.grstate,
-            groptions,
-            event,
-        )
-        focal = self.wrap_focal_widget(self.active_profile)
-
-        groups = self.config.get("options.page.event.layout.groups").split(",")
-        obj_groups = self.get_object_groups(
-            groups, event, age_base=event.get_date_object()
-        )
-
-        people_list = []
-        family_list = []
-        if "people" in groups or "family" in groups:
-            for (
-                obj_type,
-                obj_handle,
-            ) in self.grstate.dbstate.db.find_backlink_handles(
-                event.get_handle()
-            ):
-                if obj_type == "Person" and obj_handle not in people_list:
-                    people_list.append(("Person", obj_handle))
-                elif obj_type == "Family" and obj_handle not in family_list:
-                    family_list.append(("Family", obj_handle))
-
-        if people_list:
-            groptions = GrampsOptions("options.group.people")
-            args = {
-                "title": (
-                    _("Individual Participants"),
-                    _("Individual Participants"),
-                )
-            }
-            obj_groups.update(
-                {
-                    "people": get_references_group(
-                        self.grstate,
-                        None,
-                        args,
-                        groptions=groptions,
-                        obj_list=people_list,
-                        age_base=event.get_date_object(),
-                    )
-                }
-            )
-        if family_list:
-            groptions = GrampsOptions("options.group.family")
-            args = {
-                "title": (_("Family Participants"), _("Family Participants"))
-            }
-            obj_groups.update(
-                {
-                    "family": get_references_group(
-                        self.grstate,
-                        None,
-                        args,
-                        groptions=groptions,
-                        obj_list=family_list,
-                        age_base=event.get_date_object(),
-                    )
-                }
-            )
-
-        body = self.render_group_view(obj_groups)
-        if self.config.get("options.global.pin-header"):
-            header.pack_start(focal, False, False, 0)
-            header.show_all()
-        else:
-            vbox.pack_start(focal, False, False, 0)
-        self.add_media_bar(vbox, event)
-        vbox.pack_start(body, False, False, 0)
-        vbox.show_all()
+    def _add_existing_participant(self, *_dummy_obj):
+        """
+        Add an existing person as a participant in the event.
+        """
+        if self.active_profile:
+            self.active_profile.add_existing_participant()
