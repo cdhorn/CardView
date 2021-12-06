@@ -164,12 +164,13 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
                     image.set_from_icon_name(
                         "gramps-lock", Gtk.IconSize.BUTTON
                     )
+                    self.pack_end(image, False, False, 0)
             else:
                 if mode in [2, 3]:
                     image.set_from_icon_name(
                         "gramps-unlock", Gtk.IconSize.BUTTON
                     )
-            self.pack_end(image, False, False, 0)
+                    self.pack_end(image, False, False, 0)
 
     def add_home_indicator(self, obj):
         """
