@@ -32,7 +32,8 @@ from .view_citation import CitationObjectView
 from .view_event import EventObjectView
 from .view_family import FamilyObjectView
 from .view_generic import GenericObjectView
-from .view_generic_ref import GenericRefObjectView
+
+# from .view_generic_ref import GenericRefObjectView
 from .view_person import PersonObjectView
 from .view_source import SourceObjectView
 from .view_tag import TagObjectView
@@ -52,16 +53,13 @@ def view_factory(grcontext):
         "LdsOrd",
         "Place",
         "Repository",
-    ]:
-        cls = GenericObjectView
-    elif page_type in [
         "ChildRef",
         "EventRef",
         "MediaRef",
         "PersonRef",
         "RepoRef",
     ]:
-        cls = GenericRefObjectView
+        cls = GenericObjectView
     elif page_type == "Attribute":
         cls = AttributeObjectView
     elif page_type == "Citation":

@@ -33,41 +33,55 @@ from .view_const import FRAME_MAP
 
 class GenericObjectView(GrampsObjectView):
     """
-    Provides an object view that handles basic primary and secondary objects.
+    Provides an object view that handles most basic objects.
     """
 
     def build_view(self):
         """
         Build the view header and body and set the focus.
         """
+        primary = self.grcontext.primary_obj
+        reference = self.grcontext.reference_obj
+        secondary = self.grcontext.secondary_obj
 
-        def build_frame(gramps_obj):
-            """
-            Build frame for an object.
-            """
-            frame = FRAME_MAP[gramps_obj.obj_type]
-            option = ".".join(("options.active", gramps_obj.obj_type.lower()))
-            groptions = GrampsOptions(option)
-            return frame(self.grstate, groptions, gramps_obj.obj)
+        build_frame = FRAME_MAP[primary.obj_type]
+        option_space = ".".join(("options.active", primary.obj_type.lower()))
+        groptions = GrampsOptions(option_space)
+        primary_frame = build_frame(self.grstate, groptions, primary.obj)
 
-        self.view_object = build_frame(self.grcontext.primary_obj)
-
-        if self.grcontext.secondary_obj:
-            self.view_focus = self.wrap_focal_widget(
-                build_frame(self.grcontext.secondary_obj)
-            )
-            self.view_header.pack_start(self.view_object, False, False, 0)
-            self.view_body = self.build_object_groups(
-                self.grcontext.secondary_obj
-            )
-        else:
+        groups = primary
+        if reference:
+            groups = reference
+            reference_frame = self.build_secondary_frame(primary, reference)
+            self.view_object = reference_frame
             self.view_focus = self.wrap_focal_widget(self.view_object)
-            if hasattr(self.grcontext.primary_obj.obj, "get_date_object"):
-                age_base = self.grcontext.primary_obj.obj.get_date_object()
-            else:
-                age_base = None
-            self.view_body = self.build_object_groups(
-                self.grcontext.primary_obj, age_base=age_base
-            )
+            self.view_header.pack_start(primary_frame, False, False, 0)
+            self.view_header.pack_start(self.view_focus, False, False, 0)
+        elif secondary:
+            groups = secondary
+            self.view_object = self.build_secondary_frame(primary, secondary)
+            self.view_focus = self.wrap_focal_widget(self.view_object)
+            self.view_header.pack_start(primary_frame, False, False, 0)
+            self.view_header.pack_start(self.view_focus, False, False, 0)
+        else:
+            self.view_object = primary_frame
+            self.view_focus = self.wrap_focal_widget(self.view_object)
+            self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        self.view_header.pack_start(self.view_focus, False, False, 0)
+        self.view_body = self.build_object_groups(groups)
+
+    def build_secondary_frame(self, primary, secondary):
+        """
+        Build frame for secondary objects.
+        """
+        build_frame = FRAME_MAP[secondary.obj_type]
+        option_space = ".".join(("options.active", secondary.obj_type.lower()))
+        groptions = GrampsOptions(option_space)
+        if "Ref" in secondary.obj_type:
+            groptions.set_ref_mode(2)
+        return build_frame(
+            self.grstate,
+            groptions,
+            primary.obj,
+            secondary.obj,
+        )

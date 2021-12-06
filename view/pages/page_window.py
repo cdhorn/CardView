@@ -61,11 +61,16 @@ class PageViewWindow(ManagedWindow):
         self.grstate = grstate
         self.grcontext = grcontext
         self.callback = callback
-        self.base_title, dummy_obj = navigation_label(
-            self.grstate.dbstate.db,
-            self.grcontext.primary_obj.obj_type,
-            self.grcontext.primary_obj.obj.get_handle(),
-        )
+        if grcontext.primary_obj.obj_type != "Tag":
+            self.base_title, dummy_obj = navigation_label(
+                grstate.dbstate.db,
+                grcontext.primary_obj.obj_type,
+                grcontext.primary_obj.obj.get_handle(),
+            )
+        else:
+            self.base_title = "".join(
+                (_("Tag"), ": ", grcontext.primary_obj.obj.get_name())
+            )
         ManagedWindow.__init__(
             self, grstate.uistate, [], grcontext.primary_obj.obj
         )
