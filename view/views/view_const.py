@@ -64,7 +64,7 @@ FRAME_MAP = {
     "PersonRef": PersonRefGrampsFrame,
     "Place": PlaceGrampsFrame,
     "Repository": RepositoryGrampsFrame,
-    "RepositoryRef": RepositoryRefGrampsFrame,
+    "RepoRef": RepositoryRefGrampsFrame,
     "Source": SourceGrampsFrame,
     "Tag": TagGrampsFrame,
 }

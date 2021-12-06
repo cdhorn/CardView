@@ -55,6 +55,7 @@ class SourceObjectView(GrampsObjectView):
         groptions = GrampsOptions("options.active.source")
         self.view_object = FRAME_MAP["Source"](self.grstate, groptions, source)
         self.view_focus = self.wrap_focal_widget(self.view_object)
+        self.view_header.pack_start(self.view_focus, False, False, 0)
 
         group_list = self.grstate.config.get(
             "options.page.source.layout.groups"

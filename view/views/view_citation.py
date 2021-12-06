@@ -40,11 +40,12 @@ class CitationObjectView(GrampsObjectView):
         """
         Build the view header and body and set the focus.
         """
-        citation = self.grcontext.primary_obj.obj
+        print("build_view: citation")
+        citation = self.grcontext.primary_obj
 
-        if citation.source_handle:
+        if citation.obj.source_handle:
             source = self.grstate.dbstate.db.get_source_from_handle(
-                citation.source_handle
+                citation.obj.source_handle
             )
             groptions = GrampsOptions("options.active.source")
             source_frame = FRAME_MAP["Source"](self.grstate, groptions, source)
@@ -52,11 +53,11 @@ class CitationObjectView(GrampsObjectView):
 
         groptions = GrampsOptions("options.active.citation")
         self.view_object = FRAME_MAP["Citation"](
-            self.grstate, groptions, citation
+            self.grstate, groptions, citation.obj
         )
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
         self.view_body = self.build_object_groups(
-            citation, age_base=citation.get_date_object()
+            citation, age_base=citation.obj.get_date_object()
         )
