@@ -361,8 +361,21 @@ class GrampsContext:
 
     def refresh(self, grstate):
         """
-        TODO: Refresh context state.
+        TODO: Hash out secondary refreshes.
         """
+        new_primary_obj = grstate.fetch(
+            "Person", self.primary_obj.obj.get_handle()
+        )
+        old_primary_obj = self.primary_obj
+        self.primary_obj = GrampsObject(new_primary_obj)
+
+        if self.reference_obj:
+            new_reference_obj = find_reference(
+                new_primary_obj,
+                self.reference_obj.obj_type,
+                self.reference_obj.obj.ref,
+            )
+            self.reference_obj = GrampsObject(new_reference_obj)
 
 
 # ------------------------------------------------------------------------

@@ -132,7 +132,6 @@ class GrampsObjectView(Gtk.VBox):
         option = ".".join(
             ("options.page", gramps_obj.obj_type.lower(), "layout.groups")
         )
-        print(option)
         group_list = self.grstate.config.get(option).split(",")
         object_groups = self.get_object_groups(
             group_list, gramps_obj.obj, age_base=age_base
