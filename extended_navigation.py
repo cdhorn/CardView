@@ -71,8 +71,6 @@ MRU_SIZE = 10
 MRU_TOP = '<section id="CommonHistory">'
 MRU_BTM = "</section>"
 
-HELP_URL = "https://www.gramps-project.org/wiki/index.php/Addon:LinkedView"
-
 
 # -----------------------------------------------------------------------------
 #

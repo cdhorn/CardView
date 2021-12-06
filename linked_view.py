@@ -85,6 +85,8 @@ EDIT_TOOLTIPS = {
     "Repository": _("Edit the active repository"),
 }
 
+HELP_URL = "https://www.gramps-project.org/wiki/index.php/Addon:LinkedView"
+
 
 class LinkedView(ExtendedNavigationView):
     """
