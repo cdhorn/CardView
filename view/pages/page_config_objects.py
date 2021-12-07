@@ -51,7 +51,7 @@ from .page_const import (
     EVENT_COLOR_MODES,
     EVENT_DISPLAY_MODES,
     IMAGE_DISPLAY_MODES,
-    MEDIA_IMAGE_DISPLAY_MODES,
+    MEDIA_DISPLAY_MODES,
     REF_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
 )
@@ -407,7 +407,7 @@ def build_media_grid(configdialog, grstate, space, group=True):
         _("Image display mode"),
         12,
         "{}.media.image-mode".format(space),
-        MEDIA_IMAGE_DISPLAY_MODES,
+        MEDIA_DISPLAY_MODES,
     )
     if "group" in space:
         configdialog.add_combo(

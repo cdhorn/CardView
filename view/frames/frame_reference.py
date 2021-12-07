@@ -91,20 +91,19 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             primary_obj,
             reference_tuple=reference_tuple,
         )
+        self.dnd_drop_ref_targets = []
         if not reference_tuple or not groptions.ref_mode:
             return
 
-        self.dnd_drop_ref_targets = []
         self.ref_widgets["id"].load(
             self.reference.obj,
             self.reference.obj_type,
             gramps_id=self.primary.obj.get_gramps_id(),
         )
-        self.ref_eventbox.connect("button-press-event", self.route_ref_action)
-
         self.ref_widgets["icons"].load(
             self.reference.obj, self.reference.obj_type, title=self.get_title()
         )
+        self.ref_eventbox.connect("button-press-event", self.route_ref_action)
 
         self.enable_drag(
             obj=self.reference,
@@ -150,20 +149,17 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         Handle dropped data.
         """
         if data and data.get_data():
-            try_dropped_text = False
             try:
-                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
+                dnd_type, obj_id, obj_or_handle, dummy_var1 = pickle.loads(
                     data.get_data()
                 )
             except pickle.UnpicklingError:
-                try_dropped_text = True
+                return self.dropped_ref_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
-                if try_dropped_text:
-                    self.dropped_ref_text(data.get_data().decode("utf-8"))
-                elif DdTargets.NOTE_LINK.drag_type == dnd_type:
-                    self.added_ref_note(obj_handle)
+                if DdTargets.NOTE_LINK.drag_type == dnd_type:
+                    self.added_ref_note(obj_or_handle)
                 elif DdTargets.CITATION_LINK.drag_type == dnd_type:
-                    self.added_ref_citation(obj_handle)
+                    self.added_ref_citation(obj_or_handle)
 
     def dropped_ref_text(self, data):
         """

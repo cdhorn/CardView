@@ -58,13 +58,9 @@ from gramps.gui.utils import open_file_with_default_application
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import _RIGHT_BUTTON
-from ..common.common_utils import (
-    button_activated,
-    citation_option_text,
-    menu_item,
-    note_option_text,
-)
-from ..frames.frame_base import GrampsFrame
+from ..common.common_utils import button_activated
+
+from ..frames.frame_media_ref import MediaRefGrampsFrame
 
 _ = glocale.translation.sgettext
 
@@ -80,15 +76,18 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
     scrollable list of media items for a given primary Gramps object.
     """
 
-    def __init__(self, grstate, groptions, obj, css="", vertical=False):
-        if vertical:
+    def __init__(self, grstate, groptions, obj, css=""):
+        mode = grstate.config.get("options.global.media-bar-position-mode")
+        if mode in [2, 3]:
             Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
             self.set_hexpand(False)
             self.set_vexpand(True)
+            vertical = True
         else:
             Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
             self.set_hexpand(True)
             self.set_vexpand(False)
+            vertical = False
         groptions = GrampsOptions("")
         GrampsConfig.__init__(self, grstate, groptions)
         self.base = GrampsObject(obj)
@@ -97,6 +96,12 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
 
         media_list = self.collect_media()
         if not media_list:
+            return
+
+        minimum = self.grstate.config.get(
+            "options.global.media-bar-minimum-required"
+        )
+        if len(media_list) < minimum:
             return
 
         if self.grstate.config.get("options.global.media-bar-sort-by-date"):
@@ -118,7 +123,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             frame = GrampsMediaBarItem(
                 grstate,
                 groptions,
-                (self.base.obj, self.base.obj_type),
+                self.base.obj,
                 media,
                 media_ref,
                 size=size,
@@ -222,7 +227,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             media_list = other_list
 
 
-class GrampsMediaBarItem(GrampsFrame):
+class GrampsMediaBarItem(MediaRefGrampsFrame):
     """
     A simple class for managing display of a media bar image.
     """
@@ -230,11 +235,9 @@ class GrampsMediaBarItem(GrampsFrame):
     def __init__(
         self, grstate, groptions, obj, media, media_ref, size=0, crop=False
     ):
-        GrampsFrame.__init__(self, grstate, groptions, media)
+        groptions.bar_mode = True
+        MediaRefGrampsFrame.__init__(self, grstate, groptions, obj, media_ref)
         self.set_hexpand(False)
-        self.media = media
-        self.media_ref = media_ref
-        self.obj, self.obj_type = obj
         if media_ref:
             thumbnail = self.get_thumbnail(media, media_ref, size, crop)
         elif isinstance(media, Media):
@@ -243,12 +246,12 @@ class GrampsMediaBarItem(GrampsFrame):
             self.frame.add(thumbnail)
             self.eventbox.add(self.frame)
             self.add(self.eventbox)
-        self.enable_drop(drag_data_received=self.drag_data_ref_received)
 
-    def init_layout(self, secondary=None):
-        """
-        Bypass default layout.
-        """
+        self.enable_drop(
+            eventbox=self.eventbox,
+            dnd_drop_targets=self.dnd_drop_ref_targets,
+            drag_data_received=self.drag_data_ref_received,
+        )
 
     def get_thumbnail(self, media, media_ref, size, crop):
         """
@@ -277,406 +280,14 @@ class GrampsMediaBarItem(GrampsFrame):
         )
         open_file_with_default_application(photo_path, self.grstate.uistate)
 
-    def drag_data_ref_received(
-        self,
-        _dummy_widget,
-        _dummy_context,
-        _dummy_x,
-        _dummy_y,
-        data,
-        _dummy_info,
-        _dummy_time,
-    ):
-        """
-        Handle dropped data.
-        """
-        if data and data.get_data():
-            try:
-                dnd_type, obj_id, obj_handle, dummy_var1 = pickle.loads(
-                    data.get_data()
-                )
-            except pickle.UnpicklingError:
-                return
-            if id(self) == obj_id:
-                return
-            if DdTargets.CITATION_LINK.drag_type == dnd_type:
-                self.added_ref_citation(obj_handle)
-            elif DdTargets.NOTE_LINK.drag_type == dnd_type:
-                self.added_ref_note(obj_handle)
-
     def route_action(self, obj, event):
         """
         Route the ref related action if the frame was clicked on.
         """
         if button_activated(event, _RIGHT_BUTTON):
-            self.build_action_menu(obj, event)
+            self.build_ref_action_menu(obj, event)
         else:
             if self.grstate.config.get("options.global.media-bar-page-link"):
                 self.switch_object(None, None, "Media", self.primary.obj)
             else:
                 self.view_photo()
-
-    def build_action_menu(self, _dummy_obj, event):
-        """
-        Build the action menu for a right click on a reference object.
-        """
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            action_menu = Gtk.Menu()
-            action_menu.append(self._edit_media_ref_option())
-            action_menu.append(
-                menu_item(
-                    "gramps-media",
-                    _("Make active media"),
-                    self._make_active_media,
-                )
-            )
-            action_menu.append(
-                self._citations_option(
-                    self.media_ref,
-                    self.add_new_ref_citation,
-                    self.add_existing_ref_citation,
-                    self.remove_ref_citation,
-                )
-            )
-            action_menu.append(
-                self._notes_option(
-                    self.media_ref,
-                    self.add_new_ref_note,
-                    self.add_existing_ref_note,
-                    self.remove_ref_note,
-                )
-            )
-            action_menu.append(self._change_ref_privacy_option())
-            action_menu.add(Gtk.SeparatorMenuItem())
-            label = Gtk.MenuItem(label=_("Media reference"))
-            label.set_sensitive(False)
-            action_menu.append(label)
-
-            action_menu.show_all()
-            if Gtk.get_minor_version() >= 22:
-                action_menu.popup_at_pointer(event)
-            else:
-                action_menu.popup(
-                    None, None, None, None, event.button, event.time
-                )
-
-    def _edit_media_ref_option(self):
-        """
-        Build the edit option.
-        """
-        name = " ".join((_("Edit"), _("reference")))
-        return menu_item("gtk-edit", name, self.edit_media_ref)
-
-    def edit_media_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            EditMediaRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                self.media_ref,
-                self.save_media_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def save_media_ref(self, media_ref, action_text=None):
-        """
-        Save the edited object.
-        """
-        if not media_ref:
-            return
-        if action_text:
-            message = action_text
-        else:
-            message = " ".join(
-                (
-                    _("Edited"),
-                    _("MediaRef"),
-                    _("for"),
-                    self.obj_type,
-                    self.obj.get_gramps_id(),
-                    _("to"),
-                    self.primary.obj_type,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            commit_method(self.obj, trans)
-
-    def _make_active_media(self, _dummy_var1):
-        """
-        Make the image the active media item.
-        """
-        new_list = []
-        image_ref = None
-        image_handle = self.media.get_handle()
-        for media_ref in self.obj.get_media_list():
-            if media_ref.ref == image_handle:
-                image_ref = media_ref
-            else:
-                new_list.append(media_ref)
-        if image_ref:
-            new_list.insert(0, image_ref)
-
-        message = " ".join(
-            (
-                _("Set"),
-                _("Image"),
-                self.media.get_gramps_id(),
-                _("Active"),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-            )
-        )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            self.obj.set_media_list(new_list)
-            commit_method(self.obj, trans)
-
-    def add_new_ref_citation(self, _dummy_obj):
-        """
-        Add a new citation.
-        """
-        citation = Citation()
-        source = Source()
-        try:
-            EditCitation(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                citation,
-                source,
-                self.added_ref_citation,
-            )
-        except WindowActiveError:
-            pass
-
-    def added_ref_citation(self, handle):
-        """
-        Add the new or existing citation to the current object.
-        """
-        if handle and self.media_ref.add_citation(handle):
-            citation = self.fetch("Citation", handle)
-            message = " ".join(
-                (
-                    _("Added"),
-                    _("Citation"),
-                    citation.get_gramps_id(),
-                    _("to"),
-                    _("MediaRef"),
-                    _("for"),
-                    self.obj_type,
-                    self.obj.get_gramps_id(),
-                    _("to"),
-                    self.primary.obj_type,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            self.save_media_ref(self.media_ref, action_text=message)
-
-    def add_existing_ref_citation(self, _dummy_obj):
-        """
-        Add an existing citation.
-        """
-        select_citation = SelectorFactory("Citation")
-        selector = select_citation(
-            self.grstate.dbstate, self.grstate.uistate, []
-        )
-        selection = selector.run()
-        if selection:
-            if isinstance(selection, Source):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        Citation(),
-                        selection,
-                        callback=self.added_ref_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            elif isinstance(selection, Citation):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        selection,
-                        callback=self.added_ref_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            else:
-                raise ValueError("Selection must be either source or citation")
-
-    def remove_ref_citation(self, _dummy_obj, citation):
-        """
-        Remove the given citation from the current object.
-        """
-        if not citation:
-            return
-        text = citation_option_text(self.grstate.dbstate.db, citation)
-        prefix = _(
-            "You are about to remove the following citation from this object:"
-        )
-        extra = _(
-            "This removes the reference but does not delete the citation."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("Citation"),
-                    citation.get_gramps_id(),
-                    _("from"),
-                    _("MediaRef"),
-                    _("for"),
-                    self.obj_type,
-                    self.obj.get_gramps_id(),
-                    _("to"),
-                    self.primary.obj_type,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            self.media_ref.remove_citation_references([citation.get_handle()])
-            self.save_media_ref(self.media_ref, action_text=message)
-
-    def add_new_ref_note(self, _dummy_obj, content=None):
-        """
-        Add a new note.
-        """
-        note = Note()
-        if content:
-            note.set(content)
-        try:
-            EditNote(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                note,
-                self.added_ref_note,
-            )
-        except WindowActiveError:
-            pass
-
-    def added_ref_note(self, handle):
-        """
-        Add the new or existing note to the current object.
-        """
-        if handle and self.media_ref.add_note(handle):
-            note = self.fetch("Note", handle)
-            message = " ".join(
-                (
-                    _("Added"),
-                    _("Note"),
-                    note.get_gramps_id(),
-                    _("to"),
-                    _("MediaRef"),
-                    _("for"),
-                    self.obj_type,
-                    self.obj.get_gramps_id(),
-                    _("to"),
-                    self.primary.obj_type,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            self.save_media_ref(self.media_ref, action_text=message)
-
-    def add_existing_ref_note(self, _dummy_obj):
-        """
-        Add an existing note.
-        """
-        select_note = SelectorFactory("Note")
-        selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
-        selection = selector.run()
-        if selection:
-            self.added_ref_note(selection.handle)
-
-    def remove_ref_note(self, _dummy_obj, note):
-        """
-        Remove the given note from the current object.
-        """
-        if not note:
-            return
-        text = note_option_text(note)
-        prefix = _(
-            "You are about to remove the following note from this object:"
-        )
-        extra = _("This removes the reference but does not delete the note.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("Note"),
-                    note.get_gramps_id(),
-                    _("from"),
-                    _("MediaRef"),
-                    _("for"),
-                    self.obj_type,
-                    self.obj.get_gramps_id(),
-                    _("to"),
-                    self.primary.obj_type,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            self.media_ref.remove_note(note.get_handle())
-            self.save_media_ref(self.media_ref, action_text=message)
-
-    def _change_ref_privacy_option(self):
-        """
-        Build privacy option based on current object state.
-        """
-        if self.media_ref.private:
-            return menu_item(
-                "gramps-unlock",
-                _("Make public"),
-                self.change_ref_privacy,
-                False,
-            )
-        return menu_item(
-            "gramps-lock", _("Make private"), self.change_ref_privacy, True
-        )
-
-    def change_ref_privacy(self, _dummy_obj, mode):
-        """
-        Update the privacy indicator for the current object.
-        """
-        if mode:
-            text = _("Private")
-        else:
-            text = _("Public")
-        message = " ".join(
-            (
-                _("Made"),
-                _("MediaRef"),
-                self.primary.obj.get_gramps_id(),
-                _("for"),
-                self.obj_type,
-                self.obj.get_gramps_id(),
-                text,
-            )
-        )
-        commit_method = self.grstate.dbstate.db.method(
-            "commit_%s", self.obj_type
-        )
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            for media_ref in self.obj.get_media_list():
-                if media_ref.ref == self.media_ref.ref:
-                    media_ref.set_privacy(mode)
-                    break
-            commit_method(self.obj, trans)

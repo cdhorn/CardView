@@ -123,7 +123,8 @@ class GrampsFrame(GrampsFrameView):
         self.focus = self.primary
         self.dnd_drop_targets = []
         self.css = ""
-        self.init_layout()
+        if not groptions.bar_mode:
+            self.init_layout()
         self.eventbox.connect("button-press-event", self.route_action)
 
     def get_title(self):

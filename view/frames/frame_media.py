@@ -62,6 +62,8 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         ReferenceGrampsFrame.__init__(
             self, grstate, groptions, media, reference_tuple=reference_tuple
         )
+        if groptions.bar_mode:
+            return
 
         title = TextLink(
             media.get_description(),
@@ -104,6 +106,9 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         """
         Construct framework for media layout, overrides base class.
         """
+        if self.groptions.bar_mode:
+            return
+
         active = "active" in self.groptions.option_space
         crop = self.get_option("image-mode") in [2, 4]
         size = 0

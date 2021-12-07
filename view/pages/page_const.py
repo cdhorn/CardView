@@ -49,12 +49,19 @@ IMAGE_DISPLAY_MODES = [
     (4, _("Large image on left")),
 ]
 
-MEDIA_IMAGE_DISPLAY_MODES = [
+MEDIA_DISPLAY_MODES = [
     (0, _("Not displayed")),
-    (1, _("Small full images")),
-    (2, _("Small cropped images when available")),
-    (3, _("Large full images")),
-    (4, _("Large cropped images when available")),
+    (1, _("Small cropped images")),
+    (2, _("Small full images")),
+    (3, _("Large cropped images")),
+    (4, _("Large full images")),
+]
+
+MEDIA_POSITION_MODES = [
+    (0, _("Not displayed")),
+    (1, _("Horizontally")),
+    (2, _("Left side")),
+    (3, _("Right side")),
 ]
 
 PRIVACY_DISPLAY_MODES = [

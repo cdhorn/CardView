@@ -117,8 +117,9 @@ class PrimaryGrampsFrame(GrampsFrame):
             primary_obj,
             reference_tuple=reference_tuple,
         )
-        self.build_layout()
-        self.load_layout()
+        if not groptions.bar_mode:
+            self.build_layout()
+            self.load_layout()
 
     def load_layout(self):
         """
