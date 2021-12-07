@@ -185,8 +185,18 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
-        _("Create reciprocal associations"),
+        _("Compact family mode"),
         16,
+        "options.global.compact-family-mode",
+        tooltip=_(
+            "Indicates whether to use the compact family frame without the"
+            "embedded person frames of the partners."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Create reciprocal associations"),
+        17,
         "options.global.create-reciprocal-associations",
         tooltip=_(
             "When this option is enabled and a person reference, also known"
@@ -199,7 +209,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include notes on child objects"),
-        17,
+        18,
         "options.global.include-child-notes",
         tooltip=_(
             "Enabling this option will include notes on children of the "
@@ -210,7 +220,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid1,
         _("Include urls from notes"),
-        18,
+        19,
         "options.global.include-note-urls",
         tooltip=_(
             "Enabling this option will parse the notes for the primary "
@@ -221,21 +231,21 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_spinner(
         grid1,
         _("Maximum citations per group"),
-        19,
+        20,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
         grid1,
         _("Maximum references per group"),
-        20,
+        21,
         "options.global.max-references-per-group",
         (1, 500),
     )
     configdialog.add_checkbox(
         grid1,
         _("Enable warnings"),
-        21,
+        22,
         "options.global.enable-warnings",
         tooltip=_(
             "Indicates to show a warning dialog asking for confirmation "

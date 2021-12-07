@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.display.name import displayer as name_displayer
 from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
@@ -43,7 +44,7 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
-from ..common.common_utils import TextLink, get_family_color_css
+from ..common.common_utils import TextLink, get_family_color_css, menu_item
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
 
@@ -73,24 +74,34 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.family = family
         self.relation = groptions.relation
 
+        title = _("Unknown")
         self.parent1, self.parent2 = self._get_parents()
-        profile = self._get_profile(self.parent1)
-        if profile:
-            self.partner1.add(profile)
-        if self.parent2:
-            profile = self._get_profile(self.parent2)
+        if not self.grstate.config.get("options.global.compact-family-mode"):
+            profile = self._get_profile(self.parent1)
             if profile:
-                self.partner2.add(profile)
+                self.partner1.add(profile)
+            if self.parent2:
+                profile = self._get_profile(self.parent2)
+                if profile:
+                    self.partner2.add(profile)
 
-        if self.family.type:
-            title = TextLink(
-                str(self.family.type),
-                "Family",
-                family.handle,
-                self.switch_object,
-                bold=True,
-            )
-            self.widgets["title"].pack_start(title, True, True, 0)
+            if self.family.type:
+                title = str(self.family.type)
+        else:
+            data = self.get_title()
+            if data:
+                if "]" in data:
+                    title = data.split("]")[1].strip()
+                else:
+                    title = data
+        label = TextLink(
+            title,
+            "Family",
+            family.handle,
+            self.switch_object,
+            bold=True,
+        )
+        self.widgets["title"].pack_start(label, True, True, 0)
 
         if "active" in groptions.option_space:
             anchor = "options.active.family"
@@ -111,7 +122,6 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         self.show_all()
         self.enable_drag()
-        #        self.dnd_drop_targets.append(DdTargets.EVENT.target())
         if not self.parent2:
             if (
                 not family.get_father_handle()
@@ -138,36 +148,43 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.widgets["body"].pack_start(
             vcontent, expand=True, fill=True, padding=0
         )
-        if self.groptions.vertical_orientation:
-            vcontent.pack_start(
-                self.partner1, expand=True, fill=True, padding=0
-            )
-            vcontent.pack_start(
-                self.eventbox, expand=True, fill=True, padding=0
-            )
-            vcontent.pack_start(
-                self.partner2, expand=True, fill=True, padding=0
-            )
+        if not self.grstate.config.get("options.global.compact-family-mode"):
+            if self.groptions.vertical_orientation:
+                vcontent.pack_start(
+                    self.partner1, expand=True, fill=True, padding=0
+                )
+                vcontent.pack_start(
+                    self.eventbox, expand=True, fill=True, padding=0
+                )
+                vcontent.pack_start(
+                    self.partner2, expand=True, fill=True, padding=0
+                )
+            else:
+                group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+                partners = Gtk.HBox(hexpand=True, spacing=3)
+                vcontent.pack_start(
+                    partners, expand=True, fill=True, padding=0
+                )
+                group.add_widget(self.partner1)
+                if "partner1" in self.groptions.size_groups:
+                    self.groptions.size_groups["partner1"].add_widget(
+                        self.partner1
+                    )
+                partners.pack_start(
+                    self.partner1, expand=True, fill=True, padding=0
+                )
+                group.add_widget(self.partner2)
+                if "partner2" in self.groptions.size_groups:
+                    self.groptions.size_groups["partner2"].add_widget(
+                        self.partner2
+                    )
+                partners.pack_start(
+                    self.partner2, expand=True, fill=True, padding=0
+                )
+                vcontent.pack_start(
+                    self.eventbox, expand=True, fill=True, padding=0
+                )
         else:
-            group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
-            partners = Gtk.HBox(hexpand=True, spacing=3)
-            vcontent.pack_start(partners, expand=True, fill=True, padding=0)
-            group.add_widget(self.partner1)
-            if "partner1" in self.groptions.size_groups:
-                self.groptions.size_groups["partner1"].add_widget(
-                    self.partner1
-                )
-            partners.pack_start(
-                self.partner1, expand=True, fill=True, padding=0
-            )
-            group.add_widget(self.partner2)
-            if "partner2" in self.groptions.size_groups:
-                self.groptions.size_groups["partner2"].add_widget(
-                    self.partner2
-                )
-            partners.pack_start(
-                self.partner2, expand=True, fill=True, padding=0
-            )
             vcontent.pack_start(
                 self.eventbox, expand=True, fill=True, padding=0
             )
@@ -440,33 +457,8 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         partner1 = father
         partner2 = mother
-        if "active" in self.groptions.option_space:
-            matrilineal = self.get_option(
-                "options.active.family.show-matrilineal"
-            )
-            spouse_only = False
-        else:
-            matrilineal = self.get_option(
-                "options.group.family.show-matrilineal"
-            )
-            spouse_only = self.get_option(
-                "options.group.family.show-spouse-only"
-            )
-        if matrilineal:
+        if not partner1:
             partner1 = mother
-            partner2 = father
-        if (
-            "spouse" in self.groptions.option_space
-            and "group" in self.groptions.option_space
-            and spouse_only
-            and self.relation
-        ):
-            if (
-                partner1
-                and partner1.handle == self.relation.handle
-                or not partner1
-            ):
-                partner1 = partner2
             partner2 = None
         return partner1, partner2
 
@@ -479,9 +471,44 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             "parent" in self.groptions.option_space
             or "spouse" in self.groptions.option_space
         ):
+            self._add_partner_options(action_menu)
             action_menu.append(self._add_new_family_event_option())
             action_menu.append(self._add_new_child_option())
             action_menu.append(self._add_existing_child_option())
+
+    def _add_partner_options(self, action_menu):
+        """
+        Add partner specific options.
+        """
+        partner1, partner2 = self._get_parents()
+        for partner in [partner1, partner2]:
+            if partner:
+                name = name_displayer.display(partner)
+                if name:
+                    text = " ".join((_("Edit"), name))
+                    action_menu.append(
+                        menu_item(
+                            "gtk-edit",
+                            text,
+                            self.edit_primary_object,
+                            partner,
+                            "Person",
+                        )
+                    )
+
+        for partner in [partner1, partner2]:
+            if partner:
+                name = name_displayer.display(partner)
+                if name:
+                    text = " ".join((_("Go to"), name))
+                    action_menu.append(
+                        menu_item(
+                            "gramps-person",
+                            text,
+                            self.goto_person,
+                            partner.get_handle(),
+                        )
+                    )
 
     def get_color_css(self):
         """

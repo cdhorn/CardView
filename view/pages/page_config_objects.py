@@ -207,20 +207,6 @@ def build_family_grid(configdialog, grstate, space):
         "{}.family.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
-    if "group" in space:
-        configdialog.add_checkbox(
-            grid1,
-            _("When on person page only show the spouse in family groups"),
-            6,
-            "{}.family.show-spouse-only".format(space),
-        )
-    configdialog.add_checkbox(
-        grid1,
-        _("Matrilineal mode, display female partner first"),
-        7,
-        "{}.family.show-matrilineal".format(space),
-        start=1,
-    )
     configdialog.add_checkbox(
         grid1,
         _("Show relationship if related"),
