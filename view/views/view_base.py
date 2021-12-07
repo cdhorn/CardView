@@ -142,7 +142,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Gather the object groups.
         """
-        args = {}
+        args = {"page_type": self.grcontext.page_type.lower()}
         if age_base:
             args["age_base"] = age_base
         object_groups = {}
