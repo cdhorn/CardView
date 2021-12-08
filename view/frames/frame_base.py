@@ -95,6 +95,7 @@ from ..common.common_utils import (
 )
 from .frame_selectors import get_attribute_types
 from .frame_view import GrampsFrameView
+from ..menus.menu_config import build_config_menu
 
 _ = glocale.translation.sgettext
 
@@ -315,7 +316,7 @@ class GrampsFrame(GrampsFrameView):
             return True
         if button_pressed(event, _LEFT_BUTTON):
             return False
-        self.build_config_menu()
+        build_config_menu(self.grstate, self.groptions, event)
         return True
 
     def button_released(self, obj, event):
@@ -327,9 +328,6 @@ class GrampsFrame(GrampsFrameView):
             return True
         return False
 
-    def build_config_menu(self):
-        print("config menu")
-        
     def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj_or_handle):
         """
         Change active object for the view.
