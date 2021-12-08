@@ -194,23 +194,31 @@ def build_family_grid(configdialog, grstate, space):
         "{}.family.event-format".format(space),
         EVENT_DISPLAY_MODES,
     )
-    configdialog.add_checkbox(
-        grid1,
-        _("Show years married at divorce and if selected annulment"),
-        2,
-        "{}.family.show-years".format(space),
-    )
     configdialog.add_combo(
         grid1,
         _("Image display mode"),
-        3,
+        2,
         "{}.family.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
     configdialog.add_checkbox(
         grid1,
+        _("Enable compact mode"),
+        3,
+        "{}.family.compact-mode".format(space),
+        start=1,
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Show duration of marriage"),
+        5,
+        "{}.family.show-duration".format(space),
+        start=1,
+    )
+    configdialog.add_checkbox(
+        grid1,
         _("Show relationship if related"),
-        8,
+        6,
         "{}.family.show-relationship".format(space),
         start=1,
     )
@@ -218,8 +226,15 @@ def build_family_grid(configdialog, grstate, space):
         configdialog.add_checkbox(
             grid1,
             _("Show parents of couple"),
-            9,
+            10,
             "{}.family.show-parents".format(space),
+            start=1,
+        )
+        configdialog.add_checkbox(
+            grid1,
+            _("Enable compact mode for parents"),
+            11,
+            "{}.family.compact-mode-parents".format(space),
             start=1,
         )
     grid.attach(grid1, 0, 0, 1, 1)

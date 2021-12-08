@@ -54,18 +54,20 @@ from ..common.common_utils import (
     TextLink,
     get_confidence,
     get_confidence_color_css,
-    get_event_category,
     get_event_category_color_css,
     get_event_role_color_css,
     get_family_color_css,
-    get_participants,
-    get_participants_text,
     get_person_color_css,
-    get_primary_participant,
-    get_relation,
     get_relationship_color_css,
     menu_item,
     submenu_item,
+)
+from ..common.common_vitals import (
+    get_event_category,
+    get_participants,
+    get_participants_text,
+    get_primary_participant,
+    get_relation,
 )
 from .frame_reference import ReferenceGrampsFrame
 

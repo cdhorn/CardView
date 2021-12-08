@@ -108,6 +108,10 @@ class FamilyObjectView(GrampsObjectView):
                 groptions = GrampsOptions(
                     "options.active.parent", size_groups=size_groups
                 )
+                if self.grstate.config.get(
+                    "options.active.family.compact-mode-parents"
+                ):
+                    groptions.force_compact = True
                 groptions.set_relation(person)
                 return FRAME_MAP["Family"](
                     self.grstate,

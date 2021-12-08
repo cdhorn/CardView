@@ -77,7 +77,7 @@ class GrampsObjectView(Gtk.VBox):
         if mode in [0, 1]:
             self.render_view_body(self, mode)
         else:
-            wrapper = Gtk.HBox()
+            wrapper = Gtk.HBox(spacing=1)
             if mode in [2]:
                 self.add_media_bar(wrapper, self.grcontext.primary_obj.obj)
                 vbox = Gtk.VBox()

@@ -45,6 +45,7 @@ from gramps.gui.ddtargets import DdTargets
 # ------------------------------------------------------------------------
 from ..common.common_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
 from ..common.common_utils import TextLink, get_family_color_css, menu_item
+from ..common.common_vitals import get_marriage_duration
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
 
@@ -67,6 +68,14 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         groptions,
         family,
     ):
+        if "active" in groptions.option_space:
+            anchor = "options.active.family"
+        else:
+            anchor = "options.group.family"
+        self.compact = grstate.config.get(".".join((anchor, "compact-mode")))
+        if groptions.force_compact:
+            self.compact = True
+
         self.partner1 = Gtk.HBox(hexpand=True)
         self.partner2 = Gtk.HBox(hexpand=True)
         PrimaryGrampsFrame.__init__(self, grstate, groptions, family)
@@ -75,8 +84,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.relation = groptions.relation
 
         title = _("Unknown")
+        if self.family.type:
+            title = str(self.family.type)
+
         self.parent1, self.parent2 = self._get_parents()
-        if not self.grstate.config.get("options.global.compact-family-mode"):
+        if not self.compact:
             profile = self._get_profile(self.parent1)
             if profile:
                 self.partner1.add(profile)
@@ -84,16 +96,12 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 profile = self._get_profile(self.parent2)
                 if profile:
                     self.partner2.add(profile)
-
-            if self.family.type:
-                title = str(self.family.type)
         else:
             data = self.get_title()
             if data:
                 if "]" in data:
                     title = data.split("]")[1].strip()
-                else:
-                    title = data
+
         label = TextLink(
             title,
             "Family",
@@ -103,11 +111,6 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         )
         self.widgets["title"].pack_start(label, True, True, 0)
 
-        if "active" in groptions.option_space:
-            anchor = "options.active.family"
-        else:
-            anchor = "options.group.family"
-
         if self.get_option("".join((anchor, ".show-relationship"))):
             if self.parent1 and self.parent2:
                 self.load_relationship(self.parent1, self.parent2)
@@ -116,6 +119,16 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         for event_ref in family.get_event_ref_list():
             event_cache.append(self.fetch("Event", event_ref.ref))
         self.load_fields(event_cache, anchor, "facts-field")
+
+        if self.get_option("".join((anchor, ".show-duration"))):
+            text = get_marriage_duration(
+                self.grstate.dbstate.db, family.get_handle()
+            )
+            if text:
+                self.add_fact(
+                    self.make_label(text), label=self.make_label(_("Duration"))
+                )
+
         if "active" in groptions.option_space:
             self.load_fields(event_cache, anchor, "extra-field", extra=True)
         del event_cache
@@ -148,7 +161,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.widgets["body"].pack_start(
             vcontent, expand=True, fill=True, padding=0
         )
-        if not self.grstate.config.get("options.global.compact-family-mode"):
+        if not self.compact:
             if self.groptions.vertical_orientation:
                 vcontent.pack_start(
                     self.partner1, expand=True, fill=True, padding=0
@@ -317,7 +330,6 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Find an event and load the data.
         """
-        show_age = False
         for event in event_cache:
             if event.get_type().xml_str() == event_type:
                 if skip_marriage and have_marriage:
@@ -330,20 +342,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                     event_type in _DIVORCE_EQUIVALENTS
                     or event_type == "Divorce"
                 ):
-                    if "active" in self.groptions.option_space:
-                        show_age = self.get_option(
-                            "options.active.family.show-years"
-                        )
-                    else:
-                        show_age = self.get_option(
-                            "options.group.family.show-years"
-                        )
                     self.divorced = True
                 self.add_event(
                     event,
                     extra=extra,
                     reference=have_marriage,
-                    show_age=show_age,
                 )
                 if not show_all:
                     return

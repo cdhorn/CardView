@@ -185,16 +185,6 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
-        _("Compact family mode"),
-        16,
-        "options.global.compact-family-mode",
-        tooltip=_(
-            "Indicates whether to use the compact family frame without the"
-            "embedded person frames of the partners."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
         _("Create reciprocal associations"),
         17,
         "options.global.create-reciprocal-associations",

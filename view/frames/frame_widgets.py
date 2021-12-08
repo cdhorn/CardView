@@ -62,10 +62,11 @@ from ..common.common_const import _LEFT_BUTTON
 from ..common.common_utils import (
     TextLink,
     button_activated,
-    get_age,
     get_bookmarks,
     pack_icon,
 )
+from ..common.common_vitals import get_age
+
 from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext

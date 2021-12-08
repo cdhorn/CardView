@@ -27,7 +27,7 @@ PersonObjectView
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_utils import get_key_person_events
+from ..common.common_vitals import get_key_person_events
 from .view_base import GrampsObjectView
 from .view_const import FRAME_MAP
 

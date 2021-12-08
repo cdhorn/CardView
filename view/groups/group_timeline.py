@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_key_person_events
+from ..common.common_vitals import get_key_person_events
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event_ref import EventRefGrampsFrame

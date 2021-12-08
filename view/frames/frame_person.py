@@ -77,12 +77,11 @@ from ..common.common_const import (
 )
 from ..common.common_utils import (
     TextLink,
-    format_date_string,
     get_person_color_css,
-    get_relation,
     menu_item,
     submenu_item,
 )
+from ..common.common_vitals import format_date_string, get_relation
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
