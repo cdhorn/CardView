@@ -61,7 +61,7 @@ from ..common.common_classes import GrampsConfig, GrampsContext
 from ..common.common_const import _LEFT_BUTTON
 from ..common.common_utils import (
     TextLink,
-    button_activated,
+    button_pressed,
     get_bookmarks,
     pack_icon,
 )
@@ -482,6 +482,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         Launch group dialog.
         """
         self.grstate.show_group(self.obj, group_type, title=self.title)
+        return True
 
     def load_tags(self):
         """
@@ -511,7 +512,8 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         """
         tag = self.fetch("Tag", handle)
         page_context = GrampsContext(tag, None, None)
-        return self.grstate.load_page(page_context.pickled)
+        self.grstate.load_page(page_context.pickled)
+        return True
 
 
 # ------------------------------------------------------------------------
@@ -575,12 +577,13 @@ class GrampsImage(Gtk.EventBox):
         """
         Open the image in the default picture viewer.
         """
-        if button_activated(event, _LEFT_BUTTON):
+        if button_pressed(event, _LEFT_BUTTON):
             if not self.active:
                 if self.grstate.config.get("options.global.image-page-link"):
                     context = GrampsContext(self.media, None, None)
                     return self.grstate.load_page(context.pickled)
-            return open_file_with_default_application(
+            open_file_with_default_application(
                 self.path, self.grstate.uistate
             )
+            return True
         return False

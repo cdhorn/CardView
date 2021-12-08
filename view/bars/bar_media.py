@@ -24,17 +24,10 @@ GrampsMediaBarGroup
 
 # ------------------------------------------------------------------------
 #
-# Python modules
-#
-# ------------------------------------------------------------------------
-import pickle
-
-# ------------------------------------------------------------------------
-#
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gdk, Gtk
+from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -42,13 +35,7 @@ from gi.repository import Gdk, Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Citation, Media, Note, Source
 from gramps.gen.utils.file import media_path_full
-from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditCitation, EditMediaRef, EditNote
-from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import open_file_with_default_application
 
 # ------------------------------------------------------------------------
@@ -57,8 +44,8 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
-from ..common.common_const import _RIGHT_BUTTON
-from ..common.common_utils import button_activated
+from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_utils import button_pressed, button_released
 
 from ..frames.frame_media_ref import MediaRefGrampsFrame
 
@@ -238,10 +225,7 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         groptions.bar_mode = True
         MediaRefGrampsFrame.__init__(self, grstate, groptions, obj, media_ref)
         self.set_hexpand(False)
-        if media_ref:
-            thumbnail = self.get_thumbnail(media, media_ref, size, crop)
-        elif isinstance(media, Media):
-            thumbnail = self.get_thumbnail(media, None, size, crop)
+        thumbnail = self.get_thumbnail(media, media_ref, size, crop)
         if thumbnail:
             self.frame.add(thumbnail)
             self.eventbox.add(self.frame)
@@ -280,14 +264,23 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         )
         open_file_with_default_application(photo_path, self.grstate.uistate)
 
-    def route_action(self, obj, event):
+    def ref_button_pressed(self, obj, event):
         """
         Route the ref related action if the frame was clicked on.
         """
-        if button_activated(event, _RIGHT_BUTTON):
+        if button_pressed(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
-        else:
+            return True
+        return False
+
+    def ref_button_released(self, _dummy_obj, event):
+        """
+        Handle button release.
+        """
+        if button_released(event, _LEFT_BUTTON):
             if self.grstate.config.get("options.global.media-bar-page-link"):
                 self.switch_object(None, None, "Media", self.primary.obj)
             else:
                 self.view_photo()
+            return True
+        return False

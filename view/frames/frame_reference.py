@@ -62,7 +62,8 @@ from ..common.common_classes import GrampsContext
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
 from ..common.common_utils import (
     attribute_option_text,
-    button_activated,
+    button_pressed,
+    button_released,
     citation_option_text,
     menu_item,
     note_option_text,
@@ -103,7 +104,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         self.ref_widgets["icons"].load(
             self.reference.obj, self.reference.obj_type, title=self.get_title()
         )
-        self.ref_eventbox.connect("button-press-event", self.route_ref_action)
+        self.ref_eventbox.connect("button-press-event", self.ref_button_pressed)
+        self.ref_eventbox.connect("button-release-event", self.ref_button_released)
 
         self.enable_drag(
             obj=self.reference,
@@ -168,15 +170,27 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if data and hasattr(self.reference.obj, "note_list"):
             self.add_new_ref_note(None, content=data)
 
-    def route_ref_action(self, obj, event):
+    def ref_button_pressed(self, obj, event):
         """
-        Route the ref related action if the frame was clicked on.
+        Handle button pressed.
         """
-        if button_activated(event, _RIGHT_BUTTON):
+        if button_pressed(event, _RIGHT_BUTTON):
             self.build_ref_action_menu(obj, event)
-        elif not button_activated(event, _LEFT_BUTTON):
+            return True
+        if button_pressed(event, _LEFT_BUTTON):
+            return False
+        self.build_config_menu()
+        return True
+
+    def ref_button_released(self, obj, event):
+        """
+        Handle button release.
+        """
+        if button_released(event, _LEFT_BUTTON):
             page_context = GrampsContext(self.base, self.reference, None)
             self.grstate.load_page(page_context.pickled)
+            return True
+        return False
 
     def build_ref_action_menu(self, _dummy_obj, event):
         """

@@ -49,8 +49,8 @@ from gramps.gui.display import display_url
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from ..common.common_utils import button_activated
+from ..common.common_const import _LEFT_BUTTON
+from ..common.common_utils import button_released
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -91,11 +91,11 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         self.enable_drag()
         self.set_css_style()
 
-    def route_action(self, obj, event):
+    def button_released(self, obj, event):
         """
-        Route the action if the frame was clicked on.
+        Handle button release.
         """
-        if button_activated(event, _RIGHT_BUTTON):
-            self.build_action_menu(obj, event)
-        elif not button_activated(event, _LEFT_BUTTON):
+        if button_released(event, _LEFT_BUTTON):
             display_url(self.link)
+            return True
+        return False

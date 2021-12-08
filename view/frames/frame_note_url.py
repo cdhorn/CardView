@@ -44,8 +44,8 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
-from ..common.common_utils import TextLink, button_activated
+from ..common.common_const import _LEFT_BUTTON
+from ..common.common_utils import TextLink, button_released
 
 # ------------------------------------------------------------------------
 #
@@ -91,10 +91,11 @@ class NoteUrlGrampsFrame(GrampsFrame):
         self.set_css_style()
         self.show_all()
 
-    def route_action(self, _dummy_obj, event):
+    def button_released(self, _dummy_obj, event):
         """
-        Route the action if the frame was clicked on.
+        Handle button released.
         """
-        if not button_activated(event, _LEFT_BUTTON):
-            if not button_activated(event, _RIGHT_BUTTON):
-                display_url(self.link)
+        if button_released(event, _LEFT_BUTTON):
+            display_url(self.link)
+            return True
+        return False

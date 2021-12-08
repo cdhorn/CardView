@@ -86,7 +86,8 @@ from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON, GRAMPS_EDITORS
 from ..common.common_utils import (
     attribute_option_text,
-    button_activated,
+    button_pressed,
+    button_released,
     citation_option_text,
     menu_item,
     note_option_text,
@@ -125,7 +126,8 @@ class GrampsFrame(GrampsFrameView):
         self.css = ""
         if not groptions.bar_mode:
             self.init_layout()
-        self.eventbox.connect("button-press-event", self.route_action)
+        self.eventbox.connect("button-press-event", self.button_pressed)
+        self.eventbox.connect("button-release-event", self.button_released)
 
     def get_title(self):
         """
@@ -304,15 +306,30 @@ class GrampsFrame(GrampsFrameView):
                 )
                 self.widgets["age"].pack_start(label, False, False, 0)
 
-    def route_action(self, obj, event):
+    def button_pressed(self, obj, event):
         """
-        Route the action if the frame was clicked on.
+        Handle button pressed.
         """
-        if button_activated(event, _RIGHT_BUTTON):
+        if button_pressed(event, _RIGHT_BUTTON):
             self.build_action_menu(obj, event)
-        elif not button_activated(event, _LEFT_BUTTON):
-            self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
+            return True
+        if button_pressed(event, _LEFT_BUTTON):
+            return False
+        self.build_config_menu()
+        return True
 
+    def button_released(self, obj, event):
+        """
+        Handle button released.
+        """
+        if button_released(event, _LEFT_BUTTON):
+            self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
+            return True
+        return False
+
+    def build_config_menu(self):
+        print("config menu")
+        
     def switch_object(self, _dummy_obj, _dummy_event, obj_type, obj_or_handle):
         """
         Change active object for the view.

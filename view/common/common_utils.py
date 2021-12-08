@@ -66,12 +66,25 @@ from .common_const import (
 _ = glocale.translation.sgettext
 
 
-def button_activated(event, mouse_button):
+def button_pressed(event, mouse_button):
     """
     Test if specific button press happened.
     """
     return (
         event.type == Gdk.EventType.BUTTON_PRESS
+        and event.button == mouse_button
+    ) or (
+        event.type == Gdk.EventType.KEY_PRESS
+        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
+    )
+
+
+def button_released(event, mouse_button):
+    """
+    Test if specific button release happened.
+    """
+    return (
+        event.type == Gdk.EventType.BUTTON_RELEASE
         and event.button == mouse_button
     ) or (
         event.type == Gdk.EventType.KEY_PRESS

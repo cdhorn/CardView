@@ -628,7 +628,7 @@ CONFIGSETTINGS = (
     ## Parent Options
     ######################################################################
     ("options.active.parent.event-format", 1),
-    ("options.active.parent.show-age", False),
+    ("options.active.parent.show-age", True),
     ("options.active.parent.sex-mode", 1),
     ("options.active.parent.image-mode", 3),
     ("options.active.parent.expand-children", True),
@@ -656,7 +656,7 @@ CONFIGSETTINGS = (
     ## Spouse Options
     ######################################################################
     ("options.active.spouse.event-format", 1),
-    ("options.active.spouse.show-age", False),
+    ("options.active.spouse.show-age", True),
     ("options.active.spouse.sex-mode", 1),
     ("options.active.spouse.image-mode", 3),
     ("options.active.spouse.expand-children", True),
@@ -685,7 +685,7 @@ CONFIGSETTINGS = (
     ## Association Options
     ######################################################################
     ("options.active.association.event-format", 1),
-    ("options.active.association.show-age", False),
+    ("options.active.association.show-age", True),
     ("options.active.association.sex-mode", 1),
     ("options.active.association.image-mode", 3),
     ("options.active.association.facts-field-skip-birth-alternates", True),
@@ -711,7 +711,7 @@ CONFIGSETTINGS = (
     ## Participant Options
     ######################################################################
     ("options.active.participant.event-format", 1),
-    ("options.active.participant.show-age", False),
+    ("options.active.participant.show-age", True),
     ("options.active.participant.sex-mode", 1),
     ("options.active.participant.image-mode", 3),
     ("options.active.participant.facts-field-skip-birth-alternates", True),
@@ -889,7 +889,7 @@ CONFIGSETTINGS = (
     ## Parent Options
     ######################################################################
     ("options.group.parent.event-format", 1),
-    ("options.group.parent.show-age", False),
+    ("options.group.parent.show-age", True),
     ("options.group.parent.sex-mode", 1),
     ("options.group.parent.image-mode", 1),
     ("options.group.parent.expand-children", True),
@@ -917,7 +917,7 @@ CONFIGSETTINGS = (
     ## Sibling Options
     ######################################################################
     ("options.group.sibling.event-format", 1),
-    ("options.group.sibling.show-age", False),
+    ("options.group.sibling.show-age", True),
     ("options.group.sibling.sex-mode", 1),
     ("options.group.sibling.image-mode", 1),
     ("options.group.sibling.number-children", True),
@@ -945,7 +945,7 @@ CONFIGSETTINGS = (
     ## Spouse Options
     ######################################################################
     ("options.group.spouse.event-format", 1),
-    ("options.group.spouse.show-age", False),
+    ("options.group.spouse.show-age", True),
     ("options.group.spouse.sex-mode", 1),
     ("options.group.spouse.image-mode", 1),
     ("options.group.spouse.expand-children", True),
@@ -974,7 +974,7 @@ CONFIGSETTINGS = (
     ## Child Options
     ######################################################################
     ("options.group.child.event-format", 1),
-    ("options.group.child.show-age", False),
+    ("options.group.child.show-age", True),
     ("options.group.child.sex-mode", 1),
     ("options.group.child.image-mode", 1),
     ("options.group.child.number-children", True),
@@ -1002,7 +1002,7 @@ CONFIGSETTINGS = (
     ## Association Options
     ######################################################################
     ("options.group.association.event-format", 1),
-    ("options.group.association.show-age", False),
+    ("options.group.association.show-age", True),
     ("options.group.association.sex-mode", 1),
     ("options.group.association.image-mode", 1),
     ("options.group.association.reference-mode", 1),
@@ -1029,7 +1029,7 @@ CONFIGSETTINGS = (
     ## Participant Options
     ######################################################################
     ("options.group.participant.event-format", 1),
-    ("options.group.participant.show-age", False),
+    ("options.group.participant.show-age", True),
     ("options.group.participant.sex-mode", 1),
     ("options.group.participant.image-mode", 1),
     ("options.group.participant.facts-field-skip-birth-alternates", True),
