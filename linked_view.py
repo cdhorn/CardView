@@ -39,7 +39,7 @@ from functools import lru_cache
 # GTK/Gnome modules
 #
 # -------------------------------------------------------------------------
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 
 # -------------------------------------------------------------------------
 #
@@ -123,6 +123,8 @@ class LinkedView(ExtendedNavigationView):
         self.active_type = None
         self.group_windows = {}
         self.page_windows = {}
+        self.defer_refresh = False
+        self.defer_refresh_id = None
         self.in_change_object = False
         self.initial_object_loaded = False
         self.additional_uis.append(self.additional_ui)
@@ -232,7 +234,31 @@ class LinkedView(ExtendedNavigationView):
         """
         for item in self.CONFIGSETTINGS:
             if item[0][:9] != "interface":
-                self._config.connect(item[0], self.build_tree)
+                self._config.connect(item[0], self._defer_config_refresh)
+
+    def _defer_config_refresh(self, *_dummy_args):
+        """
+        Defer configuration rebuild events a short bit.
+        """
+        if not self.defer_refresh_id:
+            self.defer_refresh_id = GObject.timeout_add(
+                5000, self._perform_config_refresh
+            )
+        else:
+            self.defer_refresh = True
+
+    def _perform_config_refresh(self):
+        """
+        Perform the configuration rebuild.
+        """
+        if self.defer_refresh:
+            self.defer_refresh = False
+            return True
+        self.defer_refresh = False
+        self.build_tree()
+        GObject.source_remove(self.defer_refresh_id)
+        self.defer_refresh_id = None
+        return False
 
     def _get_configure_page_funcs(self):
         """
