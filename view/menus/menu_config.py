@@ -49,7 +49,7 @@ from ..common.common_utils import (
 _ = glocale.translation.sgettext
 
 
-def build_config_menu(grstate, groptions, event):
+def build_config_menu(widget, grstate, groptions, event):
     """
     Build the configuration option menu.
     """
@@ -58,7 +58,7 @@ def build_config_menu(grstate, groptions, event):
     menu.append(tags_option(config))
     menu.append(indicators_option(config))
     menu.append(indicator_counts_option(config))
-
+    menu.attach_to_widget(widget, None)
     menu.show_all()
     if Gtk.get_minor_version() >= 22:
         menu.popup_at_pointer(event)

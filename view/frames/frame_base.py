@@ -316,7 +316,7 @@ class GrampsFrame(GrampsFrameView):
             return True
         if button_pressed(event, _LEFT_BUTTON):
             return False
-        build_config_menu(self.grstate, self.groptions, event)
+        build_config_menu(self, self.grstate, self.groptions, event)
         return True
 
     def button_released(self, obj, event):

@@ -184,7 +184,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             return True
         if button_pressed(event, _LEFT_BUTTON):
             return False
-        build_config_menu(self.grstate, self.groptions, event)
+        build_config_menu(self, self.grstate, self.groptions, event)
         return True
 
     def ref_button_released(self, obj, event):
@@ -239,7 +239,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             label = Gtk.MenuItem(label=reference_type)
             label.set_sensitive(False)
             action_menu.append(label)
-
+            action_menu.attach_to_widget(self, None)
             action_menu.show_all()
             if Gtk.get_minor_version() >= 22:
                 action_menu.popup_at_pointer(event)
@@ -247,6 +247,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 action_menu.popup(
                     None, None, None, None, event.button, event.time
                 )
+            return True
 
     def add_ref_custom_actions(self, action_menu):
         """

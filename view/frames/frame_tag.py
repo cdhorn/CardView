@@ -125,11 +125,13 @@ class TagGrampsFrame(GrampsFrame):
         menu.add(
             menu_item("gramps-tag", _("Organize tags"), self.organize_tags)
         )
+        menu.attach_to_widget(self, None)
         menu.show_all()
         if Gtk.get_minor_version() >= 22:
             menu.popup_at_pointer(event)
         else:
             menu.popup(None, None, None, None, event.button, event.time)
+        return True
 
     def edit_tag(self, _dummy_obj):
         """

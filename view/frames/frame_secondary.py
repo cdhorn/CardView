@@ -146,6 +146,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                     )
                 )
             action_menu.append(self._change_privacy_option())
+            action_menu.attach_to_widget(self, None)
             action_menu.show_all()
             if Gtk.get_minor_version() >= 22:
                 action_menu.popup_at_pointer(event)
@@ -153,6 +154,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                 action_menu.popup(
                     None, None, None, None, event.button, event.time
                 )
+            return True
 
     def add_custom_actions(self, action_menu):
         """
