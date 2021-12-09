@@ -70,6 +70,7 @@ from ..common.common_utils import (
 )
 from .frame_primary import PrimaryGrampsFrame
 from .frame_selectors import get_attribute_types
+from ..menus.menu_config import build_config_menu
 
 _ = glocale.translation.sgettext
 
@@ -183,7 +184,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             return True
         if button_pressed(event, _LEFT_BUTTON):
             return False
-        self.build_config_menu()
+        build_config_menu(self.grstate, self.groptions, event)
         return True
 
     def ref_button_released(self, obj, event):
