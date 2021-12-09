@@ -58,7 +58,11 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext
-from ..common.common_const import _LEFT_BUTTON, GROUP_LABELS
+from ..common.common_const import (
+    _LEFT_BUTTON,
+    GROUP_LABELS,
+    GROUP_LABELS_SINGLE,
+)
 from ..common.common_utils import (
     TextLink,
     button_pressed,
@@ -453,9 +457,14 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         icon = Gtk.Image(halign=Gtk.Align.END)
         icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
         if count == 1:
-            tooltip = " ".join(("1", GROUP_LABELS[group_type]))
+            text = GROUP_LABELS_SINGLE[group_type]
+            if group_type == "parent":
+                text = " ".join((_("Set"), _("of"), GROUP_LABELS[group_type]))
         else:
-            tooltip = " ".join((str(count), GROUP_LABELS[group_type]))
+            text = GROUP_LABELS[group_type]
+            if group_type == "parent":
+                text = " ".join((_("Sets"), _("of"), text))
+        tooltip = " ".join((str(count), text))
         eventbox = Gtk.EventBox(tooltip_text=tooltip)
         if self.grstate.config.get("options.global.enable-indicator-counts"):
             box = Gtk.HBox(hexpand=False, vexpand=False, spacing=2, margin=0)
