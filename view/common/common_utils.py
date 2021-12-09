@@ -405,10 +405,11 @@ class ConfigReset(Gtk.ButtonBox):
             options = self.get_option_space()
             for option in options:
                 current_value = self.config.get(option)
-                default_value = self.config.get_default(option)
-                if current_value != default_value:
-                    self.config.set(option, default_value)
-                    reset_option = True
+                if self.config.has_default(option):
+                    default_value = self.config.get_default(option)
+                    if current_value != default_value:
+                        self.config.set(option, default_value)
+                        reset_option = True
             if reset_option:
                 self.dialog.done(None, None)
 
