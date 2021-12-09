@@ -58,7 +58,7 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext
-from ..common.common_const import _LEFT_BUTTON
+from ..common.common_const import _LEFT_BUTTON, GROUP_LABELS
 from ..common.common_utils import (
     TextLink,
     button_pressed,
@@ -66,7 +66,6 @@ from ..common.common_utils import (
     pack_icon,
 )
 from ..common.common_vitals import get_age
-
 from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext
@@ -374,104 +373,98 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
 
         if obj_type == "Person":
             self.__load_person(obj, check)
-        elif (
-            obj_type == "Family"
-            and check("options.global.indicate-children")
-            and obj.get_child_ref_list()
+        elif obj_type == "Family":
+            if check("options.global.indicate-children"):
+                count = len(obj.get_child_ref_list())
+                if count:
+                    self.__add_icon("gramps-person", "child", count)
+        if check("options.global.indicate-events") and hasattr(
+            obj, "event_ref_list"
         ):
-            self.__add_icon("gramps-person", "child", tooltip=_("Children"))
-        if (
-            check("options.global.indicate-events")
-            and hasattr(obj, "event_ref_list")
-            and obj.get_event_ref_list()
+            count = len(obj.get_event_ref_list())
+            if count:
+                self.__add_icon("gramps-event", "event", count)
+        if check("options.global.indicate-ordinances") and hasattr(
+            obj, "lds_ord_list"
         ):
-            self.__add_icon("gramps-event", "event", tooltip=_("Events"))
-        if (
-            check("options.global.indicate-ordinances")
-            and hasattr(obj, "lds_ord_list")
-            and obj.get_lds_ord_list()
+            count = len(obj.get_lds_ord_list())
+            if count:
+                self.__add_icon("emblem-documents", "ldsord", count)
+        if check("options.global.indicate-attributes") and hasattr(
+            obj, "attribute_list"
         ):
-            self.__add_icon(
-                "emblem-documents", "ldsord", tooltip=_("Ordinances")
-            )
-        if (
-            check("options.global.indicate-attributes")
-            and hasattr(obj, "attribute_list")
-            and obj.get_attribute_list()
+            count = len(obj.get_attribute_list())
+            if count:
+                self.__add_icon("gramps-attribute", "attribute", count)
+        if check("options.global.indicate-media") and hasattr(
+            obj, "media_list"
         ):
-            self.__add_icon(
-                "gramps-attribute", "attribute", tooltip=_("Attributes")
-            )
-        if (
-            check("options.global.indicate-media")
-            and hasattr(obj, "media_list")
-            and obj.get_media_list()
+            count = len(obj.get_media_list())
+            if count:
+                self.__add_icon("gramps-media", "media", count)
+        if check("options.global.indicate-citations") and hasattr(
+            obj, "citation_list"
         ):
-            self.__add_icon("gramps-media", "media", tooltip=_("Media"))
-        if (
-            check("options.global.indicate-citations")
-            and hasattr(obj, "citation_list")
-            and obj.get_citation_list()
+            count = len(obj.get_citation_list())
+            if count:
+                self.__add_icon("gramps-citation", "citation", count)
+        if check("options.global.indicate-notes") and hasattr(
+            obj, "note_list"
         ):
-            self.__add_icon(
-                "gramps-citation", "citation", tooltip=_("Citations")
-            )
-        if (
-            check("options.global.indicate-notes")
-            and hasattr(obj, "note_list")
-            and obj.get_note_list()
+            count = len(obj.get_note_list())
+            if count:
+                self.__add_icon("gramps-notes", "note", count)
+        if check("options.global.indicate-addresses") and hasattr(
+            obj, "address_list"
         ):
-            self.__add_icon("gramps-notes", "note", tooltip=_("Notes"))
-        if (
-            check("options.global.indicate-addresses")
-            and hasattr(obj, "address_list")
-            and obj.get_address_list()
-        ):
-            self.__add_icon(
-                "gramps-address", "address", tooltip=_("Addresses")
-            )
-        if (
-            check("options.global.indicate-urls")
-            and hasattr(obj, "urls")
-            and obj.get_url_list()
-        ):
-            self.__add_icon("gramps-url", "url", tooltip=_("Urls"))
+            count = len(obj.get_address_list())
+            if count:
+                self.__add_icon("gramps-address", "address", count)
+        if check("options.global.indicate-urls") and hasattr(obj, "urls"):
+            count = len(obj.get_url_list())
+            if count:
+                self.__add_icon("gramps-url", "url", count)
 
     def __load_person(self, obj, check):
         """
         Examine and load indicators for a person.
         """
-        if (
-            check("options.global.indicate-names")
-            and obj.get_alternate_names()
-        ):
-            self.__add_icon("user-info", "name", tooltip=_("Names"))
-        if (
-            check("options.global.indicate-parents")
-            and obj.get_parent_family_handle_list()
-        ):
-            self.__add_icon("gramps-family", "parent", tooltip=_("Parents"))
-        if (
-            check("options.global.indicate-spouses")
-            and obj.get_family_handle_list()
-        ):
-            self.__add_icon("gramps-spouse", "spouse", tooltip=_("Spouses"))
-        if (
-            check("options.global.indicate-associations")
-            and obj.get_person_ref_list()
-        ):
-            self.__add_icon(
-                "gramps-person", "association", tooltip=_("Associations")
-            )
+        if check("options.global.indicate-names"):
+            count = len(obj.get_alternate_names())
+            if count:
+                self.__add_icon("user-info", "name", count)
+        if check("options.global.indicate-parents"):
+            count = len(obj.get_parent_family_handle_list())
+            if count:
+                self.__add_icon("gramps-family", "parent", count)
+        if check("options.global.indicate-spouses"):
+            count = len(obj.get_family_handle_list())
+            if count:
+                self.__add_icon("gramps-spouse", "spouse", count)
+        if check("options.global.indicate-associations"):
+            count = len(obj.get_person_ref_list())
+            if count:
+                self.__add_icon("gramps-person", "association", count)
 
-    def __add_icon(self, icon_name, group_type, tooltip=None):
+    def __add_icon(self, icon_name, group_type, count):
         """
         Add an indicator icon.
         """
         icon = Gtk.Image(halign=Gtk.Align.END)
         icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        if count == 1:
+            tooltip = " ".join(("1", GROUP_LABELS[group_type]))
+        else:
+            tooltip = " ".join((str(count), GROUP_LABELS[group_type]))
         eventbox = Gtk.EventBox(tooltip_text=tooltip)
-        eventbox.add(icon)
+        if self.grstate.config.get("options.global.enable-indicator-counts"):
+            box = Gtk.HBox(hexpand=False, vexpand=False, spacing=2, margin=0)
+            label = self.make_label(str(count))
+            box.pack_start(label, False, False, 0)
+            box.pack_start(icon, False, False, 0)
+            eventbox.add(box)
+        else:
+            eventbox.add(icon)
         eventbox.connect(
             "button-press-event", self.__indicator_click, group_type
         )
@@ -582,8 +575,6 @@ class GrampsImage(Gtk.EventBox):
                 if self.grstate.config.get("options.global.image-page-link"):
                     context = GrampsContext(self.media, None, None)
                     return self.grstate.load_page(context.pickled)
-            open_file_with_default_application(
-                self.path, self.grstate.uistate
-            )
+            open_file_with_default_application(self.path, self.grstate.uistate)
             return True
         return False

@@ -57,6 +57,7 @@ def build_config_menu(grstate, groptions, event):
     menu = Gtk.Menu()
     menu.append(tags_option(config))
     menu.append(indicators_option(config))
+    menu.append(indicator_counts_option(config))
 
     menu.show_all()
     if Gtk.get_minor_version() >= 22:
@@ -104,6 +105,27 @@ def indicators_option(config):
         toggle,
         config,
         "options.global.icons-enable-indicators",
+    )
+
+
+def indicator_counts_option(config):
+    """
+    Prepare indicators option.
+    """
+    if config.get("options.global.enable-indicator-counts"):
+        return menu_item(
+            "list-remove",
+            _("Disable display of child object counts with indicator icons"),
+            toggle,
+            config,
+            "options.global.enable-indicator-counts",
+        )
+    return menu_item(
+        "list-add",
+        _("Enable display of child object counts with indicator icons"),
+        toggle,
+        config,
+        "options.global.enable-indicator-counts",
     )
 
 

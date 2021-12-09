@@ -137,6 +137,7 @@ CONFIGSETTINGS = (
     ("options.global.icons-group-width", 12),
     ("options.global.icons-enable-tags", True),
     ("options.global.icons-enable-indicators", True),
+    ("options.global.enable-indicator-counts", True),
     ("options.global.indicate-names", True),
     ("options.global.indicate-parents", True),
     ("options.global.indicate-spouses", True),
