@@ -83,7 +83,12 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext, GrampsObject
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON, GRAMPS_EDITORS
+from ..common.common_const import (
+    BUTTON_MIDDLE,
+    BUTTON_PRIMARY,
+    BUTTON_SECONDARY,
+    GRAMPS_EDITORS,
+)
 from ..common.common_utils import (
     attribute_option_text,
     button_pressed,
@@ -242,24 +247,28 @@ class GrampsFrame(GrampsFrameView):
             except pickle.UnpicklingError:
                 return self._dropped_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
-                self._child_drop_handler(dnd_type, obj_or_handle, data)
-            return
+                return self._child_drop_handler(dnd_type, obj_or_handle, data)
+            return False
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
         Handle drop processing, should be defined in derived classes.
         """
 
-    def _base_drop_handler(self, dnd_type, obj_or_handle, data):
+    def _base_drop_handler(self, dnd_type, obj_or_handle, _dummy_data):
         """
         Handle drop processing largely common to all objects.
         """
         if DdTargets.CITATION_LINK.drag_type == dnd_type:
             self._added_citation(obj_or_handle)
-        elif DdTargets.SOURCE_LINK.drag_type == dnd_type:
+            return True
+        if DdTargets.SOURCE_LINK.drag_type == dnd_type:
             self.add_new_citation(None, source_handle=obj_or_handle)
-        elif DdTargets.NOTE_LINK.drag_type == dnd_type:
+            return True
+        if DdTargets.NOTE_LINK.drag_type == dnd_type:
             self._added_note(obj_or_handle)
+            return True
+        return False
 
     def _dropped_text(self, data):
         """
@@ -270,7 +279,7 @@ class GrampsFrame(GrampsFrameView):
             if links:
                 for link in links:
                     self.add_new_media(None, filepath=link)
-            return
+                return True
         added_urls = 0
         if hasattr(self.focus.obj, "urls"):
             links = re.findall(r"(?P<url>https?://[^\s]+)", data)
@@ -278,10 +287,12 @@ class GrampsFrame(GrampsFrameView):
                 for link in links:
                     self.add_url(None, path=link)
                     added_urls = added_urls + len(link)
+                return True
         if not added_urls or (len(data) > (2 * added_urls)):
             if hasattr(self.focus.obj, "note_list"):
                 self.add_new_note(None, content=data)
-        return
+                return True
+        return False
 
     def load_age(self, base_date, current_date):
         """
@@ -311,19 +322,21 @@ class GrampsFrame(GrampsFrameView):
         """
         Handle button pressed.
         """
-        if button_pressed(event, _RIGHT_BUTTON):
+        if button_pressed(event, BUTTON_SECONDARY):
             self.build_action_menu(obj, event)
             return True
-        if button_pressed(event, _LEFT_BUTTON):
+        if button_pressed(event, BUTTON_PRIMARY):
             return False
-        build_config_menu(self, self.grstate, self.groptions, event)
-        return True
+        if button_pressed(event, BUTTON_MIDDLE):
+            build_config_menu(self, self.grstate, self.groptions, event)
+            return True
+        return False
 
     def button_released(self, obj, event):
         """
         Handle button released.
         """
-        if button_released(event, _LEFT_BUTTON):
+        if button_released(event, BUTTON_PRIMARY):
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
             return True
         return False

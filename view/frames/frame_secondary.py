@@ -53,6 +53,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
+from ..common.common_const import BUTTON_SECONDARY
 from .frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext
@@ -108,7 +109,7 @@ class SecondaryGrampsFrame(GrampsFrame):
         """
         Handle drop processing for a person.
         """
-        self._base_drop_handler(dnd_type, obj_or_handle, data)
+        return self._base_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_fact(self, fact, label=None):
         """
@@ -122,39 +123,35 @@ class SecondaryGrampsFrame(GrampsFrame):
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            action_menu = Gtk.Menu()
-            action_menu.append(self._edit_object_option())
-            self.add_custom_actions(action_menu)
-            if hasattr(self.secondary.obj, "citation_list"):
-                action_menu.append(
-                    self._citations_option(
-                        self.secondary.obj,
-                        self.add_new_source_citation,
-                        self.add_existing_source_citation,
-                        self.add_existing_citation,
-                        self.remove_citation,
-                    )
+        action_menu = Gtk.Menu()
+        action_menu.append(self._edit_object_option())
+        self.add_custom_actions(action_menu)
+        if hasattr(self.secondary.obj, "citation_list"):
+            action_menu.append(
+                self._citations_option(
+                    self.secondary.obj,
+                    self.add_new_source_citation,
+                    self.add_existing_source_citation,
+                    self.add_existing_citation,
+                    self.remove_citation,
                 )
-            if hasattr(self.secondary.obj, "note_list"):
-                action_menu.append(
-                    self._notes_option(
-                        self.secondary.obj,
-                        self.add_new_note,
-                        self.add_existing_note,
-                        self.remove_note,
-                    )
+            )
+        if hasattr(self.secondary.obj, "note_list"):
+            action_menu.append(
+                self._notes_option(
+                    self.secondary.obj,
+                    self.add_new_note,
+                    self.add_existing_note,
+                    self.remove_note,
                 )
-            action_menu.append(self._change_privacy_option())
-            action_menu.attach_to_widget(self, None)
-            action_menu.show_all()
-            if Gtk.get_minor_version() >= 22:
-                action_menu.popup_at_pointer(event)
-            else:
-                action_menu.popup(
-                    None, None, None, None, event.button, event.time
-                )
-            return True
+            )
+        action_menu.append(self._change_privacy_option())
+        action_menu.attach_to_widget(self, None)
+        action_menu.show_all()
+        if Gtk.get_minor_version() >= 22:
+            action_menu.popup_at_pointer(event)
+        else:
+            action_menu.popup(None, None, None, None, event.button, event.time)
 
     def add_custom_actions(self, action_menu):
         """

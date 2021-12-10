@@ -94,8 +94,8 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         """
         if DdTargets.REPO_LINK.drag_type == dnd_type:
             self.add_new_repo_ref(obj_or_handle)
-        else:
-            self._primary_drop_handler(dnd_type, obj_or_handle, data)
+            return True
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_custom_actions(self, action_menu):
         """

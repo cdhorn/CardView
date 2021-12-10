@@ -59,7 +59,11 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import (
+    BUTTON_MIDDLE,
+    BUTTON_PRIMARY,
+    BUTTON_SECONDARY,
+)
 from ..common.common_utils import (
     attribute_option_text,
     button_pressed,
@@ -179,19 +183,21 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         Handle button pressed.
         """
-        if button_pressed(event, _RIGHT_BUTTON):
+        if button_pressed(event, BUTTON_SECONDARY):
             self.build_ref_action_menu(obj, event)
             return True
-        if button_pressed(event, _LEFT_BUTTON):
+        if button_pressed(event, BUTTON_PRIMARY):
             return False
-        build_config_menu(self, self.grstate, self.groptions, event)
-        return True
+        if button_pressed(event, BUTTON_MIDDLE):
+            build_config_menu(self, self.grstate, self.groptions, event)
+            return True
+        return False
 
     def ref_button_released(self, obj, event):
         """
         Handle button release.
         """
-        if button_released(event, _LEFT_BUTTON):
+        if button_released(event, BUTTON_PRIMARY):
             page_context = GrampsContext(self.base, self.reference, None)
             self.grstate.load_page(page_context.pickled)
             return True
@@ -201,53 +207,49 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         Build the action menu for a right click on a reference object.
         """
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            action_menu = Gtk.Menu()
-            self.add_ref_custom_actions(action_menu)
-            if hasattr(self.reference.obj, "attribute_list"):
-                action_menu.append(
-                    self._attributes_option(
-                        self.reference.obj,
-                        self.add_ref_attribute,
-                        self.remove_ref_attribute,
-                        self.edit_ref_attribute,
-                    )
+        action_menu = Gtk.Menu()
+        self.add_ref_custom_actions(action_menu)
+        if hasattr(self.reference.obj, "attribute_list"):
+            action_menu.append(
+                self._attributes_option(
+                    self.reference.obj,
+                    self.add_ref_attribute,
+                    self.remove_ref_attribute,
+                    self.edit_ref_attribute,
                 )
-            if hasattr(self.reference.obj, "citation_list"):
-                action_menu.append(
-                    self._citations_option(
-                        self.reference.obj,
-                        self.add_new_ref_source_citation,
-                        self.add_existing_ref_source_citation,
-                        self.add_existing_ref_citation,
-                        self.remove_ref_citation,
-                    )
+            )
+        if hasattr(self.reference.obj, "citation_list"):
+            action_menu.append(
+                self._citations_option(
+                    self.reference.obj,
+                    self.add_new_ref_source_citation,
+                    self.add_existing_ref_source_citation,
+                    self.add_existing_ref_citation,
+                    self.remove_ref_citation,
                 )
-            if hasattr(self.reference.obj, "note_list"):
-                action_menu.append(
-                    self._notes_option(
-                        self.reference.obj,
-                        self.add_new_ref_note,
-                        self.add_existing_ref_note,
-                        self.remove_ref_note,
-                        no_children=True,
-                    )
+            )
+        if hasattr(self.reference.obj, "note_list"):
+            action_menu.append(
+                self._notes_option(
+                    self.reference.obj,
+                    self.add_new_ref_note,
+                    self.add_existing_ref_note,
+                    self.remove_ref_note,
+                    no_children=True,
                 )
-            action_menu.append(self._change_ref_privacy_option())
-            action_menu.add(Gtk.SeparatorMenuItem())
-            reference_type = self._get_reference_type()
-            label = Gtk.MenuItem(label=reference_type)
-            label.set_sensitive(False)
-            action_menu.append(label)
-            action_menu.attach_to_widget(self, None)
-            action_menu.show_all()
-            if Gtk.get_minor_version() >= 22:
-                action_menu.popup_at_pointer(event)
-            else:
-                action_menu.popup(
-                    None, None, None, None, event.button, event.time
-                )
-            return True
+            )
+        action_menu.append(self._change_ref_privacy_option())
+        action_menu.add(Gtk.SeparatorMenuItem())
+        reference_type = self._get_reference_type()
+        label = Gtk.MenuItem(label=reference_type)
+        label.set_sensitive(False)
+        action_menu.append(label)
+        action_menu.attach_to_widget(self, None)
+        action_menu.show_all()
+        if Gtk.get_minor_version() >= 22:
+            action_menu.popup_at_pointer(event)
+        else:
+            action_menu.popup(None, None, None, None, event.button, event.time)
 
     def add_ref_custom_actions(self, action_menu):
         """

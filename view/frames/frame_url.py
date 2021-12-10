@@ -49,7 +49,7 @@ from gramps.gui.display import display_url
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_const import _LEFT_BUTTON
+from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_released
 from .frame_secondary import SecondaryGrampsFrame
 
@@ -95,7 +95,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         """
         Handle button release.
         """
-        if button_released(event, _LEFT_BUTTON):
+        if button_released(event, BUTTON_PRIMARY):
             display_url(self.link)
             return True
         return False

@@ -44,7 +44,7 @@ from gramps.gui.utils import open_file_with_default_application
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
-from ..common.common_const import _LEFT_BUTTON, _RIGHT_BUTTON
+from ..common.common_const import BUTTON_PRIMARY, BUTTON_SECONDARY
 from ..common.common_utils import button_pressed, button_released
 
 from ..frames.frame_media_ref import MediaRefGrampsFrame
@@ -268,7 +268,7 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         """
         Route the ref related action if the frame was clicked on.
         """
-        if button_pressed(event, _RIGHT_BUTTON):
+        if button_pressed(event, BUTTON_PRIMARY):
             self.build_ref_action_menu(obj, event)
             return True
         return False
@@ -277,7 +277,7 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         """
         Handle button release.
         """
-        if button_released(event, _LEFT_BUTTON):
+        if button_released(event, BUTTON_SECONDARY):
             if self.grstate.config.get("options.global.media-bar-page-link"):
                 self.switch_object(None, None, "Media", self.primary.obj)
             else:

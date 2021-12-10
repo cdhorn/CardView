@@ -184,8 +184,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         if DdTargets.PERSON_LINK.drag_type == dnd_type:
             self.add_existing_participant(None, person_handle=obj_or_handle)
-        else:
-            self._primary_drop_handler(dnd_type, obj_or_handle, data)
+            return True
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def _get_title_and_role(self, event_type, primary_participant):
         """

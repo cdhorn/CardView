@@ -111,8 +111,8 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
         """
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
             self.add_new_source(obj_or_handle)
-        else:
-            self._primary_drop_handler(dnd_type, obj_or_handle, data)
+            return True
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_new_source(self, obj_or_handle):
         """

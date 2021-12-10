@@ -159,10 +159,11 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         if DdTargets.EVENT.drag_type == dnd_type:
             self.add_new_person_event(None, event_handle=obj_or_handle)
+            return True
         elif DdTargets.PERSON_LINK.drag_type == dnd_type:
             self.add_new_person_ref(obj_or_handle)
-        else:
-            self._primary_drop_handler(dnd_type, obj_or_handle, data)
+            return True
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def load_age_at_event(self, event_cache):
         """

@@ -42,7 +42,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_const import _LEFT_BUTTON
+from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_pressed
 from .page_base import GrampsPageView
 
@@ -89,7 +89,7 @@ class PersonPageView(GrampsPageView):
         """
         Trigger reorder families.
         """
-        if button_pressed(event, _LEFT_BUTTON):
+        if button_pressed(event, BUTTON_PRIMARY):
             self.reorder(obj)
 
     def _reorder_families(self, *_dummy_obj):

@@ -85,6 +85,7 @@ from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
+from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import (
     attribute_option_text,
     get_bookmarks,
@@ -222,12 +223,14 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if DdTargets.MEDIAOBJ.drag_type == dnd_type:
             self.add_new_media_ref(obj_or_handle)
-        elif DdTargets.ATTRIBUTE.drag_type == dnd_type:
+            return True
+        if DdTargets.ATTRIBUTE.drag_type == dnd_type:
             self.added_attribute(obj_or_handle)
-        elif DdTargets.URL.drag_type == dnd_type:
+            return True
+        if DdTargets.URL.drag_type == dnd_type:
             self.added_url(obj_or_handle)
-        else:
-            self._base_drop_handler(dnd_type, obj_or_handle, data)
+            return True
+        return self._base_drop_handler(dnd_type, obj_or_handle, data)
 
     def build_action_menu(self, _dummy_obj, event):
         """
@@ -235,72 +238,68 @@ class PrimaryGrampsFrame(GrampsFrame):
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            action_menu = Gtk.Menu()
-            action_menu.append(self._edit_object_option())
-            self.add_custom_actions(action_menu)
-            if hasattr(self.primary.obj, "attribute_list"):
-                action_menu.append(
-                    self._attributes_option(
-                        self.primary.obj,
-                        self.add_attribute,
-                        self.remove_attribute,
-                        self.edit_attribute,
-                    )
+        action_menu = Gtk.Menu()
+        action_menu.append(self._edit_object_option())
+        self.add_custom_actions(action_menu)
+        if hasattr(self.primary.obj, "attribute_list"):
+            action_menu.append(
+                self._attributes_option(
+                    self.primary.obj,
+                    self.add_attribute,
+                    self.remove_attribute,
+                    self.edit_attribute,
                 )
-            if hasattr(self.primary.obj, "citation_list"):
-                action_menu.append(
-                    self._citations_option(
-                        self.primary.obj,
-                        self.add_new_source_citation,
-                        self.add_existing_source_citation,
-                        self.add_existing_citation,
-                        self.remove_citation,
-                    )
+            )
+        if hasattr(self.primary.obj, "citation_list"):
+            action_menu.append(
+                self._citations_option(
+                    self.primary.obj,
+                    self.add_new_source_citation,
+                    self.add_existing_source_citation,
+                    self.add_existing_citation,
+                    self.remove_citation,
                 )
-            if hasattr(self.primary.obj, "media_list"):
-                action_menu.append(self._media_option())
-            if hasattr(self.primary.obj, "note_list"):
-                action_menu.append(
-                    self._notes_option(
-                        self.primary.obj,
-                        self.add_new_note,
-                        self.add_existing_note,
-                        self.remove_note,
-                    )
+            )
+        if hasattr(self.primary.obj, "media_list"):
+            action_menu.append(self._media_option())
+        if hasattr(self.primary.obj, "note_list"):
+            action_menu.append(
+                self._notes_option(
+                    self.primary.obj,
+                    self.add_new_note,
+                    self.add_existing_note,
+                    self.remove_note,
                 )
-            if hasattr(self.primary.obj, "tag_list"):
-                action_menu.append(self._tags_option())
-            if hasattr(self.primary.obj, "urls"):
-                action_menu.append(self._urls_option())
-            action_menu.append(self._copy_to_clipboard_option())
-            if self.grstate.config.get("options.global.enable-bookmarks"):
-                action_menu.append(self._bookmark_option())
-            action_menu.append(self._change_privacy_option())
-            action_menu.add(Gtk.SeparatorMenuItem())
-            if self.primary.obj.change:
-                text = " ".join(
-                    (
-                        _("Last changed"),
-                        time.strftime(
-                            "%x %X", time.localtime(self.primary.obj.change)
-                        ),
-                    )
+            )
+        if hasattr(self.primary.obj, "tag_list"):
+            action_menu.append(self._tags_option())
+        if hasattr(self.primary.obj, "urls"):
+            action_menu.append(self._urls_option())
+        action_menu.append(self._copy_to_clipboard_option())
+        if self.grstate.config.get("options.global.enable-bookmarks"):
+            action_menu.append(self._bookmark_option())
+        action_menu.append(self._change_privacy_option())
+        action_menu.add(Gtk.SeparatorMenuItem())
+        if self.primary.obj.change:
+            text = " ".join(
+                (
+                    _("Last changed"),
+                    time.strftime(
+                        "%x %X", time.localtime(self.primary.obj.change)
+                    ),
                 )
-            else:
-                text = _("Never changed")
-            label = Gtk.MenuItem(label=text)
-            label.set_sensitive(False)
-            action_menu.append(label)
-            action_menu.attach_to_widget(self, None)
-            action_menu.show_all()
-            if Gtk.get_minor_version() >= 22:
-                action_menu.popup_at_pointer(event)
-            else:
-                action_menu.popup(
-                    None, None, None, None, event.button, event.time
-                )
-            return True
+            )
+        else:
+            text = _("Never changed")
+        label = Gtk.MenuItem(label=text)
+        label.set_sensitive(False)
+        action_menu.append(label)
+        action_menu.attach_to_widget(self, None)
+        action_menu.show_all()
+        if Gtk.get_minor_version() >= 22:
+            action_menu.popup_at_pointer(event)
+        else:
+            action_menu.popup(None, None, None, None, event.button, event.time)
 
     def add_custom_actions(self, action_menu):
         """

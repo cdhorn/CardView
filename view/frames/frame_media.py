@@ -100,7 +100,7 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         """
         Handle drop processing for a person.
         """
-        self._primary_drop_handler(dnd_type, obj_or_handle, data)
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def build_layout(self):
         """

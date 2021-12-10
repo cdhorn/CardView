@@ -68,7 +68,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         """
         Handle drop processing for a person.
         """
-        self._primary_drop_handler(dnd_type, obj_or_handle, data)
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def populate_layout(self, source, citation, reference=None):
         """

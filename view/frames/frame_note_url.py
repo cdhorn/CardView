@@ -44,7 +44,7 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 
-from ..common.common_const import _LEFT_BUTTON
+from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import TextLink, button_released
 
 # ------------------------------------------------------------------------
@@ -95,7 +95,7 @@ class NoteUrlGrampsFrame(GrampsFrame):
         """
         Handle button released.
         """
-        if button_released(event, _LEFT_BUTTON):
+        if button_released(event, BUTTON_PRIMARY):
             display_url(self.link)
             return True
         return False

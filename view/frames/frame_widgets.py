@@ -59,7 +59,7 @@ from gramps.gui.utils import open_file_with_default_application
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext
 from ..common.common_const import (
-    _LEFT_BUTTON,
+    BUTTON_PRIMARY,
     GROUP_LABELS,
     GROUP_LABELS_SINGLE,
 )
@@ -475,15 +475,24 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         else:
             eventbox.add(icon)
         eventbox.connect(
-            "button-press-event", self.__indicator_click, group_type
+            "button-press-event", self.__indicator_press, group_type
         )
+        eventbox.connect("button-release-event", self.__indicator_release)
         self.flowbox.add(eventbox)
 
-    def __indicator_click(self, _dummy_obj, _dummy_event, group_type):
+    def __indicator_press(self, _dummy_obj, event, group_type):
         """
         Launch group dialog.
         """
+        if not button_pressed(event, BUTTON_PRIMARY):
+            return False
         self.grstate.show_group(self.obj, group_type, title=self.title)
+        return True
+
+    def __indicator_release(self, *_dummy_args):
+        """
+        Sink action.
+        """
         return True
 
     def load_tags(self):
@@ -508,14 +517,16 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
             )
             self.flowbox.add(eventbox)
 
-    def __tag_click(self, _dummy_obj, _dummy_event, handle):
+    def __tag_click(self, _dummy_obj, event, handle):
         """
         Request page for tag.
         """
-        tag = self.fetch("Tag", handle)
-        page_context = GrampsContext(tag, None, None)
-        self.grstate.load_page(page_context.pickled)
-        return True
+        if button_pressed(event, BUTTON_PRIMARY):
+            tag = self.fetch("Tag", handle)
+            page_context = GrampsContext(tag, None, None)
+            self.grstate.load_page(page_context.pickled)
+            return True
+        return False
 
 
 # ------------------------------------------------------------------------
@@ -579,7 +590,7 @@ class GrampsImage(Gtk.EventBox):
         """
         Open the image in the default picture viewer.
         """
-        if button_pressed(event, _LEFT_BUTTON):
+        if button_pressed(event, BUTTON_PRIMARY):
             if not self.active:
                 if self.grstate.config.get("options.global.image-page-link"):
                     context = GrampsContext(self.media, None, None)

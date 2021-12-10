@@ -60,6 +60,7 @@ from .common_const import (
     _KP_ENTER,
     _RETURN,
     _SPACE,
+    BUTTON_PRIMARY,
     CONFIDENCE_COLOR_SCHEME,
 )
 
@@ -116,6 +117,9 @@ class TextLink(Gtk.EventBox):
         markup=None,
     ):
         Gtk.EventBox.__init__(self)
+        self.obj_type = obj_type
+        self.callback = callback
+        self.handle = handle
         self.name = escape(name)
         if markup:
             self.name = markup.format(self.name)
@@ -131,11 +135,20 @@ class TextLink(Gtk.EventBox):
         self.label.set_markup(self.name)
         self.add(self.label)
         if callback:
-            self.connect("button-press-event", callback, obj_type, handle)
+            self.connect("button-press-event", self.validate)
             self.connect("enter-notify-event", self.enter)
             self.connect("leave-notify-event", self.leave)
         if tooltip:
             self.set_tooltip_text(tooltip)
+
+    def validate(self, _dummy_obj, event):
+        """
+        Validate primary button click.
+        """
+        if button_pressed(event, BUTTON_PRIMARY):
+            self.callback(None, None, self.obj_type, self.handle)
+            return True
+        return False
 
     def enter(self, _dummy_obj, _dummy_event):
         """

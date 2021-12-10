@@ -86,8 +86,10 @@ from gramps.gui.editors import (
 _ = glocale.translation.sgettext
 
 
-_LEFT_BUTTON = 1
-_RIGHT_BUTTON = 3
+BUTTON_PRIMARY = Gdk.BUTTON_PRIMARY
+BUTTON_MIDDLE = Gdk.BUTTON_MIDDLE
+BUTTON_SECONDARY = Gdk.BUTTON_SECONDARY
+
 _RETURN = Gdk.keyval_from_name("Return")
 _KP_ENTER = Gdk.keyval_from_name("KP_Enter")
 _SPACE = Gdk.keyval_from_name("space")
