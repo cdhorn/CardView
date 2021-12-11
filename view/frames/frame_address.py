@@ -60,25 +60,25 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
     ):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, address)
         if address.street:
-            self.add_fact(self.make_label(address.street))
+            self.add_fact(self.get_label(address.street))
         if address.locality:
-            self.add_fact(self.make_label(address.locality))
+            self.add_fact(self.get_label(address.locality))
         if address.county:
-            self.add_fact(self.make_label(address.county))
+            self.add_fact(self.get_label(address.county))
         if address.city:
-            self.add_fact(self.make_label(address.city))
+            self.add_fact(self.get_label(address.city))
         if address.state:
-            self.add_fact(self.make_label(address.state))
+            self.add_fact(self.get_label(address.state))
         if address.country:
-            self.add_fact(self.make_label(address.country))
+            self.add_fact(self.get_label(address.country))
         if address.postal:
-            self.add_fact(self.make_label(address.postal))
+            self.add_fact(self.get_label(address.postal))
         if address.phone:
-            self.add_fact(self.make_label(address.phone))
+            self.add_fact(self.get_label(address.phone))
         if address.get_date_object():
             text = glocale.date_displayer.display(address.get_date_object())
             if text:
-                self.add_fact(self.make_label(text))
+                self.add_fact(self.get_label(text))
 
             if groptions.age_base:
                 if groptions.context in ["timeline"]:
@@ -91,7 +91,7 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
                     )
 
         if len(self.widgets["facts"]) == 0:
-            self.add_fact(self.make_label("".join(("[", _("Empty"), "]"))))
+            self.add_fact(self.get_label("".join(("[", _("Empty"), "]"))))
         self.show_all()
         self.enable_drag()
         self.enable_drop()

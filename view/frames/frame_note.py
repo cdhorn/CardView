@@ -43,7 +43,6 @@ from gramps.gui.widgets import StyledTextBuffer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -98,12 +97,10 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
             else:
                 title = _("Preview")
         if title:
-            label = TextLink(
+            label = self.get_link(
                 title,
                 "Note",
                 note.get_handle(),
-                self.switch_object,
-                bold=True,
             )
             self.add_fact(label)
 

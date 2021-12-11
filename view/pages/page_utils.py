@@ -87,9 +87,9 @@ def config_facts_fields(
     grid,
     start_row,
     start_col=1,
-    number=8,
+    number=10,
     mode="all",
-    key="facts-field",
+    key="lfield",
     obj_type="Person",
 ):
     """
@@ -112,7 +112,7 @@ def config_facts_fields(
         count = count + 1
         row = row + 1
     args = []
-    if key != "attributes-field":
+    if key != "rfield":
         if context in [
             "person",
             "child",

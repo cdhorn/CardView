@@ -43,11 +43,11 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_const import _DIVORCE_EQUIVALENTS, _MARRIAGE_EQUIVALENTS
-from ..common.common_utils import TextLink, get_family_color_css, menu_item
+from ..common.common_utils import get_family_color_css, menu_item
 from ..common.common_vitals import get_marriage_duration
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
+from ..fields.field_builder import field_builder
 
 _ = glocale.translation.sgettext
 
@@ -102,35 +102,19 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 if "]" in data:
                     title = data.split("]")[1].strip()
 
-        label = TextLink(
-            title,
-            "Family",
-            family.handle,
-            self.switch_object,
-            bold=True,
-        )
+        label = self.get_link(title, "Family", family.handle)
         self.widgets["title"].pack_start(label, True, True, 0)
-
-        if self.get_option("".join((anchor, ".show-relationship"))):
-            if self.parent1 and self.parent2:
-                self.load_relationship(self.parent1, self.parent2)
 
         event_cache = []
         for event_ref in family.get_event_ref_list():
             event_cache.append(self.fetch("Event", event_ref.ref))
-        self.load_fields(event_cache, anchor, "facts-field")
 
-        if self.get_option("".join((anchor, ".show-duration"))):
-            text = get_marriage_duration(
-                self.grstate.dbstate.db, family.get_handle()
-            )
-            if text:
-                self.add_fact(
-                    self.make_label(text), label=self.make_label(_("Duration"))
-                )
+        option_prefix = "".join((anchor, ".lfield-"))
+        self.load_fields("facts", option_prefix, event_cache)
 
         if "active" in groptions.option_space:
-            self.load_fields(event_cache, anchor, "extra-field", extra=True)
+            option_prefix = "".join((anchor, ".mfield-"))
+            self.load_fields("extra", option_prefix, event_cache)
         del event_cache
 
         self.show_all()
@@ -246,198 +230,43 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 self.widgets["image"], expand=False, fill=False, padding=0
             )
 
-    def load_relationship(self, person1, person2):
-        """
-        If couple are related show how.
-        """
-        relations = self.grstate.uistate.relationship.get_all_relationships(
-            self.grstate.dbstate.db, person1, person2
-        )
-        for relation in relations[0]:
-            if _("husband") not in relation and _("wife") not in relation:
-                label = self.make_label(_("Relationship"))
-                text = relation
-                if "(" in text:
-                    text = text.split("(")[0].strip()
-                relation = self.make_label(text.capitalize())
-                self.add_fact(relation, label=label)
-                break
-
-    def load_fields(self, event_cache, anchor, field_type, extra=False):
+    def load_fields(self, grid_key, option_prefix, event_cache):
         """
         Parse and load a set of facts about a couple.
         """
-        key = "".join((anchor, ".", field_type, "-skip-marriage-alternates"))
-        skip_marriage_alternates = self.get_option(key)
-        key = "".join((anchor, ".", field_type, "-skip-divorce-alternates"))
-        skip_divorce_alternates = self.get_option(key)
-        have_marriage = False
-        have_divorce = False
+        have_marriage, have_divorce = None, None
         for event in event_cache:
             if event.get_type().xml_str() == "Marriage":
                 have_marriage = event
             elif event.get_type().xml_str() == "Divorce":
                 have_divorce = event
                 self.divorced = True
-
-        count = 1
-        while count < 9:
-            option = self.get_option(
-                "".join((anchor, ".", field_type, "-", str(count))),
-                full=False,
-                keyed=True,
-            )
-            if (
-                option
-                and option[0] != "None"
-                and len(option) > 1
-                and option[1]
-            ):
-                if len(option) >= 3:
-                    show_all = bool(option[2] == "True")
-                if option[0] == "Event":
-                    self.add_field_for_event(
-                        event_cache,
-                        option[1],
-                        extra=extra,
-                        show_all=show_all,
-                        skip_marriage=skip_marriage_alternates,
-                        have_marriage=have_marriage,
-                        skip_divorce=skip_divorce_alternates,
-                        have_divorce=have_divorce,
-                    )
-                elif option[0] == "Fact":
-                    self.add_field_for_fact(
-                        event_cache, option[1], extra=extra, show_all=show_all
-                    )
-                elif option[0] == "Attribute":
-                    self.add_field_for_attribute(
-                        option[1], extra=extra, show_all=show_all
-                    )
-            count = count + 1
-
-    def add_field_for_event(
-        self,
-        event_cache,
-        event_type,
-        extra=False,
-        show_all=False,
-        skip_marriage=False,
-        have_marriage=None,
-        skip_divorce=False,
-        have_divorce=None,
-    ):
-        """
-        Find an event and load the data.
-        """
-        for event in event_cache:
-            if event.get_type().xml_str() == event_type:
-                if skip_marriage and have_marriage:
-                    if event_type in _MARRIAGE_EQUIVALENTS:
-                        return
-                if skip_divorce and have_divorce:
-                    if event_type in _DIVORCE_EQUIVALENTS:
-                        return
-                if (
-                    event_type in _DIVORCE_EQUIVALENTS
-                    or event_type == "Divorce"
-                ):
-                    self.divorced = True
-                self.add_event(
-                    event,
-                    extra=extra,
-                    reference=have_marriage,
-                )
-                if not show_all:
-                    return
-
-    def add_field_for_fact(
-        self, event_cache, event_type, extra=False, show_all=False
-    ):
-        """
-        Find an event and load the data.
-        """
-        for event in event_cache:
-            if event.get_type().xml_str() == event_type:
-                if event.get_description():
-                    label = TextLink(
-                        str(event.get_type()),
-                        "Event",
-                        event.get_handle(),
-                        self.switch_object,
-                        bold=False,
-                        markup=self.markup,
-                    )
-                    fact = TextLink(
-                        event.get_description(),
-                        "Event",
-                        event.get_handle(),
-                        self.switch_object,
-                        bold=False,
-                        markup=self.markup,
-                    )
-                    self.add_fact(fact, label=label, extra=extra)
-                    if not show_all:
-                        return
-
-    def add_field_for_attribute(
-        self, attribute_type, extra=False, show_all=False
-    ):
-        """
-        Find an attribute and load the data.
-        """
-        for attribute in self.primary.obj.get_attribute_list():
-            if attribute.get_type().xml_str() == attribute_type:
-                if attribute.get_value():
-                    label = self.make_label(str(attribute.get_type()))
-                    fact = self.make_label(attribute.get_value())
-                    self.add_fact(fact, label=label, extra=extra)
-                    if not show_all:
-                        return
+        args = {
+            "event_format": self.get_option("event-format"),
+            "event_cache": event_cache,
+            "have_marriage": have_marriage,
+            "have_divorce": have_divorce,
+        }
+        key = "".join((option_prefix, "skip-marriage-alternates"))
+        args.update({"skip_marriage_alternates": self.get_option(key)})
+        key = "".join((option_prefix, "skip-divorce-alternates"))
+        args.update({"skip_divorce_alternates": self.get_option(key)})
+        self.load_grid(grid_key, option_prefix, args=args)
 
     def load_attributes(self):
         """
         Load any user defined attributes.
         """
-
-        def add_attribute(attribute):
-            """
-            Check and add attribute if applicable.
-            """
-            if attribute.get_value():
-                value = self.make_label(attribute.get_value(), left=False)
-                if label:
-                    key = self.make_label(
-                        str(attribute.get_type()), left=False
-                    )
-                else:
-                    key = None
-                self.widgets["attributes"].add_fact(value, label=key)
-
         if "active" in self.groptions.option_space:
-            prefix = "options.active.family"
+            option_prefix = "options.active.family.rfield-"
         else:
-            prefix = "options.group.family"
-
-        label = self.get_option(
-            "".join((prefix, ".attributes-field-show-labels"))
-        )
-        for number in range(1, 9):
-            option = self.get_option(
-                "".join((prefix, ".attributes-field-", str(number))),
-                full=False,
-                keyed=True,
+            option_prefix = "options.group.family.rfield-"
+        args = {
+            "skip_labels": not self.get_option(
+                "".join((option_prefix, "show-labels"))
             )
-            if (
-                option
-                and option[0] == "Attribute"
-                and len(option) >= 2
-                and option[1]
-            ):
-                for attribute in self.primary.obj.get_attribute_list():
-                    if attribute.get_type().xml_str() == option[1]:
-                        add_attribute(attribute)
-                        break
+        }
+        self.load_grid("attributes", option_prefix, args)
 
     def _get_profile(self, person):
         if person:

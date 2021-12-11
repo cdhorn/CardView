@@ -47,6 +47,21 @@ from gramps.gen.utils.db import family_name
 _ = glocale.translation.sgettext
 
 
+def get_span(date1, date2, strip=True):
+    """
+    Return span.
+    """
+    span = Span(date1, date2)
+    if span.is_valid():
+        precision = global_config.get("preferences.age-display-precision")
+        age = str(span.format(precision=precision))
+        if age and age != "unknown":
+            if strip:
+                return age.strip("()")
+            return age
+    return ""
+
+
 def get_age(base_event, current_event, today=None, strip=False):
     """
     Return age text if applicable.
@@ -57,16 +72,7 @@ def get_age(base_event, current_event, today=None, strip=False):
                 current = today
             else:
                 current = current_event.date
-            span = Span(base_event.date, current)
-            if span.is_valid():
-                precision = global_config.get(
-                    "preferences.age-display-precision"
-                )
-                age = str(span.format(precision=precision))
-                if age and age != "unknown":
-                    if strip:
-                        return age.strip("()")
-                    return age
+            return get_span(base_event.date, current, strip=strip)
     return ""
 
 

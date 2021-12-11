@@ -158,7 +158,7 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
         grid2b,
         1,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
     )
     grid.attach(grid2b, 1, 1, 1, 1)
 
@@ -172,7 +172,7 @@ def build_person_grid(configdialog, grstate, space, person, extra=False):
             person,
             grid3,
             1,
-            key="extra-field",
+            key="mfield",
         )
     grid.attach(grid3, 0, 2, 1, 1)
     return add_config_reset(
@@ -206,20 +206,6 @@ def build_family_grid(configdialog, grstate, space):
         _("Enable compact mode"),
         3,
         "{}.family.compact-mode".format(space),
-        start=1,
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Show duration of marriage"),
-        5,
-        "{}.family.show-duration".format(space),
-        start=1,
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Show relationship if related"),
-        6,
-        "{}.family.show-relationship".format(space),
         start=1,
     )
     if "active" in space:
@@ -263,7 +249,7 @@ def build_family_grid(configdialog, grstate, space):
         grid2b,
         1,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Family",
     )
     grid.attach(grid2b, 1, 1, 1, 1)
@@ -279,7 +265,7 @@ def build_family_grid(configdialog, grstate, space):
             grid3,
             1,
             mode="event",
-            key="extra-field",
+            key="mfield",
             obj_type="Family",
         )
     grid.attach(grid3, 0, 2, 1, 1)
@@ -459,9 +445,9 @@ def build_media_grid(configdialog, grstate, space, group=True):
         grid,
         21,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Media",
     )
     return add_config_reset(
@@ -651,9 +637,9 @@ def build_citation_grid(configdialog, grstate, space):
         grid,
         16,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Citation",
     )
     return add_config_reset(
@@ -690,9 +676,9 @@ def build_source_grid(configdialog, grstate, space):
         grid,
         16,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Source",
     )
     return add_config_reset(
@@ -881,9 +867,9 @@ def build_event_grid(configdialog, grstate, space):
         grid,
         32,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Event",
     )
     return add_config_reset(

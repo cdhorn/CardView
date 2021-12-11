@@ -217,9 +217,9 @@ def build_person_timeline_grid(configdialog, grstate):
         grid1,
         20,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Event",
     )
     grid2 = create_grid()
@@ -760,9 +760,9 @@ def build_family_timeline_grid(configdialog, grstate):
         grid1,
         20,
         start_col=1,
-        number=4,
+        number=5,
         mode="fact",
-        key="attributes-field",
+        key="rfield",
         obj_type="Event",
     )
     grid2 = create_grid()

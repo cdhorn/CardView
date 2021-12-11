@@ -312,7 +312,7 @@ class GrampsFrame(GrampsFrameView):
                     ("<b>", year, "</b>\n", age.replace(", ", ",\n"))
                 )
                 label = Gtk.Label(
-                    label=self.markup.format(text.strip()),
+                    label=self.detail_markup.format(text.strip()),
                     use_markup=True,
                     justify=Gtk.Justification.CENTER,
                 )

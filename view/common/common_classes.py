@@ -57,6 +57,7 @@ from gramps.gen.db import DbTxn
 # ------------------------------------------------------------------------
 from .common_const import GRAMPS_OBJECTS
 from .common_utils import (
+    TextLink,
     find_reference,
     find_secondary_object,
     find_modified_secondary_object,
@@ -360,7 +361,7 @@ class GrampsContext:
 
     def refresh(self, grstate):
         """
-        TODO: Hash out secondary refreshes.
+        Refresh current context state as something changed.
         """
         new_primary_obj = grstate.fetch(
             "Person", self.primary_obj.obj.get_handle()
@@ -425,6 +426,17 @@ class GrampsState:
         Load the proper page for the given context.
         """
         return self.callbacks["load-page"](context)
+
+    def load_primary_page(self, obj_type, obj_or_handle):
+        """
+        Load page for a primary object.
+        """
+        if isinstance(obj_or_handle, str):
+            obj = self.fetch(obj_type, obj_or_handle)
+        else:
+            obj = obj_or_handle
+        context = GrampsContext(obj, None, None)
+        return self.load_page(context.pickled)
 
     def copy_to_clipboard(self, data, handle):
         """
@@ -551,9 +563,14 @@ class GrampsConfig:
     def __init__(self, grstate, groptions):
         self.grstate = grstate
         self.groptions = groptions
-        self.markup = "{}"
         if self.grstate.config.get("options.global.use-smaller-detail-font"):
-            self.markup = "<small>{}</small>"
+            self.detail_markup = "<small>{}</small>"
+        else:
+            self.detail_markup = "{}"
+        if self.grstate.config.get("options.global.use-smaller-title-font"):
+            self.title_markup = "<small>{}</small>"
+        else:
+            self.title_markup = "{}"
         self.fetch = self.grstate.fetch
 
     def get_option(self, key, full=True, keyed=False):
@@ -586,7 +603,7 @@ class GrampsConfig:
         except AttributeError:
             return False
 
-    def make_label(self, data, left=True):
+    def get_label(self, data, left=True):
         """
         Simple helper to prepare a label.
         """
@@ -611,8 +628,35 @@ class GrampsConfig:
                 xalign=1.0,
             )
         text = data or ""
-        label.set_markup(self.markup.format(escape(text)))
+        label.set_markup(self.detail_markup.format(escape(text)))
         return label
+
+    def get_link(
+        self,
+        description,
+        obj_type,
+        obj_handle,
+        callback=None,
+        title=True,
+        hexpand=False,
+    ):
+        """
+        Simple helper to prepare a link.
+        """
+        callback = callback or self.grstate.load_primary_page
+        if title:
+            markup = self.title_markup
+        else:
+            markup = self.detail_markup
+        return TextLink(
+            description,
+            obj_type,
+            obj_handle,
+            callback,
+            bold=title,
+            markup=markup,
+            hexpand=hexpand,
+        )
 
     def confirm_action(self, title, *args):
         """

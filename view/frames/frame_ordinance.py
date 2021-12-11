@@ -38,7 +38,7 @@ from gramps.gen.utils.db import family_name
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_utils import TextLink, get_person_color_css
+from ..common.common_utils import get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -58,18 +58,18 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, ordinance)
 
         title = ": ".join((_("LDS"), ordinance.type2str()))
-        label = TextLink(
+        label = self.get_link(
             title,
             self.primary.obj,
             self.primary.obj.get_handle(),
-            self.switch_ordinance_page,
+            callback=self.switch_ordinance_page,
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
         if ordinance.get_date_object():
             date = glocale.date_displayer.display(ordinance.get_date_object())
             if date:
-                self.add_fact(self.make_label(date))
+                self.add_fact(self.get_label(date))
 
             if groptions.age_base:
                 if groptions.context in ["timeline"]:
@@ -83,14 +83,12 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
 
         text = place_displayer.display_event(grstate.dbstate.db, ordinance)
         if text:
-            place = TextLink(
+            place = self.get_link(
                 text,
                 "Place",
                 ordinance.place,
-                self.switch_object,
                 hexpand=False,
-                bold=False,
-                markup=self.markup,
+                title=False,
             )
             self.add_fact(place)
 
@@ -99,15 +97,15 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
                 "Family", ordinance.get_family_handle()
             )
             text = family_name(family, self.grstate.dbstate.db)
-            self.add_fact(self.make_label(": ".join((_("Family"), text))))
+            self.add_fact(self.get_label(": ".join((_("Family"), text))))
 
         if ordinance.get_temple():
             temple = ": ".join((_("Temple"), ordinance.get_temple()))
-            self.add_fact(self.make_label(temple))
+            self.add_fact(self.get_label(temple))
 
         if ordinance.get_status():
             status = ": ".join((_("Status"), ordinance.status2str()))
-            self.add_fact(self.make_label(status))
+            self.add_fact(self.get_label(status))
 
         self.show_all()
         self.enable_drop()

@@ -101,19 +101,13 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             halign=Gtk.Align.START,
             valign=Gtk.Align.START,
         )
-        self.widgets["facts"] = GrampsFrameGrid(
-            self.grstate, self.groptions, self.cbrouter
-        )
+        self.widgets["facts"] = GrampsFrameGrid()
         if "active" in self.groptions.option_space:
-            self.widgets["extra"] = GrampsFrameGrid(
-                self.grstate, self.groptions, self.cbrouter
-            )
+            self.widgets["extra"] = GrampsFrameGrid()
         self.widgets["icons"] = GrampsFrameIcons(self.grstate, self.groptions)
 
         self.widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
-        self.widgets["attributes"] = GrampsFrameGrid(
-            self.grstate, self.groptions, self.cbrouter, right=True
-        )
+        self.widgets["attributes"] = GrampsFrameGrid(right=True)
 
     def _init_ref_widgets(self):
         """

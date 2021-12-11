@@ -39,7 +39,6 @@ from gramps.gui.editors import EditRepoRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -65,19 +64,17 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
             reference_tuple=reference_tuple,
         )
 
-        title = TextLink(
+        title = self.get_link(
             repository.name,
             "Repository",
             repository.get_handle(),
-            self.switch_object,
-            bold=True,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
         if repository.get_address_list():
             address = repository.get_address_list()[0]
             if address.street:
-                self.add_fact(self.make_label(address.street))
+                self.add_fact(self.get_label(address.street))
             text = ""
             comma = ""
             if address.city:
@@ -91,13 +88,13 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
             if address.postal:
                 text = " ".join((text, address.postal))
             if text:
-                self.add_fact(self.make_label(text))
+                self.add_fact(self.get_label(text))
             if address.phone:
-                self.add_fact(self.make_label(address.phone))
+                self.add_fact(self.get_label(address.phone))
 
         if self.get_option("show-repository-type"):
             if repository.get_type():
-                label = self.make_label(str(repository.get_type()), left=False)
+                label = self.get_label(str(repository.get_type()), left=False)
                 self.widgets["attributes"].add_fact(label)
 
         self.enable_drag()

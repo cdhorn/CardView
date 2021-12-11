@@ -45,7 +45,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 
 from ..common.common_const import BUTTON_PRIMARY
-from ..common.common_utils import TextLink, button_released
+from ..common.common_utils import button_released
 
 # ------------------------------------------------------------------------
 #
@@ -78,14 +78,12 @@ class NoteUrlGrampsFrame(GrampsFrame):
         )
         self.widgets["title"].pack_start(label, False, False, 0)
         text = " ".join((_("Found"), _("in"), _("note"), note.get_gramps_id()))
-        note_link = TextLink(
+        note_link = self.get_link(
             text,
             "Note",
             note.get_handle(),
-            self.switch_object,
             hexpand=False,
-            bold=False,
-            markup=self.markup,
+            title=False,
         )
         self.widgets["facts"].attach(note_link, 0, 0, 1, 1)
         self.set_css_style()

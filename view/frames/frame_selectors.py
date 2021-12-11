@@ -26,6 +26,13 @@ Frame option selection classes
 
 # ------------------------------------------------------------------------
 #
+# Python modules
+#
+# ------------------------------------------------------------------------
+from copy import copy
+
+# ------------------------------------------------------------------------
+#
 # GTK modules
 #
 # ------------------------------------------------------------------------
@@ -51,10 +58,57 @@ from ..common.common_utils import get_config_option, save_config_option
 
 _ = glocale.translation.sgettext
 
+VALUE_TYPES = {
+    "None": _("None"),
+    "Attribute": _("Attribute"),
+    "Calculated": _("Calculated"),
+    "Event": _("Event"),
+    "Fact": _("Fact"),
+    "Relationship": _("Relationship"),
+}
+
+CALCULATED_PERSON_TYPES = {
+    "None": _("None"),
+    "Child Number": _("Child Number"),
+    "Duration": _("Duration"),
+    "Lifespan": _("Lifespan"),
+    "Living": _("Living"),
+    "Occupations": _("Occupations"),
+    "Maternal Progenitors": _("Maternal Progenitors"),
+    "Paternal Progenitors": _("Paternal Progenitors"),
+}
+
+CALCULATED_FAMILY_TYPES = {
+    "None": _("None"),
+    "Duration": _("Duration"),
+    "Relationship": _("Relationship"),
+}
+
+CALCULATED_ATTRIBUTE_TYPES = {
+    "None": _("None"),
+    "Soundex": _("Soundex"),
+}
+
+
+def get_type_maps(mode):
+    """
+    Get category type maps.
+    """
+    itoe = {}
+    categories = copy(VALUE_TYPES)
+    if mode != "all":
+        del categories["Relationship"]
+        if mode != "event":
+            del categories["Event"]
+            del categories["Fact"]
+    for category in categories:
+        itoe.update({categories[category]: category})
+    return categories, itoe
+
 
 def get_attribute_types(db, obj_type):
     """
-    Get the available attribute types based on current object type.
+    Get available attribute types based on current object type.
     """
     if obj_type == "Person":
         return db.get_person_attribute_types()
@@ -88,14 +142,24 @@ def get_attribute_maps(db, obj_type):
         itoe.update({inames[0]: enames[0]})
         del enames[0]
         del inames[0]
-
     for attribute in get_attribute_types(db, obj_type):
         etoi.update({attribute: attribute})
         itoe.update({attribute: attribute})
-    if "None" not in etoi:
-        etoi.update({"None": _("None")})
-        itoe.update({_("None"): "None"})
     return etoi, itoe
+
+
+def get_calculated_maps(obj_type):
+    """
+    Return forward and reverse language mappings for calculated types.
+    """
+    itoe = {}
+    if obj_type == "Person":
+        values = copy(CALCULATED_PERSON_TYPES)
+    else:
+        values = copy(CALCULATED_FAMILY_TYPES)
+    for value in values:
+        itoe.update({values[value]: value})
+    return values, itoe
 
 
 def get_event_maps(db):
@@ -115,14 +179,144 @@ def get_event_maps(db):
         itoe.update({inames[0]: enames[0]})
         del enames[0]
         del inames[0]
-
     for event in db.get_event_types():
         etoi.update({event: event})
         itoe.update({event: event})
+    return etoi, itoe
+
+
+def map_builder(db, obj_type, value_type):
+    """
+    Build and return needed option maps.
+    """
+    etoi, itoe = {}, {}
+    if value_type in ["Event", "Fact"]:
+        etoi, itoe = get_event_maps(db)
+    elif value_type in ["Calculated"]:
+        etoi, itoe = get_calculated_maps(obj_type)
+    elif value_type in ["Attribute"]:
+        etoi, itoe = get_attribute_maps(db, obj_type)
+    elif value_type in ["Types"]:
+        etoi, itoe = get_type_maps(obj_type)
     if "None" not in etoi:
         etoi.update({"None": _("None")})
         itoe.update({_("None"): "None"})
     return etoi, itoe
+
+
+class FieldSelector(Gtk.HBox):
+    """
+    Language sensitive field or person selector.
+    """
+
+    def __init__(
+        self, grstate, option, obj_type, value_type, value="None", dbid=False
+    ):
+        Gtk.HBox.__init__(self, vexpand=False, hexpand=False)
+        self.grstate = grstate
+        self.option = option
+        self.obj_type = obj_type
+        self.value_type = value_type
+        self.value = value
+        self.etoi = {}
+        self.itoe = {}
+        self.person = None
+        self.selector = None
+        self.dbid = dbid
+        if dbid:
+            self.dbid = self.grstate.dbstate.db.get_dbid()
+        self.ready = False
+        self.load(obj_type, value_type, value=value)
+        self.ready = True
+
+    def load(self, obj_type, value_type, value="None"):
+        """
+        Load selector.
+        """
+        list(map(self.remove, self.get_children()))
+        self.obj_type = obj_type
+        self.value_type = value_type
+        self.value = value
+        if self.value_type == "Relationship":
+            self.load_relation()
+        else:
+            self.load_value()
+        self.pack_start(self.selector, False, False, 0)
+        self.show_all()
+
+    def load_value(self):
+        """
+        Load value selector.
+        """
+        self.selector = Gtk.ComboBoxText()
+        self.etoi, self.itoe = map_builder(
+            self.grstate.dbstate.db, self.obj_type, self.value_type
+        )
+        keys = sorted(self.itoe.keys())
+        for value in keys:
+            self.selector.append_text(value)
+        if self.value in self.etoi and self.etoi[self.value] in keys:
+            index = keys.index(self.etoi[self.value])
+            self.selector.set_active(index)
+        if self.value_type not in ["None", "Types"]:
+            self.selector.connect("changed", self.update_value)
+
+    def load_relation(self):
+        """
+        Load relation selector.
+        """
+        self.selector = Gtk.Button()
+        self.person = None
+        if self.value and not self.ready:
+            try:
+                self.person = self.grstate.fetch("Person", self.value)
+                self.selector.set_label(name_displayer.display(self.person))
+            except HandleError:
+                self.selector.set_label(_("None"))
+            except AttributeError:
+                self.selector.set_label(_("None"))
+        else:
+            self.select_relation()
+        self.selector.connect("clicked", self.select_relation)
+
+    def select_relation(self, *_dummy_args):
+        """
+        Select a relation.
+        """
+        select_person = SelectorFactory("Person")
+        selector = select_person(
+            self.grstate.dbstate, self.grstate.uistate, [], _("Select Person")
+        )
+        self.person = selector.run()
+        if self.person:
+            self.selector.set_label(name_displayer.display(self.person))
+            self.update_value()
+
+    def get_index(self):
+        """
+        Get current index.
+        """
+        if self.value_type == "Relationship":
+            if self.person:
+                return self.person.get_handle()
+        else:
+            value = self.selector.get_active_text()
+            if value in self.itoe:
+                return self.itoe[value]
+        return "None"
+
+    def update_value(self, *_dummy_obj):
+        """
+        Save updated value choice.
+        """
+        current_value = self.get_index()
+        save_config_option(
+            self.grstate.config,
+            self.option,
+            self.value_type,
+            current_value,
+            dbid=self.dbid,
+        )
 
 
 class FrameFieldSelector(Gtk.HBox):
@@ -139,10 +333,12 @@ class FrameFieldSelector(Gtk.HBox):
         dbid=False,
         text=None,
         obj_type="Person",
+        size_groups=None,
     ):
         Gtk.HBox.__init__(self, hexpand=False, spacing=6)
         self.option = option
         self.grstate = grstate
+        self.obj_type = obj_type
         self.dbid = None
         if dbid:
             self.dbid = self.grstate.dbstate.db.get_dbid()
@@ -153,70 +349,51 @@ class FrameFieldSelector(Gtk.HBox):
             label_text = "".join((_("Field"), " ", str(number), ":"))
         label = Gtk.Label(label=label_text)
         self.pack_start(label, False, False, 0)
-        self.type_selector = Gtk.ComboBoxText()
+
+        user_type, user_value = self.get_current_option()
+
+        self.type_selector = FieldSelector(
+            self.grstate, option, mode, "Types", value=user_type, dbid=dbid
+        )
+        if size_groups and "type" in size_groups:
+            size_groups["type"].add(self.type_selector)
         self.pack_start(self.type_selector, False, False, 0)
-        self.event_selector = Gtk.ComboBoxText()
-        self.event_selector.connect("show", self.hide_event_selector)
-        self.pack_start(self.event_selector, False, False, 0)
-        self.attribute_selector = Gtk.ComboBoxText()
-        self.attribute_selector.connect("show", self.hide_attribute_selector)
-        self.pack_start(self.attribute_selector, False, False, 0)
-        self.all_matches = Gtk.CheckButton(label=_("All"))
-        self.all_matches.connect("show", self.hide_event_selector)
-        self.pack_start(self.all_matches, False, False, 0)
-        self.relation_selector = Gtk.Button()
-        self.relation_selector.connect("show", self.hide_button)
-        self.pack_start(self.relation_selector, False, False, 0)
 
-        self.user_field_types = [
-            "None",
-            "Attribute",
-            "Fact",
-            "Event",
-            "Relation",
-        ]
-        self.user_field_types_lang = [
-            _("None"),
-            _("Attribute"),
-            _("Fact"),
-            _("Event"),
-            _("Relation"),
-        ]
-        if mode != "all":
-            del self.user_field_types_lang[-1]
-            if mode != "event":
-                del self.user_field_types_lang[-1]
-                del self.user_field_types_lang[-1]
-        for item in self.user_field_types_lang:
-            self.type_selector.append_text(item)
-
-        self.attribute_etoi, self.attribute_itoe = get_attribute_maps(
-            self.grstate.dbstate.db, obj_type
+        self.value_selector = FieldSelector(
+            self.grstate,
+            option,
+            self.obj_type,
+            user_type,
+            value=user_value,
+            dbid=dbid,
         )
-        self.attribute_names = sorted(self.attribute_itoe.keys())
-        for attribute_type in self.attribute_names:
-            self.attribute_selector.append_text(attribute_type)
+        if size_groups and "value" in size_groups:
+            size_groups["value"].add(self.value_selector)
+        self.pack_start(self.value_selector, False, False, 0)
 
-        self.event_etoi, self.event_itoe = get_event_maps(
-            self.grstate.dbstate.db
-        )
-        self.event_names = sorted(self.event_itoe.keys())
-        for event_type in self.event_names:
-            self.event_selector.append_text(event_type)
-
-        self.all_matches.set_tooltip_text(
+        self.type_selector.set_tooltip_text(
             _(
-                "Enabling this option will enable the display of all "
-                "records found. This is generally undesirable for most "
-                "things, but can sometimes be useful if for example "
-                "someone held multiple occupations and you wanted that "
-                "information available at a glance."
+                "All person or family facts displayed are user "
+                "configurable and they may be populated with event, "
+                "fact, attribute, relationship or calculated data "
+                "in a number of different combinations. Not all "
+                "combinations may make sense, but this mechanism "
+                "allows the user to tailor the view to their needs. "
+                "Note fact and event types are the same, the "
+                "difference between them is that for an event the "
+                "date and place are displayed while for a fact the "
+                "event description is displayed. So a baptism is an "
+                "event while an occupation can be thought of as a fact."
             )
         )
+        self.type_selector.selector.connect("changed", self.update_type)
 
+    def get_current_option(self):
+        """
+        Get current option value.
+        """
         user_type = "None"
-        user_value = ""
-        user_option = False
+        user_value = "None"
         current_option = get_config_option(
             self.grstate.config,
             self.option,
@@ -225,204 +402,18 @@ class FrameFieldSelector(Gtk.HBox):
         if current_option and current_option[0] != "None":
             user_type = current_option[0]
             user_value = current_option[1]
-            if len(current_option) >= 3:
-                if current_option[2] == "True":
-                    user_option = True
-        current_index = self.user_field_types.index(user_type)
-        self.type_selector.set_active(current_index)
-        self.type_selector.set_tooltip_text(
-            _(
-                "All person or family facts displayed are user "
-                "configurable and they may be populated with event, "
-                "fact, attribute or relation data in a number of "
-                "different combinations. Not all combinations may "
-                "make sense, but this mechanism allows the user to "
-                "tailor the view to their needs. Note fact and event "
-                "types are the same, the difference between them is "
-                "that for an event the date and place are displayed "
-                "while for a fact the event description is displayed. "
-                "So a baptism is an event while an occupation can be "
-                "thought of as a fact."
-            )
-        )
-
-        if current_index in [2, 3]:
-            self.hide_selectors(event=False, all=False)
-            if self.event_etoi[user_value] in self.event_names:
-                current_index = self.event_names.index(
-                    self.event_etoi[user_value]
-                )
-                self.event_selector.set_active(current_index)
-                self.all_matches.set_active(user_option)
-        elif current_index == 1:
-            self.hide_selectors(attribute=False, all=False)
-            if self.attribute_etoi[user_value] in self.attribute_names:
-                current_index = self.attribute_names.index(
-                    self.attribute_etoi[user_value]
-                )
-                self.attribute_selector.set_active(current_index)
-        elif current_index == 4:
-            self.hide_selectors(relation=False)
-            try:
-                person = self.grstate.fetch("Person", user_value)
-                name = name_displayer.display(person)
-                self.relation_selector.set_label(name)
-            except HandleError:
-                self.relation_selector.set_label("")
-            except AttributeError:
-                self.relation_selector.set_label("")
-        else:
-            self.hide_selectors()
-
-        self.type_selector.connect("changed", self.update_type)
-        self.event_selector.connect("changed", self.update_event_choice)
-        self.all_matches.connect("toggled", self.update_all_choice)
-        self.attribute_selector.connect(
-            "changed", self.update_attribute_choice
-        )
-        self.relation_selector.connect("clicked", self.update_relation_choice)
-
-    def hide_selectors(
-        self, event=True, attribute=True, relation=True, all=True
-    ):
-        """
-        Hide the inactive selectors.
-        """
-        if event:
-            self.event_selector.hide()
-        if relation:
-            self.relation_selector.hide()
-        if attribute:
-            self.attribute_selector.hide()
-        if all:
-            self.all_matches.hide()
+        return user_type, user_value
 
     def update_type(self, _dummy_obj):
         """
-        Save updated option data.
+        Type changed, clear selections.
         """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        current_type = self.user_field_types[current_index]
+        current_type = self.type_selector.get_index()
         save_config_option(
-            self.grstate.config, self.option, current_type, "", dbid=self.dbid
+            self.grstate.config,
+            self.option,
+            current_type,
+            "None",
+            dbid=self.dbid,
         )
-        if current_type in ["Event", "Fact"]:
-            self.hide_selectors(event=False, all=False)
-            current_index = self.event_names.index(self.event_etoi["Unknown"])
-            self.event_selector.set_active(current_index)
-            self.event_selector.show()
-            self.all_matches.show()
-            self.update_event_choice()
-        elif current_type == "Attribute":
-            self.hide_selectors(attribute=False, all=False)
-            current_index = self.attribute_names.index(
-                self.attribute_etoi["None"]
-            )
-            self.attribute_selector.set_active(current_index)
-            self.attribute_selector.show()
-            self.update_attribute_choice()
-        elif current_type == "Relation":
-            self.hide_selectors(relation=False)
-            self.relation_selector.set_label("")
-            self.relation_selector.show()
-            self.update_relation_choice()
-        else:
-            self.all_matches.set_active(False)
-            self.relation_selector.set_label("")
-            self.hide_selectors()
-
-    def update_event_choice(self, *_dummy_obj):
-        """
-        Save updated event choice.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [2, 3]:
-            current_value = self.event_selector.get_active_text()
-            if self.all_matches.get_active():
-                current_option = "True"
-            else:
-                current_option = "False"
-            save_config_option(
-                self.grstate.config,
-                self.option,
-                self.user_field_types[current_index],
-                ":".join((self.event_itoe[current_value], current_option)),
-                dbid=self.dbid,
-            )
-
-    def update_all_choice(self, *_dummy_obj):
-        """
-        Save updated show all choice.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index in [2, 3]:
-            self.update_event_choice()
-
-    def update_attribute_choice(self, *_dummy_obj):
-        """
-        Save updated attribute choice.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index == 1:
-            current_value = self.attribute_selector.get_active_text()
-            save_config_option(
-                self.grstate.config,
-                self.option,
-                self.user_field_types[current_index],
-                self.attribute_itoe[current_value],
-                dbid=self.dbid,
-            )
-
-    def update_relation_choice(self, *_dummy_obj):
-        """
-        Save updated relation choice.
-        """
-        select_person = SelectorFactory("Person")
-        selector = select_person(
-            self.grstate.dbstate, self.grstate.uistate, [], _("Select Person")
-        )
-        person = selector.run()
-        if person:
-            name = name_displayer.display(person)
-            self.relation_selector.set_label(name)
-            save_config_option(
-                self.grstate.config,
-                self.option,
-                "Relation",
-                person.get_handle(),
-                dbid=self.dbid,
-            )
-
-    def hide_button(self, _dummy_obj):
-        """
-        Hide relation button.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 4:
-            self.relation_selector.hide()
-
-    def hide_event_selector(self, _dummy_obj):
-        """
-        Hide event selector.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index not in [2, 3]:
-            self.event_selector.hide()
-            self.all_matches.hide()
-
-    def hide_attribute_selector(self, _dummy_obj):
-        """
-        Hide attribute selector.
-        """
-        current_type_lang = self.type_selector.get_active_text()
-        current_index = self.user_field_types_lang.index(current_type_lang)
-        if current_index != 1:
-            self.attribute_selector.hide()
-            if current_index not in [2, 3]:
-                self.all_matches.hide()
+        self.value_selector.load(self.obj_type, current_type)

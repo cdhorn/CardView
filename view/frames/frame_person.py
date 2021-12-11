@@ -76,13 +76,13 @@ from ..common.common_const import (
     _RECIPROCAL_ASSOCIATIONS,
 )
 from ..common.common_utils import (
-    TextLink,
     get_person_color_css,
     menu_item,
     submenu_item,
 )
 from ..common.common_vitals import format_date_string, get_relation
 from .frame_reference import ReferenceGrampsFrame
+from ..fields.field_builder import field_builder
 
 _ = glocale.translation.sgettext
 
@@ -106,18 +106,16 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         self.context = groptions.option_space.split(".")[2]
 
         display_name = name_displayer.display(person)
-        name = TextLink(
+        name = self.get_link(
             display_name,
             "Person",
             person.handle,
-            self.switch_object,
-            bold=True,
         )
         name_box = Gtk.HBox(spacing=2)
         if groptions.frame_number:
             label = Gtk.Label(
                 use_markup=True,
-                label=self.markup.format(
+                label=self.detail_markup.format(
                     "".join((str(groptions.frame_number), ". "))
                 ),
             )
@@ -140,9 +138,9 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if self.get_option("event-format") == 0:
             self.load_years(event_cache)
         else:
-            self.load_fields(event_cache, "facts-field")
+            self.load_fields("facts", "lfield-", event_cache)
             if "active" in groptions.option_space:
-                self.load_fields(event_cache, "extra-field", extra=True)
+                self.load_fields("extra", "mfield-", event_cache)
         if groptions.age_base:
             self.load_age_at_event(event_cache)
         del event_cache
@@ -179,7 +177,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         birth, death = self._get_birth_death(event_cache)
         text = format_date_string(birth, death)
-        self.add_fact(self.make_label(text))
+        self.add_fact(self.get_label(text))
 
     def _get_birth_death(self, event_cache):
         """
@@ -203,175 +201,22 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             )
         return birth, death
 
-    def load_fields(self, event_cache, field_type, extra=False):
+    def load_fields(self, grid_key, option_prefix, event_cache):
         """
         Parse and load a set of facts about a person.
         """
-        key = "".join((field_type, "-skip-birth-alternates"))
-        skip_birth_alternates = self.get_option(key)
-        key = "".join((field_type, "-skip-death-alternates"))
-        skip_death_alternates = self.get_option(key)
         have_birth, have_death = self._get_birth_death(event_cache)
-
-        count = 1
-        while count < 9:
-            option = self.get_option(
-                "".join((field_type, "-", str(count))),
-                full=False,
-                keyed=True,
-            )
-            if (
-                option
-                and option[0] != "None"
-                and len(option) > 1
-                and option[1]
-            ):
-                if len(option) >= 3:
-                    show_all = bool(option[2] == "True")
-                if option[0] == "Event":
-                    if option[1] == "Death" and self.living:
-                        show_age = self.get_option("show-age")
-                        if extra:
-                            self.widgets["extra"].add_living(
-                                have_birth, show_age=show_age
-                            )
-                        else:
-                            self.widgets["facts"].add_living(
-                                have_birth, show_age=show_age
-                            )
-                    else:
-                        self.add_field_for_event(
-                            event_cache,
-                            option[1],
-                            extra=extra,
-                            show_all=show_all,
-                            skip_birth=skip_birth_alternates,
-                            have_birth=have_birth,
-                            skip_death=skip_death_alternates,
-                            have_death=have_death,
-                        )
-                elif option[0] == "Fact":
-                    self.add_field_for_fact(
-                        event_cache, option[1], extra=extra, show_all=show_all
-                    )
-                elif option[0] == "Attribute":
-                    self.add_field_for_attribute(
-                        option[1], extra=extra, show_all=show_all
-                    )
-                elif option[0] == "Relation":
-                    self.add_field_for_relation(option[1], extra=extra)
-            count = count + 1
-
-    def add_field_for_event(
-        self,
-        event_cache,
-        event_type,
-        extra=False,
-        show_all=False,
-        skip_birth=False,
-        have_birth=None,
-        skip_death=False,
-        have_death=None,
-    ):
-        """
-        Find an event and load the data.
-        """
-        show_age = False
-        for event in event_cache:
-            if event.get_type().xml_str() == event_type:
-                if skip_birth and have_birth:
-                    if event_type in _BIRTH_EQUIVALENTS:
-                        return
-                if skip_death and have_death:
-                    if event_type in _DEATH_EQUIVALENTS:
-                        return
-                if event_type in _DEATH_EQUIVALENTS or event_type == "Death":
-                    show_age = self.get_option("show-age")
-                self.add_event(
-                    event, extra=extra, reference=have_birth, show_age=show_age
-                )
-                if not show_all:
-                    return
-
-    def add_field_for_fact(
-        self, event_cache, event_type, extra=False, show_all=False
-    ):
-        """
-        Find an event and load the data.
-        """
-        for event in event_cache:
-            if event.get_type().xml_str() == event_type:
-                if event.get_description():
-                    label = TextLink(
-                        str(event.get_type()),
-                        "Event",
-                        event.get_handle(),
-                        self.switch_object,
-                        bold=False,
-                        markup=self.markup,
-                    )
-                    fact = TextLink(
-                        event.get_description(),
-                        "Event",
-                        event.get_handle(),
-                        self.switch_object,
-                        bold=False,
-                        markup=self.markup,
-                    )
-                    self.add_fact(fact, label=label, extra=extra)
-                    if not show_all:
-                        return
-
-    def add_field_for_attribute(
-        self, attribute_type, extra=False, show_all=False
-    ):
-        """
-        Find an attribute and load the data.
-        """
-        for attribute in self.primary.obj.get_attribute_list():
-            if attribute.get_type().xml_str() == attribute_type:
-                if attribute.get_value():
-                    label = self.make_label(str(attribute.get_type()))
-                    fact = self.make_label(attribute.get_value())
-                    self.add_fact(fact, label=label, extra=extra)
-                    if not show_all:
-                        return
-
-    def add_field_for_relation(self, handle, extra=False):
-        """
-        Calculate a relation and load the fact.
-        """
-        text = ""
-        if self.primary.obj.get_handle() == handle:
-            text = _("Home person")
-            label = self.make_label(text)
-        else:
-            try:
-                relation = self.fetch("Person", handle)
-                relationship = get_relation(
-                    self.grstate.dbstate.db,
-                    self.primary.obj,
-                    relation,
-                    depth=global_config.get("behavior.generation-depth"),
-                )
-                if relationship:
-                    text = relationship.title()
-                else:
-                    name = name_displayer.display(relation)
-                    text = " ".join((_("Not related to"), name))
-                label = TextLink(
-                    text,
-                    "Person",
-                    handle,
-                    self.switch_object,
-                    bold=False,
-                    markup=self.markup,
-                )
-            except HandleError:
-                text = "".join(("[", _("Missing Person"), "]"))
-                label = self.make_label(text)
-        if text:
-            self.add_fact(label, extra=extra)
+        args = {
+            "event_format": self.get_option("event-format"),
+            "event_cache": event_cache,
+            "have_birth": have_birth,
+            "have_death": have_death,
+        }
+        key = "".join((option_prefix, "skip-birth-alternates"))
+        args.update({"skip_birth_alternates": self.get_option(key)})
+        key = "".join((option_prefix, "skip-death-alternates"))
+        args.update({"skip_death_alternates": self.get_option(key)})
+        self.load_grid(grid_key, option_prefix, args=args)
 
     def get_color_css(self):
         """

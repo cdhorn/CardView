@@ -36,7 +36,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from ..common.common_const import CITATION_TYPES
 from ..common.common_utils import (
-    TextLink,
     get_confidence,
     get_confidence_color_css,
     menu_item,
@@ -77,28 +76,24 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         if self.grstate.config.get(
             "options.global.link-citation-title-to-source"
         ):
-            title = TextLink(
+            title = self.get_link(
                 source.title,
                 "Source",
                 source.get_handle(),
-                self.switch_object,
-                bold=True,
             )
         else:
-            title = TextLink(
+            title = self.get_link(
                 source.title,
                 "Citation",
                 citation.get_handle(),
-                self.switch_object,
-                bold=True,
             )
         self.widgets["title"].pack_start(title, True, False, 0)
 
         if source.author:
-            self.add_fact(self.make_label(source.author))
+            self.add_fact(self.get_label(source.author))
 
         if citation.page:
-            self.add_fact(self.make_label(citation.page))
+            self.add_fact(self.get_label(citation.page))
 
         if citation.get_date_object():
             if self.get_option("show-date"):
@@ -106,7 +101,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                     citation.get_date_object()
                 )
                 if text:
-                    self.add_fact(self.make_label(text))
+                    self.add_fact(self.get_label(text))
 
             if self.groptions.age_base:
                 if self.groptions.context in ["timeline"]:
@@ -122,22 +117,22 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
 
         if self.get_option("show-publisher"):
             if source.pubinfo:
-                self.add_fact(self.make_label(source.pubinfo))
+                self.add_fact(self.get_label(source.pubinfo))
 
         if self.get_option("show-reference-type"):
             if reference and reference[1]:
-                label = self.make_label(
+                label = self.get_label(
                     CITATION_TYPES[reference[1]], left=False
                 )
                 self.widgets["attributes"].add_fact(label)
 
         if self.get_option("show-reference-description"):
             if reference and reference[2]:
-                label = self.make_label(reference[2], left=False)
+                label = self.get_label(reference[2], left=False)
                 self.widgets["attributes"].add_fact(label)
 
         if self.get_option("show-confidence"):
-            label = self.make_label(
+            label = self.get_label(
                 get_confidence(citation.confidence), left=False
             )
             self.widgets["attributes"].add_fact(label)

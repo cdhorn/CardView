@@ -81,12 +81,12 @@ class EventRefGrampsFrame(EventGrampsFrame):
                 if name:
                     text = "".join(("[", name, "]"))
                     self.ref_widgets["body"].pack_start(
-                        self.make_label(text), False, False, 0
+                        self.get_label(text), False, False, 0
                     )
 
         vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
         vbox.pack_start(
-            self.make_label(str(event_ref.get_role())), False, False, 0
+            self.get_label(str(event_ref.get_role())), False, False, 0
         )
         self.ref_widgets["body"].pack_start(vbox, False, False, 0)
 

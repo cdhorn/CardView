@@ -146,7 +146,7 @@ class TextLink(Gtk.EventBox):
         Validate primary button click.
         """
         if button_pressed(event, BUTTON_PRIMARY):
-            self.callback(None, None, self.obj_type, self.handle)
+            self.callback(self.obj_type, self.handle)
             return True
         return False
 

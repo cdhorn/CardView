@@ -82,10 +82,10 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         self.widgets["title"].pack_start(label, False, False, 0)
 
         if url.get_description():
-            self.add_fact(self.make_label(url.get_description()))
+            self.add_fact(self.get_label(url.get_description()))
 
         if url.get_type():
-            self.add_fact(self.make_label(str(url.get_type())))
+            self.add_fact(self.get_label(str(url.get_type())))
 
         self.show_all()
         self.enable_drag()

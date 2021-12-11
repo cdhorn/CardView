@@ -42,7 +42,7 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink, menu_item
+from ..common.common_utils import menu_item
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -65,12 +65,10 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         if groptions.bar_mode:
             return
 
-        title = TextLink(
+        title = self.get_link(
             media.get_description(),
             "Media",
             media.get_handle(),
-            self.switch_object,
-            bold=True,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
@@ -78,7 +76,7 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
             if self.get_option("show-date"):
                 text = glocale.date_displayer.display(media.get_date_object())
                 if text:
-                    self.add_fact(self.make_label(text))
+                    self.add_fact(self.get_label(text))
 
             if groptions.age_base:
                 if groptions.context in ["timeline"]:
@@ -87,10 +85,10 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
                     self.load_age(groptions.age_base, media.get_date_object())
 
         if self.get_option("show-path") and media.get_path():
-            self.add_fact(self.make_label(media.get_path()))
+            self.add_fact(self.get_label(media.get_path()))
 
         if self.get_option("show-mime-type") and media.get_mime_type():
-            self.add_fact(self.make_label(media.get_mime_type()))
+            self.add_fact(self.get_label(media.get_mime_type()))
 
         self.enable_drag()
         self.enable_drop()

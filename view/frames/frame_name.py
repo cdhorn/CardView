@@ -36,7 +36,7 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_utils import TextLink, get_person_color_css
+from ..common.common_utils import get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -63,23 +63,23 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             title = ": ".join((_("Primary"), name_type))
         else:
             title = ": ".join((_("Alternate"), name_type))
-        label = TextLink(
-            title, "Person", obj.get_handle(), self.switch_name_page
+        label = self.get_link(
+            title, "Person", obj.get_handle(), callback=self.switch_name_page
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
         given_name = name.get_regular_name()
         if name.get_title():
             given_name = " ".join((name.get_title(), given_name))
-        self.add_fact(self.make_label(given_name))
+        self.add_fact(self.get_label(given_name))
 
         if name.get_call_name():
             call_name = " ".join((_("Call Name:"), name.get_call_name()))
-            self.add_fact(self.make_label(call_name))
+            self.add_fact(self.get_label(call_name))
 
         if name.get_nick_name():
             nick_name = " ".join((_("Nick Name:"), name.get_nick_name()))
-            self.add_fact(self.make_label(nick_name))
+            self.add_fact(self.get_label(nick_name))
 
         origin_type = ""
         for surname in name.get_surname_list():
@@ -98,18 +98,18 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             text = "".join((prefix, name.get_surname(), connector)).strip()
             if text:
                 text = ": ".join((origin_type, text))
-                self.add_fact(self.make_label(text))
+                self.add_fact(self.get_label(text))
 
         if name.get_family_nick_name():
             nick_name = " ".join(
                 (_("Family Nick Name:"), name.get_family_nick_name())
             )
-            self.add_fact(self.make_label(nick_name))
+            self.add_fact(self.get_label(nick_name))
 
         if name.get_date_object():
             text = glocale.date_displayer.display(name.get_date_object())
             if text:
-                self.add_fact(self.make_label(text))
+                self.add_fact(self.get_label(text))
 
             if groptions.age_base:
                 if groptions.context in ["timeline"]:

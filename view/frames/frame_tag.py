@@ -104,15 +104,15 @@ class TagGrampsFrame(GrampsFrame):
         self.widgets["title"].pack_start(label, False, False, 0)
 
         self.widgets["facts"].attach(
-            self.make_label("".join((_("Priority"), ":"))), 0, 0, 1, 1
+            self.get_label("".join((_("Priority"), ":"))), 0, 0, 1, 1
         )
         self.widgets["facts"].attach(
-            self.make_label(str(tag.priority)), 1, 0, 1, 1
+            self.get_label(str(tag.priority)), 1, 0, 1, 1
         )
         self.widgets["facts"].attach(
-            self.make_label("".join((_("Color"), ":"))), 0, 1, 1, 1
+            self.get_label("".join((_("Color"), ":"))), 0, 1, 1, 1
         )
-        label = self.make_label(tag.color)
+        label = self.get_label(tag.color)
         self.widgets["facts"].attach(label, 1, 1, 1, 1)
         self.set_css_style()
 

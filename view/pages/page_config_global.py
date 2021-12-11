@@ -90,25 +90,35 @@ def build_global_grid(configdialog, grstate):
     )
     configdialog.add_checkbox(
         grid1,
-        _("Use smaller font for details"),
+        _("Use smaller font for title"),
         4,
+        "options.global.use-smaller-title-font",
+        tooltip=_(
+            "Indicates whether to use a smaller font for the titles than "
+            "the Gramps default."
+        ),
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Use smaller font for details"),
+        5,
         "options.global.use-smaller-detail-font",
         tooltip=_(
             "Indicates whether to use a smaller font for the details than "
-            "used for the title."
+            "the Gramps default."
         ),
     )
     configdialog.add_spinner(
         grid1,
         _("Desired border width"),
-        5,
+        6,
         "options.global.border-width",
         (0, 5),
     )
     configdialog.add_checkbox(
         grid1,
         _("Highlight focal object"),
-        6,
+        7,
         "options.global.focal-object-highlight",
         tooltip=_(
             "Indicates whether to highlight the focal object frame in the "
@@ -120,14 +130,14 @@ def build_global_grid(configdialog, grstate):
         grid1,
         _("Focal object highlight color"),
         "options.global.focal-object-color",
-        (7, 1),
+        (8, 1),
     )
     add_color(
         grstate.config,
         grid1,
         _("Default frame background color"),
         "options.global.default-background-color",
-        (8, 1),
+        (9, 1),
     )
     configdialog.add_checkbox(
         grid1,
@@ -365,8 +375,10 @@ def build_global_grid(configdialog, grstate):
         _("Enable indicator counts"),
         7,
         "options.global.enable-indicator-counts",
-        tooltip=_("Enables display of a count of the objects in front of "
-                  "the indicator icon."),
+        tooltip=_(
+            "Enables display of a count of the objects in front of "
+            "the indicator icon."
+        ),
     )
     configdialog.add_checkbox(
         grid3,

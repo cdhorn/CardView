@@ -89,23 +89,21 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
                 reference_type = "".join(("[", _("Reciprocal"), "]"))
         if groptions.ref_mode in [1, 3]:
             self.ref_widgets["body"].pack_start(
-                self.make_label(reference_type, left=left), False, False, 0
+                self.get_label(reference_type, left=left), False, False, 0
             )
             self.ref_widgets["body"].pack_start(
-                self.make_label(_("Association"), left=left), False, False, 0
+                self.get_label(_("Association"), left=left), False, False, 0
             )
             self.ref_widgets["body"].pack_start(
-                self.make_label(association, left=left), False, False, 0
+                self.get_label(association, left=left), False, False, 0
             )
         else:
             vbox = Gtk.VBox()
             vbox.pack_start(
-                self.make_label(reference_type, left=left), False, False, 0
+                self.get_label(reference_type, left=left), False, False, 0
             )
             vbox.pack_start(
-                self.make_label(
-                    "".join((_("Association"), ": ", association))
-                ),
+                self.get_label("".join((_("Association"), ": ", association))),
                 True,
                 True,
                 0,
@@ -117,20 +115,20 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         if relation:
             if groptions.ref_mode in [1, 3]:
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(_("Relationship"), left=left),
+                    self.get_label(_("Relationship"), left=left),
                     False,
                     False,
                     0,
                 )
                 self.ref_widgets["body"].pack_start(
-                    self.make_label(relation.capitalize(), left=left),
+                    self.get_label(relation.capitalize(), left=left),
                     False,
                     False,
                     0,
                 )
             else:
                 vbox.pack_start(
-                    self.make_label(
+                    self.get_label(
                         "".join(
                             (_("Relationship"), ": ", relation.capitalize())
                         )

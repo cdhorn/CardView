@@ -51,7 +51,6 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
 from ..common.common_utils import (
-    TextLink,
     get_confidence,
     get_confidence_color_css,
     get_event_category_color_css,
@@ -113,13 +112,11 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             event_type, self.primary_participant
         )
 
-        name = TextLink(
+        name = self.get_link(
             title,
             "Event",
             event.get_handle(),
-            self.switch_object,
             hexpand=True,
-            bold=True,
         )
         self.widgets["title"].pack_start(name, True, True, 0)
 
@@ -128,22 +125,20 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 "Primary",
                 "Family",
             ]:
-                self.add_fact(self.make_label(str(role)))
+                self.add_fact(self.get_label(str(role)))
 
         date = glocale.date_displayer.display(event.get_date_object())
         if date:
-            self.add_fact(self.make_label(date))
+            self.add_fact(self.get_label(date))
 
         text = place_displayer.display_event(grstate.dbstate.db, event)
         if text:
-            place = TextLink(
+            place = self.get_link(
                 text,
                 "Place",
                 event.place,
-                self.switch_object,
                 hexpand=False,
-                bold=False,
-                markup=self.markup,
+                title=False,
             )
             self.add_fact(place)
 
@@ -153,7 +148,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 text = " ".join(
                     (event_type, _("of"), self.primary_participant[3])
                 )
-            self.add_fact(self.make_label(text))
+            self.add_fact(self.get_label(text))
 
         if self.get_option("show-participants") and len(self.participants) > 1:
             if "active" in self.groptions.option_space:
@@ -164,14 +159,14 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     primary=self.primary_participant,
                 )
                 self.add_fact(
-                    self.make_label(
+                    self.get_label(
                         " ".join((_("Participants"), participant_text))
                     )
                 )
 
         text = self.get_quality_text()
         if text:
-            self.add_fact(self.make_label(text.lower().capitalize()))
+            self.add_fact(self.get_label(text.lower().capitalize()))
 
         self.enable_drag()
         self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
@@ -245,8 +240,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             primary_obj_name,
         ) = self.primary_participant
         self.add_fact(
-            self.make_label(primary_obj_name),
-            label=self.make_label(str(primary_obj_event_ref.get_role())),
+            self.get_label(primary_obj_name),
+            label=self.get_label(str(primary_obj_event_ref.get_role())),
             extra=True,
         )
 
@@ -263,8 +258,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         roles.sort(key=lambda x: x[0])
         for (role, obj_name) in roles:
             self.add_fact(
-                self.make_label(obj_name),
-                label=self.make_label(role),
+                self.get_label(obj_name),
+                label=self.get_label(role),
                 extra=True,
             )
 

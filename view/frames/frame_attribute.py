@@ -50,7 +50,7 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_utils import TextLink, get_person_color_css
+from ..common.common_utils import get_person_color_css
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -71,11 +71,11 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
 
         name = glocale.translation.sgettext(attribute.get_type().xml_str())
         if "Ref" not in self.primary.obj_type:
-            label = TextLink(
+            label = self.get_link(
                 name,
                 self.primary.obj_type,
                 self.primary.obj.get_handle(),
-                self.switch_attribute_page,
+                callback=self.switch_attribute_page,
             )
         else:
             name = "".join(("<b>", escape(name), "</b>"))
@@ -89,7 +89,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         self.widgets["title"].pack_start(label, False, False, 0)
 
         if attribute.get_value():
-            self.add_fact(self.make_label(attribute.get_value()))
+            self.add_fact(self.get_label(attribute.get_value()))
 
         self.show_all()
         self.enable_drag()

@@ -35,7 +35,6 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -55,12 +54,10 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, place)
 
         place_name = place_displayer.display(grstate.dbstate.db, place)
-        title = TextLink(
+        title = self.get_link(
             place_name,
             "Place",
             place.get_handle(),
-            self.switch_object,
-            bold=True,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
@@ -68,12 +65,12 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
             text = glocale.translation.sgettext(place.get_type().xml_str())
             if text:
                 self.add_fact(
-                    self.make_label(text), label=self.make_label(_("Type"))
+                    self.get_label(text), label=self.get_label(_("Type"))
                 )
         if place.get_code():
             self.add_fact(
-                self.make_label(place.get_code()),
-                label=self.make_label(_("Code")),
+                self.get_label(place.get_code()),
+                label=self.get_label(_("Code")),
             )
 
         if place.get_latitude():
@@ -81,14 +78,14 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
         else:
             text = "".join(("[", _("Missing"), " ", _("Latitude"), "]"))
         self.add_fact(
-            self.make_label(text), label=self.make_label(_("Latitude"))
+            self.get_label(text), label=self.get_label(_("Latitude"))
         )
         if place.get_longitude():
             text = place.get_longitude()
         else:
             text = "".join(("[", _("Missing"), " ", _("Longitude"), "]"))
         self.add_fact(
-            self.make_label(text), label=self.make_label(_("Longitude"))
+            self.get_label(text), label=self.get_label(_("Longitude"))
         )
 
         if place.get_alternative_names():
@@ -106,8 +103,8 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
                     date = ""
                 date = "  ".join((_("Alternate Name"), date))
                 self.add_fact(
-                    self.make_label(value),
-                    label=self.make_label(date),
+                    self.get_label(value),
+                    label=self.get_label(date),
                     extra=True,
                 )
 

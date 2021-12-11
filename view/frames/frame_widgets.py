@@ -64,7 +64,6 @@ from ..common.common_const import (
     GROUP_LABELS_SINGLE,
 )
 from ..common.common_utils import (
-    TextLink,
     button_pressed,
     get_bookmarks,
     pack_icon,
@@ -139,7 +138,7 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
                 text = gramps_id
             label = Gtk.Label(
                 use_markup=True,
-                label=self.markup.format(escape(text)),
+                label=self.detail_markup.format(escape(text)),
             )
             self.pack_end(label, False, False, 0)
 
@@ -190,17 +189,12 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
 # GrampsFrameGrid class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
+class GrampsFrameGrid(Gtk.Grid):
     """
     A simple class to manage a fact grid for a Gramps frame.
     """
 
-    __slots__ = (
-        "row",
-        "cbrouter",
-    )
-
-    def __init__(self, grstate, groptions, cbrouter, right=False):
+    def __init__(self, right=False):
         Gtk.Grid.__init__(
             self,
             row_spacing=2,
@@ -209,8 +203,6 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
             valign=Gtk.Align.START,
             hexpand=True,
         )
-        GrampsConfig.__init__(self, grstate, groptions)
-        self.cbrouter = cbrouter
         self.row = 0
         if right:
             self.set_halign(Gtk.Align.END)
@@ -225,94 +217,6 @@ class GrampsFrameGrid(Gtk.Grid, GrampsConfig):
         else:
             self.attach(fact, 0, self.row, 2, 1)
         self.row = self.row + 1
-
-    def add_event(self, event, reference=None, show_age=False):
-        """
-        Add a formatted event.
-        """
-        if not event:
-            return
-
-        event_format = self.get_option("event-format")
-
-        description = ""
-        if event_format in [1, 2, 5]:
-            column = 1
-            label = TextLink(
-                glocale.translation.sgettext(event.type.xml_str()),
-                "Event",
-                event.get_handle(),
-                self.cbrouter,
-                bold=False,
-                markup=self.markup,
-            )
-            self.attach(label, 0, self.row, 1, 1)
-        else:
-            column = 0
-            description = event.type.get_abbreviation(
-                trans_text=glocale.translation.sgettext
-            )
-
-        join = ""
-        date = glocale.date_displayer.display(event.date)
-        if date:
-            description = " ".join((description, date)).strip()
-            join = _("in")
-
-        place = place_displayer.display_event(self.grstate.dbstate.db, event)
-        if event_format in [1, 3] and place:
-            description = " ".join((description, join, place)).strip()
-
-        if show_age:
-            description = " ".join(
-                (description, get_age(reference, event))
-            ).strip()
-
-        if date:
-            label = TextLink(
-                description,
-                "Event",
-                event.get_handle(),
-                self.cbrouter,
-                bold=False,
-                markup=self.markup,
-            )
-            self.attach(label, column, self.row, 1, 1)
-            self.row = self.row + 1
-
-        if event_format in [5, 6] and place:
-            if event_format in [6]:
-                text = " ".join(((_("in")), place))
-            else:
-                text = place
-            label = TextLink(
-                text,
-                "Place",
-                event.place,
-                self.cbrouter,
-                bold=False,
-                markup=self.markup,
-            )
-            self.attach(label, column, self.row, 1, 1)
-        self.row = self.row + 1
-
-    def add_living(self, birth, show_age=False):
-        """
-        Add death event setting text to indicate living.
-        """
-        age = ""
-        if birth and show_age:
-            today = Today()
-            age = get_age(birth, None, today=today)
-
-        event_format = self.get_option("event-format")
-        if event_format in [1, 2, 5]:
-            label = self.make_label(_("Living"))
-            value = self.make_label(age.strip("()"))
-            self.add_fact(value, label=label)
-        elif event_format in [3, 4, 6]:
-            value = self.make_label("".join((_("liv"), ". ", age.strip("()"))))
-            self.add_fact(value)
 
 
 # ------------------------------------------------------------------------
@@ -468,7 +372,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         eventbox = Gtk.EventBox(tooltip_text=tooltip)
         if self.grstate.config.get("options.global.enable-indicator-counts"):
             box = Gtk.HBox(hexpand=False, vexpand=False, spacing=2, margin=0)
-            label = self.make_label(str(count))
+            label = self.get_label(str(count))
             box.pack_start(label, False, False, 0)
             box.pack_start(icon, False, False, 0)
             eventbox.add(box)

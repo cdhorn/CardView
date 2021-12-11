@@ -92,6 +92,7 @@ from ..common.common_utils import (
     menu_item,
     submenu_item,
 )
+from ..fields.field_builder import field_builder
 from .frame_base import GrampsFrame
 from .frame_selectors import get_attribute_types
 from .frame_widgets import GrampsImage
@@ -158,6 +159,46 @@ class PrimaryGrampsFrame(GrampsFrame):
         if "image" in self.groptions.size_groups:
             self.groptions.size_groups["image"].add_widget(image)
 
+    def load_grid(self, grid_key, option_prefix, args=None):
+        """
+        Load any user defined attributes.
+        """
+        assert grid_key in self.widgets
+        grid = self.widgets[grid_key]
+        args = args or {}
+        args.update(
+            {
+                "get_label": self.get_label,
+                "get_link": self.get_link,
+            }
+        )
+        for count in range(1, 11):
+            option = self.get_option(
+                "".join((option_prefix, str(count))),
+                full=False,
+                keyed=True,
+            )
+            if (
+                option
+                and option[0] != "None"
+                and len(option) > 1
+                and option[1]
+            ):
+                labels = field_builder(
+                    self.grstate, self.primary.obj, option[0], option[1], args
+                )
+                for (label, value) in labels:
+                    grid.add_fact(value, label=label)
+
+    def load_attributes(self):
+        """
+        Load any user defined attributes.
+        """
+        args = {
+            "skip_labels": not self.get_option("rfield-show-labels"),
+        }
+        self.load_grid("attributes", "rfield-", args)
+
     def add_fact(self, fact, label=None, extra=False):
         """
         Add a fact.
@@ -166,56 +207,6 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.widgets["extra"].add_fact(fact, label=label)
         else:
             self.widgets["facts"].add_fact(fact, label=label)
-
-    def add_event(self, event, extra=False, reference=None, show_age=False):
-        """
-        Add an event.
-        """
-        if extra:
-            self.widgets["extra"].add_event(
-                event, reference=reference, show_age=show_age
-            )
-        else:
-            self.widgets["facts"].add_event(
-                event, reference=reference, show_age=show_age
-            )
-
-    def load_attributes(self):
-        """
-        Load any user defined attributes.
-        """
-
-        def add_attribute(attribute):
-            """
-            Check and add attribute if applicable.
-            """
-            if attribute.get_value():
-                value = self.make_label(attribute.get_value(), left=False)
-                if label:
-                    key = self.make_label(
-                        str(attribute.get_type()), left=False
-                    )
-                else:
-                    key = None
-                self.widgets["attributes"].add_fact(value, label=key)
-
-        label = self.get_option("attributes-field-show-labels")
-        for number in range(1, 9):
-            option = self.get_option(
-                "".join(("attributes-field-", str(number))),
-                full=False,
-                keyed=True,
-            )
-            if (
-                option
-                and option[0] == "Attribute"
-                and len(option) >= 2
-                and option[1]
-            ):
-                for attribute in self.primary.obj.get_attribute_list():
-                    if attribute.get_type().xml_str() == option[1]:
-                        add_attribute(attribute)
-                        break
 
     def _primary_drop_handler(self, dnd_type, obj_or_handle, data):
         """

@@ -46,7 +46,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import TextLink, menu_item, submenu_item
+from ..common.common_utils import menu_item, submenu_item
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -65,23 +65,21 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
     def __init__(self, grstate, groptions, source):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, source)
 
-        title = TextLink(
+        title = self.get_link(
             source.title,
             "Source",
             source.get_handle(),
-            self.switch_object,
-            bold=True,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
         if source.get_author():
-            self.add_fact(self.make_label(source.get_author()))
+            self.add_fact(self.get_label(source.get_author()))
 
         if source.get_publication_info():
-            self.add_fact(self.make_label(source.get_publication_info()))
+            self.add_fact(self.get_label(source.get_publication_info()))
 
         if source.get_abbreviation():
-            self.add_fact(self.make_label(source.get_abbreviation()))
+            self.add_fact(self.get_label(source.get_abbreviation()))
 
         self.enable_drag()
         self.dnd_drop_targets.append(DdTargets.REPO_LINK.target())
