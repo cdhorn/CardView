@@ -27,7 +27,7 @@ Duration field calculator.
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Family, Person
+from gramps.gen.lib import EventType, Family, Person
 from gramps.gen.lib.date import Today
 from gramps.gen.utils.alive import probably_alive, probably_alive_range
 
@@ -47,6 +47,7 @@ def get_duration_field(grstate, obj, field_value, args):
     Calculate a duration related value.
     """
     get_label = args.get("get_label")
+    event_cache = args.get("event_cache") or {}
 
     if isinstance(obj, Family):
         if field_value == "Duration":
@@ -63,11 +64,27 @@ def get_duration_field(grstate, obj, field_value, args):
             dummy_related_person,
         ) = probably_alive_range(obj, grstate.dbstate.db)
 
+        print(
+            "probably_alive_range: {} {} {} {} {}".format(
+                obj.get_gramps_id(),
+                str(birth_date),
+                str(death_date),
+                dummy_explain_text,
+                dummy_related_person,
+            )
+        )
         if field_value in ["Lifespan", "Duration"]:
             if birth_date and death_date:
                 span = get_span(birth_date, death_date)
                 if span:
-                    return [(get_label(_("Lifespan")), get_label(span))]
+                    return [
+                        (
+                            get_label(_("Lifespan")),
+                            get_label(
+                                span, italic=not accurate_lifespan(event_cache)
+                            ),
+                        )
+                    ]
 
         if field_value in ["Living", "Duration"]:
             if birth_date and not death_date:
@@ -77,3 +94,15 @@ def get_duration_field(grstate, obj, field_value, args):
                         return [(get_label(_("Living")), get_label(span))]
                 return [(get_label(_("Living")), get_label(""))]
         return []
+
+
+def accurate_lifespan(event_cache):
+    """
+    Return true if have actual birth and death record.
+    """
+    hits = []
+    for event in event_cache:
+        if event.get_type() in [EventType.BIRTH, EventType.DEATH]:
+            if event.get_type() not in hits:
+                hits.append(event.get_type())
+    return len(hits) == 2

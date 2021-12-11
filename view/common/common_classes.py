@@ -603,7 +603,7 @@ class GrampsConfig:
         except AttributeError:
             return False
 
-    def get_label(self, data, left=True):
+    def get_label(self, data, left=True, italic=False):
         """
         Simple helper to prepare a label.
         """
@@ -628,7 +628,11 @@ class GrampsConfig:
                 xalign=1.0,
             )
         text = data or ""
-        label.set_markup(self.detail_markup.format(escape(text)))
+        if text:
+            text = escape(text)
+        if italic:
+            text = "".join(("<i>", text, "</i>"))
+        label.set_markup(self.detail_markup.format(text))
         return label
 
     def get_link(
