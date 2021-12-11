@@ -238,8 +238,8 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         action_menu.append(
             menu_item(
-                "gramps-person",
-                _("Make the default person"),
+                "go-home",
+                _("Set home person"),
                 self.set_default_person,
             )
         )
