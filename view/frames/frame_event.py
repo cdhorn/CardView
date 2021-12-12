@@ -594,5 +594,11 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     self.primary.obj.get_gramps_id(),
                 )
             )
+            birth_ref = participant.obj.get_birth_ref()
+            death_ref = participant.obj.get_birth_ref()
             participant.obj.set_event_ref_list(new_list)
+            if birth_ref is not None:
+                participant.obj.set_birth_ref(birth_ref)
+            if death_ref is not None:
+                participant.obj.set_death_ref(death_ref)
             participant.commit(self.grstate, message)

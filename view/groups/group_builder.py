@@ -82,9 +82,7 @@ def build_simple_group(grstate, group_type, obj, args):
             page_type = args["page_type"]
         else:
             page_type = "other"
-        groptions = GrampsOptions(
-            "".join(("options.timeline.", page_type))
-        )
+        groptions = GrampsOptions("".join(("options.timeline.", page_type)))
         groptions.set_context("timeline")
     else:
         groptions = GrampsOptions("".join(("options.group.", group_type)))

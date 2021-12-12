@@ -47,7 +47,6 @@ def get_duration_field(grstate, obj, field_value, args):
     Calculate a duration related value.
     """
     get_label = args.get("get_label")
-    event_cache = args.get("event_cache") or {}
 
     if isinstance(obj, Family):
         if field_value == "Duration":
@@ -71,9 +70,7 @@ def get_duration_field(grstate, obj, field_value, args):
                     return [
                         (
                             get_label(_("Lifespan")),
-                            get_label(
-                                span, italic=not accurate_lifespan(event_cache)
-                            ),
+                            get_label(span, italic=not accurate_lifespan(obj)),
                         )
                     ]
 
@@ -87,13 +84,10 @@ def get_duration_field(grstate, obj, field_value, args):
         return []
 
 
-def accurate_lifespan(event_cache):
+def accurate_lifespan(obj):
     """
     Return true if have actual birth and death record.
     """
-    hits = []
-    for event in event_cache:
-        if event.get_type() in [EventType.BIRTH, EventType.DEATH]:
-            if event.get_type() not in hits:
-                hits.append(event.get_type())
-    return len(hits) == 2
+    if obj.get_birth_ref() is not None and obj.get_death_ref() is not None:
+        return True
+    return False

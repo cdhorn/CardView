@@ -46,6 +46,7 @@ from gramps.gen.lib import (
     Event,
     EventRef,
     EventRoleType,
+    EventType,
     Family,
     Name,
     Person,
@@ -419,7 +420,18 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                 event.get_gramps_id(),
             )
         )
-        self.primary.obj.add_event_ref(reference)
+        if event.get_type() == EventType.BIRTH:
+            if self.primary.obj.get_birth_ref() is None:
+                self.primary.obj.set_birth_ref(reference)
+            else:
+                self.primary.obj.add_event_ref(reference)
+        elif event.get_type() == EventType.DEATH:
+            if self.primary.obj.get_death_ref() is None:
+                self.primary.obj.set_death_ref(reference)
+            else:
+                self.primary.obj.add_event_ref(reference)
+        else:
+            self.primary.obj.add_event_ref(reference)
         self.primary.commit(self.grstate, message)
 
     def _associations_option(self):

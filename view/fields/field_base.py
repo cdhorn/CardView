@@ -54,6 +54,19 @@ def get_event_field(grstate, obj, event_type, args):
     Find an event and return the date and place.
     """
     args = args or {}
+    event_cache = args.get("event_cache") or {}
+    if event_type == "Birth":
+        if obj.get_birth_ref() is not None:
+            birth_ref = obj.get_birth_ref()
+            for event in event_cache:
+                if event.get_handle() == birth_ref.ref:
+                    return get_event_labels(grstate, event, args)
+    if event_type == "Death":
+        if obj.get_death_ref() is not None:
+            death_ref = obj.get_death_ref()
+            for event in event_cache:
+                if event.get_handle() == death_ref.ref:
+                    return get_event_labels(grstate, event, args)
     skip_birth = args.get("skip_birth_alternates")
     have_birth = args.get("have_birth")
     skip_death = args.get("skip_death_alternates")
@@ -62,7 +75,6 @@ def get_event_field(grstate, obj, event_type, args):
     have_marriage = args.get("have_marriage")
     skip_divorce = args.get("skip_divorce_alternates")
     have_divorce = args.get("have_divorce")
-    event_cache = args.get("event_cache") or {}
     for event in event_cache:
         if event.get_type().xml_str() == event_type:
             if skip_birth and have_birth:

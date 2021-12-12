@@ -29,7 +29,7 @@ EventsGrampsFrameGroup
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import EventRef
+from gramps.gen.lib import EventRef, EventType
 from gramps.gui.editors import EditEventRef
 
 # ------------------------------------------------------------------------
@@ -60,6 +60,13 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")
+
+        if self.group_base.obj_type == "Person":
+            self.birth_ref = self.group_base.obj.get_birth_ref()
+            self.death_ref = self.group_base.obj.get_death_ref()
+        else:
+            self.birth_ref = None
+            self.death_ref = None
 
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.event.reference-mode")
@@ -96,6 +103,10 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
             )
         )
         self.group_base.obj.set_event_ref_list(new_list)
+        if self.birth_ref is not None:
+            self.group_base.obj.set_birth_ref(self.birth_ref)
+        if self.death_ref is not None:
+            self.group_base.obj.set_death_ref(self.death_ref)
         self.group_base.commit(self.grstate, message)
 
     def save_new_object(self, handle, insert_row):
@@ -109,7 +120,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         event_ref = EventRef()
         event_ref.ref = handle
         event = self.grstate.fetch("Event", handle)
-        callback = lambda x, y: self.save_new_event(x, insert_row)
+        callback = lambda x, y: self.save_new_event(x, y, insert_row)
         try:
             EditEventRef(
                 self.grstate.dbstate,
@@ -122,7 +133,7 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
         except WindowActiveError:
             pass
 
-    def save_new_event(self, event_ref, insert_row):
+    def save_new_event(self, event_ref, event, insert_row):
         """
         Save the new event added to the list of events.
         """
@@ -132,7 +143,6 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
                 if ref.ref == frame.primary.obj.get_handle():
                     new_list.append(ref)
         new_list.insert(insert_row, event_ref)
-        event = self.fetch("Event", event_ref.ref)
         message = " ".join(
             (
                 _("Added"),
@@ -143,5 +153,15 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
                 self.group_base.obj.get_gramps_id(),
             )
         )
+        if event.get_type == EventType.BIRTH:
+            if self.birth_ref is None:
+                self.birth_ref = event_ref
+        if event.get_type == EventType.DEATH:
+            if self.death_ref is None:
+                self.death_ref = event_ref
         self.group_base.obj.set_event_ref_list(new_list)
+        if self.birth_ref is not None:
+            self.group_base.obj.set_birth_ref(self.birth_ref)
+        if self.death_ref is not None:
+            self.group_base.obj.set_death_ref(self.death_ref)
         self.group_base.commit(self.grstate, message)
