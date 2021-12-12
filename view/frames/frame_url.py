@@ -43,7 +43,8 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
-
+from gramps.gui.utils import match_primary_mask
+            
 # ------------------------------------------------------------------------
 #
 # Plugin modules
@@ -96,6 +97,9 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
+            if match_primary_mask(event.get_state()):
+                self.dump_context()
+                return True
             display_url(self.link)
             return True
         return False

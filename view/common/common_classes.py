@@ -49,6 +49,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.lib.serialize import to_json
 
 # ------------------------------------------------------------------------
 #
@@ -262,6 +263,28 @@ class GrampsContext:
             self.secondary_obj = secondary_obj
         else:
             self.secondary_obj = GrampsObject(secondary_obj)
+
+    def serialize(self):
+        """
+        Return serialized data.
+        """
+        if self.reference_obj:
+            reference = self.reference_obj.obj
+        else:
+            reference = {}
+        if self.secondary_obj:
+            secondary = self.secondary_obj.obj
+        else:
+            secondary = {}
+        return to_json(
+            {
+                "context": {
+                    "primary_obj": self.primary_obj.obj,
+                    "reference_obj": reference,
+                    "secondary_obj": secondary,
+                }
+            }
+        )
 
     @property
     def page_type(self):

@@ -63,7 +63,7 @@ from gramps.gen.utils.file import (
     relative_path,
 )
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.dialog import ErrorDialog
+from gramps.gui.dialog import ErrorDialog, WarningDialog
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
@@ -76,6 +76,7 @@ from gramps.gui.editors import (
     EditSrcAttribute,
 )
 from gramps.gui.selectors import SelectorFactory
+from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
 #
@@ -134,6 +135,12 @@ class GrampsFrame(GrampsFrameView):
             self.init_layout()
         self.eventbox.connect("button-press-event", self.button_pressed)
         self.eventbox.connect("button-release-event", self.button_released)
+
+    def get_context(self):
+        """
+        Return self context.
+        """
+        return GrampsContext(self.primary, self.reference, self.secondary)
 
     def get_title(self):
         """
@@ -337,6 +344,9 @@ class GrampsFrame(GrampsFrameView):
         Handle button released.
         """
         if button_released(event, BUTTON_PRIMARY):
+            if match_primary_mask(event.get_state()):
+                self.dump_context()
+                return True
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
             return True
         return False
@@ -356,6 +366,24 @@ class GrampsFrame(GrampsFrameView):
                 obj = obj_or_handle
             context = GrampsContext(obj, None, None)
         return self.grstate.load_page(context.pickled)
+
+    def dump_context(self, *_dummy_args):
+        """
+        Dump context.
+        """
+        from .frame_window import FrameDebugWindow
+
+        try:
+            FrameDebugWindow(self.grstate, self.get_context())
+        except WindowActiveError:
+            WarningDialog(
+                _("Could Not Open Context Object View"),
+                _(
+                    "A context object view window is already "
+                    "open, close it before launching a new one."
+                ),
+                parent=self.grstate.uistate.window,
+            )
 
     def build_action_menu(self, obj, event):
         """

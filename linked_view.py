@@ -380,7 +380,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="icon-name">gramps-person</property>
         <property name="action-name">win.SetActive</property>
         <property name="tooltip_text" translatable="yes">"""
-        """Make active person the default</property>
+        """Set home person</property>
         <property name="label" translatable="yes">_Set Active</property>
         <property name="use-underline">True</property>
       </object>

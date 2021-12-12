@@ -124,7 +124,6 @@ CONFIGSETTINGS = (
     ("options.global.max-citations-per-group", 100),
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
-    ("options.global.enable-tooltips", True),
     ("options.global.media-bar-position-mode", 2),
     ("options.global.media-bar-display-mode", 1),
     ("options.global.media-bar-minimum-required", 1),

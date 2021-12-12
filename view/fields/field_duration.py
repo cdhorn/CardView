@@ -64,15 +64,6 @@ def get_duration_field(grstate, obj, field_value, args):
             dummy_related_person,
         ) = probably_alive_range(obj, grstate.dbstate.db)
 
-        print(
-            "probably_alive_range: {} {} {} {} {}".format(
-                obj.get_gramps_id(),
-                str(birth_date),
-                str(death_date),
-                dummy_explain_text,
-                dummy_related_person,
-            )
-        )
         if field_value in ["Lifespan", "Duration"]:
             if birth_date and death_date:
                 span = get_span(birth_date, death_date)

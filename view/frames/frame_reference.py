@@ -52,6 +52,7 @@ from gramps.gui.editors import (
     EditSource,
 )
 from gramps.gui.selectors import SelectorFactory
+from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
 #
@@ -198,6 +199,9 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
+            if match_primary_mask(event.get_state()):
+                self.dump_context()
+                return True
             page_context = GrampsContext(self.base, self.reference, None)
             self.grstate.load_page(page_context.pickled)
             return True
