@@ -215,7 +215,8 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 self.reference_base.obj.get_handle()
                 == primary_obj.get_handle()
             ):
-                title = event_type
+                if "family" not in self.groptions.option_space:
+                    title = event_type
                 current_type = self.primary.obj.get_type()
                 if current_type == EventType.BIRTH:
                     if check_multiple_events(
@@ -226,7 +227,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                             birth_ref is not None
                             and birth_ref.ref == self.primary.obj.get_handle()
                         ):
-                            title = " ".join((event_type, "*"))
+                            title = " ".join((title, "*"))
                 elif current_type == EventType.DEATH:
                     if check_multiple_events(
                         self.grstate.dbstate.db, primary_obj, EventType.DEATH
@@ -236,7 +237,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                             death_ref is not None
                             and death_ref.ref == self.primary.obj.get_handle()
                         ):
-                            title = " ".join((event_type, "*"))
+                            title = " ".join((title, "*"))
 
             if (
                 self.groptions.relation
