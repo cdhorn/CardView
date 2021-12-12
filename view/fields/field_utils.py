@@ -183,6 +183,8 @@ def get_event_labels(grstate, event, args):
         )
     else:
         description = glocale.translation.sgettext(event.type.xml_str())
+    if args.get("multiple_events"):
+        description = "".join((description, " *"))
 
     date = glocale.date_displayer.display(event.date)
     if event_format in [1, 3, 5, 6]:

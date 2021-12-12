@@ -59,9 +59,9 @@ from gramps.gen.lib.serialize import to_json
 from .common_const import GRAMPS_OBJECTS
 from .common_utils import (
     TextLink,
+    find_modified_secondary_object,
     find_reference,
     find_secondary_object,
-    find_modified_secondary_object,
     get_config_option,
 )
 
@@ -210,12 +210,22 @@ class GrampsContext:
         "primary_obj",
         "reference_obj",
         "secondary_obj",
+        "reference_base_obj",
     )
 
     def __init__(
-        self, primary_obj=None, reference_obj=None, secondary_obj=None
+        self,
+        primary_obj=None,
+        reference_obj=None,
+        secondary_obj=None,
+        reference_base_obj=None,
     ):
-        self.load(primary_obj, reference_obj, secondary_obj)
+        self.load(
+            primary_obj,
+            reference_obj,
+            secondary_obj,
+            reference_base_obj=reference_base_obj,
+        )
 
     def __getstate__(self):
         """
@@ -231,14 +241,26 @@ class GrampsContext:
         else:
             secondary_obj = None
 
-        return (self.primary_obj.obj, reference_obj, secondary_obj)
+        if self.reference_base_obj:
+            reference_base_obj = self.reference_base_obj.obj
+        else:
+            reference_base_obj = None
+
+        return (
+            self.primary_obj.obj,
+            reference_obj,
+            secondary_obj,
+            reference_base_obj,
+        )
 
     def __setstate__(self, state):
         """
         Set object state, used for unpickling.
         """
-        (primary_obj, reference_obj, secondary_obj) = state
-        self.load(primary_obj, reference_obj, secondary_obj)
+        (primary_obj, reference_obj, secondary_obj, reference_base_obj) = state
+        self.load(
+            primary_obj, reference_obj, secondary_obj, reference_base_obj
+        )
 
     @property
     def pickled(self):
@@ -247,7 +269,13 @@ class GrampsContext:
         """
         return pickle.dumps(self)
 
-    def load(self, primary_obj, reference_obj, secondary_obj):
+    def load(
+        self,
+        primary_obj,
+        reference_obj,
+        secondary_obj,
+        reference_base_obj=None,
+    ):
         """
         Load objects that provide the context.
         """
@@ -263,28 +291,23 @@ class GrampsContext:
             self.secondary_obj = secondary_obj
         else:
             self.secondary_obj = GrampsObject(secondary_obj)
+        if isinstance(reference_base_obj, GrampsObject):
+            self.reference_base_obj = reference_base_obj
+        else:
+            self.reference_base_obj = GrampsObject(reference_base_obj)
 
     def serialize(self):
         """
         Return serialized data.
         """
-        if self.reference_obj:
-            reference = self.reference_obj.obj
-        else:
-            reference = {}
+        context = {"primary": self.primary_obj.obj}
         if self.secondary_obj:
-            secondary = self.secondary_obj.obj
-        else:
-            secondary = {}
-        return to_json(
-            {
-                "context": {
-                    "primary_obj": self.primary_obj.obj,
-                    "reference_obj": reference,
-                    "secondary_obj": secondary,
-                }
-            }
-        )
+            context.update({"secondary": self.secondary_obj.obj})
+        if self.reference_obj:
+            context.update({"reference": self.reference_obj.obj})
+        if self.reference_base_obj:
+            context.update({"reference_base": self.reference_base_obj.obj})
+        return to_json(context)
 
     @property
     def page_type(self):

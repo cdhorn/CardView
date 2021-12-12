@@ -116,12 +116,14 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
                     _("MediaRef"),
                     media.get_gramps_id(),
                     _("from"),
-                    self.base.obj_lang,
-                    self.base.obj.get_gramps_id(),
+                    self.reference_base.obj_lang,
+                    self.reference_base.obj.get_gramps_id(),
                 )
             )
-            self.base.obj.remove_media_references([media.get_handle()])
-            self.base.commit(self.grstate, message)
+            self.reference_base.obj.remove_media_references(
+                [media.get_handle()]
+            )
+            self.reference_base.commit(self.grstate, message)
 
     def _make_active_media(self, _dummy_var1):
         """
@@ -130,7 +132,7 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         new_list = []
         image_ref = None
         image_handle = self.primary.obj.get_handle()
-        for media_ref in self.base.obj.get_media_list():
+        for media_ref in self.reference_base.obj.get_media_list():
             if media_ref.ref == image_handle:
                 image_ref = media_ref
             else:
@@ -145,9 +147,9 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
                 self.primary.obj.get_gramps_id(),
                 _("Active"),
                 _("for"),
-                self.base.obj_type,
-                self.base.obj.get_gramps_id(),
+                self.reference_base.obj_type,
+                self.reference_base.obj.get_gramps_id(),
             )
         )
-        self.base.obj.set_media_list(new_list)
-        self.base.commit(self.grstate, message)
+        self.reference_base.obj.set_media_list(new_list)
+        self.reference_base.commit(self.grstate, message)

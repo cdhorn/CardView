@@ -76,14 +76,10 @@ from ..common.common_const import (
     _GENDERS,
     _RECIPROCAL_ASSOCIATIONS,
 )
-from ..common.common_utils import (
-    get_person_color_css,
-    menu_item,
-    submenu_item,
-)
+from ..common.common_utils import get_person_color_css, menu_item, submenu_item
 from ..common.common_vitals import format_date_string, get_relation
-from .frame_reference import ReferenceGrampsFrame
 from ..fields.field_builder import field_builder
+from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
 

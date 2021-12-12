@@ -31,6 +31,7 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import HandleError
+from gramps.gen.lib.eventtype import EventType
 
 # ------------------------------------------------------------------------
 #
@@ -49,6 +50,21 @@ from .field_utils import get_event_labels
 _ = glocale.translation.sgettext
 
 
+def find_event_ref(grstate, args, event_cache, event_ref, event_type):
+    """
+    Find and return event labels for specific event_ref.
+    """
+    count = 0
+    ref_event = None
+    for event in event_cache:
+        if event.get_type() == event_type:
+            count = count + 1
+        if event.get_handle() == event_ref.ref:
+            ref_event = event
+    args["multiple_events"] = count > 1
+    return get_event_labels(grstate, ref_event, args)
+
+
 def get_event_field(grstate, obj, event_type, args):
     """
     Find an event and return the date and place.
@@ -57,16 +73,10 @@ def get_event_field(grstate, obj, event_type, args):
     event_cache = args.get("event_cache") or {}
     if event_type == "Birth":
         if obj.get_birth_ref() is not None:
-            birth_ref = obj.get_birth_ref()
-            for event in event_cache:
-                if event.get_handle() == birth_ref.ref:
-                    return get_event_labels(grstate, event, args)
+            return find_event_ref(grstate, args, event_cache, obj.get_birth_ref(), EventType.BIRTH)
     if event_type == "Death":
         if obj.get_death_ref() is not None:
-            death_ref = obj.get_death_ref()
-            for event in event_cache:
-                if event.get_handle() == death_ref.ref:
-                    return get_event_labels(grstate, event, args)
+            return find_event_ref(grstate, args, event_cache, obj.get_death_ref(), EventType.DEATH)
     skip_birth = args.get("skip_birth_alternates")
     have_birth = args.get("have_birth")
     skip_death = args.get("skip_death_alternates")

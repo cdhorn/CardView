@@ -99,9 +99,9 @@ from ..common.common_utils import (
     note_option_text,
     submenu_item,
 )
+from ..menus.menu_config import build_config_menu
 from .frame_selectors import get_attribute_types
 from .frame_view import GrampsFrameView
-from ..menus.menu_config import build_config_menu
 
 _ = glocale.translation.sgettext
 
@@ -120,10 +120,10 @@ class GrampsFrame(GrampsFrameView):
         if reference_tuple:
             (base_obj, reference_obj) = reference_tuple
             assert reference_obj.ref == primary_obj.get_handle()
-            self.base = GrampsObject(base_obj)
+            self.reference_base = GrampsObject(base_obj)
             self.reference = GrampsObject(reference_obj)
         else:
-            self.base = None
+            self.reference_base = None
             self.reference = None
         GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
@@ -140,7 +140,9 @@ class GrampsFrame(GrampsFrameView):
         """
         Return self context.
         """
-        return GrampsContext(self.primary, self.reference, self.secondary)
+        return GrampsContext(
+            self.primary, self.reference, self.secondary, self.reference_base
+        )
 
     def get_title(self):
         """

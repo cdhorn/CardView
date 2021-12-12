@@ -63,11 +63,7 @@ from ..common.common_const import (
     GROUP_LABELS,
     GROUP_LABELS_SINGLE,
 )
-from ..common.common_utils import (
-    button_pressed,
-    get_bookmarks,
-    pack_icon,
-)
+from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
 from ..common.common_vitals import get_age
 from .frame_utils import get_tag_icon
 

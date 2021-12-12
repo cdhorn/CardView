@@ -165,7 +165,7 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
             _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             new_list = []
-            for ref in self.base.obj.get_reporef_list():
+            for ref in self.reference_base.obj.get_reporef_list():
                 if not ref.ref == repo_ref.ref:
                     new_list.append(ref)
             message = " ".join(
@@ -175,8 +175,8 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
                     repository.get_gramps_id(),
                     _("from"),
                     _("Source"),
-                    self.base.obj.get_gramps_id(),
+                    self.reference_base.obj.get_gramps_id(),
                 )
             )
-            self.base.obj.set_reporef_list(new_list)
-            self.base.commit(self.grstate, message)
+            self.reference_base.obj.set_reporef_list(new_list)
+            self.reference_base.commit(self.grstate, message)

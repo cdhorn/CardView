@@ -36,9 +36,9 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Repository, RepoRef
+from gramps.gen.lib import RepoRef, Repository
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditRepository, EditRepoRef
+from gramps.gui.editors import EditRepoRef, EditRepository
 from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------

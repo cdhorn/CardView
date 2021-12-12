@@ -401,3 +401,15 @@ def get_marriage_duration(db, family_obj_or_handle):
         today = Today()
         return get_age(marriage, None, today=today, strip=True)
     return ""
+
+
+def check_multiple_events(db, obj, event_type):
+    """
+    Check if an object has multiple events of a given type.
+    """
+    count = 0
+    for event_ref in obj.get_event_ref_list():
+        event = db.get_event_from_handle(event_ref.ref)
+        if event.get_type() == event_type:
+            count = count + 1
+    return count > 1

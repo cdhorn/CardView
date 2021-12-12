@@ -45,9 +45,9 @@ from gramps.gui.ddtargets import DdTargets
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_family_color_css, menu_item
 from ..common.common_vitals import get_marriage_duration
+from ..fields.field_builder import field_builder
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
-from ..fields.field_builder import field_builder
 
 _ = glocale.translation.sgettext
 

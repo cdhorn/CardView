@@ -44,7 +44,7 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.display import display_url
 from gramps.gui.utils import match_primary_mask
-            
+
 # ------------------------------------------------------------------------
 #
 # Plugin modules

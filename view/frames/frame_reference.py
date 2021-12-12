@@ -73,9 +73,9 @@ from ..common.common_utils import (
     menu_item,
     note_option_text,
 )
+from ..menus.menu_config import build_config_menu
 from .frame_primary import PrimaryGrampsFrame
 from .frame_selectors import get_attribute_types
-from ..menus.menu_config import build_config_menu
 
 _ = glocale.translation.sgettext
 
@@ -202,7 +202,9 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             if match_primary_mask(event.get_state()):
                 self.dump_context()
                 return True
-            page_context = GrampsContext(self.base, self.reference, None)
+            page_context = GrampsContext(
+                self.reference_base, self.reference, None
+            )
             self.grstate.load_page(page_context.pickled)
             return True
         return False
@@ -288,11 +290,11 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 self.reference.obj_lang,
                 self.primary.obj.get_gramps_id(),
                 _("for"),
-                self.base.obj_lang,
-                self.base.obj.get_gramps_id(),
+                self.reference_base.obj_lang,
+                self.reference_base.obj.get_gramps_id(),
             )
         )
-        self.base.commit(self.grstate, message)
+        self.reference_base.commit(self.grstate, message)
 
     def _commit_ref_message(self, obj_type, obj_gramps_id, action="add"):
         """
@@ -317,8 +319,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 self.reference.obj_lang,
                 self.primary.obj.get_gramps_id(),
                 _("for"),
-                self.base.obj_lang,
-                self.base.obj.get_gramps_id(),
+                self.reference_base.obj_lang,
+                self.reference_base.obj.get_gramps_id(),
             )
         )
 
@@ -350,7 +352,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             message = self._commit_ref_message(
                 _("Attribute"), attribute.get_type(), action="update"
             )
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def add_ref_attribute(self, _dummy_obj):
         """
@@ -382,7 +384,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 _("Attribute"), str(attribute.get_type())
             )
             self.reference.obj.add_attribute(attribute)
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def remove_ref_attribute(self, _dummy_obj, attribute):
         """
@@ -399,7 +401,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 _("Attribute"), str(attribute.get_type()), action="remove"
             )
             self.reference.obj.remove_attribute(attribute)
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def add_new_ref_source_citation(self, _dummy_obj):
         """
@@ -458,7 +460,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             message = self._commit_ref_message(
                 _("Citation"), citation.get_gramps_id()
             )
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def add_existing_ref_citation(self, _dummy_obj):
         """
@@ -518,7 +520,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             self.reference.obj.remove_citation_references(
                 [citation.get_handle()]
             )
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def add_new_ref_note(self, _dummy_obj, content=None):
         """
@@ -545,7 +547,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if handle and self.reference.obj.add_note(handle):
             note = self.fetch("Note", handle)
             message = self._commit_ref_message(_("Note"), note.get_gramps_id())
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def add_existing_ref_note(self, _dummy_obj):
         """
@@ -575,7 +577,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 _("Note"), note.get_gramps_id(), action="remove"
             )
             self.reference.obj.remove_note(note.get_handle())
-            self.base.commit(self.grstate, message)
+            self.reference_base.commit(self.grstate, message)
 
     def _change_ref_privacy_option(self):
         """
@@ -606,10 +608,10 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 self.reference.obj_lang,
                 self.primary.obj.get_gramps_id(),
                 _("for"),
-                self.base.obj_lang,
-                self.base.obj.get_gramps_id(),
+                self.reference_base.obj_lang,
+                self.reference_base.obj.get_gramps_id(),
                 text,
             )
         )
         self.reference.obj.set_privacy(mode)
-        self.base.commit(self.grstate, message)
+        self.reference_base.commit(self.grstate, message)

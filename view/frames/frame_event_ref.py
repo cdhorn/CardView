@@ -72,12 +72,17 @@ class EventRefGrampsFrame(EventGrampsFrame):
             return
 
         if groptions.relation:
-            if groptions.relation.get_handle() != self.base.obj.get_handle():
+            if (
+                groptions.relation.get_handle()
+                != self.reference_base.obj.get_handle()
+            ):
                 name = None
-                if self.base.obj_type == "Person":
-                    name = name_displayer.display(self.base.obj)
-                elif self.base.obj_type == "Family":
-                    name = family_name(self.base.obj, grstate.dbstate.db)
+                if self.reference_base.obj_type == "Person":
+                    name = name_displayer.display(self.reference_base.obj)
+                elif self.reference_base.obj_type == "Family":
+                    name = family_name(
+                        self.reference_base.obj, grstate.dbstate.db
+                    )
                 if name:
                     text = "".join(("[", name, "]"))
                     self.ref_widgets["body"].pack_start(
@@ -102,7 +107,7 @@ class EventRefGrampsFrame(EventGrampsFrame):
                 "list-remove",
                 label,
                 self.remove_participant,
-                self.base.obj,
+                self.reference_base.obj,
                 self.reference.obj,
             )
         )

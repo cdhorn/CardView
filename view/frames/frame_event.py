@@ -38,7 +38,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import EventRef, EventRoleType, Person
+from gramps.gen.lib import EventRef, EventRoleType, EventType, Person
 from gramps.gen.utils.alive import probably_alive
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.editors import EditEvent, EditEventRef, EditPerson
@@ -62,6 +62,7 @@ from ..common.common_utils import (
     submenu_item,
 )
 from ..common.common_vitals import (
+    check_multiple_events,
     get_event_category,
     get_participants,
     get_participants_text,
@@ -209,24 +210,50 @@ class EventGrampsFrame(ReferenceGrampsFrame):
 
         role_name = str(role)
         title = " ".join((event_type, _("of"), primary_obj_name))
-        if not self.base:
-            return title, role_name
-
-        if self.base.obj.get_handle() == primary_obj.get_handle():
-            if "person" in self.groptions.option_space:
+        if self.reference_base:
+            if (
+                self.reference_base.obj.get_handle()
+                == primary_obj.get_handle()
+            ):
                 title = event_type
+                current_type = self.primary.obj.get_type()
+                if current_type == EventType.BIRTH:
+                    if check_multiple_events(
+                        self.grstate.dbstate.db, primary_obj, EventType.BIRTH
+                    ):
+                        birth_ref = primary_obj.get_birth_ref()
+                        if (
+                            birth_ref is not None
+                            and birth_ref.ref == self.primary.obj.get_handle()
+                        ):
+                            title = " ".join((event_type, "*"))
+                elif current_type == EventType.DEATH:
+                    if check_multiple_events(
+                        self.grstate.dbstate.db, primary_obj, EventType.DEATH
+                    ):
+                        death_ref = primary_obj.get_death_ref()
+                        if (
+                            death_ref is not None
+                            and death_ref.ref == self.primary.obj.get_handle()
+                        ):
+                            title = " ".join((event_type, "*"))
 
-        relation = self.groptions.relation
-        if self.base.obj_type == "Person" and relation:
-            relationship = get_relation(
-                self.grstate.dbstate.db, self.base.obj, relation, depth=4
-            )
-            if relationship:
-                self.event_role_type = "implicit"
-                self.event_relationship = relationship
-                text = relationship.split()[0].title()
-                title = " ".join((event_type, _("of"), text))
-                role_name = ": ".join((_("Implicit Family"), text))
+            if (
+                self.groptions.relation
+                and self.reference_base.obj_type == "Person"
+            ):
+                relationship = get_relation(
+                    self.grstate.dbstate.db,
+                    self.reference_base.obj,
+                    self.groptions.relation,
+                    depth=4,
+                )
+                if relationship:
+                    self.event_role_type = "implicit"
+                    self.event_relationship = relationship
+                    text = relationship.split()[0].title()
+                    title = " ".join((event_type, _("of"), text))
+                    role_name = ": ".join((_("Implicit Family"), text))
         return title, role_name
 
     def _load_participants(self):
@@ -359,13 +386,15 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         Add action menu items for the event.
         """
+        self._birth_option(action_menu)
+        self._death_option(action_menu)
         action_menu.append(self._participants_option())
 
     def edit_self(self, *_dummy_obj):
         """
         Launch the desired editor based on object type.
         """
-        if self.base and self.reference:
+        if self.reference_base and self.reference:
             try:
                 EditEventRef(
                     self.grstate.dbstate,
@@ -387,6 +416,90 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             )
         except WindowActiveError:
             pass
+
+    def _birth_option(self, action_menu):
+        """
+        Build set birth option if appropriate.
+        """
+        if self.primary.obj.get_type() == EventType.BIRTH:
+            if (
+                self.reference_base
+                and self.reference_base.obj.get_handle()
+                == self.primary_participant[1].get_handle()
+            ):
+                if (
+                    self.reference_base.obj.get_birth_ref().ref
+                    != self.primary.obj.get_handle()
+                ):
+                    action_menu.append(
+                        menu_item(
+                            "gramps-person",
+                            _("Set preferred birth event"),
+                            self.set_birth_event,
+                        )
+                    )
+
+    def _death_option(self, action_menu):
+        """
+        Build set death option if appropriate.
+        """
+        if self.primary.obj.get_type() == EventType.DEATH:
+            if (
+                self.reference_base
+                and self.reference_base.obj.get_handle()
+                == self.primary_participant[1].get_handle()
+            ):
+                if (
+                    self.reference_base.obj.get_death_ref().ref
+                    != self.primary.obj.get_handle()
+                ):
+                    action_menu.append(
+                        menu_item(
+                            "gramps-person",
+                            _("Set preferred death event"),
+                            self.set_death_event,
+                        )
+                    )
+
+    def set_birth_event(self, *_dummy_args):
+        """
+        Set as primary birth event.
+        """
+        message = " ".join(
+            (
+                _("Set"),
+                _("Event"),
+                self.primary.obj.get_gramps_id(),
+                _("as"),
+                _("preferred"),
+                _("Birth"),
+                _("for"),
+                _("Person"),
+                self.reference_base.obj.get_gramps_id(),
+            )
+        )
+        self.reference_base.obj.set_birth_ref(self.reference.obj)
+        self.reference_base.commit(self.grstate, message)
+
+    def set_death_event(self, *_dummy_args):
+        """
+        Set as primary death event.
+        """
+        message = " ".join(
+            (
+                _("Set"),
+                _("Event"),
+                self.primary.obj.get_gramps_id(),
+                _("as"),
+                _("preferred"),
+                _("Death"),
+                _("for"),
+                _("Person"),
+                self.reference_base.obj.get_gramps_id(),
+            )
+        )
+        self.reference_base.obj.set_death_ref(self.reference.obj)
+        self.reference_base.commit(self.grstate, message)
 
     def _participants_option(self):
         """
