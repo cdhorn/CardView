@@ -18,7 +18,7 @@
 #
 
 """
-Profile Options
+Configuration options.
 """
 
 CONFIGSETTINGS = (
@@ -110,6 +110,7 @@ CONFIGSETTINGS = (
     ("options.global.focal-object-color", ["#bbe68a", "#304918"]),
     ("options.global.default-background-color", ["#eeeeee", "#454545"]),
     ("options.global.border-width", 2),
+    ("options.global.border-width", 2),
     ("options.global.privacy-mode", 1),
     ("options.global.enable-bookmarks", True),
     ("options.global.enable-home", True),
@@ -124,7 +125,8 @@ CONFIGSETTINGS = (
     ("options.global.max-citations-per-group", 100),
     ("options.global.max-references-per-group", 100),
     ("options.global.enable-warnings", True),
-    ("options.global.media-bar-position-mode", 2),
+    ("options.global.media-bar-enabled", False),
+    ("options.global.media-bar-position", 1),
     ("options.global.media-bar-display-mode", 1),
     ("options.global.media-bar-minimum-required", 1),
     ("options.global.media-bar-sort-by-date", True),

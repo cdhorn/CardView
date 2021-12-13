@@ -48,11 +48,12 @@ from gi.repository import Gtk, GObject
 # -------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError
+from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.display import display_url
 from gramps.gui.views.bookmarks import PersonBookmarks
+from gramps.gui.views.pageview import ViewConfigureDialog
 
 # -------------------------------------------------------------------------
 #
@@ -65,10 +66,10 @@ from view.common.common_utils import (
     get_config_option,
     save_config_option,
 )
+from view.config.config_const import PAGES
+from view.config.config_options import CONFIGSETTINGS
 from view.groups.group_window import FrameGroupWindow
 from view.pages.page_builder import page_builder
-from view.pages.page_const import PAGES
-from view.pages.page_options import CONFIGSETTINGS
 from view.pages.page_window import PageViewWindow
 
 _ = glocale.translation.sgettext
@@ -125,6 +126,7 @@ class LinkedView(ExtendedNavigationView):
         self.page_windows = {}
         self.defer_refresh = False
         self.defer_refresh_id = None
+        self.config_request = None
         self.in_change_object = False
         self.initial_object_loaded = False
         self.additional_uis.append(self.additional_ui)
@@ -180,6 +182,7 @@ class LinkedView(ExtendedNavigationView):
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
             "show-group": self.show_group,
+            "launch-config": self.launch_config,
         }
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
@@ -242,7 +245,7 @@ class LinkedView(ExtendedNavigationView):
         """
         if not self.defer_refresh_id:
             self.defer_refresh_id = GObject.timeout_add(
-                5000, self._perform_config_refresh
+                4000, self._perform_config_refresh
             )
         else:
             self.defer_refresh = True
@@ -889,3 +892,27 @@ class LinkedView(ExtendedNavigationView):
         """
         if key in self.page_windows:
             del self.page_windows[key]
+
+    def build_requested_config_page(self, configdialog):
+        """
+        Build a generic configuration page for a request.
+        """
+        (label, builder, space, context) = self.config_request
+        return label, builder(configdialog, self.grstate, space, context)
+
+    def launch_config(self, label, builder, space, context):
+        """
+        Launch configuration dialog page.
+        """
+        self.config_request = (label, builder, space, context)
+        try:
+            ViewConfigureDialog(
+                self.uistate,
+                self.dbstate,
+                [self.build_requested_config_page],
+                self,
+                self._config,
+                "Test Config",
+            )
+        except WindowActiveError:
+            pass

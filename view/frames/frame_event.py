@@ -383,13 +383,13 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             css_string = get_family_color_css(self.primary_participant[1])
         return css_string
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items for the event.
         """
-        self._birth_option(action_menu)
-        self._death_option(action_menu)
-        action_menu.append(self._participants_option())
+        self._birth_option(context_menu)
+        self._death_option(context_menu)
+        context_menu.append(self._participants_option())
 
     def edit_self(self, *_dummy_obj):
         """
@@ -418,7 +418,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def _birth_option(self, action_menu):
+    def _birth_option(self, context_menu):
         """
         Build set birth option if appropriate.
         """
@@ -432,7 +432,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     self.reference_base.obj.get_birth_ref().ref
                     != self.primary.obj.get_handle()
                 ):
-                    action_menu.append(
+                    context_menu.append(
                         menu_item(
                             "gramps-person",
                             _("Set preferred birth event"),
@@ -440,7 +440,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                         )
                     )
 
-    def _death_option(self, action_menu):
+    def _death_option(self, context_menu):
         """
         Build set death option if appropriate.
         """
@@ -454,7 +454,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     self.reference_base.obj.get_death_ref().ref
                     != self.primary.obj.get_handle()
                 ):
-                    action_menu.append(
+                    context_menu.append(
                         menu_item(
                             "gramps-person",
                             _("Set preferred death event"),

@@ -512,6 +512,12 @@ class GrampsState:
         """
         return self.callbacks["show-group"](obj, group_type, title)
 
+    def launch_config(self, label, builder, space, context):
+        """
+        Launch a configuration dialog page.
+        """
+        return self.callbacks["launch-config"](label, builder, space, context)
+
 
 # ------------------------------------------------------------------------
 #

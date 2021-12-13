@@ -116,7 +116,7 @@ class TagGrampsFrame(GrampsFrame):
         self.widgets["facts"].attach(label, 1, 1, 1, 1)
         self.set_css_style()
 
-    def build_action_menu(self, _dummy_obj, event):
+    def build_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for the tag.
         """

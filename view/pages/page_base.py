@@ -30,13 +30,6 @@ GrampsPageView
 
 # -------------------------------------------------------------------------
 #
-# GTK Modules
-#
-# -------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# -------------------------------------------------------------------------
-#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -47,40 +40,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
-from .page_config_colors import (
-    CONFIDENCE_OPTIONS,
-    CONFIDENCE_TYPE,
-    EVENT_OPTIONS,
-    EVENT_TYPE,
-    RELATION_OPTIONS,
-    RELATION_TYPE,
-    ROLE_OPTIONS,
-    ROLE_TYPE,
-    build_color_grid,
+from ..config.config_global import build_global_grid
+from ..config.config_layout import build_layout_grid
+from ..config.config_panel import (
+    build_object_panel,
+    build_timeline_panel,
+    build_color_panel,
 )
-from .page_config_global import build_global_grid
-from .page_config_layout import build_layout_grid
-from .page_config_objects import (
-    ConfigNotebook,
-    build_address_grid,
-    build_citation_grid,
-    build_event_grid,
-    build_family_grid,
-    build_ldsord_grid,
-    build_media_grid,
-    build_name_grid,
-    build_note_grid,
-    build_person_grid,
-    build_place_grid,
-    build_repository_grid,
-    build_source_grid,
-)
-from .page_config_timeline import (
-    build_family_timeline_grid,
-    build_person_timeline_grid,
-)
-from .page_utils import create_grid
 from ..views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -160,118 +126,6 @@ class GrampsPageView:
                 )
                 commit_method(self.active_profile.primary.obj, trans)
 
-    def _object_panel(self, configdialog, space, extra=False):
-        """
-        Build an object options panel.
-        """
-        group = "group" in space
-        grid = create_grid()
-        notebook = ConfigNotebook(vexpand=True, hexpand=True)
-        page = build_person_grid(
-            configdialog, self.grstate, space, "person", extra=extra
-        )
-        notebook.append_page(page, tab_label=Gtk.Label(label=_("Person")))
-        render_page = lambda: build_person_grid(
-            configdialog, self.grstate, space, "parent"
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Parent")), render_page
-        )
-        if "group" in space:
-            render_page = lambda: build_person_grid(
-                configdialog, self.grstate, space, "sibling"
-            )
-            notebook.append_deferred_page(
-                Gtk.Label(label=_("Sibling")), render_page
-            )
-        render_page = lambda: build_person_grid(
-            configdialog, self.grstate, space, "spouse"
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Spouse")), render_page
-        )
-        if "group" in space:
-            render_page = lambda: build_person_grid(
-                configdialog, self.grstate, space, "child"
-            )
-            notebook.append_deferred_page(
-                Gtk.Label(label=_("Child")), render_page
-            )
-        render_page = lambda: build_person_grid(
-            configdialog, self.grstate, space, "participant"
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Participant")), render_page
-        )
-        render_page = lambda: build_person_grid(
-            configdialog, self.grstate, space, "association"
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Association")), render_page
-        )
-        render_page = lambda: build_family_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Family")), render_page
-        )
-        render_page = lambda: build_event_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(Gtk.Label(label=_("Event")), render_page)
-        render_page = lambda: build_place_grid(
-            configdialog, self.grstate, space
-        )
-        if "group" in space:
-            render_page = lambda: build_ldsord_grid(
-                configdialog, self.grstate, space, "ldsord"
-            )
-            notebook.append_deferred_page(
-                Gtk.Label(label=_("LdsOrd")), render_page
-            )
-        notebook.append_deferred_page(Gtk.Label(label=_("Place")), render_page)
-        render_page = lambda: build_citation_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Citation")), render_page
-        )
-        render_page = lambda: build_source_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Source")), render_page
-        )
-        render_page = lambda: build_repository_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Repository")), render_page
-        )
-        render_page = lambda: build_media_grid(
-            configdialog, self.grstate, space, group=group
-        )
-        notebook.append_deferred_page(Gtk.Label(label=_("Media")), render_page)
-        render_page = lambda: build_note_grid(
-            configdialog, self.grstate, space
-        )
-        notebook.append_deferred_page(Gtk.Label(label=_("Note")), render_page)
-        if "group" in space:
-            render_page = lambda: build_name_grid(
-                configdialog, self.grstate, space, "name"
-            )
-            notebook.append_deferred_page(
-                Gtk.Label(label=_("Name")), render_page
-            )
-            render_page = lambda: build_address_grid(
-                configdialog, self.grstate, space, "address"
-            )
-            notebook.append_deferred_page(
-                Gtk.Label(label=_("Address")), render_page
-            )
-        grid.attach(notebook, 1, 0, 1, 1)
-        return grid
-
     def global_panel(self, configdialog):
         """
         Build global options panel for the configuration dialog.
@@ -288,59 +142,29 @@ class GrampsPageView:
         """
         Build active object options panel for the configuration dialog.
         """
-        return _("Active"), self._object_panel(
-            configdialog, "options.active", extra=True
+        return _("Active"), build_object_panel(
+            configdialog, self.grstate, "options.active"
         )
 
     def group_panel(self, configdialog):
         """
         Build object group options panel for the configuration dialog.
         """
-        return _("Groups"), self._object_panel(configdialog, "options.group")
+        return _("Groups"), build_object_panel(
+            configdialog, self.grstate, "options.group"
+        )
 
     def timeline_panel(self, configdialog):
         """
         Build timeline options panel for the configuration dialog.
         """
-        grid = create_grid()
-        notebook = ConfigNotebook(vexpand=True, hexpand=True)
-        page = build_person_timeline_grid(configdialog, self.grstate)
-        notebook.append_page(page, tab_label=Gtk.Label(label=_("Person")))
-        render_page = lambda: build_family_timeline_grid(
-            configdialog, self.grstate
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Family")), render_page
-        )
-        grid.attach(notebook, 1, 0, 1, 1)
-        return _("Timelines"), grid
+        return _("Timelines"), build_timeline_panel(configdialog, self.grstate)
 
     def color_panel(self, configdialog):
         """
         Build color scheme options panel for the configuration dialog.
         """
-        grid = create_grid()
-        notebook = ConfigNotebook(vexpand=True, hexpand=True)
-        page = build_color_grid(
-            configdialog, self.grstate, CONFIDENCE_TYPE, CONFIDENCE_OPTIONS
-        )
-        notebook.append_page(page, tab_label=Gtk.Label(label=_("Confidence")))
-        render_page = lambda: build_color_grid(
-            configdialog, self.grstate, EVENT_TYPE, EVENT_OPTIONS
-        )
-        notebook.append_deferred_page(Gtk.Label(label=_("Event")), render_page)
-        render_page = lambda: build_color_grid(
-            configdialog, self.grstate, ROLE_TYPE, ROLE_OPTIONS
-        )
-        notebook.append_deferred_page(Gtk.Label(label=_("Role")), render_page)
-        render_page = lambda: build_color_grid(
-            configdialog, self.grstate, RELATION_TYPE, RELATION_OPTIONS
-        )
-        notebook.append_deferred_page(
-            Gtk.Label(label=_("Relationship")), render_page
-        )
-        grid.attach(notebook, 1, 0, 1, 1)
-        return _("Colors"), grid
+        return _("Colors"), build_color_panel(configdialog, self.grstate)
 
     def get_configure_page_funcs(self):
         """

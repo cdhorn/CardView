@@ -328,7 +328,7 @@ class GrampsFrame(GrampsFrameView):
         Handle button pressed.
         """
         if button_pressed(event, BUTTON_SECONDARY):
-            self.build_action_menu(obj, event)
+            self.build_context_menu(obj, event)
             return True
         if button_pressed(event, BUTTON_PRIMARY):
             return False
@@ -383,7 +383,7 @@ class GrampsFrame(GrampsFrameView):
                 parent=self.grstate.uistate.window,
             )
 
-    def build_action_menu(self, obj, event):
+    def build_context_menu(self, obj, event):
         """
         Build the action menu for a right click, should be defined in
         derived classes.

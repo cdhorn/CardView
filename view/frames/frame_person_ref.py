@@ -130,14 +130,14 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         if vbox:
             self.ref_widgets["body"].pack_start(vbox, True, True, 0)
 
-    def add_ref_custom_actions(self, action_menu):
+    def add_ref_custom_actions(self, context_menu):
         """
         Add custom action menu items for an associate.
         """
         label = " ".join((_("Edit"), _("reference")))
-        action_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
+        context_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
         label = " ".join((_("Delete"), _("reference")))
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "list-remove",
                 label,

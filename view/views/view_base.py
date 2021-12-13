@@ -71,14 +71,12 @@ class GrampsObjectView(Gtk.VBox):
         Render the view after building it.
         """
         self.build_view()
-        mode = self.grstate.config.get(
-            "options.global.media-bar-position-mode"
-        )
-        if mode in [0, 1]:
+        mode = self.grstate.config.get("options.global.media-bar-position")
+        if mode in [0]:
             self.render_view_body(self, mode)
         else:
             wrapper = Gtk.HBox(spacing=1)
-            if mode in [2]:
+            if mode in [1]:
                 self.add_media_bar(wrapper, self.grcontext.primary_obj.obj)
                 vbox = Gtk.VBox()
                 self.render_view_body(vbox, mode)
@@ -97,7 +95,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         if self.grstate.config.get("options.global.pin-header"):
             widget.pack_start(self.view_header, False, False, 0)
-            if mode == 1:
+            if mode == 0:
                 self.add_media_bar(widget, self.grcontext.primary_obj.obj)
             scrollable_body = make_scrollable(self.view_body)
             scrollable_body.set_policy(
@@ -107,7 +105,7 @@ class GrampsObjectView(Gtk.VBox):
         else:
             body = Gtk.VBox()
             body.pack_start(self.view_header, False, False, 0)
-            if mode == 1:
+            if mode == 0:
                 self.add_media_bar(body, self.grcontext.primary_obj.obj)
             body.pack_end(self.view_body, True, True, 0)
             scrollable_body = make_scrollable(body)
@@ -289,7 +287,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Check and if need and can build media bar add to widget for viewing.
         """
-        if self.grstate.config.get("options.global.media-bar-display-mode"):
+        if self.grstate.config.get("options.global.media-bar-enabled"):
             css = self.view_object.get_css_style()
             mediabar = GrampsMediaBarGroup(self.grstate, None, obj, css=css)
             if mediabar.total:

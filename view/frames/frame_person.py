@@ -224,26 +224,26 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             home=self.relation,
         )
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "go-home",
                 _("Set home person"),
                 self.set_default_person,
             )
         )
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "gramps-event",
                 _("Add a new primary event"),
                 self.add_new_person_event,
             )
         )
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "gramps-event",
                 _("Add as participant to an existing event"),
@@ -251,17 +251,17 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             )
         )
         if self.context in ["parent", "spouse", "family", "sibling", "child"]:
-            action_menu.append(self._add_new_family_event_option())
+            context_menu.append(self._add_new_family_event_option())
         if self.context in ["parent", "spouse"]:
-            action_menu.append(self._add_new_child_option())
-            action_menu.append(self._add_existing_child_option())
-            action_menu.append(self._remove_family_parent_option())
+            context_menu.append(self._add_new_child_option())
+            context_menu.append(self._add_existing_child_option())
+            context_menu.append(self._remove_family_parent_option())
         if self.context in ["sibling", "child"]:
-            action_menu.append(self._remove_family_child_option())
-        action_menu.append(self._parents_option())
-        action_menu.append(self._partners_option())
-        action_menu.append(self._associations_option())
-        action_menu.append(self._names_option())
+            context_menu.append(self._remove_family_child_option())
+        context_menu.append(self._parents_option())
+        context_menu.append(self._partners_option())
+        context_menu.append(self._associations_option())
+        context_menu.append(self._names_option())
 
     def _names_option(self):
         """

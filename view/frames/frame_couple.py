@@ -293,7 +293,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             partner2 = None
         return partner1, partner2
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
@@ -302,12 +302,12 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             "parent" in self.groptions.option_space
             or "spouse" in self.groptions.option_space
         ):
-            self._add_partner_options(action_menu)
-            action_menu.append(self._add_new_family_event_option())
-            action_menu.append(self._add_new_child_option())
-            action_menu.append(self._add_existing_child_option())
+            self._add_partner_options(context_menu)
+            context_menu.append(self._add_new_family_event_option())
+            context_menu.append(self._add_new_child_option())
+            context_menu.append(self._add_existing_child_option())
 
-    def _add_partner_options(self, action_menu):
+    def _add_partner_options(self, context_menu):
         """
         Add partner specific options.
         """
@@ -317,7 +317,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 name = name_displayer.display(partner)
                 if name:
                     text = " ".join((_("Edit"), name))
-                    action_menu.append(
+                    context_menu.append(
                         menu_item(
                             "gtk-edit",
                             text,
@@ -332,7 +332,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 name = name_displayer.display(partner)
                 if name:
                     text = " ".join((_("Go to"), name))
-                    action_menu.append(
+                    context_menu.append(
                         menu_item(
                             "gramps-person",
                             text,

@@ -49,7 +49,7 @@ from gramps.gui.widgets import BasicLabel
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .page_utils import add_config_reset, create_grid
+from .config_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 

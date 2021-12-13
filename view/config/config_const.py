@@ -58,10 +58,9 @@ MEDIA_DISPLAY_MODES = [
 ]
 
 MEDIA_POSITION_MODES = [
-    (0, _("Not displayed")),
-    (1, _("Horizontally")),
-    (2, _("Left side")),
-    (3, _("Right side")),
+    (0, _("Horizontally")),
+    (1, _("Left side")),
+    (2, _("Right side")),
 ]
 
 PRIVACY_DISPLAY_MODES = [

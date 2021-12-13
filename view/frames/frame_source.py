@@ -95,11 +95,11 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items for the source.
         """
-        action_menu.append(self._repositories_option())
+        context_menu.append(self._repositories_option())
 
     def _repositories_option(self):
         """

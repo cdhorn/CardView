@@ -149,11 +149,11 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
             self.primary.obj.confidence, self.grstate.config
         )
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items for the citation.
         """
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "gtk-edit",
                 _("Edit citation source"),

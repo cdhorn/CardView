@@ -221,17 +221,17 @@ class PrimaryGrampsFrame(GrampsFrame):
             return True
         return self._base_drop_handler(dnd_type, obj_or_handle, data)
 
-    def build_action_menu(self, _dummy_obj, event):
+    def build_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click. First action will always be
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
-        action_menu = Gtk.Menu()
-        action_menu.append(self._edit_object_option())
-        self.add_custom_actions(action_menu)
+        context_menu = Gtk.Menu()
+        context_menu.append(self._edit_object_option())
+        self.add_custom_actions(context_menu)
         if hasattr(self.primary.obj, "attribute_list"):
-            action_menu.append(
+            context_menu.append(
                 self._attributes_option(
                     self.primary.obj,
                     self.add_attribute,
@@ -240,7 +240,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                 )
             )
         if hasattr(self.primary.obj, "citation_list"):
-            action_menu.append(
+            context_menu.append(
                 self._citations_option(
                     self.primary.obj,
                     self.add_new_source_citation,
@@ -250,9 +250,9 @@ class PrimaryGrampsFrame(GrampsFrame):
                 )
             )
         if hasattr(self.primary.obj, "media_list"):
-            action_menu.append(self._media_option())
+            context_menu.append(self._media_option())
         if hasattr(self.primary.obj, "note_list"):
-            action_menu.append(
+            context_menu.append(
                 self._notes_option(
                     self.primary.obj,
                     self.add_new_note,
@@ -261,14 +261,14 @@ class PrimaryGrampsFrame(GrampsFrame):
                 )
             )
         if hasattr(self.primary.obj, "tag_list"):
-            action_menu.append(self._tags_option())
+            context_menu.append(self._tags_option())
         if hasattr(self.primary.obj, "urls"):
-            action_menu.append(self._urls_option())
-        action_menu.append(self._copy_to_clipboard_option())
+            context_menu.append(self._urls_option())
+        context_menu.append(self._copy_to_clipboard_option())
         if self.grstate.config.get("options.global.enable-bookmarks"):
-            action_menu.append(self._bookmark_option())
-        action_menu.append(self._change_privacy_option())
-        action_menu.add(Gtk.SeparatorMenuItem())
+            context_menu.append(self._bookmark_option())
+        context_menu.append(self._change_privacy_option())
+        context_menu.add(Gtk.SeparatorMenuItem())
         if self.primary.obj.change:
             text = " ".join(
                 (
@@ -282,16 +282,18 @@ class PrimaryGrampsFrame(GrampsFrame):
             text = _("Never changed")
         label = Gtk.MenuItem(label=text)
         label.set_sensitive(False)
-        action_menu.append(label)
-        action_menu.attach_to_widget(self, None)
-        action_menu.show_all()
+        context_menu.append(label)
+        context_menu.attach_to_widget(self, None)
+        context_menu.show_all()
         if Gtk.get_minor_version() >= 22:
-            action_menu.popup_at_pointer(event)
+            context_menu.popup_at_pointer(event)
         else:
-            action_menu.popup(None, None, None, None, event.button, event.time)
+            context_menu.popup(
+                None, None, None, None, event.button, event.time
+            )
         return True
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         For derived objects to inject their own actions into the menu.
         """

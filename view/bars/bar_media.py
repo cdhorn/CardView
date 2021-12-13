@@ -64,8 +64,8 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
     """
 
     def __init__(self, grstate, groptions, obj, css=""):
-        mode = grstate.config.get("options.global.media-bar-position-mode")
-        if mode in [2, 3]:
+        mode = grstate.config.get("options.global.media-bar-position")
+        if mode > 0:
             Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
             self.set_hexpand(False)
             self.set_vexpand(True)

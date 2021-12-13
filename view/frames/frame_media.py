@@ -176,12 +176,12 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
             attribute_block, expand=False, fill=False, padding=0
         )
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         Add action menu items specific for the image.
         """
         if self.groptions.backlink:
-            action_menu.append(
+            context_menu.append(
                 menu_item(
                     "gramps-media",
                     _("Make active media"),

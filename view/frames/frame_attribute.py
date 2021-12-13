@@ -103,14 +103,14 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         context = GrampsContext(self.primary.obj, None, self.secondary.obj)
         self.grstate.load_page(context.pickled)
 
-    def build_action_menu(self, _dummy_obj, event):
+    def build_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click. First action will always be
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
         if "Ref" not in self.primary.obj_type:
-            SecondaryGrampsFrame.build_action_menu(self, _dummy_obj, event)
+            SecondaryGrampsFrame.build_context_menu(self, _dummy_obj, event)
         return True
 
     def route_action(self, obj, event):

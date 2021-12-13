@@ -95,14 +95,14 @@ class EventRefGrampsFrame(EventGrampsFrame):
         )
         self.ref_widgets["body"].pack_start(vbox, False, False, 0)
 
-    def add_ref_custom_actions(self, action_menu):
+    def add_ref_custom_actions(self, context_menu):
         """
         Add custom action menu items for the event reference.
         """
         label = " ".join((_("Edit"), _("reference")))
-        action_menu.append(menu_item("gtk-edit", label, self.edit_event_ref))
+        context_menu.append(menu_item("gtk-edit", label, self.edit_event_ref))
         label = " ".join((_("Delete"), _("reference")))
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "list-remove",
                 label,

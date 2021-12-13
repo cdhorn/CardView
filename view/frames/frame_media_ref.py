@@ -60,19 +60,19 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         if not groptions.ref_mode:
             return
 
-    def add_ref_custom_actions(self, action_menu):
+    def add_ref_custom_actions(self, context_menu):
         """
         Add custom action menu items for the reference.
         """
         label = " ".join((_("Edit"), _("reference")))
-        action_menu.append(menu_item("gtk-edit", label, self.edit_media_ref))
+        context_menu.append(menu_item("gtk-edit", label, self.edit_media_ref))
         label = " ".join((_("Delete"), _("reference")))
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "list-remove", label, self.remove_media_ref, self.primary.obj
             )
         )
-        action_menu.append(
+        context_menu.append(
             menu_item(
                 "gramps-media",
                 _("Make active media"),

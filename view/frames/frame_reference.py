@@ -185,7 +185,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         Handle button pressed.
         """
         if button_pressed(event, BUTTON_SECONDARY):
-            self.build_ref_action_menu(obj, event)
+            self.build_ref_context_menu(obj, event)
             return True
         if button_pressed(event, BUTTON_PRIMARY):
             return False
@@ -209,14 +209,14 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             return True
         return False
 
-    def build_ref_action_menu(self, _dummy_obj, event):
+    def build_ref_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click on a reference object.
         """
-        action_menu = Gtk.Menu()
-        self.add_ref_custom_actions(action_menu)
+        context_menu = Gtk.Menu()
+        self.add_ref_custom_actions(context_menu)
         if hasattr(self.reference.obj, "attribute_list"):
-            action_menu.append(
+            context_menu.append(
                 self._attributes_option(
                     self.reference.obj,
                     self.add_ref_attribute,
@@ -225,7 +225,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 )
             )
         if hasattr(self.reference.obj, "citation_list"):
-            action_menu.append(
+            context_menu.append(
                 self._citations_option(
                     self.reference.obj,
                     self.add_new_ref_source_citation,
@@ -235,7 +235,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 )
             )
         if hasattr(self.reference.obj, "note_list"):
-            action_menu.append(
+            context_menu.append(
                 self._notes_option(
                     self.reference.obj,
                     self.add_new_ref_note,
@@ -244,20 +244,22 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     no_children=True,
                 )
             )
-        action_menu.append(self._change_ref_privacy_option())
-        action_menu.add(Gtk.SeparatorMenuItem())
+        context_menu.append(self._change_ref_privacy_option())
+        context_menu.add(Gtk.SeparatorMenuItem())
         reference_type = self._get_reference_type()
         label = Gtk.MenuItem(label=reference_type)
         label.set_sensitive(False)
-        action_menu.append(label)
-        action_menu.attach_to_widget(self, None)
-        action_menu.show_all()
+        context_menu.append(label)
+        context_menu.attach_to_widget(self, None)
+        context_menu.show_all()
         if Gtk.get_minor_version() >= 22:
-            action_menu.popup_at_pointer(event)
+            context_menu.popup_at_pointer(event)
         else:
-            action_menu.popup(None, None, None, None, event.button, event.time)
+            context_menu.popup(
+                None, None, None, None, event.button, event.time
+            )
 
-    def add_ref_custom_actions(self, action_menu):
+    def add_ref_custom_actions(self, context_menu):
         """
         For derived objects to inject their own actions into the menu.
         """

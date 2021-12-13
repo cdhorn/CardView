@@ -40,18 +40,18 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .page_config_colors import add_color, update_color
-from .page_const import (
+from .config_colors import add_color
+from .config_const import (
     MEDIA_DISPLAY_MODES,
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
-from .page_utils import add_config_reset, create_grid
+from .config_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 
 
-def build_global_grid(configdialog, grstate):
+def build_global_grid(configdialog, grstate, *_dummy_args):
     """
     Build global option configuration section.
     """
@@ -256,38 +256,45 @@ def build_global_grid(configdialog, grstate):
 
     grid2 = create_grid()
     configdialog.add_text(grid2, _("Media Bar Options"), 0, bold=True)
+    configdialog.add_checkbox(
+        grid2,
+        _("Enable media bar"),
+        1,
+        "options.global.media-bar-enabled",
+        tooltip=_("Indicates the media bar should be displayed."),
+    )
     configdialog.add_combo(
         grid2,
         _("Media bar position"),
-        1,
-        "options.global.media-bar-position-mode",
+        2,
+        "options.global.media-bar-position",
         MEDIA_POSITION_MODES,
     )
     configdialog.add_combo(
         grid2,
         _("Media bar display mode"),
-        2,
+        3,
         "options.global.media-bar-display-mode",
         MEDIA_DISPLAY_MODES,
     )
     configdialog.add_spinner(
         grid2,
         _("Minimum media items required to display"),
-        3,
+        4,
         "options.global.media-bar-minimum-required",
         (1, 12),
     )
     configdialog.add_checkbox(
         grid2,
         _("Sort media by date"),
-        4,
+        5,
         "options.global.media-bar-sort-by-date",
         tooltip=_("Indicates whether to sort media items by date."),
     )
     configdialog.add_checkbox(
         grid2,
         _("Group media by type"),
-        5,
+        6,
         "options.global.media-bar-group-by-type",
         tooltip=_(
             "Indicates whether to group like media, based on Media-Type."
@@ -296,7 +303,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid2,
         _("Filter out non-photos"),
-        6,
+        7,
         "options.global.media-bar-filter-non-photos",
         tooltip=_(
             "Indicates only photos should be displayed, based on Media-Type."
@@ -305,7 +312,7 @@ def build_global_grid(configdialog, grstate):
     configdialog.add_checkbox(
         grid2,
         _("Link image to media page"),
-        7,
+        8,
         "options.global.media-bar-page-link",
         tooltip=_(
             "Indicates left click should open the media page instead of the "

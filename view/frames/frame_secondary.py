@@ -116,17 +116,17 @@ class SecondaryGrampsFrame(GrampsFrame):
         """
         self.widgets["facts"].add_fact(fact, label=label)
 
-    def build_action_menu(self, _dummy_obj, event):
+    def build_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click. First action will always be
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
-        action_menu = Gtk.Menu()
-        action_menu.append(self._edit_object_option())
-        self.add_custom_actions(action_menu)
+        context_menu = Gtk.Menu()
+        context_menu.append(self._edit_object_option())
+        self.add_custom_actions(context_menu)
         if hasattr(self.secondary.obj, "citation_list"):
-            action_menu.append(
+            context_menu.append(
                 self._citations_option(
                     self.secondary.obj,
                     self.add_new_source_citation,
@@ -136,7 +136,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                 )
             )
         if hasattr(self.secondary.obj, "note_list"):
-            action_menu.append(
+            context_menu.append(
                 self._notes_option(
                     self.secondary.obj,
                     self.add_new_note,
@@ -144,16 +144,18 @@ class SecondaryGrampsFrame(GrampsFrame):
                     self.remove_note,
                 )
             )
-        action_menu.append(self._change_privacy_option())
-        action_menu.attach_to_widget(self, None)
-        action_menu.show_all()
+        context_menu.append(self._change_privacy_option())
+        context_menu.attach_to_widget(self, None)
+        context_menu.show_all()
         if Gtk.get_minor_version() >= 22:
-            action_menu.popup_at_pointer(event)
+            context_menu.popup_at_pointer(event)
         else:
-            action_menu.popup(None, None, None, None, event.button, event.time)
+            context_menu.popup(
+                None, None, None, None, event.button, event.time
+            )
         return True
 
-    def add_custom_actions(self, action_menu):
+    def add_custom_actions(self, context_menu):
         """
         For derived objects to inject their own actions into the menu.
         """

@@ -44,13 +44,13 @@ from gramps.gui.ddtargets import DdTargets
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import ConfigReset, make_scrollable, set_dnd_css
-from .page_const import PAGES
-from .page_utils import create_grid
+from .config_const import PAGES
+from .config_utils import create_grid
 
 _ = glocale.translation.sgettext
 
 
-def build_layout_grid(configdialog, grstate):
+def build_layout_grid(configdialog, grstate, *_dummy_args):
     """
     Build and return layout grid.
     """

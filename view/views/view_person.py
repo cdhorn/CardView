@@ -49,7 +49,9 @@ class PersonObjectView(GrampsObjectView):
         age_base = None
         birth_ref = person.obj.get_birth_ref()
         if birth_ref is not None:
-            event = self.grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+            event = self.grstate.dbstate.db.get_event_from_handle(
+                birth_ref.ref
+            )
             if event:
                 age_base = event.get_date_object()
 

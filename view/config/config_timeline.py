@@ -47,17 +47,17 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .page_const import (
+from .config_const import (
     IMAGE_DISPLAY_MODES,
     REF_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )
-from .page_utils import add_config_reset, config_facts_fields, create_grid
+from .config_utils import add_config_reset, config_facts_fields, create_grid
 
 _ = glocale.translation.sgettext
 
 
-def build_person_timeline_grid(configdialog, grstate):
+def build_person_timeline_grid(configdialog, grstate, *_dummy_args):
     """
     Builds person timeline options section for the configuration dialog.
     """
@@ -599,7 +599,7 @@ def build_person_timeline_grid(configdialog, grstate):
     )
 
 
-def build_family_timeline_grid(configdialog, grstate):
+def build_family_timeline_grid(configdialog, grstate, *_dummy_args):
     """
     Builds active family timeline options section for the configuration dialog
     """
