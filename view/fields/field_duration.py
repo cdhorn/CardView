@@ -27,10 +27,9 @@ Duration field calculator.
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import EventType, Family, Person
+from gramps.gen.lib import Family, Person
 from gramps.gen.lib.date import Today
-from gramps.gen.utils.alive import probably_alive, probably_alive_range
-
+from gramps.gen.utils.alive import probably_alive_range
 
 # -------------------------------------------------------------------------
 #

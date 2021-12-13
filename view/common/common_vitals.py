@@ -112,148 +112,19 @@ def get_relation(db, person, relation, depth=15):
     return None
 
 
-def get_key_person_events(
-    db, person, show_baptism=False, show_burial=False, birth_only=False
-):
-    """
-    Get some of the key events in the life of a person. If no birth or death
-    we use fallbacks unless we know those are specifically requested.
-    """
-    birth = None
-    baptism = None
-    christening = None
-    death = None
-    burial = None
-    cremation = None
-    will = None
-    probate = None
-    religion = []
-    occupation = []
-    for ref in person.get_primary_event_ref_list():
-        event = db.get_event_from_handle(ref.ref)
-        if event:
-            if event.type == EventType.BIRTH:
-                birth = event
-                if birth_only:
-                    break
-                continue
-            if event.type == EventType.BAPTISM:
-                baptism = event
-                if birth_only:
-                    break
-                continue
-            if event.type == EventType.CHRISTEN:
-                christening = event
-                if birth_only:
-                    break
-                continue
-            if event.type == EventType.DEATH:
-                death = event
-                continue
-            if event.type == EventType.BURIAL:
-                burial = event
-                continue
-            if event.type == EventType.CREMATION:
-                cremation = event
-                continue
-            if event.type == EventType.PROBATE:
-                probate = event
-                continue
-            if event.type == EventType.WILL:
-                will = event
-                continue
-            if event.type == EventType.RELIGION:
-                religion.append(event)
-                continue
-            if event.type == EventType.OCCUPATION:
-                occupation.append(event)
-                continue
-
-    if baptism is None:
-        baptism = christening
-    if birth is None and not show_baptism:
-        birth = baptism
-
-    if burial is None:
-        burial = cremation
-    if death is None and not show_burial:
-        death = burial
-    if death is None and burial is None:
-        death = probate
-        if death is None:
-            death = will
-
-    return {
-        "birth": birth,
-        "baptism": baptism,
-        "death": death,
-        "burial": burial,
-        "religion": religion,
-        "occupation": occupation,
-    }
-
-
 def get_key_family_events(db, family):
     """
-    Get the two key events in the formation and dissolution of a
-    family. Consider all the alternates and rank them.
+    Get the two key events in the formation and dissolution of a family.
     """
     marriage = None
-    marriage_settlement = None
-    marriage_license = None
-    marriage_contract = None
-    marriage_banns = None
-    marriage_alternate = None
-    engagement = None
     divorce = None
-    annulment = None
-    divorce_filing = None
     for ref in family.get_event_ref_list():
         event = db.get_event_from_handle(ref.ref)
         if event:
             if event.type == EventType.MARRIAGE:
-                if marriage is None:
-                    marriage = event
-            if event.type == EventType.MARR_SETTL:
-                marriage_settlement = event
-            if event.type == EventType.MARR_LIC:
-                marriage_license = event
-            if event.type == EventType.MARR_CONTR:
-                marriage_contract = event
-            if event.type == EventType.MARR_BANNS:
-                marriage_banns = event
-            if event.type == EventType.MARR_ALT:
-                marriage_alternate = event
-            if event.type == EventType.ENGAGEMENT:
-                engagement = event
-            if event.type == EventType.DIVORCE:
-                if divorce is None:
-                    divorce = event
-            if event.type == EventType.ANNULMENT:
-                annulment = event
-            if event.type == EventType.DIV_FILING:
-                divorce_filing = event
-
-    if marriage is None:
-        if marriage_alternate:
-            marriage = marriage_alternate
-        elif marriage_contract:
-            marriage = marriage_contract
-        elif marriage_settlement:
-            marriage = marriage_settlement
-        elif marriage_license:
-            marriage = marriage_license
-        elif marriage_banns:
-            marriage = marriage_banns
-        elif engagement:
-            marriage = engagement
-
-    if divorce is None:
-        if annulment:
-            divorce = annulment
-        elif divorce_filing:
-            divorce = divorce_filing
-
+                marriage = event
+            elif event.type == EventType.DIVORCE:
+                divorce = event
     return marriage, divorce
 
 
@@ -373,12 +244,18 @@ def get_marriage_duration(db, family_obj_or_handle):
         return get_age(marriage, divorce, strip=True)
 
     father = db.get_person_from_handle(family.get_father_handle())
-    father_events = get_key_person_events(db, father)
-    father_death = father_events["death"]
+    father_death_ref = father.get_death_ref()
+    if father_death_ref:
+        father_death = db.get_event_from_handle(father_death_ref.ref)
+    else:
+        father_death = None
 
     mother = db.get_person_from_handle(family.get_mother_handle())
-    mother_events = get_key_person_events(db, mother)
-    mother_death = mother_events["death"]
+    mother_death_ref = mother.get_death_ref()
+    if mother_death_ref:
+        mother_death = db.get_event_from_handle(mother_death_ref.ref)
+    else:
+        mother_death = None
 
     father_sortval = None
     if father_death and father_death.get_date_object():

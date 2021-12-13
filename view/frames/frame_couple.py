@@ -36,6 +36,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.lib import EventType
 from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
@@ -44,8 +45,6 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_family_color_css, menu_item
-from ..common.common_vitals import get_marriage_duration
-from ..fields.field_builder import field_builder
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
 
@@ -236,9 +235,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         have_marriage, have_divorce = None, None
         for event in event_cache:
-            if event.get_type().xml_str() == "Marriage":
+            if event.get_type() == EventType.MARRIAGE:
                 have_marriage = event
-            elif event.get_type().xml_str() == "Divorce":
+            elif event.get_type() == EventType.DIVORCE:
                 have_divorce = event
                 self.divorced = True
         args = {

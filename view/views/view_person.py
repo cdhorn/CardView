@@ -27,7 +27,6 @@ PersonObjectView
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..common.common_vitals import get_key_person_events
 from .view_base import GrampsObjectView
 from .view_const import FRAME_MAP
 
@@ -48,11 +47,11 @@ class PersonObjectView(GrampsObjectView):
         person = self.grcontext.primary_obj
 
         age_base = None
-        key_events = get_key_person_events(
-            self.grstate.dbstate.db, person.obj, birth_only=True
-        )
-        if key_events["birth"]:
-            age_base = key_events["birth"].get_date_object()
+        birth_ref = person.obj.get_birth_ref()
+        if birth_ref is not None:
+            event = self.grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+            if event:
+                age_base = event.get_date_object()
 
         groptions = GrampsOptions("options.active.person")
         self.view_object = FRAME_MAP["Person"](

@@ -46,9 +46,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.lib import Media, MediaRef
-from gramps.gen.lib.date import Today
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
 
@@ -64,7 +62,6 @@ from ..common.common_const import (
     GROUP_LABELS_SINGLE,
 )
 from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
-from ..common.common_vitals import get_age
 from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext

@@ -38,7 +38,7 @@ import time
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gdk, Gtk
+from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -56,7 +56,6 @@ from gramps.gen.lib import (
     EventRef,
     EventRoleType,
     EventType,
-    MediaRef,
     Name,
     Person,
     SrcAttribute,
@@ -85,7 +84,6 @@ from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
-from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import (
     attribute_option_text,
     get_bookmarks,

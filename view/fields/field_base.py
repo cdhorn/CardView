@@ -73,10 +73,22 @@ def get_event_field(grstate, obj, event_type, args):
     event_cache = args.get("event_cache") or {}
     if event_type == "Birth":
         if obj.get_birth_ref() is not None:
-            return find_event_ref(grstate, args, event_cache, obj.get_birth_ref(), EventType.BIRTH)
+            return find_event_ref(
+                grstate,
+                args,
+                event_cache,
+                obj.get_birth_ref(),
+                EventType.BIRTH,
+            )
     if event_type == "Death":
         if obj.get_death_ref() is not None:
-            return find_event_ref(grstate, args, event_cache, obj.get_death_ref(), EventType.DEATH)
+            return find_event_ref(
+                grstate,
+                args,
+                event_cache,
+                obj.get_death_ref(),
+                EventType.DEATH,
+            )
     skip_birth = args.get("skip_birth_alternates")
     have_birth = args.get("have_birth")
     skip_death = args.get("skip_death_alternates")

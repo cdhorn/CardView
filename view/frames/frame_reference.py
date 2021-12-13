@@ -34,7 +34,7 @@ import pickle
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gdk, Gtk
+from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #

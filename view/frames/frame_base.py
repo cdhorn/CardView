@@ -53,17 +53,13 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Media, MediaRef, Note, Source, Span
-from gramps.gen.mime import get_description, get_type
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.file import (
-    create_checksum,
-    find_file,
     media_path,
-    media_path_full,
     relative_path,
 )
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.dialog import ErrorDialog, WarningDialog
+from gramps.gui.dialog import WarningDialog
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
@@ -341,7 +337,7 @@ class GrampsFrame(GrampsFrameView):
             return True
         return False
 
-    def button_released(self, obj, event):
+    def button_released(self, _dummy_obj, event):
         """
         Handle button released.
         """

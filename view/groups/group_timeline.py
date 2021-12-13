@@ -34,7 +34,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_vitals import get_key_person_events
 from ..frames.frame_address import AddressGrampsFrame
 from ..frames.frame_citation import CitationGrampsFrame
 from ..frames.frame_event_ref import EventRefGrampsFrame
@@ -99,11 +98,11 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
 
         if not groptions.age_base and self.group_base.obj_type == "Person":
             if self.get_option("show-age"):
-                key_events = get_key_person_events(
-                    grstate.dbstate.db, obj, birth_only=True
-                )
-                if key_events["birth"] and key_events["birth"].date:
-                    self.groptions.set_age_base(key_events["birth"].date)
+                birth_ref = obj.get_birth_ref()
+                if birth_ref:
+                    event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+                    if event:
+                        self.groptions.set_age_base(event.get_date_object())
 
         timeline = self.extract_objects(timeline)
         try:

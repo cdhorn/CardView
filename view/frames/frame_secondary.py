@@ -38,7 +38,7 @@ import pickle
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gdk, Gtk
+from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -53,7 +53,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
-from ..common.common_const import BUTTON_SECONDARY
 from .frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext

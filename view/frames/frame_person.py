@@ -37,10 +37,9 @@ from gi.repository import Gtk
 # Gramps modules
 #
 # ------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.errors import HandleError, WindowActiveError
+from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import (
     ChildRef,
     Event,
@@ -70,15 +69,9 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
-from ..common.common_const import (
-    _BIRTH_EQUIVALENTS,
-    _DEATH_EQUIVALENTS,
-    _GENDERS,
-    _RECIPROCAL_ASSOCIATIONS,
-)
+from ..common.common_const import _GENDERS, _RECIPROCAL_ASSOCIATIONS
 from ..common.common_utils import get_person_color_css, menu_item, submenu_item
-from ..common.common_vitals import format_date_string, get_relation
-from ..fields.field_builder import field_builder
+from ..common.common_vitals import format_date_string
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -158,7 +151,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         if DdTargets.EVENT.drag_type == dnd_type:
             self.add_new_person_event(None, event_handle=obj_or_handle)
             return True
-        elif DdTargets.PERSON_LINK.drag_type == dnd_type:
+        if DdTargets.PERSON_LINK.drag_type == dnd_type:
             self.add_new_person_ref(obj_or_handle)
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)

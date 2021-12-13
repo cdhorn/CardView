@@ -36,7 +36,6 @@ from gramps.gen.lib import Family, FamilyRelType, Person
 # -------------------------------------------------------------------------
 from ..common.common_vitals import (
     get_key_family_events,
-    get_key_person_events,
     get_span,
 )
 
@@ -50,11 +49,12 @@ def get_child_field(grstate, obj, field_value, args):
     get_label = args.get("get_label")
 
     if isinstance(obj, Person):
-        person_events = get_key_person_events(grstate.dbstate.db, obj)
-        if person_events["birth"]:
-            person_birth = person_events["birth"].get_date_object()
-        else:
-            person_birth = None
+        person_birth = None
+        birth_ref = obj.get_birth_ref()
+        if birth_ref:
+            event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+            if event:
+                person_birth = event.get_date_object()
 
         parent_family_handle = obj.get_main_parents_family_handle()
         if not parent_family_handle:
@@ -107,22 +107,27 @@ def get_parent_text(db, family, birth_date, parent_type):
         return "", ""
 
     parent = db.get_person_from_handle(parent_handle)
-    parent_events = get_key_person_events(db, parent)
-    if birth_date and parent_events["birth"]:
-        span = get_span(parent_events["birth"].get_date_object(), birth_date)
-        if span:
-            if parent_type == "Mother":
-                parent_text = " ".join((_("Mother"), _("age"), span))
-            else:
-                parent_text = " ".join((_("Father"), _("age"), span))
+    birth_ref = parent.get_birth_ref()
+    if birth_ref:
+        event = db.get_event_from_handle(birth_ref.ref)
+        if event:
+            span = get_span(event.get_date_object(), birth_date)
+            if span:
+                if parent_type == "Mother":
+                    parent_text = " ".join((_("Mother"), _("age"), span))
+                else:
+                    parent_text = " ".join((_("Father"), _("age"), span))
 
     if parent_type == "Father":
-        if parent_events["death"]:
-            death_date = parent_events["death"].get_date_object()
-            if death_date.sortval < birth_date.sortval:
-                death_text = " ".join(
-                    (_("Father"), _("deceased"), _("at"), _("birth"))
-                )
+        death_ref = parent.get_death_ref()
+        if death_ref:
+            event = db.get_event_from_handle(death_ref.ref)
+            if event:
+                death_date = event.get_date_object()
+                if death_date.sortval < birth_date.sortval:
+                    death_text = " ".join(
+                        (_("Father"), _("deceased"), _("at"), _("birth"))
+                    )
     return parent_text, death_text
 
 
