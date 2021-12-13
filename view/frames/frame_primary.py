@@ -291,6 +291,7 @@ class PrimaryGrampsFrame(GrampsFrame):
             action_menu.popup_at_pointer(event)
         else:
             action_menu.popup(None, None, None, None, event.button, event.time)
+        return True
 
     def add_custom_actions(self, action_menu):
         """

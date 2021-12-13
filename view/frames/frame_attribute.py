@@ -111,6 +111,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         """
         if "Ref" not in self.primary.obj_type:
             SecondaryGrampsFrame.build_action_menu(self, _dummy_obj, event)
+        return True
 
     def route_action(self, obj, event):
         """

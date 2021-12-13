@@ -392,6 +392,7 @@ class GrampsFrame(GrampsFrameView):
         Build the action menu for a right click, should be defined in
         derived classes.
         """
+        return True
 
     def _edit_object_option(self):
         """
