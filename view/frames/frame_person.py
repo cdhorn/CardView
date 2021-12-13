@@ -127,20 +127,23 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
                 Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
             )
         self.widgets["title"].pack_start(name_box, True, True, 0)
-        self.living = True
 
         event_cache = []
         for event_ref in person.get_primary_event_ref_list():
             event_cache.append(self.fetch("Event", event_ref.ref))
+        self.birth, self.death, self.living = self._get_birth_death(
+            event_cache
+        )
+
         if self.get_option("event-format") == 0:
-            self.load_years(event_cache)
+            self.load_years()
         else:
             self.load_fields("facts", "lfield-", event_cache)
             if "active" in groptions.option_space:
                 self.load_fields("extra", "mfield-", event_cache)
-        if groptions.age_base:
-            self.load_age_at_event(event_cache)
         del event_cache
+        if groptions.age_base:
+            self.load_age_at_event()
 
         self.enable_drag()
         self.dnd_drop_targets.append(DdTargets.EVENT.target())
@@ -160,20 +163,20 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
-    def load_age_at_event(self, event_cache):
+    def load_age_at_event(self):
         """
         Parse and if have birth load age field.
         """
-        birth, dummy_var1 = self._get_birth_death(event_cache)
-        if birth:
-            self.load_age(birth.date, self.groptions.age_base)
+        if self.birth:
+            self.load_age(
+                self.birth.get_date_object(), self.groptions.age_base
+            )
 
-    def load_years(self, event_cache):
+    def load_years(self):
         """
         Parse and load birth and death dates only.
         """
-        birth, death = self._get_birth_death(event_cache)
-        text = format_date_string(birth, death)
+        text = format_date_string(self.birth, self.death)
         self.add_fact(self.get_label(text))
 
     def _get_birth_death(self, event_cache):
@@ -182,32 +185,32 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         birth = False
         death = False
+        living = True
+        birth_ref = self.primary.obj.get_birth_ref()
+        death_ref = self.primary.obj.get_death_ref()
         for event in event_cache:
-            event_type = event.get_type().xml_str()
-            if event_type == "Birth":
+            event_handle = event.get_handle()
+            if birth_ref and event_handle == birth_ref.ref:
                 birth = event
-            elif event_type == "Death":
+            elif death_ref and event_handle == death_ref.ref:
                 death = event
-                self.living = False
-            elif event_type in _DEATH_EQUIVALENTS:
-                self.living = False
+                living = False
+            elif event.get_type().is_death_fallback():
+                living = False
 
-        if self.living:
-            self.living = probably_alive(
-                self.primary.obj, self.grstate.dbstate.db
-            )
-        return birth, death
+        if living:
+            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
+        return birth, death, living
 
     def load_fields(self, grid_key, option_prefix, event_cache):
         """
         Parse and load a set of facts about a person.
         """
-        have_birth, have_death = self._get_birth_death(event_cache)
         args = {
             "event_format": self.get_option("event-format"),
             "event_cache": event_cache,
-            "have_birth": have_birth,
-            "have_death": have_death,
+            "have_birth": self.birth,
+            "have_death": self.death,
         }
         key = "".join((option_prefix, "skip-birth-alternates"))
         args.update({"skip_birth_alternates": self.get_option(key)})
