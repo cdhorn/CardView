@@ -171,6 +171,14 @@ class LinkedView(ExtendedNavigationView):
         """
         return get_thumbnail_image(path, rectangle=rectangle, size=size)
 
+    def fetch_page_context(self):
+        """
+        Return page context.
+        """
+        grcontext = GrampsContext()
+        grcontext.load_page_location(self.grstate, self.get_active())
+        return grcontext
+
     def _init_pages(self):
         """
         Load page handlers.
@@ -179,6 +187,7 @@ class LinkedView(ExtendedNavigationView):
             "load-page": self.load_page,
             "fetch-object": self.fetch_object,
             "fetch-thumbnail": self.fetch_thumbnail,
+            "fetch-page-context": self.fetch_page_context,
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
             "show-group": self.show_group,

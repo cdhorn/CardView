@@ -47,7 +47,9 @@ from ..common.common_utils import (
     submenu_item,
 )
 from ..config.config_builder import config_factory
+from ..config.config_const import PAGE_NAMES, PAGES
 from ..config.config_global import build_global_grid
+from ..config.config_layout import build_layout_grid
 
 _ = glocale.translation.sgettext
 
@@ -63,8 +65,22 @@ def run_object_config(_dummy_obj, grstate, groptions):
     """
     Configure object type based on current frame calling context.
     """
+    space, context, dummy_menu_title, window_title = get_object_config_title(
+        groptions
+    )
+    builder = config_factory(space, context)
+    grstate.launch_config(window_title, builder, space, context)
+
+
+def get_object_config_title(groptions):
+    """
+    Build object config description.
+    """
     space = ".".join((tuple(groptions.option_space.split(".")[:2])))
-    context = groptions.context
+    try:
+        context = groptions.option_space.split(".")[2]
+    except IndexError:
+        return space, "unknown", "unknown", "unknown"
     if context in GROUP_LABELS_SINGLE:
         obj_type = GROUP_LABELS_SINGLE[context]
     else:
@@ -80,9 +96,49 @@ def run_object_config(_dummy_obj, grstate, groptions):
         elif "family" in groptions.option_space:
             context = "family"
             space_label = " ".join((_("Family"), _("Timeline")))
-    title = " ".join((_("Configuration"), _("for"), space_label))
-    builder = config_factory(space, context)
-    grstate.launch_config(title, builder, space, context)
+    menu_title = " ".join((_("Configure"), space_label.lower()))
+    window_title = " ".join((_("Configuration"), _("for"), space_label))
+    return space, context, menu_title, window_title
+
+
+def add_page_layout_option(menu, grstate):
+    """
+    Build page layout menu option.
+    """
+    grcontext = grstate.fetch_page_context()
+    menu_title = " ".join(
+        (
+            _("Configure"),
+            PAGE_NAMES[grcontext.page_type],
+            _("Page"),
+            _("Layout"),
+        )
+    )
+    window_title = " ".join(
+        (
+            _("Configuration"),
+            _("for"),
+            PAGE_NAMES[grcontext.page_type],
+            _("Page"),
+        )
+    )
+    menu.append(
+        menu_item(
+            "preferences-system",
+            menu_title.lower().capitalize(),
+            run_layout_config,
+            grstate,
+            (grcontext.page_type, window_title),
+        )
+    )
+
+
+def run_layout_config(_dummy_obj, grstate, page_tuple):
+    """
+    Configure current page layout.
+    """
+    (page_type, window_title) = page_tuple
+    grstate.launch_config(window_title, build_layout_grid, page_type, None)
 
 
 def build_config_menu(widget, grstate, groptions, event):
@@ -99,15 +155,23 @@ def build_config_menu(widget, grstate, groptions, event):
             grstate,
         )
     )
-    menu.append(
-        menu_item(
-            "preferences-system",
-            _("Selected frame options"),
-            run_object_config,
-            grstate,
-            groptions,
+    (
+        dummy_space,
+        context,
+        menu_title,
+        dummy_window_title,
+    ) = get_object_config_title(groptions)
+    if context not in ["attribute", "url"] and "unknown" not in menu_title:
+        menu.append(
+            menu_item(
+                "preferences-system",
+                menu_title,
+                run_object_config,
+                grstate,
+                groptions,
+            )
         )
-    )
+    add_page_layout_option(menu, grstate)
     menu.append(media_bar_option(config))
     menu.append(tags_option(config))
     menu.append(indicators_option(config))

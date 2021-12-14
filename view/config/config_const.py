@@ -119,3 +119,25 @@ PAGES = [
     ("Source", _("Source")),
     ("Tag", _("Tag")),
 ]
+
+
+PAGE_NAMES = {
+    "Address": _("Address"),
+    "ChildRef": _("Child Reference"),
+    "Citation": _("Citation"),
+    "Event": _("Event"),
+    "EventRef": _("Event Reference"),
+    "Family": _("Family"),
+    "LdsOrd": _("LDS Ordinance"),
+    "Media": _("Media"),
+    "MediaRef": _("Media Reference"),
+    "Name": _("Name"),
+    "Note": _("Note"),
+    "Person": _("Person"),
+    "PersonRef": _("Person Reference"),
+    "Place": _("Place"),
+    "Repository": _("Repository"),
+    "RepoRef": _("Repository Reference"),
+    "Source": _("Source"),
+    "Tag": _("Tag"),
+}

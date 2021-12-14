@@ -50,21 +50,31 @@ from .config_utils import create_grid
 _ = glocale.translation.sgettext
 
 
-def build_layout_grid(configdialog, grstate, *_dummy_args):
+def build_layout_grid(configdialog, grstate, page_type=None, *_dummy_args):
     """
     Build and return layout grid.
     """
     grid = create_grid()
     vbox = Gtk.VBox()
-    notebook = Gtk.Notebook(vexpand=True, hexpand=True)
-    notebook.set_tab_pos(Gtk.PositionType.LEFT)
-    for tab in PAGES:
-        page = ProfilePageLayout(configdialog, grstate, tab)
-        label = Gtk.Label(label=tab[1])
-        notebook.append_page(
-            make_scrollable(page, hexpand=True), tab_label=label
+    if page_type:
+        for page in PAGES:
+            if page[0] == page_type:
+                page_lang = page[1]
+                break
+        tab = (page_type, page_lang)
+        vbox.pack_start(
+            ProfilePageLayout(configdialog, grstate, tab), False, False, 0
         )
-    vbox.add(notebook)
+    else:
+        notebook = Gtk.Notebook(vexpand=True, hexpand=True)
+        notebook.set_tab_pos(Gtk.PositionType.LEFT)
+        for tab in PAGES:
+            page = ProfilePageLayout(configdialog, grstate, tab)
+            label = Gtk.Label(label=tab[1])
+            notebook.append_page(
+                make_scrollable(page, hexpand=True), tab_label=label
+            )
+            vbox.add(notebook)
     grid.add(vbox)
     return grid
 

@@ -467,6 +467,12 @@ class GrampsState:
         """
         return self.callbacks["fetch-thumbnail"](path, rectangle, size)
 
+    def fetch_page_context(self):
+        """
+        Fetches active page context.
+        """
+        return self.callbacks["fetch-page-context"]()
+    
     def load_page(self, context):
         """
         Load the proper page for the given context.

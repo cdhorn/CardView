@@ -249,6 +249,7 @@ GROUP_LABELS_SINGLE = {
     "association": _("Association"),
     "attribute": _("Attribute"),
     "child": _("Child"),
+    "sibling": _("Sibling"),
     "citation": _("Citation"),
     "event": _("Event"),
     "family": _("Family"),
