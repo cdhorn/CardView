@@ -64,7 +64,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
     """
 
     def __init__(self, grstate, groptions, obj, css=""):
-        mode = grstate.config.get("options.global.media-bar-position")
+        mode = grstate.config.get("options.global.media-bar.position")
         if mode > 0:
             Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
             self.set_hexpand(False)
@@ -86,12 +86,12 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             return
 
         minimum = self.grstate.config.get(
-            "options.global.media-bar-minimum-required"
+            "options.global.media-bar.minimum-required"
         )
         if len(media_list) < minimum:
             return
 
-        if self.grstate.config.get("options.global.media-bar-sort-by-date"):
+        if self.grstate.config.get("options.global.media-bar.sort-by-date"):
             media_list.sort(
                 key=lambda x: x[0].get_date_object().get_sort_value()
             )
@@ -99,11 +99,11 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         self.filter_non_photos(media_list)
 
         size = self.grstate.config.get(
-            "options.global.media-bar-display-mode"
+            "options.global.media-bar.display-mode"
         ) in [3, 4]
 
         crop = self.grstate.config.get(
-            "options.global.media-bar-display-mode"
+            "options.global.media-bar.display-mode"
         ) in [2, 4]
 
         for (media, media_ref, dummy_media_type) in media_list:
@@ -179,7 +179,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         """
         Group images by type if needed.
         """
-        if self.grstate.config.get("options.global.media-bar-group-by-type"):
+        if self.grstate.config.get("options.global.media-bar.group-by-type"):
             photo_list = []
             stone_list = []
             other_list = []
@@ -198,7 +198,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         Filter out non-photos if needed.
         """
         if self.grstate.config.get(
-            "options.global.media-bar-filter-non-photos"
+            "options.global.media-bar.filter-non-photos"
         ):
             other_list = []
             for media in media_list:
@@ -278,7 +278,7 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         Handle button release.
         """
         if button_released(event, BUTTON_SECONDARY):
-            if self.grstate.config.get("options.global.media-bar-page-link"):
+            if self.grstate.config.get("options.global.media-bar.page-link"):
                 self.switch_object(None, None, "Media", self.primary.obj)
             else:
                 self.view_photo()

@@ -30,6 +30,13 @@ Global configuration dialog functions
 
 # -------------------------------------------------------------------------
 #
+# GTK Modules
+#
+# -------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -46,6 +53,7 @@ from .config_const import (
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
+from .config_objects import ConfigNotebook
 from .config_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
@@ -55,20 +63,29 @@ def build_global_grid(configdialog, grstate, *_dummy_args):
     """
     Build global option configuration section.
     """
+    notebook = ConfigNotebook(vexpand=True, hexpand=True)
+
     grid = create_grid()
-    grid1 = create_grid()
-    configdialog.add_text(grid1, _("Global Options"), 0, bold=True)
+    configdialog.add_text(grid, _("Window Options"), 0, bold=True)
     configdialog.add_spinner(
-        grid1,
-        _("Maximum number of page copy windows"),
+        grid,
+        _("Maximum number of open page copy windows to allow"),
         1,
         "options.global.max-page-windows",
         (1, 12),
     )
-    configdialog.add_checkbox(
-        grid1,
-        _("Pin active header so it does not scroll"),
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of open object group windows to allow"),
         2,
+        "options.global.max-group-windows",
+        (1, 12),
+    )
+    configdialog.add_text(grid, _("Display Options"), 10, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Pin active header so it does not scroll"),
+        11,
         "options.global.pin-header",
         tooltip=_(
             "Enabling this option pins the page header so it will not scroll "
@@ -76,9 +93,29 @@ def build_global_grid(configdialog, grstate, *_dummy_args):
         ),
     )
     configdialog.add_checkbox(
-        grid1,
+        grid,
+        _("Highlight the page focal object in header"),
+        12,
+        "options.global.focal-object-highlight",
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Focal object highlight color"),
+        "options.global.focal-object-color",
+        (13, 1),
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Default frame background color"),
+        "options.global.default-background-color",
+        (14, 1),
+    )
+    configdialog.add_checkbox(
+        grid,
         _("Enable coloring schemes"),
-        3,
+        15,
         "options.global.use-color-scheme",
         tooltip=_(
             "Enabling this option enables coloring schemes for the rendered "
@@ -89,9 +126,9 @@ def build_global_grid(configdialog, grstate, *_dummy_args):
         ),
     )
     configdialog.add_checkbox(
-        grid1,
-        _("Use smaller font for title"),
-        4,
+        grid,
+        _("Use a smaller font for titles"),
+        16,
         "options.global.use-smaller-title-font",
         tooltip=_(
             "Indicates whether to use a smaller font for the titles than "
@@ -99,9 +136,9 @@ def build_global_grid(configdialog, grstate, *_dummy_args):
         ),
     )
     configdialog.add_checkbox(
-        grid1,
-        _("Use smaller font for details"),
-        5,
+        grid,
+        _("Use a smaller font for details"),
+        17,
         "options.global.use-smaller-detail-font",
         tooltip=_(
             "Indicates whether to use a smaller font for the details than "
@@ -109,377 +146,282 @@ def build_global_grid(configdialog, grstate, *_dummy_args):
         ),
     )
     configdialog.add_spinner(
-        grid1,
-        _("Desired border width"),
-        6,
+        grid,
+        _("The desired border width"),
+        18,
         "options.global.border-width",
         (0, 5),
     )
-    configdialog.add_checkbox(
-        grid1,
-        _("Highlight focal object"),
-        7,
-        "options.global.focal-object-highlight",
-        tooltip=_(
-            "Indicates whether to highlight the focal object frame in the "
-            "page header or not."
-        ),
-    )
-    add_color(
-        grstate.config,
-        grid1,
-        _("Focal object highlight color"),
-        "options.global.focal-object-color",
-        (8, 1),
-    )
-    add_color(
-        grstate.config,
-        grid1,
-        _("Default frame background color"),
-        "options.global.default-background-color",
-        (9, 1),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Enable gramps ids"),
-        10,
-        "options.global.enable-gramps-ids",
-        tooltip=_(
-            "Indicates whether to show the Gramps id for primary objects "
-            "or not."
-        ),
-    )
-    configdialog.add_combo(
-        grid1,
-        _("Privacy display mode"),
-        11,
-        "options.global.privacy-mode",
-        PRIVACY_DISPLAY_MODES,
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Enable bookmark support"),
-        12,
-        "options.global.enable-bookmarks",
-        tooltip=_("Indicates whether to enable bookmark support or not."),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Enable home indicator"),
-        13,
-        "options.global.enable-home",
-        tooltip=_(
-            "Indicates whether to enable default person indicator or not."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Link image to media page"),
-        14,
-        "options.global.image-page-link",
-        tooltip=_(
-            "Indicates left click on an image should open the media page "
-            "instead of the media viewer. Note this only applies to the "
-            "images in object groups and not in the page header."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Link citation title to source page"),
-        15,
-        "options.global.link-citation-title-to-source",
-        tooltip=_(
-            "Indicates whether the source title link in a citation record "
-            "links to the source page instead of the citation page."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Create reciprocal associations"),
-        17,
-        "options.global.create-reciprocal-associations",
-        tooltip=_(
-            "When this option is enabled and a person reference, also known"
-            "as an association, is being added then after the association is"
-            "added in one direction the editor will reopen so you can add"
-            "a reciprocal one from the associated person back to the current"
-            "one."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Include notes on child objects"),
-        18,
-        "options.global.include-child-notes",
-        tooltip=_(
-            "Enabling this option will include notes on children of the "
-            "primary object in the Notes edit selection section of the "
-            "action menu if any are present."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Include urls from notes"),
-        19,
-        "options.global.include-note-urls",
-        tooltip=_(
-            "Enabling this option will parse the notes for the primary "
-            "object and extract any identifiable urls for inclusion in "
-            "the url group list."
-        ),
-    )
+    configdialog.add_text(grid, _("Limit Options"), 20, bold=True)
     configdialog.add_spinner(
-        grid1,
-        _("Maximum citations per group"),
-        20,
+        grid,
+        _("Maximum number of citations to show in a citations group"),
+        21,
         "options.global.max-citations-per-group",
         (1, 500),
     )
     configdialog.add_spinner(
-        grid1,
-        _("Maximum references per group"),
-        21,
+        grid,
+        _(
+            "Maximum number of referencing objects to show in a references group"
+        ),
+        22,
         "options.global.max-references-per-group",
         (1, 500),
     )
-    configdialog.add_checkbox(
-        grid1,
-        _("Enable warnings"),
-        22,
-        "options.global.enable-warnings",
-        tooltip=_(
-            "Indicates to show a warning dialog asking for confirmation "
-            "before performing an action that removes or deletes data as "
-            "a safeguard."
-        ),
-    )
-
-    grid2 = create_grid()
-    configdialog.add_text(grid2, _("Media Bar Options"), 0, bold=True)
-    configdialog.add_checkbox(
-        grid2,
-        _("Enable media bar"),
-        1,
-        "options.global.media-bar-enabled",
-        tooltip=_("Indicates the media bar should be displayed."),
-    )
-    configdialog.add_combo(
-        grid2,
-        _("Media bar position"),
-        2,
-        "options.global.media-bar-position",
-        MEDIA_POSITION_MODES,
-    )
-    configdialog.add_combo(
-        grid2,
-        _("Media bar display mode"),
-        3,
-        "options.global.media-bar-display-mode",
-        MEDIA_DISPLAY_MODES,
-    )
     configdialog.add_spinner(
-        grid2,
-        _("Minimum media items required to display"),
-        4,
-        "options.global.media-bar-minimum-required",
-        (1, 12),
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Sort media by date"),
-        5,
-        "options.global.media-bar-sort-by-date",
-        tooltip=_("Indicates whether to sort media items by date."),
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Group media by type"),
-        6,
-        "options.global.media-bar-group-by-type",
-        tooltip=_(
-            "Indicates whether to group like media, based on Media-Type."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Filter out non-photos"),
-        7,
-        "options.global.media-bar-filter-non-photos",
-        tooltip=_(
-            "Indicates only photos should be displayed, based on Media-Type."
-        ),
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Link image to media page"),
-        8,
-        "options.global.media-bar-page-link",
-        tooltip=_(
-            "Indicates left click should open the media page instead of the "
-            "media viewer. Applies only to the media bar, see the global "
-            "option with the same description for everything else."
-        ),
-    )
-
-    grid3 = create_grid()
-    configdialog.add_text(
-        grid3, _("Group Window and Icon Options"), 0, bold=True
-    )
-    configdialog.add_spinner(
-        grid3,
-        _("Maximum number of object group windows"),
-        1,
-        "options.global.max-group-windows",
-        (1, 12),
-    )
-    configdialog.add_spinner(
-        grid3,
-        _("Maximum icons per line in header frames."),
-        2,
+        grid,
+        _("Maximum icons to show per line in header frames."),
+        23,
         "options.global.icons-active-width",
         (1, 40),
     )
     configdialog.add_spinner(
-        grid3,
-        _("Maximum icons per line in group frames."),
-        3,
+        grid,
+        _("Maximum icons to show per line in group frames."),
+        24,
         "options.global.icons-group-width",
         (1, 40),
     )
+    configdialog.add_text(grid, _("Behaviour Options"), 30, bold=True)
     configdialog.add_checkbox(
-        grid3,
-        _("Enable tag icons"),
-        4,
-        "options.global.icons-enable-tags",
-        tooltip=_(
-            "Enables display of icons for each tag associated with an object."
+        grid,
+        _("Link images to the media page and not the image viewer"),
+        31,
+        "options.global.image-page-link",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link citation title to the source page and not citation page"),
+        32,
+        "options.global.link-citation-title-to-source",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _(
+            "Open second instance of association editor to add a reciprocal association"
         ),
+        33,
+        "options.global.create-reciprocal-associations",
     )
     configdialog.add_checkbox(
-        grid3,
-        _("Sort tags by name not priority"),
-        5,
-        "options.global.sort-tags-by-name",
-        tooltip=_(
-            "Indicates if tags should be sorted by name and not priority. "
-            "By default they sort by the priority in which they are "
-            "organized in the tag organization tool."
+        grid,
+        _(
+            "Include notes found on child objects in the context menu note items"
         ),
+        34,
+        "options.global.include-child-notes",
     )
     configdialog.add_checkbox(
-        grid3,
-        _("Enable associated object indicator icons"),
-        6,
-        "options.global.icons-enable-indicators",
-        tooltip=_(
-            "Enables display of icons to indicate presence of notes, "
-            "citations, and so forth. Options to selectively control "
-            "which are shown follow below."
+        grid,
+        _(
+            "Parse and include urls found in notes in the url group when possible"
         ),
+        35,
+        "options.global.include-note-urls",
     )
     configdialog.add_checkbox(
-        grid3,
-        _("Enable indicator counts"),
-        7,
-        "options.global.enable-indicator-counts",
-        tooltip=_(
-            "Enables display of a count of the objects in front of "
-            "the indicator icon."
-        ),
+        grid,
+        _("Enable warning dialogs when detaching or deleting objects"),
+        36,
+        "options.global.enable-warnings",
     )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable names icon"),
-        8,
-        "options.global.indicate-names",
-        tooltip=_("Enables display of alternate names icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable parents icon"),
-        9,
-        "options.global.indicate-parents",
-        tooltip=_("Enables display of parents icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable spouses icon"),
-        10,
-        "options.global.indicate-spouses",
-        tooltip=_("Enables display of spouses icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable children icon"),
-        11,
-        "options.global.indicate-children",
-        tooltip=_("Enables display of children icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable associations icon"),
-        12,
-        "options.global.indicate-associations",
-        tooltip=_("Enables display of associations icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable events icon"),
-        13,
-        "options.global.indicate-events",
-        tooltip=_("Enables display of events icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable ordinances icon"),
-        14,
-        "options.global.indicate-ordinances",
-        tooltip=_("Enables display of ordinances icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable media icon"),
-        15,
-        "options.global.indicate-media",
-        tooltip=_("Enables display of media icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable attributes icon"),
-        16,
-        "options.global.indicate-attributes",
-        tooltip=_("Enables display of attributes icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable addresses icon"),
-        17,
-        "options.global.indicate-addresses",
-        tooltip=_("Enables display of addresses icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable citations icon"),
-        18,
-        "options.global.indicate-citations",
-        tooltip=_("Enables display of citations icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable notes icon"),
-        19,
-        "options.global.indicate-notes",
-        tooltip=_("Enables display of notes icon."),
-    )
-    configdialog.add_checkbox(
-        grid3,
-        _("Enable urls icon"),
-        20,
-        "options.global.indicate-urls",
-        tooltip=_("Enables display of urls icon."),
-    )
+    #    add_config_reset(configdialog, grstate, "options.global", grid)
+    notebook.append_page(grid, tab_label=Gtk.Label(label=_("Defaults")))
 
-    grid.attach(grid1, 0, 0, 1, 2)
-    grid.attach(grid2, 1, 1, 1, 1)
-    grid.attach(grid3, 1, 0, 1, 1)
-    return add_config_reset(configdialog, grstate, "options.global", grid)
+    grid = create_grid()
+    configdialog.add_text(grid, _("Metadata Indicators"), 0, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable the display of Gramps ids"),
+        1,
+        "options.global.enable-gramps-ids",
+    )
+    configdialog.add_combo(
+        grid,
+        _("Privacy indicator display mode"),
+        2,
+        "options.global.privacy-mode",
+        PRIVACY_DISPLAY_MODES,
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable bookmark indicator display and context menu support"),
+        3,
+        "options.global.enable-bookmarks",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable home person indicator"),
+        4,
+        "options.global.enable-home",
+    )
+    configdialog.add_text(grid, _("Tag Indicators"), 10, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable tag icons"),
+        11,
+        "options.global.icons-enable-tags",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Sort tag icons based on tag name and not priority"),
+        12,
+        "options.global.sort-tags-by-name",
+    )
+    configdialog.add_text(grid, _("Child Object Indicators"), 20, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable associated child object indicator icons"),
+        21,
+        "options.global.icons-enable-indicators",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable display of object counts with the indicator icons"),
+        22,
+        "options.global.enable-indicator-counts",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable alternate names indicator icon"),
+        23,
+        "options.global.indicate-names",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable parents indicator icon"),
+        24,
+        "options.global.indicate-parents",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable spouses indicator icon"),
+        25,
+        "options.global.indicate-spouses",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable children indicator icon"),
+        26,
+        "options.global.indicate-children",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable associations indicator icon"),
+        27,
+        "options.global.indicate-associations",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable events indicator icon"),
+        28,
+        "options.global.indicate-events",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable ordinances indicator icon"),
+        29,
+        "options.global.indicate-ordinances",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable media indicator icon"),
+        30,
+        "options.global.indicate-media",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable attributes indicator icon"),
+        31,
+        "options.global.indicate-attributes",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable addresses indicator icon"),
+        32,
+        "options.global.indicate-addresses",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable citations indicator icon"),
+        33,
+        "options.global.indicate-citations",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable notes indicator icon"),
+        34,
+        "options.global.indicate-notes",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable urls indicator icon"),
+        35,
+        "options.global.indicate-urls",
+    )
+    #    add_config_reset(configdialog, grstate, "options.global", grid)
+    notebook.append_page(grid, tab_label=Gtk.Label(label=_("Indicators")))
+
+    grid = create_grid()
+    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable the compact media bar"),
+        1,
+        "options.global.media-bar.enabled",
+    )
+    configdialog.add_combo(
+        grid,
+        _("Media bar position"),
+        2,
+        "options.global.media-bar.position",
+        MEDIA_POSITION_MODES,
+    )
+    configdialog.add_combo(
+        grid,
+        _("Media display mode"),
+        3,
+        "options.global.media-bar.display-mode",
+        MEDIA_DISPLAY_MODES,
+    )
+    configdialog.add_spinner(
+        grid,
+        _(
+            "Minimum number of media items required for the bar to be displayed"
+        ),
+        4,
+        "options.global.media-bar.minimum-required",
+        (1, 12),
+    )
+    configdialog.add_text(grid, _("Behaviour Options"), 10, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Sort the displayed media items by date"),
+        11,
+        "options.global.media-bar.sort-by-date",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Group media by type, requires the Media-Type attribute be set"),
+        12,
+        "options.global.media-bar.group-by-type",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Filter out non-photos, requires the Media-Type attribute be set"),
+        13,
+        "options.global.media-bar.filter-non-photos",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Link images to the media page and not the image viewer"),
+        14,
+        "options.global.media-bar.page-link",
+    )
+    #    add_config_reset(configdialog, grstate, "options.global.media-bar", grid)
+    notebook.append_page(grid, tab_label=Gtk.Label(label=_("Media Bar")))
+
+    grid = create_grid()
+    grid.attach(notebook, 1, 0, 1, 1)
+    return grid

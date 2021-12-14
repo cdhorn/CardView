@@ -254,7 +254,7 @@ class LinkedView(ExtendedNavigationView):
         """
         if not self.defer_refresh_id:
             self.defer_refresh_id = GObject.timeout_add(
-                4000, self._perform_config_refresh
+                3000, self._perform_config_refresh
             )
         else:
             self.defer_refresh = True
@@ -921,7 +921,7 @@ class LinkedView(ExtendedNavigationView):
                 [self.build_requested_config_page],
                 self,
                 self._config,
-                "Test Config",
+                "Configure Relationships - Linked",
             )
         except WindowActiveError:
             pass

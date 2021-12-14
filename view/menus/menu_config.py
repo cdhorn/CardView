@@ -189,20 +189,20 @@ def media_bar_option(config):
     """
     Prepare media bar option.
     """
-    if config.get("options.global.media-bar-enabled"):
+    if config.get("options.global.media-bar.enabled"):
         return menu_item(
             "list-remove",
             _("Disable media bar"),
             toggle,
             config,
-            "options.global.media-bar-enabled",
+            "options.global.media-bar.enabled",
         )
     return menu_item(
         "list-add",
         _("Enable media bar"),
         toggle,
         config,
-        "options.global.media-bar-enabled",
+        "options.global.media-bar.enabled",
     )
 
 

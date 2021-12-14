@@ -71,7 +71,7 @@ class GrampsObjectView(Gtk.VBox):
         Render the view after building it.
         """
         self.build_view()
-        mode = self.grstate.config.get("options.global.media-bar-position")
+        mode = self.grstate.config.get("options.global.media-bar.position")
         if mode in [0]:
             self.render_view_body(self, mode)
         else:
@@ -287,7 +287,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Check and if need and can build media bar add to widget for viewing.
         """
-        if self.grstate.config.get("options.global.media-bar-enabled"):
+        if self.grstate.config.get("options.global.media-bar.enabled"):
             css = self.view_object.get_css_style()
             mediabar = GrampsMediaBarGroup(self.grstate, None, obj, css=css)
             if mediabar.total:
