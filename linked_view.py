@@ -418,7 +418,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddNewParents</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new set of parents</property>
-        <property name="label" translatable="yes">_Add New Parents</property>
+        <property name="label" translatable="yes">Add</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -430,7 +430,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddExistingParents</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add person as child to an existing family</property>
-        <property name="label" translatable="yes">_Add Existing Parents</property>
+        <property name="label" translatable="yes">Share</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -442,7 +442,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddSpouse</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new family with person as parent</property>
-        <property name="label" translatable="yes">_Add New Spouse</property>
+        <property name="label" translatable="yes">Partner</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -467,7 +467,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddNewChild</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new person as a child of the family</property>
-        <property name="label" translatable="yes">_Add New Child</property>
+        <property name="label" translatable="yes">Add</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -479,7 +479,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddExistingChild</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add an existing person as a child of the family</property>
-        <property name="label" translatable="yes">_Add Existing Child</property>
+        <property name="label" translatable="yes">Share</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -491,7 +491,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddNewPart</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new participant to the event</property>
-        <property name="label" translatable="yes">_Add New Participant</property>
+        <property name="label" translatable="yes">Add</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -503,7 +503,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.AddExistingPart</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add an existing participant to the event</property>
-        <property name="label" translatable="yes">_Add Existing Participant</property>
+        <property name="label" translatable="yes">Share</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -518,8 +518,8 @@ class LinkedView(ExtendedNavigationView):
         <property name="icon-name">help-browser</property>
         <property name="action-name">win.ViewHelp</property>
         <property name="tooltip_text" translatable="yes">"""
-        """Help for Linked View</property>
-        <property name="label" translatable="yes">_Linked View Help</property>
+        """View help</property>
+        <property name="label" translatable="yes">Help</property>
         <property name="use-underline">True</property>
       </object>
       <packing>
@@ -535,7 +535,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="action-name">win.CopyPageView</property>
         <property name="tooltip_text" translatable="yes">"""
         """Copy page</property>
-        <property name="label" translatable="yes">_Copy Page</property>
+        <property name="label" translatable="yes">Copy</property>
         <property name="use-underline">True</property>
       </object>
       <packing>
