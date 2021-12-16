@@ -61,18 +61,18 @@ def run_global_config(_dummy_obj, grstate):
     grstate.launch_config(_("Global"), build_global_panel, None, None)
 
 
-def run_object_config(_dummy_obj, grstate, groptions):
+def run_object_config(_dummy_obj, grstate, groptions, primary_type):
     """
     Configure object type based on current frame calling context.
     """
     space, context, dummy_menu_title, window_title = get_object_config_title(
-        groptions
+        groptions, primary_type
     )
     builder = config_factory(space, context)
     grstate.launch_config(window_title, builder, space, context)
 
 
-def get_object_config_title(groptions):
+def get_object_config_title(groptions, primary_type):
     """
     Build object config description.
     """
@@ -85,6 +85,10 @@ def get_object_config_title(groptions):
         obj_type = GROUP_LABELS_SINGLE[context]
     else:
         obj_type = "Unknown"
+    if context == "spouse" and primary_type == "Family":
+        context = "family"
+        obj_type = _("Family")
+    print("space {} context {} obj_type {}".format(space, context, obj_type))
     if "active" in space:
         space_label = " ".join((_("Active"), obj_type))
     elif "group" in space:
@@ -141,7 +145,7 @@ def run_layout_config(_dummy_obj, grstate, page_tuple):
     grstate.launch_config(window_title, build_layout_grid, page_type, None)
 
 
-def build_config_menu(widget, grstate, groptions, event):
+def build_config_menu(widget, grstate, groptions, primary_type, event):
     """
     Build the configuration option menu.
     """
@@ -160,7 +164,7 @@ def build_config_menu(widget, grstate, groptions, event):
         context,
         menu_title,
         dummy_window_title,
-    ) = get_object_config_title(groptions)
+    ) = get_object_config_title(groptions, primary_type)
     if context not in ["attribute", "url"] and "unknown" not in menu_title:
         menu.append(
             menu_item(
@@ -169,6 +173,7 @@ def build_config_menu(widget, grstate, groptions, event):
                 run_object_config,
                 grstate,
                 groptions,
+                primary_type,
             )
         )
     add_page_layout_option(menu, grstate)

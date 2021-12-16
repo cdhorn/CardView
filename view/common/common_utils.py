@@ -478,18 +478,13 @@ def note_option_text(note):
     return ": ".join((notetype, text))
 
 
-def menu_item(icon, label, callback, data1=None, data2=None):
+def menu_item(icon, label, callback, *args):
     """
     Helper for constructing a menu item.
     """
     image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
     item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
-    if data2 is not None:
-        item.connect("activate", callback, data1, data2)
-    elif data1 is not None:
-        item.connect("activate", callback, data1)
-    else:
-        item.connect("activate", callback)
+    item.connect("activate", callback, *args)
     return item
 
 

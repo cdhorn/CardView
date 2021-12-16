@@ -190,7 +190,13 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if button_pressed(event, BUTTON_PRIMARY):
             return False
         if button_pressed(event, BUTTON_MIDDLE):
-            build_config_menu(self, self.grstate, self.groptions, event)
+            build_config_menu(
+                self,
+                self.grstate,
+                self.groptions,
+                self.primary.obj_type,
+                event,
+            )
             return True
         return False
 
