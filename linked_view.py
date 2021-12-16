@@ -243,10 +243,11 @@ class LinkedView(ExtendedNavigationView):
     def config_connect(self):
         """
         Monitor configuration options for changes.
+        First option should be options.active.last_object which
+        we always need to skip otherwise we redraw page twice.
         """
-        for item in self.CONFIGSETTINGS:
-            if item[0][:9] != "interface":
-                self._config.connect(item[0], self._defer_config_refresh)
+        for item in self.CONFIGSETTINGS[1:]:
+            self._config.connect(item[0], self._defer_config_refresh)
 
     def _defer_config_refresh(self, *_dummy_args):
         """
@@ -387,19 +388,6 @@ class LinkedView(ExtendedNavigationView):
 """,
         """
     <placeholder id='BarCommonEdit'>
-    <child groups='Person'>
-      <object class="GtkToolButton">
-        <property name="icon-name">gramps-person</property>
-        <property name="action-name">win.SetActive</property>
-        <property name="tooltip_text" translatable="yes">"""
-        """Set home person</property>
-        <property name="label" translatable="yes">_Set Active</property>
-        <property name="use-underline">True</property>
-      </object>
-      <packing>
-        <property name="homogeneous">False</property>
-      </packing>
-    </child>
     <child groups='RO'>
       <object class="GtkToolButton" id="EditButton">
         <property name="icon-name">gtk-edit</property>
@@ -628,7 +616,6 @@ class LinkedView(ExtendedNavigationView):
             self.uistate.status.push(
                 self.uistate.status_id, _("No active object")
             )
-        return False
 
     def load_page(self, new_context):
         """

@@ -63,6 +63,7 @@ class GrampsPageView:
         self.grstate.set_page_type(page_type)
         self.active_profile = None
         self.action_group = None
+        self.reorder_sensitive = None
         self.child = None
         self.colors = None
         self.config = self.grstate.config
@@ -94,9 +95,9 @@ class GrampsPageView:
         if not context:
             return
 
-        object_view = view_builder(self.grstate, context)
-        self.active_profile = object_view.view_object
-        window.pack_start(object_view, True, True, 0)
+        view = view_builder(self.grstate, context)
+        self.active_profile = view.view_object
+        window.pack_start(view, True, True, 0)
         self.post_render_page()
 
     def post_render_page(self):

@@ -52,12 +52,6 @@ class PersonPageView(GrampsPageView):
     Provides the person anchored page view.
     """
 
-    def __init__(self, page_type, grstate):
-        GrampsPageView.__init__(self, page_type, grstate)
-        self.reorder_sensitive = None
-        self.child = None
-        self.colors = None
-
     def define_actions(self, view):
         """
         Define page specific actions.
@@ -65,11 +59,10 @@ class PersonPageView(GrampsPageView):
         self.action_group = ActionGroup(name="Person")
         self.action_group.add_actions(
             [
-                ("SetActive", self._set_default_person),
-                ("AddSpouse", self._add_new_family),
                 ("AddNewParents", self._add_new_parents),
                 ("AddExistingParents", self._add_existing_parents),
-                ("ChangeOrder", self._reorder_families),
+                ("AddSpouse", self._add_new_family),
+                #                ("ChangeOrder", self._reorder_families),
             ]
         )
         view.add_action_group(self.action_group)
@@ -90,7 +83,7 @@ class PersonPageView(GrampsPageView):
         Trigger reorder families.
         """
         if button_pressed(event, BUTTON_PRIMARY):
-            self.reorder(obj)
+            self._reorder_families(obj)
 
     def _reorder_families(self, *_dummy_obj):
         """
@@ -106,13 +99,6 @@ class PersonPageView(GrampsPageView):
                 )
             except WindowActiveError:
                 pass
-
-    def _set_default_person(self, *_dummy_obj):
-        """
-        Set new default person.
-        """
-        if self.active_profile:
-            self.active_profile.set_default_person()
 
     def _add_new_parents(self, *_dummy_obj):
         """

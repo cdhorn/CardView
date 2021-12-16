@@ -115,7 +115,6 @@ class GrampsFrame(GrampsFrameView):
     def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
         if reference_tuple:
             (base_obj, reference_obj) = reference_tuple
-            assert reference_obj.ref == primary_obj.get_handle()
             self.reference_base = GrampsObject(base_obj)
             self.reference = GrampsObject(reference_obj)
         else:
