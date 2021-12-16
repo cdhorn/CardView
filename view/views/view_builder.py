@@ -32,8 +32,7 @@ from .view_citation import CitationObjectView
 from .view_event import EventObjectView
 from .view_family import FamilyObjectView
 from .view_generic import GenericObjectView
-
-# from .view_generic_ref import GenericRefObjectView
+from .view_media import MediaObjectView
 from .view_person import PersonObjectView
 from .view_source import SourceObjectView
 from .view_tag import TagObjectView
@@ -47,7 +46,6 @@ def view_factory(grcontext):
 
     if page_type in [
         "Address",
-        "Media",
         "Name",
         "Note",
         "LdsOrd",
@@ -68,6 +66,8 @@ def view_factory(grcontext):
         cls = EventObjectView
     elif page_type == "Family":
         cls = FamilyObjectView
+    elif page_type == "Media":
+        cls = MediaObjectView
     elif page_type == "Person":
         cls = PersonObjectView
     elif page_type == "Source":

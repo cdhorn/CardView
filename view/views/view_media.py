@@ -18,7 +18,7 @@
 #
 
 """
-CitationObjectView
+MediaObjectView
 """
 
 # -------------------------------------------------------------------------
@@ -31,32 +31,30 @@ from .view_base import GrampsObjectView
 from .view_const import FRAME_MAP
 
 
-class CitationObjectView(GrampsObjectView):
+class MediaObjectView(GrampsObjectView):
     """
-    Provides the citation object view.
+    Provides the media object view.
     """
+
+    def __init__(self, grstate, grcontext):
+        GrampsObjectView.__init__(self, grstate, grcontext)
+        self.colors = None
 
     def build_view(self):
         """
         Build the view header and body and set the focus.
         """
-        citation = self.grcontext.primary_obj
+        media = self.grcontext.primary_obj
 
-        if citation.obj.source_handle:
-            source = self.grstate.dbstate.db.get_source_from_handle(
-                citation.obj.source_handle
-            )
-            groptions = GrampsOptions("options.active.source")
-            source_frame = FRAME_MAP["Source"](self.grstate, groptions, source)
-            self.view_header.pack_start(source_frame, False, False, 0)
+        age_base = None
+        if media.obj.get_date_object():
+            age_base = media.obj.get_date_object()
 
-        groptions = GrampsOptions("options.active.citation")
-        self.view_object = FRAME_MAP["Citation"](
-            self.grstate, groptions, citation.obj
+        groptions = GrampsOptions("options.active.media")
+        self.view_object = FRAME_MAP["Media"](
+            self.grstate, groptions, media.obj
         )
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        self.view_body = self.build_object_groups(
-            citation, age_base=citation.obj.get_date_object()
-        )
+        self.view_body = self.build_object_groups(media, age_base=age_base)
