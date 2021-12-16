@@ -280,6 +280,37 @@ def get_marriage_duration(db, family_obj_or_handle):
     return ""
 
 
+def get_marriage_ages(db, family_obj_or_handle):
+    """
+    Evaluate and return ages of husband and wife if possible.
+    """
+    if isinstance(family_obj_or_handle, str):
+        family = db.get_family_from_handle(family_obj_or_handle)
+    else:
+        family = family_obj_or_handle
+
+    marriage, dummy_divorce = get_key_family_events(db, family)
+    if not marriage:
+        return None, None
+
+    husband = db.get_person_from_handle(family.get_father_handle())
+    husband_age = None
+    husband_birth_ref = husband.get_birth_ref()
+    if husband_birth_ref:
+        husband_birth = db.get_event_from_handle(husband_birth_ref.ref)
+        if husband_birth:
+            husband_age = get_age(husband_birth, marriage, strip=True)
+
+    wife = db.get_person_from_handle(family.get_mother_handle())
+    wife_age = None
+    wife_birth_ref = wife.get_birth_ref()
+    if wife_birth_ref:
+        wife_birth = db.get_event_from_handle(wife_birth_ref.ref)
+        if wife_birth:
+            wife_age = get_age(wife_birth, marriage, strip=True)
+    return husband_age, wife_age
+
+
 def check_multiple_events(db, obj, event_type):
     """
     Check if an object has multiple events of a given type.

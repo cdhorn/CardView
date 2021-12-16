@@ -96,6 +96,8 @@ class EventObjectView(GrampsObjectView):
                     _("Individual Participants"),
                 )
             }
+            if event.get_date_object():
+                args["age_base"] = event.get_date_object()
             object_groups.update(
                 {
                     "people": get_references_group(
@@ -104,7 +106,6 @@ class EventObjectView(GrampsObjectView):
                         args,
                         groptions=groptions,
                         obj_list=people_list,
-                        age_base=event.get_date_object(),
                     )
                 }
             )

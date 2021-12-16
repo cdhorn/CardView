@@ -42,6 +42,10 @@ class CitationObjectView(GrampsObjectView):
         """
         citation = self.grcontext.primary_obj
 
+        age_base = None
+        if citation.obj.get_date_object():
+            age_base = citation.obj.get_date_object()
+
         if citation.obj.source_handle:
             source = self.grstate.dbstate.db.get_source_from_handle(
                 citation.obj.source_handle
@@ -57,6 +61,4 @@ class CitationObjectView(GrampsObjectView):
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        self.view_body = self.build_object_groups(
-            citation, age_base=citation.obj.get_date_object()
-        )
+        self.view_body = self.build_object_groups(citation, age_base=age_base)

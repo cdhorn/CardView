@@ -34,6 +34,7 @@ from .field_base import (
 )
 from .field_child import get_child_field
 from .field_duration import get_duration_field
+from .field_marriage_age import get_marriage_age_field
 from .field_occupations import get_occupations_field
 from .field_progenitors import get_progenitors_field
 from .field_relationship import get_relationship_field
@@ -49,6 +50,8 @@ def field_calculator_factory(field_value):
         render = get_progenitors_field
     elif field_value in ["Child Number"]:
         render = get_child_field
+    elif field_value in ["Ages"]:
+        render = get_marriage_age_field
     elif field_value in ["Relationship"]:
         render = get_relationship_field
     elif field_value in ["Occupations"]:

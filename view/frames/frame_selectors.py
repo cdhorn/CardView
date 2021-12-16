@@ -81,6 +81,7 @@ CALCULATED_PERSON_TYPES = {
 CALCULATED_FAMILY_TYPES = {
     "None": _("None"),
     "Duration": _("Duration"),
+    "Ages": _("Ages"),
     "Relationship": _("Relationship"),
 }
 
