@@ -66,7 +66,6 @@ CONFIG_GRID_MAP = {
     "sibling": build_person_grid,
     "spouse": build_person_grid,
     "child": build_person_grid,
-    "participant": build_person_grid,
     "association": build_person_grid,
     "family": build_family_grid,
     "place": build_place_grid,

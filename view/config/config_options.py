@@ -231,36 +231,6 @@ CONFIGSETTINGS = (
     ("options.active.association.rfield-9", "None"),
     ("options.active.association.rfield-10", "None"),
     ######################################################################
-    ## Participant Options
-    ######################################################################
-    ("options.active.participant.event-format", 1),
-    ("options.active.participant.show-age", True),
-    ("options.active.participant.sex-mode", 1),
-    ("options.active.participant.image-mode", 3),
-    ("options.active.participant.lfield-skip-birth-alternates", True),
-    ("options.active.participant.lfield-skip-death-alternates", True),
-    ("options.active.participant.lfield-1", "Event:Birth"),
-    ("options.active.participant.lfield-2", "Event:Baptism"),
-    ("options.active.participant.lfield-3", "Event:Christening"),
-    ("options.active.participant.lfield-4", "Event:Death"),
-    ("options.active.participant.lfield-5", "Event:Burial"),
-    ("options.active.participant.lfield-6", "Event:Cremation"),
-    ("options.active.participant.lfield-7", "Event:Probate"),
-    ("options.active.participant.lfield-8", "Calculated:Duration"),
-    ("options.active.participant.lfield-9", "None"),
-    ("options.active.participant.lfield-10", "None"),
-    ("options.active.participant.rfield-show-labels", False),
-    ("options.active.participant.rfield-1", "None"),
-    ("options.active.participant.rfield-2", "None"),
-    ("options.active.participant.rfield-3", "None"),
-    ("options.active.participant.rfield-4", "None"),
-    ("options.active.participant.rfield-5", "None"),
-    ("options.active.participant.rfield-6", "None"),
-    ("options.active.participant.rfield-7", "None"),
-    ("options.active.participant.rfield-8", "None"),
-    ("options.active.participant.rfield-9", "None"),
-    ("options.active.participant.rfield-10", "None"),
-    ######################################################################
     ## Family Options
     ######################################################################
     ("options.active.family.event-format", 1),
@@ -582,36 +552,6 @@ CONFIGSETTINGS = (
     ("options.group.association.rfield-8", "None"),
     ("options.group.association.rfield-9", "None"),
     ("options.group.association.rfield-10", "None"),
-    ######################################################################
-    ## Participant Options
-    ######################################################################
-    ("options.group.participant.event-format", 1),
-    ("options.group.participant.show-age", True),
-    ("options.group.participant.sex-mode", 1),
-    ("options.group.participant.image-mode", 1),
-    ("options.group.participant.lfield-skip-birth-alternates", True),
-    ("options.group.participant.lfield-skip-death-alternates", True),
-    ("options.group.participant.lfield-1", "Event:Birth"),
-    ("options.group.participant.lfield-2", "Event:Baptism"),
-    ("options.group.participant.lfield-3", "Event:Christening"),
-    ("options.group.participant.lfield-4", "Event:Death"),
-    ("options.group.participant.lfield-5", "Event:Burial"),
-    ("options.group.participant.lfield-6", "Event:Cremation"),
-    ("options.group.participant.lfield-7", "Event:Probate"),
-    ("options.group.participant.lfield-8", "Calculated:Duration"),
-    ("options.group.participant.lfield-9", "None"),
-    ("options.group.participant.lfield-10", "None"),
-    ("options.group.participant.rfield-show-labels", False),
-    ("options.group.participant.rfield-1", "None"),
-    ("options.group.participant.rfield-2", "None"),
-    ("options.group.participant.rfield-3", "None"),
-    ("options.group.participant.rfield-4", "None"),
-    ("options.group.participant.rfield-5", "None"),
-    ("options.group.participant.rfield-6", "None"),
-    ("options.group.participant.rfield-7", "None"),
-    ("options.group.participant.rfield-8", "None"),
-    ("options.group.participant.rfield-9", "None"),
-    ("options.group.participant.rfield-10", "None"),
     ######################################################################
     ## Name Options
     ######################################################################

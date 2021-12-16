@@ -137,12 +137,6 @@ def build_object_panel(configdialog, grstate, space):
         )
         notebook.append_deferred_page(Gtk.Label(label=_("Child")), render_page)
     render_page = lambda: build_person_grid(
-        configdialog, grstate, space, "participant"
-    )
-    notebook.append_deferred_page(
-        Gtk.Label(label=_("Participant")), render_page
-    )
-    render_page = lambda: build_person_grid(
         configdialog, grstate, space, "association"
     )
     notebook.append_deferred_page(
