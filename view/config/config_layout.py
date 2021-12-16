@@ -103,7 +103,6 @@ class ProfilePageLayout(Gtk.VBox):
             "label": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "visible": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "stacked": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "hideable": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
         option = "{}.tabbed".format(self.space)
         self.tabbed = Gtk.CheckButton(label=_("Tabbed Mode"))
@@ -204,10 +203,6 @@ class ProfilePageLayout(Gtk.VBox):
             if self.config.get(option) != row.stacked.get_active():
                 self.revert.append((option, self.config.get(option)))
                 self.config.set(option, row.stacked.get_active())
-            option = "{}.hideable".format(row.space)
-            if self.config.get(option) != row.hideable.get_active():
-                self.revert.append((option, self.config.get(option)))
-                self.config.set(option, row.hideable.get_active())
 
         option = "{}.groups".format(self.space)
         if self.config.get(option) != ",".join(columns):
@@ -242,10 +237,6 @@ class ProfilePageLayout(Gtk.VBox):
             option = "{}.stacked".format(row.space)
             if self.config.get_default(option) != row.stacked.get_active():
                 self.revert.append((option, row.stacked.get_active()))
-                self.config.set(option, self.config.get_default(option))
-            option = "{}.hideable".format(row.space)
-            if self.config.get_default(option) != row.hideable.get_active():
-                self.revert.append((option, row.hideable.get_active()))
                 self.config.set(option, self.config.get_default(option))
 
         option = "{}.groups".format(self.space)
@@ -465,15 +456,10 @@ class ProfileRowLayout(Gtk.Frame):
         groups["visible"].add_widget(self.visible)
         hbox.pack_start(self.visible, False, False, 6)
         option = "{}.stacked".format(self.space)
-        self.stacked = Gtk.CheckButton(label=_("Stacked"))
+        self.stacked = Gtk.CheckButton(label=_("Append Next"))
         self.stacked.set_active(self.config.get(option))
         groups["stacked"].add_widget(self.stacked)
         hbox.pack_start(self.stacked, False, False, 6)
-        option = "{}.hideable".format(self.space)
-        self.hideable = Gtk.CheckButton(label=_("Hideable"))
-        self.hideable.set_active(self.config.get(option))
-        groups["hideable"].add_widget(self.hideable)
-        hbox.pack_start(self.hideable, False, False, 6)
         self.set_css_style()
 
     def drag_data_get(

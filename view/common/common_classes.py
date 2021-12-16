@@ -524,6 +524,12 @@ class GrampsState:
         """
         return self.callbacks["launch-config"](label, builder, space, context)
 
+    def mark_page_dirty(self):
+        """
+        Mark current page dirty.
+        """
+        return self.callbacks["mark-dirty"]()
+
 
 # ------------------------------------------------------------------------
 #

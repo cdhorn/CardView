@@ -278,6 +278,8 @@ class ExtendedNavigationView(PageView):
         if full_tuple and not hobj.lock and not full_tuple == hobj.present():
             self.active_type = full_tuple[1]
             hobj.push(full_tuple)
+        elif full_tuple == hobj.present() and self.dirty:
+            self.goto_active(None)
 
     @abstractmethod
     def goto_handle(self, handle):

@@ -39,6 +39,15 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.utils import match_primary_mask
+
+# ------------------------------------------------------------------------
+#
+# Plugin modules
+#
+# ------------------------------------------------------------------------
+from ..common.common_utils import button_pressed
+from ..common.common_const import BUTTON_SECONDARY
 
 _ = glocale.translation.sgettext
 
@@ -53,46 +62,39 @@ class GrampsFrameGroupExpander(Gtk.Expander):
     A simple class for managing collapse of a GrampsFrameGroup object.
     """
 
-    def __init__(self, grstate, groptions, expanded=True, use_markup=True):
+    def __init__(self, grstate, expanded=True, use_markup=True):
         Gtk.Expander.__init__(
             self, expanded=expanded, use_markup=use_markup, hexpand=True
         )
         self.set_resize_toplevel(True)
+        self.connect("button-press-event", self.button_press)
+        self.connect("activate", self.toggle_state)
+
         self.grstate = grstate
+        self.hidden = False
+        self.nested = None
 
-        prefix = "".join(("options.page.", grstate.page_type, ".layout."))
-        try:
-            self.hideable = grstate.config.get(
-                "".join((prefix, groptions.context, ".hideable"))
-            )
-        except AttributeError:
-            self.hideable = False
-        try:
-            self.tabbed = grstate.config.get("".join((prefix, "tabbed")))
-        except AttributeError:
-            self.tabbed = False
-        try:
-            self.scrolled = grstate.config.get("".join((prefix, "scrolled")))
-        except AttributeError:
-            self.scrolled = False
-        self.connect("activate", self.collapse)
+    def button_press(self, _dummy_obj, event):
+        """
+        Handle button press.
+        """
+        if button_pressed(event, BUTTON_SECONDARY):
+            if match_primary_mask(event.get_state()):
+                self.hide()
+                return True
+        return False
 
-    def collapse(self, _dummy_obj):
-        """
-        Handle removing the frame on collapse if needed.
-        """
-        if not self.tabbed:
-            if self.get_expanded() and self.hideable:
-                child = self.get_child()
-                list(map(child.remove, child.get_children()))
-                parent = self.get_parent()
-                if not self.scrolled:
-                    parent.remove(self)
-                else:
-                    gparent = parent.get_parent()
-                    ggparent = gparent.get_parent()
-                    gggparent = ggparent.get_parent()
-                    parent.remove(self)
-                    gparent.remove(parent)
-                    ggparent.remove(gparent)
-                    gggparent.remove(ggparent)
+    def toggle_state(self, obj):
+        if self.hidden:
+            self.set_hexpand(True)
+            self.show_all()
+            self.hidden = False
+        elif self.get_expanded():
+            parent = self.get_parent()
+            gparent = parent.get_parent()
+            ggparent = gparent.get_parent()
+            if not hasattr(ggparent, "nested"):
+                self.set_hexpand(False)
+                for child in self.get_children():
+                    child.hide()
+                self.hidden = True

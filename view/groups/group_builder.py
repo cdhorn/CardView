@@ -109,7 +109,7 @@ def group_wrapper(grstate, groptions, group, title):
     Wrap a frame group widget with an expander.
     """
     group_title = get_group_title(group, title)
-    content = GrampsFrameGroupExpander(grstate, groptions)
+    content = GrampsFrameGroupExpander(grstate)
     content.set_label("".join(("<small><b>", group_title, "</b></small>")))
     content.add(group)
     return content
@@ -193,7 +193,7 @@ def get_parents_group(grstate, person, args):
             groptions = GrampsOptions("options.group.parent")
             groptions.set_context("parent")
             parents = GrampsFrameGroupExpander(
-                grstate, groptions, expanded=True, use_markup=True
+                grstate, expanded=True, use_markup=True
             )
             parents.set_label(
                 "".join(
@@ -231,7 +231,7 @@ def get_spouses_group(grstate, person, args):
                 groptions = GrampsOptions("options.group.spouse")
                 groptions.set_context("spouse")
                 spouses = GrampsFrameGroupExpander(
-                    grstate, groptions, expanded=True, use_markup=True
+                    grstate, expanded=True, use_markup=True
                 )
                 spouses.set_label(
                     "".join(

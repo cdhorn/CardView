@@ -111,7 +111,7 @@ def config_facts_fields(
             mode=mode,
             dbid=True,
             obj_type=obj_type,
-            size_groups=size_groups
+            size_groups=size_groups,
         )
         grid.attach(user_select, start_col, row, 2, 1)
         count = count + 1

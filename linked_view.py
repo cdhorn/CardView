@@ -179,6 +179,12 @@ class LinkedView(ExtendedNavigationView):
         grcontext.load_page_location(self.grstate, self.get_active())
         return grcontext
 
+    def mark_page_dirty(self):
+        """
+        Mark current page dirty.
+        """
+        self.dirty = True
+
     def _init_pages(self):
         """
         Load page handlers.
@@ -192,6 +198,7 @@ class LinkedView(ExtendedNavigationView):
             "update-history-reference": self.update_history_reference,
             "show-group": self.show_group,
             "launch-config": self.launch_config,
+            "mark-dirty": self.mark_page_dirty,
         }
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
@@ -818,7 +825,9 @@ class LinkedView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        max_windows = self._config.get("options.global.display.max-group-windows")
+        max_windows = self._config.get(
+            "options.global.display.max-group-windows"
+        )
         if hasattr(obj, "handle"):
             key = "-".join((obj.get_handle(), group_type))
             if key in self.group_windows:
@@ -864,7 +873,9 @@ class LinkedView(ExtendedNavigationView):
         """
         grcontext = GrampsContext()
         grcontext.load_page_location(self.grstate, self.get_active())
-        max_windows = self._config.get("options.global.display.max-page-windows")
+        max_windows = self._config.get(
+            "options.global.display.max-page-windows"
+        )
         key = grcontext.obj_key
         if key in self.group_windows:
             self.page_windows[key].refresh()
