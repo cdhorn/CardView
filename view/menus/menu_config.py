@@ -85,10 +85,9 @@ def get_object_config_title(groptions, primary_type):
         obj_type = GROUP_LABELS_SINGLE[context]
     else:
         obj_type = "Unknown"
-    if context == "spouse" and primary_type == "Family":
+    if context in ["parent", "spouse"] and primary_type == "Family":
         context = "family"
         obj_type = _("Family")
-    print("space {} context {} obj_type {}".format(space, context, obj_type))
     if "active" in space:
         space_label = " ".join((_("Active"), obj_type))
     elif "group" in space:
