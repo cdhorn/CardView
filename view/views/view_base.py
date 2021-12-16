@@ -187,101 +187,65 @@ class GrampsObjectView(Gtk.VBox):
         groups = self.grstate.config.get("".join((space, ".groups"))).split(
             ","
         )
+        scrolled = self.grstate.config.get("".join((space, ".scrolled")))
+        groupings = []
+        current_grouping = []
+        for group in groups:
+            if self.grstate.config.get(
+                "".join((space, ".", group, ".visible"))
+            ):
+                current_grouping.append(group)
+            if not self.grstate.config.get(
+                "".join((space, ".", group, ".append"))
+            ):
+                if current_grouping:
+                    groupings.append(current_grouping)
+                    current_grouping = []
+        if current_grouping:
+            groupings.append(current_grouping)
         if self.grstate.config.get("".join((space, ".tabbed"))):
-            return self._prepare_tabbed_groups(obj_groups, space, groups)
-        return self._prepare_untabbed_groups(obj_groups, space, groups)
+            return self._prepare_tabbed_groups(obj_groups, groupings, scrolled)
+        return self._prepare_untabbed_groups(obj_groups, groupings, scrolled)
 
-    def _prepare_untabbed_groups(self, obj_groups, space, groups):
+    def _prepare_untabbed_groups(self, obj_groups, groupings, scrolled):
         """
         Generate the untabbed full page view for the groups.
         """
-
-        def pack_container(container, scrolled, gbox):
-            """
-            Pack container with widget.
-            """
-            if scrolled:
-                container.pack_start(
-                    make_scrollable(gbox), expand=True, fill=True, padding=0
-                )
+        container = Gtk.HBox(spacing=3, hexpand=True, vexpand=False)
+        for grouping in groupings:
+            if len(grouping) == 1:
+                pack_container(container, scrolled, obj_groups[grouping[0]])
             else:
-                container.pack_start(gbox, expand=False, fill=True, padding=0)
-
-        gbox = None
-        title = ""
-        scrolled = self.grstate.config.get("".join((space, ".scrolled")))
-        container = Gtk.HBox(spacing=3)
-        for group in groups:
-            add_group = True
-            if group not in obj_groups or not obj_groups[group]:
-                add_group = False
-            if not self.grstate.config.get(
-                "".join((space, ".", group, ".visible"))
-            ):
-                add_group = False
-            if not gbox:
-                gbox = Gtk.VBox(spacing=3)
-            if add_group:
-                gbox.pack_start(
-                    obj_groups[group], expand=False, fill=True, padding=0
-                )
-            add_to_title(title, group)
-            if not self.grstate.config.get(
-                "".join((space, ".", group, ".stacked"))
-            ):
-                pack_container(container, scrolled, gbox)
-                gbox = None
-                title = ""
-        if gbox and title:
-            pack_container(container, scrolled, gbox)
+                box = Gtk.VBox(spacing=3, vexpand=False)
+                for group in grouping:
+                    box.pack_start(
+                        obj_groups[group], expand=False, fill=True, padding=0
+                    )
+                pack_container(container, scrolled, box)
         return container
 
-    def _prepare_tabbed_groups(self, obj_groups, space, groups):
+    def _prepare_tabbed_groups(self, obj_groups, groupings, scrolled):
         """
         Generate the tabbed notebook view for the groups.
         """
-        sbox = None
-        title = ""
-        in_stack = False
-        container = Gtk.Notebook()
-        for group in groups:
-            add_group = True
-            if group not in obj_groups or not obj_groups[group]:
-                add_group = False
-            if not self.grstate.config.get(
-                "".join((space, ".", group, ".visible"))
-            ):
-                add_group = False
-            gbox = Gtk.VBox(spacing=3)
-            if add_group:
-                gbox.pack_start(
-                    obj_groups[group], expand=True, fill=True, padding=0
+        notebook = Gtk.Notebook()
+        for grouping in groupings:
+            title = ""
+            if len(grouping) == 1:
+                label = Gtk.Label(label=add_to_title(title, grouping[0]))
+                notebook.append_page(
+                    make_scrollable(obj_groups[grouping[0]]), tab_label=label
                 )
-                add_to_title(title, group)
-            if self.grstate.config.get(
-                "".join((space, ".", group, ".stacked"))
-            ):
-                in_stack = True
-                if not sbox:
-                    sbox = Gtk.HBox(spacing=3)
-                sbox.pack_start(gbox, expand=True, fill=True, padding=0)
             else:
-                if not in_stack:
-                    obox = gbox
-                else:
-                    sbox.pack_start(gbox, expand=True, fill=True, padding=0)
-                    obox = Gtk.VBox()
-                    obox.add(sbox)
-                    in_stack = False
-            if not in_stack:
+                box = Gtk.HBox(spacing=3, vexpand=False)
+                for group in grouping:
+                    title = add_to_title(title, group)
+                    pack_container(box, scrolled, obj_groups[group])
                 label = Gtk.Label(label=title)
-                container.append_page(make_scrollable(obox), tab_label=label)
-                sbox = None
-                title = ""
-        if obox and title:
-            label = Gtk.Label(label=title)
-            container.append_page(make_scrollable(obox), tab_label=label)
-        return container
+                notebook.append_page(
+                    make_scrollable(box, vexpand=False), tab_label=label
+                )
+        return notebook
 
     def add_media_bar(self, widget, obj):
         """
@@ -304,3 +268,19 @@ def add_to_title(title, group):
         if " & " in title:
             title = title.replace(" &", ",")
         title = "".join((title, " & ", GROUP_LABELS[group]))
+    return title
+
+
+def pack_container(container, scrolled, box):
+    """
+    Pack container with widget.
+    """
+    if scrolled:
+        container.pack_start(
+            make_scrollable(box, vexpand=False, hexpand=True),
+            expand=False,
+            fill=True,
+            padding=0,
+        )
+    else:
+        container.pack_start(box, expand=False, fill=True, padding=0)

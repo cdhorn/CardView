@@ -323,21 +323,21 @@ def get_events_group(grstate, obj, args):
     """
     Get the group for all the events related to a person or family
     """
-    group_set = Gtk.VBox(spacing=6)
+    group_set = Gtk.VBox(spacing=6, vexpand=False)
     if isinstance(obj, Person):
         group = prepare_event_group(grstate, obj, "Person", args)
         if group:
-            group_set.add(group)
+            group_set.pack_start(group, False, True, 0)
 
         for handle in obj.get_family_handle_list():
             family = grstate.fetch("Family", handle)
             group = prepare_event_group(grstate, family, "Family", args)
             if group:
-                group_set.add(group)
+                group_set.pack_start(group, False, True, 0)
     elif isinstance(obj, Family):
         group = prepare_event_group(grstate, obj, "Family", args)
         if group:
-            group_set.add(group)
+            group_set.pack_start(group, False, True, 0)
     return group_set
 
 

@@ -102,7 +102,7 @@ class ProfilePageLayout(Gtk.VBox):
         groups = {
             "label": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "visible": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
-            "stacked": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+            "append": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
         option = "{}.tabbed".format(self.space)
         self.tabbed = Gtk.CheckButton(label=_("Tabbed Mode"))
@@ -145,10 +145,6 @@ class ProfilePageLayout(Gtk.VBox):
         box.pack_end(defaults, False, False, 0)
         self.pack_end(box, False, False, 0)
         self.show_all()
-        if self.tabbed.get_active():
-            self.scrolled.set_visible(False)
-            for row in self.columns.rows:
-                row.hideable.set_visible(False)
 
     def get_valid_layout_groups(self, obj_type, current_groups):
         """
@@ -199,10 +195,10 @@ class ProfilePageLayout(Gtk.VBox):
             if self.config.get(option) != row.visible.get_active():
                 self.revert.append((option, self.config.get(option)))
                 self.config.set(option, row.visible.get_active())
-            option = "{}.stacked".format(row.space)
-            if self.config.get(option) != row.stacked.get_active():
+            option = "{}.append".format(row.space)
+            if self.config.get(option) != row.append.get_active():
                 self.revert.append((option, self.config.get(option)))
-                self.config.set(option, row.stacked.get_active())
+                self.config.set(option, row.append.get_active())
 
         option = "{}.groups".format(self.space)
         if self.config.get(option) != ",".join(columns):
@@ -234,9 +230,9 @@ class ProfilePageLayout(Gtk.VBox):
             if self.config.get_default(option) != row.visible.get_active():
                 self.revert.append((option, row.visible.get_active()))
                 self.config.set(option, self.config.get_default(option))
-            option = "{}.stacked".format(row.space)
-            if self.config.get_default(option) != row.stacked.get_active():
-                self.revert.append((option, row.stacked.get_active()))
+            option = "{}.append".format(row.space)
+            if self.config.get_default(option) != row.append.get_active():
+                self.revert.append((option, row.append.get_active()))
                 self.config.set(option, self.config.get_default(option))
 
         option = "{}.groups".format(self.space)
@@ -269,14 +265,6 @@ class ProfilePageLayout(Gtk.VBox):
         """
         Toggle option visibility based on mode.
         """
-        if self.tabbed.get_active():
-            self.scrolled.set_visible(False)
-            for row in self.columns.rows:
-                row.hideable.set_visible(False)
-        else:
-            self.scrolled.set_visible(True)
-            for row in self.columns.rows:
-                row.hideable.set_visible(True)
         self.tabbed.set_inconsistent(False)
 
 
@@ -455,11 +443,11 @@ class ProfileRowLayout(Gtk.Frame):
         self.visible.set_active(self.config.get(option))
         groups["visible"].add_widget(self.visible)
         hbox.pack_start(self.visible, False, False, 6)
-        option = "{}.stacked".format(self.space)
-        self.stacked = Gtk.CheckButton(label=_("Append Next"))
-        self.stacked.set_active(self.config.get(option))
-        groups["stacked"].add_widget(self.stacked)
-        hbox.pack_start(self.stacked, False, False, 6)
+        option = "{}.append".format(self.space)
+        self.append = Gtk.CheckButton(label=_("Append Next Group If Visible"))
+        self.append.set_active(self.config.get(option))
+        groups["append"].add_widget(self.append)
+        hbox.pack_start(self.append, False, False, 6)
         self.set_css_style()
 
     def drag_data_get(

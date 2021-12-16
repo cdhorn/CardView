@@ -184,7 +184,6 @@ class LinkedView(ExtendedNavigationView):
         Mark current page dirty.
         """
         self.dirty_redraw_trigger = True
-        print("set dirty redraw")
 
     def _init_pages(self):
         """
