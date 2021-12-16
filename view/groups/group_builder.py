@@ -302,8 +302,6 @@ def get_references_group(
     groptions = groptions or GrampsOptions("options.group.reference")
     if args and "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
-    if not isinstance(obj, Media):
-        groptions.set_age_base(None)
     if args and "title" in args and args["title"]:
         groptions.title = args["title"]
     group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
