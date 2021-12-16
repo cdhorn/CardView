@@ -524,11 +524,11 @@ class GrampsState:
         """
         return self.callbacks["launch-config"](label, builder, space, context)
 
-    def mark_page_dirty(self):
+    def set_dirty_redraw_trigger(self):
         """
-        Mark current page dirty.
+        Set trigger to mark current page dirty if needed.
         """
-        return self.callbacks["mark-dirty"]()
+        return self.callbacks["set-dirty-redraw-trigger"]()
 
 
 # ------------------------------------------------------------------------

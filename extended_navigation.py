@@ -121,6 +121,7 @@ class ExtendedNavigationView(PageView):
                 "active-changed", self.sync(history_type)
             )
         self.history = ExtendedHistory(self.dbstate, other_history)
+        self.dirty_redraw_trigger = False
 
     def sync(self, history_type):
         """
@@ -275,11 +276,15 @@ class ExtendedNavigationView(PageView):
         else:
             full_tuple = obj_tuple
         hobj = self.get_history()
-        if full_tuple and not hobj.lock and not full_tuple == hobj.present():
-            self.active_type = full_tuple[1]
-            hobj.push(full_tuple)
-        elif full_tuple == hobj.present() and self.dirty:
-            self.goto_active(None)
+        if full_tuple and not hobj.lock:
+            if full_tuple != hobj.present():
+                self.dirty_redraw_trigger = False
+                self.active_type = full_tuple[1]
+                hobj.push(full_tuple)
+            elif full_tuple == hobj.present() and self.dirty_redraw_trigger:
+                self.dirty = True
+                self.goto_active(None)
+                self.dirty_redraw_trigger = False
 
     @abstractmethod
     def goto_handle(self, handle):

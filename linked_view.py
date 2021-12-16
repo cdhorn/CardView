@@ -179,11 +179,12 @@ class LinkedView(ExtendedNavigationView):
         grcontext.load_page_location(self.grstate, self.get_active())
         return grcontext
 
-    def mark_page_dirty(self):
+    def set_dirty_redraw_trigger(self):
         """
         Mark current page dirty.
         """
-        self.dirty = True
+        self.dirty_redraw_trigger = True
+        print("set dirty redraw")
 
     def _init_pages(self):
         """
@@ -198,7 +199,7 @@ class LinkedView(ExtendedNavigationView):
             "update-history-reference": self.update_history_reference,
             "show-group": self.show_group,
             "launch-config": self.launch_config,
-            "mark-dirty": self.mark_page_dirty,
+            "set-dirty-redraw-trigger": self.set_dirty_redraw_trigger,
         }
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
