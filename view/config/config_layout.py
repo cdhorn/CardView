@@ -55,16 +55,17 @@ def build_layout_grid(configdialog, grstate, page_type=None, *_dummy_args):
     Build and return layout grid.
     """
     grid = create_grid()
-    vbox = Gtk.VBox()
     if page_type:
         for page in PAGES:
             if page[0] == page_type:
                 page_lang = page[1]
                 break
         tab = (page_type, page_lang)
+        vbox = Gtk.VBox(spacing=3)
         vbox.pack_start(
             ProfilePageLayout(configdialog, grstate, tab), False, False, 0
         )
+        grid.add(vbox)
     else:
         notebook = Gtk.Notebook(vexpand=True, hexpand=True)
         notebook.set_tab_pos(Gtk.PositionType.LEFT)
@@ -74,8 +75,7 @@ def build_layout_grid(configdialog, grstate, page_type=None, *_dummy_args):
             notebook.append_page(
                 make_scrollable(page, hexpand=True), tab_label=label
             )
-            vbox.add(notebook)
-    grid.add(vbox)
+        grid.add(notebook)
     return grid
 
 

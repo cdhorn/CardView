@@ -59,7 +59,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
             self.hideable = self.get_layout("hideable")
 
         self.parse_urls()
-        if self.grstate.config.get("options.global.include-note-urls"):
+        if self.grstate.config.get("options.global.general.include-note-urls"):
             self.parse_notes()
         self.show_all()
 

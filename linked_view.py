@@ -818,7 +818,7 @@ class LinkedView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        max_windows = self._config.get("options.global.max-group-windows")
+        max_windows = self._config.get("options.global.display.max-group-windows")
         if hasattr(obj, "handle"):
             key = "-".join((obj.get_handle(), group_type))
             if key in self.group_windows:
@@ -864,7 +864,7 @@ class LinkedView(ExtendedNavigationView):
         """
         grcontext = GrampsContext()
         grcontext.load_page_location(self.grstate, self.get_active())
-        max_windows = self._config.get("options.global.max-page-windows")
+        max_windows = self._config.get("options.global.display.max-page-windows")
         key = grcontext.obj_key
         if key in self.group_windows:
             self.page_windows[key].refresh()

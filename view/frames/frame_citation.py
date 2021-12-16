@@ -74,7 +74,7 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         Populate information.
         """
         if self.grstate.config.get(
-            "options.global.link-citation-title-to-source"
+            "options.global.general.link-citation-title-to-source"
         ):
             title = self.get_link(
                 source.title,
@@ -142,7 +142,9 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get("options.global.use-color-scheme"):
+        if not self.grstate.config.get(
+            "options.global.display.use-color-scheme"
+        ):
             return ""
 
         return get_confidence_color_css(

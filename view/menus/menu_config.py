@@ -48,7 +48,7 @@ from ..common.common_utils import (
 )
 from ..config.config_builder import config_factory
 from ..config.config_const import PAGE_NAMES, PAGES
-from ..config.config_global import build_global_grid
+from ..config.config_panel import build_global_panel
 from ..config.config_layout import build_layout_grid
 
 _ = glocale.translation.sgettext
@@ -58,7 +58,7 @@ def run_global_config(_dummy_obj, grstate):
     """
     Global config page.
     """
-    grstate.launch_config(_("Global"), build_global_grid, None, None)
+    grstate.launch_config(_("Global"), build_global_panel, None, None)
 
 
 def run_object_config(_dummy_obj, grstate, groptions):
@@ -210,20 +210,20 @@ def tags_option(config):
     """
     Prepare tags option.
     """
-    if config.get("options.global.icons-enable-tags"):
+    if config.get("options.global.indicator.tags"):
         return menu_item(
             "list-remove",
             _("Disable tag icons"),
             toggle,
             config,
-            "options.global.icons-enable-tags",
+            "options.global.indicator.tags",
         )
     return menu_item(
         "list-add",
         _("Enable tag icons"),
         toggle,
         config,
-        "options.global.icons-enable-tags",
+        "options.global.indicator.tags",
     )
 
 
@@ -231,20 +231,20 @@ def indicators_option(config):
     """
     Prepare indicators option.
     """
-    if config.get("options.global.icons-enable-indicators"):
+    if config.get("options.global.indicator.child-objects"):
         return menu_item(
             "list-remove",
             _("Disable child object indicators icons"),
             toggle,
             config,
-            "options.global.icons-enable-indicators",
+            "options.global.indicator.child-objects",
         )
     return menu_item(
         "list-add",
         _("Enable child object indicator icons"),
         toggle,
         config,
-        "options.global.icons-enable-indicators",
+        "options.global.indicator.child-objects",
     )
 
 
@@ -252,20 +252,20 @@ def indicator_counts_option(config):
     """
     Prepare indicators option.
     """
-    if config.get("options.global.enable-indicator-counts"):
+    if config.get("options.global.indicator.child-objects-counts"):
         return menu_item(
             "list-remove",
             _("Disable display of child object counts with indicator icons"),
             toggle,
             config,
-            "options.global.enable-indicator-counts",
+            "options.global.indicator.child-objects-counts",
         )
     return menu_item(
         "list-add",
         _("Enable display of child object counts with indicator icons"),
         toggle,
         config,
-        "options.global.enable-indicator-counts",
+        "options.global.indicator.child-objects-counts",
     )
 
 

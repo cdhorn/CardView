@@ -861,7 +861,9 @@ class GrampsFrame(GrampsFrameView):
                     )
                 )
         if (
-            self.grstate.config.get("options.global.include-child-notes")
+            self.grstate.config.get(
+                "options.global.general.include-child-notes"
+            )
             and not no_children
         ):
             handle_list = []
@@ -1076,7 +1078,7 @@ class GrampsFrame(GrampsFrameView):
         """
         Apply some simple styling to the frame of the current object.
         """
-        border = self.grstate.config.get("options.global.border-width")
+        border = self.grstate.config.get("options.global.display.border-width")
         color = self.get_color_css()
         self.css = "".join(
             (".frame { border-width: ", str(border), "px; ", color, " }")
@@ -1097,7 +1099,7 @@ class GrampsFrame(GrampsFrameView):
         """
         scheme = global_config.get("colors.scheme")
         background = self.grstate.config.get(
-            "options.global.default-background-color"
+            "options.global.display.default-background-color"
         )
         return "".join(("background-color: ", background[scheme], ";"))
 

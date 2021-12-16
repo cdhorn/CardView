@@ -348,15 +348,16 @@ class FrameFieldSelector(Gtk.HBox):
         else:
             label_text = "".join((_("Field"), " ", str(number), ":"))
         label = Gtk.Label(label=label_text)
+        if size_groups and "label" in size_groups:
+            size_groups["label"].add_widget(label)
         self.pack_start(label, False, False, 0)
-
         user_type, user_value = self.get_current_option()
 
         self.type_selector = FieldSelector(
             self.grstate, option, mode, "Types", value=user_type, dbid=dbid
         )
         if size_groups and "type" in size_groups:
-            size_groups["type"].add(self.type_selector)
+            size_groups["type"].add_widget(self.type_selector)
         self.pack_start(self.type_selector, False, False, 0)
 
         self.value_selector = FieldSelector(

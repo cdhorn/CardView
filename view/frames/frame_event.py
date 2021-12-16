@@ -348,7 +348,9 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get("options.global.use-color-scheme"):
+        if not self.grstate.config.get(
+            "options.global.display.use-color-scheme"
+        ):
             return ""
 
         scheme = self.get_option("color-scheme")

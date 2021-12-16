@@ -472,7 +472,7 @@ class GrampsState:
         Fetches active page context.
         """
         return self.callbacks["fetch-page-context"]()
-    
+
     def load_page(self, context):
         """
         Load the proper page for the given context.
@@ -621,11 +621,15 @@ class GrampsConfig:
     def __init__(self, grstate, groptions):
         self.grstate = grstate
         self.groptions = groptions
-        if self.grstate.config.get("options.global.use-smaller-detail-font"):
+        if self.grstate.config.get(
+            "options.global.display.use-smaller-detail-font"
+        ):
             self.detail_markup = "<small>{}</small>"
         else:
             self.detail_markup = "{}"
-        if self.grstate.config.get("options.global.use-smaller-title-font"):
+        if self.grstate.config.get(
+            "options.global.display.use-smaller-title-font"
+        ):
             self.title_markup = "<small>{}</small>"
         else:
             self.title_markup = "{}"
@@ -724,7 +728,9 @@ class GrampsConfig:
         """
         If enabled display message and confirm a user requested action.
         """
-        if not self.grstate.config.get("options.global.enable-warnings"):
+        if not self.grstate.config.get(
+            "options.global.display.enable-warnings"
+        ):
             return True
         dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
         dialog.set_title(title)

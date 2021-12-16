@@ -215,7 +215,9 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get("options.global.use-color-scheme"):
+        if not self.grstate.config.get(
+            "options.global.display.use-color-scheme"
+        ):
             return ""
 
         return get_person_color_css(
@@ -573,7 +575,9 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         self.primary.obj.add_person_ref(reference)
         self.primary.commit(self.grstate, message)
 
-        if self.get_option("options.global.create-reciprocal-associations"):
+        if self.get_option(
+            "options.global.general.create-reciprocal-associations"
+        ):
             ref = PersonRef()
             ref.ref = self.primary.obj.get_handle()
             ref.set_note_list(reference.get_note_list())

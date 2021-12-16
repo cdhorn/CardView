@@ -345,7 +345,9 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get("options.global.use-color-scheme"):
+        if not self.grstate.config.get(
+            "options.global.display.use-color-scheme"
+        ):
             return ""
 
         return get_family_color_css(self.primary.obj, divorced=self.divorced)

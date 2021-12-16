@@ -26,7 +26,12 @@ GrampsPageView factory and builder functions
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .config_global import build_global_grid
+from .config_global import (
+    build_display_grid,
+    build_general_grid,
+    build_indicator_grid,
+    build_media_bar_grid,
+)
 from .config_layout import build_layout_grid
 from .config_objects import (
     build_address_grid,
@@ -42,6 +47,9 @@ from .config_objects import (
     build_repository_grid,
     build_source_grid,
 )
+from .config_panel import (
+    build_global_panel,
+)
 from .config_timeline import (
     build_family_timeline_grid,
     build_person_timeline_grid,
@@ -49,6 +57,10 @@ from .config_timeline import (
 
 
 CONFIG_GRID_MAP = {
+    "display": build_display_grid,
+    "general": build_general_grid,
+    "indicator": build_indicator_grid,
+    "media-bar": build_media_bar_grid,
     "person": build_person_grid,
     "parent": build_person_grid,
     "sibling": build_person_grid,
@@ -75,16 +87,12 @@ def config_factory(space, context):
     A factory to return a configuration object.
     """
     if "global" in space:
-        func = build_global_grid
+        func = build_global_panel
     elif "timeline" in space:
         if context == "person":
             func = build_person_timeline_grid
         elif context == "family":
             func = build_family_timeline_grid
-        else:
-            print("unknown: {} {}".format(space, context))
     elif context in CONFIG_GRID_MAP:
         func = CONFIG_GRID_MAP[context]
-    else:
-        print("unknown: {} {}".format(space, context))
     return func

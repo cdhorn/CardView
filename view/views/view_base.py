@@ -93,7 +93,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Render main body of the view.
         """
-        if self.grstate.config.get("options.global.pin-header"):
+        if self.grstate.config.get("options.global.display.pin-header"):
             widget.pack_start(self.view_header, False, False, 0)
             if mode == 0:
                 self.add_media_bar(widget, self.grcontext.primary_obj.obj)
@@ -125,12 +125,12 @@ class GrampsObjectView(Gtk.VBox):
         Wrap focal widget with colored background so it stands out.
         """
         if not self.grstate.config.get(
-            "options.global.focal-object-highlight"
+            "options.global.display.focal-object-highlight"
         ):
             return focal_widget
         scheme = global_config.get("colors.scheme")
         background = self.grstate.config.get(
-            "options.global.focal-object-color"
+            "options.global.display.focal-object-color"
         )
         frame = Gtk.Frame()
         css = "".join(

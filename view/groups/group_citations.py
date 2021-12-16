@@ -56,7 +56,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
             self, grstate, groptions, obj, enable_drop=False
         )
         self.maximum = grstate.config.get(
-            "options.global.max-citations-per-group"
+            "options.global.general.max-citations-per-group"
         )
         if not self.get_layout("tabbed"):
             self.hideable = self.get_layout("hideable")

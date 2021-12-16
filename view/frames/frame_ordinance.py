@@ -124,7 +124,7 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if self.grstate.config.get("options.global.use-color-scheme"):
+        if self.grstate.config.get("options.global.display.use-color-scheme"):
             if self.primary.obj_type == "Person":
                 living = probably_alive(
                     self.primary.obj, self.grstate.dbstate.db

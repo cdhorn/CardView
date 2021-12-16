@@ -40,9 +40,9 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..config.config_global import build_global_grid
 from ..config.config_layout import build_layout_grid
 from ..config.config_panel import (
+    build_global_panel,
     build_object_panel,
     build_timeline_panel,
     build_color_panel,
@@ -131,7 +131,7 @@ class GrampsPageView:
         """
         Build global options panel for the configuration dialog.
         """
-        return _("Global"), build_global_grid(configdialog, self.grstate)
+        return _("Global"), build_global_panel(configdialog, self.grstate)
 
     def layout_panel(self, configdialog):
         """

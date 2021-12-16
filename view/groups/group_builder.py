@@ -292,7 +292,9 @@ def get_references_group(
 
     not_shown = 0
     if not maximum:
-        maximum = grstate.config.get("options.global.max-references-per-group")
+        maximum = grstate.config.get(
+            "options.global.general.max-references-per-group"
+        )
     if total > maximum:
         not_shown = total - maximum
         tuple_list = tuple_list[:maximum]

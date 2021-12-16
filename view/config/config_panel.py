@@ -58,6 +58,12 @@ from .config_colors import (
     ROLE_TYPE,
     build_color_grid,
 )
+from .config_global import (
+    build_display_grid,
+    build_general_grid,
+    build_indicator_grid,
+    build_media_bar_grid,
+)
 from .config_objects import (
     ConfigNotebook,
     build_address_grid,
@@ -80,6 +86,26 @@ from .config_timeline import (
 from .config_utils import create_grid
 
 _ = glocale.translation.sgettext
+
+
+def build_global_panel(configdialog, grstate, *_dummy_args):
+    """
+    Build timeline options panel for the configuration dialog.
+    """
+    grid = create_grid()
+    notebook = ConfigNotebook(vexpand=True, hexpand=True)
+    page = build_display_grid(configdialog, grstate)
+    notebook.append_page(page, tab_label=Gtk.Label(label=_("Display")))
+    render_page = lambda: build_general_grid(configdialog, grstate)
+    notebook.append_deferred_page(Gtk.Label(label=_("General")), render_page)
+    render_page = lambda: build_indicator_grid(configdialog, grstate)
+    notebook.append_deferred_page(
+        Gtk.Label(label=_("Indicators")), render_page
+    )
+    render_page = lambda: build_media_bar_grid(configdialog, grstate)
+    notebook.append_deferred_page(Gtk.Label(label=_("Media Bar")), render_page)
+    grid.attach(notebook, 1, 0, 1, 1)
+    return grid
 
 
 def build_object_panel(configdialog, grstate, space):

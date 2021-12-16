@@ -265,7 +265,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         if hasattr(self.primary.obj, "urls"):
             context_menu.append(self._urls_option())
         context_menu.append(self._copy_to_clipboard_option())
-        if self.grstate.config.get("options.global.enable-bookmarks"):
+        if self.grstate.config.get("options.global.indicator.bookmarks"):
             context_menu.append(self._bookmark_option())
         context_menu.append(self._change_privacy_option())
         context_menu.add(Gtk.SeparatorMenuItem())
@@ -381,7 +381,9 @@ class PrimaryGrampsFrame(GrampsFrame):
             else:
                 tag_add_list.append(tag)
         for tag_list in [tag_add_list, tag_remove_list]:
-            if self.grstate.config.get("options.global.sort-tags-by-name"):
+            if self.grstate.config.get(
+                "options.global.indicator.tags-sort-by-name"
+            ):
                 tag_list.sort(key=lambda x: x.name)
             else:
                 tag_list.sort(key=lambda x: x.priority)

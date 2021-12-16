@@ -100,7 +100,9 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             if self.get_option("show-age"):
                 birth_ref = obj.get_birth_ref()
                 if birth_ref:
-                    event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+                    event = grstate.dbstate.db.get_event_from_handle(
+                        birth_ref.ref
+                    )
                     if event:
                         self.groptions.set_age_base(event.get_date_object())
 
