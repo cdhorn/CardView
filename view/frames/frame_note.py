@@ -58,12 +58,13 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
     The NoteGrampsFrame exposes some of the basic facts about a Note.
     """
 
-    def __init__(self, grstate, groptions, note):
+    def __init__(self, grstate, groptions, note, reference=None):
         self.text_view = Gtk.TextView(
             wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False
         )
         PrimaryGrampsFrame.__init__(self, grstate, groptions, note)
-
+        self.note_reference = reference
+        
         preview_mode = self.get_option("preview-mode")
         preview_lines = self.get_option("preview-lines")
 
@@ -104,6 +105,9 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
             )
             self.add_fact(label)
 
+        if reference:
+            self.widgets["attributes"].add_fact(self.get_label(reference))
+
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
@@ -118,26 +122,29 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         )
 
         hcontent = Gtk.HBox(hexpand=True)
-        hcontent.pack_start(
+        vfacts = Gtk.VBox(vexpand=False, hexpand=True)
+        vfacts.pack_start(
             self.widgets["facts"], expand=True, fill=True, padding=0
         )
-        hcontent.pack_start(
-            self.widgets["id"], expand=True, fill=True, padding=0
+        vfacts.pack_start(
+            self.widgets["icons"], expand=True, fill=True, padding=0
         )
+        hcontent.pack_start(vfacts, expand=True, fill=True, padding=0)
+
+        vmeta = Gtk.VBox(vexpand=False, hexpand=False)
+        vmeta.pack_start(self.widgets["id"], expand=True, fill=True, padding=0)
+        vmeta.pack_start(
+            self.widgets["attributes"], expand=True, fill=True, padding=0
+        )
+        hcontent.pack_start(vmeta, expand=True, fill=True, padding=0)
 
         if self.get_option("text-on-top"):
             vcontent.pack_start(
                 self.text_view, expand=True, fill=True, padding=0
             )
             vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            vcontent.pack_start(
-                self.widgets["icons"], expand=True, fill=True, padding=0
-            )
         else:
             vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
-            vcontent.pack_start(
-                self.widgets["icons"], expand=True, fill=True, padding=0
-            )
             vcontent.pack_start(
                 self.text_view, expand=True, fill=True, padding=0
             )

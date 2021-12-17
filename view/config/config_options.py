@@ -691,6 +691,7 @@ CONFIGSETTINGS = (
     ("options.group.note.text-on-top", False),
     ("options.group.note.preview-mode", True),
     ("options.group.note.preview-lines", 3),
+    ("options.group.note.include-child-objects", True),
     ######################################################################
     # Timeline Options
     #

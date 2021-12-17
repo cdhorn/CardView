@@ -209,10 +209,14 @@ class GrampsFrame(GrampsFrameView):
         dnd_drop_targets = dnd_drop_targets or self.dnd_drop_targets
         drag_data_received = drag_data_received or self.drag_data_received
         if eventbox:
-            if hasattr(self.focus.obj, "note_list"):
+            if (
+                hasattr(self.focus.obj, "note_list")
+                or self.primary.obj_type == "Note"
+            ):
                 for target in DdTargets.all_text_targets():
                     dnd_drop_targets.append(target)
                 dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+            if hasattr(self.focus.obj, "note_list"):
                 dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
             if hasattr(self.primary.obj, "media_list"):
                 dnd_drop_targets.append(DdTargets.MEDIAOBJ.target())
@@ -295,6 +299,9 @@ class GrampsFrame(GrampsFrameView):
         if not added_urls or (len(data) > (2 * added_urls)):
             if hasattr(self.focus.obj, "note_list"):
                 self.add_new_note(None, content=data)
+                return True
+            if self.focus.obj_type == "Note":
+                self.update_note(content=data)
                 return True
         return False
 
@@ -940,6 +947,22 @@ class GrampsFrame(GrampsFrameView):
         """
         note = self.fetch("Note", handle)
         self.edit_primary_object(None, note, "Note")
+
+    def update_note(self, content=None):
+        """
+        Update a note.
+        """
+        if content:
+            self.primary.obj.append(content)
+            try:
+                EditNote(
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    self.primary.obj,
+                )
+            except WindowActiveError:
+                pass
 
     def remove_note(self, _dummy_obj, note):
         """

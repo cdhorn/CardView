@@ -464,21 +464,15 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
     configdialog.add_checkbox(
         grid,
-        _("Text on top"),
+        _("Show note text on top"),
         1,
         "{}.note.text-on-top".format(space),
-        tooltip=_(
-            "Indicates text should be shown first and then title and metadata."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable preview mode"),
         2,
         "{}.note.preview-mode".format(space),
-        tooltip=_(
-            "Indicates only a portion of the full note should be displayed."
-        ),
     )
     configdialog.add_spinner(
         grid,
@@ -486,6 +480,12 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
         3,
         "{}.note.preview-lines".format(space),
         (0, 8),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Include notes from all child objects"),
+        4,
+        "{}.note.include-child-objects".format(space),
     )
     return add_config_reset(
         configdialog, grstate, "{}.note".format(space), grid
