@@ -654,10 +654,12 @@ class Timeline:
         self.timeline_type = "place"
         self.add_place(handle)
 
-    def add_place(self, handle):
+    def add_place(self, handle, depth=0):
         """
         Build a list of events for a given place.
         """
+        if depth > 8:
+            return
         for (
             obj_type,
             obj_handle,
@@ -666,7 +668,7 @@ class Timeline:
                 place = self.db_handle.get_place_from_handle(obj_handle)
                 for place_ref in place.get_placeref_list():
                     if place_ref.ref == handle:
-                        self.add_place(obj_handle)
+                        self.add_place(obj_handle, depth=depth + 1)
             if obj_type == "Event":
                 event = self.db_handle.get_event_from_handle(obj_handle)
                 self.merge_generic_event(event)

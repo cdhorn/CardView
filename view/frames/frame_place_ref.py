@@ -139,7 +139,9 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
         Remove an enclosed place reference.
         """
         place = self.fetch("Place", place_ref.ref)
-        text = place_displayer.display(self.grstate.dbstate.db, place)
+        text = place_displayer.display(
+            self.grstate.dbstate.db, self.primary.obj
+        )
         prefix = _(
             "You are about to remove the following enclosed place from this "
             "place:"
@@ -152,7 +154,7 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
             _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
         ):
             new_list = []
-            for ref in self.reference_base.obj.get_place_ref_list():
+            for ref in self.primary.obj.get_placeref_list():
                 if not ref.ref == place_ref.ref:
                     new_list.append(ref)
             message = " ".join(
@@ -162,8 +164,8 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
                     place.get_gramps_id(),
                     _("from"),
                     _("Place"),
-                    self.reference_base.obj.get_gramps_id(),
+                    self.primary.obj.get_gramps_id(),
                 )
             )
-            self.reference_base.obj.set_place_ref_list(new_list)
-            self.reference_base.commit(self.grstate, message)
+            self.primary.obj.set_placeref_list(new_list)
+            self.primary.commit(self.grstate, message)

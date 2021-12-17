@@ -737,7 +737,7 @@ class GrampsConfig:
         If enabled display message and confirm a user requested action.
         """
         if not self.grstate.config.get(
-            "options.global.display.enable-warnings"
+            "options.global.general.enable-warnings"
         ):
             return True
         dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
