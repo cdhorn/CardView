@@ -259,6 +259,7 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             context_menu.append(self._add_existing_child_option())
             context_menu.append(self._remove_family_parent_option())
         if self.context in ["sibling", "child"]:
+            self._set_preferred_parents_option(context_menu)
             context_menu.append(self._remove_family_child_option())
         context_menu.append(self._parents_option())
         context_menu.append(self._partners_option())
@@ -812,6 +813,43 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             self.grstate.dbstate.db.remove_parent_from_family(
                 self.primary.obj.get_handle(), self.groptions.backlink
             )
+
+    def _set_preferred_parents_option(self, menu):
+        """
+        Build menu item to set new preferred parents.
+        """
+        if self.reference:
+            main_parents = self.primary.obj.get_main_parents_family_handle()
+            if self.reference_base.obj.get_handle() != main_parents:
+                menu.append(
+                    menu_item(
+                        "gramps-parents-add",
+                        _("Make current parents preferred"),
+                        self.set_main_parents,
+                    )
+                )
+
+    def set_main_parents(self, *_dummy_args):
+        """
+        Set preferred parents.
+        """
+        message = " ".join(
+            (
+                _("Setting"),
+                _("Family"),
+                self.reference_base.obj.get_gramps_id(),
+                _("as"),
+                _("Main"),
+                _("Parents"),
+                _("for"),
+                _("Person"),
+                self.primary.obj.get_gramps_id(),
+            )
+        )
+        self.primary.obj.set_main_parent_family_handle(
+            self.reference_base.obj.get_handle()
+        )
+        self.primary.commit(self.grstate, message)
 
     def _remove_family_child_option(self):
         """

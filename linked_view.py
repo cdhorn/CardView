@@ -840,10 +840,10 @@ class LinkedView(ExtendedNavigationView):
         if len(self.group_windows) >= max_windows:
             if key not in self.group_windows:
                 WarningDialog(
-                    _("Could Not Open New Child Object Group Window"),
+                    _("Could Not Spawn New Group Window"),
                     _(
-                        "Too many child object group windows are open. "
-                        "Close one before launching another or increase "
+                        "Too many group windows are open. Close "
+                        "one before launching another or increase "
                         "the default in the view preferences."
                     ),
                     parent=self.grstate.uistate.window,
@@ -892,10 +892,10 @@ class LinkedView(ExtendedNavigationView):
         if len(self.page_windows) >= max_windows:
             if key not in self.page_windows:
                 WarningDialog(
-                    _("Could Not Open New Page Copy Window"),
+                    _("Could Not Spawn New Page Copy Window"),
                     _(
-                        "Too many full page copy windows are open. "
-                        "Close one before launching another or increase "
+                        "Too many page copy windows are open. Close "
+                        "one before launching another or increase "
                         "the default in the view preferences."
                     ),
                     parent=self.grstate.uistate.window,
