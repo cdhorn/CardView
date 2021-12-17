@@ -67,13 +67,12 @@ class PageViewWindow(ManagedWindow):
                 grcontext.primary_obj.obj_type,
                 grcontext.primary_obj.obj.get_handle(),
             )
+
         else:
             self.base_title = "".join(
                 (_("Tag"), ": ", grcontext.primary_obj.obj.get_name())
             )
-        ManagedWindow.__init__(
-            self, grstate.uistate, [], grcontext.primary_obj.obj
-        )
+        ManagedWindow.__init__(self, grstate.uistate, [], grcontext)
 
         self.page_view = Gtk.VBox()
         view = view_builder(grstate, grcontext)
@@ -96,7 +95,7 @@ class PageViewWindow(ManagedWindow):
         """
         Return window key.
         """
-        return self.key
+        return "-".join((self.key, "page"))
 
     def build_menu_names(self, obj):
         """

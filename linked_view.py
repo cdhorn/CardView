@@ -51,6 +51,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import HandleError, WindowActiveError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
+from gramps.gui.dialog import WarningDialog
 from gramps.gui.display import display_url
 from gramps.gui.views.bookmarks import PersonBookmarks
 from gramps.gui.views.pageview import ViewConfigureDialog
@@ -830,28 +831,35 @@ class LinkedView(ExtendedNavigationView):
         )
         if hasattr(obj, "handle"):
             key = "-".join((obj.get_handle(), group_type))
-            if key in self.group_windows:
-                self.group_windows[key].refresh()
-                return
         else:
             key = uuid.uuid4().hex
-
-        if max_windows == 1:
-            if self.group_windows:
-                for dummy_key, window in self.group_windows.items():
-                    window.reload(obj, group_type)
-                    break
-                return
-        if len(self.group_windows) >= max_windows:
+        if max_windows == 1 and self.group_windows:
+            window = [x for x in self.group_windows.values()][0]
+            window.reload(obj, group_type)
             return
-        self.group_windows[key] = FrameGroupWindow(
-            self.grstate,
-            obj,
-            group_type,
-            key,
-            self._clear_group_window,
-            title=title,
-        )
+        if len(self.group_windows) >= max_windows:
+            if key not in self.group_windows:
+                WarningDialog(
+                    _("Could Not Open New Child Object Group Window"),
+                    _(
+                        "Too many child object group windows are open. "
+                        "Close one before launching another or increase "
+                        "the default in the view preferences."
+                    ),
+                    parent=self.grstate.uistate.window,
+                )
+                return
+        try:
+            self.group_windows[key] = FrameGroupWindow(
+                self.grstate,
+                obj,
+                group_type,
+                key,
+                self._clear_group_window,
+                title=title,
+            )
+        except WindowActiveError:
+            pass
         return
 
     def _clear_group_window(self, key):
@@ -877,20 +885,28 @@ class LinkedView(ExtendedNavigationView):
             "options.global.display.max-page-windows"
         )
         key = grcontext.obj_key
-        if key in self.group_windows:
-            self.page_windows[key].refresh()
+        if max_windows == 1 and self.page_windows:
+            window = [x for x in self.page_windows.values()][0]
+            window.reload(grcontext)
             return
-        if max_windows == 1:
-            if self.page_windows:
-                for dummy_key, window in self.page_windows.items():
-                    window.reload(grcontext)
-                    break
-                return
         if len(self.page_windows) >= max_windows:
-            return
-        self.page_windows[key] = PageViewWindow(
-            self.grstate, grcontext, key, self._clear_page_window
-        )
+            if key not in self.page_windows:
+                WarningDialog(
+                    _("Could Not Open New Page Copy Window"),
+                    _(
+                        "Too many full page copy windows are open. "
+                        "Close one before launching another or increase "
+                        "the default in the view preferences."
+                    ),
+                    parent=self.grstate.uistate.window,
+                )
+                return
+        try:
+            self.page_windows[key] = PageViewWindow(
+                self.grstate, grcontext, key, self._clear_page_window
+            )
+        except WindowActiveError:
+            pass
         return
 
     def _clear_page_window(self, key):
