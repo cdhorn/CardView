@@ -677,6 +677,8 @@ class Timeline:
         """
         if event.handle in self.cached_events:
             return
+        if not self.is_eligible(event, None):
+            return
         date = event.get_date_object()
         if date:
             sortval = date.sortval
