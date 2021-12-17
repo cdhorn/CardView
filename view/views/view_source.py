@@ -61,7 +61,11 @@ class SourceObjectView(GrampsObjectView):
             "options.page.source.layout.groups"
         ).split(",")
         object_groups = self.get_object_groups(group_list, source)
-        if "person" in group_list or "event" in group_list:
+        if (
+            "people" in group_list
+            or "event" in group_list
+            or "place" in group_list
+        ):
             self.add_cited_subject_groups(source, object_groups)
 
         self.view_body = self.render_group_view(object_groups)
@@ -72,6 +76,7 @@ class SourceObjectView(GrampsObjectView):
         """
         people_list = []
         events_list = []
+        places_list = []
 
         for (
             obj_type,
@@ -91,8 +96,11 @@ class SourceObjectView(GrampsObjectView):
                 elif sub_obj_type == "Event":
                     if sub_obj_handle not in events_list:
                         events_list.append(("Event", sub_obj_handle))
+                elif sub_obj_type == "Place":
+                    if sub_obj_handle not in places_list:
+                        places_list.append(("Place", sub_obj_handle))
 
-        if people_list:
+        if "people" in object_groups and people_list:
             groptions = GrampsOptions("options.group.people")
             args = {"title": (_("Cited People"), _("Cited People"))}
             object_groups.update(
@@ -107,7 +115,7 @@ class SourceObjectView(GrampsObjectView):
                 }
             )
 
-        if events_list:
+        if "event" in object_groups and events_list:
             groptions = GrampsOptions("options.group.event")
             args = {"title": (_("Cited Event"), _("Cited Events"))}
             object_groups.update(
@@ -118,6 +126,21 @@ class SourceObjectView(GrampsObjectView):
                         args,
                         groptions=groptions,
                         obj_list=events_list,
+                    )
+                }
+            )
+
+        if "place" in object_groups and places_list:
+            groptions = GrampsOptions("options.group.place")
+            args = {"title": (_("Cited Place"), _("Cited Places"))}
+            object_groups.update(
+                {
+                    "place": get_references_group(
+                        self.grstate,
+                        None,
+                        args,
+                        groptions=groptions,
+                        obj_list=places_list,
                     )
                 }
             )

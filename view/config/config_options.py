@@ -1075,7 +1075,7 @@ CONFIGSETTINGS = (
     ("options.page.source.layout.scrolled", False),
     (
         "options.page.source.layout.groups",
-        "repository,media,citation,people,event,url,note,attribute,reference",
+        "repository,media,citation,people,event,place,url,note,attribute,reference",
     ),
     ("options.page.source.layout.repository.visible", True),
     ("options.page.source.layout.repository.append", True),
@@ -1091,6 +1091,8 @@ CONFIGSETTINGS = (
     ("options.page.source.layout.people.append", True),
     ("options.page.source.layout.event.visible", True),
     ("options.page.source.layout.event.append", False),
+    ("options.page.source.layout.place.visible", True),
+    ("options.page.source.layout.place.append", False),
     ("options.page.source.layout.media.visible", True),
     ("options.page.source.layout.media.append", False),
     ("options.page.source.layout.reference.visible", False),
