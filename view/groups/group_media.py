@@ -58,9 +58,6 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=True
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         groptions.set_backlink(
             (self.group_base.obj_type, self.group_base.obj.get_handle())
         )
@@ -103,6 +100,10 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                         new_list.append(media)
                 media_list = new_list
 
+            maximum = self.grstate.config.get(
+                "options.global.max.media-per-group"
+            )
+            media_list = media_list[:maximum]
             for (
                 media_ref,
                 media,

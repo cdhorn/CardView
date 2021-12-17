@@ -51,14 +51,22 @@ CONFIGSETTINGS = (
     ######################################################################
     ## General Options
     ######################################################################
-    ("options.global.general.max-citations-per-group", 100),
-    ("options.global.general.max-references-per-group", 100),
     ("options.global.general.image-page-link", True),
     ("options.global.general.link-citation-title-to-source", True),
     ("options.global.general.create-reciprocal-associations", True),
     ("options.global.general.include-child-notes", True),
     ("options.global.general.include-note-urls", True),
     ("options.global.general.enable-warnings", True),
+    ######################################################################
+    ## Maximum Options
+    ######################################################################
+    ("options.global.max.events-per-group", 300),
+    ("options.global.max.places-per-group", 200),
+    ("options.global.max.sources-per-group", 200),
+    ("options.global.max.citations-per-group", 200),
+    ("options.global.max.media-per-group", 200),
+    ("options.global.max.notes-per-group", 200),
+    ("options.global.max.references-per-group", 200),
     ######################################################################
     # Indicator Related Options
     ######################################################################
@@ -294,6 +302,7 @@ CONFIGSETTINGS = (
     ######################################################################
     ## Place Options
     ######################################################################
+    ("options.active.place.image-mode", 3),
     ######################################################################
     ## Citation Options
     ######################################################################
@@ -617,6 +626,8 @@ CONFIGSETTINGS = (
     ## Place Options
     ######################################################################
     ("options.group.place.image-mode", 0),
+    ("options.group.place.reference-mode", 1),
+    ("options.group.place.show-all-enclosed-places", False),
     ######################################################################
     ## Citation Options
     ######################################################################
@@ -744,8 +755,6 @@ CONFIGSETTINGS = (
     ("options.timeline.family.reference-mode", 1),
     ("options.timeline.family.color-scheme", 1),
     ("options.timeline.family.include-media", False),
-    ("options.timeline.family.include-names", False),
-    ("options.timeline.family.include-addresses", False),
     ("options.timeline.family.include-ldsords", False),
     ("options.timeline.family.include-citations", False),
     ("options.timeline.family.show-description", True),
@@ -771,14 +780,14 @@ CONFIGSETTINGS = (
     ("options.timeline.family.show-class-residence", True),
     ("options.timeline.family.show-class-other", True),
     ("options.timeline.family.show-class-custom", True),
-    ("options.timeline.family.generations-ancestors", 1),
-    ("options.timeline.family.generations-offspring", 1),
     ######################################################################
     ## Place Timeline
     ######################################################################
     ("options.timeline.place.image-mode", 0),
     ("options.timeline.place.reference-mode", 3),
     ("options.timeline.place.color-scheme", 0),
+    ("options.timeline.place.include-media", True),
+    ("options.timeline.place.include-citations", True),
     ("options.timeline.place.show-description", True),
     ("options.timeline.place.show-participants", True),
     ("options.timeline.place.show-role-always", False),
@@ -802,8 +811,6 @@ CONFIGSETTINGS = (
     ("options.timeline.place.show-class-residence", True),
     ("options.timeline.place.show-class-other", True),
     ("options.timeline.place.show-class-custom", True),
-    ("options.timeline.place.generations-ancestors", 1),
-    ("options.timeline.place.generations-offspring", 1),
     ######################################################################
     # Additional Color Schemes
     #
@@ -1176,16 +1183,23 @@ CONFIGSETTINGS = (
     ######################################################################
     ("options.page.place.layout.tabbed", False),
     ("options.page.place.layout.scrolled", False),
-    ("options.page.place.layout.groups", "reference,media,citation,url,note"),
+    (
+        "options.page.place.layout.groups",
+        "timeline,place,media,citation,url,note,reference",
+    ),
+    ("options.page.place.layout.timeline.visible", True),
+    ("options.page.place.layout.timeline.append", False),
+    ("options.page.place.layout.place.visible", True),
+    ("options.page.place.layout.place.append", False),
+    ("options.page.place.layout.media.visible", True),
+    ("options.page.place.layout.media.append", False),
     ("options.page.place.layout.citation.visible", True),
     ("options.page.place.layout.citation.append", False),
     ("options.page.place.layout.url.visible", True),
     ("options.page.place.layout.url.append", True),
     ("options.page.place.layout.note.visible", True),
     ("options.page.place.layout.note.append", False),
-    ("options.page.place.layout.media.visible", True),
-    ("options.page.place.layout.media.append", False),
-    ("options.page.place.layout.reference.visible", True),
+    ("options.page.place.layout.reference.visible", False),
     ("options.page.place.layout.reference.append", False),
     ######################################################################
     ## Tag Page Options

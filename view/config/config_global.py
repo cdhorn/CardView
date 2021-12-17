@@ -142,28 +142,71 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     )
 
 
-def build_general_grid(configdialog, grstate, *_dummy_args):
+def build_maximums_grid(configdialog, grstate, *_dummy_args):
     """
-    Build global general option configuration section.
+    Build global group maximum option configuration section.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Limit Options"), 0, bold=True)
+    configdialog.add_text(grid, _("Group Maximums"), 0, bold=True)
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of events to show in an events or timeline group"),
+        1,
+        "options.global.max.events-per-group",
+        (1, 5000),
+    )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of places to show in a places group"),
+        2,
+        "options.global.max.places-per-group",
+        (1, 5000),
+    )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of sources to show in a sources group"),
+        3,
+        "options.global.max.sources-per-group",
+        (1, 5000),
+    )
     configdialog.add_spinner(
         grid,
         _("Maximum number of citations to show in a citations group"),
-        1,
-        "options.global.general.max-citations-per-group",
-        (1, 500),
+        4,
+        "options.global.max.citations-per-group",
+        (1, 5000),
+    )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of media items to show in a media group"),
+        5,
+        "options.global.max.media-per-group",
+        (1, 5000),
+    )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum number of notes to show in a notes group"),
+        6,
+        "options.global.max.notes-per-group",
+        (1, 5000),
     )
     configdialog.add_spinner(
         grid,
         _(
             "Maximum number of referencing objects to show in a references group"
         ),
-        2,
-        "options.global.general.max-references-per-group",
-        (1, 500),
+        7,
+        "options.global.max.references-per-group",
+        (1, 5000),
     )
+    return add_config_reset(configdialog, grstate, "options.global.max", grid)
+
+
+def build_general_grid(configdialog, grstate, *_dummy_args):
+    """
+    Build global general option configuration section.
+    """
+    grid = create_grid()
     configdialog.add_text(grid, _("Behaviour Options"), 10, bold=True)
     configdialog.add_checkbox(
         grid,

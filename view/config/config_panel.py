@@ -61,6 +61,7 @@ from .config_colors import (
 from .config_global import (
     build_display_grid,
     build_general_grid,
+    build_maximums_grid,
     build_indicator_grid,
     build_media_bar_grid,
 )
@@ -80,8 +81,9 @@ from .config_objects import (
     build_source_grid,
 )
 from .config_timeline import (
-    build_family_timeline_grid,
     build_person_timeline_grid,
+    build_family_timeline_grid,
+    build_place_timeline_grid,
 )
 from .config_utils import create_grid
 
@@ -101,6 +103,10 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     render_page = lambda: build_indicator_grid(configdialog, grstate)
     notebook.append_deferred_page(
         Gtk.Label(label=_("Indicators")), render_page
+    )
+    render_page = lambda: build_maximums_grid(configdialog, grstate)
+    notebook.append_deferred_page(
+        Gtk.Label(label=_("Group Limits")), render_page
     )
     render_page = lambda: build_media_bar_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("Media Bar")), render_page)
@@ -192,6 +198,8 @@ def build_timeline_panel(configdialog, grstate):
     notebook.append_page(page, tab_label=Gtk.Label(label=_("Person")))
     render_page = lambda: build_family_timeline_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("Family")), render_page)
+    render_page = lambda: build_place_timeline_grid(configdialog, grstate)
+    notebook.append_deferred_page(Gtk.Label(label=_("Place")), render_page)
     grid.attach(notebook, 1, 0, 1, 1)
     return grid
 

@@ -643,6 +643,72 @@ class Timeline:
 
         self.add_family(handle, ancestors, offspring)
 
+    def set_place(
+        self,
+        handle,
+    ):
+        """
+        Generate a place timeline.
+        """
+        self.timeline = []
+        self.timeline_type = "place"
+        self.add_place(handle)
+
+    def add_place(self, handle):
+        """
+        Build a list of events for a given place.
+        """
+        for (
+            obj_type,
+            obj_handle,
+        ) in self.db_handle.find_backlink_handles(handle):
+            if obj_type == "Place":
+                place = self.db_handle.get_place_from_handle(obj_handle)
+                for place_ref in place.get_placeref_list():
+                    if place_ref.ref == handle:
+                        self.add_place(obj_handle)
+            if obj_type == "Event":
+                event = self.db_handle.get_event_from_handle(obj_handle)
+                self.merge_generic_event(event)
+
+    def merge_generic_event(self, event):
+        """
+        Filter and merge an eligible event into the master timeline.
+        """
+        if event.handle in self.cached_events:
+            return
+        date = event.get_date_object()
+        if date:
+            sortval = date.sortval
+        else:
+            sortval = 0
+        if self.start_date:
+            if sortval < self.start_date.sortval:
+                return
+        if self.end_date:
+            if sortval > self.end_date.sortval:
+                return
+        primary = self.get_primary_event_participant(event.get_handle())
+        if primary:
+            for event_ref in primary.get_event_ref_list():
+                if event_ref.ref == event.handle:
+                    self.timeline.append(
+                        (
+                            sortval,
+                            (
+                                event,
+                                event_ref,
+                                primary,
+                                None,
+                                None,
+                                self.get_category(event),
+                            ),
+                        )
+                    )
+                    self.cached_events.append(event.handle)
+                    break
+        return
+
     def events(self, raw=False):
         """
         Return the list of sorted events.

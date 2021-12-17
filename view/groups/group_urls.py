@@ -55,9 +55,6 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         self.parse_urls()
         if self.grstate.config.get("options.global.general.include-note-urls"):
             self.parse_notes()

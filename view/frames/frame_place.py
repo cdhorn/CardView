@@ -24,6 +24,13 @@ PlaceGrampsFrame
 
 # ------------------------------------------------------------------------
 #
+# GTK modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# ------------------------------------------------------------------------
+#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -35,7 +42,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_primary import PrimaryGrampsFrame
+from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
 
@@ -45,20 +52,25 @@ _ = glocale.translation.sgettext
 # PlaceGrampsFrame Class
 #
 # ------------------------------------------------------------------------
-class PlaceGrampsFrame(PrimaryGrampsFrame):
+class PlaceGrampsFrame(ReferenceGrampsFrame):
     """
     The PlaceGrampsFrame exposes some of the basic facts about a Place.
     """
 
-    def __init__(self, grstate, groptions, place):
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, place)
-
-        place_name = place_displayer.display(grstate.dbstate.db, place)
-        title = self.get_link(
-            place_name,
-            "Place",
-            place.get_handle(),
+    def __init__(self, grstate, groptions, place, reference_tuple=None):
+        ReferenceGrampsFrame.__init__(
+            self, grstate, groptions, place, reference_tuple=reference_tuple
         )
+
+        if "group" in groptions.option_space:
+            place_name = place_displayer.display(grstate.dbstate.db, place)
+            title = self.get_link(
+                place_name,
+                "Place",
+                place.get_handle(),
+            )
+        else:
+            title = self.get_title_breadcrumbs()
         self.widgets["title"].pack_start(title, True, False, 0)
 
         if place.get_type():
@@ -111,6 +123,42 @@ class PlaceGrampsFrame(PrimaryGrampsFrame):
         self.enable_drag()
         self.enable_drop()
         self.set_css_style()
+
+    def get_title_breadcrumbs(self):
+        """
+        Return a title widget with linkable parts.
+        """
+        hbox = Gtk.HBox(hexpand=False, vexpand=False)
+        chain = [self.primary.obj]
+        self.get_place_chain(chain, self.primary.obj)
+        comma_label = None
+        for place in chain:
+            text = place.get_title()
+            title = text.split(",")[0].strip(", ")
+            if place.get_type():
+                place_type = glocale.translation.sgettext(
+                    place.get_type().xml_str()
+                )
+            else:
+                place_type = None
+            place_label = self.get_link(
+                title, "Place", place.get_handle(), tooltip=place_type
+            )
+            if comma_label:
+                hbox.pack_start(self.get_label(", "), False, False, 0)
+            hbox.pack_start(place_label, False, False, 0)
+            comma_label = True
+        return hbox
+
+    def get_place_chain(self, chain, obj):
+        """
+        Return list of parent places.
+        """
+        if obj.get_placeref_list():
+            place_ref = obj.get_placeref_list()[0]
+            place = self.grstate.fetch("Place", place_ref.ref)
+            chain.append(place)
+            self.get_place_chain(chain, place)
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """

@@ -46,9 +46,6 @@ class LDSOrdinancesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         for ordinance in obj.get_lds_ord_list():
             frame = LDSOrdinanceGrampsFrame(grstate, groptions, obj, ordinance)
             self.add_frame(frame)

@@ -49,10 +49,10 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
         if not hasattr(obj, "note_list"):
             return
 
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
-        for handle in obj.get_note_list():
+        maximum = grstate.config.get("options.global.max.notes-per-group")
+        notes = obj.get_note_list()
+        notes = notes[:maximum]
+        for handle in notes:
             note = self.fetch("Note", handle)
             frame = NoteGrampsFrame(
                 grstate,

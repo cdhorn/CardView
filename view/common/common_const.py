@@ -53,6 +53,7 @@ from gramps.gen.lib import (
     Person,
     PersonRef,
     Place,
+    PlaceRef,
     RepoRef,
     Repository,
     Source,
@@ -206,6 +207,7 @@ GRAMPS_OBJECTS = [
         "stock_link",
     ),
     (Place, "Place", _("Place"), DdTargets.PLACE_LINK, "gramps-place"),
+    (PlaceRef, "PlaceRef", _("PlaceRef"), DdTargets.PLACEREF, "stock_link"),
     (Address, "Address", _("Address"), DdTargets.ADDRESS, "gramps-address"),
     (
         Repository,

@@ -55,9 +55,6 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.repository.reference-mode")
         )

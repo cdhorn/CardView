@@ -62,7 +62,6 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
         Gtk.ListBox.__init__(self)
         GrampsConfig.__init__(self, grstate, groptions)
         self.group_base = GrampsObject(obj)
-        self.hideable = False
         self.managed_obj_type = None
         self.row_frames = []
         self.row_previous = 0

@@ -99,6 +99,9 @@ def get_object_config_title(groptions, primary_type):
         elif "family" in groptions.option_space:
             context = "family"
             space_label = " ".join((_("Family"), _("Timeline")))
+        elif "place" in groptions.option_space:
+            context = "place"
+            space_label = " ".join((_("Place"), _("Timeline")))
     menu_title = " ".join((_("Configure"), space_label.lower()))
     window_title = " ".join((_("Configuration"), _("for"), space_label))
     return space, context, menu_title, window_title

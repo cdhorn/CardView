@@ -58,9 +58,6 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.association.reference-mode")
         )

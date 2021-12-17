@@ -743,6 +743,27 @@ def build_place_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Image display mode"),
+        3,
+        "{}.place.image-mode".format(space),
+        IMAGE_DISPLAY_MODES,
+    )
+    if "group" in space:
+        configdialog.add_combo(
+            grid,
+            _("Reference display mode"),
+            4,
+            "{}.place.reference-mode".format(space),
+            REF_DISPLAY_MODES,
+        )
+        configdialog.add_checkbox(
+            grid,
+            _("Recursively show all enclosed places"),
+            5,
+            "{}.place.show-all-enclosed-places".format(space),
+        )
     return add_config_reset(
         configdialog, grstate, "{}.place".format(space), grid
     )

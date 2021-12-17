@@ -55,9 +55,6 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         sources_list = []
         if self.group_base.obj_type == "Repository":
             for (
@@ -69,6 +66,9 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
                 if obj_type == "Source":
                     source = self.fetch("Source", obj_handle)
                     sources_list.append(source)
+
+        maximum = grstate.config.get("options.global.max.sources-per-group")
+        sources_list = sources_list[:maximum]
 
         if sources_list:
             for source in sources_list:

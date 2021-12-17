@@ -46,9 +46,6 @@ class AddressesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         for address in obj.get_address_list():
             frame = AddressGrampsFrame(
                 grstate,

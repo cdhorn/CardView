@@ -102,14 +102,17 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if not reference_tuple or not groptions.ref_mode:
             return
 
-        self.ref_widgets["id"].load(
-            self.reference.obj,
-            self.reference.obj_type,
-            gramps_id=self.primary.obj.get_gramps_id(),
-        )
-        self.ref_widgets["icons"].load(
-            self.reference.obj, self.reference.obj_type, title=self.get_title()
-        )
+        if self.reference.obj_type not in ["PlaceRef"]:
+            self.ref_widgets["id"].load(
+                self.reference.obj,
+                self.reference.obj_type,
+                gramps_id=self.primary.obj.get_gramps_id(),
+            )
+            self.ref_widgets["icons"].load(
+                self.reference.obj,
+                self.reference.obj_type,
+                title=self.get_title(),
+            )
         self.ref_eventbox.connect(
             "button-press-event", self.ref_button_pressed
         )
@@ -250,7 +253,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     no_children=True,
                 )
             )
-        context_menu.append(self._change_ref_privacy_option())
+        if hasattr(self.reference.obj, "private"):
+            context_menu.append(self._change_ref_privacy_option())
         context_menu.add(Gtk.SeparatorMenuItem())
         reference_type = self._get_reference_type()
         label = Gtk.MenuItem(label=reference_type)
@@ -284,6 +288,8 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             text = _("Repository")
         elif self.reference.obj_type == "MediaRef":
             text = _("Media")
+        elif self.reference.obj_type == "PlaceRef":
+            text = _("Place")
         return " ".join((text, _("reference")))
 
     def save_ref(self, obj_ref, _dummy_var1=None):

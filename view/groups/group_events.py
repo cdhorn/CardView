@@ -58,9 +58,6 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, obj):
         GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         if self.group_base.obj_type == "Person":
             self.birth_ref = self.group_base.obj.get_birth_ref()
             self.death_ref = self.group_base.obj.get_death_ref()

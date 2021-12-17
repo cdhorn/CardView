@@ -68,9 +68,6 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             "ancestors": 1,
             "offspring": 1,
         }
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         self.prepare_options()
 
         self.timeline = Timeline(
@@ -91,6 +88,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 ancestors=self.options["ancestors"],
                 offspring=self.options["offspring"],
             )
+        elif self.group_base.obj_type == "Place":
+            self.timeline.set_place(obj.get_handle())
 
         timeline = []
         for (sortval, item) in self.timeline.events(raw=True):
@@ -126,6 +125,10 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             groptions.set_relation(obj)
 
         timeline.sort(key=lambda x: x[0])
+        maximum = self.grstate.config.get(
+            "options.global.max.events-per-group"
+        )
+        timeline = timeline[:maximum]
         for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
             if timeline_obj_type == "event":
                 (
@@ -238,7 +241,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
             extract = extract_ordinances
 
         obj_list = []
-        if self.group_base.obj_type == "Person":
+        if self.group_base.obj_type in ["Person", "Place"]:
             obj_list = extract(self.group_base.obj)
         elif self.group_base.obj_type == "Family":
             if self.group_base.obj.get_mother_handle():

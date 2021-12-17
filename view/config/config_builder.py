@@ -53,6 +53,7 @@ from .config_panel import (
 from .config_timeline import (
     build_family_timeline_grid,
     build_person_timeline_grid,
+    build_place_timeline_grid,
 )
 
 
@@ -92,6 +93,8 @@ def config_factory(space, context):
             func = build_person_timeline_grid
         elif context == "family":
             func = build_family_timeline_grid
+        elif context == "place":
+            func = build_place_timeline_grid
     elif context in CONFIG_GRID_MAP:
         func = CONFIG_GRID_MAP[context]
     return func

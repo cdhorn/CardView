@@ -46,9 +46,6 @@ class AttributesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not self.get_layout("tabbed"):
-            self.hideable = self.get_layout("hideable")
-
         for attribute in obj.get_attribute_list():
             frame = AttributeGrampsFrame(grstate, groptions, obj, attribute)
             self.add_frame(frame)

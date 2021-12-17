@@ -42,6 +42,7 @@ from .group_media import MediaGrampsFrameGroup
 from .group_names import NamesGrampsFrameGroup
 from .group_notes import NotesGrampsFrameGroup
 from .group_ordinances import LDSOrdinancesGrampsFrameGroup
+from .group_places import PlacesGrampsFrameGroup
 from .group_repositories import RepositoriesGrampsFrameGroup
 from .group_sources import SourcesGrampsFrameGroup
 from .group_timeline import TimelineGrampsFrameGroup
@@ -100,6 +101,11 @@ GRAMPS_GROUPS = {
         AttributesGrampsFrameGroup,
         _("Attribute"),
         _("Attributes"),
+    ),
+    "place": (
+        PlacesGrampsFrameGroup,
+        _("Enclosed Place"),
+        _("Enclosed Places"),
     ),
     "name": (
         NamesGrampsFrameGroup,

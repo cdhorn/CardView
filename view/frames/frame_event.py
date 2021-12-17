@@ -215,7 +215,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 self.reference_base.obj.get_handle()
                 == primary_obj.get_handle()
             ):
-                if "family" not in self.groptions.option_space:
+                if (
+                    "family" not in self.groptions.option_space
+                    and "place" not in self.groptions.option_space
+                ):
                     title = event_type
                 current_type = self.primary.obj.get_type()
                 if current_type == EventType.BIRTH:
