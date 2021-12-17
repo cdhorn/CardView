@@ -152,7 +152,6 @@ def build_object_panel(configdialog, grstate, space):
     notebook.append_deferred_page(Gtk.Label(label=_("Family")), render_page)
     render_page = lambda: build_event_grid(configdialog, grstate, space)
     notebook.append_deferred_page(Gtk.Label(label=_("Event")), render_page)
-    render_page = lambda: build_place_grid(configdialog, grstate, space)
     if "group" in space:
         render_page = lambda: build_ldsord_grid(
             configdialog, grstate, space, "ldsord"
@@ -160,6 +159,7 @@ def build_object_panel(configdialog, grstate, space):
         notebook.append_deferred_page(
             Gtk.Label(label=_("LdsOrd")), render_page
         )
+    render_page = lambda: build_place_grid(configdialog, grstate, space)
     notebook.append_deferred_page(Gtk.Label(label=_("Place")), render_page)
     render_page = lambda: build_citation_grid(configdialog, grstate, space)
     notebook.append_deferred_page(Gtk.Label(label=_("Citation")), render_page)
