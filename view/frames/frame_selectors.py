@@ -82,6 +82,8 @@ CALCULATED_FAMILY_TYPES = {
     "None": _("None"),
     "Duration": _("Duration"),
     "Ages": _("Ages"),
+    "Bride Age": _("Bride Age"),
+    "Groom Age": _("Groom Age"),
     "Relationship": _("Relationship"),
 }
 

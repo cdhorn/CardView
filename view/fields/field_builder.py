@@ -50,7 +50,7 @@ def field_calculator_factory(field_value):
         render = get_progenitors_field
     elif field_value in ["Child Number"]:
         render = get_child_field
-    elif field_value in ["Ages"]:
+    elif field_value in ["Ages", "Bride Age", "Groom Age"]:
         render = get_marriage_age_field
     elif field_value in ["Relationship"]:
         render = get_relationship_field

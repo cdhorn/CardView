@@ -64,7 +64,7 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         )
         PrimaryGrampsFrame.__init__(self, grstate, groptions, note)
         self.note_reference = reference
-        
+
         preview_mode = self.get_option("preview-mode")
         preview_lines = self.get_option("preview-lines")
 

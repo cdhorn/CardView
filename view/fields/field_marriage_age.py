@@ -39,23 +39,32 @@ from ..common.common_vitals import get_marriage_ages
 _ = glocale.translation.sgettext
 
 
-def get_marriage_age_field(grstate, obj, _dummy_field_value, args):
+def get_marriage_age_field(grstate, obj, field_value, args):
     """
     Calculate ages of couple.
     """
     get_label = args.get("get_label")
 
     if isinstance(obj, Family):
-        ages = ""
-        husband_age, wife_age = get_marriage_ages(grstate.dbstate.db, obj)
-        if husband_age:
-            ages = " ".join((_("Husband"), _("age"), husband_age))
+        groom_age, bride_age = get_marriage_ages(grstate.dbstate.db, obj)
+        if bride_age:
+            bride_text = bride_age
         else:
-            ages = " ".join((_("Husband"), _("age"), _("unknown")))
-        if wife_age:
-            ages = " ".join((ages, ";", _("Wife"), _("age"), wife_age))
+            bride_text = _("Unknown")
+
+        if field_value == "Bride Age":
+            return [(get_label(_("Bride Age")), get_label(bride_text))]
+
+        if groom_age:
+            groom_text = groom_age
         else:
-            ages = " ".join((ages, ";", _("Wife"), _("age"), _("unknown")))
-        if ages:
-            return [(get_label(_("Ages")), get_label(ages))]
-        return []
+            groom_text = _("Unknown")
+
+        if field_value == "Groom Age":
+            return [(get_label(_("Groom Age")), get_label(groom_text))]
+
+        bride_text = " ".join((_("Bride"), _("age"), bride_text.lower()))
+        groom_text = " ".join((_("Groom"), _("age"), groom_text.lower()))
+        text = "; ".join((bride_text, groom_text))
+        return [(get_label(_("Ages")), get_label(text))]
+    return []
