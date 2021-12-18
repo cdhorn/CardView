@@ -158,19 +158,11 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     configdialog.add_text(
         grid,
         _(
-            "See global preferences for option to switch between light and "
-            "dark color schemes"
+            "The default Gramps color scheme is managed under "
+            "the Gramps preferences"
         ),
-        0,
-        bold=True,
-    )
-    configdialog.add_text(
-        grid,
-        _(
-            "The default Gramps person color scheme is also managed under "
-            "global preferences"
-        ),
-        1,
+        5,
+        start=0,
         bold=True,
     )
     scroll_window = Gtk.ScrolledWindow()
@@ -179,22 +171,30 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     scroll_window.set_vexpand(True)
     scroll_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
     grid.attach(scroll_window, 0, 3, 7, 1)
-
     key, title, space = scheme_type
     label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
     label.set_markup("<b>{}</b>".format(title))
     colors_grid.attach(label, 0, 0, 2, 1)
 
-    colors = {}
+    light_grid = create_grid()
+    label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
+    label.set_markup("<b>{}</b>".format(_("Light colors")))
+    light_grid.attach(label, 0, 0, 2, 1)
+    dark_grid = create_grid()
+    label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
+    label.set_markup("<b>{}</b>".format(_("Dark colors")))
+    dark_grid.attach(label, 0, 0, 2, 1)
+
     for label, key, row, column in scheme_options:
         option = "{}.{}".format(space, key)
-        colors[option] = add_color(
-            grstate.config, colors_grid, label, option, (row, column)
-        )
+        add_color(grstate.config, light_grid, label, option, (row, column), 0)
+        add_color(grstate.config, dark_grid, label, option, (row, column), 1)
+    colors_grid.attach(light_grid, 0, 1, 2, 1)
+    colors_grid.attach(dark_grid, 0, 2, 2, 1)
     return add_config_reset(configdialog, grstate, space, grid)
 
 
-def add_color(config, grid, text, option, coordinates):
+def add_color(config, grid, text, option, coordinates, scheme):
     """
     Add color chooser widget with label and hex value to the grid.
     """
@@ -202,7 +202,6 @@ def add_color(config, grid, text, option, coordinates):
     label = BasicLabel(text)
     colors = config.get(option)
     if isinstance(colors, list):
-        scheme = global_config.get("colors.scheme")
         hexval = colors[scheme]
     else:
         hexval = colors
@@ -211,7 +210,7 @@ def add_color(config, grid, text, option, coordinates):
     color_hex_label = BasicLabel(hexval)
     color_hex_label.set_hexpand(True)
     entry.connect(
-        "notify::color", update_color, config, option, color_hex_label
+        "notify::color", update_color, config, option, color_hex_label, scheme
     )
     grid.attach(label, column, row, 1, 1)
     grid.attach(entry, column + 1, row, 1, 1)
@@ -219,7 +218,7 @@ def add_color(config, grid, text, option, coordinates):
     return entry
 
 
-def update_color(obj, _dummy_obj, config, option, color_hex_label):
+def update_color(obj, _dummy_obj, config, option, color_hex_label, scheme):
     """
     Called on changing some color.
     Either on programmatically color change.
@@ -233,7 +232,6 @@ def update_color(obj, _dummy_obj, config, option, color_hex_label):
     color_hex_label.set_text(hexval)
     colors = config.get(option)
     if isinstance(colors, list):
-        scheme = global_config.get("colors.scheme")
         colors[scheme] = hexval
         config.set(option, colors)
     else:

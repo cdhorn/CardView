@@ -260,7 +260,13 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             context_menu.append(self._remove_family_parent_option())
         if self.context in ["sibling", "child"]:
             self._set_preferred_parents_option(context_menu)
-            context_menu.append(self._remove_family_child_option())
+            context_menu.append(
+                menu_item(
+                    "list-remove",
+                    _("Remove child from this family"),
+                    self.remove_family_child,
+                )
+            )
         context_menu.append(self._parents_option())
         context_menu.append(self._partners_option())
         context_menu.append(self._associations_option())
@@ -850,16 +856,6 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
             self.reference_base.obj.get_handle()
         )
         self.primary.commit(self.grstate, message)
-
-    def _remove_family_child_option(self):
-        """
-        Build menu item for removing child from a family.
-        """
-        return menu_item(
-            "list-remove",
-            _("Remove child from this family"),
-            self.remove_family_child,
-        )
 
     def remove_family_child(self, _dummy_obj):
         """

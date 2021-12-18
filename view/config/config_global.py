@@ -87,39 +87,57 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     add_color(
         grstate.config,
         grid,
-        _("Focal object highlight color"),
+        _("Focal object light themed highlight color"),
         "options.global.display.focal-object-color",
         (13, 1),
+        0,
     )
     add_color(
         grstate.config,
         grid,
-        _("Default frame background color"),
-        "options.global.display.default-background-color",
+        _("Focal object dark themed highlight color"),
+        "options.global.display.focal-object-color",
         (14, 1),
+        1,
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Default frame light themed background color"),
+        "options.global.display.default-background-color",
+        (15, 1),
+        0,
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Default frame dark themed background color"),
+        "options.global.display.default-background-color",
+        (16, 1),
+        1,
     )
     configdialog.add_checkbox(
         grid,
         _("Enable coloring schemes"),
-        15,
+        17,
         "options.global.display.use-color-scheme",
     )
     configdialog.add_checkbox(
         grid,
         _("Use a smaller font for titles"),
-        16,
+        18,
         "options.global.display.use-smaller-title-font",
     )
     configdialog.add_checkbox(
         grid,
         _("Use a smaller font for details"),
-        17,
+        19,
         "options.global.display.use-smaller-detail-font",
     )
     configdialog.add_spinner(
         grid,
         _("Desired border width"),
-        18,
+        20,
         "options.global.display.border-width",
         (0, 5),
     )
