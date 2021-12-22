@@ -90,9 +90,9 @@ from ..common.common_utils import (
     menu_item,
     submenu_item,
 )
+from ..config.config_selectors import get_attribute_types
 from ..fields.field_builder import field_builder
 from .frame_base import GrampsFrame
-from .frame_selectors import get_attribute_types
 from .frame_widgets import GrampsImage
 
 _ = glocale.translation.sgettext

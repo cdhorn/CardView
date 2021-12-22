@@ -43,6 +43,7 @@ from gramps.gen.utils.db import family_name
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from .common_utils import get_confidence
 
 _ = glocale.translation.sgettext
 
@@ -321,3 +322,90 @@ def check_multiple_events(db, obj, event_type):
         if event.get_type() == event_type:
             count = count + 1
     return count > 1
+
+
+def get_status_ranking(
+    db, person, rank_list=None, alert_list=None, alert_minimum=0
+):
+    """
+    Evaluate key person events to calculate an evidence ranking.
+    """
+    rank_list = rank_list or []
+    alert_list = alert_list or []
+    birth_ref = person.get_birth_ref()
+    death_ref = person.get_death_ref()
+    hit_map = {}
+    language_map = {}
+    for event_ref in person.get_event_ref_list():
+        event = db.get_event_from_handle(event_ref.ref)
+        event_type = event.get_type()
+        event_name = event_type.xml_str()
+        if event_name not in rank_list and event_name not in alert_list:
+            continue
+        language_map.update({event_name: str(event_type)})
+        confidence = get_highest_confidence(db, event)
+        if event_name == "Birth":
+            if event.get_handle() == birth_ref.ref:
+                hit_map.update({"Birth": confidence})
+        elif event_name == "Death":
+            if event.get_handle() == death_ref.ref:
+                hit_map.update({"Death": confidence})
+        elif event_name in rank_list:
+            if event_name in hit_map:
+                if confidence > hit_map[event_name]:
+                    hit_map.update({event_name: confidence})
+            else:
+                hit_map.update({event_name: confidence})
+
+    for handle in person.get_family_handle_list():
+        family = db.get_family_from_handle(handle)
+        for event_ref in family.get_event_ref_list():
+            event = db.get_event_from_handle(event_ref.ref)
+            event_type = event.get_type()
+            event_name = event_type.xml_str()
+            if event_name not in rank_list and event_name not in alert_list:
+                continue
+            language_map.update({event_name: str(event_type)})
+            confidence = get_highest_confidence(db, event)
+            if event_name in rank_list:
+                if event_name in hit_map:
+                    if confidence > hit_map[event_name]:
+                        hit_map.update({event_name: confidence})
+                else:
+                    hit_map.update({event_name: confidence})
+
+    rank_total = 0
+    rank_other_count = 0
+    alerts_list = []
+    for key in hit_map:
+        if key in alert_list and hit_map[key] < alert_minimum:
+            if hit_map[key] == 0:
+                text = "".join((language_map[key], " (", _("Missing"), ")"))
+            else:
+                text = "".join(
+                    (
+                        language_map[key],
+                        " (",
+                        get_confidence(hit_map[key] - 1),
+                        ")",
+                    )
+                )
+            alerts_list.append(text)
+        rank_total = rank_total + hit_map[key]
+        if key not in ["Birth", "Death"]:
+            rank_other_count = rank_other_count + 1
+
+    return rank_other_count, rank_total, alerts_list
+
+
+def get_highest_confidence(db, obj):
+    """
+    Examine citations and return highest confidence score.
+    We scale up by 1 so we can identify missing citations.
+    """
+    confidence = 0
+    for handle in obj.get_citation_list():
+        citation = db.get_citation_from_handle(handle)
+        if citation.confidence + 1 > confidence:
+            confidence = citation.confidence + 1
+    return confidence

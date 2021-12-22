@@ -47,6 +47,7 @@ from gi.repository import Gdk, Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import Person
+from gramps.gen.utils.db import navigation_label
 
 from ..timeline import RELATIVES
 
@@ -62,6 +63,7 @@ from .common_const import (
     _SPACE,
     BUTTON_PRIMARY,
     CONFIDENCE_COLOR_SCHEME,
+    GRAMPS_OBJECTS,
 )
 
 _ = glocale.translation.sgettext
@@ -523,9 +525,9 @@ def get_bookmarks(db, obj_type):
     return []
 
 
-def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
+def prepare_icon(icon_name, tooltip=None):
     """
-    Pack an icon in a widget.
+    Prepare an icon.
     """
     icon = Gtk.Image()
     icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
@@ -534,11 +536,19 @@ def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
         image.add(icon)
     else:
         image = icon
+    return image
+
+
+def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
+    """
+    Pack an icon in a widget.
+    """
+    icon = prepare_icon(icon_name, tooltip=tooltip)
     if add:
-        return widget.add(image)
+        return widget.add(icon)
     if start:
-        return widget.pack_start(image, False, False, 1)
-    return widget.pack_end(image, False, False, 1)
+        return widget.pack_start(icon, False, False, 1)
+    return widget.pack_end(icon, False, False, 1)
 
 
 def find_reference(obj, reference_type, reference_handle):
@@ -678,3 +688,58 @@ def set_dnd_css(row, top):
     context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
     context.add_class("frame")
     return provider
+
+
+def describe_object(db, obj):
+    """
+    Return description string for a Gramps object.
+    """
+    for obj_data in GRAMPS_OBJECTS:
+        if isinstance(obj, obj_data[0]):
+            (
+                obj_class,
+                obj_type,
+                obj_lang,
+                dnd_type,
+                dnd_icon,
+            ) = obj_data
+            if not obj_lang:
+                obj_lang = obj_type
+            break
+    if hasattr(obj, "gramps_id"):
+        title, dummy_obj = navigation_label(db, obj_type, obj.get_handle())
+        title = title.split("]")[1].strip()
+        if obj_type == "Event":
+            title = title.split("-")[1].strip()
+        return title
+    if obj_type == "Attribute":
+        return ": ".join((_("Attribute"), str(obj.get_type())))
+    if obj_type == "EventRef":
+        title, dummy_obj = navigation_label(db, "Event", obj.ref)
+        title = title.split("]")[1].strip()
+        title = title.split("-")[1].strip()
+        return "".join((_("Event"), " ", _("Reference"), ": ", title))
+    if obj_type == "ChildRef":
+        title, dummy_obj = navigation_label(db, "Person", obj.ref)
+        return "".join(
+            (
+                _("Child"),
+                " ",
+                _("Reference"),
+                ": ",
+                title.split("]")[1].strip(),
+            )
+        )
+    if obj_type == "PersonRef":
+        title, dummy_obj = navigation_label(db, "Person", obj.ref)
+        return "".join(
+            (
+                _("Person"),
+                " ",
+                _("Reference"),
+                ": ",
+                title.split("]")[1].strip(),
+            )
+        )
+
+    return obj_lang

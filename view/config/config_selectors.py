@@ -101,7 +101,11 @@ def get_type_maps(mode):
     categories = copy(VALUE_TYPES)
     if mode != "all":
         del categories["Relationship"]
-        if mode != "event":
+        if mode == "status":
+            del categories["Calculated"]
+            del categories["Fact"]
+            del categories["Attribute"]
+        elif mode != "event":
             del categories["Event"]
             del categories["Fact"]
     for category in categories:

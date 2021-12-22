@@ -30,6 +30,7 @@ from .config_global import (
     build_display_grid,
     build_general_grid,
     build_indicator_grid,
+    build_status_grid,
     build_media_bar_grid,
 )
 from .config_layout import build_layout_grid
@@ -61,6 +62,7 @@ CONFIG_GRID_MAP = {
     "display": build_display_grid,
     "general": build_general_grid,
     "indicator": build_indicator_grid,
+    "status": build_status_grid,
     "media-bar": build_media_bar_grid,
     "person": build_person_grid,
     "parent": build_person_grid,

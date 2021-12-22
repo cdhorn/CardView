@@ -63,6 +63,7 @@ from .config_global import (
     build_general_grid,
     build_maximums_grid,
     build_indicator_grid,
+    build_status_grid,
     build_media_bar_grid,
 )
 from .config_objects import (
@@ -102,7 +103,11 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     notebook.append_deferred_page(Gtk.Label(label=_("General")), render_page)
     render_page = lambda: build_indicator_grid(configdialog, grstate)
     notebook.append_deferred_page(
-        Gtk.Label(label=_("Indicators")), render_page
+        Gtk.Label(label=_("Basic Indicators")), render_page
+    )
+    render_page = lambda: build_status_grid(configdialog, grstate)
+    notebook.append_deferred_page(
+        Gtk.Label(label=_("Status Indicators")), render_page
     )
     render_page = lambda: build_maximums_grid(configdialog, grstate)
     notebook.append_deferred_page(

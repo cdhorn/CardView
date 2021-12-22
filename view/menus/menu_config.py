@@ -42,16 +42,56 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS_SINGLE
-from ..common.common_utils import (
-    menu_item,
-    submenu_item,
-)
+from ..common.common_utils import menu_item
 from ..config.config_builder import config_factory
-from ..config.config_const import PAGE_NAMES, PAGES
+from ..config.config_const import PAGE_NAMES
 from ..config.config_panel import build_global_panel
 from ..config.config_layout import build_layout_grid
 
 _ = glocale.translation.sgettext
+
+TOGGLE_OPTIONS = [
+    (
+        "options.global.media-bar.enabled",
+        _("Disable media bar"),
+        _("Enable media bar"),
+    ),
+    (
+        "options.global.indicator.tags",
+        _("Disable tags"),
+        _("Enable tags"),
+    ),
+    (
+        "options.global.indicator.child-objects",
+        _("Disable child object indicators"),
+        _("Enable child object indicators"),
+    ),
+    (
+        "options.global.indicator.child-objects-counts",
+        _("Disable display of child object indicator counts"),
+        _("Enable display of child object indicator counts"),
+    ),
+    (
+        "options.global.status.todo",
+        _("Disable display of to do indicator"),
+        _("Enable display of to do indicator"),
+    ),
+    (
+        "options.global.status.confidence-ranking",
+        _("Disable display of confidence ranking indicator"),
+        _("Enable display of confidence ranking indicator"),
+    ),
+    (
+        "options.global.status.citation-alert",
+        _("Disable display of citation alert indicator"),
+        _("Enable display of citation alert indicator"),
+    ),
+    (
+        "options.global.status.missing-alert",
+        _("Disable display of missing events indicator"),
+        _("Enable display of missing events indicator"),
+    ),
+]
 
 
 def run_global_config(_dummy_obj, grstate):
@@ -179,10 +219,8 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
             )
         )
     add_page_layout_option(menu, grstate)
-    menu.append(media_bar_option(config))
-    menu.append(tags_option(config))
-    menu.append(indicators_option(config))
-    menu.append(indicator_counts_option(config))
+    for option_data in TOGGLE_OPTIONS:
+        menu.append(toggle_option(config, option_data))
     menu.attach_to_widget(widget, None)
     menu.show_all()
     if Gtk.get_minor_version() >= 22:
@@ -192,87 +230,25 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
     return True
 
 
-def media_bar_option(config):
+def toggle_option(config, option_data):
     """
-    Prepare media bar option.
+    Prepare a toggle option.
     """
-    if config.get("options.global.media-bar.enabled"):
+    (option, disable_text, enable_text) = option_data
+    if config.get(option):
         return menu_item(
             "list-remove",
-            _("Disable media bar"),
+            disable_text,
             toggle,
             config,
-            "options.global.media-bar.enabled",
+            option,
         )
     return menu_item(
         "list-add",
-        _("Enable media bar"),
+        enable_text,
         toggle,
         config,
-        "options.global.media-bar.enabled",
-    )
-
-
-def tags_option(config):
-    """
-    Prepare tags option.
-    """
-    if config.get("options.global.indicator.tags"):
-        return menu_item(
-            "list-remove",
-            _("Disable tag icons"),
-            toggle,
-            config,
-            "options.global.indicator.tags",
-        )
-    return menu_item(
-        "list-add",
-        _("Enable tag icons"),
-        toggle,
-        config,
-        "options.global.indicator.tags",
-    )
-
-
-def indicators_option(config):
-    """
-    Prepare indicators option.
-    """
-    if config.get("options.global.indicator.child-objects"):
-        return menu_item(
-            "list-remove",
-            _("Disable child object indicators icons"),
-            toggle,
-            config,
-            "options.global.indicator.child-objects",
-        )
-    return menu_item(
-        "list-add",
-        _("Enable child object indicator icons"),
-        toggle,
-        config,
-        "options.global.indicator.child-objects",
-    )
-
-
-def indicator_counts_option(config):
-    """
-    Prepare indicators option.
-    """
-    if config.get("options.global.indicator.child-objects-counts"):
-        return menu_item(
-            "list-remove",
-            _("Disable display of child object counts with indicator icons"),
-            toggle,
-            config,
-            "options.global.indicator.child-objects-counts",
-        )
-    return menu_item(
-        "list-add",
-        _("Enable display of child object counts with indicator icons"),
-        toggle,
-        config,
-        "options.global.indicator.child-objects-counts",
+        option,
     )
 
 

@@ -33,6 +33,7 @@ Base classes for object and configuration management that others rely on.
 # ------------------------------------------------------------------------
 import hashlib
 import pickle
+from abc import abstractmethod
 from html import escape
 
 # ------------------------------------------------------------------------
@@ -56,9 +57,10 @@ from gramps.gen.lib.serialize import to_json
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .common_const import GRAMPS_OBJECTS
+from .common_const import BUTTON_PRIMARY, GRAMPS_OBJECTS
 from .common_utils import (
     TextLink,
+    button_pressed,
     find_modified_secondary_object,
     find_reference,
     find_secondary_object,
@@ -764,3 +766,47 @@ class GrampsConfig:
         if response == Gtk.ResponseType.OK:
             return True
         return False
+
+
+# ------------------------------------------------------------------------
+#
+# GrampsBaseIcon class
+#
+# ------------------------------------------------------------------------
+class GrampsBaseIcon(Gtk.EventBox):
+    """
+    A simple class for a manged icon.
+    """
+
+    def __init__(self, grstate, icon_name, tooltip=None):
+        Gtk.EventBox.__init__(self)
+        self.grstate = grstate
+        icon = Gtk.Image()
+        icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        self.add(icon)
+        if tooltip:
+            self.set_tooltip_text(tooltip)
+
+        self.connect("button-press-event", self.__icon_press)
+        self.connect("button-release-event", self.__icon_release)
+
+    def __icon_press(self, _dummy_obj, event):
+        """
+        Handle icon click.
+        """
+        if not button_pressed(event, BUTTON_PRIMARY):
+            return False
+        self.icon_clicked(event)
+        return True
+
+    def __icon_release(self, *_dummy_args):
+        """
+        Sink action.
+        """
+        return True
+
+    @abstractmethod
+    def icon_clicked(self, event):
+        """
+        To be set in derived classes.
+        """

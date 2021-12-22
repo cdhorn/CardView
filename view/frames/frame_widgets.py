@@ -63,6 +63,7 @@ from ..common.common_const import (
 )
 from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
 from .frame_utils import get_tag_icon
+from ..status.status_builder import status_builder
 
 _ = glocale.translation.sgettext
 
@@ -144,7 +145,7 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
                 self.grstate.dbstate.db, obj_type
             ).get():
                 if bookmark == obj.get_handle():
-                    pack_icon(self, "gramps-bookmark")
+                    pack_icon(self, "gramps-bookmark", tooltip=_("Bookmarked"))
                     break
 
     def add_privacy_indicator(self, obj):
@@ -153,19 +154,12 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         """
         mode = self.grstate.config.get("options.global.indicator.privacy")
         if mode:
-            image = Gtk.Image()
             if obj.private:
                 if mode in [1, 3]:
-                    image.set_from_icon_name(
-                        "gramps-lock", Gtk.IconSize.BUTTON
-                    )
-                    self.pack_end(image, False, False, 0)
+                    pack_icon(self, "gramps-lock", tooltip=_("Private"))
             else:
                 if mode in [2, 3]:
-                    image.set_from_icon_name(
-                        "gramps-unlock", Gtk.IconSize.BUTTON
-                    )
-                    self.pack_end(image, False, False, 0)
+                    pack_icon(self, "gramps-unlock", tooltip=_("Public"))
 
     def add_home_indicator(self, obj):
         """
@@ -174,7 +168,7 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         if self.grstate.config.get("options.global.indicator.home-person"):
             default = self.grstate.dbstate.db.get_default_person()
             if default and default.get_handle() == obj.get_handle():
-                pack_icon(self, "go-home")
+                pack_icon(self, "go-home", tooltip=_("Home Person"))
 
 
 # ------------------------------------------------------------------------
@@ -260,6 +254,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         self.obj_type = obj_type
         self.title = title
 
+        self.load_status()
         if self.grstate.config.get("options.global.indicator.child-objects"):
             self.load_indicators()
 
@@ -267,6 +262,13 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
             if hasattr(obj, "tag_list"):
                 self.load_tags()
         self.show_all()
+
+    def load_status(self):
+        """
+        Load status indicators for an object.
+        """
+        for icon in status_builder(self.grstate, self.obj):
+            self.flowbox.add(icon)
 
     def load_indicators(self):
         """

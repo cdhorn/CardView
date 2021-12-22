@@ -48,7 +48,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_utils import ConfigReset, make_scrollable
-from ..frames.frame_selectors import FrameFieldSelector
+from ..config.config_selectors import FrameFieldSelector
 
 _ = glocale.translation.sgettext
 
@@ -192,3 +192,56 @@ def config_facts_fields(
                 tooltip=tooltip,
             )
             row = row + 1
+
+
+def config_event_fields(grstate, key="alert", count=12):
+    """
+    Build event status fields configuration section.
+    """
+    grid = create_grid()
+    half = int(count / 2)
+    grid1 = config_event_grid(grstate, key, start=1, count=half)
+    grid2 = config_event_grid(grstate, key, start=(half + 1), count=half)
+    grid.attach(grid1, 1, 0, 1, 1)
+    grid.attach(grid2, 2, 0, 1, 1)
+    return grid
+
+
+def config_event_grid(grstate, key, start=1, count=6):
+    """
+    Build event entry grid.
+    """
+    grid = create_grid()
+    size_groups = {
+        "label": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+        "type": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
+    }
+    prefix = "".join(("options.global.status.", key, "-"))
+    row_start = start
+    row_end = start + count
+    for row in range(row_start, row_end):
+        option = "".join((prefix, str(row)))
+        user_select = FrameFieldSelector(
+            option,
+            grstate,
+            row,
+            mode="status",
+            obj_type="Person",
+            size_groups=size_groups,
+        )
+        grid.attach(user_select, 1, row, 2, 1)
+    return grid
+
+
+def get_event_fields(grstate, key, count=12):
+    """
+    Return list of events from event fields.
+    """
+    events = []
+    prefix = "".join(("options.global.status.", key, "-"))
+    for number in range(1, count):
+        option = "".join((prefix, str(number)))
+        value = grstate.config.get(option).split(":")
+        if len(value) > 1:
+            events.append(value[1])
+    return events

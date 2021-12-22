@@ -42,11 +42,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from .config_colors import add_color
 from .config_const import (
+    CONFIDENCE_LEVEL,
     MEDIA_DISPLAY_MODES,
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
-from .config_utils import add_config_reset, create_grid
+from .config_utils import add_config_reset, config_event_fields, create_grid
 
 _ = glocale.translation.sgettext
 
@@ -410,6 +411,161 @@ def build_indicator_grid(configdialog, grstate, *_dummy_args):
     )
     return add_config_reset(
         configdialog, grstate, "options.global.indicator", grid
+    )
+
+
+def build_status_grid(configdialog, grstate, *_dummy_args):
+    """
+    Build status indicator configuration section.
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, _("To Do Indicator"), 0, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable to do indicator icon"),
+        1,
+        "options.global.status.todo",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Open note in editor instead of navigating to note page"),
+        2,
+        "options.global.status.todo-edit",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable full person to do evaluation"),
+        3,
+        "options.global.status.todo-person",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable full family to do evaluation"),
+        4,
+        "options.global.status.todo-family",
+    )
+    configdialog.add_text(
+        grid, _("Confidence Ranking Indicator"), 20, bold=True
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable confidence ranking"),
+        21,
+        "options.global.status.confidence-ranking",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Include base object"),
+        22,
+        "options.global.status.rank-object",
+    )
+    grid1 = create_grid()
+    configdialog.add_checkbox(
+        grid1,
+        _("Include all names"),
+        23,
+        "options.global.status.rank-names",
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Include all events"),
+        24,
+        "options.global.status.rank-events",
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Include all ordinances"),
+        25,
+        "options.global.status.rank-ordinances",
+    )
+    configdialog.add_checkbox(
+        grid1,
+        _("Include spouses for family"),
+        26,
+        "options.global.status.rank-spouses",
+    )
+    grid2 = create_grid()
+    configdialog.add_checkbox(
+        grid2,
+        _("Include all attributes"),
+        23,
+        "options.global.status.rank-attributes",
+        start=3,
+    )
+    configdialog.add_checkbox(
+        grid2,
+        _("Include all associations"),
+        24,
+        "options.global.status.rank-associations",
+        start=3,
+    )
+    configdialog.add_checkbox(
+        grid2,
+        _("Include all addresses"),
+        25,
+        "options.global.status.rank-addresses",
+        start=3,
+    )
+    configdialog.add_checkbox(
+        grid2,
+        _("Include children for family"),
+        26,
+        "options.global.status.rank-children",
+        start=3,
+    )
+    grid.attach(grid1, 1, 24, 2, 1)
+    grid.attach(grid2, 2, 24, 2, 1)
+    configdialog.add_text(
+        grid,
+        "".join(
+            (
+                _(
+                    "Additional Individual Events To Include (Birth and Death Implicit)"
+                ),
+                ":",
+            )
+        ),
+        25,
+    )
+    grid3 = config_event_fields(grstate, "rank")
+    grid.attach(grid3, 1, 26, 2, 1)
+    configdialog.add_text(grid, _("Citation Alert Indicator"), 50, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable citation alerts"),
+        51,
+        "options.global.status.citation-alert",
+    )
+    configdialog.add_combo(
+        grid,
+        _("Minimum confidence level required"),
+        52,
+        "options.global.status.citation-alert-minimum",
+        CONFIDENCE_LEVEL,
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Open event in editor instead of navigating to event page"),
+        53,
+        "options.global.status.citation-alert-edit",
+    )
+    configdialog.add_text(
+        grid, "".join((_("Events Checked For Citations"), ":")), 54
+    )
+    grid1 = config_event_fields(grstate, "alert")
+    grid.attach(grid1, 1, 55, 2, 2)
+    configdialog.add_text(grid, _("Missing Event Indicator"), 60, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Enable missing event alerts"),
+        61,
+        "options.global.status.citation-alert",
+    )
+    configdialog.add_text(grid, "".join((_("Required Events"), ":")), 62)
+    grid1 = config_event_fields(grstate, "missing", count=6)
+    grid.attach(grid1, 1, 63, 2, 1)
+    return add_config_reset(
+        configdialog, grstate, "options.global.status", grid
     )
 
 

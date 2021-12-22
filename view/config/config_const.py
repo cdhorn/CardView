@@ -27,9 +27,17 @@ GrampsPageView related constants
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib import Citation
 
 _ = glocale.translation.sgettext
 
+CONFIDENCE_LEVEL = [
+    (Citation.CONF_VERY_LOW, _("Very Low")),
+    (Citation.CONF_LOW, _("Low")),
+    (Citation.CONF_NORMAL, _("Normal")),
+    (Citation.CONF_HIGH, _("High")),
+    (Citation.CONF_VERY_HIGH, _("Very High")),
+]
 
 EVENT_DISPLAY_MODES = [
     (0, _("Show life span only and nothing else")),

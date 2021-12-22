@@ -73,9 +73,9 @@ from ..common.common_utils import (
     menu_item,
     note_option_text,
 )
+from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
 from .frame_primary import PrimaryGrampsFrame
-from .frame_selectors import get_attribute_types
 
 _ = glocale.translation.sgettext
 
