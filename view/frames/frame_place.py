@@ -92,19 +92,17 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
             )
 
         if place.get_latitude():
-            text = place.get_latitude()
+            latitude_text = place.get_latitude()
         else:
-            text = "".join(("[", _("Missing"), " ", _("Latitude"), "]"))
-        self.add_fact(
-            self.get_label(text), label=self.get_label(_("Latitude"))
-        )
+            latitude_text = "".join(("[", _("Missing"), "]"))
+
         if place.get_longitude():
-            text = place.get_longitude()
+            longitude_text = place.get_longitude()
         else:
-            text = "".join(("[", _("Missing"), " ", _("Longitude"), "]"))
-        self.add_fact(
-            self.get_label(text), label=self.get_label(_("Longitude"))
-        )
+            longitude_text = "".join(("[", _("Missing"), "]"))
+        text = ", ".join((latitude_text, longitude_text))
+        label = ", ".join((_("Latitude"), _("Longitude")))
+        self.add_fact(self.get_label(text), label=self.get_label(label))
 
         if place.get_alternative_names():
             for alternate_name in place.get_alternative_names():
