@@ -54,10 +54,7 @@ from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Citation, Media, MediaRef, Note, Source, Span
 from gramps.gen.utils.db import navigation_label
-from gramps.gen.utils.file import (
-    media_path,
-    relative_path,
-)
+from gramps.gen.utils.file import media_path, relative_path
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.dialog import WarningDialog
 from gramps.gui.editors import (
@@ -143,7 +140,7 @@ class GrampsFrame(GrampsFrameView):
         """
         Generate a title describing the framed object.
         """
-        if not hasattr(self.primary.obj, "handle"):
+        if self.primary.has_handle:
             title = self.primary.obj_lang
             if self.secondary:
                 title = "".join((title, ": ", self.secondary.obj_lang))
@@ -209,23 +206,20 @@ class GrampsFrame(GrampsFrameView):
         dnd_drop_targets = dnd_drop_targets or self.dnd_drop_targets
         drag_data_received = drag_data_received or self.drag_data_received
         if eventbox:
-            if (
-                hasattr(self.focus.obj, "note_list")
-                or self.primary.obj_type == "Note"
-            ):
+            if self.focus.has_notes or self.primary.obj_type == "Note":
                 for target in DdTargets.all_text_targets():
                     dnd_drop_targets.append(target)
                 dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
-            if hasattr(self.focus.obj, "note_list"):
+            if self.focus.has_notes:
                 dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-            if hasattr(self.primary.obj, "media_list"):
+            if self.primary.has_media:
                 dnd_drop_targets.append(DdTargets.MEDIAOBJ.target())
-            if hasattr(self.focus.obj, "attribute_list"):
+            if self.focus.has_attributes:
                 dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
-            if hasattr(self.focus.obj, "citation_list"):
+            if self.focus.has_citations:
                 dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
                 dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
-            if hasattr(self.focus.obj, "urls"):
+            if self.focus.has_urls:
                 dnd_drop_targets.append(DdTargets.URL.target())
                 dnd_drop_targets.append(DdTargets.URI_LIST.target())
                 dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
@@ -282,14 +276,14 @@ class GrampsFrame(GrampsFrameView):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if hasattr(self.focus.obj, "media_list"):
+        if self.focus.has_media:
             links = re.findall(r"(?P<url>file?://[^\s]+)", data)
             if links:
                 for link in links:
                     self.add_new_media(None, filepath=link)
                 return True
         added_urls = 0
-        if hasattr(self.focus.obj, "urls"):
+        if self.focus.has_urls:
             links = re.findall(r"(?P<url>https?://[^\s]+)", data)
             if links:
                 for link in links:
@@ -297,7 +291,7 @@ class GrampsFrame(GrampsFrameView):
                     added_urls = added_urls + len(link)
                 return True
         if not added_urls or (len(data) > (2 * added_urls)):
-            if hasattr(self.focus.obj, "note_list"):
+            if self.focus.has_notes:
                 self.add_new_note(None, content=data)
                 return True
             if self.focus.obj_type == "Note":

@@ -45,8 +45,8 @@ from ..common.common_const import GROUP_LABELS_SINGLE
 from ..common.common_utils import menu_item
 from ..config.config_builder import config_factory
 from ..config.config_const import PAGE_NAMES
-from ..config.config_panel import build_global_panel
 from ..config.config_layout import build_layout_grid
+from ..config.config_panel import build_global_panel
 
 _ = glocale.translation.sgettext
 

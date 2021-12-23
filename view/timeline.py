@@ -28,11 +28,7 @@ Timeline
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import (
-    Date,
-    EventType,
-    Span,
-)
+from gramps.gen.lib import Date, EventType, Span
 from gramps.gen.relationship import get_relationship_calculator
 from gramps.gen.utils.alive import probably_alive_range
 

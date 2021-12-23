@@ -56,7 +56,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
         GrampsFrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        if not hasattr(obj, "note_list"):
+        if not self.group_base.has_notes:
             return
 
         maximum = grstate.config.get("options.global.max.notes-per-group")
@@ -78,7 +78,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
         """
         Get notes from child objects.
         """
-        if hasattr(self.group_base.obj, "get_note_child_list"):
+        if self.group_base.has_notes:
             for obj in self.group_base.obj.get_note_child_list():
                 for obj_data in GRAMPS_OBJECTS:
                     if isinstance(obj, obj_data[0]):

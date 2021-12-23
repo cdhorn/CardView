@@ -28,9 +28,9 @@ GrampsPageView factory and builder functions
 # -------------------------------------------------------------------------
 from ..common.common_exceptions import FactoryException
 from .page_base import GrampsPageView
-from .page_person import PersonPageView
-from .page_family import FamilyPageView
 from .page_event import EventPageView
+from .page_family import FamilyPageView
+from .page_person import PersonPageView
 
 
 def page_factory(page_type):

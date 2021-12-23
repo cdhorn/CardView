@@ -47,8 +47,8 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_reference import ReferenceGrampsFrame
 from ..common.common_utils import menu_item
+from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
 

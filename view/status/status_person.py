@@ -43,10 +43,10 @@ from gramps.gui.editors import EditEvent
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .status_utils import get_status_ranking
 from ..common.common_classes import GrampsBaseIcon
-from ..common.common_utils import prepare_icon, menu_item
+from ..common.common_utils import menu_item, prepare_icon
 from ..config.config_utils import get_event_fields
+from .status_utils import get_status_ranking
 
 _ = glocale.translation.sgettext
 

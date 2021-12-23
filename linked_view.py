@@ -39,7 +39,7 @@ from functools import lru_cache
 # GTK/Gnome modules
 #
 # -------------------------------------------------------------------------
-from gi.repository import Gtk, GObject
+from gi.repository import GObject, Gtk
 
 # -------------------------------------------------------------------------
 #
@@ -49,6 +49,7 @@ from gi.repository import Gtk, GObject
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import HandleError, WindowActiveError
+from gramps.gen.lib.tableobj import TableObject
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.dialog import WarningDialog
@@ -63,10 +64,7 @@ from gramps.gui.views.pageview import ViewConfigureDialog
 # -------------------------------------------------------------------------
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
-from view.common.common_utils import (
-    get_config_option,
-    save_config_option,
-)
+from view.common.common_utils import get_config_option, save_config_option
 from view.config.config_const import PAGES
 from view.config.config_options import CONFIGSETTINGS
 from view.groups.group_window import FrameGroupWindow
@@ -829,7 +827,7 @@ class LinkedView(ExtendedNavigationView):
         max_windows = self._config.get(
             "options.global.display.max-group-windows"
         )
-        if hasattr(obj, "handle"):
+        if isinstance(obj, TableObject):
             key = "-".join((obj.get_handle(), group_type))
         else:
             key = uuid.uuid4().hex

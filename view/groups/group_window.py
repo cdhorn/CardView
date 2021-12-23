@@ -108,7 +108,7 @@ class FrameGroupWindow(ManagedWindow):
         """
         if title:
             return title
-        if hasattr(self.group_base.obj, "handle"):
+        if self.group_base.has_handle:
             title, dummy_obj = navigation_label(
                 self.grstate.dbstate.db,
                 self.group_base.obj_type,
@@ -158,7 +158,7 @@ class FrameGroupWindow(ManagedWindow):
         """
         Refresh current group, if not possible close window.
         """
-        if not hasattr(self.group_base.obj, "handle"):
+        if not self.group_base.has_handle:
             return self.close()
 
         self.group_base.refresh(self.grstate)

@@ -130,18 +130,18 @@ class PrimaryGrampsFrame(GrampsFrame):
             or "parent" in self.groptions.option_space
         ):
             if "active" in self.groptions.option_space:
-                image_mode = self.get_option("options.group.family.image-mode")
+                image_mode = self.get_option(
+                    "options.active.family.image-mode"
+                )
             else:
                 image_mode = self.get_option("options.group.family.image-mode")
         else:
             image_mode = self.get_option("image-mode")
         if image_mode and "media" not in self.groptions.option_space:
             self.load_image(image_mode)
-        self.widgets["id"].load(self.primary.obj, self.primary.obj_type)
+        self.widgets["id"].load(self.primary)
         self.load_attributes()
-        self.widgets["icons"].load(
-            self.primary.obj, self.primary.obj_type, title=self.get_title()
-        )
+        self.widgets["icons"].load(self.primary, title=self.get_title())
 
     def load_image(self, image_mode, media_ref=None, crop=True):
         """
@@ -230,7 +230,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        if hasattr(self.primary.obj, "attribute_list"):
+        if self.primary.has_attributes:
             context_menu.append(
                 self._attributes_option(
                     self.primary.obj,
@@ -239,7 +239,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                     self.edit_attribute,
                 )
             )
-        if hasattr(self.primary.obj, "citation_list"):
+        if self.primary.has_citations:
             context_menu.append(
                 self._citations_option(
                     self.primary.obj,
@@ -249,9 +249,9 @@ class PrimaryGrampsFrame(GrampsFrame):
                     self.remove_citation,
                 )
             )
-        if hasattr(self.primary.obj, "media_list"):
+        if self.primary.has_media:
             context_menu.append(self._media_option())
-        if hasattr(self.primary.obj, "note_list"):
+        if self.primary.has_notes:
             context_menu.append(
                 self._notes_option(
                     self.primary.obj,
@@ -260,9 +260,9 @@ class PrimaryGrampsFrame(GrampsFrame):
                     self.remove_note,
                 )
             )
-        if hasattr(self.primary.obj, "tag_list"):
+        if self.primary.has_tags:
             context_menu.append(self._tags_option())
-        if hasattr(self.primary.obj, "urls"):
+        if self.primary.has_urls:
             context_menu.append(self._urls_option())
         context_menu.append(self._copy_to_clipboard_option())
         if self.grstate.config.get("options.global.indicator.bookmarks"):
@@ -807,7 +807,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         else:
             if self.primary.obj.get_handle() in bookmark_list:
                 bookmarks.remove(self.primary.obj.get_handle())
-        self.widgets["id"].reload(self.primary.obj, self.primary.obj_type)
+        self.widgets["id"].reload(self.primary)
 
     def _media_option(self):
         """

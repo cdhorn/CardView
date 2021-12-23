@@ -47,6 +47,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import Media, MediaRef
+from gramps.gen.lib.mediabase import MediaBase
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
 
@@ -62,8 +63,8 @@ from ..common.common_const import (
     GROUP_LABELS_SINGLE,
 )
 from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
-from .frame_utils import get_tag_icon
 from ..status.status_builder import status_builder
+from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext
 
@@ -88,38 +89,38 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
         )
         GrampsConfig.__init__(self, grstate, groptions)
 
-    def load(self, obj, obj_type, gramps_id=None):
+    def load(self, grobject, gramps_id=None):
         """
         Load the id field as needed for the given object.
         """
-        if "Ref" in obj_type and self.groptions.ref_mode == 1:
+        if "Ref" in grobject.obj_type and self.groptions.ref_mode == 1:
             self.set_halign(Gtk.Align.START)
-            self.add_privacy_indicator(obj)
+            self.add_privacy_indicator(grobject.obj)
             pack_icon(self, "stock_link")
-            if hasattr(obj, "gramps_id"):
-                self.add_gramps_id(obj=obj)
+            if grobject.is_primary:
+                self.add_gramps_id(obj=grobject.obj)
             elif gramps_id:
                 self.add_gramps_id(gramps_id=gramps_id)
         else:
-            if hasattr(obj, "gramps_id"):
-                self.add_gramps_id(obj=obj)
+            if grobject.is_primary:
+                self.add_gramps_id(obj=grobject.obj)
             elif gramps_id:
                 self.add_gramps_id(gramps_id=gramps_id)
-            if hasattr(obj, "handle"):
-                self.add_bookmark_indicator(obj, obj_type)
-            elif "Ref" in obj_type:
+            if grobject.has_handle:
+                self.add_bookmark_indicator(grobject.obj, grobject.obj_type)
+            elif "Ref" in grobject.obj_type:
                 pack_icon(self, "stock_link")
-            self.add_privacy_indicator(obj)
-            if obj_type == "Person":
-                self.add_home_indicator(obj)
+            self.add_privacy_indicator(grobject.obj)
+            if grobject.obj_type == "Person":
+                self.add_home_indicator(grobject.obj)
             self.show_all()
 
-    def reload(self, obj, obj_type, gramps_id=None):
+    def reload(self, grobject, gramps_id=None):
         """
         Reload the field.
         """
         list(map(self.remove, self.get_children()))
-        self.load(obj, obj_type, gramps_id=gramps_id)
+        self.load(grobject, gramps_id=gramps_id)
 
     def add_gramps_id(self, obj=None, gramps_id=""):
         """
@@ -242,40 +243,38 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         self.flowbox.set_min_children_per_line(size)
         self.flowbox.set_max_children_per_line(size)
         self.pack_end(self.flowbox, True, True, 0)
-        self.obj = None
-        self.obj_type = None
+        self.grobject = None
         self.title = None
 
-    def load(self, obj, obj_type, title=None):
+    def load(self, grobject, title=None):
         """
         Load icons for an object.
         """
-        self.obj = obj
-        self.obj_type = obj_type
         self.title = title
+        self.grobject = grobject
 
-        self.load_status()
+        self.load_status(grobject)
         if self.grstate.config.get("options.global.indicator.child-objects"):
-            self.load_indicators()
+            self.load_indicators(grobject)
 
         if self.grstate.config.get("options.global.indicator.tags"):
-            if hasattr(obj, "tag_list"):
-                self.load_tags()
+            if grobject.has_tags:
+                self.load_tags(grobject)
         self.show_all()
 
-    def load_status(self):
+    def load_status(self, grobject):
         """
         Load status indicators for an object.
         """
-        for icon in status_builder(self.grstate, self.obj):
+        for icon in status_builder(self.grstate, grobject.obj):
             self.flowbox.add(icon)
 
-    def load_indicators(self):
+    def load_indicators(self, grobject):
         """
         Load child icon indicators for an object.
         """
-        obj = self.obj
-        obj_type = self.obj_type
+        obj = grobject.obj
+        obj_type = grobject.obj_type
         check = self.grstate.config.get
 
         if obj_type == "Person":
@@ -285,49 +284,47 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
                 count = len(obj.get_child_ref_list())
                 if count:
                     self.__add_icon("gramps-person", "child", count)
-        if check("options.global.indicator.events") and hasattr(
-            obj, "event_ref_list"
-        ):
+        if check("options.global.indicator.events") and grobject.has_events:
             count = len(obj.get_event_ref_list())
             if count:
                 self.__add_icon("gramps-event", "event", count)
-        if check("options.global.indicator.ordinances") and hasattr(
-            obj, "lds_ord_list"
+        if (
+            check("options.global.indicator.ordinances")
+            and grobject.has_ldsords
         ):
             count = len(obj.get_lds_ord_list())
             if count:
                 self.__add_icon("emblem-documents", "ldsord", count)
-        if check("options.global.indicator.attributes") and hasattr(
-            obj, "attribute_list"
+        if (
+            check("options.global.indicator.attributes")
+            and grobject.has_attributes
         ):
             count = len(obj.get_attribute_list())
             if count:
                 self.__add_icon("gramps-attribute", "attribute", count)
-        if check("options.global.indicator.media") and hasattr(
-            obj, "media_list"
-        ):
+        if check("options.global.indicator.media") and grobject.has_media:
             count = len(obj.get_media_list())
             if count:
                 self.__add_icon("gramps-media", "media", count)
-        if check("options.global.indicator.citations") and hasattr(
-            obj, "citation_list"
+        if (
+            check("options.global.indicator.citations")
+            and grobject.has_citations
         ):
             count = len(obj.get_citation_list())
             if count:
                 self.__add_icon("gramps-citation", "citation", count)
-        if check("options.global.indicator.notes") and hasattr(
-            obj, "note_list"
-        ):
+        if check("options.global.indicator.notes") and grobject.has_notes:
             count = len(obj.get_note_list())
             if count:
                 self.__add_icon("gramps-notes", "note", count)
-        if check("options.global.indicator.addresses") and hasattr(
-            obj, "address_list"
+        if (
+            check("options.global.indicator.addresses")
+            and grobject.has_addresses
         ):
             count = len(obj.get_address_list())
             if count:
                 self.__add_icon("gramps-address", "address", count)
-        if check("options.global.indicator.urls") and hasattr(obj, "urls"):
+        if check("options.global.indicator.urls") and grobject.has_urls:
             count = len(obj.get_url_list())
             if count:
                 self.__add_icon("gramps-url", "url", count)
@@ -391,7 +388,9 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         """
         if not button_pressed(event, BUTTON_PRIMARY):
             return False
-        self.grstate.show_group(self.obj, group_type, title=self.title)
+        self.grstate.show_group(
+            self.grobject.obj, group_type, title=self.title
+        )
         return True
 
     def __indicator_release(self, *_dummy_args):
@@ -400,12 +399,12 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         """
         return True
 
-    def load_tags(self):
+    def load_tags(self, grobject):
         """
         Load tags for an object.
         """
         tags = []
-        for handle in self.obj.get_tag_list():
+        for handle in grobject.obj.get_tag_list():
             tag = self.fetch("Tag", handle)
             tags.append(tag)
 
@@ -457,7 +456,7 @@ class GrampsImage(Gtk.EventBox):
         elif isinstance(media_ref, MediaRef):
             self.media_ref = media_ref
             self.media = grstate.fetch("Media", media_ref.ref)
-        elif hasattr(obj, "media_list") and obj.get_media_list():
+        elif isinstance(obj, MediaBase) and obj.get_media_list():
             self.media_ref = obj.get_media_list()[0]
             self.media = grstate.fetch("Media", self.media_ref.ref)
         else:

@@ -61,10 +61,10 @@ from .config_colors import (
 from .config_global import (
     build_display_grid,
     build_general_grid,
-    build_maximums_grid,
     build_indicator_grid,
-    build_status_grid,
+    build_maximums_grid,
     build_media_bar_grid,
+    build_status_grid,
 )
 from .config_objects import (
     ConfigNotebook,
@@ -82,8 +82,8 @@ from .config_objects import (
     build_source_grid,
 )
 from .config_timeline import (
-    build_person_timeline_grid,
     build_family_timeline_grid,
+    build_person_timeline_grid,
     build_place_timeline_grid,
 )
 from .config_utils import create_grid

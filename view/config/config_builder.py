@@ -30,8 +30,8 @@ from .config_global import (
     build_display_grid,
     build_general_grid,
     build_indicator_grid,
-    build_status_grid,
     build_media_bar_grid,
+    build_status_grid,
 )
 from .config_layout import build_layout_grid
 from .config_objects import (
@@ -48,15 +48,12 @@ from .config_objects import (
     build_repository_grid,
     build_source_grid,
 )
-from .config_panel import (
-    build_global_panel,
-)
+from .config_panel import build_global_panel
 from .config_timeline import (
     build_family_timeline_grid,
     build_person_timeline_grid,
     build_place_timeline_grid,
 )
-
 
 CONFIG_GRID_MAP = {
     "display": build_display_grid,

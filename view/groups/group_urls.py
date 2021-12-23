@@ -64,7 +64,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse all urls associated with object.
         """
-        if hasattr(self.group_base.obj, "urls"):
+        if self.group_base.has_urls:
             for url in self.group_base.obj.get_url_list():
                 frame = UrlGrampsFrame(
                     self.grstate, self.groptions, self.group_base.obj, url
@@ -75,7 +75,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Parse all notes associated with object.
         """
-        if hasattr(self.group_base.obj, "note_list"):
+        if self.group_base.has_notes:
             for handle in self.group_base.obj.get_note_list():
                 self.parse_note(handle)
 

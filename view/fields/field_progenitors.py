@@ -31,7 +31,6 @@ from gramps.gen.lib import Family, Person
 from gramps.gen.lib.date import Today
 from gramps.gen.utils.db import family_name
 
-
 # -------------------------------------------------------------------------
 #
 # Plugin Modules

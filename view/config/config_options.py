@@ -77,7 +77,7 @@ CONFIGSETTINGS = (
     ("options.global.indicator.tags", True),
     ("options.global.indicator.tags-sort-by-name", False),
     ("options.global.indicator.child-objects", True),
-    ("options.global.indicator.child-objects-counts", True),
+    ("options.global.indicator.child-objects-counts", False),
     ("options.global.indicator.names", True),
     ("options.global.indicator.parents", True),
     ("options.global.indicator.spouses", True),

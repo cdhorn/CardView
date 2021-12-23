@@ -46,8 +46,8 @@ from gramps.gui.utils import match_primary_mask
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import button_pressed
 from ..common.common_const import BUTTON_SECONDARY
+from ..common.common_utils import button_pressed
 
 _ = glocale.translation.sgettext
 

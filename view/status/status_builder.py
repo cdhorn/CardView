@@ -34,14 +34,15 @@ from gi.repository import Gtk
 #
 # -------------------------------------------------------------------------
 from gramps.gen.lib import Person
+from gramps.gen.lib.notebase import NoteBase
 
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .status_todo import get_todo_status
 from .status_person import get_person_status
+from .status_todo import get_todo_status
 
 
 def status_factory(obj):
@@ -52,10 +53,8 @@ def status_factory(obj):
     funcs = []
     if isinstance(obj, Person):
         funcs.append(get_person_status)
-    if hasattr(obj, "note_list"):
+    if isinstance(obj, NoteBase):
         funcs.append(get_todo_status)
-    #    if hasattr(obj, "attribute_list"):
-    #        funcs.append(get_attribute_status)
     return funcs
 
 

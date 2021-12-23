@@ -30,6 +30,7 @@ MediaGrampsFrameGroup
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import MediaRef
+from gramps.gen.lib.mediabase import MediaBase
 from gramps.gui.editors import EditMediaRef
 
 # ------------------------------------------------------------------------
@@ -197,7 +198,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
         """
         Helper to extract a set of media references from an object.
         """
-        if not hasattr(obj, "media_list"):
+        if not isinstance(obj, MediaBase):
             return
 
         for media_ref in obj.get_media_list():

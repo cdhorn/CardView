@@ -42,10 +42,10 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # -------------------------------------------------------------------------
 from ..config.config_layout import build_layout_grid
 from ..config.config_panel import (
+    build_color_panel,
     build_global_panel,
     build_object_panel,
     build_timeline_panel,
-    build_color_panel,
 )
 from ..views.view_builder import view_builder
 

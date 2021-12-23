@@ -87,7 +87,7 @@ def format_date_string(event1, event2):
     text = "".join((text, " - "))
     if event2:
         text = "".join((text, glocale.date_displayer.display(event2.date)))
-    text.strip()
+    text = text.strip()
     if text == "-":
         return ""
     return text

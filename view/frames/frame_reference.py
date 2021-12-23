@@ -104,13 +104,11 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
 
         if self.reference.obj_type not in ["PlaceRef"]:
             self.ref_widgets["id"].load(
-                self.reference.obj,
-                self.reference.obj_type,
+                self.reference,
                 gramps_id=self.primary.obj.get_gramps_id(),
             )
             self.ref_widgets["icons"].load(
-                self.reference.obj,
-                self.reference.obj_type,
+                self.reference,
                 title=self.get_title(),
             )
         self.ref_eventbox.connect(
@@ -180,7 +178,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if data and hasattr(self.reference.obj, "note_list"):
+        if data and self.reference.has_notes:
             self.add_new_ref_note(None, content=data)
 
     def ref_button_pressed(self, obj, event):
@@ -224,7 +222,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         context_menu = Gtk.Menu()
         self.add_ref_custom_actions(context_menu)
-        if hasattr(self.reference.obj, "attribute_list"):
+        if self.reference.has_attributes:
             context_menu.append(
                 self._attributes_option(
                     self.reference.obj,
@@ -233,7 +231,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     self.edit_ref_attribute,
                 )
             )
-        if hasattr(self.reference.obj, "citation_list"):
+        if self.reference.has_citations:
             context_menu.append(
                 self._citations_option(
                     self.reference.obj,
@@ -243,7 +241,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     self.remove_ref_citation,
                 )
             )
-        if hasattr(self.reference.obj, "note_list"):
+        if self.reference.has_notes:
             context_menu.append(
                 self._notes_option(
                     self.reference.obj,
@@ -253,7 +251,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     no_children=True,
                 )
             )
-        if hasattr(self.reference.obj, "private"):
+        if self.reference.has_privacy:
             context_menu.append(self._change_ref_privacy_option())
         context_menu.add(Gtk.SeparatorMenuItem())
         reference_type = self._get_reference_type()

@@ -35,6 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib.mediabase import MediaBase
 from gramps.gen.utils.file import media_path_full
 from gramps.gui.utils import open_file_with_default_application
 
@@ -46,7 +47,6 @@ from gramps.gui.utils import open_file_with_default_application
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import BUTTON_PRIMARY, BUTTON_SECONDARY
 from ..common.common_utils import button_pressed, button_released
-
 from ..frames.frame_media_ref import MediaRefGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -75,8 +75,8 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             self.set_hexpand(True)
             self.set_vexpand(False)
             vertical = False
-        groptions = GrampsOptions("")
-        GrampsConfig.__init__(self, grstate, groptions)
+        empty_groptions = GrampsOptions("")
+        GrampsConfig.__init__(self, grstate, empty_groptions)
         self.base = GrampsObject(obj)
         self.total = 0
         self.box = self.init_layout(css, vertical)
@@ -166,7 +166,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         """
         Helper to extract a set of media references from an object.
         """
-        if hasattr(obj, "media_list"):
+        if isinstance(obj, MediaBase):
             for media_ref in obj.get_media_list():
                 media = self.fetch("Media", media_ref.ref)
                 media_type = ""

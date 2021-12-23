@@ -45,7 +45,7 @@ from gramps.gui.editors import EditNote
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsBaseIcon
-from ..common.common_utils import menu_item, describe_object
+from ..common.common_utils import describe_object, menu_item
 
 _ = glocale.translation.sgettext
 

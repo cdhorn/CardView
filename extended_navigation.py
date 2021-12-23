@@ -236,15 +236,15 @@ class ExtendedNavigationView(PageView):
         """
         return self.history
 
-    def goto_active(self, active_handle):
+    def goto_active(self, _dummy_handle):
         """
         Callback (and usable function) that selects the active person
         in the display tree.
         """
         hobj = self.get_history()
-        active_handle = hobj.present()
-        if active_handle:
-            self.goto_handle(active_handle)
+        current_handle = hobj.present()
+        if current_handle:
+            self.goto_handle(current_handle)
 
         self.uimanager.set_actions_sensitive(
             self.fwd_action, not hobj.at_end()

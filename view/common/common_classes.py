@@ -50,7 +50,18 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.lib.addressbase import AddressBase
+from gramps.gen.lib.attrbase import AttributeRootBase
+from gramps.gen.lib.citationbase import CitationBase
+from gramps.gen.lib.ldsordbase import LdsOrdBase
+from gramps.gen.lib.mediabase import MediaBase
+from gramps.gen.lib.notebase import NoteBase
+from gramps.gen.lib.primaryobj import BasicPrimaryObject
+from gramps.gen.lib.privacybase import PrivacyBase
 from gramps.gen.lib.serialize import to_json
+from gramps.gen.lib.tableobj import TableObject
+from gramps.gen.lib.tagbase import TagBase
+from gramps.gen.lib.urlbase import UrlBase
 
 # ------------------------------------------------------------------------
 #
@@ -121,20 +132,89 @@ class GrampsObject:
         if not self.obj_type:
             raise AttributeError
 
-    def refresh(self, grstate):
+    @property
+    def has_handle(self):
         """
-        Refresh object state. Only valid if a primary object.
+        Return True if has handle which is true of all table objects.
         """
-        assert self.is_primary
-        obj = grstate.fetch(self.obj_type, self.obj.get_handle())
-        self.load(obj)
+        return isinstance(self.obj, TableObject)
+
+    @property
+    def has_privacy(self):
+        """
+        Return True if has privacy.
+        """
+        return isinstance(self.obj, PrivacyBase)
+
+    @property
+    def has_notes(self):
+        """
+        Return True if has notes.
+        """
+        return isinstance(self.obj, NoteBase)
+
+    @property
+    def has_events(self):
+        """
+        Return True if has events.
+        """
+        return hasattr(self.obj, "event_ref_list")
+
+    @property
+    def has_citations(self):
+        """
+        Return True if has citations.
+        """
+        return isinstance(self.obj, CitationBase)
+
+    @property
+    def has_media(self):
+        """
+        Return True if has media.
+        """
+        return isinstance(self.obj, MediaBase)
+
+    @property
+    def has_attributes(self):
+        """
+        Return True if has attributes.
+        """
+        return isinstance(self.obj, AttributeRootBase)
+
+    @property
+    def has_urls(self):
+        """
+        Return True if has urls.
+        """
+        return isinstance(self.obj, UrlBase)
+
+    @property
+    def has_ldsords(self):
+        """
+        Return True if has lds ordinances.
+        """
+        return isinstance(self.obj, LdsOrdBase)
+
+    @property
+    def has_addresses(self):
+        """
+        Return True if has addresses.
+        """
+        return isinstance(self.obj, AddressBase)
+
+    @property
+    def has_tags(self):
+        """
+        Return True if has tags.
+        """
+        return isinstance(self.obj, TagBase)
 
     @property
     def is_primary(self):
         """
         Return True if object is a primary object.
         """
-        return hasattr(self.obj, "gramps_id")
+        return isinstance(self.obj, BasicPrimaryObject)
 
     @property
     def is_reference(self):
@@ -181,6 +261,14 @@ class GrampsObject:
             if current_hash != self.obj_current_hash:
                 grstate.update_history(self.obj_current_hash, current_hash)
                 self.obj_current_hash = current_hash
+
+    def refresh(self, grstate):
+        """
+        Refresh object state. Only valid if a primary object.
+        """
+        assert self.is_primary
+        obj = grstate.fetch(self.obj_type, self.obj.get_handle())
+        self.load(obj)
 
     def commit(self, grstate, reason=None):
         """

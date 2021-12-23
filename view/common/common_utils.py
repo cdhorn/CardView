@@ -47,6 +47,7 @@ from gi.repository import Gdk, Gtk
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import Person
+from gramps.gen.lib.primaryobj import BasicPrimaryObject
 from gramps.gen.utils.db import navigation_label
 
 from ..timeline import RELATIVES
@@ -706,7 +707,7 @@ def describe_object(db, obj):
             if not obj_lang:
                 obj_lang = obj_type
             break
-    if hasattr(obj, "gramps_id"):
+    if isinstance(obj, BasicPrimaryObject):
         title, dummy_obj = navigation_label(db, obj_type, obj.get_handle())
         title = title.split("]")[1].strip()
         if obj_type == "Event":

@@ -46,7 +46,6 @@ from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
 from ..frames.frame_source import SourceGrampsFrame
 from ..frames.frame_tag import TagGrampsFrame
 
-
 FRAME_MAP = {
     "Address": AddressGrampsFrame,
     "Attribute": AttributeGrampsFrame,

@@ -28,6 +28,7 @@ CitationsGrampsFrameGroup
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib.citationbase import CitationBase
 
 # ------------------------------------------------------------------------
 #
@@ -226,7 +227,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
         else:
             data = obj_list or []
         for item in data:
-            if hasattr(item, "citation_list"):
+            if isinstance(item, CitationBase):
                 for handle in item.get_citation_list():
                     citation = self.fetch("Citation", handle)
                     citation_list.append(

@@ -80,10 +80,8 @@ class SecondaryGrampsFrame(GrampsFrame):
         self.focus = self.secondary
         self.build_layout()
         self.frame.set_size_request(160, -1)
-        self.widgets["id"].load(self.secondary.obj, self.secondary.obj_type)
-        self.widgets["icons"].load(
-            self.secondary.obj, self.secondary.obj_type, title=self.get_title()
-        )
+        self.widgets["id"].load(self.secondary)
+        self.widgets["icons"].load(self.secondary, title=self.get_title())
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
@@ -125,7 +123,7 @@ class SecondaryGrampsFrame(GrampsFrame):
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        if hasattr(self.secondary.obj, "citation_list"):
+        if self.secondary.has_citations:
             context_menu.append(
                 self._citations_option(
                     self.secondary.obj,
@@ -135,7 +133,7 @@ class SecondaryGrampsFrame(GrampsFrame):
                     self.remove_citation,
                 )
             )
-        if hasattr(self.secondary.obj, "note_list"):
+        if self.secondary.has_notes:
             context_menu.append(
                 self._notes_option(
                     self.secondary.obj,

@@ -34,10 +34,7 @@ from gramps.gen.lib import Family, FamilyRelType, Person
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import (
-    get_key_family_events,
-    get_span,
-)
+from ..common.common_vitals import get_key_family_events, get_span
 
 _ = glocale.translation.sgettext
 
