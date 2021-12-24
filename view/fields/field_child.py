@@ -27,19 +27,24 @@ Child number and parent information calculator.
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Family, FamilyRelType, Person
+from gramps.gen.lib import FamilyRelType, Person
 
 # -------------------------------------------------------------------------
 #
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import get_key_family_events, get_span
+from ..common.common_vitals import (
+    get_date_sortval,
+    get_key_family_events,
+    get_person_birth_or_death,
+    get_span,
+)
 
 _ = glocale.translation.sgettext
 
 
-def get_child_field(grstate, obj, field_value, args):
+def get_child_field(grstate, obj, _dummy_field_value, args):
     """
     Calculate child and parent infomation.
     """
@@ -88,6 +93,7 @@ def get_child_field(grstate, obj, field_value, args):
 
         label = " ".join((_("Child"), _("Number")))
         return [(get_label(label), get_label("; ".join(tuple(data))))]
+    return []
 
 
 def get_parent_text(db, family, birth_date, parent_type):
@@ -103,28 +109,23 @@ def get_parent_text(db, family, birth_date, parent_type):
     if not parent_handle:
         return "", ""
 
-    parent = db.get_person_from_handle(parent_handle)
-    birth_ref = parent.get_birth_ref()
-    if birth_ref:
-        event = db.get_event_from_handle(birth_ref.ref)
-        if event:
-            span = get_span(event.get_date_object(), birth_date)
-            if span:
-                if parent_type == "Mother":
-                    parent_text = " ".join((_("Mother"), _("age"), span))
-                else:
-                    parent_text = " ".join((_("Father"), _("age"), span))
+    dummy_parent, birth = get_person_birth_or_death(db, parent_handle)
+    if birth:
+        span = get_span(birth.get_date_object(), birth_date)
+        if span:
+            if parent_type == "Mother":
+                parent_text = " ".join((_("Mother"), _("age"), span))
+            else:
+                parent_text = " ".join((_("Father"), _("age"), span))
 
     if parent_type == "Father":
-        death_ref = parent.get_death_ref()
-        if death_ref:
-            event = db.get_event_from_handle(death_ref.ref)
-            if event:
-                death_date = event.get_date_object()
-                if death_date.sortval < birth_date.sortval:
-                    death_text = " ".join(
-                        (_("Father"), _("deceased"), _("at"), _("birth"))
-                    )
+        dummy_parent, death = get_person_birth_or_death(db, parent_handle)
+        if death:
+            death_sortval = get_date_sortval(death)
+            if death_sortval < birth_date.sortval:
+                death_text = " ".join(
+                    (_("Father"), _("deceased"), _("at"), _("birth"))
+                )
     return parent_text, death_text
 
 
@@ -141,7 +142,8 @@ def get_family_text(db, family, birth_date, death_text):
     if family_type == FamilyRelType.MARRIED:
         status = _("married")
         if marriage and birth_date:
-            if marriage.get_date_object().sortval > birth_date.sortval:
+            marriage_sortval = get_date_sortval(marriage)
+            if marriage_sortval and marriage_sortval > birth_date.sortval:
                 status = " ".join((_("umarried"), _("at time of"), _("birth")))
             else:
                 base_date = marriage.get_date_object()

@@ -26,13 +26,6 @@ ExtendedHistory class
 
 # ----------------------------------------------------------------
 #
-# Python modules
-#
-# ----------------------------------------------------------------
-import logging
-
-# ----------------------------------------------------------------
-#
 # Gramps modules
 #
 # ----------------------------------------------------------------
@@ -146,18 +139,16 @@ class ExtendedHistory(Callback):
         if len(self.history) == 0 or full_item != self.history[-1]:
             self.history.append(full_item)
             self.index += 1
-            if quiet:
-                return
-            if full_item[0] != "Tag":
-                mru_item = (full_item[0], full_item[1])
-                if mru_item in self.mru:
-                    self.mru.remove(mru_item)
-                self.mru.append(mru_item)
-                self.emit("mru-changed", (self.mru,))
-            if self.history:
-                self.emit("active-changed", (full_item,))
-            self.sync_other(full_item[0], full_item[1])
-        return
+            if not quiet:
+                if full_item[0] != "Tag":
+                    mru_item = (full_item[0], full_item[1])
+                    if mru_item in self.mru:
+                        self.mru.remove(mru_item)
+                    self.mru.append(mru_item)
+                    self.emit("mru-changed", (self.mru,))
+                if self.history:
+                    self.emit("active-changed", (full_item,))
+                self.sync_other(full_item[0], full_item[1])
 
     def forward(self, step=1):
         """

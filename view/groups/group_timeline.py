@@ -95,15 +95,16 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for (sortval, item) in self.timeline.events(raw=True):
             timeline.append((sortval, "event", None, item))
 
-        if not groptions.age_base and self.group_base.obj_type == "Person":
-            if self.get_option("show-age"):
-                birth_ref = obj.get_birth_ref()
-                if birth_ref:
-                    event = grstate.dbstate.db.get_event_from_handle(
-                        birth_ref.ref
-                    )
-                    if event:
-                        self.groptions.set_age_base(event.get_date_object())
+        if (
+            not groptions.age_base
+            and self.group_base.obj_type == "Person"
+            and self.get_option("show-age")
+        ):
+            birth_ref = obj.get_birth_ref()
+            if birth_ref:
+                event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+                if event:
+                    self.groptions.set_age_base(event.get_date_object())
 
         timeline = self.extract_objects(timeline)
         try:
@@ -197,9 +198,10 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         for category in EVENT_CATEGORIES:
             if self.get_option("".join(("show-class-", category))):
                 self.options["categories"].append(category)
-            if self.group_base.obj_type == "Person":
-                if self.get_option("".join(("show-family-class-", category))):
-                    self.options["relation_categories"].append(category)
+            if self.group_base.obj_type == "Person" and self.get_option(
+                "".join(("show-family-class-", category))
+            ):
+                self.options["relation_categories"].append(category)
 
         if self.group_base.obj_type == "Person":
             for relation in RELATIVES:

@@ -27,8 +27,7 @@ Progenitors field calculator.
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Family, Person
-from gramps.gen.lib.date import Today
+from gramps.gen.lib import Person
 from gramps.gen.utils.db import family_name
 
 # -------------------------------------------------------------------------
@@ -36,7 +35,6 @@ from gramps.gen.utils.db import family_name
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import get_marriage_duration, get_span
 
 _ = glocale.translation.sgettext
 

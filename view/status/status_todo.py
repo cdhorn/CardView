@@ -123,14 +123,16 @@ def get_todo_status(grstate, obj):
     obj_path = [describe_object(db, obj)]
 
     done = False
-    if isinstance(obj, Person):
-        if grstate.config.get("options.global.status.todo-person"):
-            evaluate_person(db, obj, obj_path, todo_list)
-            done = True
-    elif isinstance(obj, Family):
-        if grstate.config.get("options.global.status.todo-family"):
-            evaluate_family(db, obj, obj_path, todo_list)
-            done = True
+    if isinstance(obj, Person) and grstate.config.get(
+        "options.global.status.todo-person"
+    ):
+        evaluate_person(db, obj, obj_path, todo_list)
+        done = True
+    elif isinstance(obj, Family) and grstate.config.get(
+        "options.global.status.todo-family"
+    ):
+        evaluate_family(db, obj, obj_path, todo_list)
+        done = True
     if not done:
         evaluate_object(db, obj, obj_path, todo_list)
 
@@ -207,7 +209,6 @@ def evaluate_person_details(
     for event_ref in obj.get_event_ref_list():
         event = db.get_event_from_handle(event_ref.ref)
         evaluate_object(db, event, obj_path, todo_list)
-    #        evaluate_event(db, event_ref.ref, obj_path, todo_list)
     for media_ref in obj.get_media_list():
         media = db.get_media_from_handle(media_ref.ref)
         evaluate_object(db, media, obj_path, todo_list)
@@ -241,19 +242,18 @@ def evaluate_object(db, obj, obj_path, todo_list):
     """
     new_obj_path = evaluate_obj_path(db, obj, obj_path)
     for handle in obj.get_note_list():
-        note = db.get_note_from_handle(handle)
-        evaluate_note(db, note, new_obj_path, todo_list)
+        evaluate_note(db, handle, new_obj_path, todo_list)
     for child_obj in obj.get_note_child_list():
         new_obj_path = obj_path + [describe_object(db, child_obj)]
         for handle in child_obj.get_note_list():
-            note = db.get_note_from_handle(handle)
-            evaluate_note(db, note, new_obj_path, todo_list)
+            evaluate_note(db, handle, new_obj_path, todo_list)
 
 
-def evaluate_note(db, note, obj_path, todo_list):
+def evaluate_note(db, handle, obj_path, todo_list):
     """
     Evaluate whether it is a to do note.
     """
+    note = db.get_note_from_handle(handle)
     if note.get_type() == NoteType.TODO:
         todo_list.append((obj_path, note))
 

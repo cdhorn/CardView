@@ -95,8 +95,8 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
             media_list.sort(
                 key=lambda x: x[0].get_date_object().get_sort_value()
             )
-        self.group_by_type(media_list)
-        self.filter_non_photos(media_list)
+        media_list = self.group_by_type(media_list)
+        media_list = self.filter_non_photos(media_list)
 
         size = self.grstate.config.get(
             "options.global.media-bar.display-mode"
@@ -109,7 +109,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         for (media, media_ref, dummy_media_type) in media_list:
             frame = GrampsMediaBarItem(
                 grstate,
-                groptions,
+                empty_groptions,
                 self.base.obj,
                 media,
                 media_ref,
@@ -174,6 +174,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
                     if attribute.get_type().xml_str() == "Media-Type":
                         media_type = attribute.get_value()
                 media_list.append((media, media_ref, media_type))
+        return media_list
 
     def group_by_type(self, media_list):
         """
@@ -192,6 +193,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
                     other_list.append(media)
             other_list.sort(key=lambda x: x[2])
             media_list = photo_list + stone_list + other_list
+        return media_list
 
     def filter_non_photos(self, media_list):
         """
@@ -212,6 +214,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
                 else:
                     other_list.append(media)
             media_list = other_list
+        return media_list
 
 
 class GrampsMediaBarItem(MediaRefGrampsFrame):

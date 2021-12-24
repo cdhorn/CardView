@@ -31,6 +31,9 @@ from gramps.gen.lib import Citation
 
 _ = glocale.translation.sgettext
 
+
+NOT_DISPLAYED = _("Not displayed")
+
 CONFIDENCE_LEVEL = [
     (Citation.CONF_VERY_LOW, _("Very Low")),
     (Citation.CONF_LOW, _("Low")),
@@ -50,7 +53,7 @@ EVENT_DISPLAY_MODES = [
 ]
 
 IMAGE_DISPLAY_MODES = [
-    (0, _("Not displayed")),
+    (0, NOT_DISPLAYED),
     (1, _("Small image on right")),
     (2, _("Large image on right")),
     (3, _("Small image on left")),
@@ -58,7 +61,7 @@ IMAGE_DISPLAY_MODES = [
 ]
 
 MEDIA_DISPLAY_MODES = [
-    (0, _("Not displayed")),
+    (0, NOT_DISPLAYED),
     (1, _("Small cropped images")),
     (2, _("Small full images")),
     (3, _("Large cropped images")),
@@ -72,14 +75,14 @@ MEDIA_POSITION_MODES = [
 ]
 
 PRIVACY_DISPLAY_MODES = [
-    (0, _("Not displayed")),
+    (0, NOT_DISPLAYED),
     (1, _("Only show state if private")),
     (2, _("Only show state if public")),
     (3, _("Always show state")),
 ]
 
 SEX_DISPLAY_MODES = [
-    (0, _("Not displayed")),
+    (0, NOT_DISPLAYED),
     (1, _("Indicator to left of name")),
     (2, _("Indicator to right of name")),
 ]
@@ -100,7 +103,7 @@ EVENT_COLOR_MODES = [
 ]
 
 REF_DISPLAY_MODES = [
-    (0, _("Not displayed")),
+    (0, NOT_DISPLAYED),
     (1, _("Display on left")),
     (2, _("Display on top")),
     (3, _("Display on right")),

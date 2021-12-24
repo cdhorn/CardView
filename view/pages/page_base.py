@@ -116,16 +116,16 @@ class GrampsPageView:
         """
         Add a tag to the active page object.
         """
-        if self.active_profile:
-            if (
-                self.active_profile.primary.obj.get_handle()
-                == object_handle[1]
-            ):
-                self.active_profile.primary.obj.add_tag(tag_handle)
-                commit_method = self.grstate.dbstate.db.method(
-                    "commit_%s", self.active_profile.primary.obj_type
-                )
-                commit_method(self.active_profile.primary.obj, trans)
+        if (
+            self.active_profile
+            and self.active_profile.primary.obj.get_handle()
+            == object_handle[1]
+        ):
+            self.active_profile.primary.obj.add_tag(tag_handle)
+            commit_method = self.grstate.dbstate.db.method(
+                "commit_%s", self.active_profile.primary.obj_type
+            )
+            commit_method(self.active_profile.primary.obj, trans)
 
     def global_panel(self, configdialog):
         """

@@ -113,8 +113,10 @@ class EventObjectView(GrampsObjectView):
         if family_list:
             groptions = GrampsOptions("options.group.family")
             args = {
-                "title": (_("Family Participants"), _("Family Participants"))
+                "title": (_("Family Participants"), _("Family Participants")),
             }
+            if event.get_date_object():
+                args["age_base"] = event.get_date_object()
             object_groups.update(
                 {
                     "family": get_references_group(
@@ -123,7 +125,6 @@ class EventObjectView(GrampsObjectView):
                         args,
                         groptions=groptions,
                         obj_list=family_list,
-                        age_base=event.get_date_object(),
                     )
                 }
             )

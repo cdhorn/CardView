@@ -50,6 +50,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
+from gramps.gen.errors import HandleError
 from gramps.gen.lib.addressbase import AddressBase
 from gramps.gen.lib.attrbase import AttributeRootBase
 from gramps.gen.lib.citationbase import CitationBase
@@ -310,6 +311,10 @@ class GrampsContext:
         secondary_obj=None,
         reference_base_obj=None,
     ):
+        self.primary_obj = None
+        self.reference_obj = None
+        self.secondary_obj = None
+        self.reference_base_obj = None
         self.load(
             primary_obj,
             reference_obj,
@@ -530,7 +535,14 @@ class GrampsState:
     A simple class to encapsulate the state of the Gramps application.
     """
 
-    __slots__ = ("dbstate", "uistate", "callbacks", "config", "page_type")
+    __slots__ = (
+        "dbstate",
+        "uistate",
+        "callbacks",
+        "config",
+        "page_type",
+        "methods",
+    )
 
     def __init__(self, dbstate, uistate, callbacks, config):
         self.dbstate = dbstate
@@ -538,6 +550,7 @@ class GrampsState:
         self.callbacks = callbacks
         self.config = config
         self.page_type = ""
+        self.methods = callbacks["methods"]
 
     def set_page_type(self, page_type):
         """
@@ -547,9 +560,12 @@ class GrampsState:
 
     def fetch(self, obj_type, obj_handle):
         """
-        Fetches an object from cache if possible.
+        Fetches an object from the database.
         """
-        return self.callbacks["fetch-object"](obj_type, obj_handle)
+        try:
+            return self.methods[obj_type](obj_handle)
+        except HandleError:
+            return None
 
     def thumbnail(self, path, rectangle, size):
         """

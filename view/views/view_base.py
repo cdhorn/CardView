@@ -191,17 +191,22 @@ class GrampsObjectView(Gtk.VBox):
         groupings = []
         current_grouping = []
         for group in groups:
-            if self.grstate.config.get(
-                "".join((space, ".", group, ".visible"))
+            if (
+                self.grstate.config.get(
+                    "".join((space, ".", group, ".visible"))
+                )
+                and group in obj_groups
+                and obj_groups[group]
             ):
-                if group in obj_groups and obj_groups[group]:
-                    current_grouping.append(group)
-            if not self.grstate.config.get(
-                "".join((space, ".", group, ".append"))
+                current_grouping.append(group)
+            if (
+                not self.grstate.config.get(
+                    "".join((space, ".", group, ".append"))
+                )
+                and current_grouping
             ):
-                if current_grouping:
-                    groupings.append(current_grouping)
-                    current_grouping = []
+                groupings.append(current_grouping)
+                current_grouping = []
         if current_grouping:
             groupings.append(current_grouping)
         if self.grstate.config.get("".join((space, ".tabbed"))):

@@ -103,33 +103,32 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 if text:
                     self.add_fact(self.get_label(text))
 
-            if self.groptions.age_base:
-                if self.groptions.context in ["timeline"]:
-                    self.load_age(
-                        self.groptions.age_base, citation.get_date_object()
-                    )
-                elif self.grstate.config.get(
-                    "options.group.citation.show-age"
-                ):
-                    self.load_age(
-                        self.groptions.age_base, citation.get_date_object()
-                    )
-
-        if self.get_option("show-publisher"):
-            if source.pubinfo:
-                self.add_fact(self.get_label(source.pubinfo))
-
-        if self.get_option("show-reference-type"):
-            if reference and reference[1]:
-                label = self.get_label(
-                    CITATION_TYPES[reference[1]], left=False
+            if self.groptions.age_base and (
+                self.groptions.context in ["timeline"]
+                or self.grstate.config.get("options.group.citation.show-age")
+            ):
+                self.load_age(
+                    self.groptions.age_base, citation.get_date_object()
                 )
-                self.widgets["attributes"].add_fact(label)
 
-        if self.get_option("show-reference-description"):
-            if reference and reference[2]:
-                label = self.get_label(reference[2], left=False)
-                self.widgets["attributes"].add_fact(label)
+        if self.get_option("show-publisher") and source.pubinfo:
+            self.add_fact(self.get_label(source.pubinfo))
+
+        if (
+            self.get_option("show-reference-type")
+            and reference
+            and reference[1]
+        ):
+            label = self.get_label(CITATION_TYPES[reference[1]], left=False)
+            self.widgets["attributes"].add_fact(label)
+
+        if (
+            self.get_option("show-reference-description")
+            and reference
+            and reference[2]
+        ):
+            label = self.get_label(reference[2], left=False)
+            self.widgets["attributes"].add_fact(label)
 
         if self.get_option("show-confidence"):
             label = self.get_label(
@@ -142,14 +141,11 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get(
-            "options.global.display.use-color-scheme"
-        ):
-            return ""
-
-        return get_confidence_color_css(
-            self.primary.obj.confidence, self.grstate.config
-        )
+        if self.grstate.config.get("options.global.display.use-color-scheme"):
+            return get_confidence_color_css(
+                self.primary.obj.confidence, self.grstate.config
+            )
+        return ""
 
     def add_custom_actions(self, context_menu):
         """

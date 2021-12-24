@@ -92,10 +92,9 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
             if address.phone:
                 self.add_fact(self.get_label(address.phone))
 
-        if self.get_option("show-repository-type"):
-            if repository.get_type():
-                label = self.get_label(str(repository.get_type()), left=False)
-                self.widgets["attributes"].add_fact(label)
+        if self.get_option("show-repository-type") and repository.get_type():
+            label = self.get_label(str(repository.get_type()), left=False)
+            self.widgets["attributes"].add_fact(label)
 
         self.enable_drag()
         self.dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())

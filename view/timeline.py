@@ -289,12 +289,10 @@ class Timeline:
                     override = True
                 if not override:
                     continue
-            if self.start_date:
-                if sortval < self.start_date.sortval:
-                    continue
-            if self.end_date:
-                if sortval > self.end_date.sortval:
-                    continue
+            if self.start_date and sortval < self.start_date.sortval:
+                continue
+            if self.end_date and sortval > self.end_date.sortval:
+                continue
             relationship = relation
             if not relative:
                 role = event_ref.get_role()
@@ -335,9 +333,11 @@ class Timeline:
             person = self.db_handle.get_person_from_handle(backlink[1])
             if person:
                 for event_ref in person.get_primary_event_ref_list():
-                    if handle == event_ref.ref:
-                        if event_ref.get_role().is_primary():
-                            return person
+                    if (
+                        handle == event_ref.ref
+                        and event_ref.get_role().is_primary()
+                    ):
+                        return person
         return None
 
     def prepare_event_sortvals(self, events):
@@ -580,14 +580,15 @@ class Timeline:
                                     child_ref.ref, offspring=offspring - 1
                                 )
 
-                if ancestors > 1:
-                    if "father" in relationship or "mother" in relationship:
-                        for family_handle in person.parent_family_list:
-                            self.add_family(
-                                family_handle,
-                                include_children=False,
-                                ancestors=ancestors - 1,
-                            )
+                if ancestors > 1 and (
+                    "father" in relationship or "mother" in relationship
+                ):
+                    for family_handle in person.parent_family_list:
+                        self.add_family(
+                            family_handle,
+                            include_children=False,
+                            ancestors=ancestors - 1,
+                        )
 
     def add_family(
         self,
@@ -682,12 +683,10 @@ class Timeline:
             sortval = date.sortval
         else:
             sortval = 0
-        if self.start_date:
-            if sortval < self.start_date.sortval:
-                return
-        if self.end_date:
-            if sortval > self.end_date.sortval:
-                return
+        if self.start_date and sortval < self.start_date.sortval:
+            return
+        if self.end_date and sortval > self.end_date.sortval:
+            return
         primary = self.get_primary_event_participant(event.get_handle())
         if primary:
             for event_ref in primary.get_event_ref_list():

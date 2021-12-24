@@ -889,6 +889,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         Edit a media reference.
         """
+        media_ref = None
         for media_ref in self.primary.obj.get_media_list():
             if media_ref.ref == media.get_handle():
                 break
@@ -914,48 +915,3 @@ class PrimaryGrampsFrame(GrampsFrame):
             _("MediaRef"), media.get_gramps_id(), action="update"
         )
         self.primary.commit(self.grstate, message)
-
-    def new_tag(self, _dummy_obj):
-        """
-        Create a new tag.
-        """
-        tag = Tag()
-        try:
-            EditTag(self.grstate.dbstate.db, self.grstate.uistate, [], tag)
-        except WindowActiveError:
-            pass
-
-    def organize_tags(self, _dummy_obj):
-        """
-        Organize tags.
-        """
-        try:
-            OrganizeTagsDialog(
-                self.grstate.dbstate.db, self.grstate.uistate, []
-            )
-        except WindowActiveError:
-            pass
-
-    def add_tag(self, _dummy_obj, handle):
-        """
-        Add the given tag to the current object.
-        """
-        if not handle:
-            return
-        tag = self.grstate.fetch("Tag", handle)
-        message = self._commit_message(_("Tag"), tag.get_name())
-        self.primary.obj.add_tag(handle)
-        self.primary.commit(self.grstate, message)
-
-    def remove_tag(self, _dummy_obj, handle):
-        """
-        Remove the given tag from the current object.
-        """
-        if not handle:
-            return
-        tag = self.grstate.fetch("Tag", handle)
-        message = self._commit_message(
-            _("Tag"), tag.get_name(), action="remove"
-        )
-        if self.primary.obj.remove_tag(handle):
-            self.primary.commit(self.grstate, message)

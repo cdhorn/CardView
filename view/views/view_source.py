@@ -96,9 +96,11 @@ class SourceObjectView(GrampsObjectView):
                 elif sub_obj_type == "Event":
                     if sub_obj_handle not in events_list:
                         events_list.append(("Event", sub_obj_handle))
-                elif sub_obj_type == "Place":
-                    if sub_obj_handle not in places_list:
-                        places_list.append(("Place", sub_obj_handle))
+                elif (
+                    sub_obj_type == "Place"
+                    and sub_obj_handle not in places_list
+                ):
+                    places_list.append(("Place", sub_obj_handle))
 
         if "people" in object_groups and people_list:
             groptions = GrampsOptions("options.group.people")

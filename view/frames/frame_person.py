@@ -789,12 +789,10 @@ class PersonGrampsFrame(ReferenceGrampsFrame):
         father_handle = family.get_father_handle()
         mother_handle = family.get_mother_handle()
         partner_handle = None
-        if self.primary.obj.get_handle() == father_handle:
-            if mother_handle:
-                partner_handle = mother_handle
-        elif self.primary.obj.get_handle() == mother_handle:
-            if father_handle:
-                partner_handle = father_handle
+        if self.primary.obj.get_handle() == father_handle and mother_handle:
+            partner_handle = mother_handle
+        elif self.primary.obj.get_handle() == mother_handle and father_handle:
+            partner_handle = father_handle
         if partner_handle:
             partner = self.fetch("Person", partner_handle)
             partner_name = name_displayer.display(partner)

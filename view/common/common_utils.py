@@ -332,9 +332,8 @@ def save_config_option(
             current_option_list = option_data.split(",")
             for current_option in current_option_list:
                 option_parts = current_option.split(":")
-                if len(option_parts) >= 3:
-                    if option_parts[0] != dbid:
-                        option_list.append(current_option)
+                if len(option_parts) >= 3 and option_parts[0] != dbid:
+                    option_list.append(current_option)
         option_list.append(":".join((dbid, option_type, option_value)))
         config.set(option, ",".join(option_list))
     else:
@@ -698,11 +697,11 @@ def describe_object(db, obj):
     for obj_data in GRAMPS_OBJECTS:
         if isinstance(obj, obj_data[0]):
             (
-                obj_class,
+                dummy_obj_class,
                 obj_type,
                 obj_lang,
-                dnd_type,
-                dnd_icon,
+                dummy_dnd_type,
+                dummy_dnd_icon,
             ) = obj_data
             if not obj_lang:
                 obj_lang = obj_type

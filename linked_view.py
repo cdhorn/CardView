@@ -154,15 +154,6 @@ class LinkedView(ExtendedNavigationView):
             )
             self.methods.update({obj_type: query_method})
 
-    def fetch_object(self, obj_type, handle):
-        """
-        Fetch an object from the database.
-        """
-        try:
-            return self.methods[obj_type](handle)
-        except HandleError:
-            return None
-
     @lru_cache(maxsize=32)
     def fetch_thumbnail(self, path, rectangle, size):
         """
@@ -189,8 +180,8 @@ class LinkedView(ExtendedNavigationView):
         Load page handlers.
         """
         callbacks = {
+            "methods": self.methods,
             "load-page": self.load_page,
-            "fetch-object": self.fetch_object,
             "fetch-thumbnail": self.fetch_thumbnail,
             "fetch-page-context": self.fetch_page_context,
             "copy-to-clipboard": self.clipboard_copy,
@@ -202,7 +193,7 @@ class LinkedView(ExtendedNavigationView):
         self.grstate = GrampsState(
             self.dbstate, self.uistate, callbacks, self._config
         )
-        for (page_type, page_lang) in PAGES:
+        for (page_type, dummy_page_lang) in PAGES:
             self.pages[page_type] = page_builder(page_type, self.grstate)
 
     def _connect_db_signals(self):
@@ -832,21 +823,23 @@ class LinkedView(ExtendedNavigationView):
         else:
             key = uuid.uuid4().hex
         if max_windows == 1 and self.group_windows:
-            window = [x for x in self.group_windows.values()][0]
+            window = list(self.group_windows.values())[0]
             window.reload(obj, group_type)
             return
-        if len(self.group_windows) >= max_windows:
-            if key not in self.group_windows:
-                WarningDialog(
-                    _("Could Not Spawn New Group Window"),
-                    _(
-                        "Too many group windows are open. Close "
-                        "one before launching another or increase "
-                        "the default in the view preferences."
-                    ),
-                    parent=self.grstate.uistate.window,
-                )
-                return
+        if (
+            len(self.group_windows) >= max_windows
+            and key not in self.group_windows
+        ):
+            WarningDialog(
+                _("Could Not Spawn New Group Window"),
+                _(
+                    "Too many group windows are open. Close "
+                    "one before launching another or increase "
+                    "the default in the view preferences."
+                ),
+                parent=self.grstate.uistate.window,
+            )
+            return
         try:
             self.group_windows[key] = FrameGroupWindow(
                 self.grstate,
@@ -884,21 +877,23 @@ class LinkedView(ExtendedNavigationView):
         )
         key = grcontext.obj_key
         if max_windows == 1 and self.page_windows:
-            window = [x for x in self.page_windows.values()][0]
+            window = list(self.page_windows.values())[0]
             window.reload(grcontext)
             return
-        if len(self.page_windows) >= max_windows:
-            if key not in self.page_windows:
-                WarningDialog(
-                    _("Could Not Spawn New Page Copy Window"),
-                    _(
-                        "Too many page copy windows are open. Close "
-                        "one before launching another or increase "
-                        "the default in the view preferences."
-                    ),
-                    parent=self.grstate.uistate.window,
-                )
-                return
+        if (
+            len(self.page_windows) >= max_windows
+            and key not in self.page_windows
+        ):
+            WarningDialog(
+                _("Could Not Spawn New Page Copy Window"),
+                _(
+                    "Too many page copy windows are open. Close "
+                    "one before launching another or increase "
+                    "the default in the view preferences."
+                ),
+                parent=self.grstate.uistate.window,
+            )
+            return
         try:
             self.page_windows[key] = PageViewWindow(
                 self.grstate, grcontext, key, self._clear_page_window

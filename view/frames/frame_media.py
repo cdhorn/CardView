@@ -78,11 +78,11 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
                 if text:
                     self.add_fact(self.get_label(text))
 
-            if groptions.age_base:
-                if groptions.context in ["timeline"]:
-                    self.load_age(groptions.age_base, media.get_date_object())
-                elif grstate.config.get("options.group.media.show-age"):
-                    self.load_age(groptions.age_base, media.get_date_object())
+            if groptions.age_base and (
+                groptions.context in ["timeline"]
+                or grstate.config.get("options.group.media.show-age")
+            ):
+                self.load_age(groptions.age_base, media.get_date_object())
 
         if self.get_option("show-path") and media.get_path():
             self.add_fact(self.get_label(media.get_path()))

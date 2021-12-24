@@ -67,13 +67,16 @@ def get_age(base_event, current_event, today=None, strip=False):
     """
     Return age text if applicable.
     """
-    if base_event and base_event.date:
-        if current_event and current_event.date or today:
-            if today:
-                current = today
-            else:
-                current = current_event.date
-            return get_span(base_event.date, current, strip=strip)
+    if (
+        base_event
+        and base_event.date
+        and (current_event and current_event.date or today)
+    ):
+        if today:
+            current = today
+        else:
+            current = current_event.date
+        return get_span(base_event.date, current, strip=strip)
     return ""
 
 
@@ -129,6 +132,20 @@ def get_key_family_events(db, family):
     return marriage, divorce
 
 
+def extract_event_ref(db, event_handle, obj, obj_type):
+    """
+    Extract the participant event reference.
+    """
+    for event_ref in obj.get_event_ref_list():
+        if event_handle in [event_ref.ref]:
+            if obj_type == "Person":
+                name = name_displayer.display(obj)
+            else:
+                name = family_name(obj, db)
+            return (obj_type, obj, event_ref, name)
+    return None
+
+
 def get_participants(db, event):
     """
     Get all of the participants related to an event.
@@ -144,30 +161,18 @@ def get_participants(db, event):
     people = [x[1] for x in result_list if x[0] in ["Person"]]
     for handle in people:
         person = db.get_person_from_handle(handle)
-        if not person:
-            continue
-        for event_ref in person.get_event_ref_list():
-            if event_handle in [event_ref.ref]:
-                participants.append(
-                    (
-                        "Person",
-                        person,
-                        event_ref,
-                        name_displayer.display(person),
-                    )
-                )
-                break
+        if person:
+            participant = extract_event_ref(db, event_handle, person, "Person")
+            if participant:
+                participants.append(participant)
+
     families = [x[1] for x in result_list if x[0] in ["Family"]]
     for handle in families:
         family = db.get_family_from_handle(handle)
-        if not family:
-            continue
-        for event_ref in family.get_event_ref_list():
-            if event_handle in [event_ref.ref]:
-                participants.append(
-                    ("Family", family, event_ref, family_name(family, db))
-                )
-                break
+        if family:
+            participant = extract_event_ref(db, event_handle, family, "Family")
+            if participant:
+                participants.append(participant)
     return participants
 
 
@@ -226,6 +231,31 @@ def get_event_category(db, event):
     return "other"
 
 
+def get_person_birth_or_death(db, handle, birth=True):
+    """
+    Get person and birth or death event given a handle.
+    """
+    person = db.get_person_from_handle(handle)
+    if birth:
+        ref = person.get_birth_ref()
+    else:
+        ref = person.get_death_ref()
+    if ref:
+        event = db.get_event_from_handle(ref.ref)
+    else:
+        event = None
+    return person, event
+
+
+def get_date_sortval(event):
+    """
+    Return sortval for an event.
+    """
+    if event and event.get_date_object():
+        return event.get_date_object().sortval
+    return None
+
+
 def get_marriage_duration(db, family_obj_or_handle):
     """
     Evaluate and return text string describing length of marriage.
@@ -235,44 +265,29 @@ def get_marriage_duration(db, family_obj_or_handle):
     else:
         family = family_obj_or_handle
 
-    if not family.get_father_handle():
-        return ""
-    if not family.get_mother_handle():
+    if not family.get_father_handle() or not family.get_mother_handle():
         return ""
 
     marriage, divorce = get_key_family_events(db, family)
     if marriage and divorce:
         return get_age(marriage, divorce, strip=True)
 
-    father = db.get_person_from_handle(family.get_father_handle())
-    father_death_ref = father.get_death_ref()
-    if father_death_ref:
-        father_death = db.get_event_from_handle(father_death_ref.ref)
-    else:
-        father_death = None
-
-    mother = db.get_person_from_handle(family.get_mother_handle())
-    mother_death_ref = mother.get_death_ref()
-    if mother_death_ref:
-        mother_death = db.get_event_from_handle(mother_death_ref.ref)
-    else:
-        mother_death = None
-
-    father_sortval = None
-    if father_death and father_death.get_date_object():
-        father_sortval = father_death.get_date_object().sortval
-    mother_sortval = None
-    if mother_death and mother_death.get_date_object():
-        mother_sortval = mother_death.get_date_object().sortval
+    father, father_death = get_person_birth_or_death(
+        db, family.get_father_handle(), birth=False
+    )
+    mother, mother_death = get_person_birth_or_death(
+        db, family.get_mother_handle(), birth=False
+    )
+    father_sortval = get_date_sortval(father_death)
+    mother_sortval = get_date_sortval(mother_death)
 
     if father_sortval and mother_sortval:
-        if father_sortval and mother_sortval:
-            if father_sortval < mother_sortval:
-                return get_age(marriage, father_death, strip=True)
-            return get_age(marriage, mother_death, strip=True)
-    elif father_sortval:
+        if father_sortval < mother_sortval:
+            return get_age(marriage, father_death, strip=True)
+        return get_age(marriage, mother_death, strip=True)
+    if father_sortval:
         return get_age(marriage, father_death, strip=True)
-    elif mother_sortval:
+    if mother_sortval:
         return get_age(marriage, mother_death, strip=True)
 
     if probably_alive(father, db) and probably_alive(mother, db):
@@ -294,21 +309,21 @@ def get_marriage_ages(db, family_obj_or_handle):
     if not marriage:
         return None, None
 
-    husband = db.get_person_from_handle(family.get_father_handle())
-    husband_age = None
-    husband_birth_ref = husband.get_birth_ref()
-    if husband_birth_ref:
-        husband_birth = db.get_event_from_handle(husband_birth_ref.ref)
-        if husband_birth:
-            husband_age = get_age(husband_birth, marriage, strip=True)
+    dummy_husband, husband_birth = get_person_birth_or_death(
+        db, family.get_father_handle()
+    )
+    if husband_birth:
+        husband_age = get_age(husband_birth, marriage, strip=True)
+    else:
+        husband_age = None
 
-    wife = db.get_person_from_handle(family.get_mother_handle())
-    wife_age = None
-    wife_birth_ref = wife.get_birth_ref()
-    if wife_birth_ref:
-        wife_birth = db.get_event_from_handle(wife_birth_ref.ref)
-        if wife_birth:
-            wife_age = get_age(wife_birth, marriage, strip=True)
+    dummy_wife, wife_birth = get_person_birth_or_death(
+        db, family.get_mother_handle()
+    )
+    if wife_birth:
+        wife_age = get_age(wife_birth, marriage, strip=True)
+    else:
+        wife_age = None
     return husband_age, wife_age
 
 
@@ -324,24 +339,16 @@ def check_multiple_events(db, obj, event_type):
     return count > 1
 
 
-def get_status_ranking(
-    db, person, rank_list=None, alert_list=None, alert_minimum=0
-):
+def get_event_confidence(db, handle, refs, lists, language_map, hit_map):
     """
-    Evaluate key person events to calculate an evidence ranking.
+    Extract event confidence.
     """
-    rank_list = rank_list or []
-    alert_list = alert_list or []
-    birth_ref = person.get_birth_ref()
-    death_ref = person.get_death_ref()
-    hit_map = {}
-    language_map = {}
-    for event_ref in person.get_event_ref_list():
-        event = db.get_event_from_handle(event_ref.ref)
-        event_type = event.get_type()
-        event_name = event_type.xml_str()
-        if event_name not in rank_list and event_name not in alert_list:
-            continue
+    (birth_ref, death_ref) = refs or (None, None)
+    (rank_list, alert_list) = lists or ([], [])
+    event = db.get_event_from_handle(handle)
+    event_type = event.get_type()
+    event_name = event_type.xml_str()
+    if event_name in rank_list or event_name in alert_list:
         language_map.update({event_name: str(event_type)})
         confidence = get_highest_confidence(db, event)
         if event_name == "Birth":
@@ -357,22 +364,28 @@ def get_status_ranking(
             else:
                 hit_map.update({event_name: confidence})
 
+
+def get_status_ranking(
+    db, person, rank_list=None, alert_list=None, alert_minimum=0
+):
+    """
+    Evaluate key person events to calculate an evidence ranking.
+    """
+    lists = (rank_list or [], alert_list or [])
+    refs = (person.get_birth_ref(), person.get_death_ref())
+    hit_map = {}
+    language_map = {}
+    for event_ref in person.get_event_ref_list():
+        get_event_confidence(
+            db, event_ref.ref, refs, lists, language_map, hit_map
+        )
+
     for handle in person.get_family_handle_list():
         family = db.get_family_from_handle(handle)
         for event_ref in family.get_event_ref_list():
-            event = db.get_event_from_handle(event_ref.ref)
-            event_type = event.get_type()
-            event_name = event_type.xml_str()
-            if event_name not in rank_list and event_name not in alert_list:
-                continue
-            language_map.update({event_name: str(event_type)})
-            confidence = get_highest_confidence(db, event)
-            if event_name in rank_list:
-                if event_name in hit_map:
-                    if confidence > hit_map[event_name]:
-                        hit_map.update({event_name: confidence})
-                else:
-                    hit_map.update({event_name: confidence})
+            get_event_confidence(
+                db, event_ref.ref, refs, lists, language_map, hit_map
+            )
 
     rank_total = 0
     rank_other_count = 0

@@ -64,10 +64,3 @@ class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
             )
             self.add_frame(profile)
         self.show_all()
-
-    # Todo: Add drag and drop to reorder or add to repo list
-    def save_new_object(self, handle, insert_row):
-        """
-        Add new repository to the list.
-        """
-        return

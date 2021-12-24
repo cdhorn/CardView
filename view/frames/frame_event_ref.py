@@ -71,23 +71,21 @@ class EventRefGrampsFrame(EventGrampsFrame):
         if not groptions.ref_mode:
             return
 
-        if groptions.relation:
-            if (
-                groptions.relation.get_handle()
-                != self.reference_base.obj.get_handle()
-            ):
-                name = None
-                if self.reference_base.obj_type == "Person":
-                    name = name_displayer.display(self.reference_base.obj)
-                elif self.reference_base.obj_type == "Family":
-                    name = family_name(
-                        self.reference_base.obj, grstate.dbstate.db
-                    )
-                if name:
-                    text = "".join(("[", name, "]"))
-                    self.ref_widgets["body"].pack_start(
-                        self.get_label(text), False, False, 0
-                    )
+        if (
+            groptions.relation
+            and groptions.relation.get_handle()
+            != self.reference_base.obj.get_handle()
+        ):
+            name = None
+            if self.reference_base.obj_type == "Person":
+                name = name_displayer.display(self.reference_base.obj)
+            elif self.reference_base.obj_type == "Family":
+                name = family_name(self.reference_base.obj, grstate.dbstate.db)
+            if name:
+                text = "".join(("[", name, "]"))
+                self.ref_widgets["body"].pack_start(
+                    self.get_label(text), False, False, 0
+                )
 
         vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
         vbox.pack_start(

@@ -60,6 +60,9 @@ from .config_utils import add_config_reset, config_facts_fields, create_grid
 _ = glocale.translation.sgettext
 
 
+DISPLAY_OPTIONS = _("Display Options")
+
+
 # -------------------------------------------------------------------------
 #
 # ConfigNotebook class
@@ -89,14 +92,16 @@ class ConfigNotebook(Gtk.Notebook):
         """
         Handle a page switch, rendering the page if needed.
         """
-        if widget == self:
-            if index not in self.rendered_pages:
-                if index in self.deferred_pages:
-                    container, render_page = self.deferred_pages[index]
-                    page = render_page()
-                    container.pack_start(page, True, True, 0)
-                    container.show_all()
-                    self.rendered_pages.append(index)
+        if (
+            widget == self
+            and index not in self.rendered_pages
+            and index in self.deferred_pages
+        ):
+            container, render_page = self.deferred_pages[index]
+            page = render_page()
+            container.pack_start(page, True, True, 0)
+            container.show_all()
+            self.rendered_pages.append(index)
 
 
 def build_person_grid(configdialog, grstate, space, person):
@@ -106,7 +111,7 @@ def build_person_grid(configdialog, grstate, space, person):
     extra = "extra" in space
     grid = create_grid()
     grid1 = create_grid()
-    configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid1, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid1,
         _("Event display format"),
@@ -187,7 +192,7 @@ def build_family_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     grid1 = create_grid()
-    configdialog.add_text(grid1, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid1, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid1,
         _("Event display format"),
@@ -461,7 +466,7 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
     Builds note options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_checkbox(
         grid,
         _("Show note text on top"),
@@ -497,7 +502,7 @@ def build_citation_grid(configdialog, grstate, space, *_dummy_context):
     Builds citation options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid,
         _("Image display mode"),
@@ -653,7 +658,7 @@ def build_source_grid(configdialog, grstate, space, *_dummy_context):
     Builds source options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid,
         _("Event display format"),
@@ -692,7 +697,7 @@ def build_repository_grid(configdialog, grstate, space, *_dummy_context):
     Builds repository options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     if "group" in space:
         configdialog.add_combo(
             grid,
@@ -742,7 +747,7 @@ def build_place_grid(configdialog, grstate, space, *_dummy_context):
     Builds place options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid,
         _("Image display mode"),
@@ -774,7 +779,7 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
     Builds event options section for the configuration dialog.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("Display Options"), 0, bold=True)
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
     configdialog.add_combo(
         grid,
         _("Event color scheme"),

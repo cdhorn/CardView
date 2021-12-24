@@ -121,10 +121,7 @@ def get_object_config_title(groptions, primary_type):
         context = groptions.option_space.split(".")[2]
     except IndexError:
         return space, "unknown", "unknown", "unknown"
-    if context in GROUP_LABELS_SINGLE:
-        obj_type = GROUP_LABELS_SINGLE[context]
-    else:
-        obj_type = "Unknown"
+    obj_type = GROUP_LABELS_SINGLE.get(context) or "Unknown"
     if context in ["parent", "spouse"] and primary_type == "Family":
         context = "family"
         obj_type = _("Family")

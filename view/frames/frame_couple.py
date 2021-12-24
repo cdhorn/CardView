@@ -97,9 +97,8 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                     self.partner2.add(profile)
         else:
             data = self.get_title()
-            if data:
-                if "]" in data:
-                    title = data.split("]")[1].strip()
+            if data and "]" in data:
+                title = data.split("]")[1].strip()
 
         label = self.get_link(title, "Family", family.handle)
         self.widgets["title"].pack_start(label, True, True, 0)
@@ -118,12 +117,10 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
 
         self.show_all()
         self.enable_drag()
-        if not self.parent2:
-            if (
-                not family.get_father_handle()
-                or not family.get_mother_handle()
-            ):
-                self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
+        if not self.parent2 and (
+            not family.get_father_handle() or not family.get_mother_handle()
+        ):
+            self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
         self.enable_drop()
         self.set_css_style()
 
@@ -345,12 +342,11 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get(
-            "options.global.display.use-color-scheme"
-        ):
-            return ""
-
-        return get_family_color_css(self.primary.obj, divorced=self.divorced)
+        if self.grstate.config.get("options.global.display.use-color-scheme"):
+            return get_family_color_css(
+                self.primary.obj, divorced=self.divorced
+            )
+        return ""
 
     def add_missing_spouse(self, spouse_handle):
         """

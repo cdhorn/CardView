@@ -1126,7 +1126,8 @@ CONFIGSETTINGS = (
     ("options.page.source.layout.scrolled", False),
     (
         "options.page.source.layout.groups",
-        "repository,media,citation,people,event,place,url,note,attribute,reference",
+        "repository,media,citation,people,event,place,url,note,"
+        "attribute,reference",
     ),
     ("options.page.source.layout.repository.visible", True),
     ("options.page.source.layout.repository.append", True),

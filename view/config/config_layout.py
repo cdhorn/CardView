@@ -50,6 +50,13 @@ from .config_utils import create_grid
 _ = glocale.translation.sgettext
 
 
+GROUPS = "{}.groups"
+TABBED = "{}.tabbed"
+SCROLLED = "{}.scrolled"
+VISIBLE = "{}.visible"
+APPEND = "{}.append"
+
+
 def build_layout_grid(configdialog, grstate, page_type=None, *_dummy_args):
     """
     Build and return layout grid.
@@ -104,18 +111,18 @@ class ProfilePageLayout(Gtk.VBox):
             "visible": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "append": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        option = "{}.tabbed".format(self.space)
+        option = TABBED.format(self.space)
         self.tabbed = Gtk.CheckButton(label=_("Tabbed Mode"))
         self.tabbed.set_active(self.config.get(option))
         self.tabbed.connect("clicked", self.toggle_mode)
         self.pack_start(self.tabbed, False, False, 6)
-        option = "{}.scrolled".format(self.space)
+        option = SCROLLED.format(self.space)
         self.scrolled = Gtk.CheckButton(label=_("Scrolled Mode"))
         self.scrolled.set_active(self.config.get(option))
         self.pack_start(self.scrolled, False, False, 6)
 
         self.columns = ProfileColumnLayout()
-        current_groups = self.config.get("{}.groups".format(self.space))
+        current_groups = self.config.get(GROUPS.format(self.space))
         current_groups = self.get_valid_layout_groups(
             self.obj_type, current_groups.split(",")
         )
@@ -169,9 +176,8 @@ class ProfilePageLayout(Gtk.VBox):
         prefix_length = len(prefix)
         groups = []
         for setting in settings:
-            if setting[:prefix_length] == prefix:
-                if "visible" in setting:
-                    groups.append(setting.split(".")[3])
+            if setting[:prefix_length] == prefix and "visible" in setting:
+                groups.append(setting.split(".")[3])
         return groups
 
     def apply_changes(self, *_dummy_obj):
@@ -179,11 +185,11 @@ class ProfilePageLayout(Gtk.VBox):
         Apply changes if any found.
         """
         self.revert = []
-        option = "{}.tabbed".format(self.space)
+        option = TABBED.format(self.space)
         if self.config.get(option) != self.tabbed.get_active():
             self.revert.append((option, self.config.get(option)))
             self.config.set(option, self.tabbed.get_active())
-        option = "{}.scrolled".format(self.space)
+        option = SCROLLED.format(self.space)
         if self.config.get(option) != self.scrolled.get_active():
             self.revert.append((option, self.config.get(option)))
             self.config.set(option, self.scrolled.get_active())
@@ -191,16 +197,16 @@ class ProfilePageLayout(Gtk.VBox):
         columns = []
         for row in self.columns.rows:
             columns.append(row.space.split(".")[-1])
-            option = "{}.visible".format(row.space)
+            option = VISIBLE.format(row.space)
             if self.config.get(option) != row.visible.get_active():
                 self.revert.append((option, self.config.get(option)))
                 self.config.set(option, row.visible.get_active())
-            option = "{}.append".format(row.space)
+            option = APPEND.format(row.space)
             if self.config.get(option) != row.append.get_active():
                 self.revert.append((option, self.config.get(option)))
                 self.config.set(option, row.append.get_active())
 
-        option = "{}.groups".format(self.space)
+        option = GROUPS.format(self.space)
         if self.config.get(option) != ",".join(columns):
             self.revert.append((option, self.config.get(option)))
             self.config.set(option, ",".join(columns))
@@ -214,11 +220,11 @@ class ProfilePageLayout(Gtk.VBox):
         Apply defaults if any changes found.
         """
         self.revert = []
-        option = "{}.tabbed".format(self.space)
+        option = TABBED.format(self.space)
         if self.config.get_default(option) != self.tabbed.get_active():
             self.revert.append((option, self.tabbed.get_active()))
             self.config.set(option, self.config.get_default(option))
-        option = "{}.scrolled".format(self.space)
+        option = SCROLLED.format(self.space)
         if self.config.get_default(option) != self.scrolled.get_active():
             self.revert.append((option, self.scrolled.get_active()))
             self.config.set(option, self.config.get_default(option))
@@ -226,16 +232,16 @@ class ProfilePageLayout(Gtk.VBox):
         columns = []
         for row in self.columns.rows:
             columns.append(row.space.split(".")[-1])
-            option = "{}.visible".format(row.space)
+            option = VISIBLE.format(row.space)
             if self.config.get_default(option) != row.visible.get_active():
                 self.revert.append((option, row.visible.get_active()))
                 self.config.set(option, self.config.get_default(option))
-            option = "{}.append".format(row.space)
+            option = APPEND.format(row.space)
             if self.config.get_default(option) != row.append.get_active():
                 self.revert.append((option, row.append.get_active()))
                 self.config.set(option, self.config.get_default(option))
 
-        option = "{}.groups".format(self.space)
+        option = GROUPS.format(self.space)
         if self.config.get_default(option) != ",".join(columns):
             self.revert.append((option, ",".join(columns)))
             self.config.set(option, self.config.get_default(option))
@@ -438,12 +444,12 @@ class ProfileRowLayout(Gtk.Frame):
         )
         groups["label"].add_widget(label)
         hbox.pack_start(label, True, True, 6)
-        option = "{}.visible".format(self.space)
+        option = VISIBLE.format(self.space)
         self.visible = Gtk.CheckButton(label=_("Visible"))
         self.visible.set_active(self.config.get(option))
         groups["visible"].add_widget(self.visible)
         hbox.pack_start(self.visible, False, False, 6)
-        option = "{}.append".format(self.space)
+        option = APPEND.format(self.space)
         self.append = Gtk.CheckButton(label=_("Append Next Group If Visible"))
         self.append.set_active(self.config.get(option))
         groups["append"].add_widget(self.append)

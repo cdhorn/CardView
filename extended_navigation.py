@@ -87,7 +87,6 @@ class ExtendedNavigationView(PageView):
     def __init__(self, title, pdata, state, uistate, bm_type, nav_group):
         PageView.__init__(self, title, pdata, state, uistate)
         self.bookmarks = bm_type(self.dbstate, self.uistate, self.bm_change)
-
         self.fwd_action = None
         self.back_action = None
         self.book_action = None
@@ -101,6 +100,7 @@ class ExtendedNavigationView(PageView):
         self.mru_action = None
         self.mru_ui = None
         self.active_type = None
+        self.dirty = False
 
         other_history = {}
         for history_type in (
@@ -550,13 +550,14 @@ class ExtendedNavigationView(PageView):
         """
         Handle the control+c (copy) and control+v (paste), or pass it on.
         """
-        if self.active:
-            if event.type == Gdk.EventType.KEY_PRESS:
-                if event.keyval == Gdk.KEY_c and match_primary_mask(
-                    event.get_state()
-                ):
-                    self.call_copy()
-                    return True
+        if (
+            self.active
+            and event.type == Gdk.EventType.KEY_PRESS
+            and event.keyval == Gdk.KEY_c
+            and match_primary_mask(event.get_state())
+        ):
+            self.call_copy()
+            return True
         return super().key_press_handler(widget, event)
 
     def call_copy(self):

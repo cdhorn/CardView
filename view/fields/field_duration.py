@@ -47,11 +47,10 @@ def get_duration_field(grstate, obj, field_value, args):
     """
     get_label = args.get("get_label")
 
-    if isinstance(obj, Family):
-        if field_value == "Duration":
-            duration = get_marriage_duration(grstate.dbstate.db, obj)
-            if duration:
-                return [(get_label(_("Duration")), get_label(duration))]
+    if isinstance(obj, Family) and field_value == "Duration":
+        duration = get_marriage_duration(grstate.dbstate.db, obj)
+        if duration:
+            return [(get_label(_("Duration")), get_label(duration))]
         return []
 
     if isinstance(obj, Person):
@@ -62,31 +61,37 @@ def get_duration_field(grstate, obj, field_value, args):
             dummy_related_person,
         ) = probably_alive_range(obj, grstate.dbstate.db)
 
-        if field_value in ["Lifespan", "Duration"]:
-            if birth_date and death_date:
-                span = get_span(birth_date, death_date)
-                if span:
-                    return [
-                        (
-                            get_label(_("Lifespan")),
-                            get_label(span, italic=not accurate_lifespan(obj)),
-                        )
-                    ]
+        if (
+            field_value in ["Lifespan", "Duration"]
+            and birth_date
+            and death_date
+        ):
+            span = get_span(birth_date, death_date)
+            if span:
+                return [
+                    (
+                        get_label(_("Lifespan")),
+                        get_label(span, italic=not accurate_lifespan(obj)),
+                    )
+                ]
 
-        if field_value in ["Living", "Duration"]:
-            if birth_date and not death_date:
-                if field_value != "Living":
-                    span = get_span(birth_date, Today())
-                    if span:
-                        return [(get_label(_("Living")), get_label(span))]
-                return [(get_label(_("Living")), get_label(""))]
-        return []
+        if (
+            field_value in ["Living", "Duration"]
+            and birth_date
+            and not death_date
+        ):
+            if field_value != "Living":
+                span = get_span(birth_date, Today())
+                if span:
+                    return [(get_label(_("Living")), get_label(span))]
+            return [(get_label(_("Living")), get_label(""))]
+    return []
 
 
 def accurate_lifespan(obj):
     """
     Return true if have actual birth and death record.
     """
-    if obj.get_birth_ref() is not None and obj.get_death_ref() is not None:
+    if obj.get_birth_ref() and obj.get_death_ref():
         return True
     return False

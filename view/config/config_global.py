@@ -212,7 +212,8 @@ def build_maximums_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_spinner(
         grid,
         _(
-            "Maximum number of referencing objects to show in a references group"
+            "Maximum number of referencing objects to show in a "
+            "references group"
         ),
         7,
         "options.global.max.references-per-group",
@@ -242,7 +243,8 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid,
         _(
-            "Open second instance of association editor to add a reciprocal association"
+            "Open second instance of association editor to add a "
+            "reciprocal association"
         ),
         13,
         "options.global.general.create-reciprocal-associations",
@@ -250,7 +252,8 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid,
         _(
-            "Include notes found on child objects in the context menu note items"
+            "Include notes found on child objects in the context menu "
+            "note items"
         ),
         14,
         "options.global.general.include-child-notes",
@@ -258,7 +261,8 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid,
         _(
-            "Parse and include urls found in notes in the url group when possible"
+            "Parse and include urls found in notes in the url group "
+            "when possible"
         ),
         15,
         "options.global.general.include-note-urls",
@@ -520,7 +524,8 @@ def build_status_grid(configdialog, grstate, *_dummy_args):
         "".join(
             (
                 _(
-                    "Additional Individual Events To Include (Birth and Death Implicit)"
+                    "Additional Individual Events To Include "
+                    "(Birth and Death Implicit)"
                 ),
                 ":",
             )

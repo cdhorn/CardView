@@ -70,8 +70,10 @@ class PlacesGrampsFrameGroup(GrampsFrameGroupList):
             place_list, place.get_handle(), recurse=recurse
         )
 
-        for (place, place_ref) in place_list:
-            profile = PlaceRefGrampsFrame(grstate, groptions, place, place_ref)
+        for (list_place, list_place_ref) in place_list:
+            profile = PlaceRefGrampsFrame(
+                grstate, groptions, list_place, list_place_ref
+            )
             self.add_frame(profile)
         self.show_all()
 
@@ -83,9 +85,7 @@ class PlacesGrampsFrameGroup(GrampsFrameGroupList):
             obj_type,
             obj_handle,
         ) in self.grstate.dbstate.db.find_backlink_handles(handle):
-            if obj_type == "Place":
-                if len(place_list) >= self.maximum:
-                    return
+            if obj_type == "Place" and len(place_list) < self.maximum:
                 place = self.fetch("Place", obj_handle)
                 for place_ref in place.get_placeref_list():
                     if place_ref.ref == handle:
@@ -94,4 +94,3 @@ class PlacesGrampsFrameGroup(GrampsFrameGroupList):
                             self.build_enclosed_place_list(
                                 place_list, obj_handle, recurse=recurse
                             )
-        return

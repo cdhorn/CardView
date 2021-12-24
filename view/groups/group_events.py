@@ -150,12 +150,10 @@ class EventsGrampsFrameGroup(GrampsFrameGroupList):
                 self.group_base.obj.get_gramps_id(),
             )
         )
-        if event.get_type == EventType.BIRTH:
-            if self.birth_ref is None:
-                self.birth_ref = event_ref
-        if event.get_type == EventType.DEATH:
-            if self.death_ref is None:
-                self.death_ref = event_ref
+        if event.get_type == EventType.BIRTH and self.birth_ref:
+            self.birth_ref = event_ref
+        if event.get_type == EventType.DEATH and self.death_ref:
+            self.death_ref = event_ref
         self.group_base.obj.set_event_ref_list(new_list)
         if self.birth_ref is not None:
             self.group_base.obj.set_birth_ref(self.birth_ref)

@@ -78,14 +78,15 @@ class GrampsFrameGroupExpander(Gtk.Expander):
         """
         Handle button press.
         """
-        if button_pressed(event, BUTTON_SECONDARY):
-            if match_primary_mask(event.get_state()):
-                self.hide()
-                self.grstate.set_dirty_redraw_trigger()
-                return True
+        if button_pressed(event, BUTTON_SECONDARY) and match_primary_mask(
+            event.get_state()
+        ):
+            self.hide()
+            self.grstate.set_dirty_redraw_trigger()
+            return True
         return False
 
-    def toggle_state(self, obj):
+    def toggle_state(self, _dummy_obj):
         """
         Expand or collapse as needed.
         """

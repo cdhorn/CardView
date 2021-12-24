@@ -74,7 +74,7 @@ def get_status_ranking(
             event_type,
             primary,
             total_count,
-            total_confidence,
+            dummy_total_confidence,
             highest_confidence,
         ) = event_data
         if event_type in [EventType.BIRTH, EventType.DEATH]:
@@ -98,9 +98,12 @@ def get_status_ranking(
                         ),
                     )
                 )
-        if primary and event_name in required_list:
-            if event_name not in found_list:
-                found_list.append(event_name)
+        if (
+            primary
+            and event_name in required_list
+            and event_name not in found_list
+        ):
+            found_list.append(event_name)
 
         if primary and event_name in rank_list or "events" in rank_list:
             total_rank_items = total_rank_items + 1
@@ -114,16 +117,8 @@ def get_status_ranking(
             missing_alerts.append(item)
 
     for object_data in object_bucket:
-        (
-            obj,
-            child_obj,
-            description,
-            total_count,
-            total_confidence,
-            highest_confidence,
-        ) = object_data
         total_rank_items = total_rank_items + 1
-        total_rank_confidence = total_rank_confidence + highest_confidence
+        total_rank_confidence = total_rank_confidence + object_data[5]
 
     return (
         total_rank_items,
@@ -154,24 +149,21 @@ def collect_person_data(db, person, rank_list, buckets, include_family=True):
 
     collect_object_data(db, person, rank_list, object_bucket)
     collect_event_data(db, person, events_bucket)
-    if not include_family:
-        return
+    if include_family:
+        if "object" in rank_list:
+            for handle in person.get_parent_family_handle_list():
+                family = db.get_family_from_handle(handle)
+                for child_ref in family.get_child_ref_list():
+                    if child_ref.ref == person_handle:
+                        collect_child_object_data(
+                            db, family, _("Child"), [child_ref], object_bucket
+                        )
+                        break
 
-    if "object" in rank_list:
-        for handle in person.get_parent_family_handle_list():
+        for handle in person.get_family_handle_list():
             family = db.get_family_from_handle(handle)
-            for child_ref in family.get_child_ref_list():
-                if child_ref.ref == person_handle:
-                    collect_child_object_data(
-                        db, family, _("Child"), [child_ref], object_bucket
-                    )
-                    break
-
-    for handle in person.get_family_handle_list():
-        family = db.get_family_from_handle(handle)
-        collect_object_data(db, family, rank_list, object_bucket)
-        collect_event_data(db, family, events_bucket)
-    return
+            collect_object_data(db, family, rank_list, object_bucket)
+            collect_event_data(db, family, events_bucket)
 
 
 def collect_family_data(db, obj, rank_list, buckets, skip_handle=None):

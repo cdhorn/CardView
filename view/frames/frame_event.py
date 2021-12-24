@@ -121,12 +121,15 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         )
         self.widgets["title"].pack_start(name, True, True, 0)
 
-        if role:
-            if self.get_option("show-role-always") or role not in [
+        if role and (
+            self.get_option("show-role-always")
+            or role
+            not in [
                 "Primary",
                 "Family",
-            ]:
-                self.add_fact(self.get_label(str(role)))
+            ]
+        ):
+            self.add_fact(self.get_label(str(role)))
 
         date = glocale.date_displayer.display(event.get_date_object())
         if date:
@@ -221,26 +224,24 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 ):
                     title = event_type
                 current_type = self.primary.obj.get_type()
-                if current_type == EventType.BIRTH:
-                    if check_multiple_events(
-                        self.grstate.dbstate.db, primary_obj, EventType.BIRTH
+                if current_type == EventType.BIRTH and check_multiple_events(
+                    self.grstate.dbstate.db, primary_obj, EventType.BIRTH
+                ):
+                    birth_ref = primary_obj.get_birth_ref()
+                    if (
+                        birth_ref is not None
+                        and birth_ref.ref == self.primary.obj.get_handle()
                     ):
-                        birth_ref = primary_obj.get_birth_ref()
-                        if (
-                            birth_ref is not None
-                            and birth_ref.ref == self.primary.obj.get_handle()
-                        ):
-                            title = " ".join((title, "*"))
-                elif current_type == EventType.DEATH:
-                    if check_multiple_events(
-                        self.grstate.dbstate.db, primary_obj, EventType.DEATH
+                        title = " ".join((title, "*"))
+                elif current_type == EventType.DEATH and check_multiple_events(
+                    self.grstate.dbstate.db, primary_obj, EventType.DEATH
+                ):
+                    death_ref = primary_obj.get_death_ref()
+                    if (
+                        death_ref is not None
+                        and death_ref.ref == self.primary.obj.get_handle()
                     ):
-                        death_ref = primary_obj.get_death_ref()
-                        if (
-                            death_ref is not None
-                            and death_ref.ref == self.primary.obj.get_handle()
-                        ):
-                            title = " ".join((title, "*"))
+                        title = " ".join((title, "*"))
 
             if (
                 self.groptions.relation
@@ -427,45 +428,41 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         Build set birth option if appropriate.
         """
-        if self.primary.obj.get_type() == EventType.BIRTH:
-            if (
-                self.reference_base
-                and self.reference_base.obj.get_handle()
-                == self.primary_participant[1].get_handle()
-            ):
-                if (
-                    self.reference_base.obj.get_birth_ref().ref
-                    != self.primary.obj.get_handle()
-                ):
-                    context_menu.append(
-                        menu_item(
-                            "gramps-person",
-                            _("Set preferred birth event"),
-                            self.set_birth_event,
-                        )
-                    )
+        if (
+            self.primary.obj.get_type() == EventType.BIRTH
+            and self.reference_base
+            and self.reference_base.obj.get_handle()
+            == self.primary_participant[1].get_handle()
+            and self.reference_base.obj.get_birth_ref().ref
+            != self.primary.obj.get_handle()
+        ):
+            context_menu.append(
+                menu_item(
+                    "gramps-person",
+                    _("Set preferred birth event"),
+                    self.set_birth_event,
+                )
+            )
 
     def _death_option(self, context_menu):
         """
         Build set death option if appropriate.
         """
-        if self.primary.obj.get_type() == EventType.DEATH:
-            if (
-                self.reference_base
-                and self.reference_base.obj.get_handle()
-                == self.primary_participant[1].get_handle()
-            ):
-                if (
-                    self.reference_base.obj.get_death_ref().ref
-                    != self.primary.obj.get_handle()
-                ):
-                    context_menu.append(
-                        menu_item(
-                            "gramps-person",
-                            _("Set preferred death event"),
-                            self.set_death_event,
-                        )
-                    )
+        if (
+            self.primary.obj.get_type() == EventType.DEATH
+            and self.reference_base
+            and self.reference_base.obj.get_handle()
+            == self.primary_participant[1].get_handle()
+            and self.reference_base.obj.get_death_ref().ref
+            != self.primary.obj.get_handle()
+        ):
+            context_menu.append(
+                menu_item(
+                    "gramps-person",
+                    _("Set preferred death event"),
+                    self.set_death_event,
+                )
+            )
 
     def set_birth_event(self, *_dummy_args):
         """

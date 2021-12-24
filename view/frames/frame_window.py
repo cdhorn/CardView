@@ -42,7 +42,6 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.db import navigation_label
 from gramps.gui.managedwindow import ManagedWindow
 
 # ------------------------------------------------------------------------
@@ -50,7 +49,6 @@ from gramps.gui.managedwindow import ManagedWindow
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import make_scrollable
 
 _ = glocale.translation.sgettext
 
@@ -94,7 +92,7 @@ class FrameDebugWindow(ManagedWindow):
         self.setup_configs("interface.linked-view.debug", 768, 768)
         self.show()
 
-    def build_window_key(self, obj):
+    def build_window_key(self, _dummy_obj):
         """
         Return window key.
         """
@@ -106,7 +104,7 @@ class FrameDebugWindow(ManagedWindow):
         """
         return self.title
 
-    def build_menu_names(self, obj):
+    def build_menu_names(self, _dummy_obj):
         """
         Build menu names.
         """

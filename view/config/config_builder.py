@@ -94,6 +94,6 @@ def config_factory(space, context):
             func = build_family_timeline_grid
         elif context == "place":
             func = build_place_timeline_grid
-    elif context in CONFIG_GRID_MAP:
-        func = CONFIG_GRID_MAP[context]
+    else:
+        func = CONFIG_GRID_MAP.get(context)
     return func

@@ -187,11 +187,12 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                                     )
                                 )
 
-        if self.group_base.obj_type == "Family":
-            if self.get_option("include-indirect"):
-                self.extract_family_indirect_citations(
-                    citation_list, self.group_base.obj
-                )
+        if self.group_base.obj_type == "Family" and self.get_option(
+            "include-indirect"
+        ):
+            self.extract_family_indirect_citations(
+                citation_list, self.group_base.obj
+            )
 
         if self.group_base.obj_type == "Source":
             for (

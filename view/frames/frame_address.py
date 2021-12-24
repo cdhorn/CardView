@@ -80,15 +80,11 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
             if text:
                 self.add_fact(self.get_label(text))
 
-            if groptions.age_base:
-                if groptions.context in ["timeline"]:
-                    self.load_age(
-                        groptions.age_base, address.get_date_object()
-                    )
-                elif self.grstate.config.get("options.group.address.show-age"):
-                    self.load_age(
-                        groptions.age_base, address.get_date_object()
-                    )
+            if groptions.age_base and (
+                groptions.context in ["timeline"]
+                or self.grstate.config.get("options.group.address.show-age")
+            ):
+                self.load_age(groptions.age_base, address.get_date_object())
 
         if len(self.widgets["facts"]) == 0:
             self.add_fact(self.get_label("".join(("[", _("Empty"), "]"))))
@@ -107,13 +103,13 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         """
         Determine color scheme to be used if available."
         """
-        if self.grstate.config.get("options.global.display.use-color-scheme"):
-            if self.primary.obj_type == "Person":
-                living = probably_alive(
-                    self.primary.obj, self.grstate.dbstate.db
-                )
-                return get_person_color_css(
-                    self.primary.obj,
-                    living=living,
-                )
+        if (
+            self.grstate.config.get("options.global.display.use-color-scheme")
+            and self.primary.obj_type == "Person"
+        ):
+            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
+            return get_person_color_css(
+                self.primary.obj,
+                living=living,
+            )
         return ""

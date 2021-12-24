@@ -38,7 +38,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 _ = glocale.translation.sgettext
 
 
-def get_occupations_field(grstate, obj, event_type, args):
+def get_occupations_field(_dummy_grstate, obj, _dummy_event_type, args):
     """
     Calculate a list of occupations.
     """
@@ -48,14 +48,18 @@ def get_occupations_field(grstate, obj, event_type, args):
     occupations = []
     event_cache = args.get("event_cache") or {}
     for event in event_cache:
-        if event.get_type().xml_str() == "Occupation":
-            if event.get_description() not in occupations:
-                occupations.append(event.get_description())
+        if (
+            event.get_type().xml_str() == "Occupation"
+            and event.get_description() not in occupations
+        ):
+            occupations.append(event.get_description())
 
     for attribute in obj.get_attribute_list():
-        if attribute.get_type().xml_str() == "Occupation":
-            if attribute.get_value() not in occupations:
-                occupations.append(attribute.get_value())
+        if (
+            attribute.get_type().xml_str() == "Occupation"
+            and attribute.get_value() not in occupations
+        ):
+            occupations.append(attribute.get_value())
 
     if occupations:
         return [

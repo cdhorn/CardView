@@ -35,7 +35,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Family, Media, Person
+from gramps.gen.lib import Family, Person
 
 # ------------------------------------------------------------------------
 #
@@ -101,10 +101,10 @@ def build_simple_group(grstate, group_type, obj, args):
         return None
     if "raw" in args and args["raw"]:
         return group
-    return group_wrapper(grstate, groptions, group, (single, plural, None))
+    return group_wrapper(grstate, group, (single, plural, None))
 
 
-def group_wrapper(grstate, groptions, group, title):
+def group_wrapper(grstate, group, title):
     """
     Wrap a frame group widget with an expander.
     """
@@ -153,7 +153,7 @@ def get_children_group(
         title_tuple = (_("Sibling"), _("Siblings"), None)
     else:
         title_tuple = (_("Child"), _("Children"), None)
-    return group_wrapper(grstate, groptions, group, title_tuple)
+    return group_wrapper(grstate, group, title_tuple)
 
 
 def get_family_unit(grstate, family, args, context="family", relation=None):
@@ -261,7 +261,6 @@ def get_references_group(
     maximum=0,
     obj_types=None,
     obj_list=None,
-    age_base=None,
 ):
     """
     Get the group of objects that reference the given object.
@@ -282,11 +281,10 @@ def get_references_group(
                 total = total + 1
     else:
         for obj_type, handle in obj_list:
-            if obj_type in obj_types:
-                if handle not in handle_cache:
-                    tuple_list.append((obj_type, handle))
-                    handle_cache.append(handle)
-                    total = total + 1
+            if obj_type in obj_types and handle not in handle_cache:
+                tuple_list.append((obj_type, handle))
+                handle_cache.append(handle)
+                total = total + 1
     del handle_cache
     tuple_list.sort(key=lambda x: x[0])
 
@@ -312,7 +310,7 @@ def get_references_group(
         title = "".join(
             (title, " (", str(not_shown), " ", _("Not Shown"), ")")
         )
-    return group_wrapper(grstate, groptions, group, (None, None, title))
+    return group_wrapper(grstate, group, (None, None, title))
 
 
 def get_events_group(grstate, obj, args):
@@ -363,4 +361,4 @@ def prepare_event_group(grstate, obj, obj_type, args):
         title = " ".join(("1", event_type, _("Event")))
     else:
         title = " ".join((str(len(group)), event_type, _("Events")))
-    return group_wrapper(grstate, groptions, elements, (None, None, title))
+    return group_wrapper(grstate, elements, (None, None, title))

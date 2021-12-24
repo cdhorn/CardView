@@ -36,8 +36,6 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditPersonRef
 
 # ------------------------------------------------------------------------
 #

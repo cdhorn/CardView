@@ -257,9 +257,11 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
         if self.grstate.config.get("options.global.indicator.child-objects"):
             self.load_indicators(grobject)
 
-        if self.grstate.config.get("options.global.indicator.tags"):
-            if grobject.has_tags:
-                self.load_tags(grobject)
+        if (
+            self.grstate.config.get("options.global.indicator.tags")
+            and grobject.has_tags
+        ):
+            self.load_tags(grobject)
         self.show_all()
 
     def load_status(self, grobject):
@@ -279,11 +281,12 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
 
         if obj_type == "Person":
             self.__load_person(obj, check)
-        elif obj_type == "Family":
-            if check("options.global.indicator.children"):
-                count = len(obj.get_child_ref_list())
-                if count:
-                    self.__add_icon("gramps-person", "child", count)
+        elif obj_type == "Family" and check(
+            "options.global.indicator.children"
+        ):
+            count = len(obj.get_child_ref_list())
+            if count:
+                self.__add_icon("gramps-person", "child", count)
         if check("options.global.indicator.events") and grobject.has_events:
             count = len(obj.get_event_ref_list())
             if count:
@@ -497,12 +500,11 @@ class GrampsImage(Gtk.EventBox):
         Open the image in the default picture viewer.
         """
         if button_pressed(event, BUTTON_PRIMARY):
-            if not self.active:
-                if self.grstate.config.get(
-                    "options.global.general.image-page-link"
-                ):
-                    context = GrampsContext(self.media, None, None)
-                    return self.grstate.load_page(context.pickled)
+            if not self.active and self.grstate.config.get(
+                "options.global.general.image-page-link"
+            ):
+                context = GrampsContext(self.media, None, None)
+                return self.grstate.load_page(context.pickled)
             open_file_with_default_application(self.path, self.grstate.uistate)
             return True
         return False

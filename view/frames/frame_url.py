@@ -92,7 +92,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         self.enable_drag()
         self.set_css_style()
 
-    def button_released(self, obj, event):
+    def button_released(self, _dummy_obj, event):
         """
         Handle button release.
         """

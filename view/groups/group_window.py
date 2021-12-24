@@ -96,7 +96,7 @@ class FrameGroupWindow(ManagedWindow):
         self.setup_configs(prefix, 768, 768)
         self.show()
 
-    def build_window_key(self, obj):
+    def build_window_key(self, _dummy_obj):
         """
         Return window key.
         """
@@ -117,7 +117,7 @@ class FrameGroupWindow(ManagedWindow):
             return title
         return ""
 
-    def build_menu_names(self, obj):
+    def build_menu_names(self, _dummy_obj):
         """
         Build menu names.
         """

@@ -40,7 +40,6 @@ from gi.repository import Gdk, Gtk
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gui.widgets import BasicLabel
 
@@ -53,6 +52,8 @@ from .config_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 
+
+BOLD_MARKUP = "<b>{}</b>"
 
 CONFIDENCE_TYPE = (
     "Confidence",
@@ -173,16 +174,16 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
     grid.attach(scroll_window, 0, 3, 7, 1)
     key, title, space = scheme_type
     label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
-    label.set_markup("<b>{}</b>".format(title))
+    label.set_markup(BOLD_MARKUP.format(title))
     colors_grid.attach(label, 0, 0, 2, 1)
 
     light_grid = create_grid()
     label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
-    label.set_markup("<b>{}</b>".format(_("Light colors")))
+    label.set_markup(BOLD_MARKUP.format(_("Light colors")))
     light_grid.attach(label, 0, 0, 2, 1)
     dark_grid = create_grid()
     label = Gtk.Label(halign=Gtk.Align.START, margin_top=12)
-    label.set_markup("<b>{}</b>".format(_("Dark colors")))
+    label.set_markup(BOLD_MARKUP.format(_("Dark colors")))
     dark_grid.attach(label, 0, 0, 2, 1)
 
     for label, key, row, column in scheme_options:

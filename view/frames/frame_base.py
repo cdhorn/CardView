@@ -389,7 +389,7 @@ class GrampsFrame(GrampsFrameView):
                 parent=self.grstate.uistate.window,
             )
 
-    def build_context_menu(self, obj, event):
+    def build_context_menu(self, _dummy_obj, event):
         """
         Build the action menu for a right click, should be defined in
         derived classes.

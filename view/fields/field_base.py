@@ -71,24 +71,22 @@ def get_event_field(grstate, obj, event_type, args):
     """
     args = args or {}
     event_cache = args.get("event_cache") or {}
-    if event_type == "Birth":
-        if obj.get_birth_ref() is not None:
-            return find_event_ref(
-                grstate,
-                args,
-                event_cache,
-                obj.get_birth_ref(),
-                EventType.BIRTH,
-            )
-    if event_type == "Death":
-        if obj.get_death_ref() is not None:
-            return find_event_ref(
-                grstate,
-                args,
-                event_cache,
-                obj.get_death_ref(),
-                EventType.DEATH,
-            )
+    if event_type == "Birth" and obj.get_birth_ref():
+        return find_event_ref(
+            grstate,
+            args,
+            event_cache,
+            obj.get_birth_ref(),
+            EventType.BIRTH,
+        )
+    if event_type == "Death" and obj.get_death_ref():
+        return find_event_ref(
+            grstate,
+            args,
+            event_cache,
+            obj.get_death_ref(),
+            EventType.DEATH,
+        )
     skip_birth = args.get("skip_birth_alternates")
     have_birth = args.get("have_birth")
     skip_death = args.get("skip_death_alternates")
@@ -99,23 +97,27 @@ def get_event_field(grstate, obj, event_type, args):
     have_divorce = args.get("have_divorce")
     for event in event_cache:
         if event.get_type().xml_str() == event_type:
-            if skip_birth and have_birth:
-                if event_type in _BIRTH_EQUIVALENTS:
-                    return []
-            if skip_death and have_death:
-                if event_type in _DEATH_EQUIVALENTS:
-                    return []
-            if skip_marriage and have_marriage:
-                if event_type in _MARRIAGE_EQUIVALENTS:
-                    return []
-            if skip_divorce and have_divorce:
-                if event_type in _DIVORCE_EQUIVALENTS:
-                    return []
+            if skip_birth and have_birth and event_type in _BIRTH_EQUIVALENTS:
+                return []
+            if skip_death and have_death and event_type in _DEATH_EQUIVALENTS:
+                return []
+            if (
+                skip_marriage
+                and have_marriage
+                and event_type in _MARRIAGE_EQUIVALENTS
+            ):
+                return []
+            if (
+                skip_divorce
+                and have_divorce
+                and event_type in _DIVORCE_EQUIVALENTS
+            ):
+                return []
             return get_event_labels(grstate, event, args)
     return []
 
 
-def get_fact_field(grstate, obj, event_type, args):
+def get_fact_field(_dummy_grstate, _dummy_obj, event_type, args):
     """
     Find an event and return the description.
     """
@@ -124,25 +126,27 @@ def get_fact_field(grstate, obj, event_type, args):
     assert get_link is not None
     event_cache = args.get("event_cache") or {}
     for event in event_cache:
-        if event.get_type().xml_str() == event_type:
-            if event.get_description():
-                label = get_link(
-                    str(event.get_type()),
-                    "Event",
-                    event.get_handle(),
-                    title=False,
-                )
-                value = get_link(
-                    event.get_description(),
-                    "Event",
-                    event.get_handle(),
-                    title=False,
-                )
-                return [(label, value)]
+        if (
+            event.get_type().xml_str() == event_type
+            and event.get_description()
+        ):
+            label = get_link(
+                str(event.get_type()),
+                "Event",
+                event.get_handle(),
+                title=False,
+            )
+            value = get_link(
+                event.get_description(),
+                "Event",
+                event.get_handle(),
+                title=False,
+            )
+            return [(label, value)]
     return []
 
 
-def get_attribute_field(grstate, obj, attribute_type, args):
+def get_attribute_field(_dummy_grstate, obj, attribute_type, args):
     """
     Find an attribute and return field data.
     """
@@ -151,13 +155,15 @@ def get_attribute_field(grstate, obj, attribute_type, args):
     assert get_label is not None
     skip_labels = args.get("skip_labels")
     for attribute in obj.get_attribute_list():
-        if attribute.get_type().xml_str() == attribute_type:
-            if attribute.get_value():
-                value = get_label(attribute.get_value())
-                if skip_labels:
-                    return [(value, get_label(""))]
-                label = get_label(str(attribute.get_type()))
-                return [(label, value)]
+        if (
+            attribute.get_type().xml_str() == attribute_type
+            and attribute.get_value()
+        ):
+            value = get_label(attribute.get_value())
+            if skip_labels:
+                return [(value, get_label(""))]
+            label = get_label(str(attribute.get_type()))
+            return [(label, value)]
     return []
 
 
