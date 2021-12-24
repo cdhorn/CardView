@@ -243,10 +243,24 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid,
         _(
+            "Enable Zotero citation picking support with Better BibTex extension"
+        ),
+        13,
+        "options.global.general.zotero-enabled",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable experimental Zotero source note imports"),
+        14,
+        "options.global.general.zotero-enabled-notes",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _(
             "Open second instance of association editor to add a "
             "reciprocal association"
         ),
-        13,
+        15,
         "options.global.general.create-reciprocal-associations",
     )
     configdialog.add_checkbox(
@@ -255,7 +269,7 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Include notes found on child objects in the context menu "
             "note items"
         ),
-        14,
+        16,
         "options.global.general.include-child-notes",
     )
     configdialog.add_checkbox(
@@ -264,13 +278,13 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Parse and include urls found in notes in the url group "
             "when possible"
         ),
-        15,
+        17,
         "options.global.general.include-note-urls",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable warning dialogs when detaching or deleting objects"),
-        16,
+        18,
         "options.global.general.enable-warnings",
     )
     return add_config_reset(

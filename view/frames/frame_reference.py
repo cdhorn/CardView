@@ -45,6 +45,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Attribute, Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
+from gramps.gui.dialog import WarningDialog
 from gramps.gui.editors import (
     EditAttribute,
     EditCitation,
@@ -238,6 +239,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     self.add_new_ref_source_citation,
                     self.add_existing_ref_source_citation,
                     self.add_existing_ref_citation,
+                    self.add_zotero_ref_citation,
                     self.remove_ref_citation,
                 )
             )
@@ -509,6 +511,31 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                     pass
             else:
                 raise ValueError("Selection must be either source or citation")
+
+    def add_zotero_ref_citation(self, _dummy_obj):
+        """
+        Add citation and possible sources as well using Zotero picker.
+        """
+        if self.zotero.online:
+            import_notes = self.grstate.config.get(
+                "options.global.general.zotero-enabled-notes"
+            )
+            citation = self.zotero.add_citation(
+                self.reference_base.obj,
+                self.reference.obj,
+                import_notes=import_notes,
+            )
+        else:
+            WarningDialog(
+                _("Could Not Connect To Local Zotero Client"),
+                _(
+                    "A connection test to the local Zotero client using "
+                    "the Better BibTex Zotero extension failed. The local "
+                    "Zotero client needs to be running and extension "
+                    "installed in order to use it as a citation picker."
+                ),
+                parent=self.grstate.uistate.window,
+            )
 
     def remove_ref_citation(self, _dummy_obj, citation):
         """

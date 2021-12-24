@@ -48,7 +48,7 @@ from gi.repository import GObject, Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import HandleError, WindowActiveError
+from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib.tableobj import TableObject
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image

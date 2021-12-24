@@ -95,6 +95,7 @@ from ..common.common_utils import (
 from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
 from .frame_view import GrampsFrameView
+from ..zotero.zotero import GrampsZotero
 
 _ = glocale.translation.sgettext
 
@@ -127,6 +128,10 @@ class GrampsFrame(GrampsFrameView):
             self.init_layout()
         self.eventbox.connect("button-press-event", self.button_pressed)
         self.eventbox.connect("button-release-event", self.button_released)
+        if self.grstate.config.get("options.global.general.zotero-enabled"):
+            self.zotero = GrampsZotero(self.grstate.dbstate.db)
+        else:
+            self.zotero = None
 
     def get_context(self):
         """
@@ -648,6 +653,7 @@ class GrampsFrame(GrampsFrameView):
         add_new_source_citation,
         add_existing_source_citation,
         add_existing_citation,
+        add_zotero_citation,
         remove_citation,
     ):
         """
@@ -675,6 +681,14 @@ class GrampsFrame(GrampsFrameView):
                 add_existing_citation,
             )
         )
+        if self.zotero:
+            menu.add(
+                menu_item(
+                    "list-add",
+                    _("Add citation using Zotero"),
+                    add_zotero_citation,
+                )
+            )
         if len(obj.get_citation_list()) > 0:
             removemenu = Gtk.Menu()
             menu.add(
@@ -798,6 +812,29 @@ class GrampsFrame(GrampsFrameView):
                     pass
             else:
                 raise ValueError("Selection must be either source or citation")
+
+    def add_zotero_citation(self, _dummy_obj):
+        """
+        Add citation and possible sources as well using Zotero picker.
+        """
+        if self.zotero.online:
+            import_notes = self.grstate.config.get(
+                "options.global.general.zotero-enabled-notes"
+            )
+            citation = self.zotero.add_citation(
+                self.primary.obj, self.focus.obj, import_notes=import_notes
+            )
+        else:
+            WarningDialog(
+                _("Could Not Connect To Local Zotero Client"),
+                _(
+                    "A connection test to the local Zotero client using "
+                    "the Better BibTex Zotero extension failed. The local "
+                    "Zotero client needs to be running and extension "
+                    "installed in order to use it as a citation picker."
+                ),
+                parent=self.grstate.uistate.window,
+            )
 
     def edit_citation(self, _dummy_obj, citation):
         """

@@ -246,6 +246,7 @@ class PrimaryGrampsFrame(GrampsFrame):
                     self.add_new_source_citation,
                     self.add_existing_source_citation,
                     self.add_existing_citation,
+                    self.add_zotero_citation,
                     self.remove_citation,
                 )
             )
