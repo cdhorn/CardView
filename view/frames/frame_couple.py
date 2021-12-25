@@ -37,6 +37,7 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.lib import EventType
+from gramps.gen.utils.db import family_name
 from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
@@ -96,9 +97,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 if profile:
                     self.partner2.add(profile)
         else:
-            data = self.get_title()
-            if data and "]" in data:
-                title = data.split("]")[1].strip()
+            title = family_name(family, grstate.dbstate.db)
 
         label = self.get_link(title, "Family", family.handle)
         self.widgets["title"].pack_start(label, True, True, 0)
