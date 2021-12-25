@@ -43,9 +43,9 @@ from gramps.gui.ddtargets import DdTargets
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
-from ..common.common_utils import ConfigReset, make_scrollable, set_dnd_css
+from ..common.common_utils import make_scrollable, set_dnd_css
 from .config_const import PAGES
-from .config_utils import create_grid
+from .config_utils import ConfigReset, create_grid
 
 _ = glocale.translation.sgettext
 

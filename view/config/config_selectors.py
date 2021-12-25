@@ -21,7 +21,7 @@
 #
 
 """
-Frame option selection classes
+Config option selection classes
 """
 
 # ------------------------------------------------------------------------

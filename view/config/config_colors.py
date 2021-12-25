@@ -48,7 +48,7 @@ from gramps.gui.widgets import BasicLabel
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .config_utils import add_config_reset, create_grid
+from .config_utils import ConfigPreferences, add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 
@@ -162,10 +162,12 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
             "The default Gramps color scheme is managed under "
             "the Gramps preferences"
         ),
-        5,
+        0,
         start=0,
         bold=True,
     )
+    preferences = ConfigPreferences(grstate)
+    grid.attach(preferences, 0, 1, 1, 1)
     scroll_window = Gtk.ScrolledWindow()
     colors_grid = create_grid()
     scroll_window.add(colors_grid)
