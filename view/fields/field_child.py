@@ -119,7 +119,9 @@ def get_parent_text(db, family, birth_date, parent_type):
                 parent_text = " ".join((_("Father"), _("age"), span))
 
     if parent_type == "Father":
-        dummy_parent, death = get_person_birth_or_death(db, parent_handle)
+        dummy_parent, death = get_person_birth_or_death(
+            db, parent_handle, birth=False
+        )
         if death:
             death_sortval = get_date_sortval(death)
             if death_sortval < birth_date.sortval:
