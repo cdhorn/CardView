@@ -19,7 +19,7 @@
 #
 
 """
-PlacesGrampsFrameGroup
+EnclosingPlacesGrampsFrameGroup and EnclosedPlacesGrampsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -42,10 +42,58 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# PlacesGrampsFrameGroup class
+# EnclosingPlacesGrampsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class PlacesGrampsFrameGroup(GrampsFrameGroupList):
+class EnclosingPlacesGrampsFrameGroup(GrampsFrameGroupList):
+    """
+    A container for managing a list of enclosing places.
+    """
+
+    def __init__(self, grstate, groptions, place):
+        GrampsFrameGroupList.__init__(self, grstate, groptions, place)
+        #        groptions.set_backlink(place.get_handle())
+        groptions.option_space = "options.group.place"
+        groptions.set_ref_mode(
+            grstate.config.get(
+                "".join((groptions.option_space, ".reference-mode"))
+            )
+        )
+        place_list = []
+        self.build_enclosing_place_list(place_list, place.get_handle())
+        place_list.reverse()
+
+        for (list_place, list_place_ref) in place_list:
+            profile = PlaceRefGrampsFrame(
+                grstate, groptions, list_place, list_place_ref
+            )
+            self.add_frame(profile)
+        self.show_all()
+
+    def build_enclosing_place_list(self, place_list, handle):
+        """
+        Build a list of enclosing places.
+        """
+        place = self.fetch("Place", handle)
+        for place_ref in place.get_placeref_list():
+            found = False
+            for (list_place, dummy_list_place_ref) in place_list:
+                if list_place.get_handle() == place_ref.ref:
+                    found = True
+                    break
+            if found:
+                continue
+            ref_place = self.fetch("Place", place_ref.ref)
+            place_list.append((ref_place, place_ref))
+            self.build_enclosing_place_list(place_list, place_ref.ref)
+
+
+# ------------------------------------------------------------------------
+#
+# EnclosedPlacesGrampsFrameGroup class
+#
+# ------------------------------------------------------------------------
+class EnclosedPlacesGrampsFrameGroup(GrampsFrameGroupList):
     """
     A container for managing a list of enclosed places.
     """

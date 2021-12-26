@@ -42,7 +42,10 @@ from .group_media import MediaGrampsFrameGroup
 from .group_names import NamesGrampsFrameGroup
 from .group_notes import NotesGrampsFrameGroup
 from .group_ordinances import LDSOrdinancesGrampsFrameGroup
-from .group_places import PlacesGrampsFrameGroup
+from .group_places import (
+    EnclosingPlacesGrampsFrameGroup,
+    EnclosedPlacesGrampsFrameGroup,
+)
 from .group_repositories import RepositoriesGrampsFrameGroup
 from .group_sources import SourcesGrampsFrameGroup
 from .group_timeline import TimelineGrampsFrameGroup
@@ -102,8 +105,13 @@ GRAMPS_GROUPS = {
         _("Attribute"),
         _("Attributes"),
     ),
-    "place": (
-        PlacesGrampsFrameGroup,
+    "enclosing": (
+        EnclosingPlacesGrampsFrameGroup,
+        _("Enclosing Place"),
+        _("Enclosing Places"),
+    ),
+    "enclosed": (
+        EnclosedPlacesGrampsFrameGroup,
         _("Enclosed Place"),
         _("Enclosed Places"),
     ),
