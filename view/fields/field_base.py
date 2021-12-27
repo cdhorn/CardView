@@ -97,24 +97,46 @@ def get_event_field(grstate, obj, event_type, args):
     have_divorce = args.get("have_divorce")
     for event in event_cache:
         if event.get_type().xml_str() == event_type:
-            if skip_birth and have_birth and event_type in _BIRTH_EQUIVALENTS:
-                return []
-            if skip_death and have_death and event_type in _DEATH_EQUIVALENTS:
-                return []
-            if (
-                skip_marriage
-                and have_marriage
-                and event_type in _MARRIAGE_EQUIVALENTS
+            if skip_person_labels(
+                skip_birth, have_birth, skip_death, have_death, event_type
             ):
                 return []
-            if (
-                skip_divorce
-                and have_divorce
-                and event_type in _DIVORCE_EQUIVALENTS
+            if skip_family_labels(
+                skip_marriage,
+                have_marriage,
+                skip_divorce,
+                have_divorce,
+                event_type,
             ):
                 return []
             return get_event_labels(grstate, event, args)
     return []
+
+
+def skip_person_labels(
+    skip_birth, have_birth, skip_death, have_death, event_type
+):
+    """
+    Return true if labels not needed.
+    """
+    if skip_birth and have_birth and event_type in _BIRTH_EQUIVALENTS:
+        return True
+    if skip_death and have_death and event_type in _DEATH_EQUIVALENTS:
+        return True
+    return False
+
+
+def skip_family_labels(
+    skip_marriage, have_marriage, skip_divorce, have_divorce, event_type
+):
+    """
+    Return true if labels not needed.
+    """
+    if skip_marriage and have_marriage and event_type in _MARRIAGE_EQUIVALENTS:
+        return True
+    if skip_divorce and have_divorce and event_type in _DIVORCE_EQUIVALENTS:
+        return True
+    return False
 
 
 def get_fact_field(_dummy_grstate, _dummy_obj, event_type, args):

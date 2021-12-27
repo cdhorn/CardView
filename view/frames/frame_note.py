@@ -64,10 +64,21 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
         )
         PrimaryGrampsFrame.__init__(self, grstate, groptions, note)
         self.note_reference = reference
-
         preview_mode = self.get_option("preview-mode")
         preview_lines = self.get_option("preview-lines")
+        self.__add_note_text(note, preview_mode, preview_lines)
+        self.__add_note_title(note, preview_mode)
+        self.__add_note_reference(reference)
+        self.enable_drag()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_note_text(self, note, preview_mode, preview_lines):
+        """
+        Add note text.
+        """
         styled_text_buffer = StyledTextBuffer()
         text = note.get_styledtext()
         if preview_mode:
@@ -85,10 +96,13 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
                 count = count + 1
             text = StyledText()
             text = text.join(new_lines)
-
         styled_text_buffer.set_text(text)
         self.text_view.set_buffer(styled_text_buffer)
 
+    def __add_note_title(self, note, preview_mode):
+        """
+        Add note title.
+        """
         title = ""
         if note.type:
             title = glocale.translation.sgettext(note.type.xml_str())
@@ -105,12 +119,12 @@ class NoteGrampsFrame(PrimaryGrampsFrame):
             )
             self.add_fact(label)
 
+    def __add_note_reference(self, reference):
+        """
+        Add note reference.
+        """
         if reference:
             self.widgets["attributes"].add_fact(self.get_label(reference))
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
 
     def build_layout(self):
         """

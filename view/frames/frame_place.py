@@ -47,7 +47,7 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -67,9 +67,25 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
         ReferenceGrampsFrame.__init__(
             self, grstate, groptions, place, reference_tuple=reference_tuple
         )
+        self.__add_place_title(place)
+        self.__add_place_type(place)
+        self.__add_place_code(place)
+        self.__add_place_coordinates(place)
+        self.__add_place_alternative_names(place)
+        self.enable_drag()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
-        if "group" in groptions.option_space:
-            place_name = place_displayer.display(grstate.dbstate.db, place)
+    def __add_place_title(self, place):
+        """
+        Add place title.
+        """
+        if "group" in self.groptions.option_space:
+            place_name = place_displayer.display(
+                self.grstate.dbstate.db, place
+            )
             title = self.get_link(
                 place_name,
                 "Place",
@@ -79,23 +95,35 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
             title = self.get_title_breadcrumbs()
         self.widgets["title"].pack_start(title, True, False, 0)
 
+    def __add_place_type(self, place):
+        """
+        Add place type.
+        """
         if place.get_type():
             text = glocale.translation.sgettext(place.get_type().xml_str())
             if text:
                 self.add_fact(
                     self.get_label(text), label=self.get_label(_("Type"))
                 )
+
+    def __add_place_code(self, place):
+        """
+        Add place code.
+        """
         if place.get_code():
             self.add_fact(
                 self.get_label(place.get_code()),
                 label=self.get_label(_("Code")),
             )
 
+    def __add_place_coordinates(self, place):
+        """
+        Add place geographic coordinates.
+        """
         if place.get_latitude():
             latitude_text = place.get_latitude()
         else:
             latitude_text = "".join(("[", _("Missing"), "]"))
-
         if place.get_longitude():
             longitude_text = place.get_longitude()
         else:
@@ -104,14 +132,18 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
         label = ", ".join((_("Latitude"), _("Longitude")))
         self.add_fact(self.get_label(text), label=self.get_label(label))
 
-        if place.get_alternative_names():
-            for alternate_name in place.get_alternative_names():
+    def __add_place_alternative_names(self, place):
+        """
+        Add place alternate names.
+        """
+        alternative_names = place.get_alternative_names()
+        if alternative_names:
+            for alternate_name in alternative_names:
                 value = alternate_name.get_value()
                 if alternate_name.get_language():
                     value = "".join(
                         (value, " (", alternate_name.get_language(), ")")
                     )
-
                 date = glocale.date_displayer.display(
                     alternate_name.get_date_object()
                 )
@@ -123,10 +155,6 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
                     label=self.get_label(date),
                     extra=True,
                 )
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
 
     def get_title_breadcrumbs(self):
         """

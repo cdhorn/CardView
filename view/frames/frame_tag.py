@@ -42,14 +42,14 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
-from ..common.common_utils import menu_item
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
 from .frame_base import GrampsFrame
+from ..menus.menu_utils import menu_item, new_menu, show_menu
+
 
 _ = glocale.translation.sgettext
 
@@ -103,15 +103,11 @@ class TagGrampsFrame(GrampsFrame):
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
-        self.widgets["facts"].attach(
-            self.get_label("".join((_("Priority"), ":"))), 0, 0, 1, 1
-        )
+        self.widgets["facts"].attach(self.get_label(_("Priority")), 0, 0, 1, 1)
         self.widgets["facts"].attach(
             self.get_label(str(tag.priority)), 1, 0, 1, 1
         )
-        self.widgets["facts"].attach(
-            self.get_label("".join((_("Color"), ":"))), 0, 1, 1, 1
-        )
+        self.widgets["facts"].attach(self.get_label(_("Color")), 0, 1, 1, 1)
         label = self.get_label(tag.color)
         self.widgets["facts"].attach(label, 1, 1, 1, 1)
         self.set_css_style()
@@ -120,18 +116,11 @@ class TagGrampsFrame(GrampsFrame):
         """
         Build the action menu for the tag.
         """
-        menu = Gtk.Menu()
-        menu.add(menu_item("gramps-tag", _("Edit tag"), self.edit_tag))
+        menu = new_menu("gramps-tag", _("Edit tag"), self.edit_tag)
         menu.add(
             menu_item("gramps-tag", _("Organize tags"), self.organize_tags)
         )
-        menu.attach_to_widget(self, None)
-        menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            menu.popup_at_pointer(event)
-        else:
-            menu.popup(None, None, None, None, event.button, event.time)
-        return True
+        return show_menu(menu, self, event)
 
     def edit_tag(self, _dummy_obj):
         """

@@ -33,7 +33,6 @@ from .config_global import (
     build_media_bar_grid,
     build_status_grid,
 )
-from .config_layout import build_layout_grid
 from .config_objects import (
     build_address_grid,
     build_citation_grid,

@@ -68,7 +68,18 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
 
     def __init__(self, grstate, groptions, obj, attribute):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, attribute)
+        self.__add_attribute_title(attribute)
+        self.__add_attribute_value(attribute)
+        self.enable_drag()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_attribute_title(self, attribute):
+        """
+        Add attribute title.
+        """
         name = glocale.translation.sgettext(attribute.get_type().xml_str())
         if "Ref" not in self.primary.obj_type:
             label = self.get_link(
@@ -88,13 +99,12 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
             label.set_markup(name)
         self.widgets["title"].pack_start(label, False, False, 0)
 
+    def __add_attribute_value(self, attribute):
+        """
+        Add attribute value.
+        """
         if attribute.get_value():
             self.add_fact(self.get_label(attribute.get_value()))
-
-        self.show_all()
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
 
     def switch_attribute_page(self, *_dummy_obj):
         """

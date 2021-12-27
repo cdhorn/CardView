@@ -98,7 +98,7 @@ class FrameDebugWindow(ManagedWindow):
         """
         return "dump-window-key"
 
-    def build_title(self, title):
+    def build_title(self, _dummy_title):
         """
         Build title if one not provided.
         """

@@ -56,7 +56,22 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
 
     def __init__(self, grstate, groptions, obj, ordinance):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, ordinance)
+        self.__add_ordinance_title(ordinance)
+        self.__add_ordinance_date(ordinance)
+        self.__add_ordinance_place(ordinance)
+        self.__add_ordinance_family(ordinance)
+        self.__add_ordinance_temple(ordinance)
+        self.__add_ordinance_status(ordinance)
+        self.show_all()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_ordinance_title(self, ordinance):
+        """
+        Add ordinance title.
+        """
         title = ": ".join((_("LDS"), ordinance.type2str()))
         label = self.get_link(
             title,
@@ -66,18 +81,31 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
-        if ordinance.get_date_object():
-            date = glocale.date_displayer.display(ordinance.get_date_object())
+    def __add_ordinance_date(self, ordinance):
+        """
+        Add ordinance date.
+        """
+        ordinance_date = ordinance.get_date_object()
+        if ordinance_date:
+            date = glocale.date_displayer.display(ordinance_date)
             if date:
-                self.add_fact(self.get_label(date))
-
-            if groptions.age_base and (
-                groptions.context in ["timeline"]
+                self.add_fact(
+                    self.get_label(date), label=self.get_label(_("Date"))
+                )
+            age_base = self.groptions.age_base
+            if age_base and (
+                self.groptions.context in ["timeline"]
                 or self.grstate.config.get("options.group.ldsord.show-age")
             ):
-                self.load_age(groptions.age_base, ordinance.get_date_object())
+                self.load_age(age_base, ordinance_date)
 
-        text = place_displayer.display_event(grstate.dbstate.db, ordinance)
+    def __add_ordinance_place(self, ordinance):
+        """
+        Add ordinance place.
+        """
+        text = place_displayer.display_event(
+            self.grstate.dbstate.db, ordinance
+        )
         if text:
             place = self.get_link(
                 text,
@@ -86,26 +114,39 @@ class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
                 hexpand=False,
                 title=False,
             )
-            self.add_fact(place)
+            self.add_fact(place, label=self.get_label(_("Place")))
 
-        if ordinance.get_family_handle():
-            family = self.grstate.fetch(
-                "Family", ordinance.get_family_handle()
-            )
+    def __add_ordinance_family(self, ordinance):
+        """
+        Add ordinance family.
+        """
+        ordinance_handle = ordinance.get_family_handle()
+        if ordinance_handle:
+            family = self.grstate.fetch("Family", ordinance_handle)
             text = family_name(family, self.grstate.dbstate.db)
-            self.add_fact(self.get_label(": ".join((_("Family"), text))))
+            self.add_fact(
+                self.get_label(text), label=self.get_label(_("Family"))
+            )
 
-        if ordinance.get_temple():
-            temple = ": ".join((_("Temple"), ordinance.get_temple()))
-            self.add_fact(self.get_label(temple))
+    def __add_ordinance_temple(self, ordinance):
+        """
+        Add ordinance temple.
+        """
+        temple = ordinance.get_temple()
+        if temple:
+            self.add_fact(
+                self.get_label(temple), label=self.get_label(_("Temple"))
+            )
 
+    def __add_ordinance_status(self, ordinance):
+        """
+        Add ordinance status.
+        """
         if ordinance.get_status():
-            status = ": ".join((_("Status"), ordinance.status2str()))
-            self.add_fact(self.get_label(status))
-
-        self.show_all()
-        self.enable_drop()
-        self.set_css_style()
+            self.add_fact(
+                self.get_label(ordinance.status2str()),
+                label=self.get_label(_("Status")),
+            )
 
     def switch_ordinance_page(self, *_dummy_obj):
         """

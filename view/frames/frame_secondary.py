@@ -54,6 +54,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
 from .frame_base import GrampsFrame
+from ..menus.menu_utils import (
+    add_citations_menu,
+    add_notes_menu,
+    add_privacy_menu_option,
+    show_menu,
+)
 
 _ = glocale.translation.sgettext
 
@@ -123,35 +129,35 @@ class SecondaryGrampsFrame(GrampsFrame):
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        if self.secondary.has_citations:
-            context_menu.append(
-                self._citations_option(
-                    self.secondary.obj,
-                    self.add_new_source_citation,
-                    self.add_existing_source_citation,
-                    self.add_existing_citation,
-                    self.remove_citation,
-                )
-            )
-        if self.secondary.has_notes:
-            context_menu.append(
-                self._notes_option(
-                    self.secondary.obj,
-                    self.add_new_note,
-                    self.add_existing_note,
-                    self.remove_note,
-                )
-            )
-        context_menu.append(self._change_privacy_option())
-        context_menu.attach_to_widget(self, None)
-        context_menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            context_menu.popup_at_pointer(event)
-        else:
-            context_menu.popup(
-                None, None, None, None, event.button, event.time
-            )
-        return True
+        callbacks = (
+            self.add_new_source_citation,
+            self.add_existing_source_citation,
+            self.add_existing_citation,
+            self.add_zotero_citation,
+            self.edit_citation,
+            self.remove_citation,
+        )
+        zotero = bool(self.zotero)
+        add_citations_menu(
+            context_menu,
+            self.grstate.dbstate.db,
+            self.secondary,
+            callbacks,
+            zotero=zotero,
+        )
+        callbacks = (
+            self.add_new_note,
+            self.add_existing_note,
+            self.edit_note,
+            self.remove_note,
+        )
+        add_notes_menu(
+            context_menu, self.grstate.dbstate.db, self.secondary, callbacks
+        )
+        add_privacy_menu_option(
+            context_menu, self.secondary, self.change_privacy
+        )
+        return show_menu(context_menu, self, event)
 
     def add_custom_actions(self, context_menu):
         """

@@ -35,7 +35,7 @@ from gramps.gen.utils.alive import probably_alive
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_person_color_css
+from ..common.common_utils import get_person_color_css, format_address
 from .frame_secondary import SecondaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -59,39 +59,47 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         address,
     ):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, address)
-        if address.street:
-            self.add_fact(self.get_label(address.street))
-        if address.locality:
-            self.add_fact(self.get_label(address.locality))
-        if address.county:
-            self.add_fact(self.get_label(address.county))
-        if address.city:
-            self.add_fact(self.get_label(address.city))
-        if address.state:
-            self.add_fact(self.get_label(address.state))
-        if address.country:
-            self.add_fact(self.get_label(address.country))
-        if address.postal:
-            self.add_fact(self.get_label(address.postal))
-        if address.phone:
-            self.add_fact(self.get_label(address.phone))
-        if address.get_date_object():
-            text = glocale.date_displayer.display(address.get_date_object())
-            if text:
-                self.add_fact(self.get_label(text))
-
-            if groptions.age_base and (
-                groptions.context in ["timeline"]
-                or self.grstate.config.get("options.group.address.show-age")
-            ):
-                self.load_age(groptions.age_base, address.get_date_object())
-
+        self.__add_address_formatted(address)
+        self.__add_address_phone(address)
+        self.__add_address_date(address)
         if len(self.widgets["facts"]) == 0:
             self.add_fact(self.get_label("".join(("[", _("Empty"), "]"))))
         self.show_all()
         self.enable_drag()
-        self.enable_drop()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
         self.set_css_style()
+
+    def __add_address_formatted(self, address):
+        """
+        Add formatted address.
+        """
+        lines = format_address(address)
+        for line in lines:
+            self.add_fact(self.get_label(line))
+
+    def __add_address_phone(self, address):
+        """
+        Add phone number.
+        """
+        if address.phone:
+            self.add_fact(self.get_label(address.phone))
+
+    def __add_address_date(self, address):
+        """
+        Add address date.
+        """
+        address_date = address.get_date_object()
+        if address_date:
+            self.add_fact(
+                self.get_label(glocale.date_displayer.display(address_date))
+            )
+            if self.groptions.age_base and (
+                self.groptions.context in ["timeline"]
+                or self.grstate.config.get("options.group.address.show-age")
+            ):
+                self.load_age(self.groptions.age_base, address_date)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """

@@ -60,7 +60,9 @@ def get_duration_field(grstate, obj, field_value, args):
             dummy_explain_text,
             dummy_related_person,
         ) = probably_alive_range(obj, grstate.dbstate.db)
-
+        today = Today()
+        if death_date and death_date > today:
+            return currently_living(field_value, get_label, birth_date)
         if (
             field_value in ["Lifespan", "Duration"]
             and birth_date
@@ -74,17 +76,19 @@ def get_duration_field(grstate, obj, field_value, args):
                         get_label(span, italic=not accurate_lifespan(obj)),
                     )
                 ]
+    return []
 
-        if (
-            field_value in ["Living", "Duration"]
-            and birth_date
-            and not death_date
-        ):
-            if field_value != "Living":
-                span = get_span(birth_date, Today())
-                if span:
-                    return [(get_label(_("Living")), get_label(span))]
-            return [(get_label(_("Living")), get_label(""))]
+
+def currently_living(key, get_label, birth_date):
+    """
+    Return living status and duration if requested.
+    """
+    if key in ["Living", "Duration"]:
+        if key != "Living":
+            span = get_span(birth_date, Today())
+            if span:
+                return [(get_label(_("Living")), get_label(span))]
+        return [(get_label(_("Living")), get_label(""))]
     return []
 
 

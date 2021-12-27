@@ -87,13 +87,24 @@ from ..common.common_classes import GrampsContext
 from ..common.common_utils import (
     attribute_option_text,
     get_bookmarks,
-    menu_item,
-    submenu_item,
 )
 from ..config.config_selectors import get_attribute_types
 from ..fields.field_builder import field_builder
 from .frame_base import GrampsFrame
 from .frame_widgets import GrampsImage
+from ..menus.menu_utils import (
+    menu_item,
+    show_menu,
+    add_attributes_menu,
+    add_citations_menu,
+    add_media_menu,
+    add_notes_menu,
+    add_privacy_menu_option,
+    add_bookmark_menu_option,
+    add_clipboard_menu_option,
+    add_tags_menu,
+    add_urls_menu,
+)
 
 _ = glocale.translation.sgettext
 
@@ -227,48 +238,81 @@ class PrimaryGrampsFrame(GrampsFrame):
         edit, then any custom actions of the derived children, then the global
         actions supported for all objects enabled for them.
         """
+        db = self.grstate.dbstate.db
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        if self.primary.has_attributes:
-            context_menu.append(
-                self._attributes_option(
-                    self.primary.obj,
-                    self.add_attribute,
-                    self.remove_attribute,
-                    self.edit_attribute,
-                )
-            )
-        if self.primary.has_citations:
-            context_menu.append(
-                self._citations_option(
-                    self.primary.obj,
-                    self.add_new_source_citation,
-                    self.add_existing_source_citation,
-                    self.add_existing_citation,
-                    self.add_zotero_citation,
-                    self.remove_citation,
-                )
-            )
-        if self.primary.has_media:
-            context_menu.append(self._media_option())
-        if self.primary.has_notes:
-            context_menu.append(
-                self._notes_option(
-                    self.primary.obj,
-                    self.add_new_note,
-                    self.add_existing_note,
-                    self.remove_note,
-                )
-            )
-        if self.primary.has_tags:
-            context_menu.append(self._tags_option())
-        if self.primary.has_urls:
-            context_menu.append(self._urls_option())
-        context_menu.append(self._copy_to_clipboard_option())
+        callbacks = (
+            self.add_attribute,
+            self.edit_attribute,
+            self.remove_attribute,
+        )
+        add_attributes_menu(context_menu, self.primary, callbacks)
+        callbacks = (
+            self.add_new_source_citation,
+            self.add_existing_source_citation,
+            self.add_existing_citation,
+            self.add_zotero_citation,
+            self.edit_citation,
+            self.remove_citation,
+        )
+        zotero = bool(self.zotero)
+        add_citations_menu(
+            context_menu,
+            db,
+            self.primary,
+            callbacks,
+            zotero=zotero,
+        )
+        callbacks = (
+            self.add_new_media,
+            self.add_existing_media,
+            self.edit_media_ref,
+            self.remove_media_ref,
+        )
+        add_media_menu(context_menu, db, self.primary, callbacks)
+        callbacks = (
+            self.add_new_note,
+            self.add_existing_note,
+            self.edit_note,
+            self.remove_note,
+        )
+        add_notes_menu(
+            context_menu,
+            db,
+            self.primary,
+            callbacks,
+        )
+        callbacks = (
+            self.new_tag,
+            self.add_tag,
+            self.organize_tags,
+            self.remove_tag,
+        )
+        add_tags_menu(
+            context_menu,
+            db,
+            self.primary,
+            callbacks,
+            sort_by_name=self.grstate.config.get(
+                "options.global.indicator.tags-sort-by-name"
+            ),
+        )
+        callbacks = (
+            self.add_url,
+            self.edit_url,
+            self.launch_url,
+            self.remove_url,
+        )
+        add_urls_menu(context_menu, self.primary, callbacks)
+        add_clipboard_menu_option(context_menu, self.copy_to_clipboard)
         if self.grstate.config.get("options.global.indicator.bookmarks"):
-            context_menu.append(self._bookmark_option())
-        context_menu.append(self._change_privacy_option())
+            add_bookmark_menu_option(
+                context_menu, db, self.primary, self.change_bookmark
+            )
+        add_privacy_menu_option(
+            context_menu, self.primary, self.change_privacy
+        )
         context_menu.add(Gtk.SeparatorMenuItem())
         if self.primary.obj.change:
             text = " ".join(
@@ -284,15 +328,7 @@ class PrimaryGrampsFrame(GrampsFrame):
         label = Gtk.MenuItem(label=text)
         label.set_sensitive(False)
         context_menu.append(label)
-        context_menu.attach_to_widget(self, None)
-        context_menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            context_menu.popup_at_pointer(event)
-        else:
-            context_menu.popup(
-                None, None, None, None, event.button, event.time
-            )
-        return True
+        return show_menu(context_menu, self, event)
 
     def add_custom_actions(self, context_menu):
         """
@@ -368,48 +404,6 @@ class PrimaryGrampsFrame(GrampsFrame):
             self.primary.obj.remove_attribute(attribute)
             self.primary.commit(self.grstate, message)
 
-    def _tags_option(self):
-        """
-        Build the tags submenu.
-        """
-        menu = Gtk.Menu()
-        tag_add_list = []
-        tag_remove_list = []
-        for handle in self.grstate.dbstate.db.get_tag_handles():
-            tag = self.fetch("Tag", handle)
-            if handle in self.primary.obj.tag_list:
-                tag_remove_list.append(tag)
-            else:
-                tag_add_list.append(tag)
-        for tag_list in [tag_add_list, tag_remove_list]:
-            if self.grstate.config.get(
-                "options.global.indicator.tags-sort-by-name"
-            ):
-                tag_list.sort(key=lambda x: x.name)
-            else:
-                tag_list.sort(key=lambda x: x.priority)
-        if tag_add_list:
-            addmenu = Gtk.Menu()
-            for tag in tag_add_list:
-                addmenu.add(
-                    menu_item("list-add", tag.name, self.add_tag, tag.handle)
-                )
-            menu.add(submenu_item("gramps-tag", _("Add a tag"), addmenu))
-        if tag_remove_list:
-            removemenu = Gtk.Menu()
-            for tag in tag_remove_list:
-                removemenu.add(
-                    menu_item(
-                        "list-remove", tag.name, self.remove_tag, tag.handle
-                    )
-                )
-            menu.add(submenu_item("gramps-tag", _("Remove a tag"), removemenu))
-        menu.add(menu_item("gramps-tag", _("Create new tag"), self.new_tag))
-        menu.add(
-            menu_item("gramps-tag", _("Organize tags"), self.organize_tags)
-        )
-        return submenu_item("gramps-tag", _("Tags"), menu)
-
     def new_tag(self, _dummy_obj):
         """
         Create a new tag.
@@ -454,34 +448,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         )
         if self.primary.obj.remove_tag(handle):
             self.primary.commit(self.grstate, message)
-
-    def _urls_option(self):
-        """
-        Build the urls submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(menu_item("list-add", _("Add a url"), self.add_url))
-        if len(self.primary.obj.get_url_list()) > 0:
-            editmenu = Gtk.Menu()
-            menu.add(submenu_item("gramps-url", _("Edit a url"), editmenu))
-            removemenu = Gtk.Menu()
-            menu.add(submenu_item("gramps-url", _("Remove a url"), removemenu))
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            url_list = []
-            for url in self.primary.obj.get_url_list():
-                text = url.get_description()
-                if not text:
-                    text = url.get_path()
-                url_list.append((text, url))
-            url_list.sort(key=lambda x: x[0])
-            for text, url in url_list:
-                editmenu.add(menu_item("gramps-url", text, self.edit_url, url))
-                removemenu.add(
-                    menu_item("list-remove", text, self.remove_url, url)
-                )
-                menu.add(menu_item("gramps-url", text, self.launch_url, url))
-        return submenu_item("gramps-url", _("Urls"), menu)
 
     def add_url(self, _dummy_obj, path=None, description=None):
         """
@@ -567,17 +533,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         """
         if url and url.get_path():
             display_url(url.get_path())
-
-    def _copy_to_clipboard_option(self):
-        """
-        Build copy to clipboard option.
-        """
-        image = Gtk.Image.new_from_icon_name("edit-copy", Gtk.IconSize.MENU)
-        item = Gtk.ImageMenuItem(
-            always_show_image=True, image=image, label=_("Copy to clipboard")
-        )
-        item.connect("activate", self.copy_to_clipboard)
-        return item
 
     def copy_to_clipboard(self, _dummy_obj):
         """
@@ -776,24 +731,6 @@ class PrimaryGrampsFrame(GrampsFrame):
         if child:
             self.adding_child_to_family(child, family_handle)
 
-    def _bookmark_option(self):
-        """
-        Build bookmark option based on current object state.
-        """
-        for bookmark in get_bookmarks(
-            self.grstate.dbstate.db, self.primary.obj_type
-        ).get():
-            if bookmark == self.primary.obj.get_handle():
-                return menu_item(
-                    "gramps-bookmark-delete",
-                    _("Unbookmark"),
-                    self.change_bookmark,
-                    False,
-                )
-        return menu_item(
-            "gramps-bookmark", _("Bookmark"), self.change_bookmark, True
-        )
-
     def change_bookmark(self, _dummy_obj, mode):
         """
         Either bookmark or unbookmark the current object.
@@ -809,45 +746,6 @@ class PrimaryGrampsFrame(GrampsFrame):
             if self.primary.obj.get_handle() in bookmark_list:
                 bookmarks.remove(self.primary.obj.get_handle())
         self.widgets["id"].reload(self.primary)
-
-    def _media_option(self):
-        """
-        Build the media submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item(
-                "list-add", _("Add a new media item"), self.add_new_media
-            )
-        )
-        menu.add(
-            menu_item(
-                "list-add",
-                _("Add an existing media item"),
-                self.add_existing_media,
-            )
-        )
-        if len(self.primary.obj.get_media_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-media", _("Remove a media item"), removemenu
-                )
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            for media_ref in self.primary.obj.get_media_list():
-                media = self.fetch("Media", media_ref.ref)
-                text = media.get_description()
-                removemenu.add(
-                    menu_item(
-                        "list-remove", text, self.remove_media_ref, media
-                    )
-                )
-                menu.add(
-                    menu_item("gramps-media", text, self.edit_media_ref, media)
-                )
-        return submenu_item("gramps-media", _("Media"), menu)
 
     def add_existing_media(self, _dummy_obj):
         """

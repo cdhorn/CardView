@@ -185,9 +185,9 @@ class GrampsZotero:
         change = False
         add_list, update_list = self._extract_note_lists(gsource, znotes)
         if update_list:
-            for index in range(0, len(update_list)):
+            for (index, note) in enumerate(update_list):
                 note, note_change = self.update_gramps_zotero_note(
-                    update_list[index], zsource, znotes[index]
+                    note, zsource, znotes[index]
                 )
                 if note_change:
                     gsource.add_note(note.get_handle())
@@ -399,35 +399,25 @@ def merge_attributes(gsource, zsource):
     """
     change = False
     for zkey in zsource:
-        if zkey not in ["id", "author", "publisher", "title"]:
-            if zkey == "citation-key":
-                zkey = "zotero-key"
-            if not zkey.isupper():
-                gkey = zkey.capitalize()
-            else:
-                gkey = zkey
-            gattribute = find_attribute(gsource, gkey)
-            if not gattribute:
-                gattribute = SrcAttribute()
-                gtype = SrcAttributeType()
-                gtype.set_from_xml_str(gkey)
-                gattribute.set_type(gtype)
-                if zkey == "zotero-key":
-                    gattribute.set_value(zsource["citation-key"])
-                else:
-                    data = convert_string(zsource[zkey])
-                    gattribute.set_value(data)
-                gsource.add_attribute(gattribute)
-                change = True
-            else:
-                if zkey == "zotero-key":
-                    wkey = "citation-key"
-                else:
-                    wkey = zkey
-                data = convert_string(zsource[wkey])
-                if gattribute.get_value() != data:
-                    gattribute.set_value(data)
-                    change = True
+        if zkey in ["id", "author", "publisher", "title"]:
+            continue
+        if not zkey.isupper():
+            gkey = zkey.capitalize()
+        else:
+            gkey = zkey
+        if gkey == "Citation-key":
+            gkey = "Zotero-key"
+        gattribute = find_attribute(gsource, gkey)
+        if not gattribute:
+            gattribute = SrcAttribute()
+            gtype = SrcAttributeType()
+            gtype.set_from_xml_str(gkey)
+            gattribute.set_type(gtype)
+            gsource.add_attribute(gattribute)
+        data = convert_string(zsource[zkey])
+        if gattribute.get_value() != data:
+            gattribute.set_value(data)
+            change = True
     return change
 
 

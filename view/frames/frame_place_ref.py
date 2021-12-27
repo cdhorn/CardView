@@ -24,13 +24,6 @@ PlaceRefGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -44,7 +37,7 @@ from gramps.gui.editors import EditPlaceRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_place import PlaceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -76,31 +69,12 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
             place,
             reference_tuple=(enclosed_place, place_ref),
         )
-        if not groptions.ref_mode:
-            return
-
-        vbox = None
-        date = glocale.date_displayer.display(place_ref.get_date_object())
-        if not date:
-            date = _("[None Provided]")
-        left = groptions.ref_mode == 1
-        if groptions.ref_mode in [1, 3]:
-            self.ref_widgets["body"].pack_start(
-                self.get_label(_("Date"), left=left), False, False, 0
-            )
-            self.ref_widgets["body"].pack_start(
-                self.get_label(date, left=left), False, False, 0
-            )
-        else:
-            vbox = Gtk.VBox()
-            vbox.pack_start(
-                self.get_label(": ".join((_("Date"), date))),
-                True,
-                True,
-                0,
-            )
-        if vbox:
-            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
+        if groptions.ref_mode:
+            date = glocale.date_displayer.display(place_ref.get_date_object())
+            if not date:
+                date = _("[None Provided]")
+            self.add_ref_item(_("Date"), date)
+            self.show_ref_items()
 
     def add_ref_custom_actions(self, context_menu):
         """

@@ -45,50 +45,45 @@ def get_progenitors_field(grstate, obj, field_value, args):
     """
     get_label = args.get("get_label")
     get_link = args.get("get_link")
-
     if isinstance(obj, Person):
-        paternal = "Paternal" in field_value
         parent_family_handle = obj.get_main_parents_family_handle()
         if not parent_family_handle:
             return []
-
-        if parent_family_handle:
-            parent_family = grstate.dbstate.db.get_family_from_handle(
-                parent_family_handle
+        parent_family = grstate.dbstate.db.get_family_from_handle(
+            parent_family_handle
+        )
+        if not parent_family:
+            return []
+        paternal = "Paternal" in field_value
+        family, generations = extract_progenitor_family(
+            grstate.dbstate.db, parent_family, paternal=paternal
+        )
+        name = family_name(family, grstate.dbstate.db)
+        if not name:
+            return []
+        if generations > 1:
+            name = "".join(
+                (
+                    name,
+                    " (",
+                    str(generations),
+                    " ",
+                    _("Generations"),
+                    ")",
+                )
             )
-            if not parent_family:
-                return []
-            family, generations = extract_progenitor_family(
-                grstate.dbstate.db, parent_family, paternal=paternal
+        elif generations == 1:
+            name = "".join((name, " (1 ", _("Generation"), ")"))
+        if paternal:
+            label = get_label(_("Paternal Progenitors"))
+        else:
+            label = get_label(_("Maternal Progenitors"))
+        return [
+            (
+                label,
+                get_link(name, "Family", family.get_handle(), title=False),
             )
-
-            if paternal:
-                label = get_label(_("Paternal Progenitors"))
-            else:
-                label = get_label(_("Maternal Progenitors"))
-            name = family_name(family, grstate.dbstate.db)
-            if name:
-                if generations > 1:
-                    name = "".join(
-                        (
-                            name,
-                            " (",
-                            str(generations),
-                            " ",
-                            _("Generations"),
-                            ")",
-                        )
-                    )
-                elif generations == 1:
-                    name = "".join((name, " (1 ", _("Generation"), ")"))
-                return [
-                    (
-                        label,
-                        get_link(
-                            name, "Family", family.get_handle(), title=False
-                        ),
-                    )
-                ]
+        ]
     return []
 
 

@@ -89,7 +89,7 @@ class NoteUrlGrampsFrame(GrampsFrame):
         self.set_css_style()
         self.show_all()
 
-    def button_released(self, _dummy_obj, event):
+    def cb_button_released(self, obj, event):
         """
         Handle button released.
         """

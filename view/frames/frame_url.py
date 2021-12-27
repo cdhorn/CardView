@@ -92,13 +92,13 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         self.enable_drag()
         self.set_css_style()
 
-    def button_released(self, _dummy_obj, event):
+    def cb_button_released(self, obj, event):
         """
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
             if match_primary_mask(event.get_state()):
-                self.dump_context()
+                self._dump_context()
                 return True
             display_url(self.link)
             return True

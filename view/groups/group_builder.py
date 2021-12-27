@@ -58,18 +58,20 @@ def group_builder(grstate, group_type, obj, args):
     Generate and return group for a given object.
     """
     if group_type in GRAMPS_GROUPS:
-        return build_simple_group(grstate, group_type, obj, args)
-    if group_type == "event":
-        return get_events_group(grstate, obj, args)
-    if group_type == "parent":
-        return get_parents_group(grstate, obj, args)
-    if group_type == "spouse":
-        return get_spouses_group(grstate, obj, args)
-    if group_type == "child":
-        return get_children_group(grstate, obj, args)
-    if group_type == "reference":
-        return get_references_group(grstate, obj, args)
-    return None
+        group = build_simple_group(grstate, group_type, obj, args)
+    elif group_type == "event":
+        group = get_events_group(grstate, obj, args)
+    elif group_type == "parent":
+        group = get_parents_group(grstate, obj, args)
+    elif group_type == "spouse":
+        group = get_spouses_group(grstate, obj, args)
+    elif group_type == "child":
+        group = get_children_group(grstate, obj, args)
+    elif group_type == "reference":
+        group = get_references_group(grstate, obj, args)
+    else:
+        group = None
+    return group
 
 
 def build_simple_group(grstate, group_type, obj, args):
@@ -270,6 +272,32 @@ def get_references_group(
         if not obj_list:
             return None
 
+    total, tuple_list = prepare_reference_items(obj_types, obj_list)
+    not_shown = 0
+    if not maximum:
+        maximum = grstate.config.get("options.global.max.references-per-group")
+    if total > maximum:
+        not_shown = total - maximum
+        tuple_list = tuple_list[:maximum]
+
+    groptions = prepare_reference_options(groptions, args)
+    group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
+
+    single, plural = _("Reference"), _("References")
+    if args and "title" in args:
+        (single, plural) = args["title"]
+    title = get_group_title(group, (single, plural, None))
+    if not_shown:
+        title = "".join(
+            (title, " (", str(not_shown), " ", _("Not Shown"), ")")
+        )
+    return group_wrapper(grstate, group, (None, None, title))
+
+
+def prepare_reference_items(obj_types, obj_list):
+    """
+    Prepare sorted item list.
+    """
     total = 0
     tuple_list = []
     handle_cache = []
@@ -287,30 +315,19 @@ def get_references_group(
                 total = total + 1
     del handle_cache
     tuple_list.sort(key=lambda x: x[0])
+    return total, tuple_list
 
-    not_shown = 0
-    if not maximum:
-        maximum = grstate.config.get("options.global.max.references-per-group")
-    if total > maximum:
-        not_shown = total - maximum
-        tuple_list = tuple_list[:maximum]
 
+def prepare_reference_options(groptions, args):
+    """
+    Prepare references options.
+    """
     groptions = groptions or GrampsOptions("options.group.reference")
     if args and "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
     if args and "title" in args and args["title"]:
         groptions.title = args["title"]
-    group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
-
-    single, plural = _("Reference"), _("References")
-    if args and "title" in args:
-        (single, plural) = args["title"]
-    title = get_group_title(group, (single, plural, None))
-    if not_shown:
-        title = "".join(
-            (title, " (", str(not_shown), " ", _("Not Shown"), ")")
-        )
-    return group_wrapper(grstate, group, (None, None, title))
+    return groptions
 
 
 def get_events_group(grstate, obj, args):

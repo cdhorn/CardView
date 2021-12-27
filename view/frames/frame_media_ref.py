@@ -36,7 +36,7 @@ from gramps.gui.editors import EditMediaRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_media import MediaGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -57,8 +57,6 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         MediaGrampsFrame.__init__(
             self, grstate, groptions, media, reference_tuple=(obj, media_ref)
         )
-        if not groptions.ref_mode:
-            return
 
     def add_ref_custom_actions(self, context_menu):
         """

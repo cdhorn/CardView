@@ -378,26 +378,6 @@ def note_option_text(note):
     return ": ".join((notetype, text))
 
 
-def menu_item(icon, label, callback, *args):
-    """
-    Helper for constructing a menu item.
-    """
-    image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-    item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
-    item.connect("activate", callback, *args)
-    return item
-
-
-def submenu_item(icon, label, menu):
-    """
-    Helper for constructing a submenu item.
-    """
-    image = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-    item = Gtk.ImageMenuItem(always_show_image=True, image=image, label=label)
-    item.set_submenu(menu)
-    return item
-
-
 def get_bookmarks(db, obj_type):
     """
     Return bookmarks for given object type.
@@ -639,5 +619,56 @@ def describe_object(db, obj):
                 title.split("]")[1].strip(),
             )
         )
-
     return obj_lang
+
+
+def format_address(address):
+    """
+    Return address lines.
+    """
+    lines = []
+    if address.street:
+        lines.append(address.street)
+    if address.country in ["USA", "United States", "United States of America"]:
+        format_address_usa(lines, address)
+    else:
+        format_address_international(lines, address)
+    return lines
+
+
+def format_address_international(lines, address):
+    """
+    Format an international address.
+    """
+    if address.city:
+        lines.append(address.city)
+    elif address.locality:
+        lines.append(address.locality)
+    if address.county:
+        lines.append(address.county)
+    if address.postal:
+        lines.append(address.postal)
+    if address.country:
+        lines.append(address.country)
+
+
+def format_address_usa(lines, address):
+    """
+    Format a US style address.
+    """
+    line = ""
+    comma = ""
+    if address.city:
+        line = address.city
+        comma = ", "
+    elif address.county:
+        line = "".join((line, comma, address.county))
+        comma = ", "
+    if address.state:
+        line = "".join((line, comma, address.state))
+    if address.postal:
+        line = " ".join((line, address.postal))
+    if line:
+        lines.append(line)
+    if address.country:
+        lines.append(address.country)

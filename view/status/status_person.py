@@ -44,9 +44,10 @@ from gramps.gui.editors import EditEvent
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsBaseIcon
-from ..common.common_utils import menu_item, prepare_icon
+from ..common.common_utils import prepare_icon
 from ..config.config_utils import get_event_fields
 from .status_utils import get_status_ranking
+from ..menus.menu_utils import menu_item, show_menu
 
 _ = glocale.translation.sgettext
 
@@ -105,13 +106,7 @@ class GrampsCitationAlertIcon(GrampsBaseIcon):
             menu.append(
                 menu_item("gramps-event", alert_text, callback, alert_event)
             )
-        menu.attach_to_widget(self, None)
-        menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            menu.popup_at_pointer(event)
-        else:
-            menu.popup(None, None, None, None, event.button, event.time)
-        return True
+        return show_menu(menu, self, event)
 
     def goto_event(self, _dummy_event, event):
         """

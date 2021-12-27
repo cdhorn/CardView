@@ -45,9 +45,10 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_family_color_css, menu_item
+from ..common.common_utils import get_family_color_css
 from .frame_person import PersonGrampsFrame
 from .frame_primary import PrimaryGrampsFrame
+from ..menus.menu_utils import menu_item
 
 _ = glocale.translation.sgettext
 
@@ -75,18 +76,33 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.compact = grstate.config.get(".".join((anchor, "compact-mode")))
         if groptions.force_compact:
             self.compact = True
-
         self.partner1 = Gtk.HBox(hexpand=True)
         self.partner2 = Gtk.HBox(hexpand=True)
         PrimaryGrampsFrame.__init__(self, grstate, groptions, family)
         self.divorced = False
         self.family = family
         self.relation = groptions.relation
+        self.__add_couple_title(family)
+        self.__add_couple_facts(anchor, family)
+        self.show_all()
+        self.enable_drag()
+        if not self.parent2 and (
+            not family.get_father_handle() or not family.get_mother_handle()
+        ):
+            self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
-        title = _("Unknown")
-        if self.family.type:
-            title = str(self.family.type)
-
+    def __add_couple_title(self, family):
+        """
+        Add couple title.
+        """
+        if family.type:
+            title = str(family.type)
+        else:
+            title = _("Unknown")
         self.parent1, self.parent2 = self._get_parents()
         if not self.compact:
             profile = self._get_profile(self.parent1)
@@ -97,31 +113,23 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
                 if profile:
                     self.partner2.add(profile)
         else:
-            title = family_name(family, grstate.dbstate.db)
-
+            title = family_name(family, self.grstate.dbstate.db)
         label = self.get_link(title, "Family", family.handle)
         self.widgets["title"].pack_start(label, True, True, 0)
 
+    def __add_couple_facts(self, anchor, family):
+        """
+        Add couple facts.
+        """
         event_cache = []
         for event_ref in family.get_event_ref_list():
             event_cache.append(self.fetch("Event", event_ref.ref))
-
         option_prefix = "".join((anchor, ".lfield-"))
         self.load_fields("facts", option_prefix, event_cache)
-
-        if "active" in groptions.option_space:
+        if "active" in self.groptions.option_space:
             option_prefix = "".join((anchor, ".mfield-"))
             self.load_fields("extra", option_prefix, event_cache)
         del event_cache
-
-        self.show_all()
-        self.enable_drag()
-        if not self.parent2 and (
-            not family.get_father_handle() or not family.get_mother_handle()
-        ):
-            self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
-        self.enable_drop()
-        self.set_css_style()
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
@@ -140,46 +148,12 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         self.widgets["body"].pack_start(
             vcontent, expand=True, fill=True, padding=0
         )
-        if not self.compact:
-            if self.groptions.vertical_orientation:
-                vcontent.pack_start(
-                    self.partner1, expand=True, fill=True, padding=0
-                )
-                vcontent.pack_start(
-                    self.eventbox, expand=True, fill=True, padding=0
-                )
-                vcontent.pack_start(
-                    self.partner2, expand=True, fill=True, padding=0
-                )
-            else:
-                group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
-                partners = Gtk.HBox(hexpand=True, spacing=3)
-                vcontent.pack_start(
-                    partners, expand=True, fill=True, padding=0
-                )
-                group.add_widget(self.partner1)
-                if "partner1" in self.groptions.size_groups:
-                    self.groptions.size_groups["partner1"].add_widget(
-                        self.partner1
-                    )
-                partners.pack_start(
-                    self.partner1, expand=True, fill=True, padding=0
-                )
-                group.add_widget(self.partner2)
-                if "partner2" in self.groptions.size_groups:
-                    self.groptions.size_groups["partner2"].add_widget(
-                        self.partner2
-                    )
-                partners.pack_start(
-                    self.partner2, expand=True, fill=True, padding=0
-                )
-                vcontent.pack_start(
-                    self.eventbox, expand=True, fill=True, padding=0
-                )
-        else:
+        if self.compact:
             vcontent.pack_start(
                 self.eventbox, expand=True, fill=True, padding=0
             )
+        else:
+            self.__build_full_layout(vcontent)
         data_content = Gtk.HBox()
         self.eventbox.add(data_content)
         if "active" in self.groptions.option_space:
@@ -223,6 +197,44 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
         if image_mode in [1, 2]:
             data_content.pack_end(
                 self.widgets["image"], expand=False, fill=False, padding=0
+            )
+
+    def __build_full_layout(self, vcontent):
+        """
+        Build full uncompact layout.
+        """
+        if self.groptions.vertical_orientation:
+            vcontent.pack_start(
+                self.partner1, expand=True, fill=True, padding=0
+            )
+            vcontent.pack_start(
+                self.eventbox, expand=True, fill=True, padding=0
+            )
+            vcontent.pack_start(
+                self.partner2, expand=True, fill=True, padding=0
+            )
+        else:
+            group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+            partners = Gtk.HBox(hexpand=True, spacing=3)
+            vcontent.pack_start(partners, expand=True, fill=True, padding=0)
+            group.add_widget(self.partner1)
+            if "partner1" in self.groptions.size_groups:
+                self.groptions.size_groups["partner1"].add_widget(
+                    self.partner1
+                )
+            partners.pack_start(
+                self.partner1, expand=True, fill=True, padding=0
+            )
+            group.add_widget(self.partner2)
+            if "partner2" in self.groptions.size_groups:
+                self.groptions.size_groups["partner2"].add_widget(
+                    self.partner2
+                )
+            partners.pack_start(
+                self.partner2, expand=True, fill=True, padding=0
+            )
+            vcontent.pack_start(
+                self.eventbox, expand=True, fill=True, padding=0
             )
 
     def load_fields(self, grid_key, option_prefix, event_cache):

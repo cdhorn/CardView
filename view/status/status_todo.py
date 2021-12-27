@@ -45,7 +45,8 @@ from gramps.gui.editors import EditNote
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsBaseIcon
-from ..common.common_utils import describe_object, menu_item
+from ..common.common_utils import describe_object
+from ..menus.menu_utils import menu_item, show_menu
 
 _ = glocale.translation.sgettext
 
@@ -82,13 +83,7 @@ class GrampsToDoIcon(GrampsBaseIcon):
             text = "->".join((text, _("Note")))
             text = " ".join((text, note.get_gramps_id()))
             menu.append(menu_item("task-due", text, callback, note))
-        menu.attach_to_widget(self, None)
-        menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            menu.popup_at_pointer(event)
-        else:
-            menu.popup(None, None, None, None, event.button, event.time)
-        return True
+        return show_menu(menu, self, event)
 
     def goto_note(self, _dummy_event, note):
         """

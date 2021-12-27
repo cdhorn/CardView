@@ -24,13 +24,6 @@ SourceGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -46,8 +39,8 @@ from gramps.gui.selectors import SelectorFactory
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item, submenu_item
 from .frame_primary import PrimaryGrampsFrame
+from ..menus.menu_utils import add_repositories_menu
 
 _ = glocale.translation.sgettext
 
@@ -64,7 +57,21 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
 
     def __init__(self, grstate, groptions, source):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, source)
+        self.__add_source_title(source)
+        self.__add_source_author(source)
+        self.__add_source_publisher(source)
+        self.__add_source_abbrev(source)
+        self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.REPO_LINK.target())
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_source_title(self, source):
+        """
+        Add source title.
+        """
         title = self.get_link(
             source.title,
             "Source",
@@ -72,19 +79,26 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
+    def __add_source_author(self, source):
+        """
+        Add source author.
+        """
         if source.get_author():
             self.add_fact(self.get_label(source.get_author()))
 
+    def __add_source_publisher(self, source):
+        """
+        Add source publisher.
+        """
         if source.get_publication_info():
             self.add_fact(self.get_label(source.get_publication_info()))
 
+    def __add_source_abbrev(self, source):
+        """
+        Add source abbreviation.
+        """
         if source.get_abbreviation():
             self.add_fact(self.get_label(source.get_abbreviation()))
-
-        self.enable_drag()
-        self.dnd_drop_targets.append(DdTargets.REPO_LINK.target())
-        self.enable_drop()
-        self.set_css_style()
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
@@ -99,54 +113,15 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         """
         Add action menu items for the source.
         """
-        context_menu.append(self._repositories_option())
-
-    def _repositories_option(self):
-        """
-        Build the repositories submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item(
-                "list-add", _("Add a new repository"), self.add_new_repository
-            )
+        callbacks = (
+            self.add_new_repository,
+            self.add_existing_repository,
+            self.edit_repo_ref,
+            self.remove_repo_ref,
         )
-        menu.add(
-            menu_item(
-                "list-add",
-                _("Add an existing repository"),
-                self.add_existing_repository,
-            )
+        add_repositories_menu(
+            context_menu, self.grstate.dbstate.db, self.primary, callbacks
         )
-        if len(self.primary.obj.get_reporef_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-repository", _("Remove a repository"), removemenu
-                )
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            for repo_ref in self.primary.obj.get_reporef_list():
-                repository = self.fetch("Repository", repo_ref.ref)
-                repository_name = repository.get_name()
-                removemenu.add(
-                    menu_item(
-                        "list-remove",
-                        repository_name,
-                        self.remove_repo_ref,
-                        repo_ref,
-                    )
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-repository",
-                        repository_name,
-                        self.edit_repo_ref,
-                        repo_ref,
-                    )
-                )
-        return submenu_item("gramps-repository", _("Repositories"), menu)
 
     def edit_repo_ref(self, _dummy_obj, repo_ref):
         """
@@ -198,7 +173,7 @@ class SourceGrampsFrame(PrimaryGrampsFrame):
         Add an existing repository.
         """
         select_repository = SelectorFactory("Repository")
-        skip = set([x.ref for x in self.primary.obj.get_reporef_list()])
+        skip = [x.ref for x in self.primary.obj.get_reporef_list()]
         dialog = select_repository(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )

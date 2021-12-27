@@ -24,13 +24,6 @@ RepositoryRefGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -43,7 +36,7 @@ from gramps.gui.editors import EditRepoRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_repository import RepositoryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -69,54 +62,15 @@ class RepositoryRefGrampsFrame(RepositoryGrampsFrame):
             repository,
             reference_tuple=(source, repo_ref),
         )
-        if not groptions.ref_mode:
-            return
-
-        vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
-        left = groptions.ref_mode == 1
-        if self.get_option("show-call-number") and repo_ref.call_number:
-            if groptions.ref_mode in [1, 3]:
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(_("Call number"), left=left),
-                    False,
-                    False,
-                    0,
+        if groptions.ref_mode:
+            if self.get_option("show-call-number") and repo_ref.call_number:
+                self.add_ref_item(_("Call number"), repo_ref.call_number)
+            if self.get_option("show-media-type") and repo_ref.media_type:
+                media_type = glocale.translation.sgettext(
+                    repo_ref.media_type.xml_str()
                 )
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(repo_ref.call_number, left=left),
-                    False,
-                    False,
-                    0,
-                )
-            else:
-                text = ": ".join(
-                    (_("Call number"), repo_ref.call_number)
-                ).replace("::", ":")
-                vbox.pack_start(self.get_label(text), False, False, 0)
-
-        if self.get_option("show-media-type") and repo_ref.media_type:
-            text = glocale.translation.sgettext(repo_ref.media_type.xml_str())
-            if groptions.ref_mode in [1, 3]:
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(
-                        " ".join((_("Media"), _("type"))), left=left
-                    ),
-                    False,
-                    False,
-                    0,
-                )
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(text, left=left), False, False, 0
-                )
-            else:
-                if text:
-                    text = "".join((_("Media"), " ", _("type"), ": ", text))
-                vbox.pack_start(self.get_label(text), False, False, 0)
-
-        if len(vbox) > 0:
-            self.ref_widgets["body"].pack_start(vbox, False, False, 0)
-        else:
-            del vbox
+                self.add_ref_item(_("Media type"), media_type)
+            self.show_ref_items()
 
     def add_ref_custom_actions(self, context_menu):
         """

@@ -84,17 +84,16 @@ from ..common.common_const import (
     GRAMPS_EDITORS,
 )
 from ..common.common_utils import (
-    attribute_option_text,
     button_pressed,
     button_released,
     citation_option_text,
-    menu_item,
     note_option_text,
-    submenu_item,
 )
 from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
+from ..menus.menu_utils import menu_item
 from .frame_view import GrampsFrameView
+from .frame_window import FrameDebugWindow
 from ..zotero.zotero import GrampsZotero
 
 _ = glocale.translation.sgettext
@@ -126,8 +125,8 @@ class GrampsFrame(GrampsFrameView):
         self.css = ""
         if not groptions.bar_mode:
             self.init_layout()
-        self.eventbox.connect("button-press-event", self.button_pressed)
-        self.eventbox.connect("button-release-event", self.button_released)
+        self.eventbox.connect("button-press-event", self.cb_button_pressed)
+        self.eventbox.connect("button-release-event", self.cb_button_released)
         if self.grstate.config.get("options.global.general.zotero-enabled"):
             self.zotero = GrampsZotero(self.grstate.dbstate.db)
         else:
@@ -201,37 +200,31 @@ class GrampsFrame(GrampsFrameView):
                 pickle.dumps(returned_data),
             )
 
-    def enable_drop(
-        self, eventbox=None, dnd_drop_targets=None, drag_data_received=None
-    ):
+    def enable_drop(self, eventbox, dnd_drop_targets, drag_data_received):
         """
         Enable self as a basic drop target.
         """
-        eventbox = eventbox or self.eventbox
-        dnd_drop_targets = dnd_drop_targets or self.dnd_drop_targets
-        drag_data_received = drag_data_received or self.drag_data_received
-        if eventbox:
-            if self.focus.has_notes or self.primary.obj_type == "Note":
-                for target in DdTargets.all_text_targets():
-                    dnd_drop_targets.append(target)
-                dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
-            if self.focus.has_notes:
-                dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-            if self.primary.has_media:
-                dnd_drop_targets.append(DdTargets.MEDIAOBJ.target())
-            if self.focus.has_attributes:
-                dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
-            if self.focus.has_citations:
-                dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
-                dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
-            if self.focus.has_urls:
-                dnd_drop_targets.append(DdTargets.URL.target())
-                dnd_drop_targets.append(DdTargets.URI_LIST.target())
-                dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
-            eventbox.drag_dest_set(
-                Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
-            )
-            eventbox.connect("drag-data-received", drag_data_received)
+        if self.focus.has_notes or self.primary.obj_type == "Note":
+            for target in DdTargets.all_text_targets():
+                dnd_drop_targets.append(target)
+            dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+        if self.focus.has_notes:
+            dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+        if self.primary.has_media:
+            dnd_drop_targets.append(DdTargets.MEDIAOBJ.target())
+        if self.focus.has_attributes:
+            dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
+        if self.focus.has_citations:
+            dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+        if self.focus.has_urls:
+            dnd_drop_targets.append(DdTargets.URL.target())
+            dnd_drop_targets.append(DdTargets.URI_LIST.target())
+            dnd_drop_targets.append(Gtk.TargetEntry.new("URL", 0, 8))
+        eventbox.drag_dest_set(
+            Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
+        )
+        eventbox.connect("drag-data-received", drag_data_received)
 
     def drag_data_received(
         self,
@@ -255,7 +248,7 @@ class GrampsFrame(GrampsFrameView):
                 return self._dropped_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
                 return self._child_drop_handler(dnd_type, obj_or_handle, data)
-            return False
+        return False
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
@@ -281,20 +274,9 @@ class GrampsFrame(GrampsFrameView):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
-        if self.focus.has_media:
-            links = re.findall(r"(?P<url>file?://[^\s]+)", data)
-            if links:
-                for link in links:
-                    self.add_new_media(None, filepath=link)
-                return True
-        added_urls = 0
-        if self.focus.has_urls:
-            links = re.findall(r"(?P<url>https?://[^\s]+)", data)
-            if links:
-                for link in links:
-                    self.add_url(None, path=link)
-                    added_urls = added_urls + len(link)
-                return True
+        if self._try_add_new_media(data):
+            return True
+        added_urls = self._try_add_new_urls(data)
         if not added_urls or (len(data) > (2 * added_urls)):
             if self.focus.has_notes:
                 self.add_new_note(None, content=data)
@@ -302,7 +284,34 @@ class GrampsFrame(GrampsFrameView):
             if self.focus.obj_type == "Note":
                 self.update_note(content=data)
                 return True
+        elif added_urls:
+            return True
         return False
+
+    def _try_add_new_media(self, data):
+        """
+        Handle a local media drop.
+        """
+        if self.focus.has_media:
+            links = re.findall(r"(?P<url>file?://[^\s]+)", data)
+            if links:
+                for link in links:
+                    self.add_new_media(None, filepath=link)
+                return True
+        return False
+
+    def _try_add_new_urls(self, data):
+        """
+        Handle dropped urls.
+        """
+        added_urls = 0
+        if self.focus.has_urls:
+            links = re.findall(r"(?P<url>https?://[^\s]+)", data)
+            if links:
+                for link in links:
+                    self.add_url(None, path=link)
+                    added_urls = added_urls + len(link)
+        return added_urls
 
     def load_age(self, base_date, current_date):
         """
@@ -328,7 +337,7 @@ class GrampsFrame(GrampsFrameView):
                 )
                 self.widgets["age"].pack_start(label, False, False, 0)
 
-    def button_pressed(self, obj, event):
+    def cb_button_pressed(self, obj, event):
         """
         Handle button pressed.
         """
@@ -348,13 +357,13 @@ class GrampsFrame(GrampsFrameView):
             return True
         return False
 
-    def button_released(self, _dummy_obj, event):
+    def cb_button_released(self, obj, event):
         """
         Handle button released.
         """
         if button_released(event, BUTTON_PRIMARY):
             if match_primary_mask(event.get_state()):
-                self.dump_context()
+                self._dump_context()
                 return True
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
             return True
@@ -376,12 +385,10 @@ class GrampsFrame(GrampsFrameView):
             context = GrampsContext(obj, None, None)
         return self.grstate.load_page(context.pickled)
 
-    def dump_context(self, *_dummy_args):
+    def _dump_context(self, *_dummy_args):
         """
         Dump context.
         """
-        from .frame_window import FrameDebugWindow
-
         try:
             FrameDebugWindow(self.grstate, self.get_context())
         except WindowActiveError:
@@ -609,112 +616,6 @@ class GrampsFrame(GrampsFrameView):
         )
         self.primary.commit(self.grstate, message)
 
-    def _attributes_option(
-        self, obj, add_attribute, remove_attribute, edit_attribute
-    ):
-        """
-        Build the attributes submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item("list-add", _("Add a new attribute"), add_attribute)
-        )
-        if len(obj.get_attribute_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-attribute", _("Remove an attribute"), removemenu
-                )
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            attribute_list = []
-            for attribute in obj.get_attribute_list():
-                text = attribute_option_text(attribute)
-                attribute_list.append((text, attribute))
-            attribute_list.sort(key=lambda x: x[0])
-            for text, attribute in attribute_list:
-                removemenu.add(
-                    menu_item("list-remove", text, remove_attribute, attribute)
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-attribute",
-                        text,
-                        edit_attribute,
-                        attribute,
-                    )
-                )
-        return submenu_item("gramps-attribute", _("Attributes"), menu)
-
-    def _citations_option(
-        self,
-        obj,
-        add_new_source_citation,
-        add_existing_source_citation,
-        add_existing_citation,
-        add_zotero_citation,
-        remove_citation,
-    ):
-        """
-        Build the citations submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item(
-                "list-add",
-                _("Add new citation for a new source"),
-                add_new_source_citation,
-            )
-        )
-        menu.add(
-            menu_item(
-                "list-add",
-                _("Add new citation for an existing source"),
-                add_existing_source_citation,
-            )
-        )
-        menu.add(
-            menu_item(
-                "list-add",
-                _("Add an existing citation"),
-                add_existing_citation,
-            )
-        )
-        if self.zotero:
-            menu.add(
-                menu_item(
-                    "list-add",
-                    _("Add citation using Zotero"),
-                    add_zotero_citation,
-                )
-            )
-        if len(obj.get_citation_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-citation", _("Remove a citation"), removemenu
-                )
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            citation_list = []
-            for handle in obj.get_citation_list():
-                citation = self.fetch("Citation", handle)
-                text = citation_option_text(self.grstate.dbstate.db, citation)
-                citation_list.append((text, citation))
-            citation_list.sort(key=lambda x: x[0])
-            for text, citation in citation_list:
-                removemenu.add(
-                    menu_item("list-remove", text, remove_citation, citation)
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-citation", text, self.edit_citation, citation
-                    )
-                )
-        return submenu_item("gramps-citation", _("Citations"), menu)
-
     def add_new_source_citation(self, _dummy_obj):
         """
         Add a new source from which to create a new citation.
@@ -821,7 +722,7 @@ class GrampsFrame(GrampsFrameView):
             import_notes = self.grstate.config.get(
                 "options.global.general.zotero-enabled-notes"
             )
-            citation = self.zotero.add_citation(
+            self.zotero.add_citation(
                 self.primary.obj, self.focus.obj, import_notes=import_notes
             )
         else:
@@ -865,72 +766,6 @@ class GrampsFrame(GrampsFrameView):
             self.focus.obj.remove_citation_references([citation.get_handle()])
             self.focus.sync_hash(self.grstate)
             self.primary.commit(self.grstate, message)
-
-    def _notes_option(
-        self,
-        obj,
-        add_new_note,
-        add_existing_note,
-        remove_note,
-        no_children=False,
-    ):
-        """
-        Build the notes submenu.
-        """
-        menu = Gtk.Menu()
-        menu.add(menu_item("list-add", _("Add a new note"), add_new_note))
-        menu.add(
-            menu_item("list-add", _("Add an existing note"), add_existing_note)
-        )
-        if len(obj.get_note_list()) > 0:
-            removemenu = Gtk.Menu()
-            menu.add(
-                submenu_item("gramps-notes", _("Remove a note"), removemenu)
-            )
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            note_list = []
-            for handle in obj.get_note_list():
-                note = self.fetch("Note", handle)
-                text = note_option_text(note)
-                note_list.append((text, note))
-            note_list.sort(key=lambda x: x[0])
-            for text, note in note_list:
-                removemenu.add(
-                    menu_item("list-remove", text, remove_note, note)
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-notes", text, self.edit_note, note.handle
-                    )
-                )
-        if (
-            self.grstate.config.get(
-                "options.global.general.include-child-notes"
-            )
-            and not no_children
-        ):
-            handle_list = []
-            for child_obj in obj.get_note_child_list():
-                for handle in child_obj.get_note_list():
-                    if handle not in handle_list:
-                        handle_list.append(handle)
-            note_list = []
-            for handle in handle_list:
-                note = self.fetch("Note", handle)
-                text = note_option_text(note)
-                note_list.append((text, note))
-            if len(note_list) > 0:
-                menu.add(Gtk.SeparatorMenuItem())
-                menu.add(Gtk.SeparatorMenuItem())
-                note_list.sort(key=lambda x: x[0])
-                for text, note in note_list:
-                    menu.add(
-                        menu_item(
-                            "gramps-notes", text, self.edit_note, note.handle
-                        )
-                    )
-        return submenu_item("gramps-notes", _("Notes"), menu)
 
     def add_new_note(self, _dummy_obj, content=None):
         """
@@ -1017,19 +852,7 @@ class GrampsFrame(GrampsFrameView):
             self.focus.sync_hash(self.grstate)
             self.primary.commit(self.grstate, message)
 
-    def _change_privacy_option(self):
-        """
-        Build privacy option based on current object state.
-        """
-        if self.focus.obj.get_privacy():
-            return menu_item(
-                "gramps-unlock", _("Make public"), self._change_privacy, False
-            )
-        return menu_item(
-            "gramps-lock", _("Make private"), self._change_privacy, True
-        )
-
-    def _change_privacy(self, _dummy_obj, mode):
+    def change_privacy(self, _dummy_obj, mode):
         """
         Update the privacy indicator for the current object.
         """

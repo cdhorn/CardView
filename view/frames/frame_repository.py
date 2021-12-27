@@ -39,6 +39,7 @@ from gramps.gui.editors import EditRepoRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import format_address
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -63,7 +64,20 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
             repository,
             reference_tuple=reference_tuple,
         )
+        self.__add_repository_title(repository)
+        self.__add_repository_address(repository)
+        self.__add_repository_type(repository)
+        self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_repository_title(self, repository):
+        """
+        Add repository title.
+        """
         title = self.get_link(
             repository.name,
             "Repository",
@@ -71,35 +85,26 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
-        if repository.get_address_list():
-            address = repository.get_address_list()[0]
-            if address.street:
-                self.add_fact(self.get_label(address.street))
-            text = ""
-            comma = ""
-            if address.city:
-                text = address.city
-                comma = ", "
-            if address.state:
-                text = "".join((text, comma, address.state))
-                comma = ", "
-            if address.country:
-                text = "".join((text, comma, address.country))
-            if address.postal:
-                text = " ".join((text, address.postal))
-            if text:
-                self.add_fact(self.get_label(text))
+    def __add_repository_address(self, repository):
+        """
+        Add repository address.
+        """
+        address_list = repository.get_address_list()
+        if address_list:
+            address = address_list[0]
+            lines = format_address(address)
+            for line in lines:
+                self.add_fact(self.get_label(line))
             if address.phone:
                 self.add_fact(self.get_label(address.phone))
 
+    def __add_repository_type(self, repository):
+        """
+        Add repository type.
+        """
         if self.get_option("show-repository-type") and repository.get_type():
             label = self.get_label(str(repository.get_type()), left=False)
             self.widgets["attributes"].add_fact(label)
-
-        self.enable_drag()
-        self.dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
-        self.enable_drop()
-        self.set_css_style()
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """

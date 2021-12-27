@@ -24,13 +24,6 @@ EventGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -58,8 +51,6 @@ from ..common.common_utils import (
     get_family_color_css,
     get_person_color_css,
     get_relationship_color_css,
-    menu_item,
-    submenu_item,
 )
 from ..common.common_vitals import (
     check_multiple_events,
@@ -70,6 +61,7 @@ from ..common.common_vitals import (
     get_relation,
 )
 from .frame_reference import ReferenceGrampsFrame
+from ..menus.menu_utils import add_participants_menu, menu_item
 
 _ = glocale.translation.sgettext
 
@@ -97,22 +89,31 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         self.event_confidence = 0
         self.event_role_type = "primary"
         self.event_relationship = "self"
-
-        if event and event.get_date_object() and groptions.age_base:
-            if groptions.context in ["timeline"]:
-                if self.grstate.config.get("options.timeline.person.show-age"):
-                    self.load_age(groptions.age_base, event.get_date_object())
-            elif self.grstate.config.get("options.group.event.show-age"):
-                self.load_age(groptions.age_base, event.get_date_object())
-
+        self.__add_event_age(event)
         self.participants = get_participants(grstate.dbstate.db, event)
         self.primary_participant = get_primary_participant(self.participants)
-
         event_type = glocale.translation.sgettext(event.type.xml_str())
         title, role = self._get_title_and_role(
             event_type, self.primary_participant
         )
+        self.__add_event_title(event, title)
+        self.__add_event_role(role)
+        self.__add_event_date(event)
+        self.__add_event_place(event)
+        self.__add_event_description(event, event_type)
+        self.__add_event_participants()
+        self.__add_event_quality()
+        self.enable_drag()
+        self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
+    def __add_event_title(self, event, title):
+        """
+        Add event title.
+        """
         name = self.get_link(
             title,
             "Event",
@@ -121,6 +122,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         )
         self.widgets["title"].pack_start(name, True, True, 0)
 
+    def __add_event_role(self, role):
+        """
+        Add event role.
+        """
         if role and (
             self.get_option("show-role-always")
             or role
@@ -131,14 +136,35 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         ):
             self.add_fact(self.get_label(str(role)))
 
+    def __add_event_age(self, event):
+        """
+        Load age data if needed.
+        """
+        event_date = event.get_date_object()
+        age_base = self.groptions.age_base
+        if event_date and age_base:
+            if self.groptions.context in ["timeline"]:
+                if self.grstate.config.get("options.timeline.person.show-age"):
+                    self.load_age(age_base, event_date)
+            elif self.grstate.config.get("options.group.event.show-age"):
+                self.load_age(age_base, event_date)
+
+    def __add_event_date(self, event):
+        """
+        Add event date.
+        """
         date = glocale.date_displayer.display(event.get_date_object())
         if date:
             self.add_fact(self.get_label(date))
 
-        text = place_displayer.display_event(grstate.dbstate.db, event)
-        if text:
+    def __add_event_place(self, event):
+        """
+        Add event place.
+        """
+        name = place_displayer.display_event(self.grstate.dbstate.db, event)
+        if name:
             place = self.get_link(
-                text,
+                name,
                 "Place",
                 event.place,
                 hexpand=False,
@@ -146,6 +172,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             )
             self.add_fact(place)
 
+    def __add_event_description(self, event, event_type):
+        """
+        Add event description.
+        """
         if self.get_option("show-description"):
             text = event.get_description()
             if not text:
@@ -154,6 +184,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 )
             self.add_fact(self.get_label(text))
 
+    def __add_event_participants(self):
+        """
+        Add event participants.
+        """
         if self.get_option("show-participants") and len(self.participants) > 1:
             if "active" in self.groptions.option_space:
                 self._load_participants()
@@ -168,14 +202,13 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     )
                 )
 
+    def __add_event_quality(self):
+        """
+        Add event quality information.
+        """
         text = self.get_quality_text()
         if text:
             self.add_fact(self.get_label(text.lower().capitalize()))
-
-        self.enable_drag()
-        self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
-        self.enable_drop()
-        self.set_css_style()
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
@@ -201,16 +234,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             role = self.reference.obj.get_role()
         else:
             role = primary_obj_event_ref.get_role()
-
-        if role.is_family():
-            self.event_role_type = "family"
-        elif role.is_primary():
-            self.event_role_type = "primary"
-        else:
-            self.event_role_type = "secondary"
-        if "Unknown" in role.xml_str():
-            self.event_role_type = "unknown"
-
+        self.__set_role_type(role)
         role_name = str(role)
         title = " ".join((event_type, _("of"), primary_obj_name))
         if self.reference_base:
@@ -218,31 +242,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 self.reference_base.obj.get_handle()
                 == primary_obj.get_handle()
             ):
-                if (
-                    "family" not in self.groptions.option_space
-                    and "place" not in self.groptions.option_space
-                ):
-                    title = event_type
-                current_type = self.primary.obj.get_type()
-                if current_type == EventType.BIRTH and check_multiple_events(
-                    self.grstate.dbstate.db, primary_obj, EventType.BIRTH
-                ):
-                    birth_ref = primary_obj.get_birth_ref()
-                    if (
-                        birth_ref is not None
-                        and birth_ref.ref == self.primary.obj.get_handle()
-                    ):
-                        title = " ".join((title, "*"))
-                elif current_type == EventType.DEATH and check_multiple_events(
-                    self.grstate.dbstate.db, primary_obj, EventType.DEATH
-                ):
-                    death_ref = primary_obj.get_death_ref()
-                    if (
-                        death_ref is not None
-                        and death_ref.ref == self.primary.obj.get_handle()
-                    ):
-                        title = " ".join((title, "*"))
-
+                title = self.__adjust_title(title, event_type, primary_obj)
             if (
                 self.groptions.relation
                 and self.reference_base.obj_type == "Person"
@@ -260,6 +260,50 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     title = " ".join((event_type, _("of"), text))
                     role_name = ": ".join((_("Implicit Family"), text))
         return title, role_name
+
+    def __set_role_type(self, role):
+        """
+        Set event role type.
+        """
+        if role.is_family():
+            self.event_role_type = "family"
+        elif role.is_primary():
+            self.event_role_type = "primary"
+        else:
+            self.event_role_type = "secondary"
+        if "Unknown" in role.xml_str():
+            self.event_role_type = "unknown"
+
+    def __adjust_title(self, title, event_type, primary_obj):
+        """
+        Adjust title if primary event.
+        """
+        if (
+            "family" not in self.groptions.option_space
+            and "place" not in self.groptions.option_space
+        ):
+            title = event_type
+
+            current_type = self.primary.obj.get_type()
+            if current_type == EventType.BIRTH and check_multiple_events(
+                self.grstate.dbstate.db, primary_obj, EventType.BIRTH
+            ):
+                birth_ref = primary_obj.get_birth_ref()
+                if (
+                    birth_ref is not None
+                    and birth_ref.ref == self.primary.obj.get_handle()
+                ):
+                    title = " ".join((title, "*"))
+            elif current_type == EventType.DEATH and check_multiple_events(
+                self.grstate.dbstate.db, primary_obj, EventType.DEATH
+            ):
+                death_ref = primary_obj.get_death_ref()
+                if (
+                    death_ref is not None
+                    and death_ref.ref == self.primary.obj.get_handle()
+                ):
+                    title = " ".join((title, "*"))
+        return title
 
     def _load_participants(self):
         """
@@ -317,7 +361,6 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         Generate textual description for confidence, source and citation counts.
         """
         sources = []
-        citations = len(self.primary.obj.citation_list)
         if self.primary.obj.get_citation_list():
             for handle in self.primary.obj.get_citation_list():
                 citation = self.fetch("Citation", handle)
@@ -325,26 +368,13 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                     sources.append(citation.source_handle)
                 if citation.confidence > self.event_confidence:
                     self.event_confidence = citation.confidence
-
-        if sources:
-            if len(sources) == 1:
-                source_text = " ".join(("1", _("Source")))
-            else:
-                source_text = " ".join((str(len(sources)), _("Sources")))
-        else:
-            source_text = _("No Sources")
-
-        if citations:
-            if citations == 1:
-                citation_text = " ".join(("1", _("Citation")))
-            else:
-                citation_text = " ".join((str(citations), _("Citations")))
-        else:
-            citation_text = _("No Citations")
-
         return (
-            source_text,
-            citation_text,
+            get_object_text(sources, _("Source"), _("Sources")),
+            get_object_text(
+                self.primary.obj.get_citation_list(),
+                _("Citation"),
+                _("Citations"),
+            ),
             get_confidence(self.event_confidence),
         )
 
@@ -393,9 +423,21 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         Add action menu items for the event.
         """
-        self._birth_option(context_menu)
-        self._death_option(context_menu)
-        context_menu.append(self._participants_option())
+        self.__add_birth_menu_option(context_menu)
+        self.__add_death_menu_option(context_menu)
+        callbacks = (
+            self.add_new_participant,
+            self.add_existing_participant,
+            self.goto_person,
+            self.edit_primary_object,
+            self.edit_participant,
+            self.remove_participant,
+        )
+        add_participants_menu(
+            context_menu,
+            callbacks,
+            self.participants,
+        )
 
     def edit_self(self, *_dummy_obj):
         """
@@ -424,7 +466,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         except WindowActiveError:
             pass
 
-    def _birth_option(self, context_menu):
+    def __add_birth_menu_option(self, context_menu):
         """
         Build set birth option if appropriate.
         """
@@ -444,7 +486,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
                 )
             )
 
-    def _death_option(self, context_menu):
+    def __add_death_menu_option(self, context_menu):
         """
         Build set death option if appropriate.
         """
@@ -503,89 +545,6 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         )
         self.reference_base.obj.set_death_ref(self.reference.obj)
         self.reference_base.commit(self.grstate, message)
-
-    def _participants_option(self):
-        """
-        Build participants option menu.
-        """
-        menu = Gtk.Menu()
-        menu.add(
-            menu_item(
-                "gramps-person",
-                _("Add a new person as a participant"),
-                self.add_new_participant,
-            )
-        )
-        menu.add(
-            menu_item(
-                "gramps-person",
-                _("Add an existing person as a participant"),
-                self.add_existing_participant,
-            )
-        )
-        if len(self.participants) > 1:
-            gotomenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-person", _("Go to a participant"), gotomenu
-                )
-            )
-            editmenu = Gtk.Menu()
-            menu.add(
-                submenu_item(
-                    "gramps-person", _("Edit a participant"), editmenu
-                )
-            )
-            removemenu = Gtk.Menu()
-            removesubmenu = submenu_item(
-                "gramps-person", _("Remove a participant"), removemenu
-            )
-            menu.add(removesubmenu)
-            menu.add(Gtk.SeparatorMenuItem())
-            menu.add(Gtk.SeparatorMenuItem())
-            participant_list = []
-            for (obj_type, obj, obj_event_ref, obj_name) in self.participants:
-                if obj_type == "Person":
-                    text = "".join(
-                        (str(obj_event_ref.get_role()), ": ", obj_name)
-                    )
-                    participant_list.append((text, obj, obj_event_ref))
-            participant_list.sort(key=lambda x: x[0])
-            for (text, person, event_ref) in participant_list:
-                handle = person.get_handle()
-                gotomenu.add(
-                    menu_item("gramps-person", text, self.goto_person, handle)
-                )
-                editmenu.add(
-                    menu_item(
-                        "gramps-person",
-                        text,
-                        self.edit_primary_object,
-                        person,
-                        "Person",
-                    )
-                )
-                removemenu.add(
-                    menu_item(
-                        "list-remove",
-                        text,
-                        self.remove_participant,
-                        person,
-                        event_ref,
-                    )
-                )
-                menu.add(
-                    menu_item(
-                        "gramps-person",
-                        text,
-                        self.edit_participant,
-                        person,
-                        event_ref,
-                    )
-                )
-            if len(removemenu) == 0:
-                removesubmenu.destroy()
-        return submenu_item("gramps-person", _("Participants"), menu)
 
     def edit_participant(self, _dummy_obj, participant, event_ref):
         """
@@ -718,3 +677,17 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             if death_ref is not None:
                 participant.obj.set_death_ref(death_ref)
             participant.commit(self.grstate, message)
+
+
+def get_object_text(obj_list, single, plural):
+    """
+    Return a text string describing a list.
+    """
+    if obj_list:
+        if len(obj_list) == 1:
+            text = " ".join(("1", single))
+        else:
+            text = " ".join((str(len(obj_list)), plural))
+    else:
+        text = " ".join((_("No"), plural))
+    return text

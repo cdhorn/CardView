@@ -24,13 +24,6 @@ ChildRefGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -44,7 +37,7 @@ from gramps.gui.editors import EditChildRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_person import PersonGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -75,51 +68,14 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
             child,
             reference_tuple=(family, child_ref),
         )
-        if not groptions.ref_mode:
-            return
-
-        vbox = None
-        if child_ref.get_father_relation():
-            reltype = str(child_ref.get_father_relation())
-            if groptions.ref_mode in [1, 3]:
-                left = groptions.ref_mode == 1
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(_("Father"), left=left), False, False, 0
-                )
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(str(reltype), left=left), False, False, 0
-                )
-            else:
-                vbox = Gtk.VBox()
-                vbox.pack_start(
-                    self.get_label(": ".join((_("Father"), reltype))),
-                    True,
-                    True,
-                    0,
-                )
-
-        if child_ref.get_mother_relation():
-            reltype = str(child_ref.get_mother_relation())
-            if groptions.ref_mode in [1, 3]:
-                left = groptions.ref_mode == 1
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(_("Mother"), left=left), False, False, 0
-                )
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(str(reltype), left=left), False, False, 0
-                )
-            else:
-                if not vbox:
-                    vbox = Gtk.VBox()
-                vbox.pack_start(
-                    self.get_label(": ".join((_("Mother"), reltype))),
-                    True,
-                    True,
-                    0,
-                )
-
-        if vbox:
-            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
+        if groptions.ref_mode:
+            if child_ref.get_father_relation():
+                relation_type = str(child_ref.get_father_relation())
+                self.add_ref_item(_("Father"), relation_type)
+            if child_ref.get_mother_relation():
+                relation_type = str(child_ref.get_mother_relation())
+                self.add_ref_item(_("Mother"), relation_type)
+            self.show_ref_items()
 
     def add_ref_custom_actions(self, context_menu):
         """

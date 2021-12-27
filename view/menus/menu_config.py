@@ -24,13 +24,6 @@ Configuration menu and helpers
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -42,11 +35,11 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS_SINGLE
-from ..common.common_utils import menu_item
 from ..config.config_builder import config_factory
 from ..config.config_const import PAGE_NAMES
 from ..config.config_layout import build_layout_grid
 from ..config.config_panel import build_global_panel
+from .menu_utils import menu_item, new_menu, show_menu
 
 _ = glocale.translation.sgettext
 
@@ -189,14 +182,8 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
     Build the configuration option menu.
     """
     config = grstate.config
-    menu = Gtk.Menu()
-    menu.append(
-        menu_item(
-            "preferences-system",
-            _("Global options"),
-            run_global_config,
-            grstate,
-        )
+    menu = new_menu(
+        "preferences-system", _("Global options"), run_global_config, grstate
     )
     (
         dummy_space,
@@ -218,13 +205,7 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
     add_page_layout_option(menu, grstate)
     for option_data in TOGGLE_OPTIONS:
         menu.append(toggle_option(config, option_data))
-    menu.attach_to_widget(widget, None)
-    menu.show_all()
-    if Gtk.get_minor_version() >= 22:
-        menu.popup_at_pointer(event)
-    else:
-        menu.popup(None, None, None, None, event.button, event.time)
-    return True
+    return show_menu(menu, widget, event)
 
 
 def toggle_option(config, option_data):

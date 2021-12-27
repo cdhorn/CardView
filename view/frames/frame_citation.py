@@ -38,9 +38,9 @@ from ..common.common_const import CITATION_TYPES
 from ..common.common_utils import (
     get_confidence,
     get_confidence_color_css,
-    menu_item,
 )
 from .frame_primary import PrimaryGrampsFrame
+from ..menus.menu_utils import menu_item
 
 _ = glocale.translation.sgettext
 
@@ -58,20 +58,23 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
     def __init__(self, grstate, groptions, citation, reference=None):
         PrimaryGrampsFrame.__init__(self, grstate, groptions, citation)
         self.source = self.fetch("Source", citation.source_handle)
-        self.populate_layout(self.source, citation, reference)
+        self.__add_citation_title(self.source, citation)
+        self.__add_citation_author(self.source)
+        self.__add_citation_page(citation)
+        self.__add_citation_date(citation)
+        self.__add_citation_publisher(self.source)
+        self.__add_citation_reference_type(reference)
+        self.__add_citation_reference_desc(reference)
+        self.__add_citation_confidence(citation)
         self.enable_drag()
-        self.enable_drop()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
         self.set_css_style()
 
-    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+    def __add_citation_title(self, source, citation):
         """
-        Handle drop processing for a person.
-        """
-        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
-
-    def populate_layout(self, source, citation, reference=None):
-        """
-        Populate information.
+        Add title for frame.
         """
         if self.grstate.config.get(
             "options.global.general.link-citation-title-to-source"
@@ -89,17 +92,28 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
             )
         self.widgets["title"].pack_start(title, True, False, 0)
 
+    def __add_citation_author(self, source):
+        """
+        Add author of source cited from.
+        """
         if source.author:
             self.add_fact(self.get_label(source.author))
 
+    def __add_citation_page(self, citation):
+        """
+        Add page cited.
+        """
         if citation.page:
             self.add_fact(self.get_label(citation.page))
 
-        if citation.get_date_object():
+    def __add_citation_date(self, citation):
+        """
+        Add citation date.
+        """
+        citation_date = citation.get_date_object()
+        if citation_date:
             if self.get_option("show-date"):
-                text = glocale.date_displayer.display(
-                    citation.get_date_object()
-                )
+                text = glocale.date_displayer.display(citation_date)
                 if text:
                     self.add_fact(self.get_label(text))
 
@@ -107,13 +121,19 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
                 self.groptions.context in ["timeline"]
                 or self.grstate.config.get("options.group.citation.show-age")
             ):
-                self.load_age(
-                    self.groptions.age_base, citation.get_date_object()
-                )
+                self.load_age(self.groptions.age_base, citation_date)
 
+    def __add_citation_publisher(self, source):
+        """
+        Add publisher of source cited from.
+        """
         if self.get_option("show-publisher") and source.pubinfo:
             self.add_fact(self.get_label(source.pubinfo))
 
+    def __add_citation_reference_type(self, reference):
+        """
+        Add reference type.
+        """
         if (
             self.get_option("show-reference-type")
             and reference
@@ -122,6 +142,10 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
             label = self.get_label(CITATION_TYPES[reference[1]], left=False)
             self.widgets["attributes"].add_fact(label)
 
+    def __add_citation_reference_desc(self, reference):
+        """
+        Add citation reference description.
+        """
         if (
             self.get_option("show-reference-description")
             and reference
@@ -130,12 +154,21 @@ class CitationGrampsFrame(PrimaryGrampsFrame):
             label = self.get_label(reference[2], left=False)
             self.widgets["attributes"].add_fact(label)
 
+    def __add_citation_confidence(self, citation):
+        """
+        Add citation confidence.
+        """
         if self.get_option("show-confidence"):
             label = self.get_label(
                 get_confidence(citation.confidence), left=False
             )
             self.widgets["attributes"].add_fact(label)
-        self.show_all()
+
+    def _child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a person.
+        """
+        return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
     def get_color_css(self):
         """

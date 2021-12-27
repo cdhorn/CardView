@@ -24,13 +24,6 @@ EventRefGrampsFrame.
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -45,7 +38,7 @@ from gramps.gui.editors import EditEventRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_event import EventGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -68,30 +61,25 @@ class EventRefGrampsFrame(EventGrampsFrame):
         EventGrampsFrame.__init__(
             self, grstate, groptions, event, reference_tuple=reference_tuple
         )
-        if not groptions.ref_mode:
-            return
-
-        if (
-            groptions.relation
-            and groptions.relation.get_handle()
-            != self.reference_base.obj.get_handle()
-        ):
-            name = None
-            if self.reference_base.obj_type == "Person":
-                name = name_displayer.display(self.reference_base.obj)
-            elif self.reference_base.obj_type == "Family":
-                name = family_name(self.reference_base.obj, grstate.dbstate.db)
-            if name:
-                text = "".join(("[", name, "]"))
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(text), False, False, 0
-                )
-
-        vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
-        vbox.pack_start(
-            self.get_label(str(event_ref.get_role())), False, False, 0
-        )
-        self.ref_widgets["body"].pack_start(vbox, False, False, 0)
+        if groptions.ref_mode:
+            role = str(event_ref.get_role())
+            if (
+                groptions.relation
+                and groptions.relation.get_handle()
+                != self.reference_base.obj.get_handle()
+            ):
+                name = None
+                if self.reference_base.obj_type == "Person":
+                    name = name_displayer.display(self.reference_base.obj)
+                elif self.reference_base.obj_type == "Family":
+                    name = family_name(
+                        self.reference_base.obj, grstate.dbstate.db
+                    )
+                if name:
+                    self.add_ref_item(name, role)
+            else:
+                self.add_ref_item(role, None)
+            self.show_ref_items()
 
     def add_ref_custom_actions(self, context_menu):
         """

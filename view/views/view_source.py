@@ -40,7 +40,11 @@ from .view_const import FRAME_MAP
 
 _ = glocale.translation.sgettext
 
-
+# -------------------------------------------------------------------------
+#
+# SourceObjectView class
+#
+# -------------------------------------------------------------------------
 class SourceObjectView(GrampsObjectView):
     """
     Provides the source object view.
@@ -84,23 +88,10 @@ class SourceObjectView(GrampsObjectView):
         ) in self.grstate.dbstate.db.find_backlink_handles(
             source.get_handle()
         ):
-            if obj_type != "Citation":
-                continue
-            for (
-                sub_obj_type,
-                sub_obj_handle,
-            ) in self.grstate.dbstate.db.find_backlink_handles(obj_handle):
-                if sub_obj_type == "Person":
-                    if sub_obj_handle not in people_list:
-                        people_list.append(("Person", sub_obj_handle))
-                elif sub_obj_type == "Event":
-                    if sub_obj_handle not in events_list:
-                        events_list.append(("Event", sub_obj_handle))
-                elif (
-                    sub_obj_type == "Place"
-                    and sub_obj_handle not in places_list
-                ):
-                    places_list.append(("Place", sub_obj_handle))
+            if obj_type == "Citation":
+                self.__extract_references(
+                    obj_handle, people_list, events_list, places_list
+                )
 
         if "people" in object_groups and people_list:
             groptions = GrampsOptions("options.group.people")
@@ -146,3 +137,22 @@ class SourceObjectView(GrampsObjectView):
                     )
                 }
             )
+
+    def __extract_references(
+        self, handle, people_list, events_list, places_list
+    ):
+        """
+        Extract person, event and place references for an object.
+        """
+        for (
+            obj_type,
+            obj_handle,
+        ) in self.grstate.dbstate.db.find_backlink_handles(handle):
+            if obj_type == "Person":
+                if obj_handle not in people_list:
+                    people_list.append(("Person", obj_handle))
+            elif obj_type == "Event":
+                if obj_handle not in events_list:
+                    events_list.append(("Event", obj_handle))
+            elif obj_type == "Place" and obj_handle not in places_list:
+                places_list.append(("Place", obj_handle))

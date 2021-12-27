@@ -243,7 +243,8 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid,
         _(
-            "Enable Zotero citation picking support with Better BibTex extension"
+            "Enable Zotero citation picking support with Better BibTex "
+            "extension"
         ),
         13,
         "options.global.general.zotero-enabled",

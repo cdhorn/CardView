@@ -24,13 +24,6 @@ PersonRefGrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
@@ -42,7 +35,7 @@ from gramps.gen.display.name import displayer as name_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_person import PersonGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -74,59 +67,17 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
             associate,
             reference_tuple=(person, person_ref),
         )
-        if not groptions.ref_mode:
-            return
-
-        vbox = None
-        association = person_ref.get_relation()
-        if not association:
-            association = _("[None Provided]")
-        left = groptions.ref_mode == 1
-        if groptions.ref_mode in [1, 3]:
-            self.ref_widgets["body"].pack_start(
-                self.get_label(_("Association"), left=left), False, False, 0
+        if groptions.ref_mode:
+            association = person_ref.get_relation()
+            if not association:
+                association = _("[None Provided]")
+            self.add_ref_item(_("Association"), association)
+            relation = grstate.uistate.relationship.get_one_relationship(
+                grstate.dbstate.db, person, associate
             )
-            self.ref_widgets["body"].pack_start(
-                self.get_label(association, left=left), False, False, 0
-            )
-        else:
-            vbox = Gtk.VBox()
-            vbox.pack_start(
-                self.get_label(": ".join((_("Association"), association))),
-                True,
-                True,
-                0,
-            )
-
-        relation = grstate.uistate.relationship.get_one_relationship(
-            grstate.dbstate.db, person, associate
-        )
-        if relation:
-            if groptions.ref_mode in [1, 3]:
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(_("Relationship"), left=left),
-                    False,
-                    False,
-                    0,
-                )
-                self.ref_widgets["body"].pack_start(
-                    self.get_label(relation.capitalize(), left=left),
-                    False,
-                    False,
-                    0,
-                )
-            else:
-                vbox.pack_start(
-                    self.get_label(
-                        ": ".join((_("Relationship"), relation.capitalize()))
-                    ),
-                    True,
-                    True,
-                    0,
-                )
-
-        if vbox:
-            self.ref_widgets["body"].pack_start(vbox, True, True, 0)
+            if relation:
+                self.add_ref_item(_("Relationship"), relation.capitalize())
+            self.show_ref_items()
 
     def add_ref_custom_actions(self, context_menu):
         """

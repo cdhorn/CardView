@@ -42,7 +42,7 @@ from gramps.gen.db import DbTxn
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import menu_item
+from ..menus.menu_utils import menu_item
 from .frame_reference import ReferenceGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -62,9 +62,21 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         ReferenceGrampsFrame.__init__(
             self, grstate, groptions, media, reference_tuple=reference_tuple
         )
-        if groptions.bar_mode:
-            return
+        if not groptions.bar_mode:
+            self.__add_media_title(media)
+            self.__add_media_date(media)
+            self.__add_media_path(media)
+            self.__add_media_mime_type(media)
+            self.enable_drag()
+            self.enable_drop(
+                self.eventbox, self.dnd_drop_targets, self.drag_data_received
+            )
+            self.set_css_style()
 
+    def __add_media_title(self, media):
+        """
+        Add media title.
+        """
         title = self.get_link(
             media.get_description(),
             "Media",
@@ -72,27 +84,34 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
-        if media.get_date_object():
+    def __add_media_date(self, media):
+        media_date = media.get_date_object()
+        if media_date:
             if self.get_option("show-date"):
-                text = glocale.date_displayer.display(media.get_date_object())
+                text = glocale.date_displayer.display(media_date)
                 if text:
                     self.add_fact(self.get_label(text))
 
-            if groptions.age_base and (
-                groptions.context in ["timeline"]
-                or grstate.config.get("options.group.media.show-age")
+            age_base = self.groptions.age_base
+            if age_base and (
+                self.groptions.context in ["timeline"]
+                or self.grstate.config.get("options.group.media.show-age")
             ):
-                self.load_age(groptions.age_base, media.get_date_object())
+                self.load_age(age_base, media_date)
 
+    def __add_media_path(self, media):
+        """
+        Add media path.
+        """
         if self.get_option("show-path") and media.get_path():
             self.add_fact(self.get_label(media.get_path()))
 
+    def __add_media_mime_type(self, media):
+        """
+        Add media mime type.
+        """
         if self.get_option("show-mime-type") and media.get_mime_type():
             self.add_fact(self.get_label(media.get_mime_type()))
-
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """

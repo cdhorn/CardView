@@ -67,15 +67,19 @@ from ..common.common_const import (
     BUTTON_SECONDARY,
 )
 from ..common.common_utils import (
-    attribute_option_text,
     button_pressed,
     button_released,
-    citation_option_text,
-    menu_item,
-    note_option_text,
+    describe_object,
 )
 from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
+from ..menus.menu_utils import (
+    add_attributes_menu,
+    add_citations_menu,
+    add_notes_menu,
+    add_privacy_menu_option,
+    show_menu,
+)
 from .frame_primary import PrimaryGrampsFrame
 
 _ = glocale.translation.sgettext
@@ -99,6 +103,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             primary_obj,
             reference_tuple=reference_tuple,
         )
+        self.ref_vbox = None
         self.dnd_drop_ref_targets = []
         if not reference_tuple or not groptions.ref_mode:
             return
@@ -113,10 +118,10 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 title=self.get_title(),
             )
         self.ref_eventbox.connect(
-            "button-press-event", self.ref_button_pressed
+            "button-press-event", self.cb_ref_button_pressed
         )
         self.ref_eventbox.connect(
-            "button-release-event", self.ref_button_released
+            "button-release-event", self.cb_ref_button_released
         )
 
         self.enable_drag(
@@ -182,7 +187,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         if data and self.reference.has_notes:
             self.add_new_ref_note(None, content=data)
 
-    def ref_button_pressed(self, obj, event):
+    def cb_ref_button_pressed(self, obj, event):
         """
         Handle button pressed.
         """
@@ -202,13 +207,13 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             return True
         return False
 
-    def ref_button_released(self, obj, event):
+    def cb_ref_button_released(self, obj, event):
         """
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
             if match_primary_mask(event.get_state()):
-                self.dump_context()
+                self._dump_context()
                 return True
             page_context = GrampsContext(
                 self.reference_base, self.reference, None
@@ -223,51 +228,46 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         context_menu = Gtk.Menu()
         self.add_ref_custom_actions(context_menu)
-        if self.reference.has_attributes:
-            context_menu.append(
-                self._attributes_option(
-                    self.reference.obj,
-                    self.add_ref_attribute,
-                    self.remove_ref_attribute,
-                    self.edit_ref_attribute,
-                )
-            )
-        if self.reference.has_citations:
-            context_menu.append(
-                self._citations_option(
-                    self.reference.obj,
-                    self.add_new_ref_source_citation,
-                    self.add_existing_ref_source_citation,
-                    self.add_existing_ref_citation,
-                    self.add_zotero_ref_citation,
-                    self.remove_ref_citation,
-                )
-            )
-        if self.reference.has_notes:
-            context_menu.append(
-                self._notes_option(
-                    self.reference.obj,
-                    self.add_new_ref_note,
-                    self.add_existing_ref_note,
-                    self.remove_ref_note,
-                    no_children=True,
-                )
-            )
-        if self.reference.has_privacy:
-            context_menu.append(self._change_ref_privacy_option())
+        callbacks = (
+            self.add_ref_attribute,
+            self.edit_ref_attribute,
+            self.remove_ref_attribute,
+        )
+        add_attributes_menu(context_menu, self.reference, callbacks)
+        callbacks = (
+            self.add_new_ref_source_citation,
+            self.add_existing_ref_source_citation,
+            self.add_existing_ref_citation,
+            self.add_zotero_ref_citation,
+            self.edit_citation,
+            self.remove_ref_citation,
+        )
+        zotero = bool(self.zotero)
+        add_citations_menu(
+            context_menu,
+            self.grstate.dbstate.db,
+            self.reference,
+            callbacks,
+            zotero=zotero,
+        )
+        callbacks = (
+            self.add_new_ref_note,
+            self.add_existing_ref_note,
+            self.edit_note,
+            self.remove_ref_note,
+        )
+        add_notes_menu(
+            context_menu, self.grstate.dbstate.db, self.reference, callbacks
+        )
+        add_privacy_menu_option(
+            context_menu, self.reference, self.change_ref_privacy
+        )
         context_menu.add(Gtk.SeparatorMenuItem())
         reference_type = self._get_reference_type()
         label = Gtk.MenuItem(label=reference_type)
         label.set_sensitive(False)
         context_menu.append(label)
-        context_menu.attach_to_widget(self, None)
-        context_menu.show_all()
-        if Gtk.get_minor_version() >= 22:
-            context_menu.popup_at_pointer(event)
-        else:
-            context_menu.popup(
-                None, None, None, None, event.button, event.time
-            )
+        return show_menu(context_menu, self, event)
 
     def add_ref_custom_actions(self, context_menu):
         """
@@ -406,7 +406,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if not attribute:
             return
-        text = attribute_option_text(attribute)
+        text = describe_object(self.grstate.dbstate.db, attribute)
         prefix = _(
             "You are about to remove the following attribute from this object:"
         )
@@ -520,7 +520,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             import_notes = self.grstate.config.get(
                 "options.global.general.zotero-enabled-notes"
             )
-            citation = self.zotero.add_citation(
+            self.zotero.add_citation(
                 self.reference_base.obj,
                 self.reference.obj,
                 import_notes=import_notes,
@@ -543,7 +543,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if not citation:
             return
-        text = citation_option_text(self.grstate.dbstate.db, citation)
+        text = describe_object(self.grstate.dbstate.db, citation)
         prefix = _(
             "You are about to remove the following citation from this object:"
         )
@@ -604,7 +604,7 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         if not note:
             return
-        text = note_option_text(note)
+        text = describe_object(self.grstate.dbstate.db, note)
         prefix = _(
             "You are about to remove the following note from this object:"
         )
@@ -617,21 +617,6 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             )
             self.reference.obj.remove_note(note.get_handle())
             self.reference_base.commit(self.grstate, message)
-
-    def _change_ref_privacy_option(self):
-        """
-        Build privacy option based on current object state.
-        """
-        if self.reference.obj.private:
-            return menu_item(
-                "gramps-unlock",
-                _("Make public"),
-                self.change_ref_privacy,
-                False,
-            )
-        return menu_item(
-            "gramps-lock", _("Make private"), self.change_ref_privacy, True
-        )
 
     def change_ref_privacy(self, _dummy_obj, mode):
         """
@@ -654,3 +639,42 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         )
         self.reference.obj.set_privacy(mode)
         self.reference_base.commit(self.grstate, message)
+
+    def add_ref_item(self, label, value):
+        """
+        Add reference item to widget based on reference display mode.
+        """
+        ref_mode = self.groptions.ref_mode
+        if ref_mode in [1, 3]:
+            left = ref_mode == 1
+            if label:
+                self.ref_widgets["body"].pack_start(
+                    self.get_label(label, left=left),
+                    False,
+                    False,
+                    0,
+                )
+            if value:
+                self.ref_widgets["body"].pack_start(
+                    self.get_label(value, left=left),
+                    False,
+                    False,
+                    0,
+                )
+        else:
+            if not self.ref_vbox:
+                self.ref_vbox = Gtk.VBox(halign=Gtk.Align.START, hexpand=False)
+            text = label
+            if value:
+                if text:
+                    text = ": ".join((text, value)).replace("::", ":")
+                else:
+                    text = value
+            self.ref_vbox.pack_start(self.get_label(text), False, False, 0)
+
+    def show_ref_items(self):
+        """
+        Set horizontal ref widget if needed.
+        """
+        if self.groptions.ref_mode not in [1, 3]:
+            self.ref_widgets["body"].pack_start(self.ref_vbox, True, True, 0)

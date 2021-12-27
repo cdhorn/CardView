@@ -54,11 +54,25 @@ class NameGrampsFrame(SecondaryGrampsFrame):
 
     def __init__(self, grstate, groptions, obj, name):
         SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, name)
+        self.__add_name_title(obj, name)
+        self.__add_name_given(name)
+        self.__add_name_call(name)
+        self.__add_name_nick(name)
+        self.__add_name_origin_surnames(name)
+        self.__add_name_family_nick(name)
+        self.__add_name_date(name)
+        self.show_all()
+        self.enable_drag()
+        self.enable_drop(
+            self.eventbox, self.dnd_drop_targets, self.drag_data_received
+        )
+        self.set_css_style()
 
-        if name.get_type():
-            name_type = glocale.translation.sgettext(name.get_type().xml_str())
-        else:
-            name_type = _("Unknown")
+    def __add_name_title(self, obj, name):
+        """
+        Add title.
+        """
+        name_type = get_name_type(name)
         if obj.primary_name.serialize() == name.serialize():
             title = ": ".join((_("Primary"), name_type))
         else:
@@ -68,26 +82,44 @@ class NameGrampsFrame(SecondaryGrampsFrame):
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
+    def __add_name_given(self, name):
+        """
+        Add given name with title if there is one.
+        """
         given_name = name.get_regular_name()
         if name.get_title():
             given_name = " ".join((name.get_title(), given_name))
-        self.add_fact(self.get_label(given_name))
+        self.add_fact(
+            self.get_label(given_name), label=self.get_label(_("Given"))
+        )
 
+    def __add_name_call(self, name):
+        """
+        Add call name if there is one.
+        """
         if name.get_call_name():
-            call_name = " ".join((_("Call Name:"), name.get_call_name()))
-            self.add_fact(self.get_label(call_name))
+            self.add_fact(
+                self.get_label(name.get_call_name()),
+                label=self.get_label(_("Call Name")),
+            )
 
+    def __add_name_nick(self, name):
+        """
+        Add nick name if there is one.
+        """
         if name.get_nick_name():
-            nick_name = " ".join((_("Nick Name:"), name.get_nick_name()))
-            self.add_fact(self.get_label(nick_name))
+            self.add_fact(
+                self.get_label(name.get_nick_name()),
+                label=self.get_label(_("Nick Name")),
+            )
 
+    def __add_name_origin_surnames(self, name):
+        """
+        Add surnames with origin.
+        """
         origin_type = ""
         for surname in name.get_surname_list():
-            if surname.get_origintype():
-                origin_type = str(surname.get_origintype())
-            if not origin_type:
-                origin_type = "".join(("[", _("Missing Origin"), "]"))
-
+            origin_type = get_origin_type(surname)
             prefix = ""
             if surname.get_prefix():
                 prefix = "".join((surname.get_prefix(), " "))
@@ -95,32 +127,38 @@ class NameGrampsFrame(SecondaryGrampsFrame):
             if surname.get_connector():
                 connector = "".join((" ", surname.get_connector()))
 
-            text = "".join((prefix, name.get_surname(), connector)).strip()
+            text = "".join((prefix, surname.get_surname(), connector)).strip()
             if text:
-                text = ": ".join((origin_type, text))
-                self.add_fact(self.get_label(text))
+                self.add_fact(
+                    self.get_label(text), label=self.get_label(origin_type)
+                )
 
+    def __add_name_family_nick(self, name):
+        """
+        Add family_nick name if there is one.
+        """
         if name.get_family_nick_name():
-            nick_name = " ".join(
-                (_("Family Nick Name:"), name.get_family_nick_name())
+            self.add_fact(
+                self.get_label(name.get_family_nick_name()),
+                label=self.get_label(_("Family Nick Name")),
             )
-            self.add_fact(self.get_label(nick_name))
 
-        if name.get_date_object():
-            text = glocale.date_displayer.display(name.get_date_object())
+    def __add_name_date(self, name):
+        """
+        Add name date.
+        """
+        name_date = name.get_date_object()
+        if name_date:
+            text = glocale.date_displayer.display(name_date)
             if text:
-                self.add_fact(self.get_label(text))
-
-            if groptions.age_base and (
-                groptions.context in ["timeline"]
+                self.add_fact(
+                    self.get_label(text), label=self.get_label(_("Date"))
+                )
+            if self.groptions.age_base and (
+                self.groptions.context in ["timeline"]
                 or self.grstate.config.get("options.group.name.show-age")
             ):
-                self.load_age(groptions.age_base, name.get_date_object())
-
-        self.show_all()
-        self.enable_drag()
-        self.enable_drop()
-        self.set_css_style()
+                self.load_age(self.groptions.age_base, name_date)
 
     def switch_name_page(self, *_dummy_obj):
         """
@@ -149,3 +187,23 @@ class NameGrampsFrame(SecondaryGrampsFrame):
                 living=living,
             )
         return ""
+
+
+def get_name_type(name):
+    """
+    Return name type.
+    """
+    if name.get_type():
+        return glocale.translation.sgettext(name.get_type().xml_str())
+    return _("Unknown")
+
+
+def get_origin_type(surname):
+    """
+    Return origin type.
+    """
+    if surname.get_origintype():
+        origin_type = str(surname.get_origintype())
+    if not origin_type:
+        origin_type = "".join(("[", _("Missing Origin"), "]"))
+    return origin_type
