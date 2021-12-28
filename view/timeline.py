@@ -19,7 +19,7 @@
 #
 
 """
-Timeline
+GrampsTimeline
 """
 
 # ------------------------------------------------------------------------
@@ -92,7 +92,7 @@ EVENT_CATEGORIES = [
 # optional set of dates.
 
 
-class Timeline:
+class GrampsTimeline:
     """
     Timeline class for constructing an event timeline for a person, family,
     date span, location or an optional grouping of specific people and families.

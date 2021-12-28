@@ -70,6 +70,18 @@ from .common_const import (
 _ = glocale.translation.sgettext
 
 
+def get_object_type(obj, lang=False):
+    """
+    Return Gramps object information.
+    """
+    for obj_data in GRAMPS_OBJECTS:
+        if isinstance(obj, obj_data[0]):
+            if lang:
+                return obj_data[2]
+            return obj_data[1]
+    return ""
+
+
 def button_pressed(event, mouse_button):
     """
     Test if specific button press happened.
@@ -304,19 +316,19 @@ def get_config_option(config, option, full=False, dbid=None):
         return False
     if full:
         return option_data
-    if dbid:
-        current_option_list = option_data.split(",")
-        for current_option in current_option_list:
-            if ":" in current_option:
-                option_parts = current_option.split(":")
-                if option_parts[0] == dbid:
-                    return option_parts[1:]
-        default_value = config.get_default(option)
-        if isinstance(default_value, str):
-            option_parts = default_value.split(":")
-            return option_parts
-        return []
-    return option_data.split(":")
+    if not dbid:
+        return option_data.split(":")
+    current_option_list = option_data.split(",")
+    for current_option in current_option_list:
+        if ":" in current_option:
+            option_parts = current_option.split(":")
+            if option_parts[0] == dbid:
+                return option_parts[1:]
+    default_value = config.get_default(option)
+    if isinstance(default_value, str):
+        option_parts = default_value.split(":")
+        return option_parts
+    return []
 
 
 def save_config_option(

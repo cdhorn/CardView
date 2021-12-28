@@ -50,50 +50,51 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
     """
     get_label = args.get("get_label")
 
-    if isinstance(obj, Person):
-        person_birth = None
-        birth_ref = obj.get_birth_ref()
-        if birth_ref:
-            event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
-            if event:
-                person_birth = event.get_date_object()
+    if not isinstance(obj, Person):
+        return []
 
-        parent_family_handle = obj.get_main_parents_family_handle()
-        if not parent_family_handle:
-            return [(get_label(_("Child")), get_label(_("Unknown Parents")))]
+    person_birth = None
+    birth_ref = obj.get_birth_ref()
+    if birth_ref:
+        event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
+        if event:
+            person_birth = event.get_date_object()
 
-        parent_family = grstate.dbstate.db.get_family_from_handle(
-            parent_family_handle
+    parent_family_handle = obj.get_main_parents_family_handle()
+    if not parent_family_handle:
+        return [(get_label(_("Child")), get_label(_("Unknown Parents")))]
+
+    parent_family = grstate.dbstate.db.get_family_from_handle(
+        parent_family_handle
+    )
+
+    total = 0
+    number = 0
+    for child_ref in parent_family.get_child_ref_list():
+        total = total + 1
+        if child_ref.ref == obj.get_handle():
+            number = total
+    data = [" ".join((str(number), _("of"), str(total)))]
+
+    if person_birth:
+        mother_text, dummy_text = get_parent_text(
+            grstate.dbstate.db, parent_family, person_birth, "Mother"
         )
+        if mother_text:
+            data.append(mother_text)
+        father_text, death_text = get_parent_text(
+            grstate.dbstate.db, parent_family, person_birth, "Father"
+        )
+        if father_text:
+            data.append(father_text)
+        family_text = get_family_text(
+            grstate.dbstate.db, parent_family, person_birth, death_text
+        )
+        if family_text:
+            data.append(family_text)
 
-        total = 0
-        number = 0
-        for child_ref in parent_family.get_child_ref_list():
-            total = total + 1
-            if child_ref.ref == obj.get_handle():
-                number = total
-        data = [" ".join((str(number), _("of"), str(total)))]
-
-        if person_birth:
-            mother_text, dummy_text = get_parent_text(
-                grstate.dbstate.db, parent_family, person_birth, "Mother"
-            )
-            if mother_text:
-                data.append(mother_text)
-            father_text, death_text = get_parent_text(
-                grstate.dbstate.db, parent_family, person_birth, "Father"
-            )
-            if father_text:
-                data.append(father_text)
-            family_text = get_family_text(
-                grstate.dbstate.db, parent_family, person_birth, death_text
-            )
-            if family_text:
-                data.append(family_text)
-
-        label = " ".join((_("Child"), _("Number")))
-        return [(get_label(label), get_label("; ".join(tuple(data))))]
-    return []
+    label = " ".join((_("Child"), _("Number")))
+    return [(get_label(label), get_label("; ".join(tuple(data))))]
 
 
 def get_parent_text(db, family, birth_date, parent_type):
@@ -111,12 +112,9 @@ def get_parent_text(db, family, birth_date, parent_type):
 
     dummy_parent, birth = get_person_birth_or_death(db, parent_handle)
     if birth:
-        span = get_span(birth.get_date_object(), birth_date)
-        if span:
-            if parent_type == "Mother":
-                parent_text = " ".join((_("Mother"), _("age"), span))
-            else:
-                parent_text = " ".join((_("Father"), _("age"), span))
+        parent_text = get_parent_age_text(
+            birth.get_date_object(), birth_date, parent_type
+        )
 
     if parent_type == "Father":
         dummy_parent, death = get_person_birth_or_death(
@@ -131,6 +129,20 @@ def get_parent_text(db, family, birth_date, parent_type):
     return parent_text, death_text
 
 
+def get_parent_age_text(parent_birth_date, event_date, parent_type):
+    """
+    Return parent age text.
+    """
+    parent_text = ""
+    span = get_span(parent_birth_date, event_date)
+    if span:
+        if parent_type == "Mother":
+            parent_text = " ".join((_("Mother"), _("age"), span))
+        else:
+            parent_text = " ".join((_("Father"), _("age"), span))
+    return parent_text
+
+
 def get_family_text(db, family, birth_date, death_text):
     """
     Return marriage type and length at time child born.
@@ -142,13 +154,7 @@ def get_family_text(db, family, birth_date, death_text):
     status = ""
     base_date = None
     if family_type == FamilyRelType.MARRIED:
-        status = _("married")
-        if marriage and birth_date:
-            marriage_sortval = get_date_sortval(marriage)
-            if marriage_sortval and marriage_sortval > birth_date.sortval:
-                status = " ".join((_("umarried"), _("at time of"), _("birth")))
-            else:
-                base_date = marriage.get_date_object()
+        base_date, status = check_unmarried_at_birth(birth_date, marriage)
     elif family_type == FamilyRelType.UNMARRIED:
         status = _("unmarried")
 
@@ -168,3 +174,18 @@ def get_family_text(db, family, birth_date, death_text):
         if span:
             family_text = " ".join((family_text, span))
     return family_text
+
+
+def check_unmarried_at_birth(birth_date, marriage):
+    """
+    Return status of marriage at time of a child's birth.
+    """
+    status = _("married")
+    base_date = None
+    if marriage and birth_date:
+        marriage_sortval = get_date_sortval(marriage)
+        if marriage_sortval and marriage_sortval > birth_date.sortval:
+            status = " ".join((_("umarried"), _("at time of"), _("birth")))
+        else:
+            base_date = marriage.get_date_object()
+    return base_date, status

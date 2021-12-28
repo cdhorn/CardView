@@ -199,15 +199,14 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
                 obj_type,
                 obj_handle,
             ) in self.grstate.dbstate.db.find_backlink_handles(
-                self.group_base.obj.get_handle()
+                self.group_base.obj.get_handle(), ["Citation"]
             ):
-                if obj_type == "Citation":
-                    citation = self.fetch("Citation", obj_handle)
-                    citation_list.append(
-                        (citation, [self.group_base.obj], 0, obj_type)
-                    )
-                    if len(citation_list) >= self.maximum:
-                        break
+                citation = self.fetch("Citation", obj_handle)
+                citation_list.append(
+                    (citation, [self.group_base.obj], 0, obj_type)
+                )
+                if len(citation_list) >= self.maximum:
+                    break
 
         return citation_list
 

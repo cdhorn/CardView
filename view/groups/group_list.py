@@ -112,33 +112,37 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
                 obj_handle,
                 dummy_var1,
             ) = pickle.loads(data.get_data())
-            source_index = 0
-            for frame in self.row_frames:
-                if frame.primary.obj.get_handle() == obj_handle:
-                    if self.row_current == source_index:
-                        break
-                    row_moving = self.get_row_at_index(source_index)
-                    frame_moving = self.row_frames[source_index]
-                    self.remove(row_moving)
-                    self.row_frames.remove(frame_moving)
-                    if self.row_current < source_index:
-                        self.insert(row_moving, self.row_current)
-                        self.row_frames.insert(self.row_current, frame_moving)
-                    elif self.row_current == self.row_previous:
-                        self.add(row_moving)
-                        self.row_frames.append(frame_moving)
-                    elif self.row_current > source_index:
-                        self.insert(row_moving, self.row_current - 1)
-                        self.row_frames.insert(
-                            self.row_current - 1, frame_moving
-                        )
-                    self.save_reordered_list()
-                    break
-                source_index = source_index + 1
-            if source_index >= len(self.row_frames):
-                self.save_new_object(obj_handle, self.row_current)
+            self.insert_dropped_object(obj_handle)
         self.row_previous = 0
         self.row_current = 0
+
+    def insert_dropped_object(self, obj_handle):
+        """
+        Insert dropped object.
+        """
+        source_index = 0
+        for frame in self.row_frames:
+            if frame.primary.obj.get_handle() == obj_handle:
+                if self.row_current == source_index:
+                    break
+                row_moving = self.get_row_at_index(source_index)
+                frame_moving = self.row_frames[source_index]
+                self.remove(row_moving)
+                self.row_frames.remove(frame_moving)
+                if self.row_current < source_index:
+                    self.insert(row_moving, self.row_current)
+                    self.row_frames.insert(self.row_current, frame_moving)
+                elif self.row_current == self.row_previous:
+                    self.add(row_moving)
+                    self.row_frames.append(frame_moving)
+                elif self.row_current > source_index:
+                    self.insert(row_moving, self.row_current - 1)
+                    self.row_frames.insert(self.row_current - 1, frame_moving)
+                self.save_reordered_list()
+                break
+            source_index = source_index + 1
+        if source_index >= len(self.row_frames):
+            self.save_new_object(obj_handle, self.row_current)
 
     def save_reordered_list(self):
         """

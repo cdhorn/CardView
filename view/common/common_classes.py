@@ -102,6 +102,7 @@ class GrampsObject:
     )
 
     def __init__(self, obj):
+        self.obj_current_hash = None
         self.load(obj)
 
     def __new__(cls, obj):

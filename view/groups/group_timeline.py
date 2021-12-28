@@ -40,7 +40,7 @@ from ..frames.frame_event_ref import EventRefGrampsFrame
 from ..frames.frame_media import MediaGrampsFrame
 from ..frames.frame_name import NameGrampsFrame
 from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from ..timeline import EVENT_CATEGORIES, RELATIVES, Timeline
+from ..timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
 from .group_list import GrampsFrameGroupList
 
 _ = glocale.translation.sgettext
@@ -70,7 +70,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         }
         self.prepare_options()
 
-        self.timeline = Timeline(
+        self.timeline = GrampsTimeline(
             grstate.dbstate.db,
             events=self.options["categories"],
             relatives=self.options["relations"],
@@ -91,46 +91,8 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         elif self.group_base.obj_type == "Place":
             self.timeline.set_place(obj.get_handle())
 
-        timeline = []
-        for (sortval, item) in self.timeline.events(raw=True):
-            timeline.append((sortval, "event", None, item))
-
-        if (
-            not groptions.age_base
-            and self.group_base.obj_type == "Person"
-            and self.get_option("show-age")
-        ):
-            birth_ref = obj.get_birth_ref()
-            if birth_ref:
-                event = grstate.dbstate.db.get_event_from_handle(birth_ref.ref)
-                if event:
-                    self.groptions.set_age_base(event.get_date_object())
-
-        timeline = self.extract_objects(timeline)
-        try:
-            groptions.set_ref_mode(
-                self.grstate.config.get(
-                    "".join(
-                        (
-                            "options.timeline.",
-                            self.group_base.obj_type.lower(),
-                            ".reference-mode",
-                        )
-                    )
-                )
-            )
-        except AttributeError:
-            groptions.set_ref_mode(0)
-
-        if self.group_base.obj_type == "Person":
-            groptions.set_relation(obj)
-
-        timeline.sort(key=lambda x: x[0])
-        maximum = self.grstate.config.get(
-            "options.global.max.events-per-group"
-        )
-        timeline = timeline[:maximum]
-        for (sortval, timeline_obj_type, timeline_obj, item) in timeline:
+        timeline = self.prepare_timeline(obj)
+        for (dummy_sortval, timeline_obj_type, timeline_obj, item) in timeline:
             if timeline_obj_type == "event":
                 (
                     dummy_event,
@@ -211,6 +173,53 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         self.options["ancestors"] = self.get_option("generations-ancestors")
         self.options["offspring"] = self.get_option("generations-offspring")
 
+    def prepare_timeline(self, obj):
+        """
+        Prepare timeline of sorted events.
+        """
+        timeline = []
+        for (sortval, item) in self.timeline.events(raw=True):
+            timeline.append((sortval, "event", None, item))
+
+        if (
+            not self.groptions.age_base
+            and self.group_base.obj_type == "Person"
+            and self.get_option("show-age")
+        ):
+            birth_ref = obj.get_birth_ref()
+            if birth_ref:
+                event = self.grstate.dbstate.db.get_event_from_handle(
+                    birth_ref.ref
+                )
+                if event:
+                    self.groptions.set_age_base(event.get_date_object())
+
+        timeline = self.extract_objects(timeline)
+        try:
+            self.groptions.set_ref_mode(
+                self.grstate.config.get(
+                    "".join(
+                        (
+                            "options.timeline.",
+                            self.group_base.obj_type.lower(),
+                            ".reference-mode",
+                        )
+                    )
+                )
+            )
+        except AttributeError:
+            self.groptions.set_ref_mode(0)
+
+        if self.group_base.obj_type == "Person":
+            self.groptions.set_relation(obj)
+
+        timeline.sort(key=lambda x: x[0])
+        maximum = self.grstate.config.get(
+            "options.global.max.events-per-group"
+        )
+        timeline = timeline[:maximum]
+        return timeline
+
     def extract_objects(self, timeline):
         """
         Examine and extract other objects to add to timeline if needed.
@@ -231,16 +240,14 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
         """
         Extract objects if they have an associated date.
         """
-        if extract_type == "names":
-            extract = extract_names
-        elif extract_type == "addresses":
-            extract = extract_addresses
-        elif extract_type == "media":
-            extract = self.extract_media
-        elif extract_type == "citations":
-            extract = self.extract_citations
-        elif extract_type == "ldsords":
-            extract = extract_ordinances
+        extractors = {
+            "names": extract_names,
+            "addresses": extract_addresses,
+            "media": self.extract_media,
+            "citations": self.extract_citations,
+            "ldsords": extract_ordinances,
+        }
+        extract = extractors.get(extract_type)
 
         obj_list = []
         if self.group_base.obj_type in ["Person", "Place"]:

@@ -52,7 +52,6 @@ class EnclosingPlacesGrampsFrameGroup(GrampsFrameGroupList):
 
     def __init__(self, grstate, groptions, place):
         GrampsFrameGroupList.__init__(self, grstate, groptions, place)
-        #        groptions.set_backlink(place.get_handle())
         groptions.option_space = "options.group.place"
         groptions.set_ref_mode(
             grstate.config.get(
@@ -129,12 +128,12 @@ class EnclosedPlacesGrampsFrameGroup(GrampsFrameGroupList):
         """
         Build a list of enclosed places.
         """
-        for (
-            obj_type,
-            obj_handle,
-        ) in self.grstate.dbstate.db.find_backlink_handles(handle):
-            if obj_type == "Place" and len(place_list) < self.maximum:
-                place = self.fetch("Place", obj_handle)
+        db = self.grstate.dbstate.db
+        for (dummy_obj_type, obj_handle) in db.find_backlink_handles(
+            handle, ["Place"]
+        ):
+            if len(place_list) < self.maximum:
+                place = db.get_place_from_handle(obj_handle)
                 for place_ref in place.get_placeref_list():
                     if place_ref.ref == handle:
                         place_list.append((place, place_ref))

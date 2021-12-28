@@ -61,10 +61,12 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.association.reference-mode")
         )
-        back_references = grstate.dbstate.db.find_backlink_handles(
-            obj.get_handle()
-        )
-        back_list = [y for (x, y) in back_references if x == "Person"]
+        back_list = [
+            y
+            for (x, y) in grstate.dbstate.db.find_backlink_handles(
+                obj.get_handle(), ["Person"]
+            )
+        ]
 
         for person_ref in obj.get_person_ref_list():
             frame = PersonRefGrampsFrame(
@@ -87,7 +89,7 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         """
         Add a person with a back reference.
         """
-        back_person = self.grstate.fetch("Person", person_handle)
+        back_person = self.fetch("Person", person_handle)
         main_person = self.group_base.obj.get_handle()
         for back_person_ref in back_person.get_person_ref_list():
             if back_person_ref.ref == main_person:

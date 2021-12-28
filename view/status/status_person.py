@@ -167,9 +167,9 @@ def get_person_status_icons(grstate, obj):
     for event in ["Birth", "Death"]:
         if event not in rank_list:
             rank_list.append(event)
-    for option in RANK_OPTIONS:
+    for option, keyword in RANK_OPTIONS.items():
         if grstate.config.get(option):
-            rank_list.append(RANK_OPTIONS[option])
+            rank_list.append(keyword)
     missing_list = get_event_fields(grstate, "missing", count=6)
     (
         total_rank_items,

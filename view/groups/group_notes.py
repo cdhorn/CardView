@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_const import GRAMPS_OBJECTS
+from ..common.common_utils import get_object_type
 from ..frames.frame_note import NoteGrampsFrame
 from .group_list import GrampsFrameGroupList
 
@@ -80,9 +80,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
         """
         if self.group_base.has_notes:
             for obj in self.group_base.obj.get_note_child_list():
-                for obj_data in GRAMPS_OBJECTS:
-                    if isinstance(obj, obj_data[0]):
-                        obj_lang = obj_data[2]
+                obj_lang = get_object_type(obj, lang=True)
                 for handle in obj.get_note_list():
                     if handle not in notes:
                         notes.append((obj_lang, handle))

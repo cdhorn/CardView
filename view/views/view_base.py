@@ -20,6 +20,7 @@
 """
 GrampsObjectView
 """
+from abc import abstractmethod
 
 # -------------------------------------------------------------------------
 #
@@ -114,6 +115,7 @@ class GrampsObjectView(Gtk.VBox):
             )
             widget.pack_start(scrollable_body, True, True, 0)
 
+    @abstractmethod
     def build_view(self):
         """
         Build the view header and body and set the focus.
@@ -210,48 +212,8 @@ class GrampsObjectView(Gtk.VBox):
         if current_grouping:
             groupings.append(current_grouping)
         if self.grstate.config.get("".join((space, ".tabbed"))):
-            return self._prepare_tabbed_groups(obj_groups, groupings, scrolled)
-        return self._prepare_untabbed_groups(obj_groups, groupings, scrolled)
-
-    def _prepare_untabbed_groups(self, obj_groups, groupings, scrolled):
-        """
-        Generate the untabbed full page view for the groups.
-        """
-        container = Gtk.HBox(spacing=3, hexpand=True, vexpand=False)
-        for grouping in groupings:
-            if len(grouping) == 1:
-                pack_container(container, scrolled, obj_groups[grouping[0]])
-            else:
-                box = Gtk.VBox(spacing=3, vexpand=False)
-                for group in grouping:
-                    box.pack_start(
-                        obj_groups[group], expand=False, fill=True, padding=0
-                    )
-                pack_container(container, scrolled, box)
-        return container
-
-    def _prepare_tabbed_groups(self, obj_groups, groupings, scrolled):
-        """
-        Generate the tabbed notebook view for the groups.
-        """
-        notebook = Gtk.Notebook()
-        for grouping in groupings:
-            title = ""
-            if len(grouping) == 1:
-                label = Gtk.Label(label=add_to_title(title, grouping[0]))
-                notebook.append_page(
-                    make_scrollable(obj_groups[grouping[0]]), tab_label=label
-                )
-            else:
-                box = Gtk.HBox(spacing=3, vexpand=False)
-                for group in grouping:
-                    title = add_to_title(title, group)
-                    pack_container(box, scrolled, obj_groups[group])
-                label = Gtk.Label(label=title)
-                notebook.append_page(
-                    make_scrollable(box, vexpand=False), tab_label=label
-                )
-        return notebook
+            return prepare_tabbed_groups(obj_groups, groupings, scrolled)
+        return prepare_untabbed_groups(obj_groups, groupings, scrolled)
 
     def add_media_bar(self, widget, obj):
         """
@@ -290,3 +252,45 @@ def pack_container(container, scrolled, box):
         )
     else:
         container.pack_start(box, expand=False, fill=True, padding=0)
+
+
+def prepare_untabbed_groups(obj_groups, groupings, scrolled):
+    """
+    Generate the untabbed full page view for the groups.
+    """
+    container = Gtk.HBox(spacing=3, hexpand=True, vexpand=False)
+    for grouping in groupings:
+        if len(grouping) == 1:
+            pack_container(container, scrolled, obj_groups[grouping[0]])
+        else:
+            box = Gtk.VBox(spacing=3, vexpand=False)
+            for group in grouping:
+                box.pack_start(
+                    obj_groups[group], expand=False, fill=True, padding=0
+                )
+            pack_container(container, scrolled, box)
+    return container
+
+
+def prepare_tabbed_groups(obj_groups, groupings, scrolled):
+    """
+    Generate the tabbed notebook view for the groups.
+    """
+    notebook = Gtk.Notebook()
+    for grouping in groupings:
+        title = ""
+        if len(grouping) == 1:
+            label = Gtk.Label(label=add_to_title(title, grouping[0]))
+            notebook.append_page(
+                make_scrollable(obj_groups[grouping[0]]), tab_label=label
+            )
+        else:
+            box = Gtk.HBox(spacing=3, vexpand=False)
+            for group in grouping:
+                title = add_to_title(title, group)
+                pack_container(box, scrolled, obj_groups[group])
+            label = Gtk.Label(label=title)
+            notebook.append_page(
+                make_scrollable(box, vexpand=False), tab_label=label
+            )
+    return notebook

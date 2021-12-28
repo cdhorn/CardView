@@ -390,25 +390,35 @@ def get_status_ranking(
     rank_total = 0
     rank_other_count = 0
     alerts_list = []
-    for key in hit_map:
-        if key in alert_list and hit_map[key] < alert_minimum:
-            if hit_map[key] == 0:
-                text = "".join((language_map[key], " (", _("Missing"), ")"))
-            else:
-                text = "".join(
-                    (
-                        language_map[key],
-                        " (",
-                        get_confidence(hit_map[key] - 1),
-                        ")",
-                    )
-                )
+    for event_name, event_confidence in hit_map.items():
+        if event_name in alert_list and event_confidence < alert_minimum:
+            text = get_confidence_alert_text(
+                event_name, event_confidence, language_map
+            )
             alerts_list.append(text)
-        rank_total = rank_total + hit_map[key]
-        if key not in ["Birth", "Death"]:
+        rank_total = rank_total + event_confidence
+        if event_name not in ["Birth", "Death"]:
             rank_other_count = rank_other_count + 1
 
     return rank_other_count, rank_total, alerts_list
+
+
+def get_confidence_alert_text(name, confidence, language):
+    """
+    Return confidence alert text.
+    """
+    if confidence == 0:
+        text = "".join((language[name], " (", _("Missing"), ")"))
+    else:
+        text = "".join(
+            (
+                language[name],
+                " (",
+                get_confidence(confidence - 1),
+                ")",
+            )
+        )
+    return text
 
 
 def get_highest_confidence(db, obj):
