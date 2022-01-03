@@ -52,6 +52,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -270,3 +271,6 @@ class MediaAction(GrampsAction):
         )
         self.target_object.obj.set_media_list(new_list)
         self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Media", MediaAction)

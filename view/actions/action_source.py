@@ -39,6 +39,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -235,3 +236,6 @@ class SourceAction(GrampsAction):
             )
             self.action_object.obj.set_reporef_list(new_list)
             self.action_object.commit(self.grstate, message)
+
+
+factory.register_action("Source", SourceAction)

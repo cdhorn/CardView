@@ -42,6 +42,7 @@ from gramps.gui.editors import EditAttribute, EditSrcAttribute
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 from ..config.config_selectors import get_attribute_types
 
 _ = glocale.translation.sgettext
@@ -161,3 +162,6 @@ class AttributeAction(GrampsAction):
             )
             active_target_object.obj.remove_attribute(self.action_object.obj)
             self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Attribute", AttributeAction)

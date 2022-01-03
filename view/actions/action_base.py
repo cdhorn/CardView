@@ -39,6 +39,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.errors import WindowActiveError
 
 # ------------------------------------------------------------------------
 #
@@ -46,6 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
+from ..common.common_const import GRAMPS_EDITORS
 from ..common.common_utils import describe_object
 
 _ = glocale.translation.sgettext
@@ -83,12 +85,12 @@ class GrampsAction:
         target_child_object=None,
     ):
         self.grstate = grstate
-        self.action_object = self._load_object(action_object)
-        self.target_object = self._load_object(target_object)
-        self.target_child_object = self._load_object(target_child_object)
+        self.action_object = self.__load_object(action_object)
+        self.target_object = self.__load_object(target_object)
+        self.target_child_object = self.__load_object(target_child_object)
         self.db = grstate.dbstate.db
 
-    def _load_object(self, obj):
+    def __load_object(self, obj):
         """
         Return a Gramps object.
         """
@@ -100,14 +102,14 @@ class GrampsAction:
         """
         Set the action object.
         """
-        self.action_object = self._load_object(action_object)
+        self.action_object = self.__load_object(action_object)
 
     def set_target_object(self, target_object, target_child_object=None):
         """
         Set the target object to be modified.
         """
-        self.target_object = self._load_object(target_object)
-        self.target_child_object = self._load_object(target_child_object)
+        self.target_object = self.__load_object(target_object)
+        self.target_child_object = self.__load_object(target_child_object)
 
     def get_target_object(self):
         """
@@ -193,3 +195,46 @@ class GrampsAction:
                 self.target_object.obj.get_gramps_id(),
             )
         )
+
+    def edit_object(self, *_dummy_args):
+        """
+        Edit the object.
+        """
+        if self.action_object.is_primary:
+            try:
+                GRAMPS_EDITORS[self.action_object.obj_type](
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    self.action_object.obj,
+                )
+            except WindowActiveError:
+                pass
+        elif not self.action_object.is_reference:
+            try:
+                GRAMPS_EDITORS[self.action_object.obj_type](
+                    self.grstate.dbstate,
+                    self.grstate.uistate,
+                    [],
+                    self.action_object.obj,
+                    self._edited_object,
+                )
+            except WindowActiveError:
+                pass
+
+    def _edited_object(self, obj):
+        """
+        Save the edited object.
+        """
+        if not obj:
+            return
+        message = " ".join(
+            (
+                _("Edited"),
+                self.action_object.obj_lang,
+                _("for"),
+                self.target_object.obj_lang,
+                self.target_object.obj.get_gramps_id(),
+            )
+        )
+        self.target_object.commit(self.grstate, message)

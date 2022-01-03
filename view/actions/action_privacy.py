@@ -39,6 +39,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -104,3 +105,6 @@ class PrivacyAction(GrampsAction):
         active_target_object.obj.set_privacy(not mode)
         active_target_object.sync_hash(self.grstate)
         self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Privacy", PrivacyAction)

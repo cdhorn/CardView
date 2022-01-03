@@ -39,6 +39,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -222,3 +223,6 @@ class EventAction(GrampsAction):
                     else:
                         participant.obj.set_death_ref(None)
                 participant.commit(self.grstate, message)
+
+
+factory.register_action("Event", EventAction)

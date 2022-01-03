@@ -165,9 +165,7 @@ class CitationsFrameGroup(FrameGroupList):
                         0, "Family", citation_list, None, [family]
                     )
                     if self.get_option("include-family-indirect"):
-                        self.extract_family_indirect_citations(
-                            citation_list, family
-                        )
+                        self.extract_family_citations(citation_list, family)
 
             if self.get_option("include-parent-family"):
                 for (
@@ -190,9 +188,7 @@ class CitationsFrameGroup(FrameGroupList):
         if self.group_base.obj_type == "Family" and self.get_option(
             "include-indirect"
         ):
-            self.extract_family_indirect_citations(
-                citation_list, self.group_base.obj
-            )
+            self.extract_family_citations(citation_list, self.group_base.obj)
 
         if self.group_base.obj_type == "Source":
             for (
@@ -236,7 +232,7 @@ class CitationsFrameGroup(FrameGroupList):
                     if len(citation_list) >= self.maximum:
                         break
 
-    def extract_family_indirect_citations(self, citation_list, family):
+    def extract_family_citations(self, citation_list, family):
         """
         Helper to extract indirect citations for a family.
         """

@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import PersonAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_person import PersonFrame
 
@@ -83,7 +83,9 @@ class PersonRefFrame(PersonFrame):
         """
         Add custom action menu items for an associate.
         """
-        action = PersonAction(self.grstate, self.primary, self.reference)
+        action = action_handler(
+            "Person", self.grstate, self.primary, self.reference
+        )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(
             menu_item("gtk-edit", label, action.edit_person_reference)

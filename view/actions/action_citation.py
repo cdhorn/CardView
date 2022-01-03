@@ -44,6 +44,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 from ..common.common_classes import GrampsObject
 from ..zotero.zotero import GrampsZotero
 
@@ -232,3 +233,6 @@ class CitationAction(GrampsAction):
             )
             active_target_object.sync_hash(self.grstate)
             self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Citation", CitationAction)

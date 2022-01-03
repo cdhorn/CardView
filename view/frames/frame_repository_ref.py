@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import SourceAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_repository import RepositoryFrame
 
@@ -75,8 +75,8 @@ class RepositoryRefFrame(RepositoryFrame):
         """
         Build the action menu for a right click on a reference object.
         """
-        action = SourceAction(
-            self.grstate, self.reference_base, self.reference
+        action = action_handler(
+            "Source", self.grstate, self.reference_base, self.reference
         )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(

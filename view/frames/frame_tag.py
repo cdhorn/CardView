@@ -39,14 +39,13 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import action_handler
 from .frame_base import GrampsFrame
 from ..menus.menu_utils import menu_item, new_menu, show_menu
 
@@ -116,36 +115,12 @@ class TagFrame(GrampsFrame):
         """
         Build the action menu for the tag.
         """
-        menu = new_menu("gramps-tag", _("Edit tag"), self.edit_tag)
+        action = action_handler("Tag", self.grstate, self.primary)
+        menu = new_menu("gramps-tag", _("Edit tag"), action.edit_tag)
         menu.add(
-            menu_item("gramps-tag", _("Organize tags"), self.organize_tags)
+            menu_item("gramps-tag", _("Organize tags"), action.organize_tags)
         )
         return show_menu(menu, self, event)
-
-    def edit_tag(self, _dummy_obj):
-        """
-        Create a new tag.
-        """
-        try:
-            EditTag(
-                self.grstate.dbstate.db,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-            )
-        except WindowActiveError:
-            pass
-
-    def organize_tags(self, _dummy_obj):
-        """
-        Organize tags.
-        """
-        try:
-            OrganizeTagsDialog(
-                self.grstate.dbstate.db, self.grstate.uistate, []
-            )
-        except WindowActiveError:
-            pass
 
     def set_css_style(self):
         """

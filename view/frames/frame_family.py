@@ -45,7 +45,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import FamilyAction
+from ..actions import action_handler
 from ..common.common_utils import get_family_color_css
 from .frame_person import PersonFrame
 from .frame_primary import PrimaryFrame
@@ -315,7 +315,7 @@ class FamilyFrame(PrimaryFrame):
             "parent" in self.groptions.option_space
             or "spouse" in self.groptions.option_space
         ):
-            action = FamilyAction(self.grstate, self.primary)
+            action = action_handler("Family", self.grstate, self.primary)
             self._add_partner_options(context_menu)
             add_family_event_option(context_menu, action)
             add_family_child_options(context_menu, action)

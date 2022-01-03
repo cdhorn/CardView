@@ -47,7 +47,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import PersonAction
+from ..actions import action_handler
 from ..common.common_const import _GENDERS
 from ..common.common_utils import get_person_color_css
 from ..common.common_vitals import format_date_string
@@ -228,7 +228,7 @@ class PersonFrame(ReferenceFrame):
         Add action menu items for the person based on the context in which
         they are present in relation to the active person.
         """
-        action = PersonAction(self.grstate, self.primary)
+        action = action_handler("Person", self.grstate, self.primary)
         context_menu.append(
             menu_item(
                 "go-home",

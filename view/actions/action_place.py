@@ -41,6 +41,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -183,3 +184,6 @@ class PlaceAction(GrampsAction):
             with DbTxn(message, self.db) as trans:
                 place.set_placeref_list(new_list)
                 self.db.commit_place(place, trans)
+
+
+factory.register_action("Place", PlaceAction)

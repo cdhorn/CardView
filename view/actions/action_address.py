@@ -41,6 +41,7 @@ from gramps.gui.editors import EditAddress
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -91,3 +92,6 @@ class AddressAction(GrampsAction):
             )
         )
         self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Address", AddressAction)

@@ -79,9 +79,3 @@ class SourcesFrameGroup(FrameGroupList):
                 )
                 self.add_frame(frame)
         self.show_all()
-
-    # Todo
-    def save_new_object(self, handle, insert_row):
-        """
-        Add new source to the repository.
-        """

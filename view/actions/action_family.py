@@ -59,6 +59,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -388,3 +389,6 @@ class FamilyAction(GrampsAction):
             self.action_object.obj.get_handle()
         )
         self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Family", FamilyAction)

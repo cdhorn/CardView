@@ -36,7 +36,7 @@ from gramps.gen.utils.db import family_name
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import EventAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_event import EventFrame
 
@@ -84,7 +84,9 @@ class EventRefFrame(EventFrame):
         """
         Add custom action menu items for the event reference.
         """
-        action = EventAction(self.grstate, self.primary, self.reference_base)
+        action = action_handler(
+            "Event", self.grstate, self.primary, self.reference_base
+        )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(
             menu_item("gtk-edit", label, action.edit_participant)

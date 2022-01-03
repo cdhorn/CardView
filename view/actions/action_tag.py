@@ -42,6 +42,7 @@ from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -61,6 +62,15 @@ class TagAction(GrampsAction):
 
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
+
+    def edit_tag(self, *_dummy_args):
+        """
+        Edit a tag.
+        """
+        try:
+            EditTag(self.db, self.grstate.uistate, [], self.action_object.obj)
+        except WindowActiveError:
+            pass
 
     def new_tag(self, *_dummy_args):
         """
@@ -105,3 +115,6 @@ class TagAction(GrampsAction):
             self.action_object.obj.get_handle()
         ):
             self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Tag", TagAction)

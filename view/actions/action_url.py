@@ -43,6 +43,7 @@ from gramps.gui.editors import EditUrl
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -172,3 +173,6 @@ class UrlAction(GrampsAction):
         """
         if self.action_object and self.action_object.obj.get_path():
             display_url(self.action_object.obj.get_path())
+
+
+factory.register_action("Url", UrlAction)

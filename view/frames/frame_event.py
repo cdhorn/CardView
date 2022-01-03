@@ -40,7 +40,7 @@ from gramps.gui.editors import EditEvent, EditEventRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import PersonAction
+from ..actions import action_handler
 from ..common.common_utils import (
     get_confidence,
     get_confidence_color_css,
@@ -213,7 +213,8 @@ class EventFrame(ReferenceFrame):
         Handle drop processing for a person.
         """
         if DdTargets.PERSON_LINK.drag_type == dnd_type:
-            self.add_existing_participant(None, person_handle=obj_or_handle)
+            action = action_handler("Event", self.grstate, self.primary)
+            action.add_existing_participant(person_handle=obj_or_handle)
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
@@ -360,8 +361,8 @@ class EventFrame(ReferenceFrame):
         """
         sources = []
         if self.primary.obj.get_citation_list():
-            for handle in self.primary.obj.get_citation_list():
-                citation = self.fetch("Citation", handle)
+            for citation_handle in self.primary.obj.get_citation_list():
+                citation = self.fetch("Citation", citation_handle)
                 if citation.source_handle not in sources:
                     sources.append(citation.source_handle)
                 if citation.confidence > self.event_confidence:
@@ -469,8 +470,8 @@ class EventFrame(ReferenceFrame):
             and self.reference_base.obj.get_birth_ref().ref
             != self.primary.obj.get_handle()
         ):
-            action = PersonAction(
-                self.grstate, self.reference_base, self.primary
+            action = action_handler(
+                "Person", self.grstate, self.reference_base, self.primary
             )
             context_menu.append(
                 menu_item(
@@ -492,8 +493,8 @@ class EventFrame(ReferenceFrame):
             and self.reference_base.obj.get_death_ref().ref
             != self.primary.obj.get_handle()
         ):
-            action = PersonAction(
-                self.grstate, self.reference_base, self.primary
+            action = action_handler(
+                "Person", self.grstate, self.reference_base, self.primary
             )
             context_menu.append(
                 menu_item(

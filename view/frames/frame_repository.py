@@ -35,7 +35,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import RepositoryAction
+from ..actions import action_handler
 from ..common.common_utils import format_address
 from .frame_reference import ReferenceFrame
 
@@ -109,7 +109,9 @@ class RepositoryFrame(ReferenceFrame):
         """
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
             source = self.fetch("Source", obj_or_handle)
-            action = RepositoryAction(self.grstate, self.primary, source)
+            action = action_handler(
+                "Repository", self.grstate, self.primary, source
+            )
             action.add_new_source()
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)

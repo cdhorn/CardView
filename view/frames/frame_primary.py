@@ -53,6 +53,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import action_handler
 from ..common.common_classes import GrampsContext
 from ..fields.field_builder import field_builder
 from .frame_base import GrampsFrame
@@ -186,13 +187,16 @@ class PrimaryFrame(GrampsFrame):
         Handle drop processing largely common to all primary objects.
         """
         if DdTargets.MEDIAOBJ.drag_type == dnd_type:
-            self.add_new_media_ref(obj_or_handle)
+            action = action_handler("Media", self.grstate, self.primary)
+            action.add_new_media_ref(obj_or_handle)
             return True
         if DdTargets.ATTRIBUTE.drag_type == dnd_type:
-            self.added_attribute(obj_or_handle)
+            action = action_handler("Attribute", self.grstate, self.primary)
+            action.added_attribute(obj_or_handle)
             return True
         if DdTargets.URL.drag_type == dnd_type:
-            self.added_url(obj_or_handle)
+            action = action_handler("Url", self.grstate, self.primary)
+            action.added_url(obj_or_handle)
             return True
         return self._base_drop_handler(dnd_type, obj_or_handle, data)
 
@@ -206,10 +210,7 @@ class PrimaryFrame(GrampsFrame):
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
         add_attributes_menu(self.grstate, context_menu, self.primary)
-        zotero = bool(self.zotero)
-        add_citations_menu(
-            self.grstate, context_menu, self.primary, zotero=zotero
-        )
+        add_citations_menu(self.grstate, context_menu, self.primary)
         add_media_menu(self.grstate, context_menu, self.primary)
         add_notes_menu(self.grstate, context_menu, self.primary)
         add_tags_menu(

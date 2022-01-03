@@ -50,7 +50,7 @@ from gramps.gui.utils import match_primary_mask
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import CitationAction, NoteAction
+from ..actions import action_handler
 from ..common.common_classes import GrampsContext
 from ..common.common_const import (
     BUTTON_MIDDLE,
@@ -184,20 +184,32 @@ class ReferenceFrame(PrimaryFrame):
                 return self.dropped_ref_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
                 if DdTargets.NOTE_LINK.drag_type == dnd_type:
-                    action = NoteAction(
-                        self.grstate, None, self.reference_base, self.reference
+                    action = action_handler(
+                        "Note",
+                        self.grstate,
+                        None,
+                        self.reference_base,
+                        self.reference,
                     )
                     action.added_note(obj_or_handle)
                     return True
                 if DdTargets.CITATION_LINK.drag_type == dnd_type:
-                    action = CitationAction(
-                        self.grstate, None, self.reference_base, self.reference
+                    action = action_handler(
+                        "Citation",
+                        self.grstate,
+                        None,
+                        self.reference_base,
+                        self.reference,
                     )
                     action.added_citation(obj_or_handle)
                     return True
                 if DdTargets.SOURCE_LINK.drag_type == dnd_type:
-                    action = CitationAction(
-                        self.grstate, None, self.reference_base, self.reference
+                    action = action_handler(
+                        "Citation",
+                        self.grstate,
+                        None,
+                        self.reference_base,
+                        self.reference,
                     )
                     action.add_new_citation(obj_or_handle)
                     return True
@@ -208,8 +220,8 @@ class ReferenceFrame(PrimaryFrame):
         Examine and try to handle dropped text in a reasonable manner.
         """
         if data and self.reference.has_notes:
-            action = NoteAction(
-                self.grstate, None, self.reference_base, self.reference
+            action = action_handler(
+                "Note", self.grstate, None, self.reference_base, self.reference
             )
             action.set_content(data)
             action.add_new_note()
@@ -260,13 +272,11 @@ class ReferenceFrame(PrimaryFrame):
         add_attributes_menu(
             self.grstate, context_menu, self.reference_base, self.reference
         )
-        zotero = bool(self.zotero)
         add_citations_menu(
             self.grstate,
             context_menu,
             self.reference_base,
             self.reference,
-            zotero=zotero,
         )
         add_notes_menu(
             self.grstate, context_menu, self.reference_base, self.reference

@@ -129,13 +129,11 @@ class SecondaryFrame(GrampsFrame):
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        zotero = bool(self.zotero)
         add_citations_menu(
             self.grstate,
             context_menu,
             self.primary,
             self.secondary,
-            zotero=zotero,
         )
         add_notes_menu(
             self.grstate, context_menu, self.primary, self.secondary

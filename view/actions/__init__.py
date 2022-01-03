@@ -22,6 +22,8 @@
 Module containing the context menu and drag and drop action handlers.
 """
 
+from .action_factory import action_handler
+
 from .action_address import AddressAction
 from .action_attribute import AttributeAction
 from .action_bookmark import BookmarkAction

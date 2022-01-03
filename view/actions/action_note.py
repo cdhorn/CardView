@@ -43,6 +43,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 
 _ = glocale.translation.sgettext
 
@@ -157,3 +158,6 @@ class NoteAction(GrampsAction):
             active_target_object.obj.remove_note(note.get_handle())
             active_target_object.sync_hash(self.grstate)
             self.target_object.commit(self.grstate, message)
+
+
+factory.register_action("Note", NoteAction)

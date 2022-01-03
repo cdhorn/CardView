@@ -35,7 +35,7 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import SourceAction
+from ..actions import action_handler
 from .frame_primary import PrimaryFrame
 from ..menus.menu_utils import add_repositories_menu
 
@@ -102,7 +102,7 @@ class SourceFrame(PrimaryFrame):
         Handle drop processing for a person.
         """
         if DdTargets.REPO_LINK.drag_type == dnd_type:
-            action = SourceAction(self.grstate, self.primary)
+            action = action_handler("Source", self.grstate, self.primary)
             action.add_new_repository_reference(obj_or_handle)
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)

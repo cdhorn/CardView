@@ -32,6 +32,7 @@ BookmarkAction
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 from ..common.common_utils import get_bookmarks
 
 
@@ -77,3 +78,6 @@ class BookmarkAction(GrampsAction):
             bookmarks.insert(0, self.action_object.obj.get_handle())
         if self.callback:
             self.callback(self.action_object)
+
+
+factory.register_action("Bookmark", BookmarkAction)

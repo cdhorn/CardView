@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import MediaAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_media import MediaFrame
 
@@ -61,7 +61,9 @@ class MediaRefFrame(MediaFrame):
         """
         Add custom action menu items for the reference.
         """
-        action = MediaAction(self.grstate, self.primary, self.reference)
+        action = action_handler(
+            "Media", self.grstate, self.primary, self.reference
+        )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(menu_item("gtk-edit", label, action.edit_media))
         label = " ".join((_("Delete"), _("reference")))

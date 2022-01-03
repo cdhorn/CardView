@@ -56,6 +56,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_factory import factory
 from ..common.common_classes import GrampsObject
 from ..common.common_const import _RECIPROCAL_ASSOCIATIONS
 
@@ -490,3 +491,6 @@ class PersonAction(GrampsAction):
             )
             self.action_object.obj.set_person_ref_list(new_list)
             self.action_object.commit(self.grstate, message)
+
+
+factory.register_action("Person", PersonAction)

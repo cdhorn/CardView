@@ -34,7 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import FamilyAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_person import PersonFrame
 
@@ -79,8 +79,8 @@ class ChildRefFrame(PersonFrame):
         """
         Build the action menu for a right click on a reference object.
         """
-        action = FamilyAction(
-            self.grstate, self.reference_base, self.reference
+        action = action_handler(
+            "Family", self.grstate, self.reference_base, self.reference
         )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(

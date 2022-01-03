@@ -41,7 +41,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import MediaAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_reference import ReferenceFrame
 
@@ -202,7 +202,9 @@ class MediaFrame(ReferenceFrame):
         if self.groptions.backlink:
             (obj_type, obj_handle) = self.groptions.backlink
             target_object = self.fetch(obj_type, obj_handle)
-            action = MediaAction(self.grstate, self.primary, target_object)
+            action = action_handler(
+                "Media", self.grstate, self.primary, target_object
+            )
             context_menu.append(
                 menu_item(
                     "gramps-media",

@@ -42,7 +42,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import PlaceAction
+from ..actions import action_handler
 from ..menus.menu_utils import menu_item
 from .frame_reference import ReferenceFrame
 
@@ -197,7 +197,7 @@ class PlaceFrame(ReferenceFrame):
         """
         Add context menu items unique to a place.
         """
-        action = PlaceAction(self.grstate, self.primary)
+        action = action_handler("Place", self.grstate, self.primary)
         context_menu.append(
             menu_item(
                 "gramps-place",

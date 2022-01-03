@@ -31,7 +31,6 @@ GrampsFrame
 # Python modules
 #
 # ------------------------------------------------------------------------
-import hashlib
 import pickle
 import re
 
@@ -55,12 +54,6 @@ from gramps.gen.lib import Span
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.dialog import WarningDialog
-from gramps.gui.editors import (
-    EditAddress,
-    EditAttribute,
-    EditName,
-    EditSrcAttribute,
-)
 from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
@@ -68,7 +61,7 @@ from gramps.gui.utils import match_primary_mask
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import CitationAction, MediaAction, NoteAction, UrlAction
+from ..actions import action_handler
 from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import (
     BUTTON_MIDDLE,
@@ -80,12 +73,10 @@ from ..common.common_utils import (
     button_pressed,
     button_released,
 )
-from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
 from ..menus.menu_utils import menu_item
 from .frame_view import FrameView
 from .frame_window import FrameDebugWindow
-from ..zotero.zotero import GrampsZotero
 
 _ = glocale.translation.sgettext
 
@@ -118,10 +109,6 @@ class GrampsFrame(FrameView):
             self.init_layout()
         self.eventbox.connect("button-press-event", self.cb_button_pressed)
         self.eventbox.connect("button-release-event", self.cb_button_released)
-        if self.grstate.config.get("options.global.general.zotero-enabled"):
-            self.zotero = GrampsZotero(self.grstate.dbstate.db)
-        else:
-            self.zotero = None
 
     def get_context(self):
         """
@@ -251,19 +238,21 @@ class GrampsFrame(FrameView):
         Handle drop processing largely common to all objects.
         """
         if DdTargets.CITATION_LINK.drag_type == dnd_type:
-            action = CitationAction(
-                self.grstate, None, self.primary, self.focus
+            action = action_handler(
+                "Citation", self.grstate, None, self.primary, self.focus
             )
             action.added_citation(obj_or_handle)
             return True
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
-            action = CitationAction(
-                self.grstate, None, self.primary, self.focus
+            action = action_handler(
+                "Citation", self.grstate, None, self.primary, self.focus
             )
             action.add_new_citation(obj_or_handle)
             return True
         if DdTargets.NOTE_LINK.drag_type == dnd_type:
-            action = NoteAction(self.grstate, None, self.primary, self.focus)
+            action = action_handler(
+                "Note", self.grstate, None, self.primary, self.focus
+            )
             action.added_note(obj_or_handle)
             return True
         return False
@@ -277,14 +266,14 @@ class GrampsFrame(FrameView):
         added_urls = self._try_add_new_urls(data)
         if not added_urls or (len(data) > (2 * added_urls)):
             if self.focus.has_notes:
-                action = NoteAction(
-                    self.grstate, None, self.primary, self.focus
+                action = action_handler(
+                    "Note", self.grstate, None, self.primary, self.focus
                 )
                 action.set_content(data)
                 action.add_new_note()
                 return True
             if self.focus.obj_type == "Note":
-                action = NoteAction(self.grstate, self.focus)
+                action = action_handler("Note", self.grstate, self.focus)
                 action.set_content(data)
                 action.update_note()
                 return True
@@ -300,7 +289,9 @@ class GrampsFrame(FrameView):
             links = re.findall(r"(?P<url>file?://[^\s]+)", data)
             if links:
                 for link in links:
-                    action = MediaAction(self.grstate, None, self.primary)
+                    action = action_handler(
+                        "Media", self.grstate, None, self.primary
+                    )
                     action.set_media_file_path(link)
                     action.add_new_media()
                 return True
@@ -315,8 +306,8 @@ class GrampsFrame(FrameView):
             links = re.findall(r"(?P<url>https?://[^\s]+)", data)
             if links:
                 for link in links:
-                    action = UrlAction(
-                        self.grstate, None, self.primary, self.focus
+                    action = action_handler(
+                        "Url", self.grstate, None, self.primary, self.focus
                     )
                     action.set_path(link)
                     action.add_url()
@@ -479,151 +470,6 @@ class GrampsFrame(FrameView):
                     self.primary.obj.get_gramps_id(),
                 )
             )
-        self.primary.commit(self.grstate, message)
-
-    def _commit_message(self, obj_type, obj_label, action="add"):
-        """
-        Construct a commit message string.
-        """
-        if action == "add":
-            action = _("Added")
-            preposition = _("to")
-        elif action == "remove":
-            action = _("Removed")
-            preposition = _("from")
-        else:
-            action = _("Updated")
-            preposition = _("for")
-
-        if self.secondary:
-            return " ".join(
-                (
-                    action,
-                    obj_type,
-                    obj_label,
-                    preposition,
-                    self.secondary.obj_lang,
-                    _("for"),
-                    self.primary.obj_lang,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-        return " ".join(
-            (
-                action,
-                obj_type,
-                obj_label,
-                preposition,
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-            )
-        )
-
-    def edit_name(self, _dummy_obj, name):
-        """
-        Edit a name.
-        """
-        sha256_hash = hashlib.sha256()
-        sha256_hash.update(str(name.serialize()).encode("utf-8"))
-        callback = lambda x: self._edited_name(x, sha256_hash.hexdigest())
-        try:
-            EditName(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                name,
-                callback,
-            )
-        except WindowActiveError:
-            pass
-
-    def _edited_name(self, name, old_hash):
-        """
-        Save edited name.
-        """
-        self.grstate.update_history_object(old_hash, name)
-        message = self._commit_message(
-            _("Name"), name.get_regular_name(), action="update"
-        )
-        self.primary.commit(self.grstate, message)
-
-    def edit_attribute(self, _dummy_obj, attribute):
-        """
-        Edit an attribute.
-        """
-        attribute_types = get_attribute_types(
-            self.grstate.dbstate.db, self.primary.obj_type
-        )
-        sha256_hash = hashlib.sha256()
-        sha256_hash.update(str(attribute.serialize()).encode("utf-8"))
-        callback = lambda x: self._edited_attribute(x, sha256_hash.hexdigest())
-        try:
-            if self.primary.obj_type in ["Source", "Citation"]:
-                EditSrcAttribute(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    attribute,
-                    "",
-                    attribute_types,
-                    callback,
-                )
-            else:
-                EditAttribute(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    attribute,
-                    "",
-                    attribute_types,
-                    callback,
-                )
-        except WindowActiveError:
-            pass
-
-    def _edited_attribute(self, attribute, old_hash):
-        """
-        Save edited attribute.
-        """
-        if attribute:
-            self.grstate.update_history_object(old_hash, attribute)
-            message = self._commit_message(
-                _("Attribute"), attribute.get_type(), action="update"
-            )
-            self.primary.commit(self.grstate, message)
-
-    def edit_address(self, _dummy_obj, address):
-        """
-        Edit an address.
-        """
-        sha256_hash = hashlib.sha256()
-        sha256_hash.update(str(address.serialize()).encode("utf-8"))
-        callback = lambda x: self._edited_address(x, sha256_hash.hexdigest())
-        try:
-            EditAddress(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                address,
-                callback,
-            )
-        except WindowActiveError:
-            pass
-
-    def _edited_address(self, address, old_hash):
-        """
-        Save edited address.
-        """
-        self.grstate.update_history_object(old_hash, address)
-        message = " ".join(
-            (
-                _("Edited"),
-                _("Address"),
-                _("for"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-            )
-        )
         self.primary.commit(self.grstate, message)
 
     def set_css_style(self):
