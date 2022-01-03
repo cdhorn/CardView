@@ -19,7 +19,7 @@
 #
 
 """
-GrampsFrameGroupList
+FrameGroupList
 """
 
 # ------------------------------------------------------------------------
@@ -48,13 +48,13 @@ from ..frames.frame_base import GrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameGroupList class
+# FrameGroupList class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
+class FrameGroupList(Gtk.ListBox, GrampsConfig):
     """
-    The GrampsFrameGroupList class provides the core methods for managing
-    a list of GrampsFrame objects. It primarily supports drag and drop
+    The FrameGroupList class provides the core methods for managing
+    a list of Frame objects. It primarily supports drag and drop
     actions related to the list.
     """
 
@@ -75,7 +75,7 @@ class GrampsFrameGroupList(Gtk.ListBox, GrampsConfig):
 
     def add_frame(self, gramps_frame):
         """
-        Add a GrampsFrame object.
+        Add a Frame object.
         """
         if isinstance(gramps_frame, GrampsFrame):
             if not self.managed_obj_type:

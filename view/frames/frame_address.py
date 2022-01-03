@@ -19,7 +19,7 @@
 #
 
 """
-AddressGrampsFrame
+AddressFrame
 """
 
 # ------------------------------------------------------------------------
@@ -36,19 +36,19 @@ from gramps.gen.utils.alive import probably_alive
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_person_color_css, format_address
-from .frame_secondary import SecondaryGrampsFrame
+from .frame_secondary import SecondaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AddressGrampsFrame class
+# AddressFrame class
 #
 # ------------------------------------------------------------------------
-class AddressGrampsFrame(SecondaryGrampsFrame):
+class AddressFrame(SecondaryFrame):
     """
-    The AddressGrampsFrame exposes some of the basic facts about an Address.
+    The AddressFrame exposes some of the basic facts about an Address.
     """
 
     def __init__(
@@ -58,7 +58,7 @@ class AddressGrampsFrame(SecondaryGrampsFrame):
         obj,
         address,
     ):
-        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, address)
+        SecondaryFrame.__init__(self, grstate, groptions, obj, address)
         self.__add_address_formatted(address)
         self.__add_address_phone(address)
         self.__add_address_date(address)

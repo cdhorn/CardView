@@ -19,7 +19,7 @@
 #
 
 """
-TimelineGrampsFrameGroup
+TimelineFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,31 +34,33 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_address import AddressGrampsFrame
-from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_event_ref import EventRefGrampsFrame
-from ..frames.frame_media import MediaGrampsFrame
-from ..frames.frame_name import NameGrampsFrame
-from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
+from ..frames import (
+    AddressFrame,
+    CitationFrame,
+    EventRefFrame,
+    MediaFrame,
+    NameFrame,
+    LDSOrdinanceFrame,
+)
 from ..timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
-from .group_list import GrampsFrameGroupList
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# TimelineGrampsFrameGroup
+# TimelineFrameGroup
 #
 # ------------------------------------------------------------------------
-class TimelineGrampsFrameGroup(GrampsFrameGroupList):
+class TimelineFrameGroup(FrameGroupList):
     """
-    The TimelineGrampsFrameGroup generates an event timeline for a person
+    The TimelineFrameGroup generates an event timeline for a person
     that may also optionally include events for close family if choosen.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         self.options = {
@@ -106,7 +108,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 if event_family:
                     obj = event_family
                 self.add_frame(
-                    EventRefGrampsFrame(
+                    EventRefFrame(
                         grstate,
                         groptions,
                         obj,
@@ -115,10 +117,10 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
             elif timeline_obj_type == "media":
                 (media, dummy_media_ref) = item
-                self.add_frame(MediaGrampsFrame(grstate, groptions, media))
+                self.add_frame(MediaFrame(grstate, groptions, media))
             elif timeline_obj_type == "address":
                 self.add_frame(
-                    AddressGrampsFrame(
+                    AddressFrame(
                         grstate,
                         groptions,
                         timeline_obj,
@@ -127,7 +129,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
             elif timeline_obj_type == "name":
                 self.add_frame(
-                    NameGrampsFrame(
+                    NameFrame(
                         grstate,
                         groptions,
                         timeline_obj,
@@ -136,7 +138,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
             elif timeline_obj_type == "citation":
                 self.add_frame(
-                    CitationGrampsFrame(
+                    CitationFrame(
                         grstate,
                         groptions,
                         item,
@@ -144,7 +146,7 @@ class TimelineGrampsFrameGroup(GrampsFrameGroupList):
                 )
             elif timeline_obj_type == "ldsord":
                 self.add_frame(
-                    LDSOrdinanceGrampsFrame(
+                    LDSOrdinanceFrame(
                         grstate,
                         groptions,
                         timeline_obj,

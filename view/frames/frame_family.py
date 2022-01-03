@@ -19,7 +19,7 @@
 #
 
 """
-CoupleGrampsFrame
+FamilyFrame
 """
 
 # ------------------------------------------------------------------------
@@ -45,22 +45,27 @@ from gramps.gui.ddtargets import DdTargets
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import FamilyAction
 from ..common.common_utils import get_family_color_css
-from .frame_person import PersonGrampsFrame
-from .frame_primary import PrimaryGrampsFrame
-from ..menus.menu_utils import menu_item
+from .frame_person import PersonFrame
+from .frame_primary import PrimaryFrame
+from ..menus.menu_utils import (
+    menu_item,
+    add_family_event_option,
+    add_family_child_options,
+)
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# CoupleGrampsFrame class
+# FamilyFrame class
 #
 # ------------------------------------------------------------------------
-class CoupleGrampsFrame(PrimaryGrampsFrame):
+class FamilyFrame(PrimaryFrame):
     """
-    The CoupleGrampsFrame exposes some of the basic information about a Couple.
+    The CoupleFrame exposes some of the basic information about a Couple.
     """
 
     def __init__(
@@ -78,7 +83,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             self.compact = True
         self.partner1 = Gtk.HBox(hexpand=True)
         self.partner2 = Gtk.HBox(hexpand=True)
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, family)
+        PrimaryFrame.__init__(self, grstate, groptions, family)
         self.divorced = False
         self.family = family
         self.relation = groptions.relation
@@ -278,7 +283,7 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
     def _get_profile(self, person):
         if person:
             self.groptions.set_backlink(self.family.handle)
-            profile = PersonGrampsFrame(
+            profile = PersonFrame(
                 self.grstate,
                 self.groptions,
                 person,
@@ -310,10 +315,10 @@ class CoupleGrampsFrame(PrimaryGrampsFrame):
             "parent" in self.groptions.option_space
             or "spouse" in self.groptions.option_space
         ):
+            action = FamilyAction(self.grstate, self.primary)
             self._add_partner_options(context_menu)
-            context_menu.append(self._add_new_family_event_option())
-            context_menu.append(self._add_new_child_option())
-            context_menu.append(self._add_existing_child_option())
+            add_family_event_option(context_menu, action)
+            add_family_child_options(context_menu, action)
 
     def _add_partner_options(self, context_menu):
         """

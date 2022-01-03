@@ -19,7 +19,7 @@
 #
 
 """
-AssociationsGrampsFrameGroup
+AssociationsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -32,32 +32,30 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import PersonRef
 from gramps.gui.editors import EditPersonRef
 
-from ..frames.frame_person_backref import PersonBackRefGrampsFrame
-
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_person_ref import PersonRefGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import PersonBackRefFrame, PersonRefFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AssociationsGrampsFrameGroup class
+# AssociationsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
+class AssociationsFrameGroup(FrameGroupList):
     """
-    The AssociationsGrampsFrameGroup class provides a container for managing
+    The AssociationsFrameGroup class provides a container for managing
     all of the associations a person has with other people.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, obj)
+        FrameGroupList.__init__(self, grstate, groptions, obj)
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.association.reference-mode")
         )
@@ -69,7 +67,7 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         ]
 
         for person_ref in obj.get_person_ref_list():
-            frame = PersonRefGrampsFrame(
+            frame = PersonRefFrame(
                 grstate,
                 groptions,
                 obj,
@@ -93,7 +91,7 @@ class AssociationsGrampsFrameGroup(GrampsFrameGroupList):
         main_person = self.group_base.obj.get_handle()
         for back_person_ref in back_person.get_person_ref_list():
             if back_person_ref.ref == main_person:
-                frame = PersonBackRefGrampsFrame(
+                frame = PersonBackRefFrame(
                     self.grstate,
                     self.groptions,
                     back_person,

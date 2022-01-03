@@ -19,7 +19,7 @@
 #
 
 """
-CitationsGrampsFrameGroup
+CitationsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,25 +35,25 @@ from gramps.gen.lib.citationbase import CitationBase
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_citation import CitationGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import CitationFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# CitationsGrampsFrameGroup class
+# CitationsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class CitationsGrampsFrameGroup(GrampsFrameGroupList):
+class CitationsFrameGroup(FrameGroupList):
     """
-    The CitationsGrampsFrameGroup class provides a container for viewing and
+    The CitationsFrameGroup class provides a container for viewing and
     managing all of the citations associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         self.maximum = grstate.config.get(
@@ -68,7 +68,7 @@ class CitationsGrampsFrameGroup(GrampsFrameGroupList):
 
             for citation, references, ref_type, ref_desc in citation_list:
                 reference = (references, ref_type, ref_desc)
-                frame = CitationGrampsFrame(
+                frame = CitationFrame(
                     grstate, groptions, citation, reference=reference
                 )
                 self.add_frame(frame)

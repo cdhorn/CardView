@@ -19,7 +19,7 @@
 #
 
 """
-ChildrenGrampsFrameGroup
+ChildrenFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -39,24 +39,24 @@ from gramps.gui.editors import EditChildRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_child_ref import ChildRefGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import ChildRefFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# ChildrenGrampsFrameGroup class
+# ChildrenFrameGroup class
 #
 # ------------------------------------------------------------------------
-class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
+class ChildrenFrameGroup(FrameGroupList):
     """
     A container for managing a list of children for a given family.
     """
 
     def __init__(self, grstate, groptions, family):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, family)
+        FrameGroupList.__init__(self, grstate, groptions, family)
         context = "child"
         if "parent" in groptions.option_space:
             context = "sibling"
@@ -77,7 +77,7 @@ class ChildrenGrampsFrameGroup(GrampsFrameGroupList):
             if number_children:
                 child_number = child_number + 1
                 groptions.set_number(child_number)
-            profile = ChildRefGrampsFrame(
+            profile = ChildRefFrame(
                 grstate,
                 groptions,
                 family,

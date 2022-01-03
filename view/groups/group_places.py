@@ -19,7 +19,7 @@
 #
 
 """
-EnclosingPlacesGrampsFrameGroup and EnclosedPlacesGrampsFrameGroup
+EnclosingPlacesFrameGroup and EnclosedPlacesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,24 +34,24 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_place_ref import PlaceRefGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import PlaceRefFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# EnclosingPlacesGrampsFrameGroup class
+# EnclosingPlacesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class EnclosingPlacesGrampsFrameGroup(GrampsFrameGroupList):
+class EnclosingPlacesFrameGroup(FrameGroupList):
     """
     A container for managing a list of enclosing places.
     """
 
     def __init__(self, grstate, groptions, place):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, place)
+        FrameGroupList.__init__(self, grstate, groptions, place)
         groptions.option_space = "options.group.place"
         groptions.set_ref_mode(
             grstate.config.get(
@@ -63,7 +63,7 @@ class EnclosingPlacesGrampsFrameGroup(GrampsFrameGroupList):
         place_list.reverse()
 
         for (list_place, list_place_ref) in place_list:
-            profile = PlaceRefGrampsFrame(
+            profile = PlaceRefFrame(
                 grstate, groptions, list_place, list_place_ref
             )
             self.add_frame(profile)
@@ -89,16 +89,16 @@ class EnclosingPlacesGrampsFrameGroup(GrampsFrameGroupList):
 
 # ------------------------------------------------------------------------
 #
-# EnclosedPlacesGrampsFrameGroup class
+# EnclosedPlacesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class EnclosedPlacesGrampsFrameGroup(GrampsFrameGroupList):
+class EnclosedPlacesFrameGroup(FrameGroupList):
     """
     A container for managing a list of enclosed places.
     """
 
     def __init__(self, grstate, groptions, place):
-        GrampsFrameGroupList.__init__(self, grstate, groptions, place)
+        FrameGroupList.__init__(self, grstate, groptions, place)
         groptions.set_backlink(place.get_handle())
         groptions.option_space = "options.group.place"
         groptions.set_ref_mode(
@@ -118,7 +118,7 @@ class EnclosedPlacesGrampsFrameGroup(GrampsFrameGroupList):
         )
 
         for (list_place, list_place_ref) in place_list:
-            profile = PlaceRefGrampsFrame(
+            profile = PlaceRefFrame(
                 grstate, groptions, list_place, list_place_ref
             )
             self.add_frame(profile)

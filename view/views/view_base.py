@@ -42,7 +42,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..bars.bar_media import GrampsMediaBarGroup
+from ..bars.bar_media import MediaBarGroup
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable
 from ..groups.group_builder import group_builder
@@ -221,7 +221,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         if self.grstate.config.get("options.global.media-bar.enabled"):
             css = self.view_object.get_css_style()
-            mediabar = GrampsMediaBarGroup(self.grstate, None, obj, css=css)
+            mediabar = MediaBarGroup(self.grstate, None, obj, css=css)
             if mediabar.total:
                 widget.pack_start(mediabar, False, False, 0)
 

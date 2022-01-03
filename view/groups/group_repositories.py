@@ -19,7 +19,7 @@
 #
 
 """
-RepositoriesGrampsFrameGroup
+RepositoriesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,33 +34,31 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import RepositoryRefFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# RepositoriesGrampsFrameGroup class
+# RepositoriesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class RepositoriesGrampsFrameGroup(GrampsFrameGroupList):
+class RepositoriesFrameGroup(FrameGroupList):
     """
-    The RepositoriesGrampsFrameGroup class provides a container for managing
+    The RepositoriesFrameGroup class provides a container for managing
     all of the repositories that may contain a Source.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         groptions.set_ref_mode(
             self.grstate.config.get("options.group.repository.reference-mode")
         )
         for repo_ref in obj.get_reporef_list():
-            profile = RepositoryRefGrampsFrame(
-                grstate, groptions, obj, repo_ref
-            )
+            profile = RepositoryRefFrame(grstate, groptions, obj, repo_ref)
             self.add_frame(profile)
         self.show_all()

@@ -19,7 +19,7 @@
 #
 
 """
-NoteGrampsFrame
+NoteFrame
 """
 
 # ------------------------------------------------------------------------
@@ -43,26 +43,26 @@ from gramps.gui.widgets import StyledTextBuffer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .frame_primary import PrimaryGrampsFrame
+from .frame_primary import PrimaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# NoteGrampsFrame Class
+# NoteFrame Class
 #
 # ------------------------------------------------------------------------
-class NoteGrampsFrame(PrimaryGrampsFrame):
+class NoteFrame(PrimaryFrame):
     """
-    The NoteGrampsFrame exposes some of the basic facts about a Note.
+    The NoteFrame exposes some of the basic facts about a Note.
     """
 
     def __init__(self, grstate, groptions, note, reference=None):
         self.text_view = Gtk.TextView(
             wrap_mode=Gtk.WrapMode.WORD, editable=False, cursor_visible=False
         )
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, note)
+        PrimaryFrame.__init__(self, grstate, groptions, note)
         self.note_reference = reference
         preview_mode = self.get_option("preview-mode")
         preview_lines = self.get_option("preview-lines")

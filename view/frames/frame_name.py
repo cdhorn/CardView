@@ -19,7 +19,7 @@
 #
 
 """
-NameGrampsFrame
+NameFrame
 """
 
 # ------------------------------------------------------------------------
@@ -37,23 +37,23 @@ from gramps.gen.utils.alive import probably_alive
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
 from ..common.common_utils import get_person_color_css
-from .frame_secondary import SecondaryGrampsFrame
+from .frame_secondary import SecondaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# NameGrampsFrame class
+# NameFrame class
 #
 # ------------------------------------------------------------------------
-class NameGrampsFrame(SecondaryGrampsFrame):
+class NameFrame(SecondaryFrame):
     """
-    The NameGrampsFrame exposes some of the basic facts about a Name.
+    The NameFrame exposes some of the basic facts about a Name.
     """
 
     def __init__(self, grstate, groptions, obj, name):
-        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, name)
+        SecondaryFrame.__init__(self, grstate, groptions, obj, name)
         self.__add_name_title(obj, name)
         self.__add_name_given(name)
         self.__add_name_call(name)

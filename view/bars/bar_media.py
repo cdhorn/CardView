@@ -19,7 +19,7 @@
 #
 
 """
-GrampsMediaBarGroup
+MediaBarGroup
 """
 
 # ------------------------------------------------------------------------
@@ -47,17 +47,17 @@ from gramps.gui.utils import open_file_with_default_application
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import BUTTON_PRIMARY, BUTTON_SECONDARY
 from ..common.common_utils import button_pressed, button_released
-from ..frames.frame_media_ref import MediaRefGrampsFrame
+from ..frames import MediaRefFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# GrampsMediaBarGroup class
+# MediaBarGroup class
 #
 # ------------------------------------------------------------------------
-class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
+class MediaBarGroup(Gtk.Box, GrampsConfig):
     """
     The MediaBarGroup class provides a container for managing a horizontal
     scrollable list of media items for a given primary Gramps object.
@@ -107,7 +107,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         ) in [2, 4]
 
         for (media, media_ref, dummy_media_type) in media_list:
-            frame = GrampsMediaBarItem(
+            frame = MediaBarItem(
                 grstate,
                 empty_groptions,
                 self.base.obj,
@@ -217,7 +217,7 @@ class GrampsMediaBarGroup(Gtk.Box, GrampsConfig):
         return media_list
 
 
-class GrampsMediaBarItem(MediaRefGrampsFrame):
+class MediaBarItem(MediaRefFrame):
     """
     A simple class for managing display of a media bar image.
     """
@@ -226,7 +226,7 @@ class GrampsMediaBarItem(MediaRefGrampsFrame):
         self, grstate, groptions, obj, media, media_ref, size=0, crop=False
     ):
         groptions.bar_mode = True
-        MediaRefGrampsFrame.__init__(self, grstate, groptions, obj, media_ref)
+        MediaRefFrame.__init__(self, grstate, groptions, obj, media_ref)
         self.set_hexpand(False)
         thumbnail = self.get_thumbnail(media, media_ref, size, crop)
         if thumbnail:

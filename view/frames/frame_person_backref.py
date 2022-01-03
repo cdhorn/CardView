@@ -19,7 +19,7 @@
 #
 
 """
-PersonBackRefGrampsFrame
+PersonBackRefFrame
 """
 
 # ------------------------------------------------------------------------
@@ -34,20 +34,21 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import PersonAction
 from ..menus.menu_utils import menu_item
-from .frame_person import PersonGrampsFrame
+from .frame_person import PersonFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PersonBackRefGrampsFrame class
+# PersonBackRefFrame class
 #
 # ------------------------------------------------------------------------
-class PersonBackRefGrampsFrame(PersonGrampsFrame):
+class PersonBackRefFrame(PersonFrame):
     """
-    The PersonBackRefGrampsFrame exposes some of the basic facts about an
+    The PersonBackRefFrame exposes some of the basic facts about an
     Association known through a back reference.
     """
 
@@ -59,7 +60,7 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         person_ref,
     ):
         active_person = grstate.fetch("Person", person_ref.ref)
-        PersonGrampsFrame.__init__(
+        PersonFrame.__init__(
             self,
             grstate,
             groptions,
@@ -87,14 +88,16 @@ class PersonBackRefGrampsFrame(PersonGrampsFrame):
         """
         Add custom action menu items for an associate.
         """
+        action = PersonAction(self.grstate, self.primary, self.reference)
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
+        context_menu.append(
+            menu_item("gtk-edit", label, action.edit_person_reference)
+        )
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
             menu_item(
                 "list-remove",
                 label,
-                self.remove_association,
-                self.reference.obj,
+                action.remove_person_reference,
             )
         )

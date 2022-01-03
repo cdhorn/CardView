@@ -19,7 +19,7 @@
 #
 
 """
-UrlGrampsFrame
+UrlFrame
 """
 
 # ------------------------------------------------------------------------
@@ -52,19 +52,19 @@ from gramps.gui.utils import match_primary_mask
 # ------------------------------------------------------------------------
 from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_released
-from .frame_secondary import SecondaryGrampsFrame
+from .frame_secondary import SecondaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# UrlGrampsFrame class
+# UrlFrame class
 #
 # ------------------------------------------------------------------------
-class UrlGrampsFrame(SecondaryGrampsFrame):
+class UrlFrame(SecondaryFrame):
     """
-    The UrlGrampsFrame exposes some of the basic facts about an Url.
+    The UrlFrame exposes some of the basic facts about an Url.
     """
 
     def __init__(
@@ -74,7 +74,7 @@ class UrlGrampsFrame(SecondaryGrampsFrame):
         obj,
         url,
     ):
-        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, url)
+        SecondaryFrame.__init__(self, grstate, groptions, obj, url)
         self.link = url.get_full_path()
 
         label = Gtk.Label(

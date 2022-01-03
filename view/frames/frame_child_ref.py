@@ -19,7 +19,7 @@
 #
 
 """
-ChildRefGrampsFrame
+ChildRefFrame
 """
 
 # ------------------------------------------------------------------------
@@ -28,29 +28,27 @@ ChildRefGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditChildRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import FamilyAction
 from ..menus.menu_utils import menu_item
-from .frame_person import PersonGrampsFrame
+from .frame_person import PersonFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# ChildRefGrampsFrame class
+# ChildRefFrame class
 #
 # ------------------------------------------------------------------------
-class ChildRefGrampsFrame(PersonGrampsFrame):
+class ChildRefFrame(PersonFrame):
     """
-    The ChildRefGrampsFrame exposes some of the basic facts about a Child.
+    The ChildRefFrame exposes some of the basic facts about a Child.
     """
 
     def __init__(
@@ -61,7 +59,7 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
         child_ref,
     ):
         child = grstate.fetch("Person", child_ref.ref)
-        PersonGrampsFrame.__init__(
+        PersonFrame.__init__(
             self,
             grstate,
             groptions,
@@ -81,26 +79,14 @@ class ChildRefGrampsFrame(PersonGrampsFrame):
         """
         Build the action menu for a right click on a reference object.
         """
+        action = FamilyAction(
+            self.grstate, self.reference_base, self.reference
+        )
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_child_ref))
+        context_menu.append(
+            menu_item("gtk-edit", label, action.edit_child_reference)
+        )
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
-            menu_item("list-remove", label, self.remove_family_child)
+            menu_item("list-remove", label, action.remove_child)
         )
-
-    def edit_child_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            name = name_displayer.display(self.primary.obj)
-            EditChildRef(
-                name,
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.reference.obj,
-                self.save_ref,
-            )
-        except WindowActiveError:
-            pass

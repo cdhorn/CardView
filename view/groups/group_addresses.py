@@ -19,7 +19,7 @@
 #
 
 """
-AddressesGrampsFrameGroup
+AddressesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,27 +27,27 @@ AddressesGrampsFrameGroup
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_address import AddressGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import AddressFrame
+from .group_list import FrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# AddressesGrampsFrameGroup class
+# AddressesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AddressesGrampsFrameGroup(GrampsFrameGroupList):
+class AddressesFrameGroup(FrameGroupList):
     """
-    The AddressesGrampsFrameGroup class provides a container for managing
+    The AddressesFrameGroup class provides a container for managing
     all of the addresses a person or repository may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for address in obj.get_address_list():
-            frame = AddressGrampsFrame(
+            frame = AddressFrame(
                 grstate,
                 groptions,
                 obj,

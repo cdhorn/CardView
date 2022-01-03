@@ -19,7 +19,7 @@
 #
 
 """
-NamesGrampsFrameGroup
+NamesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,26 +27,26 @@ NamesGrampsFrameGroup
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_name import NameGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import NameFrame
+from .group_list import FrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# NamesGrampsFrameGroup class
+# NamesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class NamesGrampsFrameGroup(GrampsFrameGroupList):
+class NamesFrameGroup(FrameGroupList):
     """
-    The NamesGrampsFrameGroup class provides a container for managing
+    The NamesFrameGroup class provides a container for managing
     all of the addresses a person or repository may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        frame = NameGrampsFrame(
+        frame = NameFrame(
             grstate,
             groptions,
             obj,
@@ -55,6 +55,6 @@ class NamesGrampsFrameGroup(GrampsFrameGroupList):
         self.add_frame(frame)
 
         for name in obj.get_alternate_names():
-            frame = NameGrampsFrame(grstate, groptions, obj, name)
+            frame = NameFrame(grstate, groptions, obj, name)
             self.add_frame(frame)
         self.show_all()

@@ -19,7 +19,7 @@
 #
 
 """
-EventGrampsFrame.
+EventFrame.
 """
 
 # ------------------------------------------------------------------------
@@ -28,21 +28,19 @@ EventGrampsFrame.
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import EventRef, EventRoleType, EventType, Person
+from gramps.gen.lib import EventType
 from gramps.gen.utils.alive import probably_alive
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditEvent, EditEventRef, EditPerson
-from gramps.gui.selectors import SelectorFactory
+from gramps.gui.editors import EditEvent, EditEventRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_classes import GrampsObject
+from ..actions import PersonAction
 from ..common.common_utils import (
     get_confidence,
     get_confidence_color_css,
@@ -60,7 +58,7 @@ from ..common.common_vitals import (
     get_primary_participant,
     get_relation,
 )
-from .frame_reference import ReferenceGrampsFrame
+from .frame_reference import ReferenceFrame
 from ..menus.menu_utils import add_participants_menu, menu_item
 
 _ = glocale.translation.sgettext
@@ -68,12 +66,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# EventGrampsFrame class
+# EventFrame class
 #
 # ------------------------------------------------------------------------
-class EventGrampsFrame(ReferenceGrampsFrame):
+class EventFrame(ReferenceFrame):
     """
-    The EventGrampsFrame exposes some of the basic facts about an Event.
+    The EventFrame exposes some of the basic facts about an Event.
     """
 
     def __init__(
@@ -83,7 +81,7 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         event,
         reference_tuple=None,
     ):
-        ReferenceGrampsFrame.__init__(
+        ReferenceFrame.__init__(
             self, grstate, groptions, event, reference_tuple=reference_tuple
         )
         self.event_confidence = 0
@@ -425,17 +423,10 @@ class EventGrampsFrame(ReferenceGrampsFrame):
         """
         self.__add_birth_menu_option(context_menu)
         self.__add_death_menu_option(context_menu)
-        callbacks = (
-            self.add_new_participant,
-            self.add_existing_participant,
-            self.goto_person,
-            self.edit_primary_object,
-            self.edit_participant,
-            self.remove_participant,
-        )
         add_participants_menu(
+            self.grstate,
             context_menu,
-            callbacks,
+            self.primary,
             self.participants,
         )
 
@@ -478,11 +469,14 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             and self.reference_base.obj.get_birth_ref().ref
             != self.primary.obj.get_handle()
         ):
+            action = PersonAction(
+                self.grstate, self.reference_base, self.primary
+            )
             context_menu.append(
                 menu_item(
                     "gramps-person",
                     _("Set preferred birth event"),
-                    self.set_birth_event,
+                    action.set_birth_event,
                 )
             )
 
@@ -498,185 +492,16 @@ class EventGrampsFrame(ReferenceGrampsFrame):
             and self.reference_base.obj.get_death_ref().ref
             != self.primary.obj.get_handle()
         ):
+            action = PersonAction(
+                self.grstate, self.reference_base, self.primary
+            )
             context_menu.append(
                 menu_item(
                     "gramps-person",
                     _("Set preferred death event"),
-                    self.set_death_event,
+                    action.set_death_event,
                 )
             )
-
-    def set_birth_event(self, *_dummy_args):
-        """
-        Set as primary birth event.
-        """
-        message = " ".join(
-            (
-                _("Set"),
-                _("Event"),
-                self.primary.obj.get_gramps_id(),
-                _("as"),
-                _("preferred"),
-                _("Birth"),
-                _("for"),
-                _("Person"),
-                self.reference_base.obj.get_gramps_id(),
-            )
-        )
-        self.reference_base.obj.set_birth_ref(self.reference.obj)
-        self.reference_base.commit(self.grstate, message)
-
-    def set_death_event(self, *_dummy_args):
-        """
-        Set as primary death event.
-        """
-        message = " ".join(
-            (
-                _("Set"),
-                _("Event"),
-                self.primary.obj.get_gramps_id(),
-                _("as"),
-                _("preferred"),
-                _("Death"),
-                _("for"),
-                _("Person"),
-                self.reference_base.obj.get_gramps_id(),
-            )
-        )
-        self.reference_base.obj.set_death_ref(self.reference.obj)
-        self.reference_base.commit(self.grstate, message)
-
-    def edit_participant(self, _dummy_obj, participant, event_ref):
-        """
-        Edit the event participant refererence.
-        """
-        callback = lambda x, y: self.save_participant(x, participant)
-        try:
-            EditEventRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                event_ref,
-                callback,
-            )
-        except WindowActiveError:
-            pass
-
-    def save_participant(self, event_ref, obj):
-        """
-        Save the event participant.
-        """
-        if event_ref and obj:
-            print("save_participant")
-            participant = GrampsObject(obj)
-            message = " ".join(
-                (
-                    _("Updated"),
-                    _("EventRef"),
-                    self.primary.obj.get_gramps_id(),
-                    _("for"),
-                    participant.obj_lang,
-                    participant.obj.get_gramps_id(),
-                )
-            )
-            participant.obj.add_event_ref(event_ref)
-            participant.commit(self.grstate, message)
-
-    def add_new_participant(self, *_dummy_obj):
-        """
-        Add a new person as participant to an event.
-        """
-        participant = Person()
-        event_ref = EventRef()
-        event_ref.ref = self.primary.obj.get_handle()
-        event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
-        participant.add_event_ref(event_ref)
-        callback = lambda x: self.edit_participant(x, participant, event_ref)
-        try:
-            EditPerson(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                participant,
-                callback=callback,
-            )
-        except WindowActiveError:
-            pass
-
-    def add_existing_participant(self, *_dummy_obj, person_handle=None):
-        """
-        Add an existing person as participant to an event.
-        """
-        if person_handle:
-            participant = self.fetch("Person", person_handle)
-        else:
-            select_person = SelectorFactory("Person")
-            dialog = select_person(self.grstate.dbstate, self.grstate.uistate)
-            participant = dialog.run()
-        if participant:
-            event_ref = EventRef()
-            event_ref.ref = self.primary.obj.get_handle()
-            event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
-            participant.add_event_ref(event_ref)
-            callback = lambda x, y: self.save_participant(x, participant)
-            try:
-                EditEventRef(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.primary.obj,
-                    event_ref,
-                    callback,
-                )
-            except WindowActiveError:
-                pass
-
-    def remove_participant(self, _dummy_obj, obj, event_ref):
-        """
-        Remove a participant from an event.
-        """
-        participant = GrampsObject(obj)
-        text = "".join(
-            (
-                str(event_ref.get_role()),
-                ": ",
-                name_displayer.display(participant.obj),
-            )
-        )
-        prefix = _(
-            "You are about to remove the following participant from this event:"
-        )
-        extra = _(
-            "Note this does not delete the event or the participant. You can "
-            "also use the undo option under edit if you change your mind later."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            new_list = []
-            for ref in participant.obj.get_event_ref_list():
-                if not event_ref.is_equal(ref):
-                    new_list.append(ref)
-
-            message = " ".join(
-                (
-                    _("Removed"),
-                    participant.obj_lang,
-                    participant.obj.get_gramps_id(),
-                    _("from"),
-                    _("Event"),
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            birth_ref = participant.obj.get_birth_ref()
-            death_ref = participant.obj.get_birth_ref()
-            participant.obj.set_event_ref_list(new_list)
-            if birth_ref is not None:
-                participant.obj.set_birth_ref(birth_ref)
-            if death_ref is not None:
-                participant.obj.set_death_ref(death_ref)
-            participant.commit(self.grstate, message)
 
 
 def get_object_text(obj_list, single, plural):

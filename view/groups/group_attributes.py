@@ -19,7 +19,7 @@
 #
 
 """
-AttributesGrampsFrameGroup
+AttributesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,26 +27,26 @@ AttributesGrampsFrameGroup
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_attribute import AttributeGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import AttributeFrame
+from .group_list import FrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# AttributesGrampsFrameGroup class
+# AttributesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class AttributesGrampsFrameGroup(GrampsFrameGroupList):
+class AttributesFrameGroup(FrameGroupList):
     """
-    The AttributesGrampsFrameGroup class provides a container for managing
+    The AttributesFrameGroup class provides a container for managing
     all of the attributes an object may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for attribute in obj.get_attribute_list():
-            frame = AttributeGrampsFrame(grstate, groptions, obj, attribute)
+            frame = AttributeFrame(grstate, groptions, obj, attribute)
             self.add_frame(frame)
         self.show_all()

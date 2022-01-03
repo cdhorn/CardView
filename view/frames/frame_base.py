@@ -32,7 +32,6 @@ GrampsFrame
 #
 # ------------------------------------------------------------------------
 import hashlib
-import os
 import pickle
 import re
 
@@ -52,23 +51,16 @@ from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Citation, Media, MediaRef, Note, Source, Span
+from gramps.gen.lib import Span
 from gramps.gen.utils.db import navigation_label
-from gramps.gen.utils.file import media_path, relative_path
 from gramps.gui.ddtargets import DdTargets
 from gramps.gui.dialog import WarningDialog
 from gramps.gui.editors import (
     EditAddress,
     EditAttribute,
-    EditCitation,
-    EditMedia,
-    EditMediaRef,
     EditName,
-    EditNote,
-    EditSource,
     EditSrcAttribute,
 )
-from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
@@ -76,6 +68,7 @@ from gramps.gui.utils import match_primary_mask
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import CitationAction, MediaAction, NoteAction, UrlAction
 from ..common.common_classes import GrampsContext, GrampsObject
 from ..common.common_const import (
     BUTTON_MIDDLE,
@@ -86,13 +79,11 @@ from ..common.common_const import (
 from ..common.common_utils import (
     button_pressed,
     button_released,
-    citation_option_text,
-    note_option_text,
 )
 from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
 from ..menus.menu_utils import menu_item
-from .frame_view import GrampsFrameView
+from .frame_view import FrameView
 from .frame_window import FrameDebugWindow
 from ..zotero.zotero import GrampsZotero
 
@@ -104,7 +95,7 @@ _ = glocale.translation.sgettext
 # GrampsFrame class
 #
 # ------------------------------------------------------------------------
-class GrampsFrame(GrampsFrameView):
+class GrampsFrame(FrameView):
     """
     Provides core methods for working with the Gramps objects it manages.
     """
@@ -117,7 +108,7 @@ class GrampsFrame(GrampsFrameView):
         else:
             self.reference_base = None
             self.reference = None
-        GrampsFrameView.__init__(self, grstate, groptions, self.switch_object)
+        FrameView.__init__(self, grstate, groptions, self.switch_object)
         self.primary = GrampsObject(primary_obj)
         self.secondary = None
         self.focus = self.primary
@@ -260,13 +251,20 @@ class GrampsFrame(GrampsFrameView):
         Handle drop processing largely common to all objects.
         """
         if DdTargets.CITATION_LINK.drag_type == dnd_type:
-            self._added_citation(obj_or_handle)
+            action = CitationAction(
+                self.grstate, None, self.primary, self.focus
+            )
+            action.added_citation(obj_or_handle)
             return True
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
-            self.add_new_citation(None, source_handle=obj_or_handle)
+            action = CitationAction(
+                self.grstate, None, self.primary, self.focus
+            )
+            action.add_new_citation(obj_or_handle)
             return True
         if DdTargets.NOTE_LINK.drag_type == dnd_type:
-            self._added_note(obj_or_handle)
+            action = NoteAction(self.grstate, None, self.primary, self.focus)
+            action.added_note(obj_or_handle)
             return True
         return False
 
@@ -279,10 +277,16 @@ class GrampsFrame(GrampsFrameView):
         added_urls = self._try_add_new_urls(data)
         if not added_urls or (len(data) > (2 * added_urls)):
             if self.focus.has_notes:
-                self.add_new_note(None, content=data)
+                action = NoteAction(
+                    self.grstate, None, self.primary, self.focus
+                )
+                action.set_content(data)
+                action.add_new_note()
                 return True
             if self.focus.obj_type == "Note":
-                self.update_note(content=data)
+                action = NoteAction(self.grstate, self.focus)
+                action.set_content(data)
+                action.update_note()
                 return True
         elif added_urls:
             return True
@@ -296,7 +300,9 @@ class GrampsFrame(GrampsFrameView):
             links = re.findall(r"(?P<url>file?://[^\s]+)", data)
             if links:
                 for link in links:
-                    self.add_new_media(None, filepath=link)
+                    action = MediaAction(self.grstate, None, self.primary)
+                    action.set_media_file_path(link)
+                    action.add_new_media()
                 return True
         return False
 
@@ -309,7 +315,11 @@ class GrampsFrame(GrampsFrameView):
             links = re.findall(r"(?P<url>https?://[^\s]+)", data)
             if links:
                 for link in links:
-                    self.add_url(None, path=link)
+                    action = UrlAction(
+                        self.grstate, None, self.primary, self.focus
+                    )
+                    action.set_path(link)
+                    action.add_url()
                     added_urls = added_urls + len(link)
         return added_urls
 
@@ -614,347 +624,6 @@ class GrampsFrame(GrampsFrameView):
                 self.primary.obj.get_gramps_id(),
             )
         )
-        self.primary.commit(self.grstate, message)
-
-    def add_new_source_citation(self, _dummy_obj):
-        """
-        Add a new source from which to create a new citation.
-        """
-        source = Source()
-        try:
-            EditSource(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                source,
-                self._add_new_citation,
-            )
-        except WindowActiveError:
-            pass
-
-    def add_existing_source_citation(self, _dummy_obj):
-        """
-        Select an existing source from which to create a citation.
-        """
-        select_source = SelectorFactory("Source")
-        dialog = select_source(self.grstate.dbstate, self.grstate.uistate)
-        source_handle = dialog.run()
-        if source_handle:
-            self._add_new_citation(source_handle)
-
-    def _add_new_citation(self, obj_or_handle):
-        """
-        Add a new citation.
-        """
-        if isinstance(obj_or_handle, str):
-            source = self.fetch("Source", obj_or_handle)
-        else:
-            source = obj_or_handle
-        citation = Citation()
-        citation.set_reference_handle(source.get_handle())
-        try:
-            EditCitation(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                citation,
-                source,
-                self._added_citation,
-            )
-        except WindowActiveError:
-            pass
-
-    def _added_citation(self, handle):
-        """
-        Add the new or existing citation to the current object.
-        """
-        if handle:
-            citation = self.fetch("Citation", handle)
-            message = self._commit_message(
-                _("Citation"), citation.get_gramps_id()
-            )
-            self.focus.save_hash()
-            if self.focus.obj.add_citation(handle):
-                self.focus.sync_hash(self.grstate)
-                self.primary.commit(self.grstate, message)
-
-    def add_existing_citation(self, _dummy_obj):
-        """
-        Add an existing citation.
-        """
-        select_citation = SelectorFactory("Citation")
-        selector = select_citation(
-            self.grstate.dbstate, self.grstate.uistate, []
-        )
-        selection = selector.run()
-        if selection:
-            if isinstance(selection, Source):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        Citation(),
-                        selection,
-                        callback=self._added_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            elif isinstance(selection, Citation):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        selection,
-                        callback=self._added_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            else:
-                raise ValueError("Selection must be either source or citation")
-
-    def add_zotero_citation(self, _dummy_obj):
-        """
-        Add citation and possible sources as well using Zotero picker.
-        """
-        if self.zotero.online:
-            import_notes = self.grstate.config.get(
-                "options.global.general.zotero-enabled-notes"
-            )
-            self.zotero.add_citation(
-                self.primary.obj, self.focus.obj, import_notes=import_notes
-            )
-        else:
-            WarningDialog(
-                _("Could Not Connect To Local Zotero Client"),
-                _(
-                    "A connection test to the local Zotero client using "
-                    "the Better BibTex Zotero extension failed. The local "
-                    "Zotero client needs to be running and extension "
-                    "installed in order to use it as a citation picker."
-                ),
-                parent=self.grstate.uistate.window,
-            )
-
-    def edit_citation(self, _dummy_obj, citation):
-        """
-        Edit a citation.
-        """
-        self.edit_primary_object(None, citation, "Citation")
-
-    def remove_citation(self, _dummy_obj, citation):
-        """
-        Remove the given citation from the current object.
-        """
-        if not citation:
-            return
-        text = citation_option_text(self.grstate.dbstate.db, citation)
-        prefix = _(
-            "You are about to remove the following citation from this object:"
-        )
-        extra = _(
-            "This removes the reference but does not delete the citation."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self._commit_message(
-                _("Citation"), citation.get_gramps_id(), action="remove"
-            )
-            self.focus.save_hash()
-            self.focus.obj.remove_citation_references([citation.get_handle()])
-            self.focus.sync_hash(self.grstate)
-            self.primary.commit(self.grstate, message)
-
-    def add_new_note(self, _dummy_obj, content=None):
-        """
-        Add a new note.
-        """
-        note = Note()
-        if content:
-            note.set(content)
-        try:
-            EditNote(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                note,
-                self._added_note,
-            )
-        except WindowActiveError:
-            pass
-
-    def _added_note(self, handle):
-        """
-        Add the new or existing note to the current object.
-        """
-        if handle:
-            note = self.fetch("Note", handle)
-            message = self._commit_message(_("Note"), note.get_gramps_id())
-            self.focus.save_hash()
-            if self.focus.obj.add_note(handle):
-                self.focus.sync_hash(self.grstate)
-                self.primary.commit(self.grstate, message)
-
-    def add_existing_note(self, _dummy_obj):
-        """
-        Add an existing note.
-        """
-        select_note = SelectorFactory("Note")
-        selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
-        selection = selector.run()
-        if selection:
-            self._added_note(selection.handle)
-
-    def edit_note(self, _dummy_obj, handle):
-        """
-        Edit a note.
-        """
-        note = self.fetch("Note", handle)
-        self.edit_primary_object(None, note, "Note")
-
-    def update_note(self, content=None):
-        """
-        Update a note.
-        """
-        if content:
-            self.primary.obj.append(content)
-            try:
-                EditNote(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.primary.obj,
-                )
-            except WindowActiveError:
-                pass
-
-    def remove_note(self, _dummy_obj, note):
-        """
-        Remove the given note from the current object.
-        """
-        if not note:
-            return
-        text = note_option_text(note)
-        prefix = _(
-            "You are about to remove the following note from this object:"
-        )
-        extra = _("This removes the reference but does not delete the note.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self._commit_message(
-                _("Note"), note.get_gramps_id(), action="remove"
-            )
-            self.focus.save_hash()
-            self.focus.obj.remove_note(note.get_handle())
-            self.focus.sync_hash(self.grstate)
-            self.primary.commit(self.grstate, message)
-
-    def change_privacy(self, _dummy_obj, mode):
-        """
-        Update the privacy indicator for the current object.
-        """
-        text = _("Public")
-        if mode:
-            text = _("Private")
-        if self.secondary:
-            message = " ".join(
-                (
-                    _("Made"),
-                    self.secondary.obj_lang,
-                    _("for"),
-                    self.primary.obj_lang,
-                    self.primary.obj.get_gramps_id(),
-                    text,
-                )
-            )
-        else:
-            message = " ".join(
-                (
-                    _("Made"),
-                    self.primary.obj_lang,
-                    self.primary.obj.get_gramps_id(),
-                    text,
-                )
-            )
-        self.focus.save_hash()
-        self.focus.obj.set_privacy(mode)
-        self.focus.sync_hash(self.grstate)
-        self.primary.commit(self.grstate, message)
-
-    def add_new_media(self, _dummy_obj, filepath=None):
-        """
-        Add a new media item.
-        """
-        media = Media()
-        if filepath:
-            if filepath[:5] != "file:":
-                return
-            filename = filepath[5:]
-            while filename[:2] == "//":
-                filename = filename[1:]
-            if not os.path.isfile(filename):
-                return
-
-            if global_config.get("behavior.addmedia-relative-path"):
-                base_path = str(media_path(self.grstate.dbstate.db))
-                if not os.path.exists(base_path):
-                    return
-                filename = relative_path(filename, base_path)
-            media.set_path(filename)
-        try:
-            EditMedia(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                media,
-                self.add_new_media_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def add_new_media_ref(self, obj_or_handle):
-        """
-        Add a new media reference.
-        """
-        if isinstance(obj_or_handle, str):
-            media = self.fetch("Media", obj_or_handle)
-        else:
-            media = obj_or_handle
-        for media_ref in self.primary.obj.get_media_list():
-            if media_ref.ref == media.get_handle():
-                return
-        ref = MediaRef()
-        ref.ref = media.get_handle()
-        try:
-            EditMediaRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                media,
-                ref,
-                self._added_new_media_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def _added_new_media_ref(self, reference, media):
-        """
-        Finish adding a new media reference.
-        """
-        message = " ".join(
-            (
-                _("Added"),
-                _("MediaRef"),
-                media.get_gramps_id(),
-                _("to"),
-                self.primary.obj_lang,
-                self.primary.obj.get_gramps_id(),
-            )
-        )
-        self.primary.obj.add_media_reference(reference)
         self.primary.commit(self.grstate, message)
 
     def set_css_style(self):

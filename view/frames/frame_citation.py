@@ -19,7 +19,7 @@
 #
 
 """
-CitationGrampsFrame
+CitationFrame
 """
 
 # ------------------------------------------------------------------------
@@ -39,7 +39,7 @@ from ..common.common_utils import (
     get_confidence,
     get_confidence_color_css,
 )
-from .frame_primary import PrimaryGrampsFrame
+from .frame_primary import PrimaryFrame
 from ..menus.menu_utils import menu_item
 
 _ = glocale.translation.sgettext
@@ -47,16 +47,16 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# CitationGrampsFrame Class
+# CitationFrame Class
 #
 # ------------------------------------------------------------------------
-class CitationGrampsFrame(PrimaryGrampsFrame):
+class CitationFrame(PrimaryFrame):
     """
-    The CitationGrampsFrame exposes some of the basic facts about a Citation.
+    The CitationFrame exposes some of the basic facts about a Citation.
     """
 
     def __init__(self, grstate, groptions, citation, reference=None):
-        PrimaryGrampsFrame.__init__(self, grstate, groptions, citation)
+        PrimaryFrame.__init__(self, grstate, groptions, citation)
         self.source = self.fetch("Source", citation.source_handle)
         self.__add_citation_title(self.source, citation)
         self.__add_citation_author(self.source)

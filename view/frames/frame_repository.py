@@ -19,7 +19,7 @@
 #
 
 """
-RepositoryGrampsFrame
+RepositoryFrame
 """
 
 # ------------------------------------------------------------------------
@@ -28,36 +28,33 @@ RepositoryGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import RepoRef
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditRepoRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import RepositoryAction
 from ..common.common_utils import format_address
-from .frame_reference import ReferenceGrampsFrame
+from .frame_reference import ReferenceFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# RepositoryGrampsFrame Class
+# RepositoryFrame Class
 #
 # ------------------------------------------------------------------------
-class RepositoryGrampsFrame(ReferenceGrampsFrame):
+class RepositoryFrame(ReferenceFrame):
     """
-    The RepositoryGrampsFrame exposes some of the basic facts about a
+    The RepositoryFrame exposes some of the basic facts about a
     Repository.
     """
 
     def __init__(self, grstate, groptions, repository, reference_tuple=None):
-        ReferenceGrampsFrame.__init__(
+        ReferenceFrame.__init__(
             self,
             grstate,
             groptions,
@@ -111,49 +108,8 @@ class RepositoryGrampsFrame(ReferenceGrampsFrame):
         Handle drop processing for a repository.
         """
         if DdTargets.SOURCE_LINK.drag_type == dnd_type:
-            self.add_new_source(obj_or_handle)
+            source = self.fetch("Source", obj_or_handle)
+            action = RepositoryAction(self.grstate, self.primary, source)
+            action.add_new_source()
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
-
-    def add_new_source(self, obj_or_handle):
-        """
-        Add new repository reference to source.
-        """
-        source = self.fetch("Source", obj_or_handle)
-        for repo_ref in source.get_reporef_list():
-            if repo_ref.ref == self.primary.obj.get_handle():
-                return
-        repo_ref = RepoRef()
-        repo_ref.ref = self.primary.obj.get_handle()
-        callback = lambda x: self._save_source_repo_ref(x, obj_or_handle)
-        try:
-            EditRepoRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                repo_ref,
-                callback,
-            )
-        except WindowActiveError:
-            pass
-
-    def _save_source_repo_ref(self, repo_tuple, source_handle):
-        """
-        Save updated source.
-        """
-        (repo_ref, repository) = repo_tuple
-        source = self.fetch("Source", source_handle)
-        message = " ".join(
-            (
-                _("Added"),
-                _("RepoRef"),
-                repository.get_gramps_id(),
-                _("to"),
-                _("Source"),
-                source.get_gramps_id(),
-            )
-        )
-        source.add_repo_reference(repo_ref)
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            self.grstate.dbstate.db.commit_source(source, trans)

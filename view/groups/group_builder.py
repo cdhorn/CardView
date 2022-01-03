@@ -19,7 +19,7 @@
 #
 
 """
-GrampsFrameGroup builder functions
+FrameGroup builder functions
 """
 
 # ------------------------------------------------------------------------
@@ -43,12 +43,12 @@ from gramps.gen.lib import Family, Person
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames.frame_couple import CoupleGrampsFrame
-from .group_children import ChildrenGrampsFrameGroup
+from ..frames import FamilyFrame
+from .group_children import ChildrenFrameGroup
 from .group_const import GRAMPS_GROUPS
-from .group_events import EventsGrampsFrameGroup
-from .group_expander import GrampsFrameGroupExpander
-from .group_generic import GenericGrampsFrameGroup
+from .group_events import EventsFrameGroup
+from .group_expander import FrameGroupExpander
+from .group_generic import GenericFrameGroup
 
 _ = glocale.translation.sgettext
 
@@ -111,7 +111,7 @@ def group_wrapper(grstate, group, title):
     Wrap a frame group widget with an expander.
     """
     group_title = get_group_title(group, title)
-    content = GrampsFrameGroupExpander(grstate)
+    content = FrameGroupExpander(grstate)
     content.set_label("".join(("<small><b>", group_title, "</b></small>")))
     content.add(group)
     return content
@@ -146,7 +146,7 @@ def get_children_group(
     groptions.set_context(context)
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    group = ChildrenGrampsFrameGroup(grstate, groptions, family)
+    group = ChildrenFrameGroup(grstate, groptions, family)
     if not group or len(group) == 0:
         return None
     if "raw" in args and args["raw"]:
@@ -166,7 +166,7 @@ def get_family_unit(grstate, family, args, context="family", relation=None):
     groptions.set_relation(relation)
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    couple = CoupleGrampsFrame(
+    couple = FamilyFrame(
         grstate,
         groptions,
         family,
@@ -194,7 +194,7 @@ def get_parents_group(grstate, person, args):
         if "raw" not in args or not args["raw"]:
             groptions = GrampsOptions("options.group.parent")
             groptions.set_context("parent")
-            parents = GrampsFrameGroupExpander(
+            parents = FrameGroupExpander(
                 grstate, expanded=True, use_markup=True
             )
             parents.set_label(
@@ -232,7 +232,7 @@ def get_spouses_group(grstate, person, args):
             if "raw" not in args or not args["raw"]:
                 groptions = GrampsOptions("options.group.spouse")
                 groptions.set_context("spouse")
-                spouses = GrampsFrameGroupExpander(
+                spouses = FrameGroupExpander(
                     grstate, expanded=True, use_markup=True
                 )
                 spouses.set_label(
@@ -281,7 +281,7 @@ def get_references_group(
         tuple_list = tuple_list[:maximum]
 
     groptions = prepare_reference_options(groptions, args)
-    group = GenericGrampsFrameGroup(grstate, groptions, "Tuples", tuple_list)
+    group = GenericFrameGroup(grstate, groptions, "Tuples", tuple_list)
 
     single, plural = _("Reference"), _("References")
     if args and "title" in args:
@@ -365,7 +365,7 @@ def prepare_event_group(grstate, obj, obj_type, args):
         groptions.set_age_base(args["age_base"])
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    group = EventsGrampsFrameGroup(grstate, groptions, obj)
+    group = EventsFrameGroup(grstate, groptions, obj)
     elements = Gtk.VBox(spacing=6)
     elements.add(group)
 

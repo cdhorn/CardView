@@ -19,7 +19,7 @@
 #
 
 """
-MediaGrampsFrame
+MediaFrame
 """
 
 # ------------------------------------------------------------------------
@@ -35,31 +35,31 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import MediaAction
 from ..menus.menu_utils import menu_item
-from .frame_reference import ReferenceGrampsFrame
+from .frame_reference import ReferenceFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# MediaGrampsFrame Class
+# MediaFrame Class
 #
 # ------------------------------------------------------------------------
-class MediaGrampsFrame(ReferenceGrampsFrame):
+class MediaFrame(ReferenceFrame):
     """
-    The MediaGrampsFrame exposes the image and some facts about Media.
+    The MediaFrame exposes the image and some facts about Media.
     """
 
     def __init__(self, grstate, groptions, media, reference_tuple=None):
-        ReferenceGrampsFrame.__init__(
+        ReferenceFrame.__init__(
             self, grstate, groptions, media, reference_tuple=reference_tuple
         )
         if not groptions.bar_mode:
@@ -200,44 +200,13 @@ class MediaGrampsFrame(ReferenceGrampsFrame):
         Add action menu items specific for the image.
         """
         if self.groptions.backlink:
+            (obj_type, obj_handle) = self.groptions.backlink
+            target_object = self.fetch(obj_type, obj_handle)
+            action = MediaAction(self.grstate, self.primary, target_object)
             context_menu.append(
                 menu_item(
                     "gramps-media",
                     _("Make active media"),
-                    self._make_active_media,
+                    action.set_active_media,
                 )
             )
-
-    def _make_active_media(self, _dummy_var1):
-        """
-        Make the image the active media item.
-        """
-        (obj_type, obj_handle) = self.groptions.backlink
-        obj = self.grstate.fetch(obj_type, obj_handle)
-
-        new_list = []
-        image_ref = None
-        image_handle = self.primary.obj.get_handle()
-        for media_ref in obj.get_media_list():
-            if media_ref.ref == image_handle:
-                image_ref = media_ref
-            else:
-                new_list.append(media_ref)
-        if image_ref:
-            new_list.insert(0, image_ref)
-
-        message = " ".join(
-            (
-                _("Set"),
-                _("Image"),
-                self.primary.obj.get_gramps_id(),
-                _("Active"),
-                _("for"),
-                obj_type,
-                obj.get_gramps_id(),
-            )
-        )
-        commit_method = self.grstate.dbstate.db.method("commit_%s", obj_type)
-        with DbTxn(message, self.grstate.dbstate.db) as trans:
-            obj.set_media_list(new_list)
-            commit_method(obj, trans)

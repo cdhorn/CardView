@@ -71,12 +71,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameId class
+# FrameId class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameId(Gtk.HBox, GrampsConfig):
+class FrameId(Gtk.HBox, GrampsConfig):
     """
-    A class to display the id and privacy for a GrampsFrame object.
+    A class to display the id and privacy for a Frame object.
     """
 
     def __init__(self, grstate, groptions):
@@ -174,10 +174,10 @@ class GrampsFrameId(Gtk.HBox, GrampsConfig):
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameGrid class
+# FrameGrid class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameGrid(Gtk.Grid):
+class FrameGrid(Gtk.Grid):
     """
     A simple class to manage a fact grid for a Gramps frame.
     """
@@ -209,10 +209,10 @@ class GrampsFrameGrid(Gtk.Grid):
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameIcons class
+# FrameIcons class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
+class FrameIcons(Gtk.HBox, GrampsConfig):
     """
     A simple class for managing display of the child indicator and tag
     icons for a Gramps object.
@@ -445,7 +445,7 @@ class GrampsFrameIcons(Gtk.HBox, GrampsConfig):
 # ------------------------------------------------------------------------
 class GrampsImage(Gtk.EventBox):
     """
-    A simple class for managing display of an image for a GrampsFrame object.
+    A simple class for managing display of an image for a Frame object.
     """
 
     def __init__(self, grstate, obj=None, media_ref=None, active=False):

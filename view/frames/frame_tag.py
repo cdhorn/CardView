@@ -23,7 +23,7 @@
 #
 
 """
-TagGrampsFrame
+TagFrame
 """
 
 # ------------------------------------------------------------------------
@@ -56,12 +56,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# TagGrampsFrame class
+# TagFrame class
 #
 # ------------------------------------------------------------------------
-class TagGrampsFrame(GrampsFrame):
+class TagFrame(GrampsFrame):
     """
-    The TagGrampsFrame class exposes information about a tag.
+    The TagFrame class exposes information about a tag.
     """
 
     def __init__(self, grstate, groptions, tag):

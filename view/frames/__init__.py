@@ -21,3 +21,27 @@
 """
 Module containing the frames for the frame groups and page views.
 """
+
+from .frame_address import AddressFrame
+from .frame_attribute import AttributeFrame
+from .frame_child_ref import ChildRefFrame
+from .frame_citation import CitationFrame
+from .frame_family import FamilyFrame
+from .frame_event import EventFrame
+from .frame_event_ref import EventRefFrame
+from .frame_media import MediaFrame
+from .frame_media_ref import MediaRefFrame
+from .frame_name import NameFrame
+from .frame_note import NoteFrame
+from .frame_note_url import NoteUrlFrame
+from .frame_ordinance import LDSOrdinanceFrame
+from .frame_person_backref import PersonBackRefFrame
+from .frame_person import PersonFrame
+from .frame_person_ref import PersonRefFrame
+from .frame_place import PlaceFrame
+from .frame_place_ref import PlaceRefFrame
+from .frame_repository import RepositoryFrame
+from .frame_repository_ref import RepositoryRefFrame
+from .frame_source import SourceFrame
+from .frame_tag import TagFrame
+from .frame_url import UrlFrame

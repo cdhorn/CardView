@@ -19,7 +19,7 @@
 #
 
 """
-GenericGrampsFrameGroup
+GenericFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,43 +35,45 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_couple import CoupleGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_media import MediaGrampsFrame
-from ..frames.frame_note import NoteGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_place import PlaceGrampsFrame
-from ..frames.frame_repository import RepositoryGrampsFrame
-from ..frames.frame_source import SourceGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import (
+    CitationFrame,
+    FamilyFrame,
+    EventFrame,
+    MediaFrame,
+    NoteFrame,
+    PersonFrame,
+    PlaceFrame,
+    RepositoryFrame,
+    SourceFrame,
+)
+from .group_list import FrameGroupList
 
 FRAME_MAP = {
-    "Person": PersonGrampsFrame,
-    "Family": CoupleGrampsFrame,
-    "Event": EventGrampsFrame,
-    "Place": PlaceGrampsFrame,
-    "Media": MediaGrampsFrame,
-    "Note": NoteGrampsFrame,
-    "Source": SourceGrampsFrame,
-    "Citation": CitationGrampsFrame,
-    "Repository": RepositoryGrampsFrame,
+    "Person": PersonFrame,
+    "Family": FamilyFrame,
+    "Event": EventFrame,
+    "Place": PlaceFrame,
+    "Media": MediaFrame,
+    "Note": NoteFrame,
+    "Source": SourceFrame,
+    "Citation": CitationFrame,
+    "Repository": RepositoryFrame,
 }
 
 
 # ------------------------------------------------------------------------
 #
-# GenericGrampsFrameGroup class
+# GenericFrameGroup class
 #
 # ------------------------------------------------------------------------
-class GenericGrampsFrameGroup(GrampsFrameGroupList):
+class GenericFrameGroup(FrameGroupList):
     """
-    The GenericGrampsFrameGroup class provides a container for managing a
+    The GenericFrameGroup class provides a container for managing a
     set of generic frames for a list of primary Gramps objects.
     """
 
     def __init__(self, grstate, groptions, frame_obj_type, frame_obj_handles):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, None, enable_drop=False
         )
         self.obj_type = frame_obj_type

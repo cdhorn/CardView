@@ -47,7 +47,24 @@ from gramps.gen.utils.db import family_name
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import citation_option_text, get_bookmarks
+from ..actions.action_privacy import PrivacyAction
+from ..actions.action_note import NoteAction
+from ..actions.action_media import MediaAction
+from ..actions.action_citation import CitationAction
+from ..actions.action_bookmark import BookmarkAction
+from ..actions.action_attribute import AttributeAction
+from ..actions.action_address import AddressAction
+from ..actions.action_event import EventAction
+from ..actions.action_family import FamilyAction
+from ..actions.action_name import NameAction
+from ..actions.action_person import PersonAction
+from ..actions.action_place import PlaceAction
+from ..actions.action_source import SourceAction
+from ..actions.action_repository import RepositoryAction
+from ..actions.action_url import UrlAction
+from ..actions.action_tag import TagAction
+
+from ..common.common_utils import citation_option_text
 
 _ = glocale.translation.sgettext
 
@@ -111,15 +128,16 @@ def add_double_separator(menu):
     menu.add(Gtk.SeparatorMenuItem())
 
 
-def add_attributes_menu(parent_menu, grobject, callbacks):
+def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the attributes submenu.
     """
-    if not grobject.has_attributes:
+    target_object = grchild or grobject
+    if not target_object.has_attributes:
         return
-    (add_attribute, edit_attribute, remove_attribute) = callbacks
-    menu = new_menu("list-add", _("Add a new attribute"), add_attribute)
-    attribute_list = grobject.obj.get_attribute_list()
+    action = AttributeAction(grstate, None, grobject, grchild)
+    menu = new_menu("list-add", _("Add a new attribute"), action.add_attribute)
+    attribute_list = target_object.obj.get_attribute_list()
     if attribute_list:
         removemenu = new_submenu(
             menu, "gramps-attribute", _("Remove an attribute")
@@ -135,51 +153,47 @@ def add_attributes_menu(parent_menu, grobject, callbacks):
             work_list.append((text, attribute))
         work_list.sort(key=lambda x: x[0])
         for text, attribute in work_list:
+            action = AttributeAction(grstate, attribute, grobject, grchild)
             removemenu.add(
-                menu_item("list-remove", text, remove_attribute, attribute)
+                menu_item("list-remove", text, action.remove_attribute)
             )
             menu.add(
                 menu_item(
                     "gramps-attribute",
                     text,
-                    edit_attribute,
-                    attribute,
+                    action.edit_attribute,
                 )
             )
     parent_menu.append(submenu_item("gramps-attribute", _("Attributes"), menu))
 
 
-def add_citations_menu(parent_menu, db, grobject, callbacks, zotero=False):
+def add_citations_menu(
+    grstate, parent_menu, grobject, grchild=None, zotero=False
+):
     """
     Build and add the citations submenu.
     """
-    if not grobject.has_citations:
+    target_object = grchild or grobject
+    if not target_object.has_citations:
         return
-    (
-        add_new_source_citation,
-        add_existing_source_citation,
-        add_existing_citation,
-        add_zotero_citation,
-        edit_citation,
-        remove_citation,
-    ) = callbacks
+    action = CitationAction(grstate, None, grobject, grchild)
     menu = new_menu(
         "list-add",
         _("Add new citation for a new source"),
-        add_new_source_citation,
+        action.add_new_source_citation,
     )
     menu.add(
         menu_item(
             "list-add",
             _("Add new citation for an existing source"),
-            add_existing_source_citation,
+            action.add_existing_source_citation,
         )
     )
     menu.add(
         menu_item(
             "list-add",
             _("Add an existing citation"),
-            add_existing_citation,
+            action.add_existing_citation,
         )
     )
     if zotero:
@@ -187,80 +201,76 @@ def add_citations_menu(parent_menu, db, grobject, callbacks, zotero=False):
             menu_item(
                 "list-add",
                 _("Add citation using Zotero"),
-                add_zotero_citation,
+                action.add_zotero_citation,
             )
         )
-    citation_list = grobject.obj.get_citation_list()
+    citation_list = target_object.obj.get_citation_list()
     if citation_list:
         removemenu = new_submenu(
             menu, "gramps-citation", _("Remove a citation")
         )
         add_double_separator(menu)
         work_list = []
-        for handle in citation_list:
-            citation = db.get_citation_from_handle(handle)
+        db = grstate.dbstate.db
+        for citation_handle in citation_list:
+            citation = db.get_citation_from_handle(citation_handle)
             text = citation_option_text(db, citation)
             work_list.append((text, citation))
         work_list.sort(key=lambda x: x[0])
         for text, citation in work_list:
+            action = CitationAction(grstate, citation, grobject, grchild)
             removemenu.add(
-                menu_item("list-remove", text, remove_citation, citation)
+                menu_item("list-remove", text, action.remove_citation)
             )
-            menu.add(
-                menu_item("gramps-citation", text, edit_citation, citation)
-            )
+            menu.add(menu_item("gramps-citation", text, action.edit_citation))
     parent_menu.append(submenu_item("gramps-citation", _("Citations"), menu))
 
 
 def add_notes_menu(
-    parent_menu, db, grobject, callbacks, include_children=False
+    grstate, parent_menu, grobject, grchild=None, include_children=False
 ):
     """
     Build and add the notes submenu.
     """
-    if not grobject.has_notes:
+    target_object = grchild or grobject
+    if not target_object.has_notes:
         return
-    (
-        add_new_note,
-        add_existing_note,
-        edit_note,
-        remove_note,
-    ) = callbacks
-    menu = new_menu("list-add", _("Add a new note"), add_new_note)
+    action = NoteAction(grstate, None, grobject, grchild)
+    menu = new_menu("list-add", _("Add a new note"), action.add_new_note)
     menu.add(
-        menu_item("list-add", _("Add an existing note"), add_existing_note)
+        menu_item(
+            "list-add", _("Add an existing note"), action.add_existing_note
+        )
     )
-    note_list = grobject.obj.get_note_list()
+    note_list = target_object.obj.get_note_list()
     if note_list:
         removemenu = new_submenu(menu, "gramps-notes", _("Remove a note"))
         add_double_separator(menu)
-        note_list = get_sorted_notes(db, note_list)
+        note_list = get_sorted_notes(grstate.dbstate.db, note_list)
         for text, note in note_list:
-            removemenu.add(menu_item("list-remove", text, remove_note, note))
-            menu.add(
-                menu_item("gramps-notes", text, edit_note, note.get_handle())
-            )
-    if include_children:
-        get_child_notes(menu, db, grobject, edit_note)
+            action = NoteAction(grstate, note, grobject, grchild)
+            removemenu.add(menu_item("list-remove", text, action.remove_note))
+            menu.add(menu_item("gramps-notes", text, action.edit_note))
+    if include_children and not grchild:
+        get_child_notes(menu, grstate, grobject, grchild)
     parent_menu.append(submenu_item("gramps-notes", _("Notes"), menu))
 
 
-def get_child_notes(menu, db, grobject, callback):
+def get_child_notes(menu, grstate, grobject, grchild):
     """
     Find and add child notes to menu.
     """
     handle_list = []
     for child_obj in grobject.obj.get_note_child_list():
-        for handle in child_obj.get_note_list():
-            if handle not in handle_list:
-                handle_list.append(handle)
-    note_list = get_sorted_notes(db, handle_list)
+        for note_handle in child_obj.get_note_list():
+            if note_handle not in handle_list:
+                handle_list.append(note_handle)
+    note_list = get_sorted_notes(grstate.dbstate.db, handle_list)
     if note_list:
         add_double_separator(menu)
         for text, note in note_list:
-            menu.add(
-                menu_item("gramps-notes", text, callback, note.get_handle())
-            )
+            action = NoteAction(grstate, note, grobject, grchild)
+            menu.add(menu_item("gramps-notes", text, action.edit_note))
 
 
 def get_sorted_notes(db, handle_list):
@@ -268,8 +278,8 @@ def get_sorted_notes(db, handle_list):
     Return a sorted note list.
     """
     note_list = []
-    for handle in handle_list:
-        note = db.get_note_from_handle(handle)
+    for note_handle in handle_list:
+        note = db.get_note_from_handle(note_handle)
         notetype = str(note.get_type())
         text = note.get()[:40].replace("\n", " ")
         if len(text) > 39:
@@ -280,17 +290,18 @@ def get_sorted_notes(db, handle_list):
     return note_list
 
 
-def add_privacy_menu_option(parent_menu, grobject, callback):
+def add_privacy_menu_option(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the privacy menu entry.
     """
-    if grobject.obj.get_privacy():
+    action = PrivacyAction(grstate, grobject, grchild)
+    if action.is_set():
         parent_menu.append(
-            menu_item("gramps-unlock", _("Make public"), callback, False)
+            menu_item("gramps-unlock", _("Make public"), action.toggle, False)
         )
     else:
         parent_menu.append(
-            menu_item("gramps-lock", _("Make private"), callback, True)
+            menu_item("gramps-lock", _("Make private"), action.toggle, True)
         )
 
 
@@ -303,45 +314,37 @@ def add_clipboard_menu_option(parent_menu, callback):
     )
 
 
-def add_bookmark_menu_option(parent_menu, db, grobject, callback):
+def add_bookmark_menu_option(grstate, parent_menu, grobject):
     """
     Build and add the bookmark menu entry.
     """
-    found = False
-    for bookmark in get_bookmarks(db, grobject.obj_type).get():
-        if bookmark == grobject.obj.get_handle():
-            found = True
-            break
-    if found:
+    action = BookmarkAction(grstate, grobject)
+    if action.is_set():
         parent_menu.append(
             menu_item(
-                "gramps-bookmark-delete", _("Unbookmark"), callback, False
+                "gramps-bookmark-delete", _("Unbookmark"), action.toggle, False
             )
         )
     else:
         parent_menu.append(
-            menu_item("gramps-bookmark", _("Bookmark"), callback, True)
+            menu_item("gramps-bookmark", _("Bookmark"), action.toggle, True)
         )
 
 
-def add_tags_menu(parent_menu, db, grobject, callbacks, sort_by_name=False):
+def add_tags_menu(grstate, parent_menu, grobject, sort_by_name=False):
     """
     Build and add the tags submenu.
     """
     if not grobject.has_tags:
         return
-    (
-        new_tag,
-        add_tag,
-        organize_tags,
-        remove_tag,
-    ) = callbacks
     menu = Gtk.Menu()
+    tag_list = grobject.obj.get_tag_list()
     tag_add_list = []
     tag_remove_list = []
-    for handle in db.get_tag_handles():
-        tag = db.get_tag_from_handle(handle)
-        if handle in grobject.obj.tag_list:
+    db = grstate.dbstate.db
+    for tag_handle in db.get_tag_handles():
+        tag = db.get_tag_from_handle(tag_handle)
+        if tag_handle in tag_list:
             tag_remove_list.append(tag)
         else:
             tag_add_list.append(tag)
@@ -350,77 +353,78 @@ def add_tags_menu(parent_menu, db, grobject, callbacks, sort_by_name=False):
             tag_list.sort(key=lambda x: x.name)
         else:
             tag_list.sort(key=lambda x: x.priority)
+    prepare_tag_menu_item(grstate, menu, grobject, tag_add_list, "list-add")
     prepare_tag_menu_item(
-        menu, tag_add_list, "list-add", _("Add a tag"), add_tag
+        grstate, menu, grobject, tag_remove_list, "list-remove"
     )
-    prepare_tag_menu_item(
-        menu, tag_remove_list, "list-remove", _("Remove a tag"), remove_tag
-    )
-    menu.add(menu_item("gramps-tag", _("Create new tag"), new_tag))
-    menu.add(menu_item("gramps-tag", _("Organize tags"), organize_tags))
+    action = TagAction(grstate, None, grobject)
+    menu.add(menu_item("gramps-tag", _("Create new tag"), action.new_tag))
+    menu.add(menu_item("gramps-tag", _("Organize tags"), action.organize_tags))
     parent_menu.append(submenu_item("gramps-tag", _("Tags"), menu))
 
 
-def prepare_tag_menu_item(parent_menu, tag_list, icon_name, label, callback):
+def prepare_tag_menu_item(grstate, parent_menu, grobject, tag_list, icon_name):
     """
     Prepare menu options for a tag action.
     """
     if tag_list:
+        if icon_name == "list-add":
+            label = _("Add a tag")
+        else:
+            label = _("Remove a tag")
         menu = Gtk.Menu()
         for tag in tag_list:
-            menu.add(menu_item(icon_name, tag.name, callback, tag.handle))
+            action = TagAction(grstate, tag, grobject)
+            if icon_name == "list-add":
+                menu.add(menu_item(icon_name, tag.name, action.add_tag))
+            else:
+                menu.add(menu_item(icon_name, tag.name, action.remove_tag))
         parent_menu.append(submenu_item("gramps-tag", label, menu))
 
 
-def add_urls_menu(parent_menu, grobject, callbacks):
+def add_urls_menu(grstate, parent_menu, grobject):
     """
     Build and add the urls submenu.
     """
     if not grobject.has_urls:
         return
-    (
-        add_url,
-        edit_url,
-        launch_url,
-        remove_url,
-    ) = callbacks
-    menu = new_menu("list-add", _("Add a url"), add_url)
-    if grobject.obj.get_url_list():
+    action = UrlAction(grstate, None, grobject)
+    menu = new_menu("list-add", _("Add a url"), action.add_url)
+    url_list = grobject.obj.get_url_list()
+    if url_list:
         editmenu = new_submenu(menu, "gramps-url", _("Edit a url"))
         removemenu = new_submenu(menu, "gramps-url", _("Remove a url"))
         add_double_separator(menu)
-        url_list = []
+        url_sort_list = []
         for url in grobject.obj.get_url_list():
             text = url.get_description()
             if not text:
                 text = url.get_path()
-            url_list.append((text, url))
-        url_list.sort(key=lambda x: x[0])
-        for text, url in url_list:
-            editmenu.add(menu_item("gramps-url", text, edit_url, url))
-            removemenu.add(menu_item("list-remove", text, remove_url, url))
-            menu.add(menu_item("gramps-url", text, launch_url, url))
+            url_sort_list.append((text, url))
+        url_sort_list.sort(key=lambda x: x[0])
+        for text, url in url_sort_list:
+            action = UrlAction(grstate, url, grobject)
+            editmenu.add(menu_item("gramps-url", text, action.edit_url))
+            removemenu.add(menu_item("list-remove", text, action.remove_url))
+            menu.add(menu_item("gramps-url", text, action.launch_url))
     parent_menu.append(submenu_item("gramps-url", _("Urls"), menu))
 
 
-def add_media_menu(parent_menu, db, grobject, callbacks):
+def add_media_menu(grstate, parent_menu, grobject):
     """
     Build and add the media submenu.
     """
     if not grobject.has_media:
         return
-    (
-        add_new_media,
-        add_existing_media,
-        edit_media_ref,
-        remove_media_ref,
-    ) = callbacks
-    menu = new_menu("list-add", _("Add a new media item"), add_new_media)
+    action = MediaAction(grstate, None, grobject)
+    menu = new_menu(
+        "list-add", _("Add a new media item"), action.add_new_media
+    )
     menu.add(
         menu_item(
             "list-add",
             _("Add an existing media item"),
-            add_existing_media,
+            action.add_existing_media,
         )
     )
     media_list = grobject.obj.get_media_list()
@@ -430,57 +434,56 @@ def add_media_menu(parent_menu, db, grobject, callbacks):
         )
         add_double_separator(menu)
         for media_ref in media_list:
-            media = db.get_media_from_handle(media_ref.ref)
+            MediaAction(grstate, grobject, media_ref)
+            media = grstate.dbstate.db.get_media_from_handle(media_ref.ref)
             text = media.get_description()
             removemenu.add(
-                menu_item("list-remove", text, remove_media_ref, media)
+                menu_item("list-remove", text, action.remove_media_reference)
             )
-            menu.add(menu_item("gramps-media", text, edit_media_ref, media))
+            menu.add(menu_item("gramps-media", text, action.edit_media))
     parent_menu.append(submenu_item("gramps-media", _("Media"), menu))
 
 
-def add_names_menu(parent_menu, grobject, callbacks):
+def add_names_menu(grstate, parent_menu, grobject):
     """
     Build and add the names submenu.
     """
-    (add_name, edit_name, remove_name) = callbacks
-    menu = new_menu("list-add", _("Add a new name"), add_name)
+    action = NameAction(grstate, grobject)
+    menu = new_menu("list-add", _("Add a new name"), action.add_name)
     name_list = grobject.obj.get_alternate_names()
     if name_list:
         removemenu = new_submenu(menu, "gramps-person", _("Remove a name"))
         add_double_separator(menu)
         name = grobject.obj.get_primary_name()
+        action = NameAction(grstate, name, grobject)
         given_name = name.get_regular_name()
-        menu.add(menu_item("gramps-person", given_name, edit_name, name))
+        menu.add(menu_item("gramps-person", given_name, action.edit_name))
         for name in name_list:
+            action = NameAction(grstate, name, grobject)
             given_name = name.get_regular_name()
             removemenu.add(
-                menu_item("list-remove", given_name, remove_name, name)
+                menu_item("list-remove", given_name, action.remove_name)
             )
-            menu.add(menu_item("gramps-person", given_name, edit_name, name))
+            menu.add(menu_item("gramps-person", given_name, action.edit_name))
     parent_menu.append(submenu_item("gramps-person", _("Names"), menu))
 
 
-def add_associations_menu(parent_menu, db, grobject, callbacks):
+def add_associations_menu(grstate, parent_menu, grobject):
     """
     Build and add the associations submenu.
     """
-    (
-        add_association_new_person,
-        add_association_existing_person,
-        edit_association,
-        remove_association,
-    ) = callbacks
+    db = grstate.dbstate.db
+    action = PersonAction(grstate, grobject)
     menu = new_menu(
         "list-add",
         _("Add an association for a new person"),
-        add_association_new_person,
+        action.add_new_person_reference,
     )
     menu.add(
         menu_item(
             "list-add",
             _("Add an association for an existing person"),
-            add_association_existing_person,
+            action.add_existing_person_reference,
         )
     )
     person_ref_list = grobject.obj.get_person_ref_list()
@@ -492,106 +495,102 @@ def add_associations_menu(parent_menu, db, grobject, callbacks):
         for person_ref in person_ref_list:
             person = db.get_person_from_handle(person_ref.ref)
             person_name = name_displayer.display(person)
+            action = PersonAction(grstate, grobject, person_ref)
             removemenu.add(
                 menu_item(
                     "list-remove",
                     person_name,
-                    remove_association,
-                    person_ref,
+                    action.remove_person_reference,
                 )
             )
             menu.add(
                 menu_item(
                     "gramps-person",
                     person_name,
-                    edit_association,
-                    person_ref,
+                    action.edit_person_reference,
                 )
             )
     parent_menu.append(submenu_item("gramps-person", _("Associations"), menu))
 
 
-def add_parents_menu(parent_menu, db, grobject, callbacks):
+def add_parents_menu(grstate, parent_menu, grobject):
     """
     Build and add the parents submenu.
     """
-    (add_new_parents, add_existing_parents, edit_family) = callbacks
+    db = grstate.dbstate.db
+    action = PersonAction(grstate, grobject)
     menu = new_menu(
-        "gramps-parents-add", _("Add a new set of parents"), add_new_parents
+        "gramps-parents-add",
+        _("Add a new set of parents"),
+        action.add_new_parents,
     )
     menu.add(
         menu_item(
             "gramps-parents-open",
             _("Add as child to an existing family"),
-            add_existing_parents,
+            action.add_existing_parents,
         )
     )
     parent_family_list = grobject.obj.get_parent_family_handle_list()
     if parent_family_list:
         menu.add(Gtk.SeparatorMenuItem())
-        for handle in parent_family_list:
-            family = db.get_family_from_handle(handle)
+        for family_handle in parent_family_list:
+            family = db.get_family_from_handle(family_handle)
             family_text = family_name(family, db)
+            action = FamilyAction(grstate, family)
             menu.add(
                 menu_item(
                     "gramps-parents",
                     family_text,
-                    edit_family,
-                    family,
-                    "Family",
+                    action.edit_family,
                 )
             )
     parent_menu.append(submenu_item("gramps-parents", _("Parents"), menu))
 
 
-def add_partners_menu(parent_menu, db, grobject, callbacks):
+def add_partners_menu(grstate, parent_menu, grobject):
     """
     Build and add submenu the partners submenu.
     """
-    (add_new_family, edit_family) = callbacks
+    db = grstate.dbstate.db
+    action = PersonAction(grstate, grobject)
     menu = new_menu(
-        "gramps-spouse", _("Add as parent of new family"), add_new_family
+        "gramps-spouse",
+        _("Add as parent of new family"),
+        action.add_new_family,
     )
     family_list = grobject.obj.get_family_handle_list()
     if family_list:
         menu.add(Gtk.SeparatorMenuItem())
-        for handle in family_list:
-            family = db.get_family_from_handle(handle)
+        for family_handle in family_list:
+            family = db.get_family_from_handle(family_handle)
             family_text = family_name(family, db)
+            action = FamilyAction(grstate, family)
             menu.add(
                 menu_item(
                     "gramps-spouse",
                     family_text,
-                    edit_family,
-                    family,
-                    "Family",
+                    action.edit_family,
                 )
             )
     parent_menu.append(submenu_item("gramps-spouse", _("Spouses"), menu))
 
 
-def add_participants_menu(parent_menu, callbacks, participants):
+def add_participants_menu(grstate, parent_menu, grobject, participants):
     """
     Build and add the participants submenu.
     """
-    (
-        add_new_participant,
-        add_existing_participant,
-        goto_person,
-        edit_primary_object,
-        edit_participant,
-        remove_participant,
-    ) = callbacks
+    action = EventAction(grstate, grobject)
     menu = new_menu(
         "gramps-person",
         _("Add a new person as a participant"),
-        add_new_participant,
+        action.add_new_participant,
     )
     menu.add(
         menu_item(
             "gramps-person",
             _("Add an existing person as a participant"),
-            add_existing_participant,
+            action.add_existing_participant,
         )
     )
     if len(participants) > 1:
@@ -602,34 +601,29 @@ def add_participants_menu(parent_menu, callbacks, participants):
         )
         add_double_separator(menu)
         participant_list = get_sorted_participants(participants)
-        for (text, person, event_ref) in participant_list:
-            handle = person.get_handle()
-            gotomenu.add(menu_item("gramps-person", text, goto_person, handle))
+        for (text, person, dummy_event_ref) in participant_list:
+            action = PersonAction(grstate, person)
+            gotomenu.add(menu_item("gramps-person", text, action.goto_person))
             editmenu.add(
                 menu_item(
                     "gramps-person",
                     text,
-                    edit_primary_object,
-                    person,
-                    "Person",
+                    action.edit_person,
                 )
             )
+            action = EventAction(grstate, grobject, person)
             removemenu.add(
                 menu_item(
                     "list-remove",
                     text,
-                    remove_participant,
-                    person,
-                    event_ref,
+                    action.remove_participant,
                 )
             )
             menu.add(
                 menu_item(
                     "gramps-person",
                     text,
-                    edit_participant,
-                    person,
-                    event_ref,
+                    action.edit_participant,
                 )
             )
         if len(removemenu) == 0:
@@ -650,22 +644,20 @@ def get_sorted_participants(participants):
     return participant_list
 
 
-def add_repositories_menu(parent_menu, db, grobject, callbacks):
+def add_repositories_menu(grstate, parent_menu, grobject):
     """
     Build and add the repositories submenu.
     """
-    (
-        add_new_repository,
-        add_existing_repository,
-        edit_repo_ref,
-        remove_repo_ref,
-    ) = callbacks
-    menu = new_menu("list-add", _("Add a new repository"), add_new_repository)
+    db = grstate.dbstate.db
+    action = SourceAction(grstate, grobject)
+    menu = new_menu(
+        "list-add", _("Add a new repository"), action.add_new_repository
+    )
     menu.add(
         menu_item(
             "list-add",
             _("Add an existing repository"),
-            add_existing_repository,
+            action.add_existing_repository,
         )
     )
     reporef_list = grobject.obj.get_reporef_list()
@@ -677,22 +669,117 @@ def add_repositories_menu(parent_menu, db, grobject, callbacks):
         for repo_ref in reporef_list:
             repository = db.get_repository_from_handle(repo_ref.ref)
             repository_name = repository.get_name()
+            action = SourceAction(grstate, grobject, repo_ref)
             removemenu.add(
                 menu_item(
                     "list-remove",
                     repository_name,
-                    remove_repo_ref,
-                    repo_ref,
+                    action.remove_repository_reference,
                 )
             )
             menu.add(
                 menu_item(
                     "gramps-repository",
                     repository_name,
-                    edit_repo_ref,
-                    repo_ref,
+                    action.edit_repository_reference,
                 )
             )
     parent_menu.append(
         submenu_item("gramps-repository", _("Repositories"), menu)
     )
+
+
+def add_person_menu_options(grstate, parent_menu, grobject, family, context):
+    """
+    Add context sensitive person menu options.
+    """
+    action = FamilyAction(grstate, family, grobject)
+    if context in ["parent", "spouse", "family", "sibling", "child"]:
+        add_family_event_option(parent_menu, action)
+    if context in ["parent", "spouse"]:
+        add_family_child_options(parent_menu, action)
+        parent_menu.append(
+            menu_item(
+                "list-remove",
+                _("Remove parent from this family"),
+                action.remove_partner,
+            )
+        )
+        if has_spouse(family, grobject.obj):
+            parent_menu.append(
+                menu_item(
+                    "list-remove",
+                    _("Remove spouse from this family"),
+                    action.remove_spouse,
+                )
+            )
+    if context in ["sibling", "child"]:
+        if not is_preferred_parents(family, grobject.obj):
+            parent_menu.append(
+                menu_item(
+                    "list-remove",
+                    _("Make current parents preferred"),
+                    action.set_main_parents,
+                )
+            )
+        parent_menu.append(
+            menu_item(
+                "list-remove",
+                _("Remove child from this family"),
+                action.remove_child,
+            )
+        )
+
+
+def add_family_event_option(parent_menu, action):
+    """
+    Add the family event options.
+    """
+    parent_menu.append(
+        menu_item(
+            "gramps-event",
+            _("Add a new family event"),
+            action.add_new_event,
+        )
+    )
+
+
+def add_family_child_options(parent_menu, action):
+    """
+    Add the family child options.
+    """
+    parent_menu.append(
+        menu_item(
+            "gramps-person",
+            _("Add a new child to the family"),
+            action.add_new_child,
+        )
+    )
+    parent_menu.append(
+        menu_item(
+            "gramps-person",
+            _("Add an existing child to the family"),
+            action.add_existing_child,
+        )
+    )
+
+
+def is_preferred_parents(family, person):
+    """
+    Return true if family the preferred one.
+    """
+    main_parents = person.get_main_parents_family_handle()
+    return family.get_handle() == main_parents
+
+
+def has_spouse(family, parent):
+    """
+    Return true if parent has a spouse.
+    """
+    father_handle = family.get_father_handle()
+    if father_handle and father_handle != parent.get_handle():
+        return True
+    mother_handle = family.get_mother_handle()
+    if mother_handle and mother_handle != parent.get_handle():
+        return True
+    return False

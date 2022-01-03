@@ -23,7 +23,7 @@
 #
 
 """
-SecondaryGrampsFrame
+SecondaryFrame
 """
 
 # ------------------------------------------------------------------------
@@ -66,12 +66,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# SecondaryGrampsFrame class
+# SecondaryFrame class
 #
 # ------------------------------------------------------------------------
-class SecondaryGrampsFrame(GrampsFrame):
+class SecondaryFrame(GrampsFrame):
     """
-    The SecondaryGrampsFrame class provides core methods for constructing the
+    The SecondaryFrame class provides core methods for constructing the
     view and working with the secondary Gramps object it exposes.
     """
 
@@ -129,33 +129,19 @@ class SecondaryGrampsFrame(GrampsFrame):
         context_menu = Gtk.Menu()
         context_menu.append(self._edit_object_option())
         self.add_custom_actions(context_menu)
-        callbacks = (
-            self.add_new_source_citation,
-            self.add_existing_source_citation,
-            self.add_existing_citation,
-            self.add_zotero_citation,
-            self.edit_citation,
-            self.remove_citation,
-        )
         zotero = bool(self.zotero)
         add_citations_menu(
+            self.grstate,
             context_menu,
-            self.grstate.dbstate.db,
+            self.primary,
             self.secondary,
-            callbacks,
             zotero=zotero,
         )
-        callbacks = (
-            self.add_new_note,
-            self.add_existing_note,
-            self.edit_note,
-            self.remove_note,
-        )
         add_notes_menu(
-            context_menu, self.grstate.dbstate.db, self.secondary, callbacks
+            self.grstate, context_menu, self.primary, self.secondary
         )
         add_privacy_menu_option(
-            context_menu, self.secondary, self.change_privacy
+            self.grstate, context_menu, self.primary, self.secondary
         )
         return show_menu(context_menu, self, event)
 

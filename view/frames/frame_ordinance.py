@@ -19,7 +19,7 @@
 #
 
 """
-LDSOrdinanceGrampsFrame
+LDSOrdinanceFrame
 """
 
 # ------------------------------------------------------------------------
@@ -39,23 +39,23 @@ from gramps.gen.utils.db import family_name
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
 from ..common.common_utils import get_person_color_css
-from .frame_secondary import SecondaryGrampsFrame
+from .frame_secondary import SecondaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# LDSOrdinanceGrampsFrame class
+# LDSOrdinanceFrame class
 #
 # ------------------------------------------------------------------------
-class LDSOrdinanceGrampsFrame(SecondaryGrampsFrame):
+class LDSOrdinanceFrame(SecondaryFrame):
     """
-    The LDSOrdinanceGrampsFrame exposes the basic facts about an Ordinance.
+    The LDSOrdinanceFrame exposes the basic facts about an Ordinance.
     """
 
     def __init__(self, grstate, groptions, obj, ordinance):
-        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, ordinance)
+        SecondaryFrame.__init__(self, grstate, groptions, obj, ordinance)
         self.__add_ordinance_title(ordinance)
         self.__add_ordinance_date(ordinance)
         self.__add_ordinance_place(ordinance)

@@ -19,7 +19,7 @@
 #
 
 """
-SourcesGrampsFrameGroup
+SourcesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,25 +34,25 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_source import SourceGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import SourceFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# SourcesGrampsFrameGroup class
+# SourcesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class SourcesGrampsFrameGroup(GrampsFrameGroupList):
+class SourcesFrameGroup(FrameGroupList):
     """
-    The SourcesGrampsFrameGroup class provides a container for viewing and
+    The SourcesFrameGroup class provides a container for viewing and
     managing all of the sources associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         sources_list = []
@@ -72,7 +72,7 @@ class SourcesGrampsFrameGroup(GrampsFrameGroupList):
 
         if sources_list:
             for source in sources_list:
-                frame = SourceGrampsFrame(
+                frame = SourceFrame(
                     grstate,
                     groptions,
                     source,

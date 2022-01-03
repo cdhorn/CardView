@@ -19,7 +19,7 @@
 #
 
 """
-GrampsFrameGroup constants
+FrameGroup constants
 """
 
 # ------------------------------------------------------------------------
@@ -34,94 +34,94 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .group_addresses import AddressesGrampsFrameGroup
-from .group_associations import AssociationsGrampsFrameGroup
-from .group_attributes import AttributesGrampsFrameGroup
-from .group_citations import CitationsGrampsFrameGroup
-from .group_media import MediaGrampsFrameGroup
-from .group_names import NamesGrampsFrameGroup
-from .group_notes import NotesGrampsFrameGroup
-from .group_ordinances import LDSOrdinancesGrampsFrameGroup
+from .group_addresses import AddressesFrameGroup
+from .group_associations import AssociationsFrameGroup
+from .group_attributes import AttributesFrameGroup
+from .group_citations import CitationsFrameGroup
+from .group_media import MediaFrameGroup
+from .group_names import NamesFrameGroup
+from .group_notes import NotesFrameGroup
+from .group_ordinances import LDSOrdinancesFrameGroup
 from .group_places import (
-    EnclosingPlacesGrampsFrameGroup,
-    EnclosedPlacesGrampsFrameGroup,
+    EnclosingPlacesFrameGroup,
+    EnclosedPlacesFrameGroup,
 )
-from .group_repositories import RepositoriesGrampsFrameGroup
-from .group_sources import SourcesGrampsFrameGroup
-from .group_timeline import TimelineGrampsFrameGroup
-from .group_urls import UrlsGrampsFrameGroup
+from .group_repositories import RepositoriesFrameGroup
+from .group_sources import SourcesFrameGroup
+from .group_timeline import TimelineFrameGroup
+from .group_urls import UrlsFrameGroup
 
 _ = glocale.translation.sgettext
 
 
 GRAMPS_GROUPS = {
     "citation": (
-        CitationsGrampsFrameGroup,
+        CitationsFrameGroup,
         _("Citation"),
         _("Citations"),
     ),
     "timeline": (
-        TimelineGrampsFrameGroup,
+        TimelineFrameGroup,
         _("Timeline Event"),
         _("Timeline Events"),
     ),
     "media": (
-        MediaGrampsFrameGroup,
+        MediaFrameGroup,
         _("Media Item"),
         _("Media Items"),
     ),
     "ldsord": (
-        LDSOrdinancesGrampsFrameGroup,
+        LDSOrdinancesFrameGroup,
         _("Ordinance"),
         _("Ordinances"),
     ),
     "source": (
-        SourcesGrampsFrameGroup,
+        SourcesFrameGroup,
         _("Source"),
         _("Sources"),
     ),
     "repository": (
-        RepositoriesGrampsFrameGroup,
+        RepositoriesFrameGroup,
         _("Repository"),
         _("Repositories"),
     ),
     "note": (
-        NotesGrampsFrameGroup,
+        NotesFrameGroup,
         _("Note"),
         _("Notes"),
     ),
     "association": (
-        AssociationsGrampsFrameGroup,
+        AssociationsFrameGroup,
         _("Association"),
         _("Associations"),
     ),
     "address": (
-        AddressesGrampsFrameGroup,
+        AddressesFrameGroup,
         _("Address"),
         _("Addresses"),
     ),
     "attribute": (
-        AttributesGrampsFrameGroup,
+        AttributesFrameGroup,
         _("Attribute"),
         _("Attributes"),
     ),
     "enclosing": (
-        EnclosingPlacesGrampsFrameGroup,
+        EnclosingPlacesFrameGroup,
         _("Enclosing Place"),
         _("Enclosing Places"),
     ),
     "enclosed": (
-        EnclosedPlacesGrampsFrameGroup,
+        EnclosedPlacesFrameGroup,
         _("Enclosed Place"),
         _("Enclosed Places"),
     ),
     "name": (
-        NamesGrampsFrameGroup,
+        NamesFrameGroup,
         _("Name"),
         _("Names"),
     ),
     "url": (
-        UrlsGrampsFrameGroup,
+        UrlsFrameGroup,
         _("Url"),
         _("Urls"),
     ),

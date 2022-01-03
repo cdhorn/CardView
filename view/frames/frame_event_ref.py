@@ -19,7 +19,7 @@
 #
 
 """
-EventRefGrampsFrame.
+EventRefFrame.
 """
 
 # ------------------------------------------------------------------------
@@ -29,36 +29,35 @@ EventRefGrampsFrame.
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
-from gramps.gen.errors import WindowActiveError
 from gramps.gen.utils.db import family_name
-from gramps.gui.editors import EditEventRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import EventAction
 from ..menus.menu_utils import menu_item
-from .frame_event import EventGrampsFrame
+from .frame_event import EventFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# EventRefGrampsFrame class
+# EventRefFrame class
 #
 # ------------------------------------------------------------------------
-class EventRefGrampsFrame(EventGrampsFrame):
+class EventRefFrame(EventFrame):
     """
-    The EventRefGrampsFrame exposes some of the basic facts about an Event
+    The EventRefFrame exposes some of the basic facts about an Event
     for a Person or Family
     """
 
     def __init__(self, grstate, groptions, obj, event_ref):
         event = grstate.fetch("Event", event_ref.ref)
         reference_tuple = (obj, event_ref)
-        EventGrampsFrame.__init__(
+        EventFrame.__init__(
             self, grstate, groptions, event, reference_tuple=reference_tuple
         )
         if groptions.ref_mode:
@@ -85,31 +84,16 @@ class EventRefGrampsFrame(EventGrampsFrame):
         """
         Add custom action menu items for the event reference.
         """
+        action = EventAction(self.grstate, self.primary, self.reference_base)
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_event_ref))
+        context_menu.append(
+            menu_item("gtk-edit", label, action.edit_participant)
+        )
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
             menu_item(
                 "list-remove",
                 label,
-                self.remove_participant,
-                self.reference_base.obj,
-                self.reference.obj,
+                action.remove_participant,
             )
         )
-
-    def edit_event_ref(self, *_dummy_obj):
-        """
-        Launch the desired editor based on object type.
-        """
-        try:
-            EditEventRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                self.reference.obj,
-                self.save_ref,
-            )
-        except WindowActiveError:
-            pass

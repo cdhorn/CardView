@@ -19,7 +19,7 @@
 #
 
 """
-UrlsGrampsFrameGroup
+UrlsFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,25 +34,24 @@ import re
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_note_url import NoteUrlGrampsFrame
-from ..frames.frame_url import UrlGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import NoteUrlFrame, UrlFrame
+from .group_list import FrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# UrlsGrampsFrameGroup class
+# UrlsFrameGroup class
 #
 # ------------------------------------------------------------------------
-class UrlsGrampsFrameGroup(GrampsFrameGroupList):
+class UrlsFrameGroup(FrameGroupList):
     """
-    The UrlsGrampsFrameGroup class provides a container for launching all
+    The UrlsFrameGroup class provides a container for launching all
     of the urls associated with an object. It gathers them from the url
     list but also extracts what it can from the notes as well.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         self.parse_urls()
@@ -66,7 +65,7 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         """
         if self.group_base.has_urls:
             for url in self.group_base.obj.get_url_list():
-                frame = UrlGrampsFrame(
+                frame = UrlFrame(
                     self.grstate, self.groptions, self.group_base.obj, url
                 )
                 self.add_frame(frame)
@@ -100,5 +99,5 @@ class UrlsGrampsFrameGroup(GrampsFrameGroupList):
         text = link
         if text[-1:] == ".":
             text = text[:-1]
-        frame = NoteUrlGrampsFrame(self.grstate, self.groptions, note, text)
+        frame = NoteUrlFrame(self.grstate, self.groptions, note, text)
         self.add_frame(frame)

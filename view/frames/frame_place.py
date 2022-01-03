@@ -19,7 +19,7 @@
 #
 
 """
-PlaceGrampsFrame
+PlaceFrame
 """
 
 # ------------------------------------------------------------------------
@@ -35,36 +35,32 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.db import DbTxn
 from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Place, PlaceRef
-from gramps.gui.editors import EditPlaceRef
-from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import PlaceAction
 from ..menus.menu_utils import menu_item
-from .frame_reference import ReferenceGrampsFrame
+from .frame_reference import ReferenceFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PlaceGrampsFrame Class
+# PlaceFrame Class
 #
 # ------------------------------------------------------------------------
-class PlaceGrampsFrame(ReferenceGrampsFrame):
+class PlaceFrame(ReferenceFrame):
     """
-    The PlaceGrampsFrame exposes some of the basic facts about a Place.
+    The PlaceFrame exposes some of the basic facts about a Place.
     """
 
     def __init__(self, grstate, groptions, place, reference_tuple=None):
-        ReferenceGrampsFrame.__init__(
+        ReferenceFrame.__init__(
             self, grstate, groptions, place, reference_tuple=reference_tuple
         )
         self.__add_place_title(place)
@@ -201,93 +197,18 @@ class PlaceGrampsFrame(ReferenceGrampsFrame):
         """
         Add context menu items unique to a place.
         """
+        action = PlaceAction(self.grstate, self.primary)
         context_menu.append(
             menu_item(
                 "gramps-place",
                 _("Add a new enclosed place"),
-                self.add_new_enclosed_place,
+                action.add_new_enclosed_place,
             )
         )
         context_menu.append(
             menu_item(
                 "gramps-place",
                 _("Add an existing enclosed place"),
-                self.add_existing_enclosed_place,
+                action.add_existing_enclosed_place,
             )
         )
-
-    def add_new_enclosed_place(self, *_dummy_args):
-        """
-        Add a new enclosed place.
-        """
-        place = Place()
-        place_ref = PlaceRef()
-        place_ref.ref = self.primary.obj.get_handle()
-        place.add_placeref(place_ref)
-        try:
-            EditPlaceRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                place,
-                place_ref,
-                self.save_place_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def add_existing_enclosed_place(self, *_dummy_args):
-        """
-        Add an existing place as an enclosed place.
-        """
-        select_place = SelectorFactory("Place")
-        skip = set([self.primary.obj.get_handle()])
-        dialog = select_place(
-            self.grstate.dbstate, self.grstate.uistate, skip=skip
-        )
-        place = dialog.run()
-        if place:
-            place_ref = PlaceRef()
-            place_ref.ref = self.primary.obj.get_handle()
-            place.add_placeref(place_ref)
-            try:
-                EditPlaceRef(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    place,
-                    place_ref,
-                    self.save_place_ref,
-                )
-            except WindowActiveError:
-                pass
-
-    def save_place_ref(self, place_ref, saved_place):
-        """
-        Update the place title if needed.
-        """
-        place = self.grstate.dbstate.db.get_place_from_handle(
-            saved_place.get_handle()
-        )
-        if not place.get_title():
-            place_name = place.get_name().get_value()
-            if place_ref and place_ref.ref:
-                top_place = self.grstate.fetch("Place", place_ref.ref)
-                if top_place:
-                    top_place_name = top_place.get_name().get_value()
-                    if top_place_name:
-                        place_name = ", ".join((top_place_name, place_name))
-            if place_name:
-                message = " ".join(
-                    (
-                        _("Updating"),
-                        _("Place"),
-                        _("Title"),
-                        place_name,
-                        _("for"),
-                        place.get_gramps_id(),
-                    )
-                )
-                with DbTxn(message, self.grstate.dbstate.db) as trans:
-                    place.set_title(place_name)
-                    self.grstate.dbstate.db.commit_place(place, trans)

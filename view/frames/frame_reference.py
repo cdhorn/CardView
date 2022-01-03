@@ -19,7 +19,7 @@
 #
 
 """
-ReferenceGrampsFrame
+ReferenceFrame
 """
 
 # ------------------------------------------------------------------------
@@ -34,7 +34,7 @@ import pickle
 # GTK modules
 #
 # ------------------------------------------------------------------------
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
@@ -42,17 +42,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Attribute, Citation, Note, Source
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.dialog import WarningDialog
-from gramps.gui.editors import (
-    EditAttribute,
-    EditCitation,
-    EditNote,
-    EditSource,
-)
-from gramps.gui.selectors import SelectorFactory
 from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
@@ -60,6 +50,7 @@ from gramps.gui.utils import match_primary_mask
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import CitationAction, NoteAction
 from ..common.common_classes import GrampsContext
 from ..common.common_const import (
     BUTTON_MIDDLE,
@@ -69,9 +60,7 @@ from ..common.common_const import (
 from ..common.common_utils import (
     button_pressed,
     button_released,
-    describe_object,
 )
-from ..config.config_selectors import get_attribute_types
 from ..menus.menu_config import build_config_menu
 from ..menus.menu_utils import (
     add_attributes_menu,
@@ -80,23 +69,23 @@ from ..menus.menu_utils import (
     add_privacy_menu_option,
     show_menu,
 )
-from .frame_primary import PrimaryGrampsFrame
+from .frame_primary import PrimaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# ReferenceGrampsFrame class
+# ReferenceFrame class
 #
 # ------------------------------------------------------------------------
-class ReferenceGrampsFrame(PrimaryGrampsFrame):
+class ReferenceFrame(PrimaryFrame):
     """
-    The ReferenceGrampsFrame class provides support for object References.
+    The ReferenceFrame class provides support for object References.
     """
 
     def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
-        PrimaryGrampsFrame.__init__(
+        PrimaryFrame.__init__(
             self,
             grstate,
             groptions,
@@ -129,11 +118,30 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
             eventbox=self.ref_eventbox,
             drag_data_get=self.drag_data_ref_get,
         )
-        self.enable_drop(
+        self.enable_ref_drop(
             eventbox=self.ref_eventbox,
             dnd_drop_targets=self.dnd_drop_ref_targets,
             drag_data_received=self.drag_data_ref_received,
         )
+
+    def enable_ref_drop(self, eventbox, dnd_drop_targets, drag_data_received):
+        """
+        Enabled self as a basic drop target.
+        """
+        if self.reference.has_notes:
+            for target in DdTargets.all_text_targets():
+                dnd_drop_targets.append(target)
+            dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+            dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+        if self.reference.has_attributes:
+            dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
+        if self.reference.has_citations:
+            dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+            dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+        eventbox.drag_dest_set(
+            Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
+        )
+        eventbox.connect("drag-data-received", drag_data_received)
 
     def drag_data_ref_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
@@ -176,16 +184,37 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
                 return self.dropped_ref_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
                 if DdTargets.NOTE_LINK.drag_type == dnd_type:
-                    self.added_ref_note(obj_or_handle)
-                elif DdTargets.CITATION_LINK.drag_type == dnd_type:
-                    self.added_ref_citation(obj_or_handle)
+                    action = NoteAction(
+                        self.grstate, None, self.reference_base, self.reference
+                    )
+                    action.added_note(obj_or_handle)
+                    return True
+                if DdTargets.CITATION_LINK.drag_type == dnd_type:
+                    action = CitationAction(
+                        self.grstate, None, self.reference_base, self.reference
+                    )
+                    action.added_citation(obj_or_handle)
+                    return True
+                if DdTargets.SOURCE_LINK.drag_type == dnd_type:
+                    action = CitationAction(
+                        self.grstate, None, self.reference_base, self.reference
+                    )
+                    action.add_new_citation(obj_or_handle)
+                    return True
+        return False
 
     def dropped_ref_text(self, data):
         """
         Examine and try to handle dropped text in a reasonable manner.
         """
         if data and self.reference.has_notes:
-            self.add_new_ref_note(None, content=data)
+            action = NoteAction(
+                self.grstate, None, self.reference_base, self.reference
+            )
+            action.set_content(data)
+            action.add_new_note()
+            return True
+        return False
 
     def cb_ref_button_pressed(self, obj, event):
         """
@@ -228,39 +257,22 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         """
         context_menu = Gtk.Menu()
         self.add_ref_custom_actions(context_menu)
-        callbacks = (
-            self.add_ref_attribute,
-            self.edit_ref_attribute,
-            self.remove_ref_attribute,
-        )
-        add_attributes_menu(context_menu, self.reference, callbacks)
-        callbacks = (
-            self.add_new_ref_source_citation,
-            self.add_existing_ref_source_citation,
-            self.add_existing_ref_citation,
-            self.add_zotero_ref_citation,
-            self.edit_citation,
-            self.remove_ref_citation,
+        add_attributes_menu(
+            self.grstate, context_menu, self.reference_base, self.reference
         )
         zotero = bool(self.zotero)
         add_citations_menu(
+            self.grstate,
             context_menu,
-            self.grstate.dbstate.db,
+            self.reference_base,
             self.reference,
-            callbacks,
             zotero=zotero,
         )
-        callbacks = (
-            self.add_new_ref_note,
-            self.add_existing_ref_note,
-            self.edit_note,
-            self.remove_ref_note,
-        )
         add_notes_menu(
-            context_menu, self.grstate.dbstate.db, self.reference, callbacks
+            self.grstate, context_menu, self.reference_base, self.reference
         )
         add_privacy_menu_option(
-            context_menu, self.reference, self.change_ref_privacy
+            self.grstate, context_menu, self.reference_base, self.reference
         )
         context_menu.add(Gtk.SeparatorMenuItem())
         reference_type = self._get_reference_type()
@@ -291,354 +303,6 @@ class ReferenceGrampsFrame(PrimaryGrampsFrame):
         elif self.reference.obj_type == "PlaceRef":
             text = _("Place")
         return " ".join((text, _("reference")))
-
-    def save_ref(self, obj_ref, _dummy_var1=None):
-        """
-        Save the edited or modified object.
-        """
-        if not obj_ref:
-            return
-        message = " ".join(
-            (
-                _("Updated"),
-                self.reference.obj_lang,
-                self.primary.obj.get_gramps_id(),
-                _("for"),
-                self.reference_base.obj_lang,
-                self.reference_base.obj.get_gramps_id(),
-            )
-        )
-        self.reference_base.commit(self.grstate, message)
-
-    def _commit_ref_message(self, obj_type, obj_gramps_id, action="add"):
-        """
-        Construct commit message for a reference.
-        """
-        if action == "add":
-            label = _("Added")
-            preposition = _("to")
-        elif action == "remove":
-            label = _("Removed")
-            preposition = _("from")
-        else:
-            label = _("Updated")
-            preposition = _("for")
-
-        return " ".join(
-            (
-                label,
-                obj_type,
-                obj_gramps_id,
-                preposition,
-                self.reference.obj_lang,
-                self.primary.obj.get_gramps_id(),
-                _("for"),
-                self.reference_base.obj_lang,
-                self.reference_base.obj.get_gramps_id(),
-            )
-        )
-
-    def edit_ref_attribute(self, _dummy_obj, attribute):
-        """
-        Edit an attribute.
-        """
-        attribute_types = get_attribute_types(
-            self.grstate.dbstate.db, self.primary.obj_type
-        )
-        try:
-            EditAttribute(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                attribute,
-                "",
-                attribute_types,
-                self._edited_ref_attribute,
-            )
-        except WindowActiveError:
-            pass
-
-    def _edited_ref_attribute(self, attribute):
-        """
-        Save edited attribute.
-        """
-        if attribute:
-            message = self._commit_ref_message(
-                _("Attribute"), attribute.get_type(), action="update"
-            )
-            self.reference_base.commit(self.grstate, message)
-
-    def add_ref_attribute(self, _dummy_obj):
-        """
-        Add a new attribute.
-        """
-        attribute_types = get_attribute_types(
-            self.grstate.dbstate.db, self.primary.obj_type
-        )
-        try:
-            attribute = Attribute()
-            EditAttribute(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                attribute,
-                "",
-                attribute_types,
-                self.added_ref_attribute,
-            )
-        except WindowActiveError:
-            pass
-
-    def added_ref_attribute(self, attribute):
-        """
-        Save the new attribute to finish adding it.
-        """
-        if attribute:
-            message = self._commit_ref_message(
-                _("Attribute"), str(attribute.get_type())
-            )
-            self.reference.obj.add_attribute(attribute)
-            self.reference_base.commit(self.grstate, message)
-
-    def remove_ref_attribute(self, _dummy_obj, attribute):
-        """
-        Remove the given attribute from the current object.
-        """
-        if not attribute:
-            return
-        text = describe_object(self.grstate.dbstate.db, attribute)
-        prefix = _(
-            "You are about to remove the following attribute from this object:"
-        )
-        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
-            message = self._commit_ref_message(
-                _("Attribute"), str(attribute.get_type()), action="remove"
-            )
-            self.reference.obj.remove_attribute(attribute)
-            self.reference_base.commit(self.grstate, message)
-
-    def add_new_ref_source_citation(self, _dummy_obj):
-        """
-        Add a new source from which to create a new citation.
-        """
-        source = Source()
-        try:
-            EditSource(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                source,
-                self._add_new_ref_citation,
-            )
-        except WindowActiveError:
-            pass
-
-    def add_existing_ref_source_citation(self, _dummy_obj):
-        """
-        Select an existing source from which to create a citation.
-        """
-        select_source = SelectorFactory("Source")
-        dialog = select_source(self.grstate.dbstate, self.grstate.uistate)
-        source_handle = dialog.run()
-        if source_handle:
-            self._add_new_ref_citation(source_handle)
-
-    def _add_new_ref_citation(self, obj_or_handle):
-        """
-        Add a new citation.
-        """
-        if isinstance(obj_or_handle, str):
-            source = self.fetch("Source", obj_or_handle)
-        else:
-            source = obj_or_handle
-        citation = Citation()
-        citation.set_reference_handle(source.get_handle())
-        try:
-            EditCitation(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                citation,
-                source,
-                self._added_ref_citation,
-            )
-        except WindowActiveError:
-            pass
-
-    def _added_ref_citation(self, handle):
-        """
-        Add the new or existing citation to the current object.
-        """
-        if handle and self.reference.obj.add_citation(handle):
-            citation = self.fetch("Citation", handle)
-            message = self._commit_ref_message(
-                _("Citation"), citation.get_gramps_id()
-            )
-            self.reference_base.commit(self.grstate, message)
-
-    def add_existing_ref_citation(self, _dummy_obj):
-        """
-        Add an existing citation.
-        """
-        select_citation = SelectorFactory("Citation")
-        selector = select_citation(
-            self.grstate.dbstate, self.grstate.uistate, []
-        )
-        selection = selector.run()
-        if selection:
-            if isinstance(selection, Source):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        Citation(),
-                        selection,
-                        callback=self._added_ref_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            elif isinstance(selection, Citation):
-                try:
-                    EditCitation(
-                        self.grstate.dbstate,
-                        self.grstate.uistate,
-                        [],
-                        selection,
-                        callback=self._added_ref_citation,
-                    )
-                except WindowActiveError:
-                    pass
-            else:
-                raise ValueError("Selection must be either source or citation")
-
-    def add_zotero_ref_citation(self, _dummy_obj):
-        """
-        Add citation and possible sources as well using Zotero picker.
-        """
-        if self.zotero.online:
-            import_notes = self.grstate.config.get(
-                "options.global.general.zotero-enabled-notes"
-            )
-            self.zotero.add_citation(
-                self.reference_base.obj,
-                self.reference.obj,
-                import_notes=import_notes,
-            )
-        else:
-            WarningDialog(
-                _("Could Not Connect To Local Zotero Client"),
-                _(
-                    "A connection test to the local Zotero client using "
-                    "the Better BibTex Zotero extension failed. The local "
-                    "Zotero client needs to be running and extension "
-                    "installed in order to use it as a citation picker."
-                ),
-                parent=self.grstate.uistate.window,
-            )
-
-    def remove_ref_citation(self, _dummy_obj, citation):
-        """
-        Remove the given citation from the current object.
-        """
-        if not citation:
-            return
-        text = describe_object(self.grstate.dbstate.db, citation)
-        prefix = _(
-            "You are about to remove the following citation from this object:"
-        )
-        extra = _(
-            "This removes the reference but does not delete the citation."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self._commit_ref_message(
-                _("Citation"), citation.get_gramps_id(), action="remove"
-            )
-            self.reference.obj.remove_citation_references(
-                [citation.get_handle()]
-            )
-            self.reference_base.commit(self.grstate, message)
-
-    def add_new_ref_note(self, _dummy_obj, content=None):
-        """
-        Add a new note.
-        """
-        note = Note()
-        if content:
-            note.set(content)
-        try:
-            EditNote(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                note,
-                self.added_ref_note,
-            )
-        except WindowActiveError:
-            pass
-
-    def added_ref_note(self, handle):
-        """
-        Add the new or existing note to the current object.
-        """
-        if handle and self.reference.obj.add_note(handle):
-            note = self.fetch("Note", handle)
-            message = self._commit_ref_message(_("Note"), note.get_gramps_id())
-            self.reference_base.commit(self.grstate, message)
-
-    def add_existing_ref_note(self, _dummy_obj):
-        """
-        Add an existing note.
-        """
-        select_note = SelectorFactory("Note")
-        selector = select_note(self.grstate.dbstate, self.grstate.uistate, [])
-        selection = selector.run()
-        if selection:
-            self.added_ref_note(selection.handle)
-
-    def remove_ref_note(self, _dummy_obj, note):
-        """
-        Remove the given note from the current object.
-        """
-        if not note:
-            return
-        text = describe_object(self.grstate.dbstate.db, note)
-        prefix = _(
-            "You are about to remove the following note from this object:"
-        )
-        extra = _("This removes the reference but does not delete the note.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self._commit_ref_message(
-                _("Note"), note.get_gramps_id(), action="remove"
-            )
-            self.reference.obj.remove_note(note.get_handle())
-            self.reference_base.commit(self.grstate, message)
-
-    def change_ref_privacy(self, _dummy_obj, mode):
-        """
-        Update the privacy indicator for the current ref object.
-        """
-        if mode:
-            text = _("Private")
-        else:
-            text = _("Public")
-        message = " ".join(
-            (
-                _("Made"),
-                self.reference.obj_lang,
-                self.primary.obj.get_gramps_id(),
-                _("for"),
-                self.reference_base.obj_lang,
-                self.reference_base.obj.get_gramps_id(),
-                text,
-            )
-        )
-        self.reference.obj.set_privacy(mode)
-        self.reference_base.commit(self.grstate, message)
 
     def add_ref_item(self, label, value):
         """

@@ -19,7 +19,7 @@
 #
 
 """
-MediaGrampsFrameGroup
+MediaFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -38,25 +38,25 @@ from gramps.gui.editors import EditMediaRef
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_media_ref import MediaRefGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import MediaRefFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# MediaGrampsFrameGroup class
+# MediaFrameGroup class
 #
 # ------------------------------------------------------------------------
-class MediaGrampsFrameGroup(GrampsFrameGroupList):
+class MediaFrameGroup(FrameGroupList):
     """
-    The MediaGrampsFrameGroup class provides a container for managing all
+    The MediaFrameGroup class provides a container for managing all
     of the media items for a given primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=True
         )
         groptions.set_backlink(
@@ -110,7 +110,7 @@ class MediaGrampsFrameGroup(GrampsFrameGroupList):
                 media,
                 dummy_media_type,
             ) in media_list:
-                frame = MediaRefGrampsFrame(
+                frame = MediaRefFrame(
                     grstate, groptions, self.group_base.obj, media_ref
                 )
                 self.add_frame(frame)

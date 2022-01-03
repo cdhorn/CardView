@@ -19,7 +19,7 @@
 #
 
 """
-MediaRefGrampsFrame
+MediaRefFrame
 """
 
 # ------------------------------------------------------------------------
@@ -28,33 +28,32 @@ MediaRefGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditMediaRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import MediaAction
 from ..menus.menu_utils import menu_item
-from .frame_media import MediaGrampsFrame
+from .frame_media import MediaFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# MediaRefGrampsFrame Class
+# MediaRefFrame Class
 #
 # ------------------------------------------------------------------------
-class MediaRefGrampsFrame(MediaGrampsFrame):
+class MediaRefFrame(MediaFrame):
     """
-    The MediaRefGrampsFrame exposes the image and some facts about Media.
+    The MediaRefFrame exposes the image and some facts about Media.
     """
 
     def __init__(self, grstate, groptions, obj, media_ref):
         media = grstate.fetch("Media", media_ref.ref)
-        MediaGrampsFrame.__init__(
+        MediaFrame.__init__(
             self, grstate, groptions, media, reference_tuple=(obj, media_ref)
         )
 
@@ -62,92 +61,17 @@ class MediaRefGrampsFrame(MediaGrampsFrame):
         """
         Add custom action menu items for the reference.
         """
+        action = MediaAction(self.grstate, self.primary, self.reference)
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_media_ref))
+        context_menu.append(menu_item("gtk-edit", label, action.edit_media))
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
-            menu_item(
-                "list-remove", label, self.remove_media_ref, self.primary.obj
-            )
+            menu_item("list-remove", label, action.remove_media_reference)
         )
         context_menu.append(
             menu_item(
                 "gramps-media",
                 _("Make active media"),
-                self._make_active_media,
+                action.set_active_media,
             )
         )
-
-    def edit_media_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            EditMediaRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                self.reference.obj,
-                self.save_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def remove_media_ref(self, _dummy_obj, media):
-        """
-        Remove a media reference.
-        """
-        if not media:
-            return
-        text = media.get_description()
-        prefix = _(
-            "You are about to remove the following media from this object:"
-        )
-        extra = _("This removes the reference but does not delete the media.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("MediaRef"),
-                    media.get_gramps_id(),
-                    _("from"),
-                    self.reference_base.obj_lang,
-                    self.reference_base.obj.get_gramps_id(),
-                )
-            )
-            self.reference_base.obj.remove_media_references(
-                [media.get_handle()]
-            )
-            self.reference_base.commit(self.grstate, message)
-
-    def _make_active_media(self, _dummy_var1):
-        """
-        Make the image the active media item.
-        """
-        new_list = []
-        image_ref = None
-        image_handle = self.primary.obj.get_handle()
-        for media_ref in self.reference_base.obj.get_media_list():
-            if media_ref.ref == image_handle:
-                image_ref = media_ref
-            else:
-                new_list.append(media_ref)
-        if image_ref:
-            new_list.insert(0, image_ref)
-
-        message = " ".join(
-            (
-                _("Set"),
-                _("Media"),
-                self.primary.obj.get_gramps_id(),
-                _("Active"),
-                _("for"),
-                self.reference_base.obj_type,
-                self.reference_base.obj.get_gramps_id(),
-            )
-        )
-        self.reference_base.obj.set_media_list(new_list)
-        self.reference_base.commit(self.grstate, message)

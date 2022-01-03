@@ -19,7 +19,7 @@
 #
 
 """
-PlaceRefGrampsFrame
+PlaceRefFrame
 """
 
 # ------------------------------------------------------------------------
@@ -28,29 +28,27 @@ PlaceRefGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditPlaceRef
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import PlaceAction
 from ..menus.menu_utils import menu_item
-from .frame_place import PlaceGrampsFrame
+from .frame_place import PlaceFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PlaceRefGrampsFrame class
+# PlaceRefFrame class
 #
 # ------------------------------------------------------------------------
-class PlaceRefGrampsFrame(PlaceGrampsFrame):
+class PlaceRefFrame(PlaceFrame):
     """
-    The PlaceRefGrampsFrame exposes some of the basic facts about an
+    The PlaceRefFrame exposes some of the basic facts about an
     enclosed Place.
     """
 
@@ -62,7 +60,7 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
         place_ref,
     ):
         enclosed_place = grstate.fetch("Place", place_ref.ref)
-        PlaceGrampsFrame.__init__(
+        PlaceFrame.__init__(
             self,
             grstate,
             groptions,
@@ -80,66 +78,14 @@ class PlaceRefGrampsFrame(PlaceGrampsFrame):
         """
         Add custom action menu items for an associate.
         """
+        action = PlaceAction(self.grstate, self.primary, self.reference)
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_place_ref))
+        context_menu.append(menu_item("gtk-edit", label, action.edit_place))
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
             menu_item(
                 "list-remove",
                 label,
-                self.remove_place_ref,
-                self.reference.obj,
+                action.remove_place_reference,
             )
         )
-
-    def edit_place_ref(self, *_dummy_obj):
-        """
-        Launch the editor.
-        """
-        try:
-            EditPlaceRef(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-                self.reference.obj,
-                self.save_ref,
-            )
-        except WindowActiveError:
-            pass
-
-    def remove_place_ref(self, _dummy_obj, place_ref):
-        """
-        Remove an enclosed place reference.
-        """
-        place = self.fetch("Place", place_ref.ref)
-        text = place_displayer.display(
-            self.grstate.dbstate.db, self.primary.obj
-        )
-        prefix = _(
-            "You are about to remove the following enclosed place from this "
-            "place:"
-        )
-        extra = _(
-            "Note this does not delete the place. You can also use the "
-            "undo option under edit if you change your mind later."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            new_list = []
-            for ref in self.primary.obj.get_placeref_list():
-                if not ref.ref == place_ref.ref:
-                    new_list.append(ref)
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("PlaceRef"),
-                    place.get_gramps_id(),
-                    _("from"),
-                    _("Place"),
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-            self.primary.obj.set_placeref_list(new_list)
-            self.primary.commit(self.grstate, message)

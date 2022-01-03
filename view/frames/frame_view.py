@@ -23,7 +23,7 @@
 #
 
 """
-GrampsFrameView class for managing the frame widgets and layout.
+FrameView class for managing the frame widgets and layout.
 """
 
 # ------------------------------------------------------------------------
@@ -46,17 +46,17 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig
-from .frame_widgets import GrampsFrameGrid, GrampsFrameIcons, GrampsFrameId
+from .frame_widgets import FrameGrid, FrameIcons, FrameId
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameView class
+# FrameView class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameView(Gtk.VBox, GrampsConfig):
+class FrameView(Gtk.VBox, GrampsConfig):
     """
     A simple class to encapsulate the widget layout for a Gramps frame.
     """
@@ -101,13 +101,13 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
             halign=Gtk.Align.START,
             valign=Gtk.Align.START,
         )
-        self.widgets["facts"] = GrampsFrameGrid()
+        self.widgets["facts"] = FrameGrid()
         if "active" in self.groptions.option_space:
-            self.widgets["extra"] = GrampsFrameGrid()
-        self.widgets["icons"] = GrampsFrameIcons(self.grstate, self.groptions)
+            self.widgets["extra"] = FrameGrid()
+        self.widgets["icons"] = FrameIcons(self.grstate, self.groptions)
 
-        self.widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
-        self.widgets["attributes"] = GrampsFrameGrid(right=True)
+        self.widgets["id"] = FrameId(self.grstate, self.groptions)
+        self.widgets["attributes"] = FrameGrid(right=True)
 
     def _init_ref_widgets(self):
         """
@@ -115,8 +115,8 @@ class GrampsFrameView(Gtk.VBox, GrampsConfig):
         """
         self.ref_eventbox = Gtk.EventBox()
         right = self.groptions.ref_mode != 1
-        self.ref_widgets["id"] = GrampsFrameId(self.grstate, self.groptions)
-        self.ref_widgets["icons"] = GrampsFrameIcons(
+        self.ref_widgets["id"] = FrameId(self.grstate, self.groptions)
+        self.ref_widgets["icons"] = FrameIcons(
             self.grstate, self.groptions, right_justify=right
         )
 

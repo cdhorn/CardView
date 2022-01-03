@@ -19,7 +19,7 @@
 #
 
 """
-NotesGrampsFrameGroup
+NotesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,25 +35,25 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_object_type
-from ..frames.frame_note import NoteGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import NoteFrame
+from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# NotesGrampsFrameGroup class
+# NotesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class NotesGrampsFrameGroup(GrampsFrameGroupList):
+class NotesFrameGroup(FrameGroupList):
     """
-    The NotesGrampsFrameGroup class provides a container for managing all
+    The NotesFrameGroup class provides a container for managing all
     of the notes associated with an object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         if not self.group_base.has_notes:
@@ -67,9 +67,7 @@ class NotesGrampsFrameGroup(GrampsFrameGroupList):
         notes = notes[:maximum]
         for (obj_lang, handle) in notes:
             note = self.fetch("Note", handle)
-            frame = NoteGrampsFrame(
-                grstate, groptions, note, reference=obj_lang
-            )
+            frame = NoteFrame(grstate, groptions, note, reference=obj_lang)
             frame.set_size_request(220, -1)
             self.add_frame(frame)
         self.show_all()

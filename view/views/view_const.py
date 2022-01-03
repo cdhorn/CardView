@@ -26,44 +26,46 @@ GrampObjectView related constants
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..frames.frame_address import AddressGrampsFrame
-from ..frames.frame_attribute import AttributeGrampsFrame
-from ..frames.frame_child_ref import ChildRefGrampsFrame
-from ..frames.frame_citation import CitationGrampsFrame
-from ..frames.frame_couple import CoupleGrampsFrame
-from ..frames.frame_event import EventGrampsFrame
-from ..frames.frame_event_ref import EventRefGrampsFrame
-from ..frames.frame_media import MediaGrampsFrame
-from ..frames.frame_media_ref import MediaRefGrampsFrame
-from ..frames.frame_name import NameGrampsFrame
-from ..frames.frame_note import NoteGrampsFrame
-from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from ..frames.frame_person import PersonGrampsFrame
-from ..frames.frame_person_ref import PersonRefGrampsFrame
-from ..frames.frame_place import PlaceGrampsFrame
-from ..frames.frame_repository import RepositoryGrampsFrame
-from ..frames.frame_repository_ref import RepositoryRefGrampsFrame
-from ..frames.frame_source import SourceGrampsFrame
-from ..frames.frame_tag import TagGrampsFrame
+from ..frames import (
+    AddressFrame,
+    AttributeFrame,
+    ChildRefFrame,
+    CitationFrame,
+    EventFrame,
+    EventRefFrame,
+    FamilyFrame,
+    MediaFrame,
+    MediaRefFrame,
+    NameFrame,
+    NoteFrame,
+    LDSOrdinanceFrame,
+    PersonFrame,
+    PersonRefFrame,
+    PlaceFrame,
+    RepositoryFrame,
+    RepositoryRefFrame,
+    SourceFrame,
+    TagFrame,
+)
 
 FRAME_MAP = {
-    "Address": AddressGrampsFrame,
-    "Attribute": AttributeGrampsFrame,
-    "ChildRef": ChildRefGrampsFrame,
-    "Citation": CitationGrampsFrame,
-    "Event": EventGrampsFrame,
-    "EventRef": EventRefGrampsFrame,
-    "Family": CoupleGrampsFrame,
-    "LdsOrd": LDSOrdinanceGrampsFrame,
-    "Media": MediaGrampsFrame,
-    "MediaRef": MediaRefGrampsFrame,
-    "Name": NameGrampsFrame,
-    "Note": NoteGrampsFrame,
-    "Person": PersonGrampsFrame,
-    "PersonRef": PersonRefGrampsFrame,
-    "Place": PlaceGrampsFrame,
-    "Repository": RepositoryGrampsFrame,
-    "RepoRef": RepositoryRefGrampsFrame,
-    "Source": SourceGrampsFrame,
-    "Tag": TagGrampsFrame,
+    "Address": AddressFrame,
+    "Attribute": AttributeFrame,
+    "ChildRef": ChildRefFrame,
+    "Citation": CitationFrame,
+    "Event": EventFrame,
+    "EventRef": EventRefFrame,
+    "Family": FamilyFrame,
+    "LdsOrd": LDSOrdinanceFrame,
+    "Media": MediaFrame,
+    "MediaRef": MediaRefFrame,
+    "Name": NameFrame,
+    "Note": NoteFrame,
+    "Person": PersonFrame,
+    "PersonRef": PersonRefFrame,
+    "Place": PlaceFrame,
+    "Repository": RepositoryFrame,
+    "RepoRef": RepositoryRefFrame,
+    "Source": SourceFrame,
+    "Tag": TagFrame,
 }

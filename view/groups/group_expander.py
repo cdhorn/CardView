@@ -23,7 +23,7 @@
 #
 
 """
-GrampsFrameGroup helper classes
+FrameGroup helper classes
 """
 
 # ------------------------------------------------------------------------
@@ -54,12 +54,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrameGroupExpander class
+# FrameGroupExpander class
 #
 # ------------------------------------------------------------------------
-class GrampsFrameGroupExpander(Gtk.Expander):
+class FrameGroupExpander(Gtk.Expander):
     """
-    A simple class for managing collapse of a GrampsFrameGroup object.
+    A simple class for managing collapse of a FrameGroup object.
     """
 
     def __init__(self, grstate, expanded=True, use_markup=True):

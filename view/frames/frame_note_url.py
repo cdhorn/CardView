@@ -19,7 +19,7 @@
 #
 
 """
-NoteUrlGrampsFrame
+NoteUrlFrame
 """
 
 # ------------------------------------------------------------------------
@@ -59,12 +59,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# NoteUrlGrampsFrame class
+# NoteUrlFrame class
 #
 # ------------------------------------------------------------------------
-class NoteUrlGrampsFrame(GrampsFrame):
+class NoteUrlFrame(GrampsFrame):
     """
-    The NoteUrlGrampsFrame class exposes information about a Url found
+    The NoteUrlFrame class exposes information about a Url found
     in a Note record.
     """
 

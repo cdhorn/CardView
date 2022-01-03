@@ -19,7 +19,7 @@
 #
 
 """
-PersonRefGrampsFrame
+PersonRefFrame
 """
 
 # ------------------------------------------------------------------------
@@ -28,27 +28,27 @@ PersonRefGrampsFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.name import displayer as name_displayer
 
 # ------------------------------------------------------------------------
 #
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import PersonAction
 from ..menus.menu_utils import menu_item
-from .frame_person import PersonGrampsFrame
+from .frame_person import PersonFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PersonRefGrampsFrame class
+# PersonRefFrame class
 #
 # ------------------------------------------------------------------------
-class PersonRefGrampsFrame(PersonGrampsFrame):
+class PersonRefFrame(PersonFrame):
     """
-    The PersonRefGrampsFrame exposes some of the basic facts about an
+    The PersonRefFrame exposes some of the basic facts about an
     Association.
     """
 
@@ -60,7 +60,7 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         person_ref,
     ):
         associate = grstate.fetch("Person", person_ref.ref)
-        PersonGrampsFrame.__init__(
+        PersonFrame.__init__(
             self,
             grstate,
             groptions,
@@ -83,48 +83,16 @@ class PersonRefGrampsFrame(PersonGrampsFrame):
         """
         Add custom action menu items for an associate.
         """
+        action = PersonAction(self.grstate, self.primary, self.reference)
         label = " ".join((_("Edit"), _("reference")))
-        context_menu.append(menu_item("gtk-edit", label, self.edit_person_ref))
+        context_menu.append(
+            menu_item("gtk-edit", label, action.edit_person_reference)
+        )
         label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
             menu_item(
                 "list-remove",
                 label,
-                self.remove_person_ref,
-                self.reference.obj,
+                action.remove_person_reference,
             )
         )
-
-    def remove_person_ref(self, _dummy_obj, person_ref):
-        """
-        Remove an association.
-        """
-        person = self.fetch("Person", person_ref.ref)
-        text = "".join((name_displayer.display(person),))
-        prefix = _(
-            "You are about to remove the following association with this "
-            "person:"
-        )
-        extra = _(
-            "Note this does not delete the person. You can also use the "
-            "undo option under edit if you change your mind later."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            new_list = []
-            for ref in self.reference_base.obj.get_person_ref_list():
-                if not ref.ref == person_ref.ref:
-                    new_list.append(ref)
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("PersonRef"),
-                    person.get_gramps_id(),
-                    _("from"),
-                    _("Person"),
-                    self.reference_base.obj.get_gramps_id(),
-                )
-            )
-            self.reference_base.obj.set_person_ref_list(new_list)
-            self.reference_base.commit(self.grstate, message)

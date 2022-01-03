@@ -19,7 +19,7 @@
 #
 
 """
-AttributeGrampsFrame
+AttributeFrame
 """
 
 # ------------------------------------------------------------------------
@@ -51,23 +51,23 @@ from gramps.gen.utils.alive import probably_alive
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
 from ..common.common_utils import get_person_color_css
-from .frame_secondary import SecondaryGrampsFrame
+from .frame_secondary import SecondaryFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AttributeGrampsFrame class
+# AttributeFrame class
 #
 # ------------------------------------------------------------------------
-class AttributeGrampsFrame(SecondaryGrampsFrame):
+class AttributeFrame(SecondaryFrame):
     """
-    The AttributeGrampsFrame exposes facts about an Attribute.
+    The AttributeFrame exposes facts about an Attribute.
     """
 
     def __init__(self, grstate, groptions, obj, attribute):
-        SecondaryGrampsFrame.__init__(self, grstate, groptions, obj, attribute)
+        SecondaryFrame.__init__(self, grstate, groptions, obj, attribute)
         self.__add_attribute_title(attribute)
         self.__add_attribute_value(attribute)
         self.enable_drag()
@@ -120,7 +120,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         actions supported for all objects enabled for them.
         """
         if "Ref" not in self.primary.obj_type:
-            SecondaryGrampsFrame.build_context_menu(self, _dummy_obj, event)
+            SecondaryFrame.build_context_menu(self, _dummy_obj, event)
         return True
 
     def route_action(self, obj, event):
@@ -128,7 +128,7 @@ class AttributeGrampsFrame(SecondaryGrampsFrame):
         Route the action if the frame was clicked on.
         """
         if "Ref" not in self.primary.obj_type:
-            SecondaryGrampsFrame.route_action(self, obj, event)
+            SecondaryFrame.route_action(self, obj, event)
 
     def edit_secondary_object(self, _dummy_var1=None):
         """

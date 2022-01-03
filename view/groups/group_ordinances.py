@@ -19,7 +19,7 @@
 #
 
 """
-LDSOrdinancesGrampsFrameGroup
+LDSOrdinancesFrameGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,26 +27,26 @@ LDSOrdinancesGrampsFrameGroup
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..frames.frame_ordinance import LDSOrdinanceGrampsFrame
-from .group_list import GrampsFrameGroupList
+from ..frames import LDSOrdinanceFrame
+from .group_list import FrameGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# LDSOrdinancesGrampsFrameGroup class
+# LDSOrdinancesFrameGroup class
 #
 # ------------------------------------------------------------------------
-class LDSOrdinancesGrampsFrameGroup(GrampsFrameGroupList):
+class LDSOrdinancesFrameGroup(FrameGroupList):
     """
-    The LDSOrdinancesGrampsFrameGroup class provides a container for managing
+    The LDSOrdinancesFrameGroup class provides a container for managing
     all of the ordinances a person or family may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        GrampsFrameGroupList.__init__(
+        FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for ordinance in obj.get_lds_ord_list():
-            frame = LDSOrdinanceGrampsFrame(grstate, groptions, obj, ordinance)
+            frame = LDSOrdinanceFrame(grstate, groptions, obj, ordinance)
             self.add_frame(frame)
         self.show_all()
