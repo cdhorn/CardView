@@ -135,7 +135,7 @@ class GrampsFrame(FrameView):
         """
         Generate a title describing the framed object.
         """
-        if self.primary.has_handle:
+        if not self.primary.has_handle:
             title = self.primary.obj_lang
             if self.secondary:
                 title = "".join((title, ": ", self.secondary.obj_lang))
