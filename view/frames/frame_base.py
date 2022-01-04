@@ -339,6 +339,8 @@ class GrampsFrame(FrameView):
         """
         Handle button pressed.
         """
+        if not self.primary.is_primary:
+            return True
         if button_pressed(event, BUTTON_SECONDARY):
             self.build_context_menu(obj, event)
             return True
@@ -359,6 +361,8 @@ class GrampsFrame(FrameView):
         """
         Handle button released.
         """
+        if not self.primary.is_primary:
+            return True
         if button_released(event, BUTTON_PRIMARY):
             if match_primary_mask(event.get_state()):
                 self._dump_context()

@@ -174,5 +174,11 @@ class UrlAction(GrampsAction):
         if self.action_object and self.action_object.obj.get_path():
             display_url(self.action_object.obj.get_path())
 
+    def edit_object(self, *_dummy_args):
+        """
+        Edit the url. This overrides default method.
+        """
+        self.edit_url()
+
 
 factory.register_action("Url", UrlAction)

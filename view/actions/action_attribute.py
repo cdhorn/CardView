@@ -113,7 +113,7 @@ class AttributeAction(GrampsAction):
         if attribute:
             self.grstate.update_history_object(old_hash, attribute)
             message = self.commit_message(
-                _("Attribute"), attribute.get_type(), action="update"
+                _("Attribute"), str(attribute.get_type()), action="update"
             )
             self.target_object.commit(self.grstate, message)
 
@@ -162,6 +162,12 @@ class AttributeAction(GrampsAction):
             )
             active_target_object.obj.remove_attribute(self.action_object.obj)
             self.target_object.commit(self.grstate, message)
+
+    def edit_object(self, *_dummy_args):
+        """
+        Edit the attribute. This overrides default method.
+        """
+        self.edit_attribute()
 
 
 factory.register_action("Attribute", AttributeAction)
