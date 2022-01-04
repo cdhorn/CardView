@@ -30,6 +30,7 @@ from .action_bookmark import BookmarkAction
 from .action_citation import CitationAction
 from .action_event import EventAction
 from .action_family import FamilyAction
+from .action_ldsord import LdsOrdAction
 from .action_media import MediaAction
 from .action_name import NameAction
 from .action_note import NoteAction

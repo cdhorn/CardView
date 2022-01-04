@@ -112,6 +112,41 @@ def add_double_separator(menu):
     menu.add(Gtk.SeparatorMenuItem())
 
 
+def add_edit_menu_option(grstate, parent_menu, grobject, grchild=None):
+    """
+    Build and add the edit menu option.
+    """
+    target_object = grchild or grobject
+    if grchild:
+        action = action_handler(grchild.obj_type, grstate, grchild, grobject)
+    else:
+        action = action_handler(grobject.obj_type, grstate, grobject)
+    text = " ".join((_("Edit"), target_object.obj_lang.lower()))
+    parent_menu.append(
+        menu_item(
+            "gtk-edit",
+            text,
+            action.edit_object,
+        )
+    )
+
+
+def add_delete_menu_option(grstate, parent_menu, grobject):
+    """
+    Build and add the delete menu option.
+    """
+    if grobject.is_primary:
+        action = action_handler(grobject.obj_type, grstate, grobject)
+        text = " ".join((_("Delete"), grobject.obj_lang.lower()))
+        parent_menu.append(
+            menu_item(
+                "list-remove",
+                text,
+                action.delete_object,
+            )
+        )
+
+
 def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the attributes submenu.

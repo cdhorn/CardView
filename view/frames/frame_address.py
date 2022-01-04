@@ -101,12 +101,6 @@ class AddressFrame(SecondaryFrame):
             ):
                 self.load_age(self.groptions.age_base, address_date)
 
-    def edit_secondary_object(self, _dummy_var1=None):
-        """
-        Override default method to launch the address editor.
-        """
-        self.edit_address(None, self.secondary.obj)
-
     def get_color_css(self):
         """
         Determine color scheme to be used if available."

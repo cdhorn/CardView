@@ -141,7 +141,10 @@ class FamilyFrame(PrimaryFrame):
         Handle drop processing for a person.
         """
         if DdTargets.PERSON_LINK.drag_type == dnd_type:
-            self.add_missing_spouse(obj_or_handle)
+            action = action_handler(
+                "Family", self.grstate, self.primary, obj_or_handle
+            )
+            action.add_missing_spouse()
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 
@@ -329,14 +332,13 @@ class FamilyFrame(PrimaryFrame):
             if partner:
                 name = name_displayer.display(partner)
                 if name:
+                    action = action_handler("Person", self.grstate, partner)
                     text = " ".join((_("Edit"), name))
                     context_menu.append(
                         menu_item(
                             "gtk-edit",
                             text,
-                            self.edit_primary_object,
-                            partner,
-                            "Person",
+                            action.edit_object,
                         )
                     )
 
@@ -363,15 +365,3 @@ class FamilyFrame(PrimaryFrame):
                 self.primary.obj, divorced=self.divorced
             )
         return ""
-
-    def add_missing_spouse(self, spouse_handle):
-        """
-        Add missing spouse for the family.
-        """
-        if not self.primary.obj.get_father_handle():
-            self.primary.obj.set_father_handle(spouse_handle)
-        elif not self.primary.obj.get_mother_handle():
-            self.primary.obj.set_mother_handle(spouse_handle)
-        else:
-            return
-        self.edit_primary_object()

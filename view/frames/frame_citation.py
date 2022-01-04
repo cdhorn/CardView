@@ -34,6 +34,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import action_handler
 from ..common.common_const import CITATION_TYPES
 from ..common.common_utils import (
     get_confidence,
@@ -184,16 +185,12 @@ class CitationFrame(PrimaryFrame):
         """
         Add action menu items for the citation.
         """
-        context_menu.append(
-            menu_item(
-                "gtk-edit",
-                _("Edit citation source"),
-                self.edit_citation_source,
+        if self.source:
+            action = action_handler("Source", self.grstate, self.source)
+            context_menu.append(
+                menu_item(
+                    "gtk-edit",
+                    _("Edit citation source"),
+                    action.edit_object,
+                )
             )
-        )
-
-    def edit_citation_source(self, *_dummy_args):
-        """
-        Edit citation source.
-        """
-        self.edit_primary_object(obj=self.source, obj_type="Source")

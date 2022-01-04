@@ -50,7 +50,7 @@ from gramps.gen.lib import Person
 from gramps.gen.lib.primaryobj import BasicPrimaryObject
 from gramps.gen.utils.db import navigation_label
 
-from ..timeline import RELATIVES
+from .timeline import RELATIVES
 
 # ------------------------------------------------------------------------
 #

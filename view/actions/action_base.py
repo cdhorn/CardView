@@ -46,9 +46,10 @@ from gramps.gen.errors import WindowActiveError
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from .action_const import GRAMPS_EDITORS
 from ..common.common_classes import GrampsObject
-from ..common.common_const import GRAMPS_EDITORS
 from ..common.common_utils import describe_object
+from .delete import delete_object
 
 _ = glocale.translation.sgettext
 
@@ -238,3 +239,23 @@ class GrampsAction:
             )
         )
         self.target_object.commit(self.grstate, message)
+
+    def delete_object(self, *_dummy_args):
+        """
+        Delete the object.
+        """
+        if self.action_object and self.action_object.is_primary:
+            text = self.describe_object(self.action_object.obj)
+            prefix = _("You are about to delete the following object:")
+            if self.confirm_action(
+                _("Warning"),
+                prefix,
+                "\n\n<b>",
+                text,
+                "</b>\n\n",
+            ):
+                delete_object(
+                    self.db,
+                    self.action_object.obj.get_handle(),
+                    self.action_object.obj_type,
+                )

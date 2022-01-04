@@ -42,7 +42,7 @@ from ..frames import (
     NameFrame,
     LDSOrdinanceFrame,
 )
-from ..timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
+from ..common.timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
 from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext

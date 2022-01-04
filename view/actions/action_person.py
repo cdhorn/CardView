@@ -56,9 +56,9 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
+from .action_const import RECIPROCAL_ASSOCIATIONS
 from .action_factory import factory
 from ..common.common_classes import GrampsObject
-from ..common.common_const import _RECIPROCAL_ASSOCIATIONS
 
 _ = glocale.translation.sgettext
 
@@ -420,9 +420,9 @@ class PersonAction(GrampsAction):
             ref.set_note_list(reference.get_note_list())
             ref.set_citation_list(reference.get_citation_list())
             ref.set_privacy(reference.get_privacy())
-            if reference.get_relation() in _RECIPROCAL_ASSOCIATIONS:
+            if reference.get_relation() in RECIPROCAL_ASSOCIATIONS:
                 ref.set_relation(
-                    _RECIPROCAL_ASSOCIATIONS[reference.get_relation()]
+                    RECIPROCAL_ASSOCIATIONS[reference.get_relation()]
                 )
             callback = lambda x: self._added_reciprocal_reference(
                 x, reference.ref

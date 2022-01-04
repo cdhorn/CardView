@@ -431,33 +431,6 @@ class EventFrame(ReferenceFrame):
             self.participants,
         )
 
-    def edit_self(self, *_dummy_obj):
-        """
-        Launch the desired editor based on object type.
-        """
-        if self.reference_base and self.reference:
-            try:
-                EditEventRef(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.event,
-                    self.reference,
-                    self.save_ref,
-                )
-            except WindowActiveError:
-                pass
-            return
-        try:
-            EditEvent(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.primary.obj,
-            )
-        except WindowActiveError:
-            pass
-
     def __add_birth_menu_option(self, context_menu):
         """
         Build set birth option if appropriate.

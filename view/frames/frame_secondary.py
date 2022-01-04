@@ -55,6 +55,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..common.common_classes import GrampsObject
 from .frame_base import GrampsFrame
 from ..menus.menu_utils import (
+    add_edit_menu_option,
     add_citations_menu,
     add_notes_menu,
     add_privacy_menu_option,
@@ -127,7 +128,9 @@ class SecondaryFrame(GrampsFrame):
         actions supported for all objects enabled for them.
         """
         context_menu = Gtk.Menu()
-        context_menu.append(self._edit_object_option())
+        add_edit_menu_option(
+            self.grstate, context_menu, self.primary, self.secondary
+        )
         self.add_custom_actions(context_menu)
         add_citations_menu(
             self.grstate,

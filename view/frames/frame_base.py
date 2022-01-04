@@ -48,7 +48,6 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import Span
 from gramps.gen.utils.db import navigation_label
@@ -67,14 +66,12 @@ from ..common.common_const import (
     BUTTON_MIDDLE,
     BUTTON_PRIMARY,
     BUTTON_SECONDARY,
-    GRAMPS_EDITORS,
 )
 from ..common.common_utils import (
     button_pressed,
     button_released,
 )
 from ..menus.menu_config import build_config_menu
-from ..menus.menu_utils import menu_item
 from .frame_view import FrameView
 from .frame_window import FrameDebugWindow
 
@@ -408,69 +405,6 @@ class GrampsFrame(FrameView):
         derived classes.
         """
         return True
-
-    def _edit_object_option(self):
-        """
-        Build the edit option.
-        """
-        if self.secondary and not self.secondary.is_reference:
-            name = " ".join((_("Edit"), self.secondary.obj_lang.lower()))
-            return menu_item("gtk-edit", name, self._edit_secondary_object)
-        if self.primary.obj_type == "Person":
-            name = " ".join(
-                (_("Edit"), name_displayer.display(self.primary.obj))
-            )
-        else:
-            name = " ".join((_("Edit"), self.primary.obj_lang.lower()))
-        return menu_item("gtk-edit", name, self.edit_primary_object)
-
-    def edit_primary_object(self, _dummy_var1=None, obj=None, obj_type=None):
-        """
-        Launch the desired editor for a primary object.
-        """
-        obj = obj or self.primary.obj
-        obj_type = obj_type or self.primary.obj_type
-        try:
-            GRAMPS_EDITORS[obj_type](
-                self.grstate.dbstate, self.grstate.uistate, [], obj
-            )
-        except WindowActiveError:
-            pass
-
-    def _edit_secondary_object(self, _dummy_var1=None):
-        """
-        Launch the desired editor for a secondary object.
-        """
-        try:
-            GRAMPS_EDITORS[self.secondary.obj_type](
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.secondary.obj,
-                self.save_object,
-            )
-        except WindowActiveError:
-            pass
-
-    def save_object(self, obj, action_text=None):
-        """
-        Save the edited object.
-        """
-        if not obj:
-            return
-        if action_text:
-            message = action_text
-        else:
-            message = " ".join(
-                (
-                    _("Edited"),
-                    self.secondary.obj_lang,
-                    _("for"),
-                    self.primary.obj_lang,
-                    self.primary.obj.get_gramps_id(),
-                )
-            )
-        self.primary.commit(self.grstate, message)
 
     def set_css_style(self):
         """

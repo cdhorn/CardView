@@ -3,7 +3,6 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
-# Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2021       Christopher Horn
 #
@@ -23,7 +22,7 @@
 #
 
 """
-AddressAction
+LdsOrdAction
 """
 
 # ------------------------------------------------------------------------
@@ -33,7 +32,8 @@ AddressAction
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gui.editors import EditAddress
+from gramps.gen.lib import LdsOrd
+from gramps.gui.editors import EditLdsOrd
 
 # ------------------------------------------------------------------------
 #
@@ -48,50 +48,16 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# AddressAction class
+# LdsOrdAction class
 #
 # ------------------------------------------------------------------------
-class AddressAction(GrampsAction):
+class LdsOrdAction(GrampsAction):
     """
-    Class to support actions related to address objects.
+    Class to support actions related to the LDS ordinances of a person.
     """
 
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
 
-    def edit_address(self, *_dummy_args):
-        """
-        Edit an address.
-        """
-        callback = lambda x: self._edited_address(
-            x, self.action_object.obj_hash
-        )
-        try:
-            EditAddress(
-                self.grstate.dbstate,
-                self.grstate.uistate,
-                [],
-                self.action_object.obj,
-                callback,
-            )
-        except WindowActiveError:
-            pass
 
-    def _edited_address(self, address, old_hash):
-        """
-        Save edited address.
-        """
-        self.grstate.update_history_object(old_hash, address)
-        message = " ".join(
-            (
-                _("Edited"),
-                _("Address"),
-                _("for"),
-                self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
-            )
-        )
-        self.target_object.commit(self.grstate, message)
-
-
-factory.register_action("Address", AddressAction)
+factory.register_action("LdsOrd", LdsOrdAction)

@@ -113,28 +113,12 @@ class AttributeFrame(SecondaryFrame):
         context = GrampsContext(self.primary.obj, None, self.secondary.obj)
         self.grstate.load_page(context.pickled)
 
-    def build_context_menu(self, _dummy_obj, event):
-        """
-        Build the action menu for a right click. First action will always be
-        edit, then any custom actions of the derived children, then the global
-        actions supported for all objects enabled for them.
-        """
-        if "Ref" not in self.primary.obj_type:
-            SecondaryFrame.build_context_menu(self, _dummy_obj, event)
-        return True
-
     def route_action(self, obj, event):
         """
         Route the action if the frame was clicked on.
         """
         if "Ref" not in self.primary.obj_type:
             SecondaryFrame.route_action(self, obj, event)
-
-    def edit_secondary_object(self, _dummy_var1=None):
-        """
-        Override default method to launch the attribute editor.
-        """
-        self.edit_attribute(None, self.secondary.obj)
 
     def get_color_css(self):
         """

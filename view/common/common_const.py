@@ -62,22 +62,6 @@ from gramps.gen.lib import (
     Url,
 )
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import (
-    EditAddress,
-    EditAttribute,
-    EditCitation,
-    EditEvent,
-    EditFamily,
-    EditLdsOrd,
-    EditMedia,
-    EditName,
-    EditNote,
-    EditPerson,
-    EditPlace,
-    EditRepository,
-    EditSource,
-    EditUrl,
-)
 
 # ------------------------------------------------------------------------
 #
@@ -109,28 +93,6 @@ _MARRIAGE_EQUIVALENTS = ["Marriage License", "Marriage Banns"]
 
 _DIVORCE_EQUIVALENTS = ["Annulment"]
 
-# Note we don't do reverse lookups as some are not one to one.
-_RECIPROCAL_ASSOCIATIONS = {
-    _("Godfather"): _("Godchild"),
-    _("Godmother"): _("Godchild"),
-    _("Godparent"): _("Godchild"),
-    _("Godchild"): _("Godparent"),
-    _("Landlord"): _("Tenant"),
-    _("Tenant"): _("Landlord"),
-    _("DNA"): _("DNA"),
-    _("cm"): _("cm"),
-    _("Best Man"): _("Groom"),
-    _("Maid of Honor"): _("Bride"),
-    _("Friend"): _("Friend"),
-    _("Employer"): _("Employee"),
-    _("Employee"): _("Employer"),
-    _("Lawyer"): _("Client"),
-    _("Doctor"): _("Patient"),
-    _("Patient"): _("Doctor"),
-    _("Teacher"): _("Student"),
-    _("Student"): _("Teacher"),
-}
-
 _CONFIDENCE = {
     Citation.CONF_VERY_LOW: _("Very Low"),
     Citation.CONF_LOW: _("Low"),
@@ -147,23 +109,6 @@ CONFIDENCE_COLOR_SCHEME = {
     Citation.CONF_NORMAL: "normal",
     Citation.CONF_HIGH: "high",
     Citation.CONF_VERY_HIGH: "very-high",
-}
-
-GRAMPS_EDITORS = {
-    "Address": EditAddress,
-    "Attribute": EditAttribute,
-    "Citation": EditCitation,
-    "Event": EditEvent,
-    "Family": EditFamily,
-    "LdsOrd": EditLdsOrd,
-    "Media": EditMedia,
-    "Name": EditName,
-    "Note": EditNote,
-    "Person": EditPerson,
-    "Place": EditPlace,
-    "Repository": EditRepository,
-    "Source": EditSource,
-    "Url": EditUrl,
 }
 
 GRAMPS_OBJECTS = [

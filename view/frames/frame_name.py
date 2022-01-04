@@ -167,12 +167,6 @@ class NameFrame(SecondaryFrame):
         grcontext = GrampsContext(self.primary, None, self.secondary)
         return self.grstate.load_page(grcontext.pickled)
 
-    def edit_secondary_object(self, _dummy_var1=None):
-        """
-        Override default method to launch the name editor.
-        """
-        self.edit_name(None, self.secondary.obj)
-
     def get_color_css(self):
         """
         Determine color scheme to be used if available."
