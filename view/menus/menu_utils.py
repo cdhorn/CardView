@@ -131,20 +131,32 @@ def add_edit_menu_option(grstate, parent_menu, grobject, grchild=None):
     )
 
 
-def add_delete_menu_option(grstate, parent_menu, grobject):
+def add_delete_menu_option(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the delete menu option.
     """
-    if grobject.is_primary:
+    if not grobject.is_primary:
+        return
+    if grchild and grchild.obj_type not in [
+        "Attribute",
+        "LdsOrd",
+        "Name",
+        "Url",
+    ]:
+        return
+    target_object = grchild or grobject
+    if grchild:
+        action = action_handler(grchild.obj_type, grstate, grchild, grobject)
+    else:
         action = action_handler(grobject.obj_type, grstate, grobject)
-        text = " ".join((_("Delete"), grobject.obj_lang.lower()))
-        parent_menu.append(
-            menu_item(
-                "list-remove",
-                text,
-                action.delete_object,
-            )
+    text = " ".join((_("Delete"), target_object.obj_lang.lower()))
+    parent_menu.append(
+        menu_item(
+            "list-remove",
+            text,
+            action.delete_object,
         )
+    )
 
 
 def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
@@ -158,7 +170,7 @@ def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
     menu = new_menu("list-add", _("Add a new attribute"), action.add_attribute)
     attribute_list = target_object.obj.get_attribute_list()
     if attribute_list:
-        removemenu = new_submenu(
+        deletemenu = new_submenu(
             menu, "gramps-attribute", _("Delete an attribute")
         )
         add_double_separator(menu)
@@ -175,8 +187,8 @@ def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
             action = action_handler(
                 "Attribute", grstate, attribute, grobject, grchild
             )
-            removemenu.add(
-                menu_item("list-remove", text, action.remove_attribute)
+            deletemenu.add(
+                menu_item("list-remove", text, action.delete_object)
             )
             menu.add(
                 menu_item(
@@ -435,7 +447,7 @@ def add_urls_menu(grstate, parent_menu, grobject):
     url_list = grobject.obj.get_url_list()
     if url_list:
         editmenu = new_submenu(menu, "gramps-url", _("Edit a url"))
-        removemenu = new_submenu(menu, "gramps-url", _("Delete a url"))
+        deletemenu = new_submenu(menu, "gramps-url", _("Delete a url"))
         add_double_separator(menu)
         url_sort_list = []
         for url in grobject.obj.get_url_list():
@@ -447,7 +459,9 @@ def add_urls_menu(grstate, parent_menu, grobject):
         for text, url in url_sort_list:
             action = action_handler("Url", grstate, url, grobject)
             editmenu.add(menu_item("gramps-url", text, action.edit_url))
-            removemenu.add(menu_item("list-remove", text, action.remove_url))
+            deletemenu.add(
+                menu_item("list-remove", text, action.delete_object)
+            )
             menu.add(menu_item("gramps-url", text, action.launch_url))
     parent_menu.append(submenu_item("gramps-url", _("Urls"), menu))
 
@@ -496,11 +510,11 @@ def add_names_menu(grstate, parent_menu, grobject):
     """
     Build and add the names submenu.
     """
-    action = action_handler("Name", grstate, grobject)
+    action = action_handler("Name", grstate, None, grobject)
     menu = new_menu("list-add", _("Add a new name"), action.add_name)
     name_list = grobject.obj.get_alternate_names()
     if name_list:
-        removemenu = new_submenu(menu, "gramps-person", _("Delete a name"))
+        deletemenu = new_submenu(menu, "gramps-person", _("Delete a name"))
         add_double_separator(menu)
         name = grobject.obj.get_primary_name()
         action = action_handler("Name", grstate, name, grobject)
@@ -509,8 +523,8 @@ def add_names_menu(grstate, parent_menu, grobject):
         for name in name_list:
             action = action_handler("Name", grstate, name, grobject)
             given_name = name.get_regular_name()
-            removemenu.add(
-                menu_item("list-remove", given_name, action.remove_name)
+            deletemenu.add(
+                menu_item("list-remove", given_name, action.delete_object)
             )
             menu.add(menu_item("gramps-person", given_name, action.edit_name))
     parent_menu.append(submenu_item("gramps-person", _("Names"), menu))
@@ -831,3 +845,30 @@ def has_spouse(family, parent):
     if mother_handle and mother_handle != parent.get_handle():
         return True
     return False
+
+
+def add_ldsords_menu(grstate, parent_menu, grobject):
+    """
+    Build and add the lds ordinances submenu.
+    """
+    action = action_handler("LdsOrd", grstate, None, grobject)
+    menu = new_menu("list-add", _("Add a new ordinance"), action.add_ordinance)
+    ordinance_list = grobject.obj.get_lds_ord_list()
+    if ordinance_list:
+        deletemenu = new_submenu(
+            menu, "gramps-person", _("Delete an ordinance")
+        )
+        add_double_separator(menu)
+        for ordinance in ordinance_list:
+            action = action_handler("LdsOrd", grstate, ordinance, grobject)
+            ordinance_date = ordinance.get_date_object()
+            if ordinance_date:
+                date = glocale.date_displayer.display(ordinance_date)
+                text = "".join((date, ": ", ordinance.type2str()))
+            else:
+                text = ordinance.type2str()
+            deletemenu.add(
+                menu_item("list-remove", text, action.delete_object)
+            )
+            menu.add(menu_item("gramps-person", text, action.edit_object))
+    parent_menu.append(submenu_item("gramps-person", _("Ordinances"), menu))

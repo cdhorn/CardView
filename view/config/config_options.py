@@ -56,6 +56,7 @@ CONFIGSETTINGS = (
     ("options.global.general.create-reciprocal-associations", True),
     ("options.global.general.include-child-notes", True),
     ("options.global.general.include-note-urls", True),
+    ("options.global.general.include-ldsord-menu", True),
     ("options.global.general.enable-warnings", True),
     ("options.global.general.zotero-enabled", True),
     ("options.global.general.zotero-enabled-notes", False),

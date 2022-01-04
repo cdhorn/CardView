@@ -284,8 +284,16 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable warning dialogs when detaching or deleting objects"),
+        _(
+            "Include LDS ordinances option on context menu"
+        ),
         18,
+        "options.global.general.include-ldsord-menu",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable warning dialogs when detaching or deleting objects"),
+        19,
         "options.global.general.enable-warnings",
     )
     return add_config_reset(

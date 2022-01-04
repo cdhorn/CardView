@@ -29,11 +29,9 @@ EventFrame.
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.place import displayer as place_displayer
-from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import EventType
 from gramps.gen.utils.alive import probably_alive
 from gramps.gui.ddtargets import DdTargets
-from gramps.gui.editors import EditEvent, EditEventRef
 
 # ------------------------------------------------------------------------
 #

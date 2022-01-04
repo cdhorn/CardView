@@ -56,6 +56,7 @@ from ..common.common_classes import GrampsObject
 from .frame_base import GrampsFrame
 from ..menus.menu_utils import (
     add_edit_menu_option,
+    add_delete_menu_option,
     add_citations_menu,
     add_notes_menu,
     add_privacy_menu_option,
@@ -129,6 +130,9 @@ class SecondaryFrame(GrampsFrame):
         """
         context_menu = Gtk.Menu()
         add_edit_menu_option(
+            self.grstate, context_menu, self.primary, self.secondary
+        )
+        add_delete_menu_option(
             self.grstate, context_menu, self.primary, self.secondary
         )
         self.add_custom_actions(context_menu)

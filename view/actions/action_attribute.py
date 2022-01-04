@@ -143,16 +143,16 @@ class AttributeAction(GrampsAction):
             active_target_object.obj.add_attribute(attribute)
             self.target_object.commit(self.grstate, message)
 
-    def remove_attribute(self, *_dummy_args):
+    def delete_object(self, *_dummy_args):
         """
-        Remove the given attribute from the current object.
+        Delete the attribute. This overrides the default method.
         """
         if not self.action_object:
             return
         active_target_object = self.get_target_object()
         text = self.describe_object(self.action_object.obj)
         prefix = _(
-            "You are about to remove the following attribute from this object:"
+            "You are about to delete the following attribute from this object:"
         )
         if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = self.commit_message(

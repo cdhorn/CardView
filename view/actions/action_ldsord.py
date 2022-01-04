@@ -33,7 +33,7 @@ LdsOrdAction
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import LdsOrd
-from gramps.gui.editors import EditLdsOrd
+from gramps.gui.editors import EditLdsOrd, EditFamilyLdsOrd
 
 # ------------------------------------------------------------------------
 #
@@ -58,6 +58,73 @@ class LdsOrdAction(GrampsAction):
 
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
+
+    def add_ordinance(self, *_dummy_args):
+        """
+        Add a new ordinance.
+        """
+        if self.target_object.obj_type == "Family":
+            editor = EditFamilyLdsOrd
+        else:
+            editor = EditLdsOrd
+        try:
+            editor(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                LdsOrd(),
+                self._added_ordinance,
+            )
+        except WindowActiveError:
+            pass
+
+    def _added_ordinance(self, ordinance):
+        """
+        Save the new name to finish adding it.
+        """
+        if ordinance:
+            message = " ".join(
+                (
+                    _("Added"),
+                    _("Ordinance"),
+                    ordinance.type2str(),
+                    _("to"),
+                    self.target_object.obj_lang,
+                    self.target_object.obj.get_gramps_id(),
+                )
+            )
+            self.target_object.obj.add_lds_ord(ordinance)
+            self.target_object.commit(self.grstate, message)
+
+    def delete_object(self, *_dummy_args):
+        """
+        Delete the ordinance. This overrides default method.
+        """
+        if not self.action_object:
+            return
+        ordinance = self.action_object.obj
+        text = ordinance.type2str()
+        ordinance_date = ordinance.get_date_object()
+        if ordinance_date:
+            date = glocale.date_displayer.display(ordinance_date)
+            if date:
+                text = "".join((date, ": ", text))
+        prefix = _(
+            "You are about to delete the following ordinance from this object:"
+        )
+        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
+            message = " ".join(
+                (
+                    _("Deleted"),
+                    _("Ordinance"),
+                    text,
+                    _("from"),
+                    self.target_object.obj_lang,
+                    self.target_object.obj.get_gramps_id(),
+                )
+            )
+            self.target_object.obj.remove_lds_ord(ordinance)
+            self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("LdsOrd", LdsOrdAction)

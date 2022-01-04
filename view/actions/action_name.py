@@ -118,15 +118,15 @@ class NameAction(GrampsAction):
             self.target_object.obj.add_alternate_name(name)
             self.target_object.commit(self.grstate, message)
 
-    def remove_name(self, *_dummy_args):
+    def delete_object(self, *_dummy_args):
         """
-        Remove the given name from the current object.
+        Delete the given name. This overrides default method.
         """
         if not self.action_object:
             return
         text = self.action_object.obj.get_regular_name()
         prefix = _(
-            "You are about to remove the following name from this object:"
+            "You are about to delete the following name from this object:"
         )
         if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = " ".join(

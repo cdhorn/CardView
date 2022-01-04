@@ -147,9 +147,9 @@ class UrlAction(GrampsAction):
         self.target_object.obj.add_url(url)
         self.target_object.commit(self.grstate, message)
 
-    def remove_url(self, *_dummy_args):
+    def delete_object(self, *_dummy_args):
         """
-        Remove the given url from the current object.
+        Delete the given url. This overrides the default method.
         """
         if not self.action_object:
             return
@@ -158,7 +158,7 @@ class UrlAction(GrampsAction):
         if url.get_description():
             text = "".join((url.get_description(), "\n", text))
         prefix = _(
-            "You are about to remove the following url from this object:"
+            "You are about to delete the following url for this object:"
         )
         if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
             message = self.commit_message(

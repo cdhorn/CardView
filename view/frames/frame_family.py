@@ -53,6 +53,7 @@ from ..menus.menu_utils import (
     menu_item,
     add_family_event_option,
     add_family_child_options,
+    add_ldsords_menu,
 )
 
 _ = glocale.translation.sgettext
@@ -322,6 +323,10 @@ class FamilyFrame(PrimaryFrame):
             self._add_partner_options(context_menu)
             add_family_event_option(context_menu, action)
             add_family_child_options(context_menu, action)
+            if self.grstate.config.get(
+                "options.global.general.include-ldsord-menu"
+            ):
+                add_ldsords_menu(self.grstate, context_menu, self.primary)
 
     def _add_partner_options(self, context_menu):
         """

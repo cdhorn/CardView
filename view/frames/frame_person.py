@@ -55,6 +55,7 @@ from .frame_reference import ReferenceFrame
 from ..menus.menu_utils import (
     menu_item,
     add_associations_menu,
+    add_ldsords_menu,
     add_names_menu,
     add_parents_menu,
     add_partners_menu,
@@ -261,3 +262,7 @@ class PersonFrame(ReferenceFrame):
         add_partners_menu(self.grstate, context_menu, self.primary)
         add_associations_menu(self.grstate, context_menu, self.primary)
         add_names_menu(self.grstate, context_menu, self.primary)
+        if self.grstate.config.get(
+            "options.global.general.include-ldsord-menu"
+        ):
+            add_ldsords_menu(self.grstate, context_menu, self.primary)
