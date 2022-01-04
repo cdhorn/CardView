@@ -162,7 +162,15 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
         """
         self.reset_dnd_css()
         current_row = self.get_row_at_y(y_location)
-        allocation = current_row.get_allocation()
+        if current_row:
+            allocation = current_row.get_allocation()
+            if allocation:
+                self.update_rows_for_drag_motion(
+                    y_location, current_row, allocation
+                )
+
+    def update_rows_for_drag_motion(self, y_location, current_row, allocation):
+        """ """
         if y_location < allocation.y + allocation.height / 2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1
