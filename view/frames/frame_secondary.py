@@ -78,6 +78,7 @@ class SecondaryFrame(GrampsFrame):
     """
 
     def __init__(self, grstate, groptions, primary_obj, secondary_obj):
+        groptions.is_secondary = True
         GrampsFrame.__init__(
             self,
             grstate,
