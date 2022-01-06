@@ -59,7 +59,7 @@ class LdsOrdAction(GrampsAction):
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
 
-    def add_ordinance(self, *_dummy_args):
+    def _edit_ordinance(self, ordinance, callback=None):
         """
         Add a new ordinance.
         """
@@ -72,11 +72,23 @@ class LdsOrdAction(GrampsAction):
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                LdsOrd(),
-                self._added_ordinance,
+                ordinance,
+                callback,
             )
         except WindowActiveError:
             pass
+
+    def edit_object(self, *_dummy_args):
+        """
+        Edit an ordinance. This overrides default method.
+        """
+        self._edit_ordinance(self.action_object.obj)
+
+    def add_ordinance(self, *_dummy_args):
+        """
+        Add a new ordinance.
+        """
+        self._edit_ordinance(LdsOrd(), self._added_ordinance)
 
     def _added_ordinance(self, ordinance):
         """
