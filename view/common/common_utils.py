@@ -304,7 +304,7 @@ def get_family_color_css(family, divorced=False):
     return format_color_css(background, border)
 
 
-def get_config_option(config, option, full=False, dbid=None):
+def get_config_option(config, option, full=False):
     """
     Extract a compound config option.
     """
@@ -316,50 +316,16 @@ def get_config_option(config, option, full=False, dbid=None):
         return False
     if full:
         return option_data
-    if not dbid:
+    if option_data:
         return option_data.split(":")
-    current_option_list = option_data.split(",")
-    for current_option in current_option_list:
-        if ":" in current_option:
-            option_parts = current_option.split(":")
-            if option_parts[0] == dbid:
-                return option_parts[1:]
-    default_value = config.get_default(option)
-    if isinstance(default_value, str):
-        option_parts = default_value.split(":")
-        return option_parts
-    return []
+    return "", ""
 
 
-def save_config_option(
-    config, option, option_type, option_value="", dbid=None
-):
+def save_config_option(config, option, option_type, option_value=""):
     """
     Save a compound config option.
     """
-    if dbid:
-        option_list = []
-        option_data = config.get(option)
-        if option_data:
-            current_option_list = option_data.split(",")
-            for current_option in current_option_list:
-                option_parts = current_option.split(":")
-                if len(option_parts) >= 3 and option_parts[0] != dbid:
-                    option_list.append(current_option)
-        option_list.append(":".join((dbid, option_type, option_value)))
-        config.set(option, ",".join(option_list))
-    else:
-        config.set(option, ":".join((option_type, option_value)))
-
-
-def attribute_option_text(attribute):
-    """
-    Helper to build attribute description string.
-    """
-    text = ": ".join((str(attribute.get_type()), attribute.get_value()))
-    if len(text) > 50:
-        text = "".join((text[:50], "..."))
-    return text
+    config.set(option, ":".join((option_type, option_value)))
 
 
 def citation_option_text(db, citation):
@@ -377,17 +343,6 @@ def citation_option_text(db, citation):
     else:
         text = "".join((text, ": [", _("Missing Page"), "]"))
     return text
-
-
-def note_option_text(note):
-    """
-    Helper to build note description string.
-    """
-    notetype = str(note.get_type())
-    text = note.get()[:50].replace("\n", " ")
-    if len(text) > 40:
-        text = "".join((text[:40], "..."))
-    return ": ".join((notetype, text))
 
 
 def get_bookmarks(db, obj_type):

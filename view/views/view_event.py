@@ -61,9 +61,7 @@ class EventObjectView(GrampsObjectView):
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        group_list = self.grstate.config.get(
-            "options.page.event.layout.groups"
-        ).split(",")
+        group_list = self.grstate.config.get("layout.event.groups").split(",")
         object_groups = self.get_object_groups(
             group_list, event, age_base=event.get_date_object()
         )

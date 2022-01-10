@@ -543,6 +543,7 @@ class GrampsState:
         "config",
         "page_type",
         "methods",
+        "templates",
     )
 
     def __init__(self, dbstate, uistate, callbacks, config):
@@ -551,7 +552,21 @@ class GrampsState:
         self.callbacks = callbacks
         self.config = config
         self.page_type = ""
-        self.methods = callbacks["methods"]
+        if callbacks:
+            self.methods = callbacks.get("methods")
+        self.templates = None
+
+    def set_templates(self, templates):
+        """
+        Set the templates configuration manager.
+        """
+        self.templates = templates
+
+    def set_config(self, config):
+        """
+        Set the configation manager.
+        """
+        self.config = config
 
     def set_page_type(self, page_type):
         """
@@ -596,6 +611,12 @@ class GrampsState:
             obj = obj_or_handle
         context = GrampsContext(obj, None, None)
         return self.load_page(context.pickled)
+
+    def reload_config(self):
+        """
+        Reload the configuration and page.
+        """
+        return self.callbacks["reload-config"]()
 
     def copy_to_clipboard(self, data, handle):
         """
@@ -748,21 +769,16 @@ class GrampsConfig:
             self.title_markup = "{}"
         self.fetch = self.grstate.fetch
 
-    def get_option(self, key, full=True, keyed=False):
+    def get_option(self, key, full=True):
         """
         Fetches an option in the frame configuration name space.
         """
-        dbid = None
-        if keyed:
-            dbid = self.grstate.dbstate.db.get_dbid()
         if key[:8] == "options.":
             option = key
         else:
             option = ".".join((self.groptions.option_space, key))
         try:
-            return get_config_option(
-                self.grstate.config, option, full=full, dbid=dbid
-            )
+            return get_config_option(self.grstate.config, option, full=full)
         except AttributeError:
             return False
 

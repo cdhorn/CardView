@@ -216,9 +216,7 @@ class FieldSelector(Gtk.HBox):
     Language sensitive field or person selector.
     """
 
-    def __init__(
-        self, grstate, option, obj_type, value_type, value="None", dbid=False
-    ):
+    def __init__(self, grstate, option, obj_type, value_type, value="None"):
         Gtk.HBox.__init__(self, vexpand=False, hexpand=False)
         self.grstate = grstate
         self.option = option
@@ -229,9 +227,6 @@ class FieldSelector(Gtk.HBox):
         self.itoe = {}
         self.person = None
         self.selector = None
-        self.dbid = dbid
-        if dbid:
-            self.dbid = self.grstate.dbstate.db.get_dbid()
         self.ready = False
         self.load(obj_type, value_type, value=value)
         self.ready = True
@@ -322,7 +317,6 @@ class FieldSelector(Gtk.HBox):
             self.option,
             self.value_type,
             current_value,
-            dbid=self.dbid,
         )
 
 
@@ -337,7 +331,6 @@ class FrameFieldSelector(Gtk.HBox):
         grstate,
         number,
         mode="all",
-        dbid=False,
         text=None,
         obj_type="Person",
         size_groups=None,
@@ -346,9 +339,6 @@ class FrameFieldSelector(Gtk.HBox):
         self.option = option
         self.grstate = grstate
         self.obj_type = obj_type
-        self.dbid = None
-        if dbid:
-            self.dbid = self.grstate.dbstate.db.get_dbid()
 
         if text:
             label_text = "".join((text, " ", str(number), ":"))
@@ -361,7 +351,7 @@ class FrameFieldSelector(Gtk.HBox):
         user_type, user_value = self.get_current_option()
 
         self.type_selector = FieldSelector(
-            self.grstate, option, mode, "Types", value=user_type, dbid=dbid
+            self.grstate, option, mode, "Types", value=user_type
         )
         if size_groups and "type" in size_groups:
             size_groups["type"].add_widget(self.type_selector)
@@ -373,7 +363,6 @@ class FrameFieldSelector(Gtk.HBox):
             self.obj_type,
             user_type,
             value=user_value,
-            dbid=dbid,
         )
         if size_groups and "value" in size_groups:
             size_groups["value"].add(self.value_selector)
@@ -405,7 +394,6 @@ class FrameFieldSelector(Gtk.HBox):
         current_option = get_config_option(
             self.grstate.config,
             self.option,
-            dbid=self.dbid,
         )
         if current_option and current_option[0] != "None":
             user_type = current_option[0]
@@ -422,6 +410,5 @@ class FrameFieldSelector(Gtk.HBox):
             self.option,
             current_type,
             "None",
-            dbid=self.dbid,
         )
         self.value_selector.load(self.obj_type, current_type)

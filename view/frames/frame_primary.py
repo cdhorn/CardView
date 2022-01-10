@@ -152,7 +152,6 @@ class PrimaryFrame(GrampsFrame):
             option = self.get_option(
                 "".join((option_prefix, str(count))),
                 full=False,
-                keyed=True,
             )
             if (
                 option

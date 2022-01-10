@@ -187,13 +187,20 @@ class ConfigReset(Gtk.ButtonBox):
         """
         Get all the options available in a given space.
         """
-        settings = self.config.get_section_settings("options")
-        prefix = self.space.replace("options.", "")
+        if "layout" in self.space:
+            settings = self.config.get_section_settings("layout")
+            prefix = self.space.replace("layout.", "")
+        else:
+            settings = self.config.get_section_settings("options")
+            prefix = self.space.replace("options.", "")
         prefix_length = len(prefix)
         options = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
-                options.append("".join(("options.", setting)))
+                if "layout" in self.space:
+                    options.append("".join(("layout.", setting)))
+                else:
+                    options.append("".join(("options.", setting)))
         return options
 
 
@@ -253,7 +260,6 @@ def config_facts_fields(
             grstate,
             count,
             mode=mode,
-            dbid=True,
             obj_type=obj_type,
             size_groups=size_groups,
         )

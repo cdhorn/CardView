@@ -97,7 +97,7 @@ class ProfilePageLayout(Gtk.VBox):
         self.grstate = grstate
         self.config = grstate.config
         self.obj_type, self.obj_type_lang = tab
-        self.space = "options.page.{}.layout".format(self.obj_type.lower())
+        self.space = "layout.{}".format(self.obj_type.lower())
         self.revert = []
         self.draw()
 
@@ -171,13 +171,13 @@ class ProfilePageLayout(Gtk.VBox):
         """
         Extract all available groups for an object view.
         """
-        settings = self.config.get_section_settings("options")
-        prefix = "page.{}.layout".format(obj_type.lower())
+        settings = self.config.get_section_settings("layout")
+        prefix = obj_type.lower()
         prefix_length = len(prefix)
         groups = []
         for setting in settings:
             if setting[:prefix_length] == prefix and "visible" in setting:
-                groups.append(setting.split(".")[3])
+                groups.append(setting.split(".")[1])
         return groups
 
     def apply_changes(self, *_dummy_obj):
@@ -355,7 +355,17 @@ class ProfileColumnLayout(Gtk.ListBox):
         """
         self.reset_dnd_css()
         current_row = self.get_row_at_y(y_location)
-        allocation = current_row.get_allocation()
+        if current_row:
+            allocation = current_row.get_allocation()
+            if allocation:
+                self.update_rows_for_drag_motion(
+                    y_location, current_row, allocation
+                )
+
+    def update_rows_for_drag_motion(self, y_location, current_row, allocation):
+        """
+        Update row state as needed.
+        """
         if y_location < allocation.y + allocation.height / 2:
             self.row_current = current_row.get_index()
             self.row_previous = self.row_current - 1

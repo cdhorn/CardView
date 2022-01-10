@@ -156,9 +156,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Gather and build the object groups.
         """
-        option = ".".join(
-            ("options.page", gramps_obj.obj_type.lower(), "layout.groups")
-        )
+        option = ".".join(("layout", gramps_obj.obj_type.lower(), "groups"))
         group_list = self.grstate.config.get(option).split(",")
         object_groups = self.get_object_groups(
             group_list, gramps_obj.obj, age_base=age_base
@@ -183,35 +181,29 @@ class GrampsObjectView(Gtk.VBox):
         """
         Identify format for the group view and call method to prepare it.
         """
-        space = "".join(
-            ("options.page.", self.grcontext.page_type.lower(), ".layout")
-        )
-        groups = self.grstate.config.get("".join((space, ".groups"))).split(
+        space = ".".join(("layout", self.grcontext.page_type.lower()))
+        groups = self.grstate.config.get(".".join((space, "groups"))).split(
             ","
         )
-        scrolled = self.grstate.config.get("".join((space, ".scrolled")))
+        scrolled = self.grstate.config.get(".".join((space, "scrolled")))
         groupings = []
         current_grouping = []
         for group in groups:
             if (
-                self.grstate.config.get(
-                    "".join((space, ".", group, ".visible"))
-                )
+                self.grstate.config.get(".".join((space, group, "visible")))
                 and group in obj_groups
                 and obj_groups[group]
             ):
                 current_grouping.append(group)
             if (
-                not self.grstate.config.get(
-                    "".join((space, ".", group, ".append"))
-                )
+                not self.grstate.config.get(".".join((space, group, "append")))
                 and current_grouping
             ):
                 groupings.append(current_grouping)
                 current_grouping = []
         if current_grouping:
             groupings.append(current_grouping)
-        if self.grstate.config.get("".join((space, ".tabbed"))):
+        if self.grstate.config.get(".".join((space, "tabbed"))):
             return prepare_tabbed_groups(obj_groups, groupings, scrolled)
         return prepare_untabbed_groups(obj_groups, groupings, scrolled)
 

@@ -284,9 +284,7 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     )
     configdialog.add_checkbox(
         grid,
-        _(
-            "Include LDS ordinances option on context menu"
-        ),
+        _("Include LDS ordinances option on context menu"),
         18,
         "options.global.general.include-ldsord-menu",
     )
@@ -587,7 +585,7 @@ def build_status_grid(configdialog, grstate, *_dummy_args):
         grid,
         _("Enable missing event alerts"),
         61,
-        "options.global.status.citation-alert",
+        "options.global.status.missing-alert",
     )
     configdialog.add_text(grid, "".join((_("Required Events"), ":")), 62)
     grid1 = config_event_fields(grstate, "missing", count=6)

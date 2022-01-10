@@ -55,7 +55,6 @@ from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.dialog import WarningDialog
 from gramps.gui.display import display_url
 from gramps.gui.views.bookmarks import PersonBookmarks
-from gramps.gui.views.pageview import ViewConfigureDialog
 
 # -------------------------------------------------------------------------
 #
@@ -66,7 +65,12 @@ from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_utils import get_config_option, save_config_option
 from view.config.config_const import PAGES
-from view.config.config_options import CONFIGSETTINGS
+from view.config.config_defaults import VIEWDEFAULTS
+from view.config.config_profile import ProfileManager
+from view.config.config_templates import (
+    build_templates_panel,
+    EditTemplateOptions,
+)
 from view.groups.group_window import FrameGroupWindow
 from view.pages.page_builder import page_builder
 from view.pages.page_window import PageViewWindow
@@ -93,10 +97,16 @@ class LinkedView(ExtendedNavigationView):
     A browseable view across all the associated objects in a tree.
     """
 
-    # Kept separate due to sheer number of them
-    CONFIGSETTINGS = CONFIGSETTINGS
+    CONFIGSETTINGS = (
+        ("hpane.slider-position", 0),
+        ("templates.active", "Default"),
+        ("templates.templates", ["Default"]),
+        ("vpane.slider-position", 0),
+    )
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
+        self._config_view = None
+        self.grstate = None
         ExtendedNavigationView.__init__(
             self,
             _("Linked"),
@@ -113,9 +123,11 @@ class LinkedView(ExtendedNavigationView):
                 uistate.viewmanager.active_page.navigation_type()
             )
         self.child = None
-        self.grstate = None
+        self._config_callback_ids = []
+        self._load_config()
         self.methods = {}
         self._init_methods()
+        self._init_state(dbstate, uistate)
         self.pages = {}
         self._init_pages()
         self.page_view = None
@@ -132,6 +144,29 @@ class LinkedView(ExtendedNavigationView):
         dbstate.connect("database-changed", self._handle_db_change)
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
+
+    def _load_config(self):
+        """
+        Load view configuration.
+        """
+        self.config_disconnect()
+        profile_name = self._config.get("templates.active")
+        user_ini_file = "_".join(("Browse_linkview_template", profile_name))
+        if self.dbstate and self.dbstate.db:
+            db_ini_file = "Browse_linkview_database"
+            dbid = self.dbstate.db.get_dbid()
+            if dbid:
+                db_ini_file = "_".join((db_ini_file, dbid))
+        else:
+            db_ini_file = None
+        profile_manager = ProfileManager(
+            self.ident, VIEWDEFAULTS, user_ini_file, db_ini_file
+        )
+        self._config_view = profile_manager.get_config_manager()
+        self._config_view.save()
+        self.config_connect()
+        if self.grstate:
+            self.grstate.set_config(self._config_view)
 
     def _init_methods(self):
         """
@@ -154,6 +189,34 @@ class LinkedView(ExtendedNavigationView):
             )
             self.methods.update({obj_type: query_method})
 
+    def _init_state(self, dbstate, uistate):
+        """
+        Initialize state.
+        """
+        callbacks = {
+            "methods": self.methods,
+            "load-page": self.load_page,
+            "reload-config": self.reload_config,
+            "fetch-thumbnail": self.fetch_thumbnail,
+            "fetch-page-context": self.fetch_page_context,
+            "copy-to-clipboard": self.clipboard_copy,
+            "update-history-reference": self.update_history_reference,
+            "show-group": self.show_group,
+            "launch-config": self.launch_config,
+            "set-dirty-redraw-trigger": self.set_dirty_redraw_trigger,
+        }
+        self.grstate = GrampsState(
+            dbstate, uistate, callbacks, self._config_view
+        )
+        self.grstate.set_templates(self._config)
+
+    def _init_pages(self):
+        """
+        Load page handlers.
+        """
+        for (page_type, dummy_page_lang) in PAGES:
+            self.pages[page_type] = page_builder(page_type, self.grstate)
+
     @lru_cache(maxsize=32)
     def fetch_thumbnail(self, path, rectangle, size):
         """
@@ -175,27 +238,6 @@ class LinkedView(ExtendedNavigationView):
         """
         self.dirty_redraw_trigger = True
 
-    def _init_pages(self):
-        """
-        Load page handlers.
-        """
-        callbacks = {
-            "methods": self.methods,
-            "load-page": self.load_page,
-            "fetch-thumbnail": self.fetch_thumbnail,
-            "fetch-page-context": self.fetch_page_context,
-            "copy-to-clipboard": self.clipboard_copy,
-            "update-history-reference": self.update_history_reference,
-            "show-group": self.show_group,
-            "launch-config": self.launch_config,
-            "set-dirty-redraw-trigger": self.set_dirty_redraw_trigger,
-        }
-        self.grstate = GrampsState(
-            self.dbstate, self.uistate, callbacks, self._config
-        )
-        for (page_type, dummy_page_lang) in PAGES:
-            self.pages[page_type] = page_builder(page_type, self.grstate)
-
     def _connect_db_signals(self):
         """
         Register the callbacks we need.
@@ -212,18 +254,9 @@ class LinkedView(ExtendedNavigationView):
             "note",
             "tag",
         ]:
-            self.callman.add_db_signal(
-                "".join((obj_type, "-add")), self.build_tree
-            )
-            self.callman.add_db_signal(
-                "".join((obj_type, "-update")), self.build_tree
-            )
-            self.callman.add_db_signal(
-                "".join((obj_type, "-delete")), self.build_tree
-            )
-            self.callman.add_db_signal(
-                "".join((obj_type, "-rebuild")), self.build_tree
-            )
+            for suffix in ["-add", "-update", "-delete", "-rebuild"]:
+                key = "".join((obj_type, suffix))
+                self.callman.add_db_signal(key, self.build_tree)
 
     def navigation_type(self):
         """
@@ -237,14 +270,44 @@ class LinkedView(ExtendedNavigationView):
         """
         return True
 
+    def reload_config(self):
+        """
+        Reload all config settings and initiate redraw.
+        """
+        self._config.load()
+        self._config_view.save()
+        self._load_config()
+        self._defer_config_refresh()
+
     def config_connect(self):
         """
-        Monitor configuration options for changes.
-        First option should be options.active.last_object which
-        we always need to skip otherwise we redraw page twice.
+        Connect configuration callbacks so can update on changes.
+        Always skip active.last_object as otherwise triggers a second redraw.
         """
-        for item in self.CONFIGSETTINGS[1:]:
-            self._config.connect(item[0], self._defer_config_refresh)
+        if not self._config_view:
+            return
+        for section in self._config_view.get_sections():
+            for setting in self._config_view.get_section_settings(section):
+                key = ".".join((section, setting))
+                if (
+                    "active.last_object" not in key
+                    and self._config_view.is_set(key)
+                ):
+                    try:
+                        callback_id = self._config_view.connect(
+                            key, self._defer_config_refresh
+                        )
+                        self._config_callback_ids.append(callback_id)
+                    except KeyError:
+                        pass
+
+    def config_disconnect(self):
+        """
+        Disconnect configuration callbacks.
+        """
+        for callback_id in self._config_callback_ids:
+            self._config_view.disconnect(callback_id)
+        self._config_callback_ids.clear()
 
     def _defer_config_refresh(self, *_dummy_args):
         """
@@ -259,7 +322,7 @@ class LinkedView(ExtendedNavigationView):
 
     def _perform_config_refresh(self):
         """
-        Perform the configuration rebuild.
+        Perform the view rebuild due to a configuration change.
         """
         if self.defer_refresh:
             self.defer_refresh = False
@@ -270,11 +333,19 @@ class LinkedView(ExtendedNavigationView):
         self.defer_refresh_id = None
         return False
 
+    def templates_panel(self, configdialog):
+        """
+        Build templates manager panel for the configuration dialog.
+        """
+        return _("Templates"), build_templates_panel(
+            configdialog, self.grstate
+        )
+
     def _get_configure_page_funcs(self):
         """
         Return functions to build the configuration dialogs.
         """
-        return self.active_page.get_configure_page_funcs()
+        return [self.templates_panel]
 
     def get_stock(self):
         """
@@ -572,6 +643,7 @@ class LinkedView(ExtendedNavigationView):
         self.group_windows.clear()
         self.history.clear()
         self.fetch_thumbnail.cache_clear()
+        self._load_config()
         self.build_tree()
 
     def change_page(self):
@@ -650,13 +722,11 @@ class LinkedView(ExtendedNavigationView):
         if page_context.primary_obj:
             self._render_page(page_context)
             if self.initial_object_loaded:
-                dbid = self.dbstate.db.get_dbid()
                 save_config_option(
-                    self._config,
+                    self._config_view,
                     "options.active.last_object",
                     page_context.primary_obj.obj_type,
                     page_context.primary_obj.obj.get_handle(),
-                    dbid=dbid,
                 )
         self.in_change_object = False
         return
@@ -756,12 +826,11 @@ class LinkedView(ExtendedNavigationView):
         """
         Try to determine last accessed object.
         """
-        dbid = self.dbstate.db.get_dbid()
-        if not dbid:
+        if not self.dbstate.db.get_dbid():
             return None
         try:
             obj_tuple = get_config_option(
-                self._config, "options.active.last_object", dbid=dbid
+                self._config_view, "options.active.last_object"
             )
         except ValueError:
             obj_tuple = None
@@ -815,7 +884,7 @@ class LinkedView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        max_windows = self._config.get(
+        max_windows = self._config_view.get(
             "options.global.display.max-group-windows"
         )
         if isinstance(obj, TableObject):
@@ -872,7 +941,7 @@ class LinkedView(ExtendedNavigationView):
         """
         grcontext = GrampsContext()
         grcontext.load_page_location(self.grstate, self.get_active())
-        max_windows = self._config.get(
+        max_windows = self._config_view.get(
             "options.global.display.max-page-windows"
         )
         key = grcontext.obj_key
@@ -921,14 +990,9 @@ class LinkedView(ExtendedNavigationView):
         Launch configuration dialog page.
         """
         self.config_request = (label, builder, space, context)
-        try:
-            ViewConfigureDialog(
-                self.uistate,
-                self.dbstate,
-                [self.build_requested_config_page],
-                self,
-                self._config,
-                "Configure Relationships - Linked",
-            )
-        except WindowActiveError:
-            pass
+        EditTemplateOptions(
+            self.grstate,
+            self._config_view,
+            "Configure Browse View",
+            panels=[self.build_requested_config_page],
+        )

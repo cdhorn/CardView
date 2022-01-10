@@ -108,7 +108,7 @@ def build_person_grid(configdialog, grstate, space, person):
     """
     Builds a person options section for the configuration dialog
     """
-    extra = "extra" in space
+    extra = "active" in space and "person" in person
     grid = create_grid()
     grid1 = create_grid()
     configdialog.add_text(grid1, DISPLAY_OPTIONS, 0, bold=True)
