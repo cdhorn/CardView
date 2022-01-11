@@ -1,7 +1,9 @@
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2010    Nick Hall
-# Copyright (C) 2022    Christopher Horn
+# Copyright (C) 2005-2007  Donald N. Allingham
+# Copyright (C) 2008       Brian G. Matherly
+# Copyright (C) 2010       Nick Hall
+# Copyright (C) 2022       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -90,11 +92,9 @@ class ConfigTemplates(Gtk.Box):
             (_("Name"), NOSORT, 160),
             ("", NOSORT, 100),  # Untranslated Name
             (_("Description"), NOSORT, 200),
-            (_("File"), NOSORT, 200),
         ]
         self.template_list = Gtk.TreeView()
         self.template_model = ListModel(self.template_list, name_titles)
-
         slist = Gtk.ScrolledWindow()
         slist.add(self.template_list)
         slist.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -103,11 +103,13 @@ class ConfigTemplates(Gtk.Box):
         bbox.set_layout(Gtk.ButtonBoxStyle.START)
         bbox.set_spacing(6)
         add_button(bbox, _("Make Active"), self.cb_active_clicked)
+        add_button(bbox, _("View Changes"), self.cb_changes_clicked)
         add_button(bbox, _("Copy Template"), self.cb_copy_clicked)
         add_button(bbox, _("Edit Attributes"), self.cb_info_clicked)
         add_button(bbox, _("Edit Template"), self.cb_edit_clicked)
         add_button(bbox, _("Remove Template"), self.cb_remove_clicked)
         add_button(bbox, _("Delete Template"), self.cb_delete_clicked)
+        add_button(bbox, _("Import Template"), self.cb_import_clicked)
         self.pack_start(bbox, 0, 0, 5)
 
     def _load_layout(self):
@@ -121,12 +123,11 @@ class ConfigTemplates(Gtk.Box):
         self.config_managers.clear()
         for row in sorted(templates):
             (lang, name, desc, ini) = row
-            filename = ini.filename
             if name == active_template:
                 flag = "*"
             else:
                 flag = ""
-            self.template_model.add((flag, lang, name, desc, filename))
+            self.template_model.add((flag, lang, name, desc))
             self.config_managers.update({name: ini})
         self.template_list.show()
 
@@ -152,9 +153,15 @@ class ConfigTemplates(Gtk.Box):
         if iter_ is None:
             return
 
-        editor = EditTemplateName(
-            self.grstate.dbstate.db, self.grstate.uistate, [], "", ""
-        )
+        base_name = store.get_value(iter_, 2)
+        base_ini = self.config_managers[base_name]
+        self.create_template(base_ini)
+
+    def create_template(self, base_ini):
+        """
+        Create new template copy from old.
+        """
+        editor = EditTemplateName(self.grstate.uistate, [], "", "")
         result = editor.run()
         if not isinstance(result, tuple):
             return
@@ -165,8 +172,6 @@ class ConfigTemplates(Gtk.Box):
         if new_name in template_list:
             return
 
-        base_name = store.get_value(iter_, 2)
-        base_ini = self.config_managers[base_name]
         new_template = get_template(new_name)
         (dummy_lang, dummy_name, dummy_description, new_ini) = new_template
         for section in base_ini.get_sections():
@@ -180,8 +185,8 @@ class ConfigTemplates(Gtk.Box):
         new_ini.set("template.description", new_description)
         new_ini.save()
 
-        template_list = self.grstate.templates.get("templates.templates")
         template_list.append(new_name)
+        template_list.sort()
         self.grstate.templates.set("templates.templates", template_list)
         self.grstate.templates.save()
         self._load_layout()
@@ -218,7 +223,6 @@ class ConfigTemplates(Gtk.Box):
         Edit template name and description.
         """
         editor = EditTemplateName(
-            self.grstate.dbstate.db,
             self.grstate.uistate,
             [],
             name,
@@ -248,6 +252,7 @@ class ConfigTemplates(Gtk.Box):
             template_list = self.grstate.templates.get("templates.templates")
             template_list.remove(old_name)
             template_list.append(new_name)
+            template_list.sort()
             self.grstate.templates.set("templates.templates", template_list)
             self.grstate.templates.save()
 
@@ -306,12 +311,44 @@ class ConfigTemplates(Gtk.Box):
             self.grstate.templates.set("templates.active", "Default")
         template_list = self.grstate.templates.get("templates.templates")
         template_list.remove(name)
+        template_list.sort()
         self.grstate.templates.set("templates.templates", template_list)
         self.grstate.templates.save()
         if delete:
             ini = self.config_managers[name]
             os.remove(ini.filename)
         self._load_layout()
+
+    def cb_import_clicked(self, button):
+        """
+        Import a template.
+        """
+        import_selector = ImportTemplateSelector(self.grstate.uistate, [])
+        filename = import_selector.run()
+        if isinstance(filename, str):
+            if configman.has_manager(filename):
+                import_ini = configman.get_manager(filename)
+            else:
+                import_ini = configman.register_manager(
+                    filename,
+                    use_config_path=False,
+                    use_plugins_path=False,
+                )
+                for key, value in VIEWDEFAULTS:
+                    import_ini.register(key, value)
+                import_ini.load()
+            self.create_template(import_ini)
+
+    def cb_changes_clicked(self, button):
+        """
+        View changes against defaults.
+        """
+        store, iter_ = self.template_model.get_selected()
+        if iter_ is None:
+            return
+
+        name = store.get_value(iter_, 2)
+        TemplateChangeViewer(self.grstate, name)
 
 
 # -------------------------------------------------------------------------
@@ -324,7 +361,7 @@ class EditTemplateName(ManagedWindow):
     A dialog to enable the user to edit a template name and description.
     """
 
-    def __init__(self, db, uistate, track, name, description=""):
+    def __init__(self, uistate, track, name, description=""):
         if name:
             self.title = _("Template: %s") % name
         else:
@@ -526,6 +563,251 @@ class EditTemplateOptions:
         return _("Colors"), build_color_panel(configdialog, self.grstate)
 
 
+# -------------------------------------------------------------------------
+#
+# ImportTemplateSelector
+#
+# -------------------------------------------------------------------------
+class ImportTemplateSelector(ManagedWindow):
+    """
+    Selector for picking an import file.
+    """
+
+    def __init__(self, uistate, track):
+        """
+        A dialog to import a template into Gramps
+        """
+        self.title = _("Import Template")
+        ManagedWindow.__init__(
+            self, uistate, track, self.__class__, modal=True
+        )
+        # the import_dialog.run() below makes it modal, so any change to
+        # the previous line's "modal" would require that line to be changed
+
+    def run(self):
+        """
+        Get the selection.
+        """
+        import_dialog = Gtk.FileChooserDialog(
+            title="",
+            transient_for=self.uistate.window,
+            action=Gtk.FileChooserAction.OPEN,
+        )
+        import_dialog.add_buttons(
+            _("_Cancel"),
+            Gtk.ResponseType.CANCEL,
+            _("Import"),
+            Gtk.ResponseType.OK,
+        )
+        self.set_window(import_dialog, None, self.title)
+        self.setup_configs("interface.linked-view.import-template", 780, 630)
+        import_dialog.set_local_only(False)
+
+        file_filter = Gtk.FileFilter()
+        file_filter.add_pattern("*.%s" % icase("ini"))
+        import_dialog.add_filter(file_filter)
+
+        import_dialog.set_current_folder(
+            configman.get("paths.recent-import-dir")
+        )
+        while True:
+            # the import_dialog.run() makes it modal, so any change to that
+            # line would require the ManagedWindow.__init__ to be changed also
+            response = import_dialog.run()
+            if response == Gtk.ResponseType.CANCEL:
+                break
+            if response == Gtk.ResponseType.DELETE_EVENT:
+                return
+            if response == Gtk.ResponseType.OK:
+                filename = import_dialog.get_filename()
+                if self.check_errors(filename):
+                    # displays errors if any
+                    continue
+                self.close()
+                return filename
+        self.close()
+
+    def check_errors(self, filename):
+        """
+        Run common error checks and return True if any found.
+        """
+        if not isinstance(filename, str):
+            return True
+
+        filename = os.path.normpath(os.path.abspath(filename))
+
+        if len(filename) == 0:
+            return True
+        if os.path.isdir(filename):
+            ErrorDialog(
+                _("Cannot open file"),
+                _("The selected file is a directory, not a file.\n"),
+                parent=self.uistate.window,
+            )
+            return True
+        if os.path.exists(filename) and not os.access(filename, os.R_OK):
+            ErrorDialog(
+                _("Cannot open file"),
+                _("You do not have read access to the selected file."),
+                parent=self.uistate.window,
+            )
+            return True
+        try:
+            ini = configman.register_manager(
+                filename,
+                use_config_path=False,
+                use_plugins_path=False,
+            )
+            for key, value in VIEWDEFAULTS:
+                ini.register(key, value)
+            ini.load()
+        except:
+            ErrorDialog(
+                _("Error loading file data"),
+                _("May not be in valid format."),
+                parent=self.uistate.window,
+            )
+            return True
+        return False
+
+    def build_menu_names(self, obj):  # this is meaningless since it's modal
+        return (self.title, None)
+
+
+# -------------------------------------------------------------------------
+#
+# ViewTemplateChanges
+#
+# -------------------------------------------------------------------------
+class TemplateChangeViewer(ManagedWindow):
+    """
+    Display differences between default, template and active database options.
+    """
+
+    def __init__(self, grstate, name):
+        """
+        A dialog to view template changes.
+        """
+        (lang, dummy_name, dummy_description, ini) = get_template(name)
+        self.ini = ini
+        self.title = "".join(
+            (_("Template Change View"), ": ", lang, " ", _("Template"))
+        )
+        ManagedWindow.__init__(
+            self, grstate.uistate, [], self.__class__, modal=True
+        )
+        # the import_dialog.run() below makes it modal, so any change to
+        # the previous line's "modal" would require that line to be changed
+
+        self.grstate = grstate
+        self.column_list = None
+        self.column_model = None
+        self.top, self.header = self.create_dialog()
+        self.set_window(self.top, None, self.title)
+        self.setup_configs(
+            "interface.linked-view.template-change-viewer", 320, 100
+        )
+        self.load_data()
+        self.show()
+        self.top.run()
+        self.close()
+
+    def create_dialog(self):
+        """
+        Create a dialog box to display the data.
+        """
+        top = Gtk.Dialog(transient_for=self.parent_window)
+        top.vbox.set_spacing(5)
+        header = Gtk.VBox(hexpand=False, vexpand=False)
+        top.vbox.pack_start(header, False, False, 3)
+        column_titles = [
+            (_("Option"), NOSORT, 300),
+            (_("Default"), NOSORT, 160),
+            (_("Template"), NOSORT, 160),
+            (_("Database"), NOSORT, 160),
+        ]
+        self.column_list = Gtk.TreeView()
+        self.column_model = ListModel(self.column_list, column_titles)
+        slist = Gtk.ScrolledWindow()
+        slist.add(self.column_list)
+        slist.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        top.vbox.pack_start(slist, True, True, 3)
+        return top, header
+
+    def load_data(self):
+        """
+        Load the layout.
+        """
+        ini = self.ini
+        config = self.grstate.config
+        group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
+        add_header(
+            self.header,
+            group,
+            _("Template Name:"),
+            ini.get("template.name_lang"),
+            ini.filename,
+        )
+        add_header(
+            self.header,
+            group,
+            _("Database Baseline:"),
+            config.get("template.name_lang"),
+            config.filename,
+        )
+        for key, default_value in VIEWDEFAULTS:
+            default_value = str(default_value)
+            template_value = str(ini.get(key))
+            if template_value == default_value:
+                template_value = ""
+            database_value = str(config.get(key))
+            if template_value and database_value == template_value:
+                database_value = ""
+            elif not template_value and database_value == default_value:
+                database_value = ""
+            self.column_model.add(
+                (key, default_value, template_value, database_value)
+            )
+        self.column_list.show()
+
+    def build_menu_names(self, obj):  # this is meaningless since it's modal
+        return (self.title, None)
+
+
+def add_header(widget, group, label1, label2, label3):
+    """
+    Add header entry to widget.
+    """
+    hbox = Gtk.HBox(hexpand=False)
+    label = Gtk.Label(
+        label=label1,
+        xalign=0.0,
+        justify=Gtk.Justification.LEFT,
+        halign=Gtk.Align.START,
+    )
+    hbox.pack_start(label, False, False, 3)
+    label = Gtk.Label(
+        label=label2,
+        xalign=0.0,
+        justify=Gtk.Justification.LEFT,
+        halign=Gtk.Align.START,
+    )
+    group.add_widget(label)
+    hbox.pack_start(label, False, False, 3)
+    label = Gtk.Label(
+        label=label3, justify=Gtk.Justification.RIGHT, halign=Gtk.Align.END
+    )
+    hbox.pack_end(label, True, True, 6)
+    widget.pack_start(hbox, True, True, 0)
+
+
+def icase(ext):
+    """
+    Return a glob reresenting a case insensitive file extension.
+    """
+    return "".join(["[{}{}]".format(s.lower(), s.upper()) for s in ext])
+
+
 def build_templates_panel(configdialog, grstate):
     """
     Build templates manager grid for the configuration dialog.
@@ -571,14 +853,17 @@ def get_template(name):
     Get a template.
     """
     ini_name = "_".join(("Browse_linkview_template", name))
-    ini = configman.register_manager(
-        ini_name,
-        use_config_path=True,
-        use_plugins_path=False,
-    )
-    for key, value in VIEWDEFAULTS:
-        ini.register(key, value)
-    ini.load()
+    if configman.has_manager(ini_name):
+        ini = configman.get_manager(ini_name)
+    else:
+        ini = configman.register_manager(
+            ini_name,
+            use_config_path=True,
+            use_plugins_path=False,
+        )
+        for key, value in VIEWDEFAULTS:
+            ini.register(key, value)
+        ini.load()
     if not ini.get("template.name_lang"):
         ini.set("template.name_lang", name)
     lang = ini.get("template.name_lang")

@@ -40,13 +40,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..config.config_layout import build_layout_grid
-from ..config.config_panel import (
-    build_color_panel,
-    build_global_panel,
-    build_object_panel,
-    build_timeline_panel,
-)
 from ..views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -126,56 +119,3 @@ class GrampsPageView:
                 "commit_%s", self.active_profile.primary.obj_type
             )
             commit_method(self.active_profile.primary.obj, trans)
-
-    def global_panel(self, configdialog):
-        """
-        Build global options panel for the configuration dialog.
-        """
-        return _("Global"), build_global_panel(configdialog, self.grstate)
-
-    def layout_panel(self, configdialog):
-        """
-        Build layout panel for the configuration dialog.
-        """
-        return _("Layout"), build_layout_grid(configdialog, self.grstate)
-
-    def active_panel(self, configdialog):
-        """
-        Build active object options panel for the configuration dialog.
-        """
-        return _("Active"), build_object_panel(
-            configdialog, self.grstate, "options.active"
-        )
-
-    def group_panel(self, configdialog):
-        """
-        Build object group options panel for the configuration dialog.
-        """
-        return _("Groups"), build_object_panel(
-            configdialog, self.grstate, "options.group"
-        )
-
-    def timeline_panel(self, configdialog):
-        """
-        Build timeline options panel for the configuration dialog.
-        """
-        return _("Timelines"), build_timeline_panel(configdialog, self.grstate)
-
-    def color_panel(self, configdialog):
-        """
-        Build color scheme options panel for the configuration dialog.
-        """
-        return _("Colors"), build_color_panel(configdialog, self.grstate)
-
-    def get_configure_page_funcs(self):
-        """
-        Return functions for generating configuration dialog notebook pages.
-        """
-        return [
-            self.global_panel,
-            self.layout_panel,
-            self.active_panel,
-            self.group_panel,
-            self.timeline_panel,
-            self.color_panel,
-        ]
