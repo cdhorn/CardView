@@ -245,79 +245,124 @@ def build_menu_grid(configdialog, grstate, *_dummy_args):
     grid = create_grid()
     configdialog.add_text(grid, _("Context Menu Options"), 10, bold=True)
     configdialog.add_checkbox(
-        grid, _("Enable delete option for primary objects"), 11, "menu.delete"
+        grid, _("Enable delete option for selected object"), 11, "menu.delete"
     )
     configdialog.add_checkbox(
         grid,
-        _("If enabled append delete option at bottom of menu"),
+        _("If delete enabled append delete to bottom of menu"),
         12,
         "menu.delete-bottom",
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable delete option for primary objects in submenus"),
+        _("Enable delete option for objects in submenus"),
         13,
         "menu.delete-submenus",
     )
     configdialog.add_checkbox(
-        grid, _("Enable set home option"), 14, "menu.set-home"
+        grid, _("Enable set home person option"), 14, "menu.set-home-person"
+    )
+    configdialog.add_checkbox(
+        grid, _("Enable go to person options"), 15, "menu.go-to-person"
     )
     configdialog.add_checkbox(
         grid,
         _("Enable parents submenu"),
-        15,
+        16,
         "menu.parents",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable spouses submenu"),
-        16,
+        17,
         "menu.spouses",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable associations submenu"),
-        17,
+        18,
         "menu.associations",
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable names submenu"),
-        18,
-        "menu.names",
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Enable ordinances submenu"),
-        19,
-        "menu.ordinances",
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Enable attributes submenu"),
-        20,
-        "menu.attributes",
-    )
-    configdialog.add_checkbox(
-        grid,
         _("Enable participants submenu"),
-        21,
+        19,
         "menu.participants",
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable urls submenu"),
+        _("Enable names submenu"),
+        20,
+        "menu.names",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable attributes submenu"),
+        21,
+        "menu.attributes",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable ordinances submenu"),
         22,
+        "menu.ordinances",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable citations submenu"),
+        23,
+        "menu.citations",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable repositories submenu"),
+        24,
+        "menu.repositories",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable media submenu"),
+        25,
+        "menu.media",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable notes submenu"),
+        26,
+        "menu.notes",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("If notes enabled include child object notes"),
+        27,
+        "menu.notes-children",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable urls submenu"),
+        28,
         "menu.urls",
     )
     configdialog.add_checkbox(
         grid,
+        _("Enable tags submenu"),
+        29,
+        "menu.tags",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable clipboard copy option"),
+        30,
+        "menu.clipboard",
+    )
+    configdialog.add_checkbox(
+        grid,
         _("Enable bookmarks option"),
-        23,
+        31,
         "menu.bookmarks",
     )
     configdialog.add_checkbox(
-        grid, _("Enable privacy option"), 24, "menu.privacy"
+        grid, _("Enable privacy option"), 32, "menu.privacy"
     )
     return add_config_reset(configdialog, grstate, "menu", grid)
 
@@ -343,7 +388,7 @@ def build_indicator_grid(configdialog, grstate, *_dummy_args):
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable bookmark indicator display and context menu support"),
+        _("Enable bookmark indicator"),
         3,
         "indicator.bookmarks",
     )

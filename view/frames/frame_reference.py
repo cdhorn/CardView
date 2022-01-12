@@ -67,6 +67,7 @@ from ..menus.menu_utils import (
     add_citations_menu,
     add_notes_menu,
     add_privacy_menu_option,
+    add_double_separator,
     show_menu,
 )
 from .frame_primary import PrimaryFrame
@@ -284,7 +285,7 @@ class ReferenceFrame(PrimaryFrame):
         add_privacy_menu_option(
             self.grstate, context_menu, self.reference_base, self.reference
         )
-        context_menu.add(Gtk.SeparatorMenuItem())
+        add_double_separator(context_menu)
         reference_type = self._get_reference_type()
         label = Gtk.MenuItem(label=reference_type)
         label.set_sensitive(False)

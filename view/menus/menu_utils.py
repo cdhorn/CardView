@@ -194,7 +194,7 @@ def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
             )
             menu.add(
                 menu_item(
-                    "gramps-attribute",
+                    "gtk-edit",
                     text,
                     action.edit_attribute,
                 )
@@ -206,6 +206,8 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the citations submenu.
     """
+    if not grstate.config.get("menu.citations"):
+        return
     target_object = grchild or grobject
     if not target_object.has_citations:
         return
@@ -266,16 +268,16 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
                 deletemenu.add(
                     menu_item("list-remove", text, action.delete_object)
                 )
-            menu.add(menu_item("gramps-citation", text, action.edit_citation))
+            menu.add(menu_item("gtk-edit", text, action.edit_citation))
     parent_menu.append(submenu_item("gramps-citation", _("Citations"), menu))
 
 
-def add_notes_menu(
-    grstate, parent_menu, grobject, grchild=None, include_children=False
-):
+def add_notes_menu(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the notes submenu.
     """
+    if not grstate.config.get("menu.notes"):
+        return
     target_object = grchild or grobject
     if not target_object.has_notes:
         return
@@ -301,8 +303,8 @@ def add_notes_menu(
                 deletemenu.add(
                     menu_item("list-remove", text, action.delete_object)
                 )
-            menu.add(menu_item("gramps-notes", text, action.edit_note))
-    if include_children and not grchild:
+            menu.add(menu_item("gtk-edit", text, action.edit_note))
+    if grstate.config.get("menu.notes-children") and not grchild:
         get_child_notes(menu, grstate, grobject, grchild)
     parent_menu.append(submenu_item("gramps-notes", _("Notes"), menu))
 
@@ -321,7 +323,7 @@ def get_child_notes(menu, grstate, grobject, grchild):
         add_double_separator(menu)
         for text, note in note_list:
             action = action_handler("Note", grstate, note, grobject, grchild)
-            menu.add(menu_item("gramps-notes", text, action.edit_note))
+            menu.add(menu_item("gtk-edit", text, action.edit_note))
 
 
 def get_sorted_notes(db, handle_list):
@@ -358,10 +360,12 @@ def add_privacy_menu_option(grstate, parent_menu, grobject, grchild=None):
         )
 
 
-def add_clipboard_menu_option(parent_menu, callback):
+def add_clipboard_menu_option(grstate, parent_menu, callback):
     """
     Build and add the copy to clipboard menu entry.
     """
+    if not grstate.config.get("menu.clipboard"):
+        return
     parent_menu.append(
         menu_item("edit-copy", _("Copy to clipboard"), callback)
     )
@@ -390,6 +394,8 @@ def add_tags_menu(grstate, parent_menu, grobject, sort_by_name=False):
     """
     Build and add the tags submenu.
     """
+    if not grstate.config.get("menu.tags"):
+        return
     if not grobject.has_tags:
         return
     delete_enabled = grstate.config.get("menu.delete-submenus")
@@ -474,7 +480,7 @@ def add_urls_menu(grstate, parent_menu, grobject):
         url_sort_list.sort(key=lambda x: x[0])
         for text, url in url_sort_list:
             action = action_handler("Url", grstate, url, grobject)
-            editmenu.add(menu_item("gramps-url", text, action.edit_url))
+            editmenu.add(menu_item("gtk-edit", text, action.edit_url))
             deletemenu.add(
                 menu_item("list-remove", text, action.delete_object)
             )
@@ -486,6 +492,8 @@ def add_media_menu(grstate, parent_menu, grobject):
     """
     Build and add the media submenu.
     """
+    if not grstate.config.get("menu.media"):
+        return
     if not grobject.has_media:
         return
     delete_enabled = grstate.config.get("menu.delete-submenus")
@@ -521,7 +529,7 @@ def add_media_menu(grstate, parent_menu, grobject):
                 deletemenu.add(
                     menu_item("list-remove", text, action.delete_object)
                 )
-            menu.add(menu_item("gramps-media", text, action.edit_media))
+            menu.add(menu_item("gtk-edit", text, action.edit_media))
     parent_menu.append(submenu_item("gramps-media", _("Media"), menu))
 
 
@@ -540,14 +548,14 @@ def add_names_menu(grstate, parent_menu, grobject):
         name = grobject.obj.get_primary_name()
         action = action_handler("Name", grstate, name, grobject)
         given_name = name.get_regular_name()
-        menu.add(menu_item("gramps-person", given_name, action.edit_name))
+        menu.add(menu_item("gtk-edit", given_name, action.edit_name))
         for name in name_list:
             action = action_handler("Name", grstate, name, grobject)
             given_name = name.get_regular_name()
             deletemenu.add(
                 menu_item("list-remove", given_name, action.delete_object)
             )
-            menu.add(menu_item("gramps-person", given_name, action.edit_name))
+            menu.add(menu_item("gtk-edit", given_name, action.edit_name))
     parent_menu.append(submenu_item("gramps-person", _("Names"), menu))
 
 
@@ -590,7 +598,7 @@ def add_associations_menu(grstate, parent_menu, grobject):
             )
             menu.add(
                 menu_item(
-                    "gramps-person",
+                    "gtk-edit",
                     person_name,
                     action.edit_person_reference,
                 )
@@ -627,7 +635,7 @@ def add_parents_menu(grstate, parent_menu, grobject):
             action = action_handler("Family", grstate, family)
             menu.add(
                 menu_item(
-                    "gramps-parents",
+                    "gtk-edit",
                     family_text,
                     action.edit_family,
                 )
@@ -657,7 +665,7 @@ def add_partners_menu(grstate, parent_menu, grobject):
             action = action_handler("Family", grstate, family)
             menu.add(
                 menu_item(
-                    "gramps-spouse",
+                    "gtk-edit",
                     family_text,
                     action.edit_family,
                 )
@@ -684,8 +692,12 @@ def add_participants_menu(grstate, parent_menu, grobject, participants):
             action.add_existing_participant,
         )
     )
+    enable_goto = grstate.config.get("menu.go-to-person")
     if len(participants) > 1:
-        gotomenu = new_submenu(menu, "gramps-person", _("Go to a participant"))
+        if enable_goto:
+            gotomenu = new_submenu(
+                menu, "gramps-person", _("Go to a participant")
+            )
         editmenu = new_submenu(menu, "gramps-person", _("Edit a participant"))
         removemenu = new_submenu(
             menu, "gramps-person", _("Remove a participant")
@@ -694,10 +706,13 @@ def add_participants_menu(grstate, parent_menu, grobject, participants):
         participant_list = get_sorted_participants(participants)
         for (text, person, dummy_event_ref) in participant_list:
             action = action_handler("Person", grstate, person)
-            gotomenu.add(menu_item("gramps-person", text, action.goto_person))
+            if enable_goto:
+                gotomenu.add(
+                    menu_item("gramps-person", text, action.goto_person)
+                )
             editmenu.add(
                 menu_item(
-                    "gramps-person",
+                    "gtk-edit",
                     text,
                     action.edit_person,
                 )
@@ -712,7 +727,7 @@ def add_participants_menu(grstate, parent_menu, grobject, participants):
             )
             menu.add(
                 menu_item(
-                    "gramps-person",
+                    "gtk-edit",
                     text,
                     action.edit_participant,
                 )
@@ -739,6 +754,8 @@ def add_repositories_menu(grstate, parent_menu, grobject):
     """
     Build and add the repositories submenu.
     """
+    if not grstate.config.get("menu.repositories"):
+        return
     db = grstate.dbstate.db
     action = action_handler("Source", grstate, grobject)
     menu = new_menu(
@@ -770,7 +787,7 @@ def add_repositories_menu(grstate, parent_menu, grobject):
             )
             menu.add(
                 menu_item(
-                    "gramps-repository",
+                    "gtk-edit",
                     repository_name,
                     action.edit_repository_reference,
                 )
@@ -901,5 +918,5 @@ def add_ldsords_menu(grstate, parent_menu, grobject):
             deletemenu.add(
                 menu_item("list-remove", text, action.delete_object)
             )
-            menu.add(menu_item("gramps-person", text, action.edit_object))
+            menu.add(menu_item("gtk-edit", text, action.edit_object))
     parent_menu.append(submenu_item("gramps-person", _("Ordinances"), menu))

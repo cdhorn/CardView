@@ -60,6 +60,7 @@ from ..menus.menu_utils import (
     add_citations_menu,
     add_notes_menu,
     add_privacy_menu_option,
+    add_double_separator,
     show_menu,
 )
 
@@ -133,9 +134,12 @@ class SecondaryFrame(GrampsFrame):
         add_edit_menu_option(
             self.grstate, context_menu, self.primary, self.secondary
         )
-        add_delete_menu_option(
-            self.grstate, context_menu, self.primary, self.secondary
-        )
+        if self.grstate.config.get(
+            "menu.delete"
+        ) and not self.grstate.config.get("menu.delete-bottom"):
+            add_delete_menu_option(
+                self.grstate, context_menu, self.primary, self.secondary
+            )
         self.add_custom_actions(context_menu)
         add_citations_menu(
             self.grstate,
@@ -149,6 +153,13 @@ class SecondaryFrame(GrampsFrame):
         add_privacy_menu_option(
             self.grstate, context_menu, self.primary, self.secondary
         )
+        if self.grstate.config.get("menu.delete") and self.grstate.config.get(
+            "menu.delete-bottom"
+        ):
+            add_double_separator(context_menu)
+            add_delete_menu_option(
+                self.grstate, context_menu, self.primary, self.secondary
+            )
         return show_menu(context_menu, self, event)
 
     def add_custom_actions(self, context_menu):

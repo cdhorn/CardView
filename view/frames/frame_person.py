@@ -228,7 +228,7 @@ class PersonFrame(ReferenceFrame):
         they are present in relation to the active person.
         """
         action = action_handler("Person", self.grstate, self.primary)
-        if self.grstate.config.get("menu.set-home"):
+        if self.grstate.config.get("menu.set-home-person"):
             context_menu.append(
                 menu_item(
                     "go-home",

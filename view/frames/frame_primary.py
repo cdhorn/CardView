@@ -60,6 +60,7 @@ from .frame_base import GrampsFrame
 from .frame_widgets import GrampsImage
 from ..menus.menu_utils import (
     show_menu,
+    add_double_separator,
     add_edit_menu_option,
     add_attributes_menu,
     add_citations_menu,
@@ -225,10 +226,12 @@ class PrimaryFrame(GrampsFrame):
             ),
         )
         add_urls_menu(self.grstate, context_menu, self.primary)
-        add_clipboard_menu_option(context_menu, self.copy_to_clipboard)
+        add_clipboard_menu_option(
+            self.grstate, context_menu, self.copy_to_clipboard
+        )
         add_bookmark_menu_option(self.grstate, context_menu, self.primary)
         add_privacy_menu_option(self.grstate, context_menu, self.primary)
-        context_menu.add(Gtk.SeparatorMenuItem())
+        add_double_separator(context_menu)
         if self.primary.obj.change:
             text = " ".join(
                 (
@@ -246,7 +249,7 @@ class PrimaryFrame(GrampsFrame):
         if self.grstate.config.get("menu.delete") and self.grstate.config.get(
             "menu.delete-bottom"
         ):
-            context_menu.add(Gtk.SeparatorMenuItem())
+            add_double_separator(context_menu)
             add_delete_menu_option(self.grstate, context_menu, self.primary)
         return show_menu(context_menu, self, event)
 

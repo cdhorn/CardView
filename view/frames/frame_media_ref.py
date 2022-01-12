@@ -66,10 +66,11 @@ class MediaRefFrame(MediaFrame):
         )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(menu_item("gtk-edit", label, action.edit_media))
-        label = " ".join((_("Delete"), _("reference")))
-        context_menu.append(
-            menu_item("list-remove", label, action.remove_media_reference)
-        )
+        if self.grstate.config.get("menu.delete"):
+            label = " ".join((_("Delete"), _("reference")))
+            context_menu.append(
+                menu_item("list-remove", label, action.remove_media_reference)
+            )
         context_menu.append(
             menu_item(
                 "gramps-media",

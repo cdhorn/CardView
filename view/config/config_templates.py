@@ -216,7 +216,7 @@ class ConfigTemplates(Gtk.Box):
         title = " ".join((_("Template Editor:"), lang))
         name = store.get_value(iter_, 2)
         template = self.config_managers[name]
-        EditTemplateOptions(self.grstate, template, title)
+        EditTemplateOptions(self.grstate, template, title, refresh_only=False)
 
     def _edit_template_info(self, ini, name, description):
         """
@@ -463,7 +463,9 @@ class EditTemplateOptions:
     Editor for all the options in a given template.
     """
 
-    def __init__(self, grstate, template, title, panels=None):
+    def __init__(
+        self, grstate, template, title, panels=None, refresh_only=True
+    ):
         panels = panels or [
             self.global_panel,
             self.layout_panel,
@@ -472,6 +474,7 @@ class EditTemplateOptions:
             self.timeline_panel,
             self.color_panel,
         ]
+        self.refresh_only = refresh_only
         self.grstate = GrampsState(
             grstate.dbstate, grstate.uistate, grstate.callbacks, template
         )
@@ -512,7 +515,7 @@ class EditTemplateOptions:
         Force a top level config refresh.
         """
         self.template.save()
-        self.grstate.reload_config()
+        self.grstate.reload_config(refresh_only=self.refresh_only)
 
     def config_disconnect(self):
         """

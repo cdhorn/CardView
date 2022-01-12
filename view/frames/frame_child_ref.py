@@ -86,7 +86,8 @@ class ChildRefFrame(PersonFrame):
         context_menu.append(
             menu_item("gtk-edit", label, action.edit_child_reference)
         )
-        label = " ".join((_("Delete"), _("reference")))
-        context_menu.append(
-            menu_item("list-remove", label, action.remove_child)
-        )
+        if self.grstate.config.get("menu.delete"):
+            label = " ".join((_("Delete"), _("reference")))
+            context_menu.append(
+                menu_item("list-remove", label, action.remove_child)
+            )

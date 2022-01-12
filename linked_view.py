@@ -270,13 +270,14 @@ class LinkedView(ExtendedNavigationView):
         """
         return True
 
-    def reload_config(self):
+    def reload_config(self, refresh_only=False):
         """
         Reload all config settings and initiate redraw.
         """
         self._config.load()
         self._config_view.save()
-        self._load_config()
+        if not refresh_only:
+            self._load_config()
         self._defer_config_refresh()
 
     def config_connect(self):

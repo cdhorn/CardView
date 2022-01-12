@@ -109,9 +109,9 @@ def get_object_config_title(groptions, primary_type):
     """
     Build object config description.
     """
-    space = ".".join((tuple(groptions.option_space.split(".")[:2])))
+    space = ".".join((tuple(groptions.option_space.split(".")[:1])))
     try:
-        context = groptions.option_space.split(".")[2]
+        context = groptions.option_space.split(".")[1]
     except IndexError:
         return space, "unknown", "unknown", "unknown"
     obj_type = GROUP_LABELS_SINGLE.get(context) or "Unknown"
