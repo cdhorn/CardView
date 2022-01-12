@@ -67,7 +67,7 @@ class SourcesFrameGroup(FrameGroupList):
                     source = self.fetch("Source", obj_handle)
                     sources_list.append(source)
 
-        maximum = grstate.config.get("options.global.max.sources-per-group")
+        maximum = grstate.config.get("group.source.max-per-group")
         sources_list = sources_list[:maximum]
 
         if sources_list:

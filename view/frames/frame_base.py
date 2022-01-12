@@ -414,7 +414,7 @@ class GrampsFrame(FrameView):
         """
         Apply some simple styling to the frame of the current object.
         """
-        border = self.grstate.config.get("options.global.display.border-width")
+        border = self.grstate.config.get("display.border-width")
         color = self.get_color_css()
         self.css = "".join(
             (".frame { border-width: ", str(border), "px; ", color, " }")
@@ -435,7 +435,7 @@ class GrampsFrame(FrameView):
         """
         scheme = global_config.get("colors.scheme")
         background = self.grstate.config.get(
-            "options.global.display.default-background-color"
+            "display.default-background-color"
         )
         return "".join(("background-color: ", background[scheme], ";"))
 

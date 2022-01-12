@@ -46,11 +46,11 @@ class AttributeObjectView(GrampsObjectView):
             base = self.grcontext.reference_obj
 
         build_frame = FRAME_MAP[base.obj_type]
-        option_space = ".".join(("options.active", base.obj_type.lower()))
+        option_space = ".".join(("active", base.obj_type.lower()))
         groptions = GrampsOptions(option_space)
         self.view_object = build_frame(self.grstate, groptions, base.obj)
 
-        groptions = GrampsOptions("options.active.attribute")
+        groptions = GrampsOptions("active.attribute")
         self.view_focus = self.wrap_focal_widget(
             FRAME_MAP["Attribute"](
                 self.grstate, groptions, base.obj, attribute.obj

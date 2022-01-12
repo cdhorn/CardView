@@ -755,15 +755,11 @@ class GrampsConfig:
     def __init__(self, grstate, groptions):
         self.grstate = grstate
         self.groptions = groptions
-        if self.grstate.config.get(
-            "options.global.display.use-smaller-detail-font"
-        ):
+        if self.grstate.config.get("display.use-smaller-detail-font"):
             self.detail_markup = "<small>{}</small>"
         else:
             self.detail_markup = "{}"
-        if self.grstate.config.get(
-            "options.global.display.use-smaller-title-font"
-        ):
+        if self.grstate.config.get("display.use-smaller-title-font"):
             self.title_markup = "<small>{}</small>"
         else:
             self.title_markup = "{}"
@@ -782,17 +778,17 @@ class GrampsConfig:
         except AttributeError:
             return False
 
-    def get_layout(self, key):
-        """
-        Fetches an option in the page layout name space.
-        """
-        option = ".".join(
-            ("options.page", self.grstate.page_type, "layout", key)
-        )
-        try:
-            return self.grstate.config.get(option)
-        except AttributeError:
-            return False
+    #    def get_layout(self, key):
+    #        """
+    #        Fetches an option in the page layout name space.
+    #        """
+    #        option = ".".join(
+    #            ("options.page", self.grstate.page_type, "layout", key)
+    #        )
+    #        try:
+    #            return self.grstate.config.get(option)
+    #        except AttributeError:
+    #            return False
 
     def get_label(self, data, left=True, italic=False):
         """
@@ -859,9 +855,7 @@ class GrampsConfig:
         """
         If enabled display message and confirm a user requested action.
         """
-        if not self.grstate.config.get(
-            "options.global.general.enable-warnings"
-        ):
+        if not self.grstate.config.get("global.general.enable-warnings"):
             return True
         dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
         dialog.set_title(title)

@@ -57,7 +57,7 @@ class AssociationsFrameGroup(FrameGroupList):
     def __init__(self, grstate, groptions, obj):
         FrameGroupList.__init__(self, grstate, groptions, obj)
         groptions.set_ref_mode(
-            self.grstate.config.get("options.group.association.reference-mode")
+            self.grstate.config.get("group.association.reference-mode")
         )
         back_list = [
             y

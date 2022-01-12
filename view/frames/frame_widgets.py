@@ -126,7 +126,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
         """
         Add the gramps id if needed.
         """
-        if self.grstate.config.get("options.global.indicator.gramps-ids"):
+        if self.grstate.config.get("indicator.gramps-ids"):
             if obj:
                 text = obj.gramps_id
             else:
@@ -141,7 +141,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
         """
         Add the bookmark indicator if needed.
         """
-        if self.grstate.config.get("options.global.indicator.bookmarks"):
+        if self.grstate.config.get("indicator.bookmarks"):
             for bookmark in get_bookmarks(
                 self.grstate.dbstate.db, obj_type
             ).get():
@@ -153,7 +153,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
         """
         Add privacy mode indicator if needed.
         """
-        mode = self.grstate.config.get("options.global.indicator.privacy")
+        mode = self.grstate.config.get("indicator.privacy")
         if mode:
             if obj.private:
                 if mode in [1, 3]:
@@ -166,7 +166,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
         """
         Add the home indicator if needed.
         """
-        if self.grstate.config.get("options.global.indicator.home-person"):
+        if self.grstate.config.get("indicator.home-person"):
             default = self.grstate.dbstate.db.get_default_person()
             if default and default.get_handle() == obj.get_handle():
                 pack_icon(self, "go-home", tooltip=_("Home Person"))
@@ -233,13 +233,9 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         )
         self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
         if "active" in self.groptions.option_space:
-            size = self.grstate.config.get(
-                "options.global.display.icons-active-width"
-            )
+            size = self.grstate.config.get("display.icons-active-width")
         else:
-            size = self.grstate.config.get(
-                "options.global.display.icons-group-width"
-            )
+            size = self.grstate.config.get("display.icons-group-width")
         self.flowbox.set_min_children_per_line(size)
         self.flowbox.set_max_children_per_line(size)
         self.pack_end(self.flowbox, True, True, 0)
@@ -254,13 +250,10 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         self.grobject = grobject
 
         self.load_status(grobject)
-        if self.grstate.config.get("options.global.indicator.child-objects"):
+        if self.grstate.config.get("indicator.child-objects"):
             self.load_indicators(grobject)
 
-        if (
-            self.grstate.config.get("options.global.indicator.tags")
-            and grobject.has_tags
-        ):
+        if self.grstate.config.get("indicator.tags") and grobject.has_tags:
             self.load_tags(grobject)
         self.show_all()
 
@@ -281,53 +274,39 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
 
         if obj_type == "Person":
             self.__load_person(obj, check)
-        elif obj_type == "Family" and check(
-            "options.global.indicator.children"
-        ):
+        elif obj_type == "Family" and check("indicator.children"):
             count = len(obj.get_child_ref_list())
             if count:
                 self.__add_icon("gramps-person", "child", count)
-        if check("options.global.indicator.events") and grobject.has_events:
+        if check("indicator.events") and grobject.has_events:
             count = len(obj.get_event_ref_list())
             if count:
                 self.__add_icon("gramps-event", "event", count)
-        if (
-            check("options.global.indicator.ordinances")
-            and grobject.has_ldsords
-        ):
+        if check("indicator.ordinances") and grobject.has_ldsords:
             count = len(obj.get_lds_ord_list())
             if count:
                 self.__add_icon("emblem-documents", "ldsord", count)
-        if (
-            check("options.global.indicator.attributes")
-            and grobject.has_attributes
-        ):
+        if check("indicator.attributes") and grobject.has_attributes:
             count = len(obj.get_attribute_list())
             if count:
                 self.__add_icon("gramps-attribute", "attribute", count)
-        if check("options.global.indicator.media") and grobject.has_media:
+        if check("indicator.media") and grobject.has_media:
             count = len(obj.get_media_list())
             if count:
                 self.__add_icon("gramps-media", "media", count)
-        if (
-            check("options.global.indicator.citations")
-            and grobject.has_citations
-        ):
+        if check("indicator.citations") and grobject.has_citations:
             count = len(obj.get_citation_list())
             if count:
                 self.__add_icon("gramps-citation", "citation", count)
-        if check("options.global.indicator.notes") and grobject.has_notes:
+        if check("indicator.notes") and grobject.has_notes:
             count = len(obj.get_note_list())
             if count:
                 self.__add_icon("gramps-notes", "note", count)
-        if (
-            check("options.global.indicator.addresses")
-            and grobject.has_addresses
-        ):
+        if check("indicator.addresses") and grobject.has_addresses:
             count = len(obj.get_address_list())
             if count:
                 self.__add_icon("gramps-address", "address", count)
-        if check("options.global.indicator.urls") and grobject.has_urls:
+        if check("indicator.urls") and grobject.has_urls:
             count = len(obj.get_url_list())
             if count:
                 self.__add_icon("gramps-url", "url", count)
@@ -336,19 +315,19 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         """
         Examine and load indicators for a person.
         """
-        if check("options.global.indicator.names"):
+        if check("indicator.names"):
             count = len(obj.get_alternate_names())
             if count:
                 self.__add_icon("user-info", "name", count)
-        if check("options.global.indicator.parents"):
+        if check("indicator.parents"):
             count = len(obj.get_parent_family_handle_list())
             if count:
                 self.__add_icon("gramps-family", "parent", count)
-        if check("options.global.indicator.spouses"):
+        if check("indicator.spouses"):
             count = len(obj.get_family_handle_list())
             if count:
                 self.__add_icon("gramps-spouse", "spouse", count)
-        if check("options.global.indicator.associations"):
+        if check("indicator.associations"):
             count = len(obj.get_person_ref_list())
             if count:
                 self.__add_icon("gramps-person", "association", count)
@@ -369,9 +348,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
                 text = " ".join((_("Sets"), _("of"), text))
         tooltip = " ".join((str(count), text))
         eventbox = Gtk.EventBox(tooltip_text=tooltip)
-        if self.grstate.config.get(
-            "options.global.indicator.child-objects-counts"
-        ):
+        if self.grstate.config.get("indicator.child-objects-counts"):
             box = Gtk.HBox(hexpand=False, vexpand=False, spacing=2, margin=0)
             label = self.get_label(str(count))
             box.pack_start(label, False, False, 0)
@@ -411,9 +388,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
             tag = self.fetch("Tag", handle)
             tags.append(tag)
 
-        if self.grstate.config.get(
-            "options.global.indicator.tags-sort-by-name"
-        ):
+        if self.grstate.config.get("indicator.tags-sort-by-name"):
             tags.sort(key=lambda x: x.name)
         else:
             tags.sort(key=lambda x: x.priority)
@@ -501,7 +476,7 @@ class GrampsImage(Gtk.EventBox):
         """
         if button_pressed(event, BUTTON_PRIMARY):
             if not self.active and self.grstate.config.get(
-                "options.global.general.image-page-link"
+                "general.image-page-link"
             ):
                 context = GrampsContext(self.media, None, None)
                 return self.grstate.load_page(context.pickled)

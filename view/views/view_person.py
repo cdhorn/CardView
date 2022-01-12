@@ -55,7 +55,7 @@ class PersonObjectView(GrampsObjectView):
             if event:
                 age_base = event.get_date_object()
 
-        groptions = GrampsOptions("options.active.person")
+        groptions = GrampsOptions("active.person")
         self.view_object = FRAME_MAP["Person"](
             self.grstate, groptions, person.obj
         )

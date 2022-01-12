@@ -125,7 +125,7 @@ class AttributeFrame(SecondaryFrame):
         Determine color scheme to be used if available."
         """
         if (
-            self.grstate.config.get("options.global.display.use-color-scheme")
+            self.grstate.config.get("display.use-color-scheme")
             and self.primary.obj_type == "Person"
         ):
             living = probably_alive(self.primary.obj, self.grstate.dbstate.db)

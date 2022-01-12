@@ -50,7 +50,7 @@ class MediaObjectView(GrampsObjectView):
         if media.obj.get_date_object():
             age_base = media.obj.get_date_object()
 
-        groptions = GrampsOptions("options.active.media")
+        groptions = GrampsOptions("active.media")
         self.view_object = FRAME_MAP["Media"](
             self.grstate, groptions, media.obj
         )

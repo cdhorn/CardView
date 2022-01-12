@@ -58,7 +58,7 @@ BOLD_MARKUP = "<b>{}</b>"
 CONFIDENCE_TYPE = (
     "Confidence",
     _("Confidence color scheme"),
-    "options.colors.confidence",
+    "colors.confidence",
 )
 
 
@@ -78,7 +78,7 @@ CONFIDENCE_OPTIONS = [
 RELATION_TYPE = (
     "Relation",
     _("Relationship color scheme"),
-    "options.colors.relations",
+    "colors.relations",
 )
 
 RELATION_OPTIONS = [
@@ -105,7 +105,7 @@ RELATION_OPTIONS = [
 EVENT_TYPE = (
     "Event",
     _("Event category color scheme"),
-    "options.colors.events",
+    "colors.events",
 )
 
 EVENT_OPTIONS = [
@@ -134,7 +134,7 @@ EVENT_OPTIONS = [
 ROLE_TYPE = (
     "Role",
     _("Event role color scheme"),
-    "options.colors.roles",
+    "colors.roles",
 )
 
 ROLE_OPTIONS = [

@@ -45,42 +45,42 @@ _ = glocale.translation.sgettext
 
 TOGGLE_OPTIONS = [
     (
-        "options.global.media-bar.enabled",
+        "media-bar.enabled",
         _("Disable media bar"),
         _("Enable media bar"),
     ),
     (
-        "options.global.indicator.tags",
+        "indicator.tags",
         _("Disable tags"),
         _("Enable tags"),
     ),
     (
-        "options.global.indicator.child-objects",
+        "indicator.child-objects",
         _("Disable child object indicators"),
         _("Enable child object indicators"),
     ),
     (
-        "options.global.indicator.child-objects-counts",
+        "indicator.child-objects-counts",
         _("Disable display of child object indicator counts"),
         _("Enable display of child object indicator counts"),
     ),
     (
-        "options.global.status.todo",
+        "status.todo",
         _("Disable display of to do indicator"),
         _("Enable display of to do indicator"),
     ),
     (
-        "options.global.status.confidence-ranking",
+        "status.confidence-ranking",
         _("Disable display of confidence ranking indicator"),
         _("Enable display of confidence ranking indicator"),
     ),
     (
-        "options.global.status.citation-alert",
+        "status.citation-alert",
         _("Disable display of citation alert indicator"),
         _("Enable display of citation alert indicator"),
     ),
     (
-        "options.global.status.missing-alert",
+        "status.missing-alert",
         _("Disable display of missing events indicator"),
         _("Enable display of missing events indicator"),
     ),

@@ -53,7 +53,7 @@ class FamilyObjectView(GrampsObjectView):
             "partner1": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
             "partner2": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         }
-        groptions = GrampsOptions("options.active.spouse", size_groups=groups)
+        groptions = GrampsOptions("active.spouse", size_groups=groups)
         groptions.set_vertical(False)
         self.view_object = FRAME_MAP["Family"](
             self.grstate,
@@ -63,7 +63,7 @@ class FamilyObjectView(GrampsObjectView):
         self.view_focus = self.wrap_focal_widget(self.view_object)
 
         pbox = None
-        if self.grstate.config.get("options.active.family.show-parents"):
+        if self.grstate.config.get("active.family.show-parents"):
             p1groups = {
                 "image": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
                 "data": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -106,10 +106,10 @@ class FamilyObjectView(GrampsObjectView):
                     primary_handle
                 )
                 groptions = GrampsOptions(
-                    "options.active.parent", size_groups=size_groups
+                    "active.parent", size_groups=size_groups
                 )
                 if self.grstate.config.get(
-                    "options.active.family.compact-mode-parents"
+                    "active.family.compact-mode-parents"
                 ):
                     groptions.force_compact = True
                 groptions.set_relation(person)

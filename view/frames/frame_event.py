@@ -140,9 +140,9 @@ class EventFrame(ReferenceFrame):
         age_base = self.groptions.age_base
         if event_date and age_base:
             if self.groptions.context in ["timeline"]:
-                if self.grstate.config.get("options.timeline.person.show-age"):
+                if self.grstate.config.get("timeline.person.show-age"):
                     self.load_age(age_base, event_date)
-            elif self.grstate.config.get("options.group.event.show-age"):
+            elif self.grstate.config.get("group.event.show-age"):
                 self.load_age(age_base, event_date)
 
     def __add_event_date(self, event):
@@ -379,9 +379,7 @@ class EventFrame(ReferenceFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get(
-            "options.global.display.use-color-scheme"
-        ):
+        if not self.grstate.config.get("display.use-color-scheme"):
             return ""
 
         scheme = self.get_option("color-scheme")

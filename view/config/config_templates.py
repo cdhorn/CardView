@@ -539,7 +539,7 @@ class EditTemplateOptions:
         Build active object options panel for the configuration dialog.
         """
         return _("Active"), build_object_panel(
-            configdialog, self.grstate, "options.active"
+            configdialog, self.grstate, "active"
         )
 
     def group_panel(self, configdialog):
@@ -547,7 +547,7 @@ class EditTemplateOptions:
         Build object group options panel for the configuration dialog.
         """
         return _("Groups"), build_object_panel(
-            configdialog, self.grstate, "options.group"
+            configdialog, self.grstate, "group"
         )
 
     def timeline_panel(self, configdialog):

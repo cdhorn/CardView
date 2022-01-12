@@ -72,7 +72,7 @@ class GrampsObjectView(Gtk.VBox):
         Render the view after building it.
         """
         self.build_view()
-        mode = self.grstate.config.get("options.global.media-bar.position")
+        mode = self.grstate.config.get("media-bar.position")
         if mode in [0]:
             self.render_view_body(self, mode)
         else:
@@ -94,7 +94,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Render main body of the view.
         """
-        if self.grstate.config.get("options.global.display.pin-header"):
+        if self.grstate.config.get("display.pin-header"):
             widget.pack_start(self.view_header, False, False, 0)
             if mode == 0:
                 self.add_media_bar(widget, self.grcontext.primary_obj.obj)
@@ -126,14 +126,10 @@ class GrampsObjectView(Gtk.VBox):
         """
         Wrap focal widget with colored background so it stands out.
         """
-        if not self.grstate.config.get(
-            "options.global.display.focal-object-highlight"
-        ):
+        if not self.grstate.config.get("display.focal-object-highlight"):
             return focal_widget
         scheme = global_config.get("colors.scheme")
-        background = self.grstate.config.get(
-            "options.global.display.focal-object-color"
-        )
+        background = self.grstate.config.get("display.focal-object-color")
         frame = Gtk.Frame()
         css = "".join(
             (
@@ -211,7 +207,7 @@ class GrampsObjectView(Gtk.VBox):
         """
         Check and if need and can build media bar add to widget for viewing.
         """
-        if self.grstate.config.get("options.global.media-bar.enabled"):
+        if self.grstate.config.get("media-bar.enabled"):
             css = self.view_object.get_css_style()
             mediabar = MediaBarGroup(self.grstate, None, obj, css=css)
             if mediabar.total:

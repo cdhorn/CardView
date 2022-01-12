@@ -130,9 +130,7 @@ class GrampsAction:
         """
         If enabled display message and confirm a user requested action.
         """
-        if not self.grstate.config.get(
-            "options.global.general.enable-warnings"
-        ):
+        if not self.grstate.config.get("general.enable-warnings"):
             return True
         dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
         dialog.set_title(title)

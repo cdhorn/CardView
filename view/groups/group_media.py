@@ -63,7 +63,7 @@ class MediaFrameGroup(FrameGroupList):
             (self.group_base.obj_type, self.group_base.obj.get_handle())
         )
         groptions.set_ref_mode(
-            self.grstate.config.get("options.group.media.reference-mode")
+            self.grstate.config.get("group.media.reference-mode")
         )
 
         media_list = self.collect_media()
@@ -101,9 +101,7 @@ class MediaFrameGroup(FrameGroupList):
                         new_list.append(media)
                 media_list = new_list
 
-            maximum = self.grstate.config.get(
-                "options.global.max.media-per-group"
-            )
+            maximum = self.grstate.config.get("group.media.max-per-group")
             media_list = media_list[:maximum]
             for (
                 media_ref,

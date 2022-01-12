@@ -59,15 +59,15 @@ RANK_ICONS = {
 }
 
 RANK_OPTIONS = {
-    "options.global.status.rank-object": "object",
-    "options.global.status.rank-names": "names",
-    "options.global.status.rank-events": "events",
-    "options.global.status.rank-ordinances": "ordinances",
-    "options.global.status.rank-attributes": "attributes",
-    "options.global.status.rank-associations": "associations",
-    "options.global.status.rank-addresses": "addresses",
-    "options.global.status.rank-spouses": "spouses",
-    "options.global.status.rank-children": "children",
+    "status.rank-object": "object",
+    "status.rank-names": "names",
+    "status.rank-events": "events",
+    "status.rank-ordinances": "ordinances",
+    "status.rank-attributes": "attributes",
+    "status.rank-associations": "associations",
+    "status.rank-addresses": "addresses",
+    "status.rank-spouses": "spouses",
+    "status.rank-children": "children",
 }
 
 
@@ -96,9 +96,7 @@ class GrampsCitationAlertIcon(GrampsBaseIcon):
         Build alert context menu.
         """
         menu = Gtk.Menu()
-        if self.grstate.config.get(
-            "options.global.status.citation-alert-edit"
-        ):
+        if self.grstate.config.get("status.citation-alert-edit"):
             callback = self.edit_event
         else:
             callback = self.goto_event
@@ -134,9 +132,9 @@ def get_person_status(grstate, obj):
     Load status indicators if needed.
     """
     icon_list = []
-    alert = grstate.config.get("options.global.status.citation-alert")
-    missing = grstate.config.get("options.global.status.missing-alert")
-    ranking = grstate.config.get("options.global.status.confidence-ranking")
+    alert = grstate.config.get("status.citation-alert")
+    missing = grstate.config.get("status.missing-alert")
+    ranking = grstate.config.get("status.confidence-ranking")
     if alert or ranking:
         (
             alert_icon,
@@ -159,9 +157,7 @@ def get_person_status_icons(grstate, obj):
     Evaluate and return status icons for an object.
     """
     alert_list = get_event_fields(grstate, "alert")
-    alert_minimum = grstate.config.get(
-        "options.global.status.citation-alert-minimum"
-    )
+    alert_minimum = grstate.config.get("status.citation-alert-minimum")
     alert_minimum = alert_minimum + 1
     rank_list = get_event_fields(grstate, "rank")
     for event in ["Birth", "Death"]:

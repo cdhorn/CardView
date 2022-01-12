@@ -160,11 +160,11 @@ def build_timeline_grid(configdialog, grstate, space, *_dummy_args):
         "{}.show-best-confidence".format(space),
     )
     configdialog.add_text(grid1, _("Attributes Group"), 19, start=1, bold=True)
-    context = space.split(".")[2]
+    context = space.split(".")[1]
     config_facts_fields(
         configdialog,
         grstate,
-        "options.timeline",
+        "timeline",
         context,
         grid1,
         20,
@@ -380,22 +380,18 @@ def build_person_timeline_grid(configdialog, grstate, *_dummy_args):
     """
     Build person timeline configuration grid.
     """
-    return build_timeline_grid(
-        configdialog, grstate, "options.timeline.person"
-    )
+    return build_timeline_grid(configdialog, grstate, "timeline.person")
 
 
 def build_family_timeline_grid(configdialog, grstate, *_dummy_args):
     """
     Build family timeline configuration grid.
     """
-    return build_timeline_grid(
-        configdialog, grstate, "options.timeline.family"
-    )
+    return build_timeline_grid(configdialog, grstate, "timeline.family")
 
 
 def build_place_timeline_grid(configdialog, grstate, *_dummy_args):
     """
     Build place timeline configuration grid.
     """
-    return build_timeline_grid(configdialog, grstate, "options.timeline.place")
+    return build_timeline_grid(configdialog, grstate, "timeline.place")

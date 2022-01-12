@@ -50,11 +50,11 @@ class CitationObjectView(GrampsObjectView):
             source = self.grstate.dbstate.db.get_source_from_handle(
                 citation.obj.source_handle
             )
-            groptions = GrampsOptions("options.active.source")
+            groptions = GrampsOptions("active.source")
             source_frame = FRAME_MAP["Source"](self.grstate, groptions, source)
             self.view_header.pack_start(source_frame, False, False, 0)
 
-        groptions = GrampsOptions("options.active.citation")
+        groptions = GrampsOptions("active.citation")
         self.view_object = FRAME_MAP["Citation"](
             self.grstate, groptions, citation.obj
         )

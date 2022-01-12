@@ -56,7 +56,7 @@ class SourceObjectView(GrampsObjectView):
         """
         source = self.grcontext.primary_obj.obj
 
-        groptions = GrampsOptions("options.active.source")
+        groptions = GrampsOptions("active.source")
         self.view_object = FRAME_MAP["Source"](self.grstate, groptions, source)
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
@@ -92,7 +92,7 @@ class SourceObjectView(GrampsObjectView):
                 )
 
         if "people" in object_groups and people_list:
-            groptions = GrampsOptions("options.group.people")
+            groptions = GrampsOptions("group.people")
             args = {"title": (_("Cited People"), _("Cited People"))}
             object_groups.update(
                 {
@@ -107,7 +107,7 @@ class SourceObjectView(GrampsObjectView):
             )
 
         if "event" in object_groups and events_list:
-            groptions = GrampsOptions("options.group.event")
+            groptions = GrampsOptions("group.event")
             args = {"title": (_("Cited Event"), _("Cited Events"))}
             object_groups.update(
                 {
@@ -122,7 +122,7 @@ class SourceObjectView(GrampsObjectView):
             )
 
         if "place" in object_groups and places_list:
-            groptions = GrampsOptions("options.group.place")
+            groptions = GrampsOptions("group.place")
             args = {"title": (_("Cited Place"), _("Cited Places"))}
             object_groups.update(
                 {

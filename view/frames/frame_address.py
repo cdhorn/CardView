@@ -97,7 +97,7 @@ class AddressFrame(SecondaryFrame):
             )
             if self.groptions.age_base and (
                 self.groptions.context in ["timeline"]
-                or self.grstate.config.get("options.group.address.show-age")
+                or self.grstate.config.get("group.address.show-age")
             ):
                 self.load_age(self.groptions.age_base, address_date)
 
@@ -106,7 +106,7 @@ class AddressFrame(SecondaryFrame):
         Determine color scheme to be used if available."
         """
         if (
-            self.grstate.config.get("options.global.display.use-color-scheme")
+            self.grstate.config.get("display.use-color-scheme")
             and self.primary.obj_type == "Person"
         ):
             living = probably_alive(self.primary.obj, self.grstate.dbstate.db)

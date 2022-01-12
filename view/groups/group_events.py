@@ -66,7 +66,7 @@ class EventsFrameGroup(FrameGroupList):
             self.death_ref = None
 
         groptions.set_ref_mode(
-            self.grstate.config.get("options.group.event.reference-mode")
+            self.grstate.config.get("group.event.reference-mode")
         )
         groptions.set_relation(obj)
 

@@ -366,7 +366,7 @@ def config_event_grid(grstate, key, start=1, count=6):
         "label": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
         "type": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
     }
-    prefix = "".join(("options.global.status.", key, "-"))
+    prefix = "".join(("status.", key, "-"))
     row_start = start
     row_end = start + count
     for row in range(row_start, row_end):
@@ -388,7 +388,7 @@ def get_event_fields(grstate, key, count=12):
     Return list of events from event fields.
     """
     events = []
-    prefix = "".join(("options.global.status.", key, "-"))
+    prefix = "".join(("status.", key, "-"))
     for number in range(1, count):
         option = "".join((prefix, str(number)))
         value = grstate.config.get(option).split(":")

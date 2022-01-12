@@ -45,7 +45,7 @@ class GenericObjectView(GrampsObjectView):
         secondary = self.grcontext.secondary_obj
 
         build_frame = FRAME_MAP[primary.obj_type]
-        option_space = ".".join(("options.active", primary.obj_type.lower()))
+        option_space = ".".join(("active", primary.obj_type.lower()))
         groptions = GrampsOptions(option_space)
         primary_frame = build_frame(self.grstate, groptions, primary.obj)
 
@@ -75,7 +75,7 @@ class GenericObjectView(GrampsObjectView):
         Build frame for secondary objects.
         """
         build_frame = FRAME_MAP[secondary.obj_type]
-        option_space = ".".join(("options.active", secondary.obj_type.lower()))
+        option_space = ".".join(("active", secondary.obj_type.lower()))
         groptions = GrampsOptions(option_space)
         if "Ref" in secondary.obj_type:
             groptions.set_ref_mode(2)

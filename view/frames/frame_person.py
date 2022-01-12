@@ -81,7 +81,7 @@ class PersonFrame(ReferenceFrame):
         )
         self.relation = groptions.relation
         self.backlink = groptions.backlink
-        self.context = groptions.option_space.split(".")[2]
+        self.context = groptions.option_space.split(".")[1]
         self.__add_person_title(person)
         self.__add_person_facts(person)
         if groptions.age_base:
@@ -213,9 +213,7 @@ class PersonFrame(ReferenceFrame):
         """
         Determine color scheme to be used if available."
         """
-        if not self.grstate.config.get(
-            "options.global.display.use-color-scheme"
-        ):
+        if not self.grstate.config.get("display.use-color-scheme"):
             return ""
 
         return get_person_color_css(
@@ -230,13 +228,14 @@ class PersonFrame(ReferenceFrame):
         they are present in relation to the active person.
         """
         action = action_handler("Person", self.grstate, self.primary)
-        context_menu.append(
-            menu_item(
-                "go-home",
-                _("Set home person"),
-                action.set_default_person,
+        if self.grstate.config.get("menu.set-home"):
+            context_menu.append(
+                menu_item(
+                    "go-home",
+                    _("Set home person"),
+                    action.set_default_person,
+                )
             )
-        )
         context_menu.append(
             menu_item(
                 "gramps-event",
@@ -262,7 +261,4 @@ class PersonFrame(ReferenceFrame):
         add_partners_menu(self.grstate, context_menu, self.primary)
         add_associations_menu(self.grstate, context_menu, self.primary)
         add_names_menu(self.grstate, context_menu, self.primary)
-        if self.grstate.config.get(
-            "options.global.general.include-ldsord-menu"
-        ):
-            add_ldsords_menu(self.grstate, context_menu, self.primary)
+        add_ldsords_menu(self.grstate, context_menu, self.primary)

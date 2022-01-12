@@ -724,7 +724,7 @@ class LinkedView(ExtendedNavigationView):
             if self.initial_object_loaded:
                 save_config_option(
                     self._config_view,
-                    "options.active.last_object",
+                    "active.last_object",
                     page_context.primary_obj.obj_type,
                     page_context.primary_obj.obj.get_handle(),
                 )
@@ -830,7 +830,7 @@ class LinkedView(ExtendedNavigationView):
             return None
         try:
             obj_tuple = get_config_option(
-                self._config_view, "options.active.last_object"
+                self._config_view, "active.last_object"
             )
         except ValueError:
             obj_tuple = None
@@ -884,9 +884,7 @@ class LinkedView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        max_windows = self._config_view.get(
-            "options.global.display.max-group-windows"
-        )
+        max_windows = self._config_view.get("display.max-group-windows")
         if isinstance(obj, TableObject):
             key = "-".join((obj.get_handle(), group_type))
         else:
@@ -941,9 +939,7 @@ class LinkedView(ExtendedNavigationView):
         """
         grcontext = GrampsContext()
         grcontext.load_page_location(self.grstate, self.get_active())
-        max_windows = self._config_view.get(
-            "options.global.display.max-page-windows"
-        )
+        max_windows = self._config_view.get("display.max-page-windows")
         key = grcontext.obj_key
         if max_windows == 1 and self.page_windows:
             window = list(self.page_windows.values())[0]

@@ -202,7 +202,7 @@ class TimelineFrameGroup(FrameGroupList):
                 self.grstate.config.get(
                     "".join(
                         (
-                            "options.timeline.",
+                            "timeline.",
                             self.group_base.obj_type.lower(),
                             ".reference-mode",
                         )
@@ -216,9 +216,7 @@ class TimelineFrameGroup(FrameGroupList):
             self.groptions.set_relation(obj)
 
         timeline.sort(key=lambda x: x[0])
-        maximum = self.grstate.config.get(
-            "options.global.max.events-per-group"
-        )
+        maximum = self.grstate.config.get("group.event.max-per-group")
         timeline = timeline[:maximum]
         return timeline
 

@@ -412,9 +412,7 @@ class PersonAction(GrampsAction):
         self.action_object.obj.add_person_ref(reference)
         self.action_object.commit(self.grstate, message)
 
-        if self.grstate.config.get(
-            "options.global.general.create-reciprocal-associations"
-        ):
+        if self.grstate.config.get("general.create-reciprocal-associations"):
             ref = PersonRef()
             ref.ref = self.action_object.obj.get_handle()
             ref.set_note_list(reference.get_note_list())

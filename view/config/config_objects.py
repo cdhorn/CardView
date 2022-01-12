@@ -144,7 +144,7 @@ def build_person_grid(configdialog, grstate, space, person):
             grid1,
             _("Reference display mode"),
             7,
-            "{}.{}.reference-mode".format(space, person),
+            "group.{}.reference-mode".format(person),
             REF_DISPLAY_MODES,
         )
     grid.attach(grid1, 0, 0, 1, 1)
@@ -356,29 +356,30 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
     grid = create_grid()
     if "group" in space:
         configdialog.add_text(grid, _("Group Display Options"), 0, bold=True)
+        configdialog.add_spinner(
+            grid,
+            _("Maximum number of media items to show in a media group"),
+            1,
+            "group.media.max-per-group",
+            (1, 5000),
+        )
         configdialog.add_checkbox(
             grid,
             _("Show year and age"),
-            1,
-            "{}.media.show-age".format(space),
-            tooltip=_(
-                "Valid when media is for a person. If media is "
-                "dated will show year and age of person on that "
-                "date."
-            ),
+            2,
+            "group.media.show-age",
         )
         configdialog.add_checkbox(
             grid,
             _("Sort media by date"),
-            2,
-            "{}.media.sort-by-date".format(space),
-            tooltip=_("Indicates whether to sort media items by date."),
+            3,
+            "group.media.sort-by-date",
         )
         configdialog.add_checkbox(
             grid,
             _("Group media by type"),
-            3,
-            "{}.media.group-by-type".format(space),
+            4,
+            "group.media.group-by-type",
             tooltip=_(
                 "Indicates whether to group like media, based on the "
                 "custom Media-Type attribute."
@@ -387,8 +388,8 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
         configdialog.add_checkbox(
             grid,
             _("Filter out non-photos"),
-            4,
-            "{}.media.filter-non-photos".format(space),
+            5,
+            "group.media.filter-non-photos",
             tooltip=_(
                 "Indicates only photos should be displayed, based on "
                 "the custom Media-Type attribute."
@@ -407,7 +408,7 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
             grid,
             _("Reference display mode"),
             13,
-            "{}.media.reference-mode".format(space),
+            "group.media.reference-mode",
             REF_DISPLAY_MODES,
         )
     configdialog.add_checkbox(
@@ -416,9 +417,6 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
         15,
         "{}.media.show-date".format(space),
         stop=2,
-        tooltip=_(
-            "Enabling this option will show the media date if it is available."
-        ),
     )
     configdialog.add_checkbox(
         grid,
@@ -426,10 +424,6 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
         16,
         "{}.media.show-path".format(space),
         stop=2,
-        tooltip=_(
-            "Enabling this option will show the media file path if it is "
-            "available."
-        ),
     )
     configdialog.add_checkbox(
         grid,
@@ -437,10 +431,6 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
         17,
         "{}.media.show-mime-type".format(space),
         stop=2,
-        tooltip=_(
-            "Enabling this option will show the media mime type if it is "
-            "available."
-        ),
     )
     configdialog.add_text(grid, _("Attributes Group"), 20, bold=True)
     config_facts_fields(
@@ -467,29 +457,37 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    if "group" in space:
+        configdialog.add_spinner(
+            grid,
+            _("Maximum number of notes to show in a notes group"),
+            1,
+            "group.note.max-per-group",
+            (1, 5000),
+        )
     configdialog.add_checkbox(
         grid,
         _("Show note text on top"),
-        1,
+        2,
         "{}.note.text-on-top".format(space),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable preview mode"),
-        2,
+        3,
         "{}.note.preview-mode".format(space),
     )
     configdialog.add_spinner(
         grid,
         _("Number of lines to preview"),
-        3,
+        4,
         "{}.note.preview-lines".format(space),
         (0, 8),
     )
     configdialog.add_checkbox(
         grid,
         _("Include notes from all child objects"),
-        4,
+        5,
         "{}.note.include-child-objects".format(space),
     )
     return add_config_reset(
@@ -503,17 +501,25 @@ def build_citation_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    if "group" in space:
+        configdialog.add_spinner(
+            grid,
+            _("Maximum number of citations to show in a citations group"),
+            1,
+            "group.citation.max-per-group",
+            (1, 5000),
+        )
     configdialog.add_combo(
         grid,
         _("Image display mode"),
-        1,
+        2,
         "{}.citation.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
     configdialog.add_checkbox(
         grid,
         _("Show year and age"),
-        2,
+        3,
         "{}.citation.show-age".format(space),
         tooltip=_(
             "Valid when citation is for a person. If citation "
@@ -659,10 +665,18 @@ def build_source_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    if "group" in space:
+        configdialog.add_spinner(
+            grid,
+            _("Maximum number of sources to show in a sources group"),
+            1,
+            "group.source.max-per-group",
+            (1, 5000),
+        )
     configdialog.add_combo(
         grid,
         _("Event display format"),
-        1,
+        2,
         "{}.source.event-format".format(space),
         EVENT_DISPLAY_MODES,
     )
@@ -703,7 +717,7 @@ def build_repository_grid(configdialog, grstate, space, *_dummy_context):
             grid,
             _("Reference display mode"),
             3,
-            "{}.repository.reference-mode".format(space),
+            "group.repository.reference-mode",
             REF_DISPLAY_MODES,
         )
     configdialog.add_text(grid, _("Attributes"), 9, bold=True)
@@ -748,6 +762,14 @@ def build_place_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    if "group" in space:
+        configdialog.add_spinner(
+            grid,
+            _("Maximum number of places to show in a places group"),
+            1,
+            "group.place.max-per-group",
+            (1, 5000),
+        )
     configdialog.add_combo(
         grid,
         _("Image display mode"),
@@ -780,24 +802,34 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
     """
     grid = create_grid()
     configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    if "group" in space:
+        configdialog.add_spinner(
+            grid,
+            _(
+                "Maximum number of events to show in an events or timeline group"
+            ),
+            1,
+            "global.max.events-per-group",
+            (1, 5000),
+        )
     configdialog.add_combo(
         grid,
         _("Event color scheme"),
-        1,
+        2,
         "{}.event.color-scheme".format(space),
         EVENT_COLOR_MODES,
     )
     configdialog.add_combo(
         grid,
         _("Event display format"),
-        2,
+        3,
         "{}.event.event-format".format(space),
         EVENT_DISPLAY_MODES,
     )
     configdialog.add_combo(
         grid,
         _("Image display mode"),
-        3,
+        4,
         "{}.event.image-mode".format(space),
         IMAGE_DISPLAY_MODES,
     )
@@ -805,20 +837,15 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
         configdialog.add_combo(
             grid,
             _("Reference display mode"),
-            4,
-            "{}.event.reference-mode".format(space),
+            5,
+            "group.event.reference-mode",
             REF_DISPLAY_MODES,
         )
         configdialog.add_checkbox(
             grid,
             _("Show year and age"),
-            5,
-            "{}.event.show-age".format(space),
-            tooltip=_(
-                "Valid when event is for a person. If event "
-                "is dated will show year and age of person on that "
-                "date."
-            ),
+            6,
+            "group.event.show-age",
         )
     configdialog.add_text(grid, _("Display Attributes"), 12, bold=True)
     configdialog.add_checkbox(
@@ -826,64 +853,36 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
         _("Show role always not just secondary events"),
         13,
         "{}.event.show-role-always".format(space),
-        tooltip=_(
-            "Enabling this option will always show the role of the active "
-            "person in the event. This is normally implicit if they had none "
-            "or they were the primary participant. Note their role is always "
-            "displayed for secondary events."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Show description"),
         14,
         "{}.event.show-description".format(space),
-        tooltip=_(
-            "Enabling this option will show the event description if one is "
-            "available."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Show registered participants if more than one person"),
         15,
         "{}.event.show-participants".format(space),
-        tooltip=_(
-            "Enabling this option will show the other participants in shared "
-            "events."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Show source count"),
         16,
         "{}.event.show-source-count".format(space),
-        tooltip=_(
-            "Enabling this option will include a count of the number of "
-            "unique sources cited from in support of the information about "
-            "the event."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Show citation count"),
         17,
         "{}.event.show-citation-count".format(space),
-        tooltip=_(
-            "Enabling this option will include a count of the number of "
-            "citations in support of the information about the event."
-        ),
     )
     configdialog.add_checkbox(
         grid,
         _("Show best confidence rating"),
         18,
         "{}.event.show-best-confidence".format(space),
-        tooltip=_(
-            "Enabling this option will show the highest user defined "
-            "confidence rating found among all the citations in support of "
-            "the information about the event."
-        ),
     )
     configdialog.add_text(grid, _("Attributes Group"), 31, start=1, bold=True)
     config_facts_fields(

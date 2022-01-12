@@ -84,10 +84,10 @@ def build_simple_group(grstate, group_type, obj, args):
             page_type = args["page_type"]
         else:
             page_type = "other"
-        groptions = GrampsOptions("".join(("options.timeline.", page_type)))
+        groptions = GrampsOptions("".join(("timeline.", page_type)))
         groptions.set_context("timeline")
     else:
-        groptions = GrampsOptions("".join(("options.group.", group_type)))
+        groptions = GrampsOptions("".join(("group.", group_type)))
 
     if "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
@@ -141,7 +141,7 @@ def get_children_group(
     """
     Get the group for all the children in a family unit.
     """
-    groptions = GrampsOptions("".join(("options.group.", context)))
+    groptions = GrampsOptions("".join(("group.", context)))
     groptions.set_relation(person)
     groptions.set_context(context)
     if "title" in args and args["title"]:
@@ -162,7 +162,7 @@ def get_family_unit(grstate, family, args, context="family", relation=None):
     """
     Get the group for a family unit.
     """
-    groptions = GrampsOptions("".join(("options.group.", context)))
+    groptions = GrampsOptions("".join(("group.", context)))
     groptions.set_relation(relation)
     if "title" in args and args["title"]:
         groptions.title = args["title"]
@@ -192,7 +192,7 @@ def get_parents_group(grstate, person, args):
     if primary_handle:
         elements = Gtk.VBox(spacing=6)
         if "raw" not in args or not args["raw"]:
-            groptions = GrampsOptions("options.group.parent")
+            groptions = GrampsOptions("group.parent")
             groptions.set_context("parent")
             parents = FrameGroupExpander(
                 grstate, expanded=True, use_markup=True
@@ -230,7 +230,7 @@ def get_spouses_group(grstate, person, args):
         if spouses is None:
             elements = Gtk.VBox(spacing=6)
             if "raw" not in args or not args["raw"]:
-                groptions = GrampsOptions("options.group.spouse")
+                groptions = GrampsOptions("group.spouse")
                 groptions.set_context("spouse")
                 spouses = FrameGroupExpander(
                     grstate, expanded=True, use_markup=True
@@ -275,7 +275,7 @@ def get_references_group(
     total, tuple_list = prepare_reference_items(obj_types, obj_list)
     not_shown = 0
     if not maximum:
-        maximum = grstate.config.get("options.global.max.references-per-group")
+        maximum = grstate.config.get("general.references-max-per-group")
     if total > maximum:
         not_shown = total - maximum
         tuple_list = tuple_list[:maximum]
@@ -322,7 +322,7 @@ def prepare_reference_options(groptions, args):
     """
     Prepare references options.
     """
-    groptions = groptions or GrampsOptions("options.group.reference")
+    groptions = groptions or GrampsOptions("group.reference")
     if args and "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
     if args and "title" in args and args["title"]:
@@ -359,7 +359,7 @@ def prepare_event_group(grstate, obj, obj_type, args):
     if not obj.get_event_ref_list():
         return None
 
-    groptions = GrampsOptions("options.group.event")
+    groptions = GrampsOptions("group.event")
     groptions.set_context("event")
     if "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])

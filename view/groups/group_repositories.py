@@ -56,7 +56,7 @@ class RepositoriesFrameGroup(FrameGroupList):
             self, grstate, groptions, obj, enable_drop=False
         )
         groptions.set_ref_mode(
-            self.grstate.config.get("options.group.repository.reference-mode")
+            self.grstate.config.get("group.repository.reference-mode")
         )
         for repo_ref in obj.get_reporef_list():
             profile = RepositoryRefFrame(grstate, groptions, obj, repo_ref)

@@ -52,7 +52,7 @@ class EnclosingPlacesFrameGroup(FrameGroupList):
 
     def __init__(self, grstate, groptions, place):
         FrameGroupList.__init__(self, grstate, groptions, place)
-        groptions.option_space = "options.group.place"
+        groptions.option_space = "group.place"
         groptions.set_ref_mode(
             grstate.config.get(
                 "".join((groptions.option_space, ".reference-mode"))
@@ -100,18 +100,14 @@ class EnclosedPlacesFrameGroup(FrameGroupList):
     def __init__(self, grstate, groptions, place):
         FrameGroupList.__init__(self, grstate, groptions, place)
         groptions.set_backlink(place.get_handle())
-        groptions.option_space = "options.group.place"
+        groptions.option_space = "group.place"
         groptions.set_ref_mode(
             grstate.config.get(
                 "".join((groptions.option_space, ".reference-mode"))
             )
         )
-        self.maximum = grstate.config.get(
-            "options.global.max.places-per-group"
-        )
-        recurse = grstate.config.get(
-            "options.group.place.show-all-enclosed-places"
-        )
+        self.maximum = grstate.config.get("group.place.max-per-group")
+        recurse = grstate.config.get("group.place.show-all-enclosed-places")
         place_list = []
         self.build_enclosed_place_list(
             place_list, place.get_handle(), recurse=recurse

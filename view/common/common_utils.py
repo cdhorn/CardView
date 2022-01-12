@@ -199,8 +199,8 @@ def get_confidence_color_css(index, config):
         return ""
 
     key = CONFIDENCE_COLOR_SCHEME[index]
-    background = config.get("".join(("options.colors.confidence.", key)))
-    border = config.get("".join(("options.colors.confidence.border-", key)))
+    background = config.get("".join(("colors.confidence.", key)))
+    border = config.get("".join(("colors.confidence.border-", key)))
     return format_color_css(background, border)
 
 
@@ -225,8 +225,8 @@ def get_relationship_color_css(relationship, config):
                     key = relative
                 break
 
-    background = config.get("".join(("options.colors.relations.", key)))
-    border = config.get("".join(("options.colors.relations.border-", key)))
+    background = config.get("".join(("colors.relations.", key)))
+    border = config.get("".join(("colors.relations.border-", key)))
     return format_color_css(background, border)
 
 
@@ -237,8 +237,8 @@ def get_event_category_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("".join(("options.colors.events.", index)))
-    border = config.get("".join(("options.colors.events.border-", index)))
+    background = config.get("".join(("colors.events.", index)))
+    border = config.get("".join(("colors.events.border-", index)))
     return format_color_css(background, border)
 
 
@@ -249,8 +249,8 @@ def get_event_role_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("".join(("options.colors.roles.", index)))
-    border = config.get("".join(("options.colors.roles.border-", index)))
+    background = config.get("".join(("colors.roles.", index)))
+    border = config.get("".join(("colors.roles.border-", index)))
     return format_color_css(background, border)
 
 

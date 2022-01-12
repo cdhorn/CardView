@@ -61,8 +61,8 @@ from .config_colors import (
 from .config_global import (
     build_display_grid,
     build_general_grid,
+    build_menu_grid,
     build_indicator_grid,
-    build_maximums_grid,
     build_media_bar_grid,
     build_status_grid,
 )
@@ -101,6 +101,10 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     notebook.append_page(page, tab_label=Gtk.Label(label=_("Display")))
     render_page = lambda: build_general_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("General")), render_page)
+    render_page = lambda: build_menu_grid(configdialog, grstate)
+    notebook.append_deferred_page(
+        Gtk.Label(label=_("Context Menu")), render_page
+    )
     render_page = lambda: build_indicator_grid(configdialog, grstate)
     notebook.append_deferred_page(
         Gtk.Label(label=_("Basic Indicators")), render_page
@@ -108,10 +112,6 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     render_page = lambda: build_status_grid(configdialog, grstate)
     notebook.append_deferred_page(
         Gtk.Label(label=_("Status Indicators")), render_page
-    )
-    render_page = lambda: build_maximums_grid(configdialog, grstate)
-    notebook.append_deferred_page(
-        Gtk.Label(label=_("Group Limits")), render_page
     )
     render_page = lambda: build_media_bar_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("Media Bar")), render_page)

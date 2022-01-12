@@ -77,9 +77,7 @@ class CitationFrame(PrimaryFrame):
         """
         Add title for frame.
         """
-        if self.grstate.config.get(
-            "options.global.general.link-citation-title-to-source"
-        ):
+        if self.grstate.config.get("general.link-citation-title-to-source"):
             title = self.get_link(
                 source.title,
                 "Source",
@@ -120,7 +118,7 @@ class CitationFrame(PrimaryFrame):
 
             if self.groptions.age_base and (
                 self.groptions.context in ["timeline"]
-                or self.grstate.config.get("options.group.citation.show-age")
+                or self.grstate.config.get("group.citation.show-age")
             ):
                 self.load_age(self.groptions.age_base, citation_date)
 
@@ -175,7 +173,7 @@ class CitationFrame(PrimaryFrame):
         """
         Determine color scheme to be used if available."
         """
-        if self.grstate.config.get("options.global.display.use-color-scheme"):
+        if self.grstate.config.get("display.use-color-scheme"):
             return get_confidence_color_css(
                 self.primary.obj.confidence, self.grstate.config
             )

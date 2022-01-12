@@ -55,7 +55,7 @@ class UrlsFrameGroup(FrameGroupList):
             self, grstate, groptions, obj, enable_drop=False
         )
         self.parse_urls()
-        if self.grstate.config.get("options.global.general.include-note-urls"):
+        if self.grstate.config.get("general.include-note-urls"):
             self.parse_notes()
         self.show_all()
 

@@ -95,7 +95,7 @@ class MediaFrame(ReferenceFrame):
             age_base = self.groptions.age_base
             if age_base and (
                 self.groptions.context in ["timeline"]
-                or self.grstate.config.get("options.group.media.show-age")
+                or self.grstate.config.get("group.media.show-age")
             ):
                 self.load_age(age_base, media_date)
 

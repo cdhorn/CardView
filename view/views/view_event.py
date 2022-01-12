@@ -52,7 +52,7 @@ class EventObjectView(GrampsObjectView):
         """
         event = self.grcontext.primary_obj.obj
 
-        groptions = GrampsOptions("options.active.event")
+        groptions = GrampsOptions("active.event")
         self.view_object = FRAME_MAP["Event"](
             self.grstate,
             groptions,
@@ -87,7 +87,7 @@ class EventObjectView(GrampsObjectView):
                 family_list.append(("Family", obj_handle))
 
         if people_list:
-            groptions = GrampsOptions("options.group.people")
+            groptions = GrampsOptions("group.people")
             args = {
                 "title": (
                     _("Individual Participants"),
@@ -109,7 +109,7 @@ class EventObjectView(GrampsObjectView):
             )
 
         if family_list:
-            groptions = GrampsOptions("options.group.family")
+            groptions = GrampsOptions("group.family")
             args = {
                 "title": (_("Family Participants"), _("Family Participants")),
             }

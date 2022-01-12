@@ -62,7 +62,7 @@ class ChildrenFrameGroup(FrameGroupList):
             context = "sibling"
 
         groptions.set_backlink(family.get_handle())
-        groptions.option_space = "".join(("options.group.", context))
+        groptions.option_space = "".join(("group.", context))
         groptions.set_ref_mode(
             grstate.config.get(
                 "".join((groptions.option_space, ".reference-mode"))

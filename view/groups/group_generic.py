@@ -95,7 +95,7 @@ class GenericFrameGroup(FrameGroupList):
         for obj_type, obj_handle in tuple_list:
             if obj_type not in FRAME_MAP:
                 continue
-            group_space = "".join(("options.group.", obj_type.lower()))
+            group_space = "".join(("group.", obj_type.lower()))
             group_groptions = GrampsOptions(group_space, size_groups=groups)
             group_groptions.set_age_base(groptions.age_base)
             obj = self.fetch(obj_type, obj_handle)

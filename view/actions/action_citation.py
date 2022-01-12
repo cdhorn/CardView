@@ -74,7 +74,7 @@ class CitationAction(GrampsAction):
         GrampsAction.__init__(
             self, grstate, action_object, target_object, target_child_object
         )
-        if self.grstate.config.get("options.global.general.zotero-enabled"):
+        if self.grstate.config.get("general.zotero-enabled"):
             self.zotero = GrampsZotero(self.db)
         else:
             self.zotero = None
@@ -185,7 +185,7 @@ class CitationAction(GrampsAction):
         """
         if self.zotero.online:
             import_notes = self.grstate.config.get(
-                "options.global.general.zotero-enabled-notes"
+                "general.zotero-enabled-notes"
             )
             active_target_object = self.get_target_object()
             self.zotero.add_citation(

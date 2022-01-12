@@ -108,11 +108,9 @@ class PrimaryFrame(GrampsFrame):
             or "parent" in self.groptions.option_space
         ):
             if "active" in self.groptions.option_space:
-                image_mode = self.get_option(
-                    "options.active.family.image-mode"
-                )
+                image_mode = self.get_option("active.family.image-mode")
             else:
-                image_mode = self.get_option("options.group.family.image-mode")
+                image_mode = self.get_option("group.family.image-mode")
         else:
             image_mode = self.get_option("image-mode")
         if image_mode and "media" not in self.groptions.option_space:
@@ -209,7 +207,10 @@ class PrimaryFrame(GrampsFrame):
         """
         context_menu = Gtk.Menu()
         add_edit_menu_option(self.grstate, context_menu, self.primary)
-        add_delete_menu_option(self.grstate, context_menu, self.primary)
+        if self.grstate.config.get(
+            "menu.delete"
+        ) and not self.grstate.config.get("menu.delete-bottom"):
+            add_delete_menu_option(self.grstate, context_menu, self.primary)
         self.add_custom_actions(context_menu)
         add_attributes_menu(self.grstate, context_menu, self.primary)
         add_citations_menu(self.grstate, context_menu, self.primary)
@@ -220,13 +221,12 @@ class PrimaryFrame(GrampsFrame):
             context_menu,
             self.primary,
             sort_by_name=self.grstate.config.get(
-                "options.global.indicator.tags-sort-by-name"
+                "indicator.tags-sort-by-name"
             ),
         )
         add_urls_menu(self.grstate, context_menu, self.primary)
         add_clipboard_menu_option(context_menu, self.copy_to_clipboard)
-        if self.grstate.config.get("options.global.indicator.bookmarks"):
-            add_bookmark_menu_option(self.grstate, context_menu, self.primary)
+        add_bookmark_menu_option(self.grstate, context_menu, self.primary)
         add_privacy_menu_option(self.grstate, context_menu, self.primary)
         context_menu.add(Gtk.SeparatorMenuItem())
         if self.primary.obj.change:
@@ -243,6 +243,11 @@ class PrimaryFrame(GrampsFrame):
         label = Gtk.MenuItem(label=text)
         label.set_sensitive(False)
         context_menu.append(label)
+        if self.grstate.config.get("menu.delete") and self.grstate.config.get(
+            "menu.delete-bottom"
+        ):
+            context_menu.add(Gtk.SeparatorMenuItem())
+            add_delete_menu_option(self.grstate, context_menu, self.primary)
         return show_menu(context_menu, self, event)
 
     def add_custom_actions(self, context_menu):

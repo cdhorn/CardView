@@ -126,7 +126,7 @@ class TagFrame(GrampsFrame):
         """
         Apply some simple styling to the frame of the current object.
         """
-        border = self.grstate.config.get("options.global.display.border-width")
+        border = self.grstate.config.get("display.border-width")
         color = self.get_color_css()
         css = "".join(
             (".frame { border-width: ", str(border), "px; ", color, " }")

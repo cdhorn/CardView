@@ -76,9 +76,9 @@ class FamilyFrame(PrimaryFrame):
         family,
     ):
         if "active" in groptions.option_space:
-            anchor = "options.active.family"
+            anchor = "active.family"
         else:
-            anchor = "options.group.family"
+            anchor = "group.family"
         self.compact = grstate.config.get(".".join((anchor, "compact-mode")))
         if groptions.force_compact:
             self.compact = True
@@ -166,9 +166,9 @@ class FamilyFrame(PrimaryFrame):
         data_content = Gtk.HBox()
         self.eventbox.add(data_content)
         if "active" in self.groptions.option_space:
-            image_mode = self.get_option("options.active.family.image-mode")
+            image_mode = self.get_option("active.family.image-mode")
         else:
-            image_mode = self.get_option("options.group.family.image-mode")
+            image_mode = self.get_option("group.family.image-mode")
         if image_mode in [3, 4]:
             data_content.pack_start(
                 self.widgets["image"], expand=False, fill=False, padding=0
@@ -274,9 +274,9 @@ class FamilyFrame(PrimaryFrame):
         Load any user defined attributes.
         """
         if "active" in self.groptions.option_space:
-            option_prefix = "options.active.family.rfield-"
+            option_prefix = "active.family.rfield-"
         else:
-            option_prefix = "options.group.family.rfield-"
+            option_prefix = "group.family.rfield-"
         args = {
             "skip_labels": not self.get_option(
                 "".join((option_prefix, "show-labels"))
@@ -323,9 +323,7 @@ class FamilyFrame(PrimaryFrame):
             self._add_partner_options(context_menu)
             add_family_event_option(context_menu, action)
             add_family_child_options(context_menu, action)
-            if self.grstate.config.get(
-                "options.global.general.include-ldsord-menu"
-            ):
+            if self.grstate.config.get("general.include-ldsord-menu"):
                 add_ldsords_menu(self.grstate, context_menu, self.primary)
 
     def _add_partner_options(self, context_menu):
@@ -365,7 +363,7 @@ class FamilyFrame(PrimaryFrame):
         """
         Determine color scheme to be used if available."
         """
-        if self.grstate.config.get("options.global.display.use-color-scheme"):
+        if self.grstate.config.get("display.use-color-scheme"):
             return get_family_color_css(
                 self.primary.obj, divorced=self.divorced
             )

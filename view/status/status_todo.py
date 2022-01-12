@@ -74,7 +74,7 @@ class GrampsToDoIcon(GrampsBaseIcon):
         Build to do context menu.
         """
         menu = Gtk.Menu()
-        if self.grstate.config.get("options.global.status.todo-edit"):
+        if self.grstate.config.get("status.todo-edit"):
             callback = self.edit_note
         else:
             callback = self.goto_note
@@ -110,7 +110,7 @@ def get_todo_status(grstate, obj):
     """
     Load todo status indicator if needed.
     """
-    if not grstate.config.get("options.global.status.todo"):
+    if not grstate.config.get("status.todo"):
         return []
 
     todo_list = []
@@ -118,14 +118,10 @@ def get_todo_status(grstate, obj):
     obj_path = [describe_object(db, obj)]
 
     done = False
-    if isinstance(obj, Person) and grstate.config.get(
-        "options.global.status.todo-person"
-    ):
+    if isinstance(obj, Person) and grstate.config.get("status.todo-person"):
         evaluate_person(db, obj, obj_path, todo_list)
         done = True
-    elif isinstance(obj, Family) and grstate.config.get(
-        "options.global.status.todo-family"
-    ):
+    elif isinstance(obj, Family) and grstate.config.get("status.todo-family"):
         evaluate_family(db, obj, obj_path, todo_list)
         done = True
     if not done:
