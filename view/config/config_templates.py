@@ -120,7 +120,7 @@ class ConfigTemplates(Gtk.Box):
         Gtk.Box.__init__(self, spacing=5, hexpand=True, vexpand=True)
         self.configdialog = configdialog
         self.grstate = grstate
-        self.first = True
+        self.selected = None
         self.config_managers = {}
         self.template_list = None
         self.template_model = None
@@ -168,6 +168,8 @@ class ConfigTemplates(Gtk.Box):
             (lang, name, desc, ini) = row
             if name == active_template:
                 self.template_model.add((True, lang, name, desc))
+                if not self.selected:
+                    self.selected = name
             else:
                 self.template_model.add((False, lang, name, desc))
             self.config_managers.update({name: ini})
@@ -178,16 +180,20 @@ class ConfigTemplates(Gtk.Box):
         """
         Find and select active row.
         """
-        if self.first:
-            store, iter_ = self.template_model.get_selected()
-            iter_ = store.get_iter_first()
-            while iter_:
-                if store.get_value(iter_, 0):
-                    selection = self.template_list.get_selection()
-                    selection.select_iter(iter_)
-                    break
-                iter_ = store.iter_next(iter_)
-            self.first = False
+        iter_active = None
+        store, iter_ = self.template_model.get_selected()
+        iter_ = store.get_iter_first()
+        while iter_:
+            if store.get_value(iter_, 0):
+                iter_active = iter_
+            if store.get_value(iter_, 2) == self.selected:
+                break
+            iter_ = store.iter_next(iter_)
+        if not iter_:
+            iter_ = iter_active
+        selection = self.template_list.get_selection()
+        selection.select_iter(iter_)
+        self.selected = store.get_value(iter_, 2)
 
     def cb_set_active(self, *args):
         """
@@ -235,8 +241,11 @@ class ConfigTemplates(Gtk.Box):
         for section in base_ini.get_sections():
             for setting in base_ini.get_section_settings(section):
                 key = ".".join((section, setting))
-                value = base_ini.get(key)
-                default = base_ini.get_default(key)
+                try:
+                    value = base_ini.get(key)
+                    default = base_ini.get_default(key)
+                except AttributeError:
+                    continue
                 new_ini.register(key, default)
                 new_ini.set(key, value)
         new_ini.set("template.name_lang", new_name)
@@ -247,6 +256,7 @@ class ConfigTemplates(Gtk.Box):
         template_list.sort()
         self.grstate.templates.set("templates.templates", template_list)
         self.grstate.templates.save()
+        self.selected = new_name
         self._load_layout()
 
     def cb_info_clicked(self, button):
@@ -286,6 +296,7 @@ class ConfigTemplates(Gtk.Box):
         """
         Edit template name and description.
         """
+        self.selected = name
         editor = EditTemplateName(
             self.grstate.uistate,
             self.configdialog.track,
@@ -319,6 +330,7 @@ class ConfigTemplates(Gtk.Box):
             template_list.sort()
             self.grstate.templates.set("templates.templates", template_list)
             self.grstate.templates.save()
+            self.selected = new_name
 
     def cb_remove_clicked(self, button):
         """
@@ -381,6 +393,7 @@ class ConfigTemplates(Gtk.Box):
         if delete:
             ini = self.config_managers[name]
             os.remove(ini.filename)
+        self.selected = None
         self._load_layout()
 
     def cb_import_clicked(self, button):
@@ -462,9 +475,11 @@ class EditTemplateName(ManagedWindow):
                     description = self.description_entry.get_text() or ""
                     self.close()
                     return (name, description)
+            elif response == Gtk.ResponseType.CANCEL:
+                self.close()
+                return None
             else:
                 break
-        self.close()
         return None
 
     def check_name_valid(self, name):
@@ -780,7 +795,6 @@ class TemplateChangeViewer(ManagedWindow):
         self.load_data()
         self.show()
         self.top.run()
-        self.close()
 
     def create_dialog(self):
         """
