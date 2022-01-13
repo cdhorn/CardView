@@ -42,7 +42,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.config import config as configman
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.dialog import ErrorDialog, QuestionDialog2
-from gramps.gui.listmodel import NOSORT, ListModel
+from gramps.gui.listmodel import NOSORT, ListModel, TOGGLE, TEXT
 from gramps.gui.managedwindow import ManagedWindow
 from gramps.gui.views.pageview import ViewConfigureDialog
 
@@ -88,7 +88,7 @@ class ConfigTemplates(Gtk.Box):
         Create widget layout.
         """
         name_titles = [
-            ("Active", NOSORT, 50),  # Active Flag
+            (_("Active"), NOSORT, 50, TOGGLE, True, self.cb_set_active),
             (_("Name"), NOSORT, 160),
             ("", NOSORT, 100),  # Untranslated Name
             (_("Description"), NOSORT, 200),
@@ -102,7 +102,6 @@ class ConfigTemplates(Gtk.Box):
         bbox = Gtk.ButtonBox(orientation=Gtk.Orientation.VERTICAL)
         bbox.set_layout(Gtk.ButtonBoxStyle.START)
         bbox.set_spacing(6)
-        add_button(bbox, _("Make Active"), self.cb_active_clicked)
         add_button(bbox, _("View Changes"), self.cb_changes_clicked)
         add_button(bbox, _("Copy Template"), self.cb_copy_clicked)
         add_button(bbox, _("Edit Attributes"), self.cb_info_clicked)
@@ -124,14 +123,13 @@ class ConfigTemplates(Gtk.Box):
         for row in sorted(templates):
             (lang, name, desc, ini) = row
             if name == active_template:
-                flag = "*"
+                self.template_model.add((True, lang, name, desc))
             else:
-                flag = ""
-            self.template_model.add((flag, lang, name, desc))
+                self.template_model.add((False, lang, name, desc))
             self.config_managers.update({name: ini})
         self.template_list.show()
 
-    def cb_active_clicked(self, button):
+    def cb_set_active(self, *args):
         """
         Set selection as active template.
         """
@@ -481,14 +479,17 @@ class EditTemplateOptions:
         self.template = template
         self.config_callback_ids = []
         self.config_connect()
+        ident = title.split(":").pop(-1).strip()
+        ident = "".join((_("Template"), ": ", ident, " - ", _("Linked")))
         try:
             ViewConfigureDialog(
                 grstate.uistate,
                 grstate.dbstate,
                 panels,
-                self,
+                template,
                 template,
                 title,
+                ident=ident,
             )
         except WindowActiveError:
             self.config_disconnect()
