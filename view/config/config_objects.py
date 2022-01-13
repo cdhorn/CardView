@@ -809,7 +809,7 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
                 "Maximum number of events to show in an events or timeline group"
             ),
             1,
-            "global.max.events-per-group",
+            "group.event.max-per-group",
             (1, 5000),
         )
     configdialog.add_combo(

@@ -42,9 +42,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.config import config as configman
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.dialog import ErrorDialog, QuestionDialog2
-from gramps.gui.listmodel import NOSORT, ListModel, TOGGLE, TEXT
+from gramps.gui.listmodel import NOSORT, ListModel, TOGGLE
 from gramps.gui.managedwindow import ManagedWindow
-from gramps.gui.views.pageview import ViewConfigureDialog
 
 # -------------------------------------------------------------------------
 #
@@ -60,8 +59,51 @@ from .config_panel import (
     build_object_panel,
     build_timeline_panel,
 )
+from .configure_dialog import ModifiedConfigureDialog
 
 _ = glocale.translation.sgettext
+
+
+# -------------------------------------------------------------------------
+#
+# ConfigTemplatesDialog
+#
+# This is mostly ViewConfigureDialog but lets us pass window tracking
+# through
+#
+# -------------------------------------------------------------------------
+class ConfigTemplatesDialog(ModifiedConfigureDialog):
+    """
+    All views can have their own configuration dialog
+    """
+
+    def __init__(
+        self,
+        uistate,
+        dbstate,
+        track,
+        configure_page_funcs,
+        configobj,
+        configmanager,
+        dialogtitle,
+        on_close=None,
+    ):
+        self.title = dialogtitle
+        ModifiedConfigureDialog.__init__(
+            self,
+            uistate,
+            dbstate,
+            track,
+            configure_page_funcs,
+            configobj,
+            configmanager,
+            dialogtitle=dialogtitle,
+            on_close=on_close,
+        )
+        self.setup_configs("interface.viewconfiguredialog", 420, 500)
+
+    def build_menu_names(self, obj):
+        return (self.title, self.title)
 
 
 # -------------------------------------------------------------------------
@@ -74,9 +116,11 @@ class ConfigTemplates(Gtk.Box):
     Manage preference templates.
     """
 
-    def __init__(self, grstate):
+    def __init__(self, configdialog, grstate):
         Gtk.Box.__init__(self, spacing=5, hexpand=True, vexpand=True)
+        self.configdialog = configdialog
         self.grstate = grstate
+        self.first = True
         self.config_managers = {}
         self.template_list = None
         self.template_model = None
@@ -127,7 +171,23 @@ class ConfigTemplates(Gtk.Box):
             else:
                 self.template_model.add((False, lang, name, desc))
             self.config_managers.update({name: ini})
+        self._select_active()
         self.template_list.show()
+
+    def _select_active(self):
+        """
+        Find and select active row.
+        """
+        if self.first:
+            store, iter_ = self.template_model.get_selected()
+            iter_ = store.get_iter_first()
+            while iter_:
+                if store.get_value(iter_, 0):
+                    selection = self.template_list.get_selection()
+                    selection.select_iter(iter_)
+                    break
+                iter_ = store.iter_next(iter_)
+            self.first = False
 
     def cb_set_active(self, *args):
         """
@@ -141,7 +201,7 @@ class ConfigTemplates(Gtk.Box):
         self.grstate.templates.set("templates.active", name)
         self.grstate.templates.save()
         self._load_layout()
-        self.grstate.reload_config()
+        self.grstate.reload_config(refresh_only=False)
 
     def cb_copy_clicked(self, button):
         """
@@ -214,7 +274,13 @@ class ConfigTemplates(Gtk.Box):
         title = " ".join((_("Template Editor:"), lang))
         name = store.get_value(iter_, 2)
         template = self.config_managers[name]
-        EditTemplateOptions(self.grstate, template, title, refresh_only=False)
+        EditTemplateOptions(
+            self.grstate,
+            self.configdialog.track,
+            template,
+            title,
+            refresh_only=False,
+        )
 
     def _edit_template_info(self, ini, name, description):
         """
@@ -222,7 +288,7 @@ class ConfigTemplates(Gtk.Box):
         """
         editor = EditTemplateName(
             self.grstate.uistate,
-            [],
+            self.configdialog.track,
             name,
             description,
         )
@@ -462,7 +528,7 @@ class EditTemplateOptions:
     """
 
     def __init__(
-        self, grstate, template, title, panels=None, refresh_only=True
+        self, grstate, track, template, title, panels=None, refresh_only=True
     ):
         panels = panels or [
             self.global_panel,
@@ -482,14 +548,14 @@ class EditTemplateOptions:
         ident = title.split(":").pop(-1).strip()
         ident = "".join((_("Template"), ": ", ident, " - ", _("Linked")))
         try:
-            ViewConfigureDialog(
+            ConfigTemplatesDialog(
                 grstate.uistate,
                 grstate.dbstate,
+                track,
                 panels,
                 template,
                 template,
                 title,
-                ident=ident,
             )
         except WindowActiveError:
             self.config_disconnect()
@@ -502,7 +568,7 @@ class EditTemplateOptions:
         for section in self.template.get_sections():
             for setting in self.template.get_section_settings(section):
                 key = ".".join((section, setting))
-                if "active.last_object" not in key:
+                if "active.last_object" not in key and "layout" not in key:
                     try:
                         callback_id = self.template.connect(
                             key, self.config_refresh
@@ -827,7 +893,7 @@ def build_templates_panel(configdialog, grstate):
         vexpand=False,
     )
     configdialog.add_text(grid, _("Preference Templates"), 0, bold=True)
-    templates = ConfigTemplates(grstate)
+    templates = ConfigTemplates(configdialog, grstate)
     grid.attach(templates, 1, 1, 1, 1)
     return grid
 

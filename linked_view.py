@@ -69,6 +69,7 @@ from view.config.config_defaults import VIEWDEFAULTS
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
     build_templates_panel,
+    ConfigTemplatesDialog,
     EditTemplateOptions,
 )
 from view.groups.group_window import FrameGroupWindow
@@ -989,7 +990,40 @@ class LinkedView(ExtendedNavigationView):
         self.config_request = (label, builder, space, context)
         EditTemplateOptions(
             self.grstate,
+            [],
             self._config_view,
             "Configure Browse View",
             panels=[self.build_requested_config_page],
         )
+
+    def configure(self):
+        """
+        Open the configure dialog for the view.
+        """
+        title = _("Configure %(cat)s - %(view)s") % {
+            "cat": self.get_translated_category(),
+            "view": self.get_title(),
+        }
+
+        if self.can_configure():
+            config_funcs = self._get_configure_page_funcs()
+        else:
+            config_funcs = []
+        if self.sidebar:
+            config_funcs += self.sidebar.get_config_funcs()
+        if self.bottombar:
+            config_funcs += self.bottombar.get_config_funcs()
+
+        try:
+            ConfigTemplatesDialog(
+                self.uistate,
+                self.dbstate,
+                [],
+                config_funcs,
+                self,
+                self._config,
+                dialogtitle=title,
+            )
+
+        except WindowActiveError:
+            return

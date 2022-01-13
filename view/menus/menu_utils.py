@@ -628,7 +628,7 @@ def add_parents_menu(grstate, parent_menu, grobject):
     )
     parent_family_list = grobject.obj.get_parent_family_handle_list()
     if parent_family_list:
-        menu.add(Gtk.SeparatorMenuItem())
+        add_double_separator(menu)
         for family_handle in parent_family_list:
             family = db.get_family_from_handle(family_handle)
             family_text = family_name(family, db)
@@ -658,7 +658,7 @@ def add_partners_menu(grstate, parent_menu, grobject):
     )
     family_list = grobject.obj.get_family_handle_list()
     if family_list:
-        menu.add(Gtk.SeparatorMenuItem())
+        add_double_separator(menu)
         for family_handle in family_list:
             family = db.get_family_from_handle(family_handle)
             family_text = family_name(family, db)
