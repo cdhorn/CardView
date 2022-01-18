@@ -167,7 +167,7 @@ class FamilyAction(GrampsAction):
         child = self.db.get_person_from_handle(self.target_object.obj.ref)
         name = self.describe_object(child)
         self._edit_child_reference(
-            name, self.target_object.obj.ref, self._edited_child_reference
+            name, self.target_object.obj, self._edited_child_reference
         )
 
     def _edited_child_reference(self, child_ref):
