@@ -42,8 +42,7 @@ from gramps.gen.display.place import displayer as place_displayer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from ..actions import action_handler
-from ..menus.menu_utils import menu_item
+from ..menus.menu_utils import add_enclosed_places_menu
 from .frame_reference import ReferenceFrame
 
 _ = glocale.translation.sgettext
@@ -197,18 +196,4 @@ class PlaceFrame(ReferenceFrame):
         """
         Add context menu items unique to a place.
         """
-        action = action_handler("Place", self.grstate, self.primary)
-        context_menu.append(
-            menu_item(
-                "gramps-place",
-                _("Add a new enclosed place"),
-                action.add_new_enclosed_place,
-            )
-        )
-        context_menu.append(
-            menu_item(
-                "gramps-place",
-                _("Add an existing enclosed place"),
-                action.add_existing_enclosed_place,
-            )
-        )
+        add_enclosed_places_menu(self.grstate, context_menu, self.primary)

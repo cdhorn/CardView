@@ -113,8 +113,10 @@ class CitationAction(GrampsAction):
         if citation_handle:
             active_target_object = self.get_target_object()
             citation = self.db.get_citation_from_handle(citation_handle)
-            message = self.commit_message(
-                _("Citation"), citation.get_gramps_id()
+            message = _("Added Citation %s to %s %s") % (
+                self.describe_object(citation),
+                active_target_object.obj_lang,
+                self.describe_object(active_target_object.obj),
             )
             active_target_object.save_hash()
             if active_target_object.obj.add_citation(citation_handle):
@@ -212,27 +214,57 @@ class CitationAction(GrampsAction):
         if not self.action_object:
             return
         active_target_object = self.get_target_object()
-        text = self.describe_object(self.action_object.obj)
-        prefix = _(
-            "You are about to remove the following citation from this object:"
-        )
-        extra = _(
-            "This removes the reference but does not delete the citation."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self.commit_message(
-                _("Citation"),
-                self.action_object.obj.get_gramps_id(),
-                action="remove",
+        citation_text = self.describe_object(self.action_object.obj)
+
+        message1 = _("Remove Citation %s?") % citation_text
+        if active_target_object.is_primary:
+            message2 = (
+                _(
+                    "Removing the citation will remove the citation from the "
+                    "%s in the database."
+                )
+                % active_target_object.obj_lang.lower()
             )
-            active_target_object.save_hash()
-            active_target_object.obj.remove_citation_references(
-                [self.action_object.obj.get_handle()]
+        else:
+            message2 = _(
+                "Removing the citation will remove the citation from the "
+                "%s in the %s in the database."
+            ) % (
+                active_target_object.obj_lang.lower(),
+                self.target_object.obj_lang.lower(),
             )
-            active_target_object.sync_hash(self.grstate)
-            self.target_object.commit(self.grstate, message)
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Citation"),
+            self._remove_citation,
+            recover_message=False,
+        )
+
+    def _remove_citation(self, *_dummy_args):
+        """
+        Actually remove the citation.
+        """
+        active_target_object = self.get_target_object()
+        if active_target_object.is_primary:
+            message = _("Removed Citation %s from %s %s") % (
+                self.describe_object(self.action_object.obj),
+                self.target_object.obj_lang,
+                self.describe_object(self.target_object.obj),
+            )
+        else:
+            message = _("Removed Citation %s from %s in %s %s") % (
+                self.describe_object(self.action_object.obj),
+                self.target_child_object.obj_lang,
+                self.target_object.obj_lang,
+                self.describe_object(self.target_object.obj),
+            )
+        active_target_object.save_hash()
+        active_target_object.obj.remove_citation_references(
+            [self.action_object.obj.get_handle()]
+        )
+        active_target_object.sync_hash(self.grstate)
+        self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("Citation", CitationAction)

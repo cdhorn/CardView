@@ -128,20 +128,16 @@ class FamilyAction(GrampsAction):
         Finish adding a new event for a family.
         """
         event_ref.ref = event.get_handle()
-        message = " ".join(
-            (
-                _("Added"),
-                _("Family"),
-                self.action_object.obj.get_gramps_id(),
-                _("to"),
-                _("Event"),
-                event.get_gramps_id(),
-            )
+        message = _("Added Family %s to Event %s") % (
+            self.describe_object(self.action_object.obj),
+            self.describe_object(event),
         )
+        self.grstate.uistate.set_busy_cursor(True)
         with DbTxn(message, self.db) as trans:
             self.db.commit_event(event, trans)
             self.action_object.obj.add_event_ref(event_ref)
             self.db.commit_family(self.action_object.obj, trans)
+        self.grstate.uistate.set_busy_cursor(False)
 
     def _edit_child_reference(self, name, child_ref, callback=None):
         """
@@ -180,9 +176,9 @@ class FamilyAction(GrampsAction):
         """
         if child_ref:
             child = self.db.get_person_from_handle(child_ref.ref)
-            message = self.commit_message(
-                _("ChildRef"), child.get_gramps_id(), action="update"
-            )
+            message = _(
+                "Edited Child Reference for %s"
+            ) % self.describe_object(child)
             self.action_object.commit(self.grstate, message)
 
     def add_new_child(self, *_dummy_args):
@@ -220,7 +216,7 @@ class FamilyAction(GrampsAction):
         """
         child_ref = ChildRef()
         child_ref.ref = child.get_handle()
-        callback = lambda x: self._added_child(x, child)
+        callback = lambda x, y: self._added_child(child_ref, child)
         name = self.describe_object(child)
         self._edit_child_reference(name, child_ref, callback)
 
@@ -228,21 +224,17 @@ class FamilyAction(GrampsAction):
         """
         Finish adding the child to the family.
         """
-        message = " ".join(
-            (
-                _("Added"),
-                _("Child"),
-                child.get_gramps_id(),
-                _("to"),
-                _("Family"),
-                self.action_object.obj.get_gramps_id(),
-            )
+        message = _("Added Child %s to Family %s") % (
+            self.describe_object(child),
+            self.describe_object(self.action_object.obj),
         )
+        self.grstate.uistate.set_busy_cursor(True)
         with DbTxn(message, self.db) as trans:
             self.action_object.obj.add_child_ref(child_ref)
             self.db.commit_family(self.action_object.obj, trans)
             child.add_parent_family_handle(self.action_object.obj.get_handle())
             self.db.commit_person(child, trans)
+        self.grstate.uistate.set_busy_cursor(False)
 
     def add_existing_child(self, *_dummy_args):
         """
@@ -283,19 +275,36 @@ class FamilyAction(GrampsAction):
         if found:
             person_name = self.describe_object(person)
             family_text = self.describe_object(self.action_object.obj)
-            message = " ".join(
-                (
-                    _("You are about to remove"),
-                    person_name,
-                    "from the family of",
-                    family_text,
-                    ".",
+
+            message1 = _("Remove Child %s?") % person_name
+            message2 = (
+                _(
+                    "Removing the child will remove the child reference "
+                    "from the family %s in the database."
                 )
+                % family_text
             )
-            if self.confirm_action(_("Warning"), message):
-                self.db.remove_child_from_family(
-                    person.get_handle(), self.action_object.obj.get_handle()
-                )
+            self.verify_action(
+                message1,
+                message2,
+                _("Remove Child"),
+                self._remove_child_reference,
+                recover_message=False,
+            )
+
+    def _remove_child_reference(self, *_dummy_args):
+        """
+        Actually remove the child reference.
+        """
+        if self.target_object.obj_type == "Person":
+            person = self.target_object.obj
+        elif self.target_object.obj_type == "ChildRef":
+            person = self.db.get_person_from_handle(self.target_object.obj)
+        self.grstate.uistate.set_busy_cursor(True)
+        self.db.remove_child_from_family(
+            person.get_handle(), self.action_object.obj.get_handle()
+        )
+        self.grstate.uistate.set_busy_cursor(False)
 
     def add_missing_spouse(self, *_dummy_args):
         """
@@ -320,17 +329,29 @@ class FamilyAction(GrampsAction):
         Confirm and remove partner from family.
         """
         person_name = self.describe_object(partner)
-        message = " ".join(
-            (
-                _("You are about to remove"),
-                person_name,
-                _("as a parent of this family."),
-            )
+        message1 = _("Remove Partner %s?") % person_name
+        message2 = _(
+            "Removing the partner or spouse will remove the person from "
+            "the family in the database."
         )
-        if self.confirm_action(_("Warning"), message):
-            self.db.remove_parent_from_family(
-                partner.get_handle(), self.action_object.obj.get_handle()
-            )
+        callback = lambda x: self._removing_partner(partner)
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Partner"),
+            callback,
+            recover_message=False,
+        )
+
+    def _removing_partner(self, partner):
+        """
+        Actually remove the partner from the family.
+        """
+        self.grstate.uistate.set_busy_cursor(True)
+        self.db.remove_parent_from_family(
+            partner.get_handle(), self.action_object.obj.get_handle()
+        )
+        self.grstate.uistate.set_busy_cursor(False)
 
     def remove_partner(self, *_dummy_args):
         """
@@ -372,18 +393,9 @@ class FamilyAction(GrampsAction):
         """
         Set preferred parents.
         """
-        message = " ".join(
-            (
-                _("Setting"),
-                _("Family"),
-                self.action_object.obj.get_gramps_id(),
-                _("as"),
-                _("Main"),
-                _("Parents"),
-                _("for"),
-                _("Person"),
-                self.target_object.obj.get_gramps_id(),
-            )
+        message = _("Setting Family %s as Main Parents for Person %s") % (
+            self.describe_object(self.action_object.obj),
+            self.describe_object(self.target_object.obj),
         )
         self.target_object.obj.set_main_parent_family_handle(
             self.action_object.obj.get_handle()

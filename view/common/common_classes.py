@@ -277,6 +277,8 @@ class GrampsObject:
         Commit self to the database.
         """
         assert self.is_primary
+        if grstate.uistate:
+            grstate.uistate.set_busy_cursor(True)
         if reason:
             message = reason
         else:
@@ -286,6 +288,8 @@ class GrampsObject:
         commit_method = grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(message, grstate.dbstate.db) as trans:
             commit_method(self.obj, trans)
+        if grstate.uistate:
+            grstate.uistate.set_busy_cursor(False)
 
 
 # ------------------------------------------------------------------------
@@ -778,18 +782,6 @@ class GrampsConfig:
         except AttributeError:
             return False
 
-    #    def get_layout(self, key):
-    #        """
-    #        Fetches an option in the page layout name space.
-    #        """
-    #        option = ".".join(
-    #            ("options.page", self.grstate.page_type, "layout", key)
-    #        )
-    #        try:
-    #            return self.grstate.config.get(option)
-    #        except AttributeError:
-    #            return False
-
     def get_label(self, data, left=True, italic=False):
         """
         Simple helper to prepare a label.
@@ -850,37 +842,6 @@ class GrampsConfig:
             hexpand=hexpand,
             tooltip=tooltip,
         )
-
-    def confirm_action(self, title, *args):
-        """
-        If enabled display message and confirm a user requested action.
-        """
-        if not self.grstate.config.get("global.general.enable-warnings"):
-            return True
-        dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
-        dialog.set_title(title)
-        dialog.set_default_size(500, 300)
-        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
-        dialog.add_button("_OK", Gtk.ResponseType.OK)
-
-        label = Gtk.Label(
-            hexpand=True,
-            vexpand=True,
-            halign=Gtk.Align.CENTER,
-            justify=Gtk.Justification.CENTER,
-            use_markup=True,
-            wrap=True,
-            label="".join(
-                args + ("\n\n", _("Are you sure you want to continue?"))
-            ),
-        )
-        dialog.vbox.add(label)
-        dialog.show_all()
-        response = dialog.run()
-        dialog.destroy()
-        if response == Gtk.ResponseType.OK:
-            return True
-        return False
 
 
 # ------------------------------------------------------------------------

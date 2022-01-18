@@ -62,7 +62,7 @@ class MediaRefFrame(MediaFrame):
         Add custom action menu items for the reference.
         """
         action = action_handler(
-            "Media", self.grstate, self.primary, self.reference
+            "Media", self.grstate, self.reference, self.reference_base
         )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(menu_item("gtk-edit", label, action.edit_media))

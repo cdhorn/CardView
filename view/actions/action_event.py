@@ -76,7 +76,7 @@ class EventAction(GrampsAction):
         except WindowActiveError:
             pass
 
-    def edit_participant(self, *_dummy_args):
+    def _edit_participant(self, callback=None):
         """
         Edit the event participant refererence.
         """
@@ -97,25 +97,25 @@ class EventAction(GrampsAction):
                     [],
                     self.action_object.obj,
                     event_ref,
-                    self._save_participant,
+                    callback,
                 )
             except WindowActiveError:
                 pass
 
-    def _save_participant(self, event_ref):
+    def edit_participant(self, *_dummy_args):
+        """
+        Edit the participant event reference.
+        """
+        self._edit_participant(callback=self._edited_participant)
+
+    def _edited_participant(self, event_ref):
         """
         Save the event participant.
         """
         if event_ref:
-            message = " ".join(
-                (
-                    _("Updated"),
-                    _("EventRef"),
-                    self.action_object.obj.get_gramps_id(),
-                    _("for"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
+            message = _("Edited Participant %s in Event %s") % (
+                self.describe_object(self.target_object.obj),
+                self.describe_object(self.action_object.obj),
             )
             self.target_object.obj.add_event_ref(event_ref)
             self.target_object.commit(self.grstate, message)
@@ -158,7 +158,19 @@ class EventAction(GrampsAction):
             event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
             self.set_target_object(participant)
             self.target_object.obj.add_event_ref(event_ref)
-            self.edit_participant()
+            self._edit_participant(self._added_participant)
+
+    def _added_participant(self, event_ref):
+        """
+        Save the added participant.
+        """
+        if event_ref:
+            message = _("Added Participant %s to Event %s") % (
+                self.describe_object(self.target_object.obj),
+                self.describe_object(self.action_object.obj),
+            )
+            self.target_object.obj.add_event_ref(event_ref)
+            self.target_object.commit(self.grstate, message)
 
     def remove_participant(self, *_dummy_args):
         """
@@ -180,49 +192,48 @@ class EventAction(GrampsAction):
                 new_list.append(event_ref)
 
         if found_event_ref:
-            text = "".join(
-                (
-                    str(found_event_ref.get_role()),
-                    ": ",
-                    self.describe_object(participant.obj),
-                )
+            message1 = _("Remove Participant %s?") % self.describe_object(
+                participant.obj
             )
-            prefix = _(
-                "You are about to remove the following participant from "
-                "this event:"
+            message2 = _(
+                "Removing the participant will remove their event "
+                "reference."
             )
-            extra = _(
-                "Note this does not delete the event or the participant. "
-                "You can also use the undo option under edit if you change "
-                "your mind later."
+            self.verify_action(
+                message1,
+                message2,
+                _("Remove Participant"),
+                self._remove_participant,
+                recover_message=False,
             )
-            if self.confirm_action(
-                _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-            ):
-                message = " ".join(
-                    (
-                        _("Removed"),
-                        participant.obj_lang,
-                        participant.obj.get_gramps_id(),
-                        _("from"),
-                        _("Event"),
-                        self.action_object.obj.get_gramps_id(),
-                    )
-                )
-                birth_ref = participant.obj.get_birth_ref()
-                death_ref = participant.obj.get_death_ref()
-                participant.obj.set_event_ref_list(new_list)
-                if birth_ref is not None:
-                    if birth_ref.ref != self.action_object.obj.get_handle():
-                        participant.obj.set_birth_ref(birth_ref)
-                    else:
-                        participant.obj.set_birth_ref(None)
-                if death_ref is not None:
-                    if death_ref.ref != self.action_object.obj.get_handle():
-                        participant.obj.set_death_ref(death_ref)
-                    else:
-                        participant.obj.set_death_ref(None)
-                participant.commit(self.grstate, message)
+
+    def _remove_participant(self, *_dummy_args):
+        """
+        Actually remove the participant from the event.
+        """
+        new_list = []
+        participant = self.target_object
+        for event_ref in participant.obj.get_event_ref_list():
+            if event_ref.ref != self.action_object.obj.get_handle():
+                new_list.append(event_ref)
+        message = _("Removed Participant %s from Event %s") % (
+            self.describe_object(participant.obj),
+            self.describe_object(self.action_object.obj),
+        )
+        birth_ref = participant.obj.get_birth_ref()
+        death_ref = participant.obj.get_death_ref()
+        participant.obj.set_event_ref_list(new_list)
+        if birth_ref is not None:
+            if birth_ref.ref != self.action_object.obj.get_handle():
+                participant.obj.set_birth_ref(birth_ref)
+            else:
+                participant.obj.set_birth_ref(None)
+            if death_ref is not None:
+                if death_ref.ref != self.action_object.obj.get_handle():
+                    participant.obj.set_death_ref(death_ref)
+                else:
+                    participant.obj.set_death_ref(None)
+            participant.commit(self.grstate, message)
 
 
 factory.register_action("Event", EventAction)

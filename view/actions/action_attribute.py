@@ -112,8 +112,10 @@ class AttributeAction(GrampsAction):
         """
         if attribute:
             self.grstate.update_history_object(old_hash, attribute)
-            message = self.commit_message(
-                _("Attribute"), str(attribute.get_type()), action="update"
+            active_target_object = self.get_target_object()
+            message = _("Edited Attribute %s for %s") % (
+                attribute.get_type(),
+                self.describe_object(active_target_object.obj),
             )
             self.target_object.commit(self.grstate, message)
 
@@ -137,8 +139,9 @@ class AttributeAction(GrampsAction):
         """
         if attribute:
             active_target_object = self.get_target_object()
-            message = self.commit_message(
-                _("Attribute"), str(attribute.get_type())
+            message = _("Added Attribute %s to %s") % (
+                attribute.get_type(),
+                self.describe_object(active_target_object.obj),
             )
             active_target_object.obj.add_attribute(attribute)
             self.target_object.commit(self.grstate, message)
@@ -150,18 +153,31 @@ class AttributeAction(GrampsAction):
         if not self.action_object:
             return
         active_target_object = self.get_target_object()
-        text = self.describe_object(self.action_object.obj)
-        prefix = _(
-            "You are about to delete the following attribute from this object:"
+        target_name = self.describe_object(active_target_object.obj)
+        attribute_type = str(self.action_object.obj.get_type())
+        message1 = _("Delete Attribute %s?") % attribute_type
+        message2 = _(
+            "Deleting the attribute will remove the attribute from "
+            "the %s %s in the database."
+        ) % (active_target_object.obj_lang.lower(), target_name)
+        self.verify_action(
+            message1,
+            message2,
+            _("Delete %s") % attribute_type,
+            self._delete_object,
         )
-        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
-            message = self.commit_message(
-                _("Attribute"),
-                str(self.action_object.obj.get_type()),
-                action="remove",
-            )
-            active_target_object.obj.remove_attribute(self.action_object.obj)
-            self.target_object.commit(self.grstate, message)
+
+    def _delete_object(self, *_dummy_args):
+        """
+        Actually delete the attribute.
+        """
+        active_target_object = self.get_target_object()
+        message = _("Deleted Attribute %s from %s") % (
+            self.action_object.obj.get_type(),
+            self.describe_object(active_target_object.obj),
+        )
+        active_target_object.obj.remove_attribute(self.action_object.obj)
+        self.target_object.commit(self.grstate, message)
 
     def edit_object(self, *_dummy_args):
         """

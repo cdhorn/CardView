@@ -70,6 +70,7 @@ VIEWDEFAULTS = (
     ("menu.names", True),
     ("menu.attributes", True),
     ("menu.ordinances", True),
+    ("menu.enclosed-places", True),
     ("menu.citations", True),
     ("menu.repositories", True),
     ("menu.media", True),

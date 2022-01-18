@@ -81,17 +81,12 @@ class AddressAction(GrampsAction):
         """
         Save edited address.
         """
-        self.grstate.update_history_object(old_hash, address)
-        message = " ".join(
-            (
-                _("Edited"),
-                _("Address"),
-                _("for"),
-                self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
+        if address:
+            self.grstate.update_history_object(old_hash, address)
+            message = _("Edited Address for %s") % (
+                self.describe_object(self.target_object.obj),
             )
-        )
-        self.target_object.commit(self.grstate, message)
+            self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("Address", AddressAction)

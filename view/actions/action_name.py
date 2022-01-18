@@ -88,11 +88,13 @@ class NameAction(GrampsAction):
         """
         Save edited name.
         """
-        self.grstate.update_history_object(old_hash, name)
-        message = self.commit_message(
-            _("Name"), name.get_regular_name(), action="update"
-        )
-        self.target_object.commit(self.grstate, message)
+        if name:
+            self.grstate.update_history_object(old_hash, name)
+            message = _("Edited Name %s for %s") % (
+                name.get_regular_name(),
+                self.describe_object(self.target_object.obj),
+            )
+            self.target_object.commit(self.grstate, message)
 
     def add_name(self, *_dummy_args):
         """
@@ -105,15 +107,9 @@ class NameAction(GrampsAction):
         Save the new name to finish adding it.
         """
         if name:
-            message = " ".join(
-                (
-                    _("Added"),
-                    _("Name"),
-                    name.get_regular_name(),
-                    _("to"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
+            message = _("Added Name %s to %s") % (
+                name.get_regular_name(),
+                self.describe_object(self.target_object.obj),
             )
             self.target_object.obj.add_alternate_name(name)
             self.target_object.commit(self.grstate, message)
@@ -122,32 +118,40 @@ class NameAction(GrampsAction):
         """
         Delete the given name. This overrides default method.
         """
-        if not self.action_object:
-            return
-        text = self.action_object.obj.get_regular_name()
-        prefix = _(
-            "You are about to delete the following name from this object:"
-        )
-        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
-            message = " ".join(
-                (
-                    _("Deleted"),
-                    _("Name"),
-                    text,
-                    _("from"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
+        if self.action_object:
+            name = self.action_object.obj.get_regular_name()
+            message1 = _("Delete Name %s?") % name
+            message2 = _(
+                "Deleting the name will remove the name from "
+                "the %s %s in the database."
+            ) % (
+                self.target_object.obj_lang.lower(),
+                self.describe_object(self.target_object.obj),
             )
-            name_list = []
-            for alternate_name in self.target_object.obj.get_alternate_names():
-                if (
-                    alternate_name.serialize()
-                    != self.action_object.obj.serialize()
-                ):
-                    name_list.append(alternate_name)
-            self.target_object.obj.set_alternate_names(name_list)
-            self.target_object.commit(self.grstate, message)
+            self.verify_action(
+                message1,
+                message2,
+                _("Delete Name"),
+                self._delete_object,
+            )
+
+    def _delete_object(self, *_dummy_args):
+        """
+        Actually delete the name.
+        """
+        message = _("Deleted Name %s from %s") % (
+            self.action_object.obj.get_regular_name(),
+            self.describe_object(self.target_object.obj),
+        )
+        name_list = []
+        for alternate_name in self.target_object.obj.get_alternate_names():
+            if (
+                alternate_name.serialize()
+                != self.action_object.obj.serialize()
+            ):
+                name_list.append(alternate_name)
+        self.target_object.obj.set_alternate_names(name_list)
+        self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("Name", NameAction)

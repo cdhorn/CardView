@@ -57,4 +57,7 @@ factory = GrampsActionFactory()
 
 
 def action_handler(*args):
+    """
+    Return the proper action handler.
+    """
     return factory.create(*args)

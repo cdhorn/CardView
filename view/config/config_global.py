@@ -309,60 +309,66 @@ def build_menu_grid(configdialog, grstate, *_dummy_args):
     )
     configdialog.add_checkbox(
         grid,
-        _("Enable citations submenu"),
+        _("Enable enclosed places submenu"),
         23,
+        "menu.enclosed-places",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Enable citations submenu"),
+        24,
         "menu.citations",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable repositories submenu"),
-        24,
+        25,
         "menu.repositories",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable media submenu"),
-        25,
+        26,
         "menu.media",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable notes submenu"),
-        26,
+        27,
         "menu.notes",
     )
     configdialog.add_checkbox(
         grid,
         _("If notes enabled include child object notes"),
-        27,
+        28,
         "menu.notes-children",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable urls submenu"),
-        28,
+        29,
         "menu.urls",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable tags submenu"),
-        29,
+        30,
         "menu.tags",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable clipboard copy option"),
-        30,
+        31,
         "menu.clipboard",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable bookmarks option"),
-        31,
+        32,
         "menu.bookmarks",
     )
     configdialog.add_checkbox(
-        grid, _("Enable privacy option"), 32, "menu.privacy"
+        grid, _("Enable privacy option"), 33, "menu.privacy"
     )
     return add_config_reset(configdialog, grstate, "menu", grid)
 

@@ -32,6 +32,7 @@ PrivacyAction
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.lib.privacybase import PrivacyBase
 
 # ------------------------------------------------------------------------
 #
@@ -64,7 +65,14 @@ class PrivacyAction(GrampsAction):
             target_child_object=target_child_object,
         )
 
-    def is_set(self, *_dummy_args):
+    def is_valid(self):
+        """
+        Return true if had privacy attribute.
+        """
+        active_target_object = self.get_target_object()
+        return isinstance(active_target_object.obj, PrivacyBase)
+
+    def is_set(self):
         """
         Return true if set.
         """
@@ -82,24 +90,15 @@ class PrivacyAction(GrampsAction):
         else:
             text = _("Private")
         if self.target_child_object:
-            message = " ".join(
-                (
-                    _("Made"),
-                    self.target_child_object.obj_lang,
-                    _("for"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                    text,
-                )
+            message = _("Made %s for %s %s") % (
+                self.target_child_object.obj_lang,
+                self.describe_object(self.target_object.obj),
+                text,
             )
         else:
-            message = " ".join(
-                (
-                    _("Made"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                    text,
-                )
+            message = _("Made %s %s") % (
+                self.describe_object(self.target_object.obj),
+                text,
             )
         active_target_object.save_hash()
         active_target_object.obj.set_privacy(not mode)

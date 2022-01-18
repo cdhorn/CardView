@@ -106,7 +106,7 @@ class SourceAction(GrampsAction):
         )
         self._edit_repository_reference(
             repository,
-            self.target_object.obj.ref,
+            self.target_object.obj,
             self._edited_repository_reference,
         )
 
@@ -117,8 +117,9 @@ class SourceAction(GrampsAction):
         if not repository_tuple:
             return
         (dummy_repo_ref, repository) = repository_tuple
-        message = self.commit_message(
-            _("RepoRef"), repository.get_gramps_id(), action="update"
+        message = _("Edited Repository %s for Source %s") % (
+            self.describe_object(repository),
+            self.describe_object(self.action_object.obj),
         )
         self.action_object.commit(self.grstate, message)
 
@@ -158,9 +159,12 @@ class SourceAction(GrampsAction):
         if isinstance(obj_or_handle, str):
             repository_handle = obj_or_handle
             repository = self.db.get_repository_from_handle(repository_handle)
-        else:
+        elif isinstance(obj_or_handle, Repository):
             repository_handle = obj_or_handle.get_handle()
             repository = obj_or_handle
+        else:
+            repository_handle = None
+            repository = Repository()
         for repo_ref in self.action_object.obj.get_reporef_list():
             if repo_ref.ref == repository_handle:
                 return
@@ -183,15 +187,10 @@ class SourceAction(GrampsAction):
         Finish adding the repository reference.
         """
         (repo_ref, repository) = repo_tuple
-        message = " ".join(
-            (
-                _("Added"),
-                _("RepoRef"),
-                repository.get_gramps_id(),
-                _("to"),
-                _("Source"),
-                self.action_object.obj.get_gramps_id(),
-            )
+        repo_ref.ref = repository.get_handle()
+        message = _("Added Repository %s to Source %s") % (
+            self.describe_object(repository),
+            self.describe_object(self.action_object.obj),
         )
         self.action_object.obj.add_repo_reference(repo_ref)
         self.action_object.commit(self.grstate, message)
@@ -208,34 +207,41 @@ class SourceAction(GrampsAction):
         repository = self.db.get_repository_from_handle(
             self.target_object.obj.ref
         )
-        text = self.describe_object(self.target_object.obj)
-        prefix = _(
-            "You are about to remove the following repository for this "
-            "source:"
-        )
-        extra = _(
-            "Note this does not delete the repository. You can also use "
-            "the undo option under edit if you change your mind later."
-        )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            new_list = []
-            for repo_ref in self.action_object.obj.get_reporef_list():
-                if not repo_ref.ref == self.target_object.obj.ref:
-                    new_list.append(repo_ref)
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("RepoRef"),
-                    repository.get_gramps_id(),
-                    _("from"),
-                    _("Source"),
-                    self.action_object.obj.get_gramps_id(),
-                )
+        repository_name = self.describe_object(repository)
+        source_name = self.describe_object(self.action_object.obj)
+        message1 = _("Remove Repository %s?") % repository_name
+        message2 = (
+            _(
+                "Removing the repository will remove the repository "
+                "reference from the source %s in the database."
             )
-            self.action_object.obj.set_reporef_list(new_list)
-            self.action_object.commit(self.grstate, message)
+            % source_name
+        )
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Repository"),
+            self._remove_repository_reference,
+            recover_message=False,
+        )
+
+    def _remove_repository_reference(self, *_dummy_args):
+        """
+        Actually remove the repository reference.
+        """
+        new_list = []
+        for repo_ref in self.action_object.obj.get_reporef_list():
+            if not repo_ref.ref == self.target_object.obj.ref:
+                new_list.append(repo_ref)
+        repository = self.db.get_repository_from_handle(
+            self.target_object.obj.ref
+        )
+        message = _("Removed Repository %s from Source %s") % (
+            self.describe_object(repository),
+            self.describe_object(self.action_object.obj),
+        )
+        self.action_object.obj.set_reporef_list(new_list)
+        self.action_object.commit(self.grstate, message)
 
 
 factory.register_action("Source", SourceAction)

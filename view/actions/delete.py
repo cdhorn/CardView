@@ -30,7 +30,8 @@
 """
 This version strips out newer Python features and is for use in
 Gramps 51 plugins that need to run on systems with obsolete
-Python versions or incomplete sets of libraries.
+Python versions or incomplete sets of libraries. It also allows
+the commit message to be passed in.
 """
 
 from gramps.gen.db import DbTxn
@@ -432,14 +433,13 @@ delete_methods = {
 }
 
 
-def delete_object(db_handle, handle, gramps_class_name):
+def delete_object(db_handle, handle, gramps_class_name, message=None):
     """Delete the object and its references."""
+    message = message or "Delete {} {}".format(gramps_class_name, handle)
     key = gramps_class_name.lower()
     try:
         method = delete_methods[key]
     except KeyError:
         raise NotImplementedError(gramps_class_name)
-    with DbTxn(
-        "Delete {} {}".format(gramps_class_name, handle), db_handle
-    ) as trans:
+    with DbTxn(message, db_handle) as trans:
         method(db_handle, handle, trans=trans)

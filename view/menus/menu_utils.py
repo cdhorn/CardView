@@ -40,6 +40,7 @@ from gi.repository import Gtk
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
+from gramps.gen.display.place import displayer as place_displayer
 from gramps.gen.utils.db import family_name
 
 # ------------------------------------------------------------------------
@@ -149,7 +150,7 @@ def add_delete_menu_option(grstate, parent_menu, grobject, grchild=None):
         action = action_handler(grchild.obj_type, grstate, grchild, grobject)
     else:
         action = action_handler(grobject.obj_type, grstate, grobject)
-    text = " ".join((_("Delete"), target_object.obj_lang.lower()))
+    text = _("Delete %s") % target_object.obj_lang.lower()
     parent_menu.append(
         menu_item(
             "list-remove",
@@ -350,6 +351,8 @@ def add_privacy_menu_option(grstate, parent_menu, grobject, grchild=None):
     if not grstate.config.get("menu.privacy"):
         return
     action = action_handler("Privacy", grstate, grobject, grchild)
+    if not action.is_valid():
+        return
     if action.is_set():
         parent_menu.append(
             menu_item("gramps-unlock", _("Make public"), action.toggle, False)
@@ -519,7 +522,7 @@ def add_media_menu(grstate, parent_menu, grobject):
             )
         add_double_separator(menu)
         for media_ref in media_list:
-            action = action_handler("Media", grstate, grobject, media_ref)
+            action = action_handler("Media", grstate, media_ref, grobject)
             media = grstate.dbstate.db.get_media_from_handle(media_ref.ref)
             text = media.get_description()
             removemenu.add(
@@ -759,7 +762,9 @@ def add_repositories_menu(grstate, parent_menu, grobject):
     db = grstate.dbstate.db
     action = action_handler("Source", grstate, grobject)
     menu = new_menu(
-        "list-add", _("Add a new repository"), action.add_new_repository
+        "list-add",
+        _("Add a new repository"),
+        action.add_new_repository_reference,
     )
     menu.add(
         menu_item(
@@ -920,3 +925,53 @@ def add_ldsords_menu(grstate, parent_menu, grobject):
             )
             menu.add(menu_item("gtk-edit", text, action.edit_object))
     parent_menu.append(submenu_item("gramps-person", _("Ordinances"), menu))
+
+
+def add_enclosed_places_menu(grstate, parent_menu, grobject):
+    """
+    Build and add the enclosed places submenu.
+    """
+    if not grstate.config.get("menu.enclosed-places"):
+        return
+    action = action_handler("Place", grstate, None, grobject)
+    menu = new_menu(
+        "list-add",
+        _("Add a new enclosed place"),
+        action.add_new_enclosed_place,
+    )
+    menu.add(
+        menu_item(
+            "list-add",
+            _("Add an existing enclosed place"),
+            action.add_existing_enclosed_place,
+        )
+    )
+    db = grstate.dbstate.db
+    place_list = get_enclosed_places(db, grobject.obj)
+    if place_list:
+        removemenu = new_submenu(
+            menu, "gramps-place", _("Remove an enclosed place")
+        )
+        add_double_separator(menu)
+        for place in place_list:
+            action = action_handler("Place", grstate, place, grobject)
+            text = place_displayer.display(db, place)
+            removemenu.add(
+                menu_item("list-remove", text, action.remove_place_reference)
+            )
+            menu.add(menu_item("gtk-edit", text, action.edit_object))
+    parent_menu.append(
+        submenu_item("gramps-place", _("Enclosed Places"), menu)
+    )
+
+
+def get_enclosed_places(db, place):
+    """
+    Build list of enclosed places. This only returns the first set of children.
+    """
+    places = []
+    for (dummy_obj_type, obj_handle) in db.find_backlink_handles(
+        place.get_handle(), ["Place"]
+    ):
+        places.append(db.get_place_from_handle(obj_handle))
+    return places

@@ -106,14 +106,14 @@ class PlaceAction(GrampsAction):
         Add an existing place as an enclosed place.
         """
         get_place_selector = SelectorFactory("Place")
-        skip = [self.action_object.obj.get_handle()]
+        skip = [self.target_object.obj.get_handle()]
         place_selector = get_place_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
         place = place_selector.run()
         if place:
             place_ref = PlaceRef()
-            place_ref.ref = self.action_object.obj.get_handle()
+            place_ref.ref = self.target_object.obj.get_handle()
             place.add_placeref(place_ref)
             self._edit_place_reference(
                 place, place_ref, self._save_place_reference
@@ -133,19 +133,15 @@ class PlaceAction(GrampsAction):
                     if top_place_name:
                         place_name = ", ".join((top_place_name, place_name))
             if place_name:
-                message = " ".join(
-                    (
-                        _("Updating"),
-                        _("Place"),
-                        _("Title"),
-                        place_name,
-                        _("for"),
-                        place.get_gramps_id(),
-                    )
+                message = _("Updating Place Title %s for %s") % (
+                    place_name,
+                    place.get_gramps_id(),
                 )
+                self.grstate.uistate.set_busy_cursor(True)
                 with DbTxn(message, self.db) as trans:
                     place.set_title(place_name)
                     self.db.commit_place(place, trans)
+                self.grstate.uistate.set_busy_cursor(False)
 
     def remove_place_reference(self, *_dummy_args):
         """
@@ -155,35 +151,46 @@ class PlaceAction(GrampsAction):
             place = self.target_object.obj
         elif self.target_object.obj_type == "PlaceRef":
             place = self.db.get_place_from_handle(self.target_object.obj.ref)
-        text = place_displayer.display(self.db, place)
-        prefix = _(
-            "You are about to remove the following enclosed place from this "
-            "place:"
+
+        place_name = place_displayer.display(self.db, place)
+        enclosed_place_name = place_displayer.display(
+            self.db, self.action_object.obj
         )
-        extra = _(
-            "Note this does not delete the place. You can also use the "
-            "undo option under edit if you change your mind later."
+        message1 = _("Remove Enclosed Place %s?") % enclosed_place_name
+        message2 = _(
+            "Removing the enclosed place will remove the place reference "
+            "from the enclosed place %s to the parent place %s in the "
+            "database."
+        ) % (enclosed_place_name, place_name)
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Place"),
+            self._remove_place,
+            recover_message=False,
         )
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            new_list = []
-            for place_ref in place.get_placeref_list():
-                if not place_ref.ref == self.action_object.obj.get_handle():
-                    new_list.append(place_ref)
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("PlaceRef"),
-                    place.get_gramps_id(),
-                    _("from"),
-                    _("Place"),
-                    self.action_object.obj.get_gramps_id(),
-                )
-            )
-            with DbTxn(message, self.db) as trans:
-                place.set_placeref_list(new_list)
-                self.db.commit_place(place, trans)
+
+    def _remove_place(self, *_dummy_args):
+        """
+        Actually remove the enclosed place reference.
+        """
+        if self.target_object.obj_type == "Place":
+            place_handle = self.target_object.obj.get_handle()
+        elif self.target_object.obj_type == "PlaceRef":
+            place_handle = self.target_object.obj.ref
+
+        new_list = []
+        for place_ref in self.action_object.obj.get_placeref_list():
+            if place_ref.ref != place_handle:
+                new_list.append(place_ref)
+
+        place_name = place_displayer.display(self.db, self.action_object.obj)
+        message = _("Removed Enclosed Place %s from %s") % (
+            place_name,
+            self.describe_object(self.target_object.obj),
+        )
+        self.action_object.obj.set_placeref_list(new_list)
+        self.action_object.commit(self.grstate, message)
 
 
 factory.register_action("Place", PlaceAction)

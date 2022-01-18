@@ -82,7 +82,22 @@ class LdsOrdAction(GrampsAction):
         """
         Edit an ordinance. This overrides default method.
         """
-        self._edit_ordinance(self.action_object.obj)
+        callback = lambda x: self._edited_ordinance(
+            x, self.action_object.obj_hash
+        )
+        self._edit_ordinance(self.action_object.obj, callback)
+
+    def _edited_ordinance(self, ordinance, old_hash):
+        """
+        Save edited ordinance.
+        """
+        if ordinance:
+            self.grstate.update_history_object(old_hash, ordinance)
+            message = _("Edited Ordinance %s for %s") % (
+                ordinance.type2str(),
+                self.describe_object(self.target_object.obj),
+            )
+            self.target_object.commit(self.grstate, message)
 
     def add_ordinance(self, *_dummy_args):
         """
@@ -95,15 +110,9 @@ class LdsOrdAction(GrampsAction):
         Save the new name to finish adding it.
         """
         if ordinance:
-            message = " ".join(
-                (
-                    _("Added"),
-                    _("Ordinance"),
-                    ordinance.type2str(),
-                    _("to"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
+            message = _("Added Ordinance %s to %s") % (
+                ordinance.type2str(),
+                self.describe_object(self.target_object.obj),
             )
             self.target_object.obj.add_lds_ord(ordinance)
             self.target_object.commit(self.grstate, message)
@@ -112,31 +121,33 @@ class LdsOrdAction(GrampsAction):
         """
         Delete the ordinance. This overrides default method.
         """
-        if not self.action_object:
-            return
-        ordinance = self.action_object.obj
-        text = ordinance.type2str()
-        ordinance_date = ordinance.get_date_object()
-        if ordinance_date:
-            date = glocale.date_displayer.display(ordinance_date)
-            if date:
-                text = "".join((date, ": ", text))
-        prefix = _(
-            "You are about to delete the following ordinance from this object:"
-        )
-        if self.confirm_action(_("Warning"), prefix, "\n\n<b>", text, "</b>"):
-            message = " ".join(
-                (
-                    _("Deleted"),
-                    _("Ordinance"),
-                    text,
-                    _("from"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
+        if self.action_object:
+            ordinance_type = self.action_object.obj.type2str()
+            message1 = _("Delete Ordinance %s?") % ordinance_type
+            message2 = _(
+                "Deleting the ordinance will remove the ordinance from "
+                "the %s %s in the database."
+            ) % (
+                self.target_object.obj_lang.lower(),
+                self.describe_object(self.target_object.obj),
             )
-            self.target_object.obj.remove_lds_ord(ordinance)
-            self.target_object.commit(self.grstate, message)
+            self.verify_action(
+                message1,
+                message2,
+                _("Delete %s") % ordinance_type,
+                self._delete_object,
+            )
+
+    def _delete_object(self, *_dummy_args):
+        """
+        Actually delete the ordinance.
+        """
+        message = _("Deleted Ordinance %s from %s") % (
+            self.action_object.obj.type2str(),
+            self.describe_object(self.target_object.obj),
+        )
+        self.target_object.obj.remove_lds_ord(self.action_object.obj)
+        self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("LdsOrd", LdsOrdAction)

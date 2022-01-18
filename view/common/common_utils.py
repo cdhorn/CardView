@@ -555,7 +555,10 @@ def describe_object(db, obj):
         title, dummy_obj = navigation_label(db, obj_type, obj.get_handle())
         title = title.split("]")[1].strip()
         if obj_type == "Event":
-            title = title.split("-")[1].strip()
+            if "-" in title:
+                title = title.split("-")[1].strip()
+            else:
+                title = title.strip()
         return title
     if obj_type == "Attribute":
         return ": ".join((_("Attribute"), str(obj.get_type())))

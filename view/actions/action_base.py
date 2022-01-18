@@ -3,6 +3,7 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2009       Benny Malengier
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2021       Christopher Horn
@@ -28,18 +29,14 @@ GrampsAction
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
-#
-# ------------------------------------------------------------------------
-from gi.repository import Gtk
-
-# ------------------------------------------------------------------------
-#
 # Gramps modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
+from gramps.gen.lib.primaryobj import PrimaryObject
+from gramps.gen.utils.string import data_recover_msg
+from gramps.gui.dialog import QuestionDialog
 
 # ------------------------------------------------------------------------
 #
@@ -120,79 +117,30 @@ class GrampsAction:
             return self.target_child_object
         return self.target_object
 
-    def describe_object(self, obj):
+    def describe_object(self, obj, gramps_id=True):
         """
         Return object description.
         """
-        return describe_object(self.db, obj)
-
-    def confirm_action(self, title, *args):
-        """
-        If enabled display message and confirm a user requested action.
-        """
-        if not self.grstate.config.get("general.enable-warnings"):
-            return True
-        dialog = Gtk.Dialog(parent=self.grstate.uistate.window)
-        dialog.set_title(title)
-        dialog.set_default_size(500, 300)
-        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
-        dialog.add_button("_OK", Gtk.ResponseType.OK)
-
-        label = Gtk.Label(
-            hexpand=True,
-            vexpand=True,
-            halign=Gtk.Align.CENTER,
-            justify=Gtk.Justification.CENTER,
-            use_markup=True,
-            wrap=True,
-            label="".join(
-                args + ("\n\n", _("Are you sure you want to continue?"))
-            ),
+        if not gramps_id or not isinstance(obj, PrimaryObject):
+            return describe_object(self.db, obj)
+        return "".join(
+            (describe_object(self.db, obj), " [", obj.get_gramps_id(), "]")
         )
-        dialog.vbox.add(label)
-        dialog.show_all()
-        response = dialog.run()
-        dialog.destroy()
-        if response == Gtk.ResponseType.OK:
-            return True
-        return False
 
-    def commit_message(self, obj_type, obj_label, action="add"):
+    def verify_action(
+        self, message1, message2, button, callback, recover_message=True
+    ):
         """
-        Construct a commit message string.
+        Verify an action with the user before performing it.
         """
-        if action == "add":
-            action = _("Added")
-            preposition = _("to")
-        elif action == "remove":
-            action = _("Removed")
-            preposition = _("from")
-        else:
-            action = _("Updated")
-            preposition = _("for")
-
-        if self.target_child_object:
-            return " ".join(
-                (
-                    action,
-                    obj_type,
-                    obj_label,
-                    preposition,
-                    self.target_child_object.obj_lang,
-                    _("for"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
-            )
-        return " ".join(
-            (
-                action,
-                obj_type,
-                obj_label,
-                preposition,
-                self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
-            )
+        if recover_message:
+            message2 = "%s %s" % (message2, data_recover_msg)
+        QuestionDialog(
+            message1,
+            message2,
+            button,
+            callback,
+            parent=self.grstate.uistate.window,
         )
 
     def edit_object(self, *_dummy_args):
@@ -238,22 +186,79 @@ class GrampsAction:
         )
         self.target_object.commit(self.grstate, message)
 
-    def delete_object(self, *_dummy_args):
+    def delete_object(self, _dummy_arg, override_object=None, *_dummy_args):
         """
-        Delete the object.
+        Start the object deletion process.
         """
-        if self.action_object and self.action_object.is_primary:
-            text = self.describe_object(self.action_object.obj)
-            prefix = _("You are about to delete the following object:")
-            if self.confirm_action(
-                _("Warning"),
-                prefix,
-                "\n\n<b>",
-                text,
-                "</b>\n\n",
-            ):
-                delete_object(
-                    self.db,
-                    self.action_object.obj.get_handle(),
-                    self.action_object.obj_type,
+        if override_object:
+            target_object = override_object
+        else:
+            target_object = self.action_object
+        if target_object and target_object.is_primary:
+            backlink_count = len(
+                list(
+                    self.grstate.dbstate.db.find_backlink_handles(
+                        target_object.obj.get_handle()
+                    )
                 )
+            )
+            obj_lang = target_object.obj_lang
+            message1 = _("Delete %s %s?") % (
+                obj_lang,
+                self.describe_object(target_object.obj),
+            )
+            message2 = _(
+                "Deleting the %s will remove the %s from the database."
+            ) % (obj_lang.lower(), obj_lang.lower())
+            if backlink_count > 0:
+                message2 = "%s %s" % (
+                    message2,
+                    _(
+                        "Any references by other objects with additional data "
+                        "they may contain will also be removed"
+                    ),
+                )
+                if backlink_count > 1:
+                    message2 = "%s %s" % (
+                        message2,
+                        _(
+                            "and %s other objects in the database still refer "
+                            "to this one."
+                        )
+                        % str(backlink_count),
+                    )
+                else:
+                    message2 = "%s %s" % (
+                        message2,
+                        _(
+                            "and 1 other object in the database still refers "
+                            "to this one."
+                        ),
+                    )
+            else:
+                message2 = "%s %s" % (
+                    message2,
+                    _("No other objects in the database refer to this one."),
+                )
+            callback = lambda: self._delete_object(target_object)
+            self.verify_action(
+                message1, message2, _("Delete %s") % obj_lang, callback
+            )
+
+    def _delete_object(self, override_object=None, *_dummy_args):
+        """
+        Perform the actual delete.
+        """
+        if override_object:
+            target_object = override_object
+        else:
+            target_object = self.action_object
+        self.grstate.uistate.set_busy_cursor(True)
+        text = self.describe_object(target_object.obj)
+        delete_object(
+            self.db,
+            target_object.obj.get_handle(),
+            target_object.obj_type,
+            _("Deleted %s") % text,
+        )
+        self.grstate.uistate.set_busy_cursor(False)

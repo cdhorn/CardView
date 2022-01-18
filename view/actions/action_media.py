@@ -53,6 +53,7 @@ from gramps.gui.selectors import SelectorFactory
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
 from .action_factory import factory
+from ..common.common_classes import GrampsObject
 
 _ = glocale.translation.sgettext
 
@@ -130,8 +131,10 @@ class MediaAction(GrampsAction):
         """
         if not media_ref and media:
             return
-        message = self.commit_message(
-            _("MediaRef"), media.get_gramps_id(), action="update"
+        message = _("Edited Media %s for %s %s") % (
+            self.describe_object(media),
+            self.target_object.obj_lang,
+            self.describe_object(self.target_object.obj),
         )
         self.target_object.commit(self.grstate, message)
 
@@ -176,15 +179,10 @@ class MediaAction(GrampsAction):
         """
         Finish adding a new media reference.
         """
-        message = " ".join(
-            (
-                _("Added"),
-                _("MediaRef"),
-                media.get_gramps_id(),
-                _("to"),
-                self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
-            )
+        message = _("Added Media %s to %s %s") % (
+            self.describe_object(media),
+            self.target_object.obj_lang,
+            self.describe_object(self.target_object.obj),
         )
         self.target_object.obj.add_media_reference(reference)
         self.target_object.commit(self.grstate, message)
@@ -208,33 +206,43 @@ class MediaAction(GrampsAction):
         if not self.action_object:
             return
         if self.action_object.obj_type == "Media":
+            media = self.action_object.obj
+        else:
+            media = self.db.get_media_from_handle(self.action_object.obj.ref)
+
+        message1 = _("Remove Media %s?") % self.describe_object(media)
+        message2 = _(
+            "Removing the media will remove the media "
+            "reference from the %s %s in the database."
+        ) % (
+            self.target_object.obj_lang.lower(),
+            self.describe_object(self.target_object.obj),
+        )
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Media"),
+            self._remove_media_reference,
+            recover_message=False,
+        )
+
+    def _remove_media_reference(self, *_dummy_args):
+        """
+        Actually remove the media reference.
+        """
+        if self.action_object.obj_type == "Media":
             media_handle = self.action_object.obj.get_handle()
-            media_gramps_id = self.action_object.obj.get_gramps_id()
-            text = self.action_object.obj.get_description()
+            media = self.action_object.obj
         else:
             media_handle = self.action_object.obj.ref
-            media = self.db.get_media_from_handle(media_handle)
-            media_gramps_id = media.get_gramps_id()
-            text = media.get_description()
-        prefix = _(
-            "You are about to remove the following media from this object:"
+            media = self.db.get_media_from_handle(self.action_object.obj.ref)
+        message = _("Removed Media %s from %s %s") % (
+            self.describe_object(media),
+            self.target_object.obj_lang,
+            self.describe_object(self.target_object.obj),
         )
-        extra = _("This removes the reference but does not delete the media.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = " ".join(
-                (
-                    _("Removed"),
-                    _("MediaRef"),
-                    media_gramps_id,
-                    _("from"),
-                    self.target_object.obj_lang,
-                    self.target_object.obj.get_gramps_id(),
-                )
-            )
-            self.target_object.obj.remove_media_references([media_handle])
-            self.target_object.commit(self.grstate, message)
+        self.target_object.obj.remove_media_references([media_handle])
+        self.target_object.commit(self.grstate, message)
 
     def set_active_media(self, *_dummy_args):
         """
@@ -244,11 +252,10 @@ class MediaAction(GrampsAction):
         image_ref = None
         if self.action_object.obj_type == "Media":
             image_handle = self.action_object.obj.get_handle()
-            image_gramps_id = self.action_object.obj.get_gramps_id()
+            media = self.action_object.obj
         else:
             image_handle = self.action_object.obj.ref
             media = self.db.get_media_from_handle(image_handle)
-            image_gramps_id = media.get_gramps_id()
 
         for media_ref in self.target_object.obj.get_media_list():
             if media_ref.ref == image_handle:
@@ -258,19 +265,25 @@ class MediaAction(GrampsAction):
         if image_ref:
             new_list.insert(0, image_ref)
 
-        message = " ".join(
-            (
-                _("Set"),
-                _("Media"),
-                image_gramps_id,
-                _("Active"),
-                _("for"),
-                self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
-            )
+        message = _("Set Media %s Active for %s %s") % (
+            self.describe_object(media),
+            self.target_object.obj_lang,
+            self.describe_object(self.target_object.obj),
         )
         self.target_object.obj.set_media_list(new_list)
         self.target_object.commit(self.grstate, message)
+
+    def delete_object(self, *_dummy_args):
+        """
+        Delete media object.
+        """
+        if self.action_object.obj_type == "Media":
+            media = self.action_object
+        else:
+            media = GrampsObject(
+                self.db.get_media_from_handle(self.action_object.obj.ref)
+            )
+        GrampsAction.delete_object(self, None, media)
 
 
 factory.register_action("Media", MediaAction)

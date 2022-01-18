@@ -108,7 +108,10 @@ class NoteAction(GrampsAction):
         if note_handle:
             active_target_object = self.get_target_object()
             note = self.db.get_note_from_handle(note_handle)
-            message = self.commit_message(_("Note"), note.get_gramps_id())
+            message = _("Added Note %s to %s") % (
+                note.get_gramps_id(),
+                self.describe_object(self.target_object.obj),
+            )
             active_target_object.save_hash()
             if active_target_object.obj.add_note(note_handle):
                 active_target_object.sync_hash(self.grstate)
@@ -141,23 +144,59 @@ class NoteAction(GrampsAction):
         """
         if not self.action_object:
             return
-        note = self.action_object.obj
-        text = self.describe_object(note)
-        prefix = _(
-            "You are about to remove the following note from this object:"
-        )
-        extra = _("This removes the reference but does not delete the note.")
-        if self.confirm_action(
-            _("Warning"), prefix, "\n\n<b>", text, "</b>\n\n", extra
-        ):
-            message = self.commit_message(
-                _("Note"), note.get_gramps_id(), action="remove"
+
+        active_target_object = self.get_target_object()
+        note_label = self.describe_object(self.action_object.obj)
+        message1 = _("Remove Note %s?") % note_label
+        if active_target_object.is_primary:
+            message2 = _(
+                "Removing the note only detaches the note from the %s %s "
+                "in the database. %s"
+            ) % (
+                self.target_object.obj_lang.lower(),
+                self.describe_object(self.target_object.obj),
+                _("It does not delete any objects."),
             )
-            active_target_object = self.get_target_object()
-            active_target_object.save_hash()
-            active_target_object.obj.remove_note(note.get_handle())
-            active_target_object.sync_hash(self.grstate)
-            self.target_object.commit(self.grstate, message)
+        else:
+            message2 = _(
+                "Removing the note only detaches the note from the %s "
+                "in the %s %s in the database. %s"
+            ) % (
+                active_target_object.obj_lang,
+                self.target_object.obj_lang.lower(),
+                self.describe_object(self.target_object.obj),
+                _("It does not delete any objects."),
+            )
+        self.verify_action(
+            message1,
+            message2,
+            _("Remove Note"),
+            self._remove_note,
+            recover_message=False,
+        )
+
+    def _remove_note(self, *_dummy_args):
+        """
+        Actually remove the note.
+        """
+        active_target_object = self.get_target_object()
+        if active_target_object.is_primary:
+            message = _("Removed Note %s from %s") % (
+                self.describe_object(self.action_object.obj),
+                self.describe_object(self.target_object.obj),
+            )
+        else:
+            message = _("Removed Note %s from %s in %s") % (
+                self.describe_object(self.action_object.obj),
+                active_target_object.obj_lang,
+                self.describe_object(self.target_object.obj),
+            )
+        active_target_object.save_hash()
+        active_target_object.obj.remove_note(
+            self.action_object.obj.get_handle()
+        )
+        active_target_object.sync_hash(self.grstate)
+        self.target_object.commit(self.grstate, message)
 
 
 factory.register_action("Note", NoteAction)
