@@ -18,6 +18,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-"""
-Module containing the profile view objects.
-"""
+register(
+    GENERAL,
+    id="status_todo",
+    name=_("To Do Indicator"),
+    description=_("A To Do note status indicator."),
+    category="STATUS",
+    version="0.9",
+    gramps_target_version="5.1",
+    status=STABLE,
+    fname="status_todo.py",
+    load_on_reg=True,
+    authors=["Christopher Horn"],
+    authors_email=["https://gramps-project.org"],
+)

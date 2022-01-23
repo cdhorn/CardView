@@ -1,8 +1,6 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2020      Nick Hall
-# Copyright (C) 2020      Christian Schulze
 # Copyright (C) 2021      Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,27 +18,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-import os
-from gi.repository import Gtk
-from gramps.gen.const import USER_PLUGINS
-
-fname = os.path.join(USER_PLUGINS, "LinkedView", "icons")
-icons = Gtk.IconTheme().get_default()
-icons.append_search_path(fname)
-
 register(
-    VIEW,
-    id="linkview",
-    name=_("Linked"),
-    description=_("A browseable object view."),
-    version="0.82",
+    GENERAL,
+    id="status_person",
+    name=_("Person Status Indicators"),
+    description=_("Status indicators for how well researched a person is."),
+    category="STATUS",
+    version="0.9",
     gramps_target_version="5.1",
     status=STABLE,
-    fname="linked_view.py",
-    authors=["The Gramps Project", "Christopher Horn"],
+    fname="status_person.py",
+    load_on_reg=True,
+    authors=["Christopher Horn"],
     authors_email=["https://gramps-project.org"],
-    category=("Browse", _("Browse")),
-    viewclass="LinkedView",
-    stock_icon="gramps-relation-linked",
-    order=START,
 )

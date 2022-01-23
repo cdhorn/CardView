@@ -63,7 +63,7 @@ from ..common.common_const import (
     GROUP_LABELS_SINGLE,
 )
 from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
-from ..status.status_builder import status_builder
+from ..services.service_status import StatusIndicatorService
 from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext
@@ -261,7 +261,8 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         """
         Load status indicators for an object.
         """
-        for icon in status_builder(self.grstate, grobject.obj):
+        status_service = StatusIndicatorService()
+        for icon in status_service.get_status(self.grstate, grobject.obj):
             self.flowbox.add(icon)
 
     def load_indicators(self, grobject):

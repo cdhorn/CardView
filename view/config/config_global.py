@@ -30,6 +30,13 @@ Global configuration dialog functions
 
 # -------------------------------------------------------------------------
 #
+# GTK/Gnome modules
+#
+# -------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# -------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
@@ -40,6 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..common.common_utils import make_scrollable
 from .config_colors import add_color
 from .config_const import (
     CONFIDENCE_LEVEL,
@@ -48,6 +56,7 @@ from .config_const import (
     PRIVACY_DISPLAY_MODES,
 )
 from .config_utils import add_config_reset, config_event_fields, create_grid
+from ..services.service_status import StatusIndicatorService
 
 _ = glocale.translation.sgettext
 
@@ -516,153 +525,17 @@ def build_status_grid(configdialog, grstate, *_dummy_args):
     Build status indicator configuration section.
     """
     grid = create_grid()
-    configdialog.add_text(grid, _("To Do Indicator"), 0, bold=True)
-    configdialog.add_checkbox(
-        grid,
-        _("Enable to do indicator icon"),
-        1,
-        "status.todo",
+    status_indicator_service = StatusIndicatorService()
+    status_grids = status_indicator_service.get_config_grids(
+        configdialog, grstate
     )
-    configdialog.add_checkbox(
-        grid,
-        _("Open note in editor instead of navigating to note page"),
-        2,
-        "status.todo-edit",
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Enable full person to do evaluation"),
-        3,
-        "status.todo-person",
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Enable full family to do evaluation"),
-        4,
-        "status.todo-family",
-    )
-    configdialog.add_text(
-        grid, _("Confidence Ranking Indicator"), 20, bold=True
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Enable confidence ranking"),
-        21,
-        "status.confidence-ranking",
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Include base object"),
-        22,
-        "status.rank-object",
-    )
-    grid1 = create_grid()
-    configdialog.add_checkbox(
-        grid1,
-        _("Include all names"),
-        23,
-        "status.rank-names",
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Include all events"),
-        24,
-        "status.rank-events",
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Include all ordinances"),
-        25,
-        "status.rank-ordinances",
-    )
-    configdialog.add_checkbox(
-        grid1,
-        _("Include spouses for family"),
-        26,
-        "status.rank-spouses",
-    )
-    grid2 = create_grid()
-    configdialog.add_checkbox(
-        grid2,
-        _("Include all attributes"),
-        23,
-        "status.rank-attributes",
-        start=3,
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Include all associations"),
-        24,
-        "status.rank-associations",
-        start=3,
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Include all addresses"),
-        25,
-        "status.rank-addresses",
-        start=3,
-    )
-    configdialog.add_checkbox(
-        grid2,
-        _("Include children for family"),
-        26,
-        "status.rank-children",
-        start=3,
-    )
-    grid.attach(grid1, 1, 24, 2, 1)
-    grid.attach(grid2, 2, 24, 2, 1)
-    configdialog.add_text(
-        grid,
-        "".join(
-            (
-                _(
-                    "Additional Individual Events To Include "
-                    "(Birth and Death Implicit)"
-                ),
-                ":",
-            )
-        ),
-        25,
-    )
-    grid3 = config_event_fields(grstate, "rank")
-    grid.attach(grid3, 1, 26, 2, 1)
-    configdialog.add_text(grid, _("Citation Alert Indicator"), 50, bold=True)
-    configdialog.add_checkbox(
-        grid,
-        _("Enable citation alerts"),
-        51,
-        "status.citation-alert",
-    )
-    configdialog.add_combo(
-        grid,
-        _("Minimum confidence level required"),
-        52,
-        "status.citation-alert-minimum",
-        CONFIDENCE_LEVEL,
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Open event in editor instead of navigating to event page"),
-        53,
-        "status.citation-alert-edit",
-    )
-    configdialog.add_text(
-        grid, "".join((_("Events Checked For Citations"), ":")), 54
-    )
-    grid1 = config_event_fields(grstate, "alert")
-    grid.attach(grid1, 1, 55, 2, 2)
-    configdialog.add_text(grid, _("Missing Event Indicator"), 60, bold=True)
-    configdialog.add_checkbox(
-        grid,
-        _("Enable missing event alerts"),
-        61,
-        "status.missing-alert",
-    )
-    configdialog.add_text(grid, "".join((_("Required Events"), ":")), 62)
-    grid1 = config_event_fields(grstate, "missing", count=6)
-    grid.attach(grid1, 1, 63, 2, 1)
-    return add_config_reset(configdialog, grstate, "status", grid)
+    row = 1
+    for status_grid in status_grids:
+        grid.attach(status_grid, 1, row, 2, 1)
+        row = row + 1
+    vbox = Gtk.VBox(margin=12)
+    vbox.pack_start(grid, True, True, 0)
+    return make_scrollable(vbox, hexpand=True)
 
 
 def build_media_bar_grid(configdialog, grstate, *_dummy_args):

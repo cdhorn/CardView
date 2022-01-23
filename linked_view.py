@@ -72,9 +72,12 @@ from view.config.config_templates import (
     ConfigTemplatesDialog,
     EditTemplateOptions,
 )
-from view.groups.group_window import FrameGroupWindow
+
+# from view.groups.group_window import FrameGroupWindow
 from view.pages.page_builder import page_builder
-from view.pages.page_window import PageViewWindow
+
+# from view.pages.page_window import PageViewWindow
+from view.services.service_windows import WindowService
 
 _ = glocale.translation.sgettext
 
@@ -134,8 +137,6 @@ class LinkedView(ExtendedNavigationView):
         self.page_view = None
         self.active_page = None
         self.active_type = None
-        self.group_windows = {}
-        self.page_windows = {}
         self.defer_refresh = False
         self.defer_refresh_id = None
         self.config_request = None
@@ -202,7 +203,7 @@ class LinkedView(ExtendedNavigationView):
             "fetch-page-context": self.fetch_page_context,
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
-            "show-group": self.show_group,
+            "show-group": self.launch_group_window,
             "launch-config": self.launch_config,
             "set-dirty-redraw-trigger": self.set_dirty_redraw_trigger,
         }
@@ -613,7 +614,7 @@ class LinkedView(ExtendedNavigationView):
             page.define_actions(self)
 
         self._add_action("ViewHelp", self.launch_help)
-        self._add_action("CopyPageView", self.launch_copy)
+        self._add_action("CopyPageView", self.launch_view_window)
         self._add_action("Edit", self._edit_active, "<PRIMARY>Return")
         self._add_action("PRIMARY-J", self.jump, "<PRIMARY>J")
 
@@ -637,12 +638,7 @@ class LinkedView(ExtendedNavigationView):
         self._init_methods()
         if self.active:
             self.bookmarks.redraw()
-        for window in [y for x, y in self.page_windows.items()]:
-            window.close()
-        self.page_windows.clear()
-        for window in [y for x, y in self.group_windows.items()]:
-            window.close()
-        self.group_windows.clear()
+        WindowService().close_all_windows()
         self.history.clear()
         self.fetch_thumbnail.cache_clear()
         self._load_config()
@@ -672,10 +668,7 @@ class LinkedView(ExtendedNavigationView):
                 self.change_object(active_object)
             else:
                 self.change_object(None)
-        for window in [y for x, y in self.page_windows.items()]:
-            window.refresh()
-        for window in [y for x, y in self.group_windows.items()]:
-            window.refresh()
+        WindowService().refresh_all_windows()
 
     def _clear_change(self):
         """
@@ -882,99 +875,27 @@ class LinkedView(ExtendedNavigationView):
         """
         self.active_page.add_tag(trans, object_handle, tag_handle)
 
-    def show_group(self, obj, group_type, title):
-        """
-        Display a particular group of objects.
-        """
-        max_windows = self._config_view.get("display.max-group-windows")
-        if isinstance(obj, TableObject):
-            key = "-".join((obj.get_handle(), group_type))
-        else:
-            key = uuid.uuid4().hex
-        if max_windows == 1 and self.group_windows:
-            window = list(self.group_windows.values())[0]
-            window.reload(obj, group_type)
-            return
-        if (
-            len(self.group_windows) >= max_windows
-            and key not in self.group_windows
-        ):
-            WarningDialog(
-                _("Could Not Spawn New Group Window"),
-                _(
-                    "Too many group windows are open. Close "
-                    "one before launching another or increase "
-                    "the default in the view preferences."
-                ),
-                parent=self.grstate.uistate.window,
-            )
-            return
-        try:
-            self.group_windows[key] = FrameGroupWindow(
-                self.grstate,
-                obj,
-                group_type,
-                key,
-                self._clear_group_window,
-                title=title,
-            )
-        except WindowActiveError:
-            pass
-        return
-
-    def _clear_group_window(self, key):
-        """
-        Clear window.
-        """
-        if key in self.group_windows:
-            del self.group_windows[key]
-
     def launch_help(self, *_dummy_args):
         """
         Launch help page.
         """
         display_url(HELP_URL)
 
-    def launch_copy(self, *_dummy_args):
+    def launch_group_window(self, obj, group_type, title):
+        """
+        Display a particular group of objects.
+        """
+        windows = WindowService()
+        windows.launch_group_window(self.grstate, obj, group_type, title)
+
+    def launch_view_window(self, *_dummy_args):
         """
         Display a particular group of objects.
         """
         grcontext = GrampsContext()
         grcontext.load_page_location(self.grstate, self.get_active())
-        max_windows = self._config_view.get("display.max-page-windows")
-        key = grcontext.obj_key
-        if max_windows == 1 and self.page_windows:
-            window = list(self.page_windows.values())[0]
-            window.reload(grcontext)
-            return
-        if (
-            len(self.page_windows) >= max_windows
-            and key not in self.page_windows
-        ):
-            WarningDialog(
-                _("Could Not Spawn New Page Copy Window"),
-                _(
-                    "Too many page copy windows are open. Close "
-                    "one before launching another or increase "
-                    "the default in the view preferences."
-                ),
-                parent=self.grstate.uistate.window,
-            )
-            return
-        try:
-            self.page_windows[key] = PageViewWindow(
-                self.grstate, grcontext, key, self._clear_page_window
-            )
-        except WindowActiveError:
-            pass
-        return
-
-    def _clear_page_window(self, key):
-        """
-        Clear window.
-        """
-        if key in self.page_windows:
-            del self.page_windows[key]
+        windows = WindowService()
+        windows.launch_view_window(self.grstate, grcontext)
 
     def build_requested_config_page(self, configdialog):
         """
