@@ -21,7 +21,7 @@
 register(
     GENERAL,
     id="status_todo",
-    name=_("To Do Indicator"),
+    name=_("To Do Status Indicator"),
     description=_("A To Do note status indicator."),
     category="STATUS",
     version="0.9",

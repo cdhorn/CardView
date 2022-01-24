@@ -41,6 +41,7 @@ from gramps.gen.config import config as configman
 #
 # -------------------------------------------------------------------------
 from ..services.service_status import StatusIndicatorService
+from ..services.service_fields import FieldCalculatorService
 
 
 # -------------------------------------------------------------------------
@@ -56,8 +57,11 @@ class ProfileManager:
     def __init__(
         self, _dummy_identity, default_options, user_ini, db_ini=None
     ):
-        for options in StatusIndicatorService().get_defaults():
-            default_options = tuple(list(default_options) + options)
+        default_options = tuple(
+            list(default_options)
+            + StatusIndicatorService().get_defaults()
+            + FieldCalculatorService().get_defaults()
+        )
         self.user_options = load_ini_file(user_ini, default_options)
         if db_ini:
             active_options = self.get_active_options()

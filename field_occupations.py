@@ -38,6 +38,38 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 _ = glocale.translation.sgettext
 
 
+# ------------------------------------------------------------------------
+#
+# Calculated field plugin API consists of a dictionary with the supported
+# object types and keyword values, default options, callable to build
+# configuration grids for the options, and callable to generate the field
+# labels.
+#
+# ------------------------------------------------------------------------
+def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
+    """
+    Return calculated field plugin attributes.
+    """
+    return [
+        {
+            "supported_types": supported_types,
+            "default_options": [],
+            "get_config_grids": build_occupations_grid,
+            "get_field": get_occupations_field,
+        }
+    ]
+
+
+supported_types = {"Person": [("Occupations", _("Occupations"))]}
+
+
+def build_occupations_grid(_dummy_configdialog, _dummy_grstate):
+    """
+    Build the occupations option grid. As we have none return None.
+    """
+    return None
+
+
 def get_occupations_field(_dummy_grstate, obj, _dummy_event_type, args):
     """
     Calculate a list of occupations.

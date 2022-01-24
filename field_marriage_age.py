@@ -34,9 +34,43 @@ from gramps.gen.lib import Family
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import get_marriage_ages
+from view.common.common_vitals import get_marriage_ages
 
 _ = glocale.translation.sgettext
+
+
+# ------------------------------------------------------------------------
+#
+# Calculated field plugin API consists of a dictionary with the supported
+# object types and keyword values, default options, callable to build
+# configuration grids for the options, and callable to generate the field
+# labels.
+#
+# ------------------------------------------------------------------------
+def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
+    """
+    Return calculated field plugin attributes.
+    """
+    return [
+        {
+            "supported_types": supported_types,
+            "default_options": [],
+            "get_config_grids": build_marriage_age_grid,
+            "get_field": get_marriage_age_field,
+        }
+    ]
+
+
+supported_types = {
+    "Family": [("Bride Age", _("Bride Age")), ("Groom Age", _("Groom Age"))]
+}
+
+
+def build_marriage_age_grid(_dummy_configdialog, _dummy_grstate):
+    """
+    Build the marriage age option grid. As we have none return None.
+    """
+    return None
 
 
 def get_marriage_age_field(grstate, obj, field_value, args):

@@ -39,6 +39,43 @@ from gramps.gen.utils.db import family_name
 _ = glocale.translation.sgettext
 
 
+# ------------------------------------------------------------------------
+#
+# Calculated field plugin API consists of a dictionary with the supported
+# object types and keyword values, default options, callable to build
+# configuration grids for the options, and callable to generate the field
+# labels.
+#
+# ------------------------------------------------------------------------
+def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
+    """
+    Return calculated field plugin attributes.
+    """
+    return [
+        {
+            "supported_types": supported_types,
+            "default_options": [],
+            "get_config_grids": build_progenitors_grid,
+            "get_field": get_progenitors_field,
+        }
+    ]
+
+
+supported_types = {
+    "Person": [
+        ("Maternal Progenitors", _("Maternal Progenitors")),
+        ("Paternal Progenitors", _("Paternal Progenitors")),
+    ]
+}
+
+
+def build_progenitors_grid(_dummy_configdialog, _dummy_grstate):
+    """
+    Build the progenitors option grid. As we have none return None.
+    """
+    return None
+
+
 def get_progenitors_field(grstate, obj, field_value, args):
     """
     Calculate paternal or maternal progenitors.

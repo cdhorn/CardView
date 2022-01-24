@@ -773,7 +773,7 @@ class GrampsConfig:
         """
         Fetches an option in the frame configuration name space.
         """
-        if key[:8] == "options.":
+        if key[:5] in ["activ", "group"]:
             option = key
         else:
             option = ".".join((self.groptions.option_space, key))

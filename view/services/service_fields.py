@@ -18,7 +18,7 @@
 #
 
 """
-StatusIndicatorService
+FieldCalculatorService
 """
 
 # -------------------------------------------------------------------------
@@ -32,12 +32,12 @@ from gramps.gui.pluginmanager import GuiPluginManager
 
 # -------------------------------------------------------------------------
 #
-# StatusIndicatorService
+# FieldCalculatorService
 #
 # -------------------------------------------------------------------------
-class StatusIndicatorService:
+class FieldCalculatorService:
     """
-    A singleton class that provides the status indicator service.
+    A singleton class that provides the field calculator service.
     """
 
     def __new__(cls):
@@ -45,49 +45,57 @@ class StatusIndicatorService:
         Return the singleton class.
         """
         if not hasattr(cls, "instance"):
-            cls.instance = super(StatusIndicatorService, cls).__new__(cls)
+            cls.instance = super(FieldCalculatorService, cls).__new__(cls)
             cls.instance.__init_singleton__()
         return cls.instance
 
     def __init_singleton__(self):
         """
-        Prepare the status service for use.
+        Prepare the field calculator service for use.
         """
-        self.status_checks = {}
+        self.field_types = {}
+        self.field_generators = {}
         self.default_options = []
         self.config_grid_builders = []
         plugin_manager = GuiPluginManager.get_instance()
         plugin_manager.connect(
-            "plugins-reloaded", self.cb_reload_status_plugins
+            "plugins-reloaded", self.cb_reload_field_plugins
         )
-        self.load_status_plugins()
+        self.load_field_plugins()
 
-    def cb_reload_status_plugins(self, *args):
+    def cb_reload_field_plugins(self, *args):
         """
         Reload the status plugins if plugin manager was reloaded.
         """
-        self.load_status_plugins()
+        self.load_field_plugins()
 
-    def load_status_plugins(self):
+    def load_field_plugins(self):
         """
         Load the status plugins.
         """
         plugin_manager = BasePluginManager.get_instance()
-        plugin_manager.load_plugin_category("STATUS")
-        plugin_data = plugin_manager.get_plugin_data("STATUS")
-        self.status_checks.clear()
+        plugin_manager.load_plugin_category("FIELD")
+        plugin_data = plugin_manager.get_plugin_data("FIELD")
+        self.field_types.clear()
+        self.field_generators.clear()
         self.default_options.clear()
         self.config_grid_builders.clear()
         for plugin in plugin_data:
             supported_types = plugin["supported_types"]
             default_options = plugin["default_options"]
             get_config_grids = plugin["get_config_grids"]
-            get_status = plugin["get_status"]
+            get_field = plugin["get_field"]
             for supported_type in supported_types:
-                if supported_type in self.status_checks:
-                    self.status_checks[supported_type].append(get_status)
-                else:
-                    self.status_checks.update({supported_type: [get_status]})
+                if supported_type not in self.field_types:
+                    self.field_types[supported_type] = {}
+                if supported_type not in self.field_generators:
+                    self.field_generators[supported_type] = []
+                for (value, value_lang) in supported_types[supported_type]:
+                    self.field_types[supported_type].update(
+                        {value: value_lang}
+                    )
+                    key = "%s-%s" % (supported_type, value)
+                    self.field_generators[key] = get_field
             if default_options:
                 if isinstance(default_options, list):
                     self.default_options = (
@@ -98,28 +106,32 @@ class StatusIndicatorService:
             if get_config_grids:
                 self.config_grid_builders.append(get_config_grids)
 
-    def get_status(self, grstate, obj):
+    def get_values(self, obj_type):
         """
-        Perform and return status checks for an object.
+        Return list of loaded calculated field values based on object type.
         """
-        results = []
-        obj_type = type(obj).__name__
-        if obj_type in self.status_checks:
-            for status_check in self.status_checks[obj_type]:
-                status = status_check(grstate, obj)
-                if status:
-                    results = results + status
-        return results
+        if obj_type in self.field_types:
+            return self.field_types[obj_type]
+        return {}
+
+    def get_field(self, grstate, obj, field_value, args):
+        """
+        Generate and return field for an object.
+        """
+        key = "%s-%s" % (type(obj).__name__, field_value)
+        if key in self.field_generators:
+            return self.field_generators[key](grstate, obj, field_value, args)
+        return []
 
     def get_defaults(self):
         """
-        Return the default status options.
+        Return the default field options.
         """
         return self.default_options
 
     def get_config_grids(self, configdialog, grstate):
         """
-        Build and return the configuration dialog grids for the status options.
+        Build and return the configuration dialog grids for the field options.
         """
         grids = []
         for get_config_grid in self.config_grid_builders:

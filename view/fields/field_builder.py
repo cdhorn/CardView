@@ -32,33 +32,7 @@ from .field_base import (
     get_fact_field,
     get_relation_field,
 )
-from .field_child import get_child_field
-from .field_duration import get_duration_field
-from .field_marriage_age import get_marriage_age_field
-from .field_occupations import get_occupations_field
-from .field_progenitors import get_progenitors_field
-from .field_relationship import get_relationship_field
-
-
-def field_calculator_factory(field_value):
-    """
-    A factory to return a user field calculator.
-    """
-    if field_value in ["Duration", "Lifespan", "Living"]:
-        render = get_duration_field
-    elif field_value in ["Maternal Progenitors", "Paternal Progenitors"]:
-        render = get_progenitors_field
-    elif field_value in ["Child Number"]:
-        render = get_child_field
-    elif field_value in ["Ages", "Bride Age", "Groom Age"]:
-        render = get_marriage_age_field
-    elif field_value in ["Relationship"]:
-        render = get_relationship_field
-    elif field_value in ["Occupations"]:
-        render = get_occupations_field
-    else:
-        render = None
-    return render
+from ..services.service_fields import FieldCalculatorService
 
 
 def field_factory(field_type, field_value):
@@ -74,7 +48,7 @@ def field_factory(field_type, field_value):
     elif field_type == "Relation":
         render = get_relation_field
     elif field_type == "Calculated":
-        render = field_calculator_factory(field_value)
+        render = FieldCalculatorService().get_field
     else:
         render = []
     return render
@@ -91,7 +65,8 @@ def field_builder(grstate, obj, field_type, field_value, args):
       event_cache     Event objects to examine when field_type is
                       "Event" or "Fact"
     """
-    field = field_factory(field_type, field_value)
-    if field:
-        return field(grstate, obj, field_value, args)
+    if field_value != "None":
+        field = field_factory(field_type, field_value)
+        if field:
+            return field(grstate, obj, field_value, args)
     return []

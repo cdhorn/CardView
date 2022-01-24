@@ -65,6 +65,7 @@ from .config_global import (
     build_indicator_grid,
     build_media_bar_grid,
     build_status_grid,
+    build_field_grid,
 )
 from .config_objects import (
     ConfigNotebook,
@@ -113,6 +114,11 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     notebook.append_deferred_page(
         Gtk.Label(label=_("Status Indicators")), render_page
     )
+    page = build_field_grid(configdialog, grstate)
+    if page:
+        notebook.append_page(
+            page, tab_label=Gtk.Label(label=_("Calculated Fields"))
+        )
     render_page = lambda: build_media_bar_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("Media Bar")), render_page)
     grid.attach(notebook, 1, 0, 1, 1)

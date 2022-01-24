@@ -18,6 +18,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-"""
-Module containing support for user customizable fields.
-"""
+register(
+    GENERAL,
+    id="field_child",
+    name=_("Child Number Field Calculator"),
+    description=_("A child number field calculator."),
+    category="FIELD",
+    version="0.9",
+    gramps_target_version="5.1",
+    status=STABLE,
+    fname="field_child.py",
+    load_on_reg=True,
+    authors=["Christopher Horn"],
+    authors_email=["https://gramps-project.org"],
+)

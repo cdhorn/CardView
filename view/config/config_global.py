@@ -57,6 +57,7 @@ from .config_const import (
 )
 from .config_utils import add_config_reset, config_event_fields, create_grid
 from ..services.service_status import StatusIndicatorService
+from ..services.service_fields import FieldCalculatorService
 
 _ = glocale.translation.sgettext
 
@@ -533,6 +534,27 @@ def build_status_grid(configdialog, grstate, *_dummy_args):
     for status_grid in status_grids:
         grid.attach(status_grid, 1, row, 2, 1)
         row = row + 1
+    vbox = Gtk.VBox(margin=12)
+    vbox.pack_start(grid, True, True, 0)
+    return make_scrollable(vbox, hexpand=True)
+
+
+def build_field_grid(configdialog, grstate, *_dummy_args):
+    """
+    Build calculated field configuration section.
+    """
+    grid = create_grid()
+    field_calculator_service = FieldCalculatorService()
+    field_grids = field_calculator_service.get_config_grids(
+        configdialog, grstate
+    )
+    row = 1
+    for field_grid in field_grids:
+        if field_grid:
+            grid.attach(field_grid, 1, row, 2, 1)
+            row = row + 1
+    if row == 1:
+        return None
     vbox = Gtk.VBox(margin=12)
     vbox.pack_start(grid, True, True, 0)
     return make_scrollable(vbox, hexpand=True)

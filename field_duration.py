@@ -36,9 +36,48 @@ from gramps.gen.utils.alive import probably_alive_range
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import get_marriage_duration, get_span
+from view.common.common_vitals import get_marriage_duration, get_span
 
 _ = glocale.translation.sgettext
+
+
+# ------------------------------------------------------------------------
+#
+# Calculated field plugin API consists of a dictionary with the supported
+# object types and keyword values, default options, callable to build
+# configuration grids for the options, and callable to generate the field
+# labels.
+#
+# ------------------------------------------------------------------------
+def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
+    """
+    Return calculated field plugin attributes.
+    """
+    return [
+        {
+            "supported_types": supported_types,
+            "default_options": [],
+            "get_config_grids": build_duration_grid,
+            "get_field": get_duration_field,
+        }
+    ]
+
+
+supported_types = {
+    "Person": [
+        ("Duration", _("Duration")),
+        ("Lifespan", _("Lifespan")),
+        ("Living", _("Living")),
+    ],
+    "Family": [("Duration", _("Duration"))],
+}
+
+
+def build_duration_grid(_dummy_configuration, _dummy_grstate):
+    """
+    Build the duration option grid. As we have none return None.
+    """
+    return None
 
 
 def get_duration_field(grstate, obj, field_value, args):

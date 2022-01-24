@@ -55,6 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_config_option, save_config_option
+from ..services.service_fields import FieldCalculatorService
 
 _ = glocale.translation.sgettext
 
@@ -160,12 +161,10 @@ def get_calculated_maps(obj_type):
     Return forward and reverse language mappings for calculated types.
     """
     itoe = {}
-    if obj_type == "Person":
-        values = copy(CALCULATED_PERSON_TYPES)
-    else:
-        values = copy(CALCULATED_FAMILY_TYPES)
-    for value in values:
-        itoe.update({values[value]: value})
+    values = FieldCalculatorService().get_values(obj_type)
+    if values:
+        for value in values:
+            itoe.update({values[value]: value})
     return values, itoe
 
 

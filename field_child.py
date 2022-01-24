@@ -34,7 +34,8 @@ from gramps.gen.lib import FamilyRelType, Person
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from ..common.common_vitals import (
+from view.config.config_utils import create_grid
+from view.common.common_vitals import (
     get_date_sortval,
     get_key_family_events,
     get_person_birth_or_death,
@@ -42,6 +43,64 @@ from ..common.common_vitals import (
 )
 
 _ = glocale.translation.sgettext
+
+
+# ------------------------------------------------------------------------
+#
+# Calculated field plugin API consists of a dictionary with the supported
+# object types and keyword values, default options, callable to build
+# configuration grids for the options, and callable to generate the field
+# labels.
+#
+# ------------------------------------------------------------------------
+def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
+    """
+    Return calculated field plugin attributes.
+    """
+    return [
+        {
+            "supported_types": supported_types,
+            "default_options": default_options,
+            "get_config_grids": build_child_grid,
+            "get_field": get_child_field,
+        }
+    ]
+
+
+supported_types = {"Person": [("Child Number", _("Child Number"))]}
+
+default_options = [
+    ("field.child.show-mother", True),
+    ("field.child.show-father", True),
+    ("field.child.show-marriage-duration", True),
+]
+
+
+def build_child_grid(configdialog, _dummy_grstate):
+    """
+    Build the child option grid.
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, _("Child Number Field"), 0, bold=True)
+    configdialog.add_checkbox(
+        grid,
+        _("Show age of mother at birth of child"),
+        1,
+        "field.child.show-mother",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show age of father at birth of child"),
+        2,
+        "field.child.show-father",
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Show duration of marriage at birth of child"),
+        3,
+        "field.child.show-marriage-duration",
+    )
+    return grid
 
 
 def get_child_field(grstate, obj, _dummy_field_value, args):
@@ -77,21 +136,26 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
     data = [" ".join((str(number), _("of"), str(total)))]
 
     if person_birth:
-        mother_text, dummy_text = get_parent_text(
-            grstate.dbstate.db, parent_family, person_birth, "Mother"
-        )
-        if mother_text:
-            data.append(mother_text)
-        father_text, death_text = get_parent_text(
-            grstate.dbstate.db, parent_family, person_birth, "Father"
-        )
-        if father_text:
-            data.append(father_text)
-        family_text = get_family_text(
-            grstate.dbstate.db, parent_family, person_birth, death_text
-        )
-        if family_text:
-            data.append(family_text)
+        if grstate.config.get("field.child.show-mother"):
+            mother_text, dummy_text = get_parent_text(
+                grstate.dbstate.db, parent_family, person_birth, "Mother"
+            )
+            if mother_text:
+                data.append(mother_text)
+        if grstate.config.get("field.child.show-father"):
+            father_text, death_text = get_parent_text(
+                grstate.dbstate.db, parent_family, person_birth, "Father"
+            )
+            if father_text:
+                data.append(father_text)
+        else:
+            death_text = ""
+        if grstate.config.get("field.child.show-marriage-duration"):
+            family_text = get_family_text(
+                grstate.dbstate.db, parent_family, person_birth, death_text
+            )
+            if family_text:
+                data.append(family_text)
 
     label = " ".join((_("Child"), _("Number")))
     return [(get_label(label), get_label("; ".join(tuple(data))))]

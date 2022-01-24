@@ -60,6 +60,8 @@ from .config_panel import (
     build_timeline_panel,
 )
 from .configure_dialog import ModifiedConfigureDialog
+from ..services.service_fields import FieldCalculatorService
+from ..services.service_status import StatusIndicatorService
 
 _ = glocale.translation.sgettext
 
@@ -839,23 +841,40 @@ class TemplateChangeViewer(ManagedWindow):
             config.get("template.name_lang"),
             config.filename,
         )
-        for key, default_value in VIEWDEFAULTS:
-            default_value = str(default_value)
-            template_value = str(ini.get(key))
-            if template_value == default_value:
-                template_value = ""
-            database_value = str(config.get(key))
-            if template_value and database_value == template_value:
-                database_value = ""
-            elif not template_value and database_value == default_value:
-                database_value = ""
-            self.column_model.add(
-                (key, default_value, template_value, database_value)
-            )
+        load_change_model(self.column_model.add, VIEWDEFAULTS, ini, config)
+        plugin_defaults = get_plugin_defaults()
+        load_change_model(self.column_model.add, plugin_defaults, ini, config)
         self.column_list.show()
 
     def build_menu_names(self, obj):  # this is meaningless since it's modal
         return (self.title, None)
+
+
+def load_change_model(add_model, defaults_list, ini, config):
+    """
+    Load options and changes into the model.
+    """
+    for key, default_value in defaults_list:
+        default_value = str(default_value)
+        template_value = str(ini.get(key))
+        if template_value == default_value:
+            template_value = ""
+        database_value = str(config.get(key))
+        if template_value and database_value == template_value:
+            database_value = ""
+        elif not template_value and database_value == default_value:
+            database_value = ""
+        add_model((key, default_value, template_value, database_value))
+
+
+def get_plugin_defaults():
+    """
+    Return plugin defaults.
+    """
+    return (
+        FieldCalculatorService().get_defaults()
+        + StatusIndicatorService().get_defaults()
+    )
 
 
 def add_header(widget, group, label1, label2, label3):
