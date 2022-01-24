@@ -50,6 +50,7 @@ from gramps.gen.utils.db import family_name
 # ------------------------------------------------------------------------
 from ..actions import action_handler
 from ..common.common_utils import citation_option_text
+from ..zotero.zotero import GrampsZotero
 
 _ = glocale.translation.sgettext
 
@@ -212,6 +213,7 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
     target_object = grchild or grobject
     if not target_object.has_citations:
         return
+    db = grstate.dbstate.db
     delete_enabled = grstate.config.get("menu.delete-submenus")
     action = action_handler("Citation", grstate, None, grobject, grchild)
     menu = new_menu(
@@ -234,13 +236,23 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
         )
     )
     if grstate.config.get("general.zotero-enabled"):
-        menu.add(
-            menu_item(
+        zotero = GrampsZotero(db)
+        if zotero.online:
+            menu.add(
+                menu_item(
+                    "list-add",
+                    _("Add citation using Zotero"),
+                    action.add_zotero_citation,
+                )
+            )
+        else:
+            entry = menu_item(
                 "list-add",
-                _("Add citation using Zotero"),
+                _("Add citation using Zotero (currently offline)"),
                 action.add_zotero_citation,
             )
-        )
+            entry.set_sensitive(False)
+            menu.add(entry)
     citation_list = target_object.obj.get_citation_list()
     if citation_list:
         removemenu = new_submenu(
@@ -252,7 +264,6 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
             )
         add_double_separator(menu)
         work_list = []
-        db = grstate.dbstate.db
         for citation_handle in citation_list:
             citation = db.get_citation_from_handle(citation_handle)
             text = citation_option_text(db, citation)
