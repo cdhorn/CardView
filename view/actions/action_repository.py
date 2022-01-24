@@ -29,8 +29,9 @@ RepositoryAction
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import RepoRef
-from gramps.gui.editors import EditRepository, EditRepoRef
+from gramps.gen.lib import RepoRef, Source
+from gramps.gui.editors import EditRepository, EditRepoRef, EditSource
+from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
@@ -39,6 +40,7 @@ from gramps.gui.editors import EditRepository, EditRepoRef
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
 from .action_factory import factory
+from ..common.common_classes import GrampsObject
 
 _ = glocale.translation.sgettext
 
@@ -72,7 +74,36 @@ class RepositoryAction(GrampsAction):
 
     def add_new_source(self, *_dummy_args):
         """
-        Add new repository reference to source.
+        Add new source to a repository.
+        """
+        self.target_object = GrampsObject(Source())
+        try:
+            EditSource(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                self.target_object.obj,
+                self.add_repository_reference,
+            )
+        except WindowActiveError:
+            pass
+
+    def add_existing_source(self, *_dummy_args):
+        """
+        Add an existing source to the repository.
+        """
+        get_source_selector = SelectorFactory("Source")
+        source_selector = get_source_selector(
+            self.grstate.dbstate, self.grstate.uistate
+        )
+        source = source_selector.run()
+        if source:
+            self.target_object = GrampsObject(source)
+            self.add_repository_reference()
+
+    def add_repository_reference(self, *_dummy_args):
+        """
+        Add repository reference to a source.
         """
         if self.target_object.obj_type != "Source":
             raise AttributeError(

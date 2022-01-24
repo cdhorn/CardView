@@ -38,6 +38,7 @@ from gramps.gui.ddtargets import DdTargets
 from ..actions import action_handler
 from ..common.common_utils import format_address
 from .frame_reference import ReferenceFrame
+from ..menus.menu_utils import menu_item
 
 _ = glocale.translation.sgettext
 
@@ -115,3 +116,23 @@ class RepositoryFrame(ReferenceFrame):
             action.add_new_source()
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
+
+    def add_custom_actions(self, context_menu):
+        """
+        Add action menu items specific for the repository.
+        """
+        action = action_handler("Repository", self.grstate, self.primary)
+        context_menu.append(
+            menu_item(
+                "gramps-source",
+                _("Add new source"),
+                action.add_new_source,
+            )
+        )
+        context_menu.append(
+            menu_item(
+                "gramps-source",
+                _("Add existing source"),
+                action.add_existing_source,
+            )
+        )
