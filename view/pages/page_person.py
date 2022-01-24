@@ -42,6 +42,7 @@ from gramps.gui.widgets.reorderfam import Reorder
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..actions import action_handler
 from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_pressed
 from .page_base import GrampsPageView
@@ -62,7 +63,7 @@ class PersonPageView(GrampsPageView):
                 ("AddNewParents", self._add_new_parents),
                 ("AddExistingParents", self._add_existing_parents),
                 ("AddSpouse", self._add_new_family),
-                #                ("ChangeOrder", self._reorder_families),
+                ("ChangeOrder", self._reorder_families),
             ]
         )
         view.add_action_group(self.action_group)
@@ -105,18 +106,27 @@ class PersonPageView(GrampsPageView):
         Add a new set of parents.
         """
         if self.active_profile:
-            self.active_profile.add_new_parents()
+            action = action_handler(
+                "Person", self.grstate, self.active_profile.primary
+            )
+            action.add_new_parents()
 
     def _add_existing_parents(self, *_dummy_obj):
         """
         Add an existing set of parents.
         """
         if self.active_profile:
-            self.active_profile.add_existing_parents()
+            action = action_handler(
+                "Person", self.grstate, self.active_profile.primary
+            )
+            action.add_existing_parents()
 
     def _add_new_family(self, *_dummy_obj):
         """
         Add new family with or without spouse.
         """
         if self.active_profile:
-            self.active_profile.add_new_family()
+            action = action_handler(
+                "Person", self.grstate, self.active_profile.primary
+            )
+            action.add_new_family()

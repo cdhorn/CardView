@@ -399,6 +399,45 @@ class LinkedView(ExtendedNavigationView):
           <attribute name="action">win.Edit</attribute>
           <attribute name="label" translatable="yes">Edit...</attribute>
         </item>
+       <item>
+          <attribute name="action">win.AddNewParents</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add New Parents...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddExistingParents</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add Existing Parents...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddSpouse</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add Partner...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.ChangeOrder</attribute>
+          <attribute name="label" translatable="yes">_Reorder</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddNewChild</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add New Child...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddExistingChild</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add Existing Child...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddNewParticipant</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add New Participant...</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.AddExistingParticipant</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Add Existing Participant...</attribute>
+        </item>
       </placeholder>
 """,
         """
@@ -514,7 +553,6 @@ class LinkedView(ExtendedNavigationView):
         <property name="tooltip_text" translatable="yes">"""
         """Change order of parents and families</property>
         <property name="label" translatable="yes">_Reorder</property>
-        <property name="use-underline">True</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
@@ -547,7 +585,7 @@ class LinkedView(ExtendedNavigationView):
     <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
-        <property name="action-name">win.AddNewPart</property>
+        <property name="action-name">win.AddNewParticipant</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add a new participant to the event</property>
         <property name="label" translatable="yes">Add</property>
@@ -559,7 +597,7 @@ class LinkedView(ExtendedNavigationView):
     <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
-        <property name="action-name">win.AddExistingPart</property>
+        <property name="action-name">win.AddExistingParticipant</property>
         <property name="tooltip_text" translatable="yes">"""
         """Add an existing participant to the event</property>
         <property name="label" translatable="yes">Share</property>

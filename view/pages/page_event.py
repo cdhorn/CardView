@@ -40,6 +40,7 @@ from gramps.gui.uimanager import ActionGroup
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..actions import action_handler
 from .page_base import GrampsPageView
 
 
@@ -55,8 +56,8 @@ class EventPageView(GrampsPageView):
         self.action_group = ActionGroup(name="Event")
         self.action_group.add_actions(
             [
-                ("AddNewPart", self._add_new_participant),
-                ("AddExistingPart", self._add_existing_participant),
+                ("AddNewParticipant", self._add_new_participant),
+                ("AddExistingParticipant", self._add_existing_participant),
             ]
         )
         view.add_action_group(self.action_group)
@@ -66,11 +67,17 @@ class EventPageView(GrampsPageView):
         Add a new person as a participant in the event.
         """
         if self.active_profile:
-            self.active_profile.add_new_participant()
+            action = action_handler(
+                "Event", self.grstate, self.active_profile.primary
+            )
+            action.add_new_participant()
 
     def _add_existing_participant(self, *_dummy_obj):
         """
         Add an existing person as a participant in the event.
         """
         if self.active_profile:
-            self.active_profile.add_existing_participant()
+            action = action_handler(
+                "Event", self.grstate, self.active_profile.primary
+            )
+            action.add_existing_participant()

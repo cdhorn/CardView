@@ -40,6 +40,7 @@ from gramps.gui.uimanager import ActionGroup
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..actions import action_handler
 from .page_base import GrampsPageView
 
 
@@ -66,11 +67,17 @@ class FamilyPageView(GrampsPageView):
         Add a new person as a child member of the family.
         """
         if self.active_profile:
-            self.active_profile.add_new_child()
+            action = action_handler(
+                "Family", self.grstate, self.active_profile.primary
+            )
+            action.add_new_child()
 
     def _add_existing_child(self, *_dummy_obj):
         """
         Add an existing person as a child member of the family.
         """
         if self.active_profile:
-            self.active_profile.add_existing_child()
+            action = action_handler(
+                "Family", self.grstate, self.active_profile.primary
+            )
+            action.add_existing_child()

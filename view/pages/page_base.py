@@ -40,6 +40,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..actions import action_handler
 from ..views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -103,7 +104,12 @@ class GrampsPageView:
         Edit the active page object.
         """
         if self.active_profile:
-            self.active_profile.edit_primary_object()
+            action = action_handler(
+                self.active_profile.primary.obj_type,
+                self.grstate,
+                self.active_profile.primary,
+            )
+            action.edit_object()
 
     def add_tag(self, trans, object_handle, tag_handle):
         """
