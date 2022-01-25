@@ -183,6 +183,19 @@ class CitationFrame(PrimaryFrame):
         """
         Add action menu items for the citation.
         """
+        if self.groptions.backlink:
+            (obj_type, obj_handle) = self.groptions.backlink
+            obj = self.fetch(obj_type, obj_handle)
+            action = action_handler(
+                "Citation", self.grstate, self.primary, obj
+            )
+            context_menu.append(
+                menu_item(
+                    "list-remove",
+                    _("Remove citation"),
+                    action.remove_citation,
+                )
+            )
         if self.source:
             action = action_handler("Source", self.grstate, self.source)
             context_menu.append(

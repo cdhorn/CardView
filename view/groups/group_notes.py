@@ -58,7 +58,9 @@ class NotesFrameGroup(FrameGroupList):
         )
         if not self.group_base.has_notes:
             return
-
+        groptions.set_backlink(
+            (self.group_base.obj_type, self.group_base.obj.get_handle())
+        )
         maximum = grstate.config.get("group.note.max-per-group")
         notes = [(self.group_base.obj_lang, x) for x in obj.get_note_list()]
         if grstate.config.get("group.note.include-child-objects"):

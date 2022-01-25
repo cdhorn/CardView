@@ -43,6 +43,8 @@ from gramps.gui.widgets import StyledTextBuffer
 # Plugin modules
 #
 # ------------------------------------------------------------------------
+from ..actions import action_handler
+from ..menus.menu_utils import menu_item
 from .frame_primary import PrimaryFrame
 
 _ = glocale.translation.sgettext
@@ -161,4 +163,20 @@ class NoteFrame(PrimaryFrame):
             vcontent.pack_start(hcontent, expand=True, fill=True, padding=0)
             vcontent.pack_start(
                 self.text_view, expand=True, fill=True, padding=0
+            )
+
+    def add_custom_actions(self, context_menu):
+        """
+        Add action menu items for the note.
+        """
+        if self.groptions.backlink:
+            (obj_type, obj_handle) = self.groptions.backlink
+            obj = self.fetch(obj_type, obj_handle)
+            action = action_handler("Note", self.grstate, self.primary, obj)
+            context_menu.append(
+                menu_item(
+                    "list-remove",
+                    _("Remove note"),
+                    action.remove_note,
+                )
             )

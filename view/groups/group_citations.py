@@ -56,6 +56,9 @@ class CitationsFrameGroup(FrameGroupList):
         FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
+        groptions.set_backlink(
+            (self.group_base.obj_type, self.group_base.obj.get_handle())
+        )
         self.maximum = grstate.config.get("group.citation.max-per-group")
         citation_list = self.collect_citations()
         if citation_list:
