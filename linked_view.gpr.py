@@ -33,7 +33,7 @@ register(
     id="linkview",
     name=_("Linked"),
     description=_("A browseable object view."),
-    version="0.84",
+    version="0.85",
     gramps_target_version="5.1",
     status=STABLE,
     fname="linked_view.py",

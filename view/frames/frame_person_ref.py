@@ -28,6 +28,7 @@ PersonRefFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
@@ -78,6 +79,28 @@ class PersonRefFrame(PersonFrame):
             if relation:
                 self.add_ref_item(_("Relationship"), relation.capitalize())
             self.show_ref_items()
+
+        self.dnd_drop_ref_targets.append(DdTargets.PERSON_LINK.target())
+        self.dnd_drop_ref_targets.append(DdTargets.EVENT.target())
+        self.ref_enable_drop(
+            self.ref_eventbox,
+            self.dnd_drop_ref_targets,
+            self.ref_drag_data_received,
+        )
+
+    def _ref_child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle child reference specific drop processing.
+        """
+        if DdTargets.EVENT.drag_type == dnd_type:
+            action = action_handler("Person", self.grstate, self.primary)
+            action.add_new_event(None, obj_or_handle)
+            return True
+        if DdTargets.PERSON_LINK.drag_type == dnd_type:
+            action = action_handler("Person", self.grstate, self.primary)
+            action._add_new_person_reference(obj_or_handle)
+            return True
+        return self._ref_base_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_ref_custom_actions(self, context_menu):
         """

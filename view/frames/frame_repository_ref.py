@@ -28,6 +28,7 @@ RepositoryRefFrame
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
@@ -70,6 +71,26 @@ class RepositoryRefFrame(RepositoryFrame):
                 )
                 self.add_ref_item(_("Media type"), media_type)
             self.show_ref_items()
+
+        self.dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+        self.ref_enable_drop(
+            self.ref_eventbox,
+            self.dnd_drop_ref_targets,
+            self.ref_drag_data_received,
+        )
+
+    def _ref_child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing for a repository.
+        """
+        if DdTargets.SOURCE_LINK.drag_type == dnd_type:
+            source = self.fetch("Source", obj_or_handle)
+            action = action_handler(
+                "Repository", self.grstate, self.primary, source
+            )
+            action.add_new_source()
+            return True
+        return self._ref_base_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_ref_custom_actions(self, context_menu):
         """

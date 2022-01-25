@@ -115,7 +115,7 @@ class MediaFrame(ReferenceFrame):
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """
-        Handle drop processing for a person.
+        Handle drop processing.
         """
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 

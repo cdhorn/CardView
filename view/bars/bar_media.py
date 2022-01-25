@@ -229,7 +229,7 @@ class MediaBarItem(MediaRefFrame):
         self.enable_drop(
             eventbox=self.eventbox,
             dnd_drop_targets=self.dnd_drop_ref_targets,
-            drag_data_received=self.drag_data_ref_received,
+            drag_data_received=self.ref_drag_data_received,
         )
 
     def get_thumbnail(self, media, media_ref, size, crop):

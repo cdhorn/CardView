@@ -147,10 +147,12 @@ class PersonFrame(ReferenceFrame):
         Handle drop processing for a person.
         """
         if DdTargets.EVENT.drag_type == dnd_type:
-            self.add_new_person_event(None, event_handle=obj_or_handle)
+            action = action_handler("Person", self.grstate, self.primary)
+            action.add_new_event(None, obj_or_handle)
             return True
         if DdTargets.PERSON_LINK.drag_type == dnd_type:
-            self.add_new_person_ref(obj_or_handle)
+            action = action_handler("Person", self.grstate, self.primary)
+            action._add_new_person_reference(obj_or_handle)
             return True
         return self._primary_drop_handler(dnd_type, obj_or_handle, data)
 

@@ -30,6 +30,7 @@ EventRefFrame.
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.db import family_name
+from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
@@ -79,6 +80,23 @@ class EventRefFrame(EventFrame):
             else:
                 self.add_ref_item(role, None)
             self.show_ref_items()
+
+        self.dnd_drop_ref_targets.append(DdTargets.PERSON_LINK.target())
+        self.ref_enable_drop(
+            self.ref_eventbox,
+            self.dnd_drop_ref_targets,
+            self.ref_drag_data_received,
+        )
+
+    def _ref_child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle child reference specific drop processing.
+        """
+        if DdTargets.PERSON_LINK.drag_type == dnd_type:
+            action = action_handler("Event", self.grstate, self.primary)
+            action.add_existing_participant(person_handle=obj_or_handle)
+            return True
+        return self._ref_base_drop_handler(dnd_type, obj_or_handle, data)
 
     def add_ref_custom_actions(self, context_menu):
         """

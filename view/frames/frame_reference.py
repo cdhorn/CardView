@@ -117,15 +117,10 @@ class ReferenceFrame(PrimaryFrame):
         self.enable_drag(
             obj=self.reference,
             eventbox=self.ref_eventbox,
-            drag_data_get=self.drag_data_ref_get,
-        )
-        self.enable_ref_drop(
-            eventbox=self.ref_eventbox,
-            dnd_drop_targets=self.dnd_drop_ref_targets,
-            drag_data_received=self.drag_data_ref_received,
+            drag_data_get=self.ref_drag_data_get,
         )
 
-    def enable_ref_drop(self, eventbox, dnd_drop_targets, drag_data_received):
+    def ref_enable_drop(self, eventbox, dnd_drop_targets, drag_data_received):
         """
         Enabled self as a basic drop target.
         """
@@ -144,7 +139,7 @@ class ReferenceFrame(PrimaryFrame):
         )
         eventbox.connect("drag-data-received", drag_data_received)
 
-    def drag_data_ref_get(
+    def ref_drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
     ):
         """
@@ -163,7 +158,7 @@ class ReferenceFrame(PrimaryFrame):
                 pickle.dumps(returned_data),
             )
 
-    def drag_data_ref_received(
+    def ref_drag_data_received(
         self,
         _dummy_widget,
         _dummy_context,
@@ -184,36 +179,51 @@ class ReferenceFrame(PrimaryFrame):
             except pickle.UnpicklingError:
                 return self.dropped_ref_text(data.get_data().decode("utf-8"))
             if id(self) != obj_id:
-                if DdTargets.NOTE_LINK.drag_type == dnd_type:
-                    action = action_handler(
-                        "Note",
-                        self.grstate,
-                        None,
-                        self.reference_base,
-                        self.reference,
-                    )
-                    action.added_note(obj_or_handle)
-                    return True
-                if DdTargets.CITATION_LINK.drag_type == dnd_type:
-                    action = action_handler(
-                        "Citation",
-                        self.grstate,
-                        None,
-                        self.reference_base,
-                        self.reference,
-                    )
-                    action.added_citation(obj_or_handle)
-                    return True
-                if DdTargets.SOURCE_LINK.drag_type == dnd_type:
-                    action = action_handler(
-                        "Citation",
-                        self.grstate,
-                        None,
-                        self.reference_base,
-                        self.reference,
-                    )
-                    action.add_new_citation(obj_or_handle)
-                    return True
+                return self._ref_child_drop_handler(
+                    dnd_type, obj_or_handle, data
+                )
+        return False
+
+    def _ref_child_drop_handler(self, dnd_type, obj_or_handle, data):
+        """
+        Handle drop processing, override in derived classes as needed.
+        """
+        self._ref_base_drop_handler(dnd_type, obj_or_handle, data)
+
+    def _ref_base_drop_handler(self, dnd_type, obj_or_handle, _dummy_data):
+        """
+        Handle drop processing largely common to all objects.
+        """
+        if DdTargets.NOTE_LINK.drag_type == dnd_type:
+            action = action_handler(
+                "Note",
+                self.grstate,
+                None,
+                self.reference_base,
+                self.reference,
+            )
+            action.added_note(obj_or_handle)
+            return True
+        if DdTargets.CITATION_LINK.drag_type == dnd_type:
+            action = action_handler(
+                "Citation",
+                self.grstate,
+                None,
+                self.reference_base,
+                self.reference,
+            )
+            action.added_citation(obj_or_handle)
+            return True
+        if DdTargets.SOURCE_LINK.drag_type == dnd_type:
+            action = action_handler(
+                "Citation",
+                self.grstate,
+                None,
+                self.reference_base,
+                self.reference,
+            )
+            action.add_new_citation(obj_or_handle)
+            return True
         return False
 
     def dropped_ref_text(self, data):
