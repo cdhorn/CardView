@@ -231,13 +231,15 @@ class PersonFrame(ReferenceFrame):
         """
         action = action_handler("Person", self.grstate, self.primary)
         if self.grstate.config.get("menu.set-home-person"):
-            context_menu.append(
-                menu_item(
-                    "go-home",
-                    _("Set home person"),
-                    action.set_default_person,
+            home_person = self.grstate.dbstate.db.get_default_person()
+            if home_person.get_handle() != self.primary.obj.get_handle():
+                context_menu.append(
+                    menu_item(
+                        "go-home",
+                        _("Set home person"),
+                        action.set_default_person,
+                    )
                 )
-            )
         context_menu.append(
             menu_item(
                 "gramps-event",

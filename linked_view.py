@@ -546,13 +546,14 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Person'>
+    <child groups='ChangeOrder'>
       <object class="GtkToolButton">
         <property name="icon-name">view-sort-ascending</property>
         <property name="action-name">win.ChangeOrder</property>
         <property name="tooltip_text" translatable="yes">"""
         """Change order of parents and families</property>
         <property name="label" translatable="yes">_Reorder</property>
+        <property name="use-underline">True</property>
       </object>
       <packing>
         <property name="homogeneous">False</property>
