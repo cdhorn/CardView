@@ -32,6 +32,30 @@ from gramps.gen.lib import Citation
 
 _ = glocale.translation.sgettext
 
+OPTION_VALUE_BIRTH = "Event:Birth"
+OPTION_VALUE_BAPTISM = "Event:Baptism"
+OPTION_VALUE_CHRISTENING = "Event:Christening"
+OPTION_VALUE_WILL = "Event:Will"
+OPTION_VALUE_DEATH = "Event:Death"
+OPTION_VALUE_BURIAL = "Event:Burial"
+OPTION_VALUE_CREMATION = "Event:Cremation"
+OPTION_VALUE_PROBATE = "Event:Probate"
+OPTION_VALUE_BANNS = "Event:Marriage Banns"
+OPTION_VALUE_LICENSE = "Event:Marriage License"
+OPTION_VALUE_CONTRACT = "Event:Marriage Contract"
+OPTION_VALUE_SETTLEMENT = "Event:Marriage Settlement"
+OPTION_VALUE_MARRIAGE = "Event:Marriage"
+OPTION_VALUE_FILING = "Event:Divorce Filing"
+OPTION_VALUE_DIVORCE = "Event:Divorce"
+OPTION_VALUE_ANNULMENT = "Event:Annulment"
+OPTION_VALUE_DURATION = "Calculated:Duration"
+OPTION_VALUE_RELATIONSHIP = "Calculated:Relationship"
+OPTION_VALUE_OCCUPATIONS = "Calculated: Occupations"
+OPTION_VALUE_PATERNAL = "Calculated:Paternal Progenitors"
+OPTION_VALUE_MATERNAL = "Calculated:Maternal Progenitors"
+OPTION_VALUE_BRIDE = "Calculated:Bride Age"
+OPTION_VALUE_GROOM = "Calculated:Groom Age"
+OPTION_VALUE_CHILD = "Calculated:Child Number"
 
 NOT_DISPLAYED = _("Not displayed")
 
@@ -131,7 +155,6 @@ PAGES = [
     ("Source", _("Source")),
     ("Tag", _("Tag")),
 ]
-
 
 PAGE_NAMES = {
     "Address": _("Address"),

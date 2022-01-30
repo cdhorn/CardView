@@ -39,6 +39,11 @@ from gramps.gen.utils.db import family_name
 
 _ = glocale.translation.sgettext
 
+MATERNAL_PROGENITORS = "Maternal Progenitors"
+MATERNAL_PROGENITORS_LANG = _("Maternal Progenitors")
+PATERNAL_PROGENITORS = "Paternal Progenitors"
+PATERNAL_PROGENITORS_LANG = _("Paternal Progenitors")
+
 
 # ------------------------------------------------------------------------
 #
@@ -64,8 +69,8 @@ def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
 
 supported_types = {
     "Person": [
-        ("Maternal Progenitors", _("Maternal Progenitors")),
-        ("Paternal Progenitors", _("Paternal Progenitors")),
+        (MATERNAL_PROGENITORS, MATERNAL_PROGENITORS_LANG),
+        (PATERNAL_PROGENITORS, PATERNAL_PROGENITORS_LANG),
     ]
 }
 
@@ -92,7 +97,7 @@ def get_progenitors_field(grstate, obj, field_value, args):
         )
         if not parent_family:
             return []
-        paternal = "Paternal" in field_value
+        paternal = PATERNAL_PROGENITORS in field_value
         family, generations = extract_progenitor_family(
             grstate.dbstate.db, parent_family, paternal=paternal
         )
@@ -113,9 +118,9 @@ def get_progenitors_field(grstate, obj, field_value, args):
         elif generations == 1:
             name = "".join((name, " (1 ", _("Generation"), ")"))
         if paternal:
-            label = get_label(_("Paternal Progenitors"))
+            label = get_label(PATERNAL_PROGENITORS_LANG)
         else:
-            label = get_label(_("Maternal Progenitors"))
+            label = get_label(MATERNAL_PROGENITORS_LANG)
         return [
             (
                 label,

@@ -83,11 +83,10 @@ class PlaceRefFrame(PlaceFrame):
         )
         label = " ".join((_("Edit"), _("reference")))
         context_menu.append(menu_item("gtk-edit", label, action.edit_place))
-        label = " ".join((_("Delete"), _("reference")))
         context_menu.append(
             menu_item(
                 "list-remove",
-                label,
+                _("Delete reference"),
                 action.remove_place_reference,
             )
         )

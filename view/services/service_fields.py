@@ -82,21 +82,10 @@ class FieldCalculatorService:
         self.default_options.clear()
         self.config_grid_builders.clear()
         for plugin in plugin_data:
-            supported_types = plugin["supported_types"]
+            self._load_supported_types(
+                plugin["supported_types"], plugin["get_field"]
+            )
             default_options = plugin["default_options"]
-            get_config_grids = plugin["get_config_grids"]
-            get_field = plugin["get_field"]
-            for supported_type in supported_types:
-                if supported_type not in self.field_types:
-                    self.field_types[supported_type] = {}
-                if supported_type not in self.field_generators:
-                    self.field_generators[supported_type] = []
-                for (value, value_lang) in supported_types[supported_type]:
-                    self.field_types[supported_type].update(
-                        {value: value_lang}
-                    )
-                    key = "%s-%s" % (supported_type, value)
-                    self.field_generators[key] = get_field
             if default_options:
                 if isinstance(default_options, list):
                     self.default_options = (
@@ -104,8 +93,23 @@ class FieldCalculatorService:
                     )
                 else:
                     self.default_options.append(default_options)
+            get_config_grids = plugin["get_config_grids"]
             if get_config_grids:
                 self.config_grid_builders.append(get_config_grids)
+
+    def _load_supported_types(self, supported_types, get_field):
+        """
+        Parse and load the types supported by a custom field plugin.
+        """
+        for supported_type in supported_types:
+            if supported_type not in self.field_types:
+                self.field_types[supported_type] = {}
+            if supported_type not in self.field_generators:
+                self.field_generators[supported_type] = []
+            for (value, value_lang) in supported_types[supported_type]:
+                self.field_types[supported_type].update({value: value_lang})
+                key = "%s-%s" % (supported_type, value)
+                self.field_generators[key] = get_field
 
     def get_values(self, obj_type):
         """

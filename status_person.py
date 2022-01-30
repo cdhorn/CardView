@@ -46,7 +46,21 @@ from gramps.gui.editors import EditEvent
 # ------------------------------------------------------------------------
 from view.common.common_classes import GrampsBaseIcon
 from view.common.common_utils import get_confidence, prepare_icon
-from view.config.config_const import CONFIDENCE_LEVEL
+from view.config.config_const import (
+    CONFIDENCE_LEVEL,
+    OPTION_VALUE_BIRTH,
+    OPTION_VALUE_BAPTISM,
+    OPTION_VALUE_CHRISTENING,
+    OPTION_VALUE_WILL,
+    OPTION_VALUE_DEATH,
+    OPTION_VALUE_BURIAL,
+    OPTION_VALUE_CREMATION,
+    OPTION_VALUE_PROBATE,
+    OPTION_VALUE_BANNS,
+    OPTION_VALUE_MARRIAGE,
+    OPTION_VALUE_DIVORCE,
+)
+
 from view.config.config_utils import (
     config_event_fields,
     create_grid,
@@ -56,23 +70,38 @@ from view.menus.menu_utils import menu_item, show_menu
 
 _ = glocale.translation.sgettext
 
+OPTION_CONFIDENCE_RANKING = "status.confidence-ranking"
+OPTION_RANK_OBJECT = "status.rank-object"
+OPTION_RANK_NAMES = "status.rank-names"
+OPTION_RANK_EVENTS = "status.rank-events"
+OPTION_RANK_ORDINANCES = "status.rank-ordinances"
+OPTION_RANK_ATTRIBUTES = "status.rank-attributes"
+OPTION_RANK_ASSOCIATIONS = "status.rank-associations"
+OPTION_RANK_ADDRESSES = "status.rank-addresses"
+OPTION_RANK_SPOUSES = "status.rank-spouses"
+OPTION_RANK_CHILDREN = "status.rank-children"
+OPTION_CITATION_ALERT = "status.citation-alert"
+OPTION_CITATION_ALERT_EDIT = "status.citation-alert-edit"
+OPTION_CITATION_ALERT_MINIMUM = "status.citation-alert-minimum"
+OPTION_MISSING_ALERT = "status.missing-alert"
+
+RANK_OPTIONS = [
+    OPTION_RANK_OBJECT,
+    OPTION_RANK_NAMES,
+    OPTION_RANK_EVENTS,
+    OPTION_RANK_ORDINANCES,
+    OPTION_RANK_ATTRIBUTES,
+    OPTION_RANK_ASSOCIATIONS,
+    OPTION_RANK_ADDRESSES,
+    OPTION_RANK_SPOUSES,
+    OPTION_RANK_CHILDREN,
+]
+
 RANK_ICONS = {
     1: "non-starred",
     2: "semi-starred",
     3: "semi-starred-rtl",
     4: "starred",
-}
-
-RANK_OPTIONS = {
-    "status.rank-object": "object",
-    "status.rank-names": "names",
-    "status.rank-events": "events",
-    "status.rank-ordinances": "ordinances",
-    "status.rank-attributes": "attributes",
-    "status.rank-associations": "associations",
-    "status.rank-addresses": "addresses",
-    "status.rank-spouses": "spouses",
-    "status.rank-children": "children",
 }
 
 
@@ -103,48 +132,48 @@ def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
 #
 # ------------------------------------------------------------------------
 default_options = [
-    ("status.confidence-ranking", True),
-    ("status.rank-object", True),
-    ("status.rank-names", True),
-    ("status.rank-events", True),
-    ("status.rank-ordinances", True),
-    ("status.rank-attributes", True),
-    ("status.rank-associations", True),
-    ("status.rank-addresses", True),
-    ("status.rank-spouses", True),
-    ("status.rank-children", True),
-    ("status.rank-1", "Event:Baptism"),
-    ("status.rank-2", "Event:Christening"),
-    ("status.rank-3", "Event:Marriage Banns"),
-    ("status.rank-4", "Event:Marriage"),
-    ("status.rank-5", "Event:Divorce"),
-    ("status.rank-6", "Event:Will"),
-    ("status.rank-7", "Event:Burial"),
-    ("status.rank-8", "Event:Cremation"),
-    ("status.rank-9", "Event:Probate"),
+    (OPTION_CONFIDENCE_RANKING, True),
+    (OPTION_RANK_OBJECT, True),
+    (OPTION_RANK_NAMES, True),
+    (OPTION_RANK_EVENTS, True),
+    (OPTION_RANK_ORDINANCES, True),
+    (OPTION_RANK_ATTRIBUTES, True),
+    (OPTION_RANK_ASSOCIATIONS, True),
+    (OPTION_RANK_ADDRESSES, True),
+    (OPTION_RANK_SPOUSES, True),
+    (OPTION_RANK_CHILDREN, True),
+    ("status.rank-1", OPTION_VALUE_BAPTISM),
+    ("status.rank-2", OPTION_VALUE_CHRISTENING),
+    ("status.rank-3", OPTION_VALUE_BANNS),
+    ("status.rank-4", OPTION_VALUE_MARRIAGE),
+    ("status.rank-5", OPTION_VALUE_DIVORCE),
+    ("status.rank-6", OPTION_VALUE_WILL),
+    ("status.rank-7", OPTION_VALUE_BURIAL),
+    ("status.rank-8", OPTION_VALUE_CREMATION),
+    ("status.rank-9", OPTION_VALUE_PROBATE),
     ("status.rank-10", "None"),
     ("status.rank-11", "None"),
     ("status.rank-12", "None"),
-    ("status.citation-alert", True),
-    ("status.citation-alert-edit", True),
-    ("status.citation-alert-minimum", 0),
-    ("status.alert-1", "Event:Birth"),
-    ("status.alert-2", "Event:Baptism"),
-    ("status.alert-3", "Event:Christening"),
-    ("status.alert-4", "Event:Marriage Banns"),
-    ("status.alert-5", "Event:Marriage"),
-    ("status.alert-6", "Event:Divorce"),
-    ("status.alert-7", "Event:Will"),
-    ("status.alert-8", "Event:Death"),
-    ("status.alert-9", "Event:Burial"),
-    ("status.alert-10", "Event:Cremation"),
-    ("status.alert-11", "Event:Probate"),
+    (OPTION_CITATION_ALERT, True),
+    (OPTION_CITATION_ALERT_EDIT, True),
+    (OPTION_CITATION_ALERT_MINIMUM, 0),
+    ("status.alert-1", OPTION_VALUE_BIRTH),
+    ("status.alert-2", OPTION_VALUE_BAPTISM),
+    ("status.alert-3", OPTION_VALUE_CHRISTENING),
+    ("status.alert-4", OPTION_VALUE_BANNS),
+    ("status.alert-5", OPTION_VALUE_MARRIAGE),
+    ("status.alert-6", OPTION_VALUE_DIVORCE),
+    ("status.alert-7", OPTION_VALUE_WILL),
+    ("status.alert-8", OPTION_VALUE_DEATH),
+    ("status.alert-9", OPTION_VALUE_BURIAL),
+    ("status.alert-10", OPTION_VALUE_CREMATION),
+    ("status.alert-11", OPTION_VALUE_PROBATE),
     ("status.alert-12", "None"),
-    ("status.missing-alert", True),
-    ("status.missing-1", "Event:Birth"),
-    ("status.missing-2", "Event:Marriage"),
-    ("status.missing-3", "Event:Death"),
-    ("status.missing-4", "Event:Burial"),
+    (OPTION_MISSING_ALERT, True),
+    ("status.missing-1", OPTION_VALUE_BIRTH),
+    ("status.missing-2", OPTION_VALUE_MARRIAGE),
+    ("status.missing-3", OPTION_VALUE_DEATH),
+    ("status.missing-4", OPTION_VALUE_BURIAL),
     ("status.missing-5", "None"),
     ("status.missing-6", "None"),
 ]
@@ -168,66 +197,66 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
         grid,
         _("Enable confidence ranking"),
         21,
-        "status.confidence-ranking",
+        OPTION_CONFIDENCE_RANKING,
     )
     configdialog.add_checkbox(
         grid,
         _("Include base object"),
         22,
-        "status.rank-object",
+        OPTION_RANK_OBJECT,
     )
     grid1 = create_grid()
     configdialog.add_checkbox(
         grid1,
         _("Include all names"),
         23,
-        "status.rank-names",
+        OPTION_RANK_NAMES,
     )
     configdialog.add_checkbox(
         grid1,
         _("Include all events"),
         24,
-        "status.rank-events",
+        OPTION_RANK_EVENTS,
     )
     configdialog.add_checkbox(
         grid1,
         _("Include all ordinances"),
         25,
-        "status.rank-ordinances",
+        OPTION_RANK_ORDINANCES,
     )
     configdialog.add_checkbox(
         grid1,
         _("Include spouses for family"),
         26,
-        "status.rank-spouses",
+        OPTION_RANK_SPOUSES,
     )
     grid2 = create_grid()
     configdialog.add_checkbox(
         grid2,
         _("Include all attributes"),
         23,
-        "status.rank-attributes",
+        OPTION_RANK_ATTRIBUTES,
         start=3,
     )
     configdialog.add_checkbox(
         grid2,
         _("Include all associations"),
         24,
-        "status.rank-associations",
+        OPTION_RANK_ASSOCIATIONS,
         start=3,
     )
     configdialog.add_checkbox(
         grid2,
         _("Include all addresses"),
         25,
-        "status.rank-addresses",
+        OPTION_RANK_ADDRESSES,
         start=3,
     )
     configdialog.add_checkbox(
         grid2,
         _("Include children for family"),
         26,
-        "status.rank-children",
+        OPTION_RANK_CHILDREN,
         start=3,
     )
     grid.attach(grid1, 1, 24, 2, 1)
@@ -255,20 +284,20 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
         grid,
         _("Enable citation alerts"),
         51,
-        "status.citation-alert",
+        OPTION_CITATION_ALERT,
     )
     configdialog.add_combo(
         grid,
         _("Minimum confidence level required"),
         52,
-        "status.citation-alert-minimum",
+        OPTION_CITATION_ALERT_MINIMUM,
         CONFIDENCE_LEVEL,
     )
     configdialog.add_checkbox(
         grid,
         _("Open event in editor instead of navigating to event page"),
         53,
-        "status.citation-alert-edit",
+        OPTION_CITATION_ALERT_EDIT,
     )
     configdialog.add_text(
         grid, "".join((_("Events Checked For Citations"), ":")), 54
@@ -283,7 +312,7 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
         grid,
         _("Enable missing event alerts"),
         61,
-        "status.missing-alert",
+        OPTION_MISSING_ALERT,
     )
     configdialog.add_text(grid, "".join((_("Required Events"), ":")), 62)
     grid1 = config_event_fields(grstate, "missing", count=6)
@@ -302,9 +331,9 @@ def get_person_status(grstate, obj):
     Load status indicators if needed.
     """
     icon_list = []
-    alert = grstate.config.get("status.citation-alert")
-    missing = grstate.config.get("status.missing-alert")
-    ranking = grstate.config.get("status.confidence-ranking")
+    alert = grstate.config.get(OPTION_CITATION_ALERT)
+    missing = grstate.config.get(OPTION_MISSING_ALERT)
+    ranking = grstate.config.get(OPTION_CONFIDENCE_RANKING)
     if alert or ranking:
         (
             alert_icon,
@@ -332,15 +361,15 @@ def get_person_status_icons(grstate, obj):
     Evaluate and return status icons for an object.
     """
     alert_list = get_event_fields(grstate, "alert")
-    alert_minimum = grstate.config.get("status.citation-alert-minimum")
+    alert_minimum = grstate.config.get(OPTION_CITATION_ALERT_MINIMUM)
     alert_minimum = alert_minimum + 1
     rank_list = get_event_fields(grstate, "rank")
     for event in ["Birth", "Death"]:
         if event not in rank_list:
             rank_list.append(event)
-    for option, keyword in RANK_OPTIONS.items():
+    for option in RANK_OPTIONS:
         if grstate.config.get(option):
-            rank_list.append(keyword)
+            rank_list.append(option.split("-")[1])
     missing_list = get_event_fields(grstate, "missing", count=6)
     (
         total_rank_items,
@@ -358,9 +387,7 @@ def get_person_status_icons(grstate, obj):
     if total_rank_confidence != 0:
         rank_score = total_rank_confidence / total_rank_items
         rank_icon = RANK_ICONS.get(int(rank_score))
-        rank_text = " ".join(
-            (_("Confidence"), _("Ranking"), ":", str(rank_score))
-        )
+        rank_text = " ".join((_("Confidence Ranking"), ":", str(rank_score)))
     else:
         rank_icon = None
         rank_text = ""
@@ -373,9 +400,7 @@ def get_person_status_icons(grstate, obj):
     if missing_alerts:
         missing_icon = "emblem-important"
         missing_text = ", ".join(tuple(missing_alerts))
-        missing_text = "".join(
-            (_("Missing"), " ", _("Events"), ": ", missing_text)
-        )
+        missing_text = "".join((_("Missing Events"), ": ", missing_text))
     else:
         missing_icon = None
         missing_text = ""
@@ -691,7 +716,7 @@ class GrampsCitationAlertIcon(GrampsBaseIcon):
         Build alert context menu.
         """
         menu = Gtk.Menu()
-        if self.grstate.config.get("status.citation-alert-edit"):
+        if self.grstate.config.get(OPTION_CITATION_ALERT_EDIT):
             callback = self.edit_event
         else:
             callback = self.goto_event

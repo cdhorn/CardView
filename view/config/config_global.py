@@ -53,12 +53,11 @@ from ..services.service_fields import FieldCalculatorService
 from ..services.service_status import StatusIndicatorService
 from .config_colors import add_color
 from .config_const import (
-    CONFIDENCE_LEVEL,
     MEDIA_DISPLAY_MODES,
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
-from .config_utils import add_config_reset, config_event_fields, create_grid
+from .config_utils import add_config_reset, create_grid
 
 _ = glocale.translation.sgettext
 

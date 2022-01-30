@@ -54,6 +54,8 @@ from ..zotero.zotero import GrampsZotero
 
 _ = glocale.translation.sgettext
 
+OPTION_DELETE_SUBMENUS = "menu.delete-submenus"
+
 
 def menu_item(icon, label, callback, *args):
     """
@@ -214,7 +216,7 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
     if not target_object.has_citations:
         return
     db = grstate.dbstate.db
-    delete_enabled = grstate.config.get("menu.delete-submenus")
+    delete_enabled = grstate.config.get(OPTION_DELETE_SUBMENUS)
     action = action_handler("Citation", grstate, None, grobject, grchild)
     menu = new_menu(
         "list-add",
@@ -235,24 +237,7 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
             action.add_existing_citation,
         )
     )
-    if grstate.config.get("general.zotero-enabled"):
-        zotero = GrampsZotero(db)
-        if zotero.online:
-            menu.add(
-                menu_item(
-                    "list-add",
-                    _("Add citation using Zotero"),
-                    action.add_zotero_citation,
-                )
-            )
-        else:
-            entry = menu_item(
-                "list-add",
-                _("Add citation using Zotero (currently offline)"),
-                action.add_zotero_citation,
-            )
-            entry.set_sensitive(False)
-            menu.add(entry)
+    add_zotero_option(grstate, menu, action)
     citation_list = target_object.obj.get_citation_list()
     if citation_list:
         removemenu = new_submenu(
@@ -284,6 +269,30 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
     parent_menu.append(submenu_item("gramps-citation", _("Citations"), menu))
 
 
+def add_zotero_option(grstate, menu, action):
+    """
+    Add Zotero citation picking option if enabled.
+    """
+    if grstate.config.get("general.zotero-enabled"):
+        zotero = GrampsZotero(grstate.dbstate.db)
+        if zotero.online:
+            menu.add(
+                menu_item(
+                    "list-add",
+                    _("Add citation using Zotero"),
+                    action.add_zotero_citation,
+                )
+            )
+        else:
+            entry = menu_item(
+                "list-add",
+                _("Add citation using Zotero (currently offline)"),
+                action.add_zotero_citation,
+            )
+            entry.set_sensitive(False)
+            menu.add(entry)
+
+
 def add_notes_menu(grstate, parent_menu, grobject, grchild=None):
     """
     Build and add the notes submenu.
@@ -293,7 +302,7 @@ def add_notes_menu(grstate, parent_menu, grobject, grchild=None):
     target_object = grchild or grobject
     if not target_object.has_notes:
         return
-    delete_enabled = grstate.config.get("menu.delete-submenus")
+    delete_enabled = grstate.config.get(OPTION_DELETE_SUBMENUS)
     action = action_handler("Note", grstate, None, grobject, grchild)
     menu = new_menu("list-add", _("Add a new note"), action.add_new_note)
     menu.add(
@@ -412,7 +421,7 @@ def add_tags_menu(grstate, parent_menu, grobject, sort_by_name=False):
         return
     if not grobject.has_tags:
         return
-    delete_enabled = grstate.config.get("menu.delete-submenus")
+    delete_enabled = grstate.config.get(OPTION_DELETE_SUBMENUS)
     menu = Gtk.Menu()
     tag_list = grobject.obj.get_tag_list()
     tag_add_list = []
@@ -510,7 +519,7 @@ def add_media_menu(grstate, parent_menu, grobject):
         return
     if not grobject.has_media:
         return
-    delete_enabled = grstate.config.get("menu.delete-submenus")
+    delete_enabled = grstate.config.get(OPTION_DELETE_SUBMENUS)
     action = action_handler("Media", grstate, None, grobject)
     menu = new_menu(
         "list-add", _("Add a new media item"), action.add_new_media

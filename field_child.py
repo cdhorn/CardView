@@ -45,6 +45,12 @@ from view.config.config_utils import create_grid
 
 _ = glocale.translation.sgettext
 
+CHILD_NUMBER_LANG = _("Child Number")
+
+OPTION_SHOW_MOTHER = "field.child.show-mother"
+OPTION_SHOW_FATHER = "field.child.show-father"
+OPTION_SHOW_DURATION = "field.child.show-marriage-duration"
+
 
 # ------------------------------------------------------------------------
 #
@@ -68,13 +74,13 @@ def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
     ]
 
 
-supported_types = {"Person": [("Child Number", _("Child Number"))]}
+supported_types = {"Person": [("Child Number", CHILD_NUMBER_LANG)]}
 
 
 default_options = [
-    ("field.child.show-mother", True),
-    ("field.child.show-father", True),
-    ("field.child.show-marriage-duration", True),
+    (OPTION_SHOW_MOTHER, True),
+    (OPTION_SHOW_FATHER, True),
+    (OPTION_SHOW_DURATION, True),
 ]
 
 
@@ -88,19 +94,19 @@ def build_child_grid(configdialog, _dummy_grstate):
         grid,
         _("Show age of mother at birth of child"),
         1,
-        "field.child.show-mother",
+        OPTION_SHOW_MOTHER,
     )
     configdialog.add_checkbox(
         grid,
         _("Show age of father at birth of child"),
         2,
-        "field.child.show-father",
+        OPTION_SHOW_FATHER,
     )
     configdialog.add_checkbox(
         grid,
         _("Show duration of marriage at birth of child"),
         3,
-        "field.child.show-marriage-duration",
+        OPTION_SHOW_DURATION,
     )
     return grid
 
@@ -109,10 +115,9 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
     """
     Calculate child and parent infomation.
     """
-    get_label = args.get("get_label")
-
     if not isinstance(obj, Person):
         return []
+    get_label = args.get("get_label")
 
     person_birth = None
     birth_ref = obj.get_birth_ref()
@@ -138,29 +143,36 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
     data = [" ".join((str(number), _("of"), str(total)))]
 
     if person_birth:
-        if grstate.config.get("field.child.show-mother"):
-            mother_text, dummy_text = get_parent_text(
-                grstate.dbstate.db, parent_family, person_birth, "Mother"
-            )
-            if mother_text:
-                data.append(mother_text)
-        if grstate.config.get("field.child.show-father"):
-            father_text, death_text = get_parent_text(
-                grstate.dbstate.db, parent_family, person_birth, "Father"
-            )
-            if father_text:
-                data.append(father_text)
-        else:
-            death_text = ""
-        if grstate.config.get("field.child.show-marriage-duration"):
-            family_text = get_family_text(
-                grstate.dbstate.db, parent_family, person_birth, death_text
-            )
-            if family_text:
-                data.append(family_text)
+        data = data + get_optional_fields(grstate, parent_family, person_birth)
+    return [(get_label(CHILD_NUMBER_LANG), get_label("; ".join(tuple(data))))]
 
-    label = " ".join((_("Child"), _("Number")))
-    return [(get_label(label), get_label("; ".join(tuple(data))))]
+
+def get_optional_fields(grstate, parent_family, person_birth):
+    """
+    Return additional options data field text.
+    """
+    data = []
+    if grstate.config.get(OPTION_SHOW_MOTHER):
+        mother_text, dummy_text = get_parent_text(
+            grstate.dbstate.db, parent_family, person_birth, "Mother"
+        )
+        if mother_text:
+            data.append(mother_text)
+    if grstate.config.get(OPTION_SHOW_FATHER):
+        father_text, death_text = get_parent_text(
+            grstate.dbstate.db, parent_family, person_birth, "Father"
+        )
+        if father_text:
+            data.append(father_text)
+    else:
+        death_text = ""
+    if grstate.config.get(OPTION_SHOW_DURATION):
+        family_text = get_family_text(
+            grstate.dbstate.db, parent_family, person_birth, death_text
+        )
+        if family_text:
+            data.append(family_text)
+    return data
 
 
 def get_parent_text(db, family, birth_date, parent_type):
@@ -189,9 +201,7 @@ def get_parent_text(db, family, birth_date, parent_type):
         if death:
             death_sortval = get_date_sortval(death)
             if death_sortval < birth_date.sortval:
-                death_text = " ".join(
-                    (_("Father"), _("deceased"), _("at"), _("birth"))
-                )
+                death_text = _("Father deceased at birth")
     return parent_text, death_text
 
 
@@ -203,9 +213,9 @@ def get_parent_age_text(parent_birth_date, event_date, parent_type):
     span = get_span(parent_birth_date, event_date)
     if span:
         if parent_type == "Mother":
-            parent_text = " ".join((_("Mother"), _("age"), span))
+            parent_text = " ".join((_("Mother age"), span))
         else:
-            parent_text = " ".join((_("Father"), _("age"), span))
+            parent_text = " ".join((_("Father age"), span))
     return parent_text
 
 
@@ -251,7 +261,7 @@ def check_unmarried_at_birth(birth_date, marriage):
     if marriage and birth_date:
         marriage_sortval = get_date_sortval(marriage)
         if marriage_sortval and marriage_sortval > birth_date.sortval:
-            status = " ".join((_("umarried"), _("at time of"), _("birth")))
+            status = _("umarried at time of birth")
         else:
             base_date = marriage.get_date_object()
     return base_date, status

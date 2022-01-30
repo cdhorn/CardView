@@ -100,18 +100,3 @@ class AddressFrame(SecondaryFrame):
                 or self.grstate.config.get("group.address.show-age")
             ):
                 self.load_age(self.groptions.age_base, address_date)
-
-    def get_color_css(self):
-        """
-        Determine color scheme to be used if available."
-        """
-        if (
-            self.grstate.config.get("display.use-color-scheme")
-            and self.primary.obj_type == "Person"
-        ):
-            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
-            return get_person_color_css(
-                self.primary.obj,
-                living=living,
-            )
-        return ""

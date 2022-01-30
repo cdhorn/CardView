@@ -104,9 +104,10 @@ class RepositoryRefFrame(RepositoryFrame):
             menu_item("gtk-edit", label, action.edit_repository_reference)
         )
         if self.grstate.config.get("menu.delete"):
-            label = " ".join((_("Delete"), _("reference")))
             context_menu.append(
                 menu_item(
-                    "list-remove", label, action.remove_repository_reference
+                    "list-remove",
+                    _("Delete reference"),
+                    action.remove_repository_reference,
                 )
             )

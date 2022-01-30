@@ -119,11 +119,10 @@ class PersonBackRefFrame(PersonFrame):
             menu_item("gtk-edit", label, action.edit_person_reference)
         )
         if self.grstate.config.get("menu.delete"):
-            label = " ".join((_("Delete"), _("reference")))
             context_menu.append(
                 menu_item(
                     "list-remove",
-                    label,
+                    _("Delete reference"),
                     action.remove_person_reference,
                 )
             )

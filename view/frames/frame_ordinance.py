@@ -156,18 +156,3 @@ class LDSOrdinanceFrame(SecondaryFrame):
             self.primary.obj, None, self.secondary.obj
         )
         return self.grstate.load_page(page_context.pickled)
-
-    def get_color_css(self):
-        """
-        Determine color scheme to be used if available."
-        """
-        if (
-            self.grstate.config.get("display.use-color-scheme")
-            and self.primary.obj_type == "Person"
-        ):
-            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
-            return get_person_color_css(
-                self.primary.obj,
-                living=living,
-            )
-        return ""

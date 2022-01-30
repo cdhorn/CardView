@@ -51,6 +51,11 @@ from view.menus.menu_utils import menu_item, show_menu
 
 _ = glocale.translation.sgettext
 
+OPTION_TODO = "status.todo"
+OPTION_TODO_EDIT = "status.todo-edit"
+OPTION_TODO_PERSON = "status.todo-person"
+OPTION_TODO_FAMILY = "status.todo-family"
+
 
 # ------------------------------------------------------------------------
 #
@@ -105,10 +110,10 @@ supported_types = [
 #
 # ------------------------------------------------------------------------
 default_options = [
-    ("status.todo", True),
-    ("status.todo-edit", False),
-    ("status.todo-person", False),
-    ("status.todo-family", False),
+    (OPTION_TODO, True),
+    (OPTION_TODO_EDIT, False),
+    (OPTION_TODO_PERSON, False),
+    (OPTION_TODO_FAMILY, False),
 ]
 
 
@@ -127,25 +132,25 @@ def build_todo_grid(configdialog, _dummy_grstate):
         grid,
         _("Enable to do indicator icon"),
         1,
-        "status.todo",
+        OPTION_TODO,
     )
     configdialog.add_checkbox(
         grid,
         _("Open note in editor instead of navigating to note page"),
         2,
-        "status.todo-edit",
+        OPTION_TODO_EDIT,
     )
     configdialog.add_checkbox(
         grid,
         _("Enable full person to do evaluation"),
         3,
-        "status.todo-person",
+        OPTION_TODO_PERSON,
     )
     configdialog.add_checkbox(
         grid,
         _("Enable full family to do evaluation"),
         4,
-        "status.todo-family",
+        OPTION_TODO_FAMILY,
     )
     return grid
 
@@ -159,7 +164,7 @@ def get_todo_status(grstate, obj):
     """
     Load todo status indicator if needed.
     """
-    if not grstate.config.get("status.todo"):
+    if not grstate.config.get(OPTION_TODO):
         return []
 
     todo_list = []
@@ -167,10 +172,10 @@ def get_todo_status(grstate, obj):
     obj_path = [describe_object(db, obj)]
 
     done = False
-    if isinstance(obj, Person) and grstate.config.get("status.todo-person"):
+    if isinstance(obj, Person) and grstate.config.get(OPTION_TODO_PERSON):
         evaluate_person(db, obj, obj_path, todo_list)
         done = True
-    elif isinstance(obj, Family) and grstate.config.get("status.todo-family"):
+    elif isinstance(obj, Family) and grstate.config.get(OPTION_TODO_FAMILY):
         evaluate_family(db, obj, obj_path, todo_list)
         done = True
     if not done:
@@ -336,7 +341,7 @@ class GrampsToDoIcon(GrampsBaseIcon):
         Build to do context menu.
         """
         menu = Gtk.Menu()
-        if self.grstate.config.get("status.todo-edit"):
+        if self.grstate.config.get(OPTION_TODO_EDIT):
             callback = self.edit_note
         else:
             callback = self.goto_note

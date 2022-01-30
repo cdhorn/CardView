@@ -46,6 +46,7 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.utils.alive import probably_alive
 
 # ------------------------------------------------------------------------
 #
@@ -53,6 +54,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
+from ..common.common_utils import get_person_color_css
 from ..menus.menu_utils import (
     add_citations_menu,
     add_delete_menu_option,
@@ -166,3 +168,18 @@ class SecondaryFrame(GrampsFrame):
         """
         For derived objects to inject their own actions into the menu.
         """
+
+    def get_color_css(self):
+        """
+        Determine color scheme to be used if available."
+        """
+        if (
+            self.grstate.config.get("display.use-color-scheme")
+            and self.primary.obj_type == "Person"
+        ):
+            living = probably_alive(self.primary.obj, self.grstate.dbstate.db)
+            return get_person_color_css(
+                self.primary.obj,
+                living=living,
+            )
+        return ""

@@ -110,11 +110,10 @@ class EventRefFrame(EventFrame):
             menu_item("gtk-edit", label, action.edit_participant)
         )
         if self.grstate.config.get("menu.delete"):
-            label = " ".join((_("Delete"), _("reference")))
             context_menu.append(
                 menu_item(
                     "list-remove",
-                    label,
+                    _("Delete reference"),
                     action.remove_participant,
                 )
             )

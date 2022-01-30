@@ -141,7 +141,6 @@ class LinkedView(ExtendedNavigationView):
         self.defer_refresh = False
         self.defer_refresh_id = None
         self.config_request = None
-        self.in_change_object = False
         self.additional_uis.append(self.additional_ui)
         dbstate.connect("database-changed", self._handle_db_change)
         uistate.connect("nameformat-changed", self.build_tree)
@@ -738,34 +737,26 @@ class LinkedView(ExtendedNavigationView):
         """
         Change the page view to load a new active object.
         """
-        if not self.dirty:
-            return
-        if not obj_tuple:
-            obj_tuple = self._get_initial_object()
+        if self.dirty:
+            if not obj_tuple:
+                obj_tuple = self._get_initial_object()
             if not obj_tuple:
                 self._clear_change()
-                return
-
-        if self.in_change_object:
-            return
-        self.in_change_object = True
-
-        page_context = GrampsContext()
-        page_context.load_page_location(self.grstate, obj_tuple)
-        if page_context.primary_obj:
-            self._render_page(page_context)
-            self._config_view.set(
-                "active.last_object",
-                ":".join(
-                    (
-                        page_context.primary_obj.obj_type,
-                        page_context.primary_obj.obj.get_handle(),
+            else:
+                page_context = GrampsContext()
+                page_context.load_page_location(self.grstate, obj_tuple)
+                if page_context.primary_obj:
+                    self._render_page(page_context)
+                    self._config_view.set(
+                        "active.last_object",
+                        ":".join(
+                            (
+                                page_context.primary_obj.obj_type,
+                                page_context.primary_obj.obj.get_handle(),
+                            )
+                        ),
                     )
-                ),
-            )
-            self._config_view.save()
-        self.in_change_object = False
-        return
+                    self._config_view.save()
 
     def _render_page(self, page_context):
         """
