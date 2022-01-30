@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,13 +35,13 @@ from gramps.gen.lib import FamilyRelType, Person
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from view.config.config_utils import create_grid
 from view.common.common_vitals import (
     get_date_sortval,
     get_key_family_events,
     get_person_birth_or_death,
     get_span,
 )
+from view.config.config_utils import create_grid
 
 _ = glocale.translation.sgettext
 
@@ -68,6 +69,7 @@ def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
 
 
 supported_types = {"Person": [("Child Number", _("Child Number"))]}
+
 
 default_options = [
     ("field.child.show-mother", True),

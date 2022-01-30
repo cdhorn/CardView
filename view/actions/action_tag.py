@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ TagAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -38,7 +38,7 @@ from gramps.gui.views.tags import EditTag, OrganizeTagsDialog
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
@@ -49,7 +49,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# TagAction class
+# TagAction Class
 #
 # action_object is the Tag when applicable
 # target_object is the TagBase object

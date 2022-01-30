@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2005-2007  Donald N. Allingham
@@ -28,29 +29,31 @@ import os
 
 # -------------------------------------------------------------------------
 #
-# GTK/Gnome modules
+# GTK Modules
 #
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
+from gramps.gen.config import config as configman
 
 # -------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.config import config as configman
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.dialog import ErrorDialog, QuestionDialog2
-from gramps.gui.listmodel import NOSORT, ListModel, TOGGLE
+from gramps.gui.listmodel import NOSORT, TOGGLE, ListModel
 from gramps.gui.managedwindow import ManagedWindow
 
 # -------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsState
+from ..services.service_fields import FieldCalculatorService
+from ..services.service_status import StatusIndicatorService
 from .config_defaults import VIEWDEFAULTS
 from .config_layout import build_layout_grid
 from .config_panel import (
@@ -60,15 +63,13 @@ from .config_panel import (
     build_timeline_panel,
 )
 from .configure_dialog import ModifiedConfigureDialog
-from ..services.service_fields import FieldCalculatorService
-from ..services.service_status import StatusIndicatorService
 
 _ = glocale.translation.sgettext
 
 
 # -------------------------------------------------------------------------
 #
-# ConfigTemplatesDialog
+# ConfigTemplatesDialog Class
 #
 # This is mostly ViewConfigureDialog but lets us pass window tracking
 # through
@@ -110,7 +111,7 @@ class ConfigTemplatesDialog(ModifiedConfigureDialog):
 
 # -------------------------------------------------------------------------
 #
-# ConfigTemplates
+# ConfigTemplates Class
 #
 # -------------------------------------------------------------------------
 class ConfigTemplates(Gtk.Box):
@@ -432,7 +433,7 @@ class ConfigTemplates(Gtk.Box):
 
 # -------------------------------------------------------------------------
 #
-# EditTemplateName
+# EditTemplateName Class
 #
 # -------------------------------------------------------------------------
 class EditTemplateName(ManagedWindow):
@@ -536,7 +537,7 @@ class EditTemplateName(ManagedWindow):
 
 # -------------------------------------------------------------------------
 #
-# EditTemplateOptions
+# EditTemplateOptions Class
 #
 # -------------------------------------------------------------------------
 class EditTemplateOptions:
@@ -652,7 +653,7 @@ class EditTemplateOptions:
 
 # -------------------------------------------------------------------------
 #
-# ImportTemplateSelector
+# ImportTemplateSelector Class
 #
 # -------------------------------------------------------------------------
 class ImportTemplateSelector(ManagedWindow):
@@ -763,7 +764,7 @@ class ImportTemplateSelector(ManagedWindow):
 
 # -------------------------------------------------------------------------
 #
-# ViewTemplateChanges
+# ViewTemplateChanges Class
 #
 # -------------------------------------------------------------------------
 class TemplateChangeViewer(ManagedWindow):

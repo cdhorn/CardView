@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,21 +28,21 @@ Widgets supporting various sections of the frame.
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 from html import escape
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -53,7 +53,7 @@ from gramps.gui.utils import open_file_with_default_application
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsContext

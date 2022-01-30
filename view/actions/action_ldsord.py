@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,17 +27,17 @@ LdsOrdAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.lib import LdsOrd
-from gramps.gui.editors import EditLdsOrd, EditFamilyLdsOrd
+from gramps.gui.editors import EditFamilyLdsOrd, EditLdsOrd
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
@@ -48,7 +48,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# LdsOrdAction class
+# LdsOrdAction Class
 #
 # ------------------------------------------------------------------------
 class LdsOrdAction(GrampsAction):

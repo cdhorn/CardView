@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ UrlsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import re
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..frames import NoteUrlFrame, UrlFrame
@@ -40,7 +40,7 @@ from .group_list import FrameGroupList
 
 # ------------------------------------------------------------------------
 #
-# UrlsFrameGroup class
+# UrlsFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class UrlsFrameGroup(FrameGroupList):

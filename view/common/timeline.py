@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ GrampsTimeline
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -92,6 +92,11 @@ EVENT_CATEGORIES = [
 # optional set of dates.
 
 
+# ------------------------------------------------------------------------
+#
+# GrampsTimeline Class
+#
+# ------------------------------------------------------------------------
 class GrampsTimeline:
     """
     Timeline class for constructing an event timeline for a person, family,

@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
@@ -7,7 +8,7 @@
 # Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2015       Serge Noiraud
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@ Page configuration dialog functions
 
 # -------------------------------------------------------------------------
 #
-# Gnome/Gtk Modules
+# GTK Modules
 #
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
@@ -65,7 +66,7 @@ DISPLAY_OPTIONS = _("Display Options")
 
 # -------------------------------------------------------------------------
 #
-# ConfigNotebook class
+# ConfigNotebook Class
 #
 # -------------------------------------------------------------------------
 class ConfigNotebook(Gtk.Notebook):

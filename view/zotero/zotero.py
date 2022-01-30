@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
 #
 
 """
-ZoteroBibTex class
+GrampsZotero
 """
 
 # -------------------------------------------------------------------------
@@ -36,16 +37,16 @@ import json
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.lib import (
-    Source,
-    SrcAttribute,
-    SrcAttributeType,
     Citation,
+    Event,
+    Family,
+    Media,
     Note,
     NoteType,
     Person,
-    Family,
-    Event,
-    Media,
+    Source,
+    SrcAttribute,
+    SrcAttributeType,
 )
 from gramps.gen.lib.citationbase import CitationBase
 
@@ -58,9 +59,10 @@ from .zotero_bibtex import ZoteroBibTex
 
 _ = glocale.translation.sgettext
 
+
 # -------------------------------------------------------------------------
 #
-# GrampsZotero class
+# GrampsZotero Class
 #
 # -------------------------------------------------------------------------
 class GrampsZotero:

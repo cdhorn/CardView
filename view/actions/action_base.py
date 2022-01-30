@@ -6,7 +6,7 @@
 # Copyright (C) 2009       Benny Malengier
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ GrampsAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -40,12 +40,12 @@ from gramps.gui.dialog import QuestionDialog
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
-from .action_const import GRAMPS_EDITORS
 from ..common.common_classes import GrampsObject
 from ..common.common_utils import describe_object
+from .action_const import GRAMPS_EDITORS
 from .delete import delete_object
 
 _ = glocale.translation.sgettext
@@ -53,7 +53,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsAction class
+# GrampsAction Class
 #
 # Arguments are used in two different manners based on the object type.
 #

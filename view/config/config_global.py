@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
@@ -7,7 +8,7 @@
 # Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2015       Serge Noiraud
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +31,7 @@ Global configuration dialog functions
 
 # -------------------------------------------------------------------------
 #
-# GTK/Gnome modules
+# GTK Modules
 #
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
@@ -48,6 +49,8 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from ..common.common_utils import make_scrollable
+from ..services.service_fields import FieldCalculatorService
+from ..services.service_status import StatusIndicatorService
 from .config_colors import add_color
 from .config_const import (
     CONFIDENCE_LEVEL,
@@ -56,8 +59,6 @@ from .config_const import (
     PRIVACY_DISPLAY_MODES,
 )
 from .config_utils import add_config_reset, config_event_fields, create_grid
-from ..services.service_status import StatusIndicatorService
-from ..services.service_fields import FieldCalculatorService
 
 _ = glocale.translation.sgettext
 

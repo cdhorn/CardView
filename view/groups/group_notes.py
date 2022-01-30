@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ NotesFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_object_type
@@ -43,7 +43,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# NotesFrameGroup class
+# NotesFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class NotesFrameGroup(FrameGroupList):
@@ -58,9 +58,10 @@ class NotesFrameGroup(FrameGroupList):
         )
         if not self.group_base.has_notes:
             return
-        groptions.set_backlink(
-            (self.group_base.obj_type, self.group_base.obj.get_handle())
-        )
+        if self.group_base.is_primary:
+            groptions.set_backlink(
+                (self.group_base.obj_type, self.group_base.obj.get_handle())
+            )
         maximum = grstate.config.get("group.note.max-per-group")
         notes = [(self.group_base.obj_lang, x) for x in obj.get_note_list()]
         if grstate.config.get("group.note.include-child-objects"):

@@ -1,9 +1,10 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,17 +27,16 @@ LinkedView class
 
 # -------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # -------------------------------------------------------------------------
 import pickle
 import time
-import uuid
 from functools import lru_cache
 
 # -------------------------------------------------------------------------
 #
-# GTK/Gnome modules
+# GTK Modules
 #
 # -------------------------------------------------------------------------
 from gi.repository import GObject, Gtk
@@ -48,11 +48,10 @@ from gi.repository import GObject, Gtk
 # -------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
+from gramps.gen.db.dummydb import DummyDb
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib.tableobj import TableObject
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
-from gramps.gui.dialog import WarningDialog
 from gramps.gui.display import display_url
 from gramps.gui.views.bookmarks import PersonBookmarks
 
@@ -63,20 +62,16 @@ from gramps.gui.views.bookmarks import PersonBookmarks
 # -------------------------------------------------------------------------
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
-from view.common.common_utils import get_config_option, save_config_option
+from view.common.common_utils import get_initial_object
 from view.config.config_const import PAGES
 from view.config.config_defaults import VIEWDEFAULTS
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
-    build_templates_panel,
     ConfigTemplatesDialog,
     EditTemplateOptions,
+    build_templates_panel,
 )
-
-# from view.groups.group_window import FrameGroupWindow
 from view.pages.page_builder import page_builder
-
-# from view.pages.page_window import PageViewWindow
 from view.services.service_windows import WindowService
 
 _ = glocale.translation.sgettext
@@ -96,6 +91,11 @@ EDIT_TOOLTIPS = {
 HELP_URL = "https://www.gramps-project.org/wiki/index.php/Addon:LinkedView"
 
 
+# -------------------------------------------------------------------------
+#
+# LinkedView Class
+#
+# -------------------------------------------------------------------------
 class LinkedView(ExtendedNavigationView):
     """
     A browseable view across all the associated objects in a tree.
@@ -126,6 +126,7 @@ class LinkedView(ExtendedNavigationView):
             self.passed_navtype = (
                 uistate.viewmanager.active_page.navigation_type()
             )
+        self.dirty = True
         self.child = None
         self._config_callback_ids = []
         self._load_config()
@@ -141,7 +142,6 @@ class LinkedView(ExtendedNavigationView):
         self.defer_refresh_id = None
         self.config_request = None
         self.in_change_object = False
-        self.initial_object_loaded = False
         self.additional_uis.append(self.additional_ui)
         dbstate.connect("database-changed", self._handle_db_change)
         uistate.connect("nameformat-changed", self.build_tree)
@@ -217,7 +217,7 @@ class LinkedView(ExtendedNavigationView):
         Load page handlers.
         """
         for (page_type, dummy_page_lang) in PAGES:
-            self.pages[page_type] = page_builder(page_type, self.grstate)
+            self.pages[page_type] = page_builder(self, page_type, self.grstate)
 
     @lru_cache(maxsize=32)
     def fetch_thumbnail(self, path, rectangle, size):
@@ -510,7 +510,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Person'>
+    <child groups='BrowsePerson'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewParents</property>
@@ -522,7 +522,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Person'>
+    <child groups='BrowsePerson'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingParents</property>
@@ -534,7 +534,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Person'>
+    <child groups='BrowsePerson'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-spouse</property>
         <property name="action-name">win.AddSpouse</property>
@@ -546,7 +546,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='ChangeOrder'>
+    <child groups='BrowseChangeOrder'>
       <object class="GtkToolButton">
         <property name="icon-name">view-sort-ascending</property>
         <property name="action-name">win.ChangeOrder</property>
@@ -559,7 +559,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='BrowseFamily'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewChild</property>
@@ -571,7 +571,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Family'>
+    <child groups='BrowseFamily'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingChild</property>
@@ -583,7 +583,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Event'>
+    <child groups='BrowseEvent'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewParticipant</property>
@@ -595,7 +595,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='Event'>
+    <child groups='BrowseEvent'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingParticipant</property>
@@ -650,7 +650,7 @@ class LinkedView(ExtendedNavigationView):
         """
         ExtendedNavigationView.define_actions(self)
         for page in self.pages.values():
-            page.define_actions(self)
+            page.define_actions()
 
         self._add_action("ViewHelp", self.launch_help)
         self._add_action("CopyPageView", self.launch_view_window)
@@ -673,15 +673,16 @@ class LinkedView(ExtendedNavigationView):
         """
         Reset page if database changed.
         """
-        self._change_db(db)
-        self._init_methods()
-        if self.active:
-            self.bookmarks.redraw()
-        WindowService().close_all_windows()
-        self.history.clear()
-        self.fetch_thumbnail.cache_clear()
-        self._load_config()
-        self.build_tree()
+        if not isinstance(db, DummyDb):
+            self._change_db(db)
+            self._init_methods()
+            if self.active:
+                self.bookmarks.redraw()
+            WindowService().close_all_windows()
+            self.history.clear()
+            self.fetch_thumbnail.cache_clear()
+            self._load_config()
+            self.build_tree()
 
     def change_page(self):
         """
@@ -740,12 +741,10 @@ class LinkedView(ExtendedNavigationView):
         if not self.dirty:
             return
         if not obj_tuple:
-            obj_tuple = self._get_last()
+            obj_tuple = self._get_initial_object()
             if not obj_tuple:
                 self._clear_change()
                 return
-            self.history.push(tuple(obj_tuple), quiet=True)
-            self.initial_object_loaded = True
 
         if self.in_change_object:
             return
@@ -755,13 +754,16 @@ class LinkedView(ExtendedNavigationView):
         page_context.load_page_location(self.grstate, obj_tuple)
         if page_context.primary_obj:
             self._render_page(page_context)
-            if self.initial_object_loaded:
-                save_config_option(
-                    self._config_view,
-                    "active.last_object",
-                    page_context.primary_obj.obj_type,
-                    page_context.primary_obj.obj.get_handle(),
-                )
+            self._config_view.set(
+                "active.last_object",
+                ":".join(
+                    (
+                        page_context.primary_obj.obj_type,
+                        page_context.primary_obj.obj.get_handle(),
+                    )
+                ),
+            )
+            self._config_view.save()
         self.in_change_object = False
         return
 
@@ -819,68 +821,43 @@ class LinkedView(ExtendedNavigationView):
         """
         Called when the page is displayed.
         """
-        if not self.initial_object_loaded and not self.history.history:
-            if self.passed_uistate and self.passed_navtype:
-                self.initial_object_loaded = self._seed_history()
-            if not self.initial_object_loaded:
-                obj_tuple = self._get_last()
-                if obj_tuple:
-                    self.history.push(tuple(obj_tuple))
-                    self.initial_object_loaded = True
+        if not self.history.history:
+            self._get_initial_object()
         ExtendedNavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
-    def _seed_history(self):
+    def _get_initial_object(self):
         """
-        Attempt to seed our history cache with last object using the uistate
-        copy as the views may be using divergent history navigation classes.
+        Get initial object to render.
         """
-        if not self.passed_uistate.history_lookup:
-            return False
+        if self.passed_uistate.history_lookup:
+            obj_tuple = self._get_history_object()
+        if not obj_tuple:
+            obj_tuple = get_initial_object(self.dbstate.db, self._config_view)
+        if obj_tuple:
+            self.history.push(obj_tuple, quiet=True, initial=True)
+            return obj_tuple
+        return None
+
+    def _get_history_object(self):
+        """
+        Attempt to find last object referenced using the passed uistate copy
+        as the views may be using divergent history navigation classes.
+        """
         for nav_obj in self.passed_uistate.history_lookup:
             obj_type, dummy_nav_type = nav_obj
             if obj_type == self.passed_navtype:
                 obj_history = self.passed_uistate.history_lookup[nav_obj]
                 if obj_history and obj_history.present():
-                    self.history.push(
-                        (
-                            obj_type,
-                            obj_history.present(),
-                            None,
-                            None,
-                            None,
-                            None,
-                        ),
-                        quiet=True,
+                    return (
+                        obj_type,
+                        obj_history.present(),
+                        None,
+                        None,
+                        None,
+                        None,
                     )
-                    return True
-        return False
-
-    def _get_last(self):
-        """
-        Try to determine last accessed object.
-        """
-        if not self.dbstate.db.get_dbid():
-            return None
-        try:
-            obj_tuple = get_config_option(
-                self._config_view, "active.last_object"
-            )
-        except ValueError:
-            obj_tuple = None
-        if not obj_tuple or len(obj_tuple) != 2:
-            initial_person = self.dbstate.db.find_initial_person()
-            if not initial_person:
-                return None
-            obj_tuple = ("Person", initial_person.get_handle())
-        return (
-            obj_tuple[0],
-            obj_tuple[1],
-            None,
-            None,
-            None,
-            None,
-        )
+        return None
 
     def update_history_reference(self, old, new):
         """
@@ -895,6 +872,8 @@ class LinkedView(ExtendedNavigationView):
         """
         ExtendedNavigationView.set_inactive(self)
         self.uistate.viewmanager.tags.tag_disable()
+        if not self.dbstate.db.is_open():
+            self._clear_change()
 
     def selected_handles(self):
         """

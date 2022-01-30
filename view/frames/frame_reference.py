@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,21 +24,21 @@ ReferenceFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import pickle
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -47,7 +47,7 @@ from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..actions import action_handler
@@ -57,17 +57,14 @@ from ..common.common_const import (
     BUTTON_PRIMARY,
     BUTTON_SECONDARY,
 )
-from ..common.common_utils import (
-    button_pressed,
-    button_released,
-)
+from ..common.common_utils import button_pressed, button_released
 from ..menus.menu_config import build_config_menu
 from ..menus.menu_utils import (
     add_attributes_menu,
     add_citations_menu,
+    add_double_separator,
     add_notes_menu,
     add_privacy_menu_option,
-    add_double_separator,
     show_menu,
 )
 from .frame_primary import PrimaryFrame
@@ -77,7 +74,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# ReferenceFrame class
+# ReferenceFrame Class
 #
 # ------------------------------------------------------------------------
 class ReferenceFrame(PrimaryFrame):

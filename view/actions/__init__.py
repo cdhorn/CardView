@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,13 +22,12 @@
 Module containing the context menu and drag and drop action handlers.
 """
 
-from .action_factory import action_handler
-
 from .action_address import AddressAction
 from .action_attribute import AttributeAction
 from .action_bookmark import BookmarkAction
 from .action_citation import CitationAction
 from .action_event import EventAction
+from .action_factory import action_handler
 from .action_family import FamilyAction
 from .action_ldsord import LdsOrdAction
 from .action_media import MediaAction

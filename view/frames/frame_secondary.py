@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,48 +28,48 @@ SecondaryFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import pickle
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsObject
-from .frame_base import GrampsFrame
 from ..menus.menu_utils import (
-    add_edit_menu_option,
-    add_delete_menu_option,
     add_citations_menu,
+    add_delete_menu_option,
+    add_double_separator,
+    add_edit_menu_option,
     add_notes_menu,
     add_privacy_menu_option,
-    add_double_separator,
     show_menu,
 )
+from .frame_base import GrampsFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# SecondaryFrame class
+# SecondaryFrame Class
 #
 # ------------------------------------------------------------------------
 class SecondaryFrame(GrampsFrame):

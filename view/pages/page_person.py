@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
@@ -7,7 +8,7 @@
 # Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2015       Serge Noiraud
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,33 +47,42 @@ from ..actions import action_handler
 from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_pressed
 from .page_base import GrampsPageView
+from .page_utils import get_action_group
 
 
+# -------------------------------------------------------------------------
+#
+# PersonPageView Class
+#
+# -------------------------------------------------------------------------
 class PersonPageView(GrampsPageView):
     """
     Provides the person anchored page view.
     """
 
-    def define_actions(self, view):
+    def define_actions(self):
         """
         Define page specific actions.
         """
-        self.action_group = ActionGroup(name="Person")
-        self.action_group.add_actions(
-            [
-                ("AddNewParents", self._add_new_parents),
-                ("AddExistingParents", self._add_existing_parents),
-                ("AddSpouse", self._add_new_family),
-                ("ChangeOrder", self._reorder_families),
-            ]
-        )
-        view.add_action_group(self.action_group)
+        self.action_group = get_action_group(self.parent_view, "BrowsePerson")
+        if not self.action_group:
+            self.action_group = ActionGroup(name="BrowsePerson")
+            self.action_group.add_actions(
+                [
+                    ("AddNewParents", self._add_new_parents),
+                    ("AddExistingParents", self._add_existing_parents),
+                    ("AddSpouse", self._add_new_family),
+                    ("ChangeOrder", self._reorder_families),
+                ]
+            )
+            self.parent_view.add_action_group(self.action_group)
 
     def post_render_page(self):
         """
         Perform any post render page setup tasks.
         """
-        person = self.active_profile.primary.obj
+        active = self.parent_view.get_active()
+        person = self.grstate.fetch("Person", active[1])
         family_handle_list = person.get_parent_family_handle_list()
         self.reorder_sensitive = len(family_handle_list) > 1
         family_handle_list = person.get_family_handle_list()
@@ -90,43 +100,40 @@ class PersonPageView(GrampsPageView):
         """
         Reorder families.
         """
-        if self.active_profile:
-            try:
-                Reorder(
-                    self.grstate.dbstate,
-                    self.grstate.uistate,
-                    [],
-                    self.active_profile.primary.obj.get_handle(),
-                )
-            except WindowActiveError:
-                pass
+        active = self.parent_view.get_active()
+        try:
+            Reorder(
+                self.grstate.dbstate,
+                self.grstate.uistate,
+                [],
+                active[1],
+            )
+        except WindowActiveError:
+            pass
 
     def _add_new_parents(self, *_dummy_obj):
         """
         Add a new set of parents.
         """
-        if self.active_profile:
-            action = action_handler(
-                "Person", self.grstate, self.active_profile.primary
-            )
-            action.add_new_parents()
+        active = self.parent_view.get_active()
+        person = self.grstate.fetch("Person", active[1])
+        action = action_handler("Person", self.grstate, person)
+        action.add_new_parents()
 
     def _add_existing_parents(self, *_dummy_obj):
         """
         Add an existing set of parents.
         """
-        if self.active_profile:
-            action = action_handler(
-                "Person", self.grstate, self.active_profile.primary
-            )
-            action.add_existing_parents()
+        active = self.parent_view.get_active()
+        person = self.grstate.fetch("Person", active[1])
+        action = action_handler("Person", self.grstate, person)
+        action.add_existing_parents()
 
     def _add_new_family(self, *_dummy_obj):
         """
         Add new family with or without spouse.
         """
-        if self.active_profile:
-            action = action_handler(
-                "Person", self.grstate, self.active_profile.primary
-            )
-            action.add_new_family()
+        active = self.parent_view.get_active()
+        person = self.grstate.fetch("Person", active[1])
+        action = action_handler("Person", self.grstate, person)
+        action.add_new_family()

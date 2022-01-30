@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ ExtendedNavigation class
 
 # ----------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ----------------------------------------------------------------
 import html
@@ -35,18 +35,19 @@ from abc import abstractmethod
 
 # ----------------------------------------------------------------
 #
-# Gtk modules
+# GTK Modules
 #
 # ----------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
 # ----------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.constfunc import mod_key
+from gramps.gen.db.dummydb import DummyDb
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.dialog import WarningDialog
@@ -56,7 +57,7 @@ from gramps.gui.views.pageview import PageView
 
 # ----------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ----------------------------------------------------------------
 from extended_history import ExtendedHistory
@@ -74,7 +75,7 @@ MRU_BTM = "</section>"
 
 # -----------------------------------------------------------------------------
 #
-# ExtendedNavigationView class
+# ExtendedNavigationView Class
 #
 # -----------------------------------------------------------------------------
 class ExtendedNavigationView(PageView):
@@ -163,7 +164,6 @@ class ExtendedNavigationView(PageView):
         handled correctly.
         """
         PageView.disable_action_group(self)
-
         self.uimanager.set_actions_visible(self.fwd_action, False)
         self.uimanager.set_actions_visible(self.back_action, False)
 
@@ -173,17 +173,17 @@ class ExtendedNavigationView(PageView):
         in this case, we have additional action groups that need to be
         handled correctly.
         """
-        PageView.enable_action_group(self, obj)
-
-        self.uimanager.set_actions_visible(self.fwd_action, True)
-        self.uimanager.set_actions_visible(self.back_action, True)
-        hobj = self.get_history()
-        self.uimanager.set_actions_sensitive(
-            self.fwd_action, not hobj.at_end()
-        )
-        self.uimanager.set_actions_sensitive(
-            self.back_action, not hobj.at_front()
-        )
+        if not isinstance(obj, DummyDb):
+            PageView.enable_action_group(self, obj)
+            self.uimanager.set_actions_visible(self.fwd_action, True)
+            self.uimanager.set_actions_visible(self.back_action, True)
+            hobj = self.get_history()
+            self.uimanager.set_actions_sensitive(
+                self.fwd_action, not hobj.at_end()
+            )
+            self.uimanager.set_actions_sensitive(
+                self.back_action, not hobj.at_front()
+            )
 
     def change_page(self):
         """

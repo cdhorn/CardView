@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ NoteAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -39,7 +39,7 @@ from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
@@ -50,7 +50,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# NoteAction class
+# NoteAction Class
 #
 # action_object is the Note when applicable
 # target_object and target_child_object are NoteBase objects

@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ FamilyAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -40,8 +40,8 @@ from gramps.gen.lib import (
     EventRef,
     EventRoleType,
     EventType,
-    Person,
     Name,
+    Person,
     Surname,
 )
 from gramps.gen.utils.db import preset_name
@@ -55,7 +55,7 @@ from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
@@ -66,7 +66,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# FamilyAction class
+# FamilyAction Class
 #
 # ------------------------------------------------------------------------
 class FamilyAction(GrampsAction):

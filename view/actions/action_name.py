@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ NameAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -37,7 +37,7 @@ from gramps.gui.editors import EditName
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .action_base import GrampsAction
@@ -48,7 +48,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# NameAction class
+# NameAction Class
 #
 # action_object is the Name when applicable
 # target_object is the Person object

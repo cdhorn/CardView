@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,13 +27,13 @@ User customizable field factory and builder functions.
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..services.service_fields import FieldCalculatorService
 from .field_base import (
     get_attribute_field,
     get_event_field,
     get_fact_field,
     get_relation_field,
 )
-from ..services.service_fields import FieldCalculatorService
 
 
 def field_factory(field_type, field_value):

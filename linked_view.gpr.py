@@ -1,9 +1,9 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2020      Nick Hall
-# Copyright (C) 2020      Christian Schulze
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2020       Nick Hall
+# Copyright (C) 2020       Christian Schulze
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #
 
 import os
+
 from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
 
@@ -33,7 +34,7 @@ register(
     id="linkview",
     name=_("Linked"),
     description=_("A browseable object view."),
-    version="0.85",
+    version="0.86",
     gramps_target_version="5.1",
     status=STABLE,
     fname="linked_view.py",

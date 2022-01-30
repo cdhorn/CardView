@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,9 +75,9 @@ def page_factory(page_type):
     return cls
 
 
-def page_builder(page_type, grstate):
+def page_builder(parent_view, page_type, grstate):
     """
     A builder to instantiate a particular page type.
     """
     page = page_factory(page_type)
-    return page(page_type, grstate)
+    return page(parent_view, page_type, grstate)

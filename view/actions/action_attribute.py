@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ AttributeAction
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -38,19 +38,19 @@ from gramps.gui.editors import EditAttribute, EditSrcAttribute
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
+from ..config.config_selectors import get_attribute_types
 from .action_base import GrampsAction
 from .action_factory import factory
-from ..config.config_selectors import get_attribute_types
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AttributeAction class
+# AttributeAction Class
 #
 # action_object is the Attribute when applicable
 # target_object and target_child_object are AttributeBase objects

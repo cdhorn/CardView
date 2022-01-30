@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ FamilyFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -42,31 +42,31 @@ from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..actions import action_handler
 from ..common.common_utils import get_family_color_css
+from ..menus.menu_utils import (
+    add_family_child_options,
+    add_family_event_option,
+    add_ldsords_menu,
+    menu_item,
+)
 from .frame_person import PersonFrame
 from .frame_primary import PrimaryFrame
-from ..menus.menu_utils import (
-    menu_item,
-    add_family_event_option,
-    add_family_child_options,
-    add_ldsords_menu,
-)
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# FamilyFrame class
+# FamilyFrame Class
 #
 # ------------------------------------------------------------------------
 class FamilyFrame(PrimaryFrame):
     """
-    The CoupleFrame exposes some of the basic information about a Couple.
+    The FamilyFrame exposes some of the basic information about a Couple.
     """
 
     def __init__(

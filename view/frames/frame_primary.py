@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,21 +28,21 @@ PrimaryFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import time
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -50,36 +50,36 @@ from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..actions import action_handler
 from ..common.common_classes import GrampsContext
 from ..fields.field_builder import field_builder
-from .frame_base import GrampsFrame
-from .frame_widgets import GrampsImage
 from ..menus.menu_utils import (
-    show_menu,
+    add_attributes_menu,
+    add_bookmark_menu_option,
+    add_citations_menu,
+    add_clipboard_menu_option,
+    add_delete_menu_option,
     add_double_separator,
     add_edit_menu_option,
-    add_attributes_menu,
-    add_citations_menu,
-    add_delete_menu_option,
     add_media_menu,
     add_notes_menu,
     add_privacy_menu_option,
-    add_bookmark_menu_option,
-    add_clipboard_menu_option,
     add_tags_menu,
     add_urls_menu,
+    show_menu,
 )
+from .frame_base import GrampsFrame
+from .frame_widgets import GrampsImage
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PrimaryFrame class
+# PrimaryFrame Class
 #
 # ------------------------------------------------------------------------
 class PrimaryFrame(GrampsFrame):

@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,10 +42,7 @@ from .group_media import MediaFrameGroup
 from .group_names import NamesFrameGroup
 from .group_notes import NotesFrameGroup
 from .group_ordinances import LDSOrdinancesFrameGroup
-from .group_places import (
-    EnclosingPlacesFrameGroup,
-    EnclosedPlacesFrameGroup,
-)
+from .group_places import EnclosedPlacesFrameGroup, EnclosingPlacesFrameGroup
 from .group_repositories import RepositoriesFrameGroup
 from .group_sources import SourcesFrameGroup
 from .group_timeline import TimelineFrameGroup

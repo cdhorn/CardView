@@ -25,29 +25,28 @@
 
 # -------------------------------------------------------------------------
 #
-# Standard python modules
+# Standard python Modules
 #
 # -------------------------------------------------------------------------
 from collections import abc
 
 # -------------------------------------------------------------------------
 #
-# GTK/Gnome modules
+# GTK/Gnome Modules
 #
 # -------------------------------------------------------------------------
-from gi.repository import Gdk
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
 
 # -------------------------------------------------------------------------
 #
-# gramps modules
+# gramps Modules
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.const import URL_MANUAL_PAGE
-from gramps.gui.managedwindow import ManagedWindow
-from gramps.gui.widgets import MarkupLabel, BasicLabel
 from gramps.gui.dialog import ErrorDialog
+from gramps.gui.managedwindow import ManagedWindow
+from gramps.gui.widgets import BasicLabel, MarkupLabel
 
 _ = glocale.translation.gettext
 
@@ -76,11 +75,11 @@ WIKI_HELP_SEC = _("Preferences")
 
 # -------------------------------------------------------------------------
 #
-# ConfigureDialog
+# ModifiedConfigureDialog
 #
 #
-# This is same as Gramps 5.1.4 version with exception that we can pass
-# window tracking parameter through to managed window
+# This is same as Gramps 5.1.4 ConfigureDialog with exception that we can
+# pass window tracking parameter through to the managed window.
 #
 # -------------------------------------------------------------------------
 

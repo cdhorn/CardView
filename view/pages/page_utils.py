@@ -1,8 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2000-2006  Donald N. Allingham
-# Copyright (C) 2021-2022  Christopher Horn
+# Copyright (C) 2022       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,19 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
 
 """
-Common exceptions.
+Helper functions
 """
 
-class FactoryException(Exception):
-    """
-    Raised when a factory has an unhandled request.
-    """
 
-    def __init__(self, value):
-        Exception.__init__(self)
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
+def get_action_group(view, name):
+    """
+    Search for registered action group.
+    """
+    for action_group in view.additional_action_groups:
+        if action_group.name == name:
+            return action_group
+    return None

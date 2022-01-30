@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ PageViewWindow
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -40,7 +40,7 @@ from gramps.gui.managedwindow import ManagedWindow
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..views.view_builder import view_builder
@@ -48,6 +48,11 @@ from ..views.view_builder import view_builder
 _ = glocale.translation.sgettext
 
 
+# ------------------------------------------------------------------------
+#
+# PageViewWindow Class
+#
+# ------------------------------------------------------------------------
 class PageViewWindow(ManagedWindow):
     """
     Window to display an object page view.

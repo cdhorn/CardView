@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,17 +28,17 @@ BookmarkAction
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
+from ..common.common_utils import get_bookmarks
 from .action_base import GrampsAction
 from .action_factory import factory
-from ..common.common_utils import get_bookmarks
 
 
 # ------------------------------------------------------------------------
 #
-# BookmarkAction class
+# BookmarkAction Class
 #
 # action_object is the TableObject, a primary Gramps object other than Tag
 #

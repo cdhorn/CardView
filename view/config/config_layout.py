@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ Page layout configuration dialog
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -39,7 +39,7 @@ from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
@@ -86,6 +86,11 @@ def build_layout_grid(configdialog, grstate, page_type=None, *_dummy_args):
     return grid
 
 
+# ------------------------------------------------------------------------
+#
+# ProfilePageLayout Class
+#
+# ------------------------------------------------------------------------
 class ProfilePageLayout(Gtk.VBox):
     """
     Class to handle layout for a specific page.
@@ -274,6 +279,11 @@ class ProfilePageLayout(Gtk.VBox):
         self.tabbed.set_inconsistent(False)
 
 
+# ------------------------------------------------------------------------
+#
+# ProfileColumnLayout Class
+#
+# ------------------------------------------------------------------------
 class ProfileColumnLayout(Gtk.ListBox):
     """
     Class to manage order of columns on page.
@@ -421,6 +431,11 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.rows[self.row_current].set_css_style()
 
 
+# ------------------------------------------------------------------------
+#
+# ProfileRowLayout Class
+#
+# ------------------------------------------------------------------------
 class ProfileRowLayout(Gtk.Frame):
     """
     Class to manage object group specific options.

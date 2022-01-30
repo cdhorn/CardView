@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2000-2007  Donald N. Allingham
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,21 +26,21 @@ Config option selection classes
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 from copy import copy
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -51,7 +51,7 @@ from gramps.gui.selectors import SelectorFactory
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_config_option, save_config_option
@@ -210,6 +210,11 @@ def map_builder(db, obj_type, value_type):
     return etoi, itoe
 
 
+# ------------------------------------------------------------------------
+#
+# FieldSelector Class
+#
+# ------------------------------------------------------------------------
 class FieldSelector(Gtk.HBox):
     """
     Language sensitive field or person selector.
@@ -319,6 +324,11 @@ class FieldSelector(Gtk.HBox):
         )
 
 
+# ------------------------------------------------------------------------
+#
+# FrameFieldSelector Class
+#
+# ------------------------------------------------------------------------
 class FrameFieldSelector(Gtk.HBox):
     """
     A custom selector for the user defined fields for the configdialog.

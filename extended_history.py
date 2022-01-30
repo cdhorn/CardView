@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@
 #
 
 """
-ExtendedHistory class
+ExtendedHistory
 """
 
 # ----------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ----------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -37,7 +37,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------------
 #
-# ExtendedHistory class
+# ExtendedHistory Class
 #
 # ------------------------------------------------------------------------------
 class ExtendedHistory(Callback):
@@ -126,7 +126,7 @@ class ExtendedHistory(Callback):
             if sync_hist.present() != obj_handle:
                 sync_hist.push(obj_handle)
 
-    def push(self, item, quiet=False):
+    def push(self, item, quiet=False, initial=False):
         """
         Pushes the page reference on the history stack and object on the
         mru stack.
@@ -149,6 +149,9 @@ class ExtendedHistory(Callback):
                 if self.history:
                     self.emit("active-changed", (full_item,))
                 self.sync_other(full_item[0], full_item[1])
+            elif initial and full_item[0] != "Tag":
+                mru_item = (full_item[0], full_item[1])
+                self.mru.append(mru_item)
 
     def forward(self, step=1):
         """

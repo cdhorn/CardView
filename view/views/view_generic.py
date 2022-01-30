@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +32,11 @@ from .view_base import GrampsObjectView
 from .view_const import FRAME_MAP
 
 
+# -------------------------------------------------------------------------
+#
+# GenericObjectView Class
+#
+# -------------------------------------------------------------------------
 class GenericObjectView(GrampsObjectView):
     """
     Provides an object view that handles most basic objects.

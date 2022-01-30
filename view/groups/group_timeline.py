@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,25 +24,25 @@ TimelineFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
+from ..common.timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
 from ..frames import (
     AddressFrame,
     CitationFrame,
     EventRefFrame,
+    LDSOrdinanceFrame,
     MediaFrame,
     NameFrame,
-    LDSOrdinanceFrame,
 )
-from ..common.timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
 from .group_list import FrameGroupList
 
 _ = glocale.translation.sgettext
@@ -50,7 +50,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# TimelineFrameGroup
+# TimelineFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class TimelineFrameGroup(FrameGroupList):

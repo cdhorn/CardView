@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ Base classes for object and configuration management that others rely on.
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import hashlib
@@ -38,14 +38,14 @@ from html import escape
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -66,7 +66,7 @@ from gramps.gen.lib.urlbase import UrlBase
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .common_const import BUTTON_PRIMARY, GRAMPS_OBJECTS
@@ -84,7 +84,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsObject class
+# GrampsObject Class
 #
 # ------------------------------------------------------------------------
 class GrampsObject:
@@ -294,7 +294,7 @@ class GrampsObject:
 
 # ------------------------------------------------------------------------
 #
-# GrampsContext class
+# GrampsContext Class
 #
 # ------------------------------------------------------------------------
 class GrampsContext:
@@ -532,7 +532,7 @@ class GrampsContext:
 
 # ------------------------------------------------------------------------
 #
-# GrampsState class
+# GrampsState Class
 #
 # ------------------------------------------------------------------------
 class GrampsState:
@@ -665,7 +665,7 @@ class GrampsState:
 
 # ------------------------------------------------------------------------
 #
-# GrampsOptions class
+# GrampsOptions Class
 #
 # ------------------------------------------------------------------------
 class GrampsOptions:
@@ -746,7 +746,7 @@ class GrampsOptions:
 
 # ------------------------------------------------------------------------
 #
-# GrampsConfig class
+# GrampsConfig Class
 #
 # ------------------------------------------------------------------------
 class GrampsConfig:
@@ -846,7 +846,7 @@ class GrampsConfig:
 
 # ------------------------------------------------------------------------
 #
-# GrampsBaseIcon class
+# GrampsBaseIcon Class
 #
 # ------------------------------------------------------------------------
 class GrampsBaseIcon(Gtk.EventBox):

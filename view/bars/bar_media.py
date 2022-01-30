@@ -24,14 +24,14 @@ MediaBarGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -41,7 +41,7 @@ from gramps.gui.utils import open_file_with_default_application
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
@@ -54,7 +54,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# MediaBarGroup class
+# MediaBarGroup Class
 #
 # ------------------------------------------------------------------------
 class MediaBarGroup(Gtk.Box, GrampsConfig):
@@ -209,6 +209,11 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         return media_list
 
 
+# ------------------------------------------------------------------------
+#
+# MediaBarItem Class
+#
+# ------------------------------------------------------------------------
 class MediaBarItem(MediaRefFrame):
     """
     A simple class for managing display of a media bar image.

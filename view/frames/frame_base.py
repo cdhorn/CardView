@@ -5,7 +5,7 @@
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2011       Tim G L Lyons
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ GrampsFrame
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import pickle
@@ -36,14 +36,14 @@ import re
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
@@ -57,7 +57,7 @@ from gramps.gui.utils import match_primary_mask
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..actions import action_handler
@@ -67,10 +67,7 @@ from ..common.common_const import (
     BUTTON_PRIMARY,
     BUTTON_SECONDARY,
 )
-from ..common.common_utils import (
-    button_pressed,
-    button_released,
-)
+from ..common.common_utils import button_pressed, button_released
 from ..menus.menu_config import build_config_menu
 from .frame_view import FrameView
 from .frame_window import FrameDebugWindow
@@ -80,7 +77,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsFrame class
+# GrampsFrame Class
 #
 # ------------------------------------------------------------------------
 class GrampsFrame(FrameView):

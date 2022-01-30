@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ CitationsFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -32,7 +32,7 @@ from gramps.gen.lib.citationbase import CitationBase
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..frames import CitationFrame
@@ -43,7 +43,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# CitationsFrameGroup class
+# CitationsFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class CitationsFrameGroup(FrameGroupList):
@@ -56,9 +56,10 @@ class CitationsFrameGroup(FrameGroupList):
         FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        groptions.set_backlink(
-            (self.group_base.obj_type, self.group_base.obj.get_handle())
-        )
+        if self.group_base.is_primary:
+            groptions.set_backlink(
+                (self.group_base.obj_type, self.group_base.obj.get_handle())
+            )
         self.maximum = grstate.config.get("group.citation.max-per-group")
         citation_list = self.collect_citations()
         if citation_list:

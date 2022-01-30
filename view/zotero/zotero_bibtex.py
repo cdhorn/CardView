@@ -1,6 +1,7 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +34,7 @@ from urllib.error import URLError
 
 # -------------------------------------------------------------------------
 #
-# ZoteroBibTex class
+# ZoteroBibTex Class
 #
 # This is a simple class that makes use of the Better BibTex extension for
 # the Zotero client to fetch citation and source information. Much more

@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
@@ -7,7 +8,7 @@
 # Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2015       Serge Noiraud
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,42 +43,48 @@ from gramps.gui.uimanager import ActionGroup
 # -------------------------------------------------------------------------
 from ..actions import action_handler
 from .page_base import GrampsPageView
+from .page_utils import get_action_group
 
 
+# -------------------------------------------------------------------------
+#
+# EventPageView Class
+#
+# -------------------------------------------------------------------------
 class EventPageView(GrampsPageView):
     """
     Provides the event anchored page view.
     """
 
-    def define_actions(self, view):
+    def define_actions(self):
         """
         Define page specific actions.
         """
-        self.action_group = ActionGroup(name="Event")
-        self.action_group.add_actions(
-            [
-                ("AddNewParticipant", self._add_new_participant),
-                ("AddExistingParticipant", self._add_existing_participant),
-            ]
-        )
-        view.add_action_group(self.action_group)
+        self.action_group = get_action_group(self.parent_view, "BrowseEvent")
+        if not self.action_group:
+            self.action_group = ActionGroup(name="BrowseEvent")
+            self.action_group.add_actions(
+                [
+                    ("AddNewParticipant", self._add_new_participant),
+                    ("AddExistingParticipant", self._add_existing_participant),
+                ]
+            )
+            self.parent_view.add_action_group(self.action_group)
 
     def _add_new_participant(self, *_dummy_obj):
         """
         Add a new person as a participant in the event.
         """
-        if self.active_profile:
-            action = action_handler(
-                "Event", self.grstate, self.active_profile.primary
-            )
-            action.add_new_participant()
+        active = self.parent_view.get_active()
+        event = self.grstate.fetch("Event", active[1])
+        action = action_handler("Event", self.grstate, event)
+        action.add_new_participant()
 
     def _add_existing_participant(self, *_dummy_obj):
         """
         Add an existing person as a participant in the event.
         """
-        if self.active_profile:
-            action = action_handler(
-                "Event", self.grstate, self.active_profile.primary
-            )
-            action.add_existing_participant()
+        active = self.parent_view.get_active()
+        event = self.grstate.fetch("Event", active[1])
+        action = action_handler("Event", self.grstate, event)
+        action.add_existing_participant()

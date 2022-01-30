@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2000-2007  Donald N. Allingham
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ Common utility functions and classes
 
 # ------------------------------------------------------------------------
 #
-# Python modules
+# Python Modules
 #
 # ------------------------------------------------------------------------
 import hashlib
@@ -34,14 +34,14 @@ from html import escape
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gdk, Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.config import config as global_config
@@ -50,11 +50,9 @@ from gramps.gen.lib import Person
 from gramps.gen.lib.primaryobj import BasicPrimaryObject
 from gramps.gen.utils.db import navigation_label
 
-from .timeline import RELATIVES
-
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from .common_const import (
@@ -66,55 +64,16 @@ from .common_const import (
     CONFIDENCE_COLOR_SCHEME,
     GRAMPS_OBJECTS,
 )
+from .timeline import RELATIVES
 
 _ = glocale.translation.sgettext
 
 
-def get_object_type(obj, lang=False):
-    """
-    Return Gramps object information.
-    """
-    for obj_data in GRAMPS_OBJECTS:
-        if isinstance(obj, obj_data[0]):
-            if lang:
-                return obj_data[2]
-            return obj_data[1]
-    return ""
-
-
-def button_pressed(event, mouse_button):
-    """
-    Test if specific button press happened.
-    """
-    return (
-        event.type == Gdk.EventType.BUTTON_PRESS
-        and event.button == mouse_button
-    ) or (
-        event.type == Gdk.EventType.KEY_PRESS
-        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
-    )
-
-
-def button_released(event, mouse_button):
-    """
-    Test if specific button release happened.
-    """
-    return (
-        event.type == Gdk.EventType.BUTTON_RELEASE
-        and event.button == mouse_button
-    ) or (
-        event.type == Gdk.EventType.KEY_PRESS
-        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
-    )
-
-
-def get_confidence(level):
-    """
-    Return textual string for the confidence level.
-    """
-    return _CONFIDENCE[level]
-
-
+# ------------------------------------------------------------------------
+#
+# TextLink Class
+#
+# ------------------------------------------------------------------------
 class TextLink(Gtk.EventBox):
     """
     A simple class for treating a label as a hyperlink.
@@ -176,6 +135,51 @@ class TextLink(Gtk.EventBox):
         Cursor left so reset.
         """
         self.label.set_markup(self.name)
+
+
+def get_object_type(obj, lang=False):
+    """
+    Return Gramps object information.
+    """
+    for obj_data in GRAMPS_OBJECTS:
+        if isinstance(obj, obj_data[0]):
+            if lang:
+                return obj_data[2]
+            return obj_data[1]
+    return ""
+
+
+def button_pressed(event, mouse_button):
+    """
+    Test if specific button press happened.
+    """
+    return (
+        event.type == Gdk.EventType.BUTTON_PRESS
+        and event.button == mouse_button
+    ) or (
+        event.type == Gdk.EventType.KEY_PRESS
+        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
+    )
+
+
+def button_released(event, mouse_button):
+    """
+    Test if specific button release happened.
+    """
+    return (
+        event.type == Gdk.EventType.BUTTON_RELEASE
+        and event.button == mouse_button
+    ) or (
+        event.type == Gdk.EventType.KEY_PRESS
+        and event.keyval in (_RETURN, _KP_ENTER, _SPACE)
+    )
+
+
+def get_confidence(level):
+    """
+    Return textual string for the confidence level.
+    """
+    return _CONFIDENCE[level]
 
 
 def format_color_css(background, border):
@@ -642,3 +646,42 @@ def format_address_usa(lines, address):
         lines.append(line)
     if address.country:
         lines.append(address.country)
+
+
+def get_initial_object(db, config):
+    """
+    Try to find an initial object.
+    """
+    if not db.is_open() and not db.get_dbid():
+        return None
+    try:
+        obj_tuple = tuple(get_config_option(config, "active.last_object"))
+        if obj_tuple[0] == "None":
+            obj_tuple = None
+    except ValueError:
+        obj_tuple = None
+
+    if not obj_tuple or len(obj_tuple) != 2:
+        initial_person = db.find_initial_person()
+        if initial_person:
+            obj_tuple = ("Person", initial_person.get_handle())
+
+    if not obj_tuple:
+        for obj_type in [
+            "Person",
+            "Family",
+            "Event",
+            "Place",
+            "Media",
+            "Citation",
+            "Source",
+            "Repository",
+        ]:
+            get_handles = db.method("get_%s_handles", obj_type)
+            handles = get_handles()
+            if handles:
+                obj_tuple = (obj_type, handles[0])
+                break
+    if obj_tuple:
+        return (obj_tuple[0], obj_tuple[1], None, None, None, None)
+    return None

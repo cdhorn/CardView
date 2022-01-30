@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,21 +24,21 @@ GenericFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..frames import (
     CitationFrame,
-    FamilyFrame,
     EventFrame,
+    FamilyFrame,
     MediaFrame,
     NoteFrame,
     PersonFrame,
@@ -63,7 +63,7 @@ FRAME_MAP = {
 
 # ------------------------------------------------------------------------
 #
-# GenericFrameGroup class
+# GenericFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class GenericFrameGroup(FrameGroupList):

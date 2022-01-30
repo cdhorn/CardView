@@ -4,7 +4,7 @@
 # Copyright (C) 2001-2007  Donald N. Allingham
 # Copyright (C) 2009-2010  Gary Burton
 # Copyright (C) 2015-2016  Nick Hall
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,14 +27,14 @@ PersonFrame
 
 # ------------------------------------------------------------------------
 #
-# GTK modules
+# GTK Modules
 #
 # ------------------------------------------------------------------------
 from gi.repository import Gtk
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
@@ -44,30 +44,30 @@ from gramps.gui.ddtargets import DdTargets
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..actions import action_handler
 from ..common.common_const import _GENDERS
 from ..common.common_utils import get_person_color_css
 from ..common.common_vitals import format_date_string
-from .frame_reference import ReferenceFrame
 from ..menus.menu_utils import (
-    menu_item,
     add_associations_menu,
     add_ldsords_menu,
     add_names_menu,
     add_parents_menu,
     add_partners_menu,
     add_person_menu_options,
+    menu_item,
 )
+from .frame_reference import ReferenceFrame
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PersonFrame class
+# PersonFrame Class
 #
 # ------------------------------------------------------------------------
 class PersonFrame(ReferenceFrame):
@@ -232,7 +232,10 @@ class PersonFrame(ReferenceFrame):
         action = action_handler("Person", self.grstate, self.primary)
         if self.grstate.config.get("menu.set-home-person"):
             home_person = self.grstate.dbstate.db.get_default_person()
-            if home_person.get_handle() != self.primary.obj.get_handle():
+            if (
+                home_person is None
+                or home_person.get_handle() != self.primary.obj.get_handle()
+            ):
                 context_menu.append(
                     menu_item(
                         "go-home",

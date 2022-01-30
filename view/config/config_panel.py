@@ -1,3 +1,4 @@
+#
 # Gramps - a GTK+/GNOME based genealogy program
 #
 # Copyright (C) 2001-2007  Donald N. Allingham
@@ -7,7 +8,7 @@
 # Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
 # Copyright (C) 2015-2016  Nick Hall
 # Copyright (C) 2015       Serge Noiraud
-# Copyright (C) 2021       Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 #
 
 """
-GrampsPageView
+Configuration panel builders
 """
 
 # -------------------------------------------------------------------------
@@ -60,12 +61,12 @@ from .config_colors import (
 )
 from .config_global import (
     build_display_grid,
+    build_field_grid,
     build_general_grid,
-    build_menu_grid,
     build_indicator_grid,
     build_media_bar_grid,
+    build_menu_grid,
     build_status_grid,
-    build_field_grid,
 )
 from .config_objects import (
     ConfigNotebook,

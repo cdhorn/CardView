@@ -1,7 +1,7 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
-# Copyright (C) 2021      Christopher Horn
+# Copyright (C) 2021-2022  Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ SourcesFrameGroup
 
 # ------------------------------------------------------------------------
 #
-# Gramps modules
+# Gramps Modules
 #
 # ------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
 #
-# Plugin modules
+# Plugin Modules
 #
 # ------------------------------------------------------------------------
 from ..frames import SourceFrame
@@ -42,7 +42,7 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# SourcesFrameGroup class
+# SourcesFrameGroup Class
 #
 # ------------------------------------------------------------------------
 class SourcesFrameGroup(FrameGroupList):
