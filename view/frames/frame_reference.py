@@ -58,6 +58,7 @@ from ..common.common_const import (
     BUTTON_SECONDARY,
 )
 from ..common.common_utils import button_pressed, button_released
+from ..menus.menu_bookmarks import build_bookmarks_menu
 from ..menus.menu_config import build_config_menu
 from ..menus.menu_utils import (
     add_attributes_menu,
@@ -241,6 +242,9 @@ class ReferenceFrame(PrimaryFrame):
         Handle button pressed.
         """
         if button_pressed(event, BUTTON_SECONDARY):
+            if match_primary_mask(event.get_state()):
+                build_bookmarks_menu(self, self.grstate, event)
+                return True
             self.build_ref_context_menu(obj, event)
             return True
         if button_pressed(event, BUTTON_PRIMARY):

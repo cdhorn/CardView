@@ -53,7 +53,6 @@ from gramps.gen.errors import WindowActiveError
 from gramps.gen.utils.db import navigation_label
 from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.display import display_url
-from gramps.gui.views.bookmarks import PersonBookmarks
 
 # -------------------------------------------------------------------------
 #
@@ -117,7 +116,6 @@ class LinkedView(ExtendedNavigationView):
             pdata,
             dbstate,
             uistate,
-            PersonBookmarks,
             nav_group,
         )
         self.passed_uistate = uistate
@@ -650,7 +648,6 @@ class LinkedView(ExtendedNavigationView):
         ExtendedNavigationView.define_actions(self)
         for page in self.pages.values():
             page.define_actions()
-
         self._add_action("ViewHelp", self.launch_help)
         self._add_action("CopyPageView", self.launch_view_window)
         self._add_action("Edit", self._edit_active, "<PRIMARY>Return")
@@ -770,9 +767,11 @@ class LinkedView(ExtendedNavigationView):
         page = self.pages[page_context.page_type]
         page.render_page(self.page_view, page_context)
         page.enable_actions(self.uimanager, page_context.primary_obj)
+        primary_obj_type = page_context.primary_obj.obj_type
+        self.set_bookmarks(primary_obj_type)
+        self.bookmarks.redraw()
         self.uimanager.update_menu()
 
-        primary_obj_type = page_context.primary_obj.obj_type
         edit_button = self.uimanager.get_widget("EditButton")
         if edit_button and primary_obj_type in EDIT_TOOLTIPS:
             tooltip = EDIT_TOOLTIPS[primary_obj_type]

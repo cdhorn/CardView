@@ -139,6 +139,7 @@ view/groups/group_window.py
 view/groups/__init__.py
 view/__init__.py
 view/menus/__init__.py
+view/menus/menu_bookmarks.py
 view/menus/menu_config.py
 view/menus/menu_utils.py
 view/pages/__init__.py

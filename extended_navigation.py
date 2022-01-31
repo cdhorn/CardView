@@ -32,6 +32,7 @@ ExtendedNavigation class
 import html
 import logging
 from abc import abstractmethod
+from functools import partial
 
 # ----------------------------------------------------------------
 #
@@ -48,11 +49,21 @@ from gi.repository import Gdk, Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.constfunc import mod_key
 from gramps.gen.db.dummydb import DummyDb
-from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.db import navigation_label
 from gramps.gui.dialog import WarningDialog
 from gramps.gui.uimanager import ActionGroup
 from gramps.gui.utils import match_primary_mask
+from gramps.gui.views.bookmarks import (
+    PersonBookmarks,
+    FamilyBookmarks,
+    EventBookmarks,
+    PlaceBookmarks,
+    CitationBookmarks,
+    SourceBookmarks,
+    RepoBookmarks,
+    MediaBookmarks,
+    NoteBookmarks,
+)
 from gramps.gui.views.pageview import PageView
 
 # ----------------------------------------------------------------
@@ -72,6 +83,18 @@ MRU_SIZE = 10
 MRU_TOP = '<section id="CommonHistory">'
 MRU_BTM = "</section>"
 
+BOOKMARKS = {
+    "Person": PersonBookmarks,
+    "Family": FamilyBookmarks,
+    "Event": EventBookmarks,
+    "Place": PlaceBookmarks,
+    "Media": MediaBookmarks,
+    "Note": NoteBookmarks,
+    "Citation": CitationBookmarks,
+    "Source": SourceBookmarks,
+    "Repository": RepoBookmarks,
+}
+
 
 # -----------------------------------------------------------------------------
 #
@@ -85,9 +108,10 @@ class ExtendedNavigationView(PageView):
     It requires use of the ExtendedHistory class to keep list views in sync.
     """
 
-    def __init__(self, title, pdata, state, uistate, bm_type, nav_group):
+    def __init__(self, title, pdata, state, uistate, nav_group):
         PageView.__init__(self, title, pdata, state, uistate)
-        self.bookmarks = bm_type(self.dbstate, self.uistate, self.bm_change)
+        self.bookmarks_list = self._init_bookmarks()
+        self.bookmarks = self.bookmarks_list["Person"]
         self.fwd_action = None
         self.back_action = None
         self.book_action = None
@@ -135,12 +159,6 @@ class ExtendedNavigationView(PageView):
             self.change_active((history_type, handle))
 
         return sync
-
-    def bm_change(self, handle):
-        """
-        Handle bookmark change.
-        """
-        self.change_active(("Person", handle, None, None, None, None))
 
     @abstractmethod
     def navigation_type(self):
@@ -279,7 +297,7 @@ class ExtendedNavigationView(PageView):
         if full_tuple and not hobj.lock:
             if full_tuple != hobj.present():
                 self.dirty_redraw_trigger = False
-                self.active_type = full_tuple[1]
+                self.active_type = full_tuple[0]
                 hobj.push(full_tuple)
             elif full_tuple == hobj.present() and self.dirty_redraw_trigger:
                 self.dirty = True
@@ -307,27 +325,39 @@ class ExtendedNavigationView(PageView):
     ####################################################################
     # Bookmark related methods
     ####################################################################
+    def _init_bookmarks(self):
+        """
+        Initialize bookmarks list.
+        """
+        bookmarks = {}
+        for (bookmark_type, bookmark_class) in BOOKMARKS.items():
+            change_active = partial(self.goto_bookmark, bookmark_type)
+            bookmark_handler = bookmark_class(
+                self.dbstate, self.uistate, change_active
+            )
+            bookmarks.update({bookmark_type: bookmark_handler})
+        return bookmarks
+
+    def set_bookmarks(self, obj_type):
+        """
+        Set current bookmarks object.
+        """
+        self.bookmarks = self.bookmarks_list[obj_type]
+
+    def goto_bookmark(self, obj_type, obj_handle):
+        """
+        Goto a bookmarked object
+        """
+        self.dirty = True
+        self.change_active((obj_type, obj_handle, None, None, None, None))
+
     def add_bookmark(self, *_dummy_obj):
         """
         Add a bookmark to the list.
         """
-        active_handle = self.uistate.get_active("Person")
-        active_person = self.dbstate.db.get_person_from_handle(active_handle)
-        if active_person:
-            self.bookmarks.add(active_handle)
-            name = name_displayer.display(active_person)
-            self.uistate.push_message(
-                self.dbstate, _("%s has been bookmarked") % name
-            )
-        else:
-            WarningDialog(
-                _("Could Not Set a Bookmark"),
-                _(
-                    "A bookmark could not be set because "
-                    "no one was selected."
-                ),
-                parent=self.uistate.window,
-            )
+        active_object = self.get_active()
+        self.bookmarks.add(active_object[1])
+        self.bookmarks.redraw()
 
     def edit_bookmarks(self, *_dummy_obj):
         """
