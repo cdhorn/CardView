@@ -62,8 +62,9 @@ class GrampsPageView:
         self.grstate = grstate
         self.page_type = page_type
         self.grstate.set_page_type(page_type)
-        self.action_group = None
-        self.reorder_sensitive = None
+        self.first_action_group = None
+        self.second_action_group = None
+        self.second_action_group_sensitive = False
 
     def define_actions(self):
         """
@@ -74,15 +75,22 @@ class GrampsPageView:
         """
         Enable page specific actions.
         """
-        if self.action_group:
-            uimanager.set_actions_visible(self.action_group, True)
+        if self.first_action_group:
+            uimanager.set_actions_visible(self.first_action_group, True)
+        if self.second_action_group:
+            uimanager.set_actions_visible(self.second_action_group, True)
+            uimanager.set_actions_sensitive(
+                self.second_action_group, self.second_action_group_sensitive
+            )
 
     def disable_actions(self, uimanager):
         """
         Disable page specific actions.
         """
-        if self.action_group:
-            uimanager.set_actions_visible(self.action_group, False)
+        if self.first_action_group:
+            uimanager.set_actions_visible(self.first_action_group, False)
+        if self.second_action_group:
+            uimanager.set_actions_visible(self.second_action_group, False)
 
     def render_page(self, window, context):
         """

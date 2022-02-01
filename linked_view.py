@@ -413,7 +413,8 @@ class LinkedView(ExtendedNavigationView):
         </item>
         <item>
           <attribute name="action">win.ChangeOrder</attribute>
-          <attribute name="label" translatable="yes">_Reorder</attribute>
+          <attribute name="label" translatable="yes">"""
+        """Reorder Families...</attribute>
         </item>
         <item>
           <attribute name="action">win.AddNewChild</attribute>
@@ -507,7 +508,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowsePerson'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewParents</property>
@@ -519,7 +520,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowsePerson'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingParents</property>
@@ -531,7 +532,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowsePerson'>
+    <child groups='Person'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-spouse</property>
         <property name="action-name">win.AddSpouse</property>
@@ -543,7 +544,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowseChangeOrder'>
+    <child groups='Reorder'>
       <object class="GtkToolButton">
         <property name="icon-name">view-sort-ascending</property>
         <property name="action-name">win.ChangeOrder</property>
@@ -556,7 +557,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowseFamily'>
+    <child groups='Family'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewChild</property>
@@ -568,7 +569,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowseFamily'>
+    <child groups='Family'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingChild</property>
@@ -580,7 +581,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowseEvent'>
+    <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-add</property>
         <property name="action-name">win.AddNewParticipant</property>
@@ -592,7 +593,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="homogeneous">False</property>
       </packing>
     </child>
-    <child groups='BrowseEvent'>
+    <child groups='Event'>
       <object class="GtkToolButton">
         <property name="icon-name">gramps-parents-open</property>
         <property name="action-name">win.AddExistingParticipant</property>
@@ -629,7 +630,7 @@ class LinkedView(ExtendedNavigationView):
         <property name="icon-name">edit-copy</property>
         <property name="action-name">win.CopyPageView</property>
         <property name="tooltip_text" translatable="yes">"""
-        """Copy page</property>
+        """Spawn copy of view in new window</property>
         <property name="label" translatable="yes">Copy</property>
         <property name="use-underline">True</property>
       </object>

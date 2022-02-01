@@ -64,10 +64,10 @@ class PersonPageView(GrampsPageView):
         """
         Define page specific actions.
         """
-        self.action_group = get_action_group(self.parent_view, "BrowsePerson")
-        if not self.action_group:
-            self.action_group = ActionGroup(name="BrowsePerson")
-            self.action_group.add_actions(
+        self.first_action_group = get_action_group(self.parent_view, "Person")
+        if not self.first_action_group:
+            self.first_action_group = ActionGroup(name="Person")
+            self.first_action_group.add_actions(
                 [
                     ("AddNewParents", self._add_new_parents),
                     ("AddExistingParents", self._add_existing_parents),
@@ -75,7 +75,18 @@ class PersonPageView(GrampsPageView):
                     ("ChangeOrder", self._reorder_families),
                 ]
             )
-            self.parent_view.add_action_group(self.action_group)
+            self.parent_view.add_action_group(self.first_action_group)
+        self.second_action_group = get_action_group(
+            self.parent_view, "Reorder"
+        )
+        if not self.second_action_group:
+            self.second_action_group = ActionGroup(name="Reorder")
+            self.second_action_group.add_actions(
+                [
+                    ("ChangeOrder", self._reorder_families),
+                ]
+            )
+            self.parent_view.add_action_group(self.second_action_group)
 
     def post_render_page(self):
         """
@@ -84,10 +95,10 @@ class PersonPageView(GrampsPageView):
         active = self.parent_view.get_active()
         person = self.grstate.fetch("Person", active[1])
         family_handle_list = person.get_parent_family_handle_list()
-        self.reorder_sensitive = len(family_handle_list) > 1
+        self.second_action_group_sensitive = len(family_handle_list) > 1
         family_handle_list = person.get_family_handle_list()
-        if not self.reorder_sensitive:
-            self.reorder_sensitive = len(family_handle_list) > 1
+        if not self.second_action_group_sensitive:
+            self.second_action_group_sensitive = len(family_handle_list) > 1
 
     def reorder_button_press(self, obj, event, _dummy_handle):
         """

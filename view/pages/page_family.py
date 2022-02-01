@@ -60,16 +60,16 @@ class FamilyPageView(GrampsPageView):
         """
         Define page specific actions.
         """
-        self.action_group = get_action_group(self.parent_view, "BrowseFamily")
-        if not self.action_group:
-            self.action_group = ActionGroup(name="BrowseFamily")
-            self.action_group.add_actions(
+        self.first_action_group = get_action_group(self.parent_view, "Family")
+        if not self.first_action_group:
+            self.first_action_group = ActionGroup(name="Family")
+            self.first_action_group.add_actions(
                 [
                     ("AddNewChild", self._add_new_child),
                     ("AddExistingChild", self._add_existing_child),
                 ]
             )
-            self.parent_view.add_action_group(self.action_group)
+            self.parent_view.add_action_group(self.first_action_group)
 
     def _add_new_child(self, *_dummy_obj):
         """

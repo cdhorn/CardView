@@ -60,16 +60,16 @@ class EventPageView(GrampsPageView):
         """
         Define page specific actions.
         """
-        self.action_group = get_action_group(self.parent_view, "BrowseEvent")
-        if not self.action_group:
-            self.action_group = ActionGroup(name="BrowseEvent")
-            self.action_group.add_actions(
+        self.first_action_group = get_action_group(self.parent_view, "Event")
+        if not self.first_action_group:
+            self.first_action_group = ActionGroup(name="Event")
+            self.first_action_group.add_actions(
                 [
                     ("AddNewParticipant", self._add_new_participant),
                     ("AddExistingParticipant", self._add_existing_participant),
                 ]
             )
-            self.parent_view.add_action_group(self.action_group)
+            self.parent_view.add_action_group(self.first_action_group)
 
     def _add_new_participant(self, *_dummy_obj):
         """
