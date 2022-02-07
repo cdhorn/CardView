@@ -342,7 +342,8 @@ class ExtendedNavigationView(PageView):
         """
         Set current bookmarks object.
         """
-        self.bookmarks = self.bookmarks_list[obj_type]
+        if obj_type != "Tag":
+            self.bookmarks = self.bookmarks_list[obj_type]
 
     def goto_bookmark(self, obj_type, obj_handle):
         """

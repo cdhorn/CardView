@@ -22,6 +22,7 @@
 Common exceptions.
 """
 
+
 class FactoryException(Exception):
     """
     Raised when a factory has an unhandled request.

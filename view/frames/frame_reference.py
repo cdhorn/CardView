@@ -122,20 +122,21 @@ class ReferenceFrame(PrimaryFrame):
         """
         Enabled self as a basic drop target.
         """
-        if self.reference.has_notes:
-            for target in DdTargets.all_text_targets():
-                dnd_drop_targets.append(target)
-            dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
-            dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
-        if self.reference.has_attributes:
-            dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
-        if self.reference.has_citations:
-            dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
-            dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
-        eventbox.drag_dest_set(
-            Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
-        )
-        eventbox.connect("drag-data-received", drag_data_received)
+        if eventbox:
+            if self.reference.has_notes:
+                for target in DdTargets.all_text_targets():
+                    dnd_drop_targets.append(target)
+                dnd_drop_targets.append(Gtk.TargetEntry.new("text/html", 0, 7))
+                dnd_drop_targets.append(DdTargets.NOTE_LINK.target())
+            if self.reference.has_attributes:
+                dnd_drop_targets.append(DdTargets.ATTRIBUTE.target())
+            if self.reference.has_citations:
+                dnd_drop_targets.append(DdTargets.CITATION_LINK.target())
+                dnd_drop_targets.append(DdTargets.SOURCE_LINK.target())
+            eventbox.drag_dest_set(
+                Gtk.DestDefaults.ALL, dnd_drop_targets, Gdk.DragAction.COPY
+            )
+            eventbox.connect("drag-data-received", drag_data_received)
 
     def ref_drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time

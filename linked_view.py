@@ -61,9 +61,9 @@ from gramps.gui.display import display_url
 # -------------------------------------------------------------------------
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
+from view.common.common_const import PAGE_LABELS
 from view.common.common_utils import get_initial_object
 from view.config.config_const import PAGES
-from view.config.config_defaults import VIEWDEFAULTS
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
     ConfigTemplatesDialog,
@@ -149,19 +149,8 @@ class LinkedView(ExtendedNavigationView):
         Load view configuration.
         """
         self.config_disconnect()
-        profile_name = self._config.get("templates.active")
-        user_ini_file = "_".join(("Browse_linkview_template", profile_name))
-        if self.dbstate and self.dbstate.db:
-            db_ini_file = "Browse_linkview_database"
-            dbid = self.dbstate.db.get_dbid()
-            if dbid:
-                db_ini_file = "_".join((db_ini_file, dbid))
-        else:
-            db_ini_file = None
-        profile_manager = ProfileManager(
-            self.ident, VIEWDEFAULTS, user_ini_file, db_ini_file
-        )
-        self._config_view = profile_manager.get_config_manager()
+        profile = ProfileManager(self.dbstate, self._config)
+        self._config_view = profile.get_active_options()
         self._config_view.save()
         self.config_connect()
         if self.grstate:
@@ -796,6 +785,12 @@ class LinkedView(ExtendedNavigationView):
             )
             if relation:
                 name = "".join((name, " (", relation.strip(), ")"))
+        if primary_obj_type == "Tag":
+            name = "".join(
+                (_("Tag"), ": ", page_context.primary_obj.obj.get_name())
+            )
+        if page_context.page_type in PAGE_LABELS:
+            name = "".join((name, " - ", PAGE_LABELS[page_context.page_type]))
         if name:
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)

@@ -42,6 +42,7 @@ from gramps.gen.config import config as configman
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
+from gramps.gen.plug import BasePluginManager
 from gramps.gui.dialog import ErrorDialog, QuestionDialog2
 from gramps.gui.listmodel import NOSORT, TOGGLE, ListModel
 from gramps.gui.managedwindow import ManagedWindow
@@ -52,8 +53,6 @@ from gramps.gui.managedwindow import ManagedWindow
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsState
-from ..services.service_fields import FieldCalculatorService
-from ..services.service_status import StatusIndicatorService
 from .config_defaults import VIEWDEFAULTS
 from .config_layout import build_layout_grid
 from .config_panel import (
@@ -62,6 +61,7 @@ from .config_panel import (
     build_object_panel,
     build_timeline_panel,
 )
+from .config_profile import get_base_template_options, load_user_ini_file
 from .configure_dialog import ModifiedConfigureDialog
 
 _ = glocale.translation.sgettext
@@ -127,8 +127,31 @@ class ConfigTemplates(Gtk.Box):
         self.config_managers = {}
         self.template_list = None
         self.template_model = None
+        self._load_plugins()
         self._build_layout()
         self._load_layout()
+
+    def _load_plugins(self):
+        """
+        Make sure each plugin has a user template.
+        """
+        plugin_manager = BasePluginManager.get_instance()
+        plugin_manager.load_plugin_category("TEMPLATE")
+        plugin_data = plugin_manager.get_plugin_data("TEMPLATE")
+        template_list = self.grstate.templates.get("templates.templates")
+        for plugin in plugin_data:
+            template_name = plugin["name"]
+            if template_name not in template_list:
+                user_ini_file = "_".join(
+                    ("Browse_linkview_template", template_name)
+                )
+                load_user_ini_file(
+                    user_ini_file, default_base_name=template_name
+                )
+                template_list.append(template_name)
+        template_list.sort()
+        self.grstate.templates.set("templates.templates", template_list)
+        self.grstate.templates.save()
 
     def _build_layout(self):
         """
@@ -139,6 +162,8 @@ class ConfigTemplates(Gtk.Box):
             (_("Name"), NOSORT, 160),
             ("", NOSORT, 100),  # Untranslated Name
             (_("Description"), NOSORT, 200),
+            (_("Normal Defaults"), NOSORT, 160),
+            (_("Active Defaults"), NOSORT, 160),
         ]
         self.template_list = Gtk.TreeView()
         self.template_model = ListModel(self.template_list, name_titles)
@@ -168,13 +193,17 @@ class ConfigTemplates(Gtk.Box):
         self.template_model.clear()
         self.config_managers.clear()
         for row in sorted(templates):
-            (lang, name, desc, ini) = row
+            (lang, name, desc, ini, normal, active) = row
             if name == active_template:
-                self.template_model.add((True, lang, name, desc))
+                self.template_model.add(
+                    (True, lang, name, desc, normal, active)
+                )
                 if not self.selected:
                     self.selected = name
             else:
-                self.template_model.add((False, lang, name, desc))
+                self.template_model.add(
+                    (False, lang, name, desc, normal, active)
+                )
             self.config_managers.update({name: ini})
         self._select_active()
         self.template_list.show()
@@ -240,7 +269,14 @@ class ConfigTemplates(Gtk.Box):
             return
 
         new_template = get_template(new_name)
-        (dummy_lang, dummy_name, dummy_description, new_ini) = new_template
+        (
+            dummy_lang,
+            dummy_name,
+            dummy_description,
+            new_ini,
+            dummy_normal,
+            dummy_active,
+        ) = new_template
         for section in base_ini.get_sections():
             for setting in base_ini.get_section_settings(section):
                 key = ".".join((section, setting))
@@ -251,8 +287,9 @@ class ConfigTemplates(Gtk.Box):
                     continue
                 new_ini.register(key, default)
                 new_ini.set(key, value)
-        new_ini.set("template.name_lang", new_name)
-        new_ini.set("template.description", new_description)
+        new_ini.set("template.name_lang_string", new_name)
+        new_ini.set("template.name_xml_string", new_name)
+        new_ini.set("template.name_description", new_description)
         new_ini.save()
 
         template_list.append(new_name)
@@ -309,8 +346,9 @@ class ConfigTemplates(Gtk.Box):
         result = editor.run()
         if isinstance(result, tuple):
             (new_name, new_description) = result
-            ini.set("template.name_lang", new_name)
-            ini.set("template.description", new_description)
+            ini.set("template.name_lang_string", new_name)
+            ini.set("template.name_xml_string", new_name)
+            ini.set("template.name_description", new_description)
             ini.save()
             self.rename_template(ini, name, new_name)
             self._load_layout()
@@ -741,14 +779,7 @@ class ImportTemplateSelector(ManagedWindow):
             )
             return True
         try:
-            ini = configman.register_manager(
-                filename,
-                use_config_path=False,
-                use_plugins_path=False,
-            )
-            for key, value in VIEWDEFAULTS:
-                ini.register(key, value)
-            ini.load()
+            load_user_ini_file(filename)
         except:
             ErrorDialog(
                 _("Error loading file data"),
@@ -776,7 +807,14 @@ class TemplateChangeViewer(ManagedWindow):
         """
         A dialog to view template changes.
         """
-        (lang, dummy_name, dummy_description, ini) = get_template(name)
+        (
+            lang,
+            dummy_name,
+            dummy_description,
+            ini,
+            dummy_normal,
+            dummy_active,
+        ) = get_template(name)
         self.ini = ini
         self.title = "".join(
             (_("Template Change View"), ": ", lang, " ", _("Template"))
@@ -832,19 +870,21 @@ class TemplateChangeViewer(ManagedWindow):
             self.header,
             group,
             _("Template Name:"),
-            ini.get("template.name_lang"),
+            ini.get("template.name_lang_string"),
             ini.filename,
         )
         add_header(
             self.header,
             group,
             _("Database Baseline:"),
-            config.get("template.name_lang"),
+            config.get("template.name_lang_string"),
             config.filename,
         )
-        load_change_model(self.column_model.add, VIEWDEFAULTS, ini, config)
-        plugin_defaults = get_plugin_defaults()
-        load_change_model(self.column_model.add, plugin_defaults, ini, config)
+        normal_defaults = ini.get("template.normal_defaults")
+        defaults, dummy_choosen_defaults = get_base_template_options(
+            normal_defaults
+        )
+        load_change_model(self.column_model.add, defaults, ini, config)
         self.column_list.show()
 
     def build_menu_names(self, obj):  # this is meaningless since it's modal
@@ -866,16 +906,6 @@ def load_change_model(add_model, defaults_list, ini, config):
         elif not template_value and database_value == default_value:
             database_value = ""
         add_model((key, default_value, template_value, database_value))
-
-
-def get_plugin_defaults():
-    """
-    Return plugin defaults.
-    """
-    return (
-        FieldCalculatorService().get_defaults()
-        + StatusIndicatorService().get_defaults()
-    )
 
 
 def add_header(widget, group, label1, label2, label3):
@@ -956,23 +986,10 @@ def get_template(name):
     """
     Get a template.
     """
-    ini_name = "_".join(("Browse_linkview_template", name))
-    if configman.has_manager(ini_name):
-        ini = configman.get_manager(ini_name)
-    else:
-        ini = configman.register_manager(
-            ini_name,
-            use_config_path=True,
-            use_plugins_path=False,
-        )
-        for key, value in VIEWDEFAULTS:
-            ini.register(key, value)
-        ini.load()
-    if not ini.get("template.name_lang"):
-        ini.set("template.name_lang", name)
-    lang = ini.get("template.name_lang")
-    if not ini.get("template.description"):
-        ini.set("template.description", " ".join((lang, _("Template"))))
-    description = ini.get("template.description")
-    ini.save()
-    return (lang, name, description, ini)
+    ini_file = "_".join(("Browse_linkview_template", name))
+    ini = load_user_ini_file(ini_file)
+    lang = ini.get("template.name_lang_string")
+    normal_defaults = ini.get("template.normal_defaults")
+    active_defaults = ini.get("template.active_defaults")
+    description = ini.get("template.name_description")
+    return (lang, name, description, ini, normal_defaults, active_defaults)

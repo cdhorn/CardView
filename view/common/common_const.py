@@ -220,3 +220,27 @@ GROUP_LABELS_SINGLE = {
     "source": _("Source"),
     "url": _("Url"),
 }
+
+
+PAGE_LABELS = {
+    "Person": _("Person"),
+    "PersonRef": _("Person Reference"),
+    "Family": _("Family"),
+    "ChildRef": _("Child Reference"),
+    "Event": _("Event"),
+    "EventRef": _("Event Reference"),
+    "Place": _("Place"),
+    "PlaceRef": _("Place Reference"),
+    "Note": _("Note"),
+    "Media": _("Media"),
+    "MediaRef": _("Media Reference"),
+    "Citation": _("Citation"),
+    "Source": _("Source"),
+    "Repository": _("Repository"),
+    "RepoRef": _("Repository Reference"),
+    "Address": _("Address"),
+    "Name": _("Name"),
+    "Attribute": _("Attribute"),
+    "LdsOrd": _("LDS Ordinance"),
+    "Tag": _("Tag"),
+}
