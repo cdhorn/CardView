@@ -222,12 +222,10 @@ class ExtendedNavigationView(PageView):
         """
         PageView.set_active(self)
         self.bookmarks.display()
-
         hobj = self.get_history()
         self.active_signal = hobj.connect("active-changed", self.goto_active)
         self.mru_signal = hobj.connect("mru-changed", self.update_mru_menu)
         self.update_mru_menu(hobj.mru, update_menu=False)
-
         self.goto_active(None)
 
     def set_inactive(self):
@@ -343,6 +341,7 @@ class ExtendedNavigationView(PageView):
         Set current bookmarks object.
         """
         if obj_type != "Tag":
+            self.bookmarks.undisplay()
             self.bookmarks = self.bookmarks_list[obj_type]
 
     def goto_bookmark(self, obj_type, obj_handle):

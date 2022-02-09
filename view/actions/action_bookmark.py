@@ -76,6 +76,9 @@ class BookmarkAction(GrampsAction):
             bookmarks.remove(self.action_object.obj.get_handle())
         else:
             bookmarks.insert(0, self.action_object.obj.get_handle())
+        self.grstate.set_dirty_redraw_trigger()
+        context = self.grstate.fetch_page_context()
+        self.grstate.load_page(context.pickled)
         if self.callback:
             self.callback(self.action_object)
 
