@@ -485,12 +485,13 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
         "{}.note.preview-lines".format(space),
         (0, 8),
     )
-    configdialog.add_checkbox(
-        grid,
-        _("Include notes from all child objects"),
-        5,
-        "{}.note.include-child-objects".format(space),
-    )
+    if "group" in space:
+        configdialog.add_checkbox(
+            grid,
+            _("Include notes from all child objects"),
+            5,
+            "{}.note.include-child-objects".format(space),
+        )
     return add_config_reset(
         configdialog, grstate, "{}.note".format(space), grid
     )
