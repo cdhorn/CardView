@@ -419,7 +419,7 @@ class GrampsFrame(FrameView):
         color = self.get_color_css()
         self.css = "".join(
             (
-                ".frame { border: solid; border-radius: 5; border-width: ",
+                ".frame { border: solid; border-radius: 5px; border-width: ",
                 str(border),
                 "px; ",
                 color,
