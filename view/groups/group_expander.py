@@ -66,7 +66,7 @@ class FrameGroupExpander(Gtk.Expander):
         Gtk.Expander.__init__(
             self, expanded=expanded, use_markup=use_markup, hexpand=True
         )
-        self.set_resize_toplevel(True)
+        self.set_resize_toplevel(False)
         self.connect("button-press-event", self.button_press)
         self.connect("activate", self.toggle_state)
 
