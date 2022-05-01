@@ -418,7 +418,13 @@ class GrampsFrame(FrameView):
         border = self.grstate.config.get("display.border-width")
         color = self.get_color_css()
         self.css = "".join(
-            (".frame { border-width: ", str(border), "px; ", color, " }")
+            (
+                ".frame { border: solid; border-radius: 5; border-width: ",
+                str(border),
+                "px; ",
+                color,
+                " }",
+            )
         ).encode("utf-8")
         provider = Gtk.CssProvider()
         provider.load_from_data(self.css)

@@ -150,7 +150,7 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
         _("Desired border width"),
         20,
         "display.border-width",
-        (0, 5),
+        (0, 3),
     )
     configdialog.add_spinner(
         grid,
