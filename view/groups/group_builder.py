@@ -179,7 +179,7 @@ def get_family_unit(grstate, family, args, context="family", relation=None):
         person=relation,
     )
     if children and len(children) > 0:
-        couple.pack_start(children, expand=True, fill=True, padding=0)
+        couple.pack_start(children, expand=False, fill=False, padding=0)
     return couple
 
 
@@ -209,7 +209,7 @@ def get_parents_group(grstate, person, args):
         group = get_family_unit(
             grstate, family, args, context="parent", relation=person
         )
-        elements.add(group)
+        elements.pack_start(group, expand=False, fill=False, padding=0)
 
     for handle in person.parent_family_list:
         if handle != primary_handle:
@@ -217,7 +217,7 @@ def get_parents_group(grstate, person, args):
             group = get_family_unit(
                 grstate, family, args, context="parent", relation=person
             )
-            elements.add(group)
+            elements.pack_start(group, expand=False, fill=False, padding=0)
     return parents
 
 
@@ -251,7 +251,7 @@ def get_spouses_group(grstate, person, args):
         group = get_family_unit(
             grstate, family, args, context="spouse", relation=person
         )
-        elements.add(group)
+        elements.pack_start(group, expand=False, fill=False, padding=0)
     return spouses
 
 
