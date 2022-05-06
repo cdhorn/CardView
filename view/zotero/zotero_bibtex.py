@@ -58,7 +58,7 @@ class ZoteroBibTex:
         GET data.
         """
         target = "".join((self.base_url, "/", endpoint))
-        with urllib.request.urlopen(target) as response:
+        with urllib.request.urlopen(target, timeout=0.1) as response:
             data = response.read().decode("utf-8")
         return data
 
