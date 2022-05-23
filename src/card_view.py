@@ -89,10 +89,8 @@ class CardView(ExtendedNavigationView):
     """
 
     CONFIGSETTINGS = (
-        ("hpane.slider-position", 0),
         ("templates.active", "Default"),
         ("templates.templates", ["Default"]),
-        ("vpane.slider-position", 0),
     )
 
     additional_ui = []

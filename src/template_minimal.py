@@ -1279,8 +1279,6 @@ _TEMPLATE = (
     ######################################################################
     # Miscellaneous Options
     ######################################################################
-    ("hpane.slider-position", 4096),
-    ("vpane.slider-position", 4096),
     ("status.todo", False),
     ("status.citation-alert", False),
     ("status.confidence-ranking", False),
