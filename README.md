@@ -188,9 +188,9 @@ For some card types support exists for coloring them based on specific attribute
 
 ![Color scheme edit](images/cardview-configuration-template-editor-colors-confidence.png)
 
-Reasonable default color defaults have been selected for each of the schemes. 
+Reasonable default colors have been selected for each of the schemes.
 
-Event cards in event groups can choose from using the default Gramps Person scheme, the event role scheme, the event category scheme or the evidence confidence scheme. Timeline event cards can choose from the same set as event cards as well as the relationship scheme. Confidence cards always use the evidence confidence scheme.
+Event cards in event groups can choose from using the default Gramps person scheme, the event role scheme, the event category scheme or the evidence confidence scheme. Timeline event cards can choose from the same set as event cards as well as the relationship scheme. Confidence cards always use the evidence confidence scheme.
 
 ### Timeline filters
 
