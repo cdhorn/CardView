@@ -7,9 +7,9 @@
 
 This is an *introductory* **ReadMe.md** document.  The [in-depth documentation](https://www.gramps-project.org/wiki/index.php/Addon:CardView) is perpetually in development on the [Gramps information portal](https://gramps-project.org/wiki/index.php/Portal:Using_Gramps)
 
-The **CardView** plugin is now actually a group of plugins that work together to provide an alternate interface that allows the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.
+The **CardView** plugin is now actually a group of plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.
 
-This add-on is far enough along in development that it can be considered early beta. All development and most testing to date has been done on Fedora.
+This add-on is far enough along in development that it can be considered beta. Note all development and most testing to date has been done on Fedora.
 
 YOU SHOULD STILL backup your tree regularly. Or even better, use a different copy of your tree when exploring any of the add/edit/delete or drag and drop functionality.
 
@@ -25,7 +25,7 @@ Feature Overview
 
 ### Visual layout
 
-Each page is broken into two parts, the header section at the top contains the card for the active object and the group section on the bottom contains groups of cards for different objects associated with the active object.
+Each page is broken into two parts. The header section at the top contains the card for the active object and the group section on the bottom contains groups of cards for different objects associated with the active object.
 
 ![The top-level PersonCardView](images/cardview-view-person.png)
 
@@ -41,7 +41,7 @@ Each card is broken into multiple sections, not all of which may be active. The 
 
 Some cards have an associated reference section that may be visible as well. The location is configurable, it can be rendered on the right or left or top or bottom. In groups usually it is on the left and in headers it is usually on the bottom.  Generally the reference section contains three parts. The first is the metadata indicator section that will show a link icon to indicate it is a reference, privacy indicator if applicable, and the Gramps Id of the object the reference points to. Additional attributes or information about the reference are displayed beneath. The bottom then contains an icon indicator section in case the reference has citations or notes associated with it.
 
-### Browser navigation style
+### Browser like navigation style
 
 You can navigate to a new object page by left clicking on a given card or elements within the card such as a title, text link or tag icon. You can also navigate to views of secondary objects like a child, event, or person reference or a name or LDS ordinance. Note these secondary objects as well as tags will be in the global navigation history so you can move backward and forward again, but only primary objects will appear in the Go menu.
 
@@ -103,7 +103,9 @@ Options are managed at three levels. The first level consists of the default opt
 
 The reason this is done for each database is because user defined custom events and attributes might vary across databases. If the above is confusing, and it can be a little, the View Changes button in the template editor will provide a comparison of the default vs template vs database options that may help make it clearer.
 
-While the templates are used across the card views in a unified manner, each card view is registered separately with a separate set of base ini files. So as a result you can choose to use different templates for different views.
+The templates are used across the card views in a unified manner, they will all reference the same set of templates. The actual template files follow the `CardView_template_{name}.ini` name format and the database files follow the `CardView_database_{dbid}.ini` name format.
+
+As each card view is registered separately each has a separate set of base ini files. If you examine one of the ini files you will find it mainly stores some position data and the active template information. So as a result you can choose to use different templates for different views.
 
 ### Layout editor
 
@@ -129,7 +131,21 @@ Attributes are self explanatory.  Events are as well, and the fact type basicall
 
 The relationship type allows you to select a person against whom the relationship calculator will be applied and any found relationship will be displayed. While the status bar provides this in relation to the home person when in a person view this option extends the concept to anyone in the tree.
 
-The calculated field type exposes calculated data provided through the calculated field plugin interface. Several plugins are provided. The duration calculator reports on the lifespan of a person, including if living, or for a married couple the duration of the marriage. The child number calculator reports on child number and optionally the age of each parent at time of birth and length of time parent married at time of birth. The progenitor calculator reports on the oldest paternal and maternal progenitors for a person. The marriage age calculator reports the age of each partner at the time of marriage. The relationship calculator here, as opposed to the built in one, reports on the closest possible relationship between the two partners in a marriage. Finally the occupations calculator examines and reports on all the occupations for a person.
+The calculated field type exposes calculated data provided through the calculated field plugin interface and several plugins are provided.
+
+* The duration calculator reports on the lifespan of a person, including if living, or for a married couple the duration of the marriage.
+
+* The child number calculator reports on child number and optionally the age of each parent at time of birth and length of time parent married at time of birth.
+
+* The progenitor calculator reports on the oldest paternal and maternal progenitors for a person.
+
+* The marriage age calculator reports the age of each partner at the time of marriage.
+
+* The relationship calculator here, as opposed to the built in one, reports on the closest possible relationship between the two partners in a marriage.
+
+* Finally the occupations calculator examines and reports on all the occupations for a person.
+
+Some field calculators have configuration options available for adjusting their behaviour or output.
 
 ### Child object indicators
 
@@ -165,6 +181,42 @@ A status indicator plugin interface is available and a few plugins are provided.
 * The todo indicator indicates one or more todo notes exist.
 
 Note most of these status indicators have numerous options for configuring what they will examine and present as well as what they will do when clicked on.
+
+### Coloring schemes
+
+For some card types support exists for coloring them based on specific attributes using a number of available color schemes all of which are configurable.
+
+![Color scheme edit](images/cardview-configuration-template-editor-colors-confidence.png)
+
+Reasonable default color defaults have been selected for each of the schemes. 
+
+Event cards in event groups can choose from using the default Gramps Person scheme, the event role scheme, the event category scheme or the evidence confidence scheme. Timeline event cards can choose from the same set as event cards as well as the relationship scheme. Confidence cards always use the evidence confidence scheme.
+
+### Timeline filters
+
+The person, family and place timeline contents are all also highly customizable.
+
+![Timeline options](images/cardview-configuration-template-editor-timelines-person.png)
+
+Event categories can be included or excluded for all timelines.
+
+For person timelines events for selected relations can be included or excluded, including those going back more than a single generation. These relation events can also be filtered by category.
+
+For a person timeline additional cards for dated objects that are not events can also be included. At the present time these include media items, names, addresses, ordinances, and citations. A subset of these are also available for family timelines.
+
+A family timeline by design will include events for all members of family, from the births of the spouses to the death of the last child.
+
+A place timeline will attempt to show all events at a given place.
+
+Note that object groups, including timelines, do have some maximum size settings so not all objects may be shown. This is necessary to some extent as trying to display a thousand or more cards does not work well. Places are an example of where this can frequently happen.
+
+### Media bar
+
+A simple compact media bar is available as an alternative to including a bulkier media object group.
+
+![Media bar](images/cardview-media-bar.png)
+
+If your media objects have a Media-Type attribute options are available to group the media by type, to filter out non-photos, and to sort by date. The bar can be positioned on the left or right side or horizontally between the header the and object group section. The configuration context menu has a toggle for enabling or disabling the display of the bar.
 
 ### Zotero support
 
