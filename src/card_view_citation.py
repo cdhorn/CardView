@@ -119,7 +119,7 @@ class CitationCardView(CardView):
         Add a new citation to the database.
         """
         action = action_handler("Citation", self.grstate, Citation())
-        action.edit_citation()
+        action.edit_citation(focus=True)
 
     def _delete_citation(self, *_dummy_obj):
         """

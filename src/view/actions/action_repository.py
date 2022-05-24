@@ -58,16 +58,19 @@ class RepositoryAction(GrampsAction):
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
 
-    def edit_repository(self, *_dummy_args):
+    def edit_repository(self, *_dummy_args, focus=False, callback=None):
         """
         Edit the repository.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Repository")
         try:
             EditRepository(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
                 self.action_object.obj,
+                callback,
             )
         except WindowActiveError:
             pass

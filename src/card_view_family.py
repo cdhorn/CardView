@@ -211,7 +211,7 @@ class FamilyCardView(CardView):
         Add a new family to the database.
         """
         action = action_handler("Family", self.grstate, Family())
-        action.edit_family()
+        action.edit_family(focus=True)
 
     def _delete_family(self, *_dummy_obj):
         """

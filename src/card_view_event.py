@@ -223,7 +223,7 @@ class EventCardView(CardView):
         Add a new event to the database.
         """
         action = action_handler("Event", self.grstate, Event())
-        action.edit_event()
+        action.edit_event(focus=True)
 
     def _delete_event(self, *_dummy_obj):
         """

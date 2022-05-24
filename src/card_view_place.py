@@ -122,7 +122,7 @@ class PlaceCardView(CardView):
         Add a new place to the database.
         """
         action = action_handler("Place", self.grstate, Place())
-        action.edit_place()
+        action.edit_place(focus=True)
 
     def _delete_place(self, *_dummy_obj):
         """

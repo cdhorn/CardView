@@ -87,10 +87,12 @@ class PersonAction(GrampsAction):
         """
         self.grstate.load_primary_page("Person", self.action_object.obj)
 
-    def _edit_person(self, person, callback=None):
+    def _edit_person(self, person, focus=False, callback=None):
         """
         Launch the person editor.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Person")
         try:
             EditPerson(
                 self.grstate.dbstate,
@@ -102,11 +104,11 @@ class PersonAction(GrampsAction):
         except WindowActiveError:
             pass
 
-    def edit_person(self, *_dummy_args):
+    def edit_person(self, *_dummy_args, focus=False):
         """
         Edit the person.
         """
-        self._edit_person(self.action_object.obj)
+        self._edit_person(self.action_object.obj, focus=focus)
 
     def add_existing_event(self, *_dummy_args):
         """

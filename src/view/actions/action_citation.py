@@ -79,10 +79,12 @@ class CitationAction(GrampsAction):
         else:
             self.zotero = None
 
-    def _edit_citation(self, callback=None):
+    def _edit_citation(self, focus=False, callback=None):
         """
         Launch the citation editor.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Citation")
         source_handle = self.action_object.obj.get_reference_handle()
         if source_handle:
             source = self.db.get_source_from_handle(source_handle)
@@ -100,11 +102,11 @@ class CitationAction(GrampsAction):
         except WindowActiveError:
             pass
 
-    def edit_citation(self, *_dummy_args):
+    def edit_citation(self, *_dummy_args, focus=False):
         """
         Edit a citation.
         """
-        self._edit_citation()
+        self._edit_citation(focus=focus)
 
     def added_citation(self, citation_handle):
         """

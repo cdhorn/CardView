@@ -82,16 +82,19 @@ class FamilyAction(GrampsAction):
                 % self.action_object.obj_type
             )
 
-    def edit_family(self, *_dummy_args):
+    def edit_family(self, *_dummy_args, focus=False, callback=None):
         """
         Edit the family.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Family")
         try:
             EditFamily(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
                 self.action_object.obj,
+                callback,
             )
         except WindowActiveError:
             pass

@@ -349,7 +349,7 @@ class PersonCardView(CardView):
         person.primary_name.add_surname(Surname())
         person.primary_name.set_primary_surname(0)
         action = action_handler("Person", self.grstate, person)
-        action.edit_person()
+        action.edit_person(focus=True)
 
     def _delete_person(self, *_dummy_obj):
         """

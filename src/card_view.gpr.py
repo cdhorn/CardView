@@ -28,7 +28,7 @@ from gramps.gen.const import USER_PLUGINS
 pathname = os.path.join(USER_PLUGINS, "CardView", "icons")
 if not os.path.isdir(pathname):
     for root, dirs, files in os.walk(USER_PLUGINS):
-        if 'gramps-relation-linked.svg' in files:
+        if "gramps-relation-linked.svg" in files:
             pathname = root
             break
 icons = Gtk.IconTheme().get_default()

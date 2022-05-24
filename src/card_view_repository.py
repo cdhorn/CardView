@@ -119,7 +119,7 @@ class RepositoryCardView(CardView):
         Add a new repository to the database.
         """
         action = action_handler("Repository", self.grstate, Repository())
-        action.edit_repository()
+        action.edit_repository(focus=True)
 
     def _delete_repository(self, *_dummy_obj):
         """

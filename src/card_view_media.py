@@ -132,7 +132,7 @@ class MediaCardView(CardView):
         Add a new media to the database.
         """
         action = action_handler("Media", self.grstate, Media())
-        action.edit_media()
+        action.edit_media(focus=True)
 
     def _delete_media(self, *_dummy_obj):
         """

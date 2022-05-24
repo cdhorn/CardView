@@ -59,16 +59,19 @@ class PlaceAction(GrampsAction):
     def __init__(self, grstate, action_object=None, target_object=None):
         GrampsAction.__init__(self, grstate, action_object, target_object)
 
-    def edit_place(self, *_dummy_args):
+    def edit_place(self, *_dummy_args, focus=False, callback=None):
         """
         Edit the place.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Place")
         try:
             EditPlace(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
                 self.action_object.obj,
+                callback,
             )
         except WindowActiveError:
             pass

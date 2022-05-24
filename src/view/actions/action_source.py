@@ -62,16 +62,19 @@ class SourceAction(GrampsAction):
                 % self.action_object.obj_type
             )
 
-    def edit_source(self, *_dummy_args):
+    def edit_source(self, *_dummy_args, focus=False, callback=None):
         """
         Edit the source.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Source")
         try:
             EditSource(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
                 self.action_object.obj,
+                callback,
             )
         except WindowActiveError:
             pass

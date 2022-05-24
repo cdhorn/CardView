@@ -79,16 +79,19 @@ class NoteAction(GrampsAction):
         """
         self.content = content
 
-    def edit_note(self, *_dummy_args):
+    def edit_note(self, *_dummy_args, focus=False, callback=None):
         """
         Launch note editor.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Note")
         try:
             EditNote(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
                 self.action_object.obj,
+                callback,
             )
         except WindowActiveError:
             pass

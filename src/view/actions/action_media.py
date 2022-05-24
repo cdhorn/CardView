@@ -86,10 +86,12 @@ class MediaAction(GrampsAction):
         """
         self.filepath = filepath
 
-    def _edit_media(self, media, callback=None):
+    def _edit_media(self, media, focus=False, callback=None):
         """
         Launch media editor.
         """
+        if focus and callback is None:
+            callback = lambda x: self.pivot_focus(x, "Media")
         try:
             EditMedia(
                 self.grstate.dbstate, self.grstate.uistate, [], media, callback
@@ -113,12 +115,12 @@ class MediaAction(GrampsAction):
         except WindowActiveError:
             pass
 
-    def edit_media(self, *_dummy_args):
+    def edit_media(self, *_dummy_args, focus=False):
         """
         Edit a media object or reference.
         """
         if self.action_object.obj_type == "Media":
-            self._edit_media(self.action_object.obj)
+            self._edit_media(self.action_object.obj, focus=focus)
         else:
             media = self.db.get_media_from_handle(self.action_object.obj.ref)
             self._edit_media_reference(

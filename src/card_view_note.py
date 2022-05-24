@@ -116,7 +116,7 @@ class NoteCardView(CardView):
         Add a new note to the database.
         """
         action = action_handler("Note", self.grstate, Note())
-        action.edit_note()
+        action.edit_note(focus=True)
 
     def _delete_note(self, *_dummy_obj):
         """

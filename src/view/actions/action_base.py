@@ -267,3 +267,9 @@ class GrampsAction:
             _("Deleted %s") % text,
         )
         self.grstate.uistate.set_busy_cursor(False)
+
+    def pivot_focus(self, obj, obj_type):
+        """
+        Move active focus to a newly added object.
+        """
+        self.grstate.load_primary_page(obj_type, obj)

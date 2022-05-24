@@ -119,7 +119,7 @@ class SourceCardView(CardView):
         Add a new source to the database.
         """
         action = action_handler("Source", self.grstate, Source())
-        action.edit_source()
+        action.edit_source(focus=True)
 
     def _delete_source(self, *_dummy_obj):
         """

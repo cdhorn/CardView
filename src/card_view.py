@@ -447,7 +447,6 @@ class CardView(ExtendedNavigationView):
         Render a new page view.
         """
         if page_context.primary_obj.obj_type != self.navigation_type():
-            print("_RENDER_PAGE SWITCH CATEGORY?")
             return self.change_category(page_context.primary_obj.obj_type)
         start = time.time()
 
