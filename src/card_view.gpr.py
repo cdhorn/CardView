@@ -25,9 +25,14 @@ import os
 from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
 
-fname = os.path.join(USER_PLUGINS, "CardView", "icons")
+pathname = os.path.join(USER_PLUGINS, "CardView", "icons")
+if not os.path.isdir(pathname):
+    for root, dirs, files in os.walk(USER_PLUGINS):
+        if 'gramps-relation-linked.svg' in files:
+            pathname = root
+            break
 icons = Gtk.IconTheme().get_default()
-icons.append_search_path(fname)
+icons.append_search_path(pathname)
 
 VERSION = "0.93"
 GRAMPS_TARGET_VERSION = "5.1"
