@@ -187,7 +187,9 @@ def get_primary_participant(participants):
             return participant
         if obj_type in ["Family"] and role.is_family():
             return participant
-    return participants[0]
+    if participants:
+        return participants[0]
+    return None
 
 
 def get_participants_text(participants, primary=None):

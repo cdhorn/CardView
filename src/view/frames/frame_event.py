@@ -174,10 +174,12 @@ class EventFrame(ReferenceFrame):
         """
         if self.get_option("show-description"):
             text = event.get_description()
-            if not text:
+            if not text and self.primary_participant:
                 text = " ".join(
                     (event_type, _("of"), self.primary_participant[3])
                 )
+            else:
+                text = "".join(("[", _("Unknown"), "]"))
             self.add_fact(self.get_label(text))
 
     def __add_event_participants(self):
@@ -220,6 +222,10 @@ class EventFrame(ReferenceFrame):
         """
         Calculate event title and role if there is a reference person.
         """
+        if not primary_participant:
+            return "".join(("[", _("Untitled"), "]")), "".join(
+                ("[", _("None"), "]")
+            )
         (
             dummy_primary_obj_type,
             primary_obj,
