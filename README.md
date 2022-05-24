@@ -1,4 +1,4 @@
-![CardView icon](src/icons/gramps-relation-linked.svg) Card View Plugin
+![CardView icon](src/icons/gramps-relation-linked.svg) Card View AddOn
 ===============
 
 > **IMPORTANT!**  The view name, and thus the ini configuration file names, have changed yet again. Be sure to remove any previous versions of this view you have installed and to remove all previous ini files before using this latest copy.  This was originally named the **ProfileView** and then the **LinkedView** as that better described the navigation model.  Note this will be the last and final name change.
@@ -7,7 +7,7 @@
 
 This is an *introductory* **ReadMe.md** document.  The [in-depth documentation](https://www.gramps-project.org/wiki/index.php/Addon:CardView) is perpetually in development on the [Gramps information portal](https://gramps-project.org/wiki/index.php/Portal:Using_Gramps)
 
-The **CardView** plugin is now actually a group of plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.
+The **CardView** AddOn is now actually a group of plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.
 
 This add-on is far enough along in development that it can be considered beta. Note all development and most testing to date has been done on Fedora.
 
