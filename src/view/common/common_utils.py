@@ -564,6 +564,8 @@ def describe_object(db, obj):
             else:
                 title = title.strip()
         return title
+    if obj_type == "Tag":
+        return obj.name
     if obj_type == "Attribute":
         return ": ".join((_("Attribute"), str(obj.get_type())))
     if obj_type == "EventRef":

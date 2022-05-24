@@ -68,7 +68,7 @@ class TagCardView(CardView):
     Card view for a Tag
     """
 
-    def __init__(self, pdata, dbstate, uistate, nav_group=0):
+    def __init__(self, pdata, dbstate, uistate, nav_group=1):
         CardView.__init__(
             self,
             _("Tag"),
@@ -83,6 +83,16 @@ class TagCardView(CardView):
         Return active navigation type.
         """
         return "Tag"
+
+    def set_active(self):
+        CardView.set_active(self)
+        self.uistate.viewmanager.tags.tag_disable()
+        self.bookmarks.undisplay()
+
+    def set_inactive(self):
+        CardView.set_inactive(self)
+        self.uistate.viewmanager.tags.tag_enable(update_menu=False)
+        self.bookmarks.undisplay()
 
     additional_ui = [
         MENU_LOCALEXPORT,

@@ -29,7 +29,7 @@ fname = os.path.join(USER_PLUGINS, "CardView", "src", "icons")
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(fname)
 
-VERSION = "0.92"
+VERSION = "0.93"
 GRAMPS_TARGET_VERSION = "5.1"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]

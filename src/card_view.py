@@ -434,7 +434,7 @@ class CardView(ExtendedNavigationView):
             self.dirty_redraw_trigger = False
             if not obj_tuple:
                 obj_tuple = self._get_initial_object()
-            if not obj_tuple:
+            if not obj_tuple or not obj_tuple[1]:
                 self._clear_current_view()
             else:
                 page_context = GrampsContext()
@@ -466,6 +466,8 @@ class CardView(ExtendedNavigationView):
                     time.time() - start,
                 )
             )
+        else:
+            self.bookmarks.undisplay()
         self.current_context = page_context
         self.dirty = False
 
@@ -585,8 +587,9 @@ class CardView(ExtendedNavigationView):
         """
         Display a particular group of objects.
         """
-        windows = WindowService()
-        windows.launch_view_window(self.grstate, self.current_context)
+        if self.current_context:
+            windows = WindowService()
+            windows.launch_view_window(self.grstate, self.current_context)
 
     def build_requested_config_page(self, configdialog):
         """

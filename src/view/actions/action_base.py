@@ -147,7 +147,10 @@ class GrampsAction:
         """
         Edit the object.
         """
-        if self.action_object.is_primary:
+        if (
+            self.action_object.is_primary
+            or self.action_object.obj_type == "Tag"
+        ):
             try:
                 GRAMPS_EDITORS[self.action_object.obj_type](
                     self.grstate.dbstate,
@@ -194,7 +197,9 @@ class GrampsAction:
             target_object = override_object
         else:
             target_object = self.action_object
-        if target_object and target_object.is_primary:
+        if target_object and (
+            target_object.is_primary or target_object.obj_type == "Tag"
+        ):
             backlink_count = len(
                 list(
                     self.grstate.dbstate.db.find_backlink_handles(

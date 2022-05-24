@@ -129,8 +129,8 @@ class ExtendedNavigationView(PageView):
         self.lock = False
 
         self.history = ExtendedHistory(self.dbstate, uistate)
-        if self.navigation_type() != "Tag":
-            object_history = self.uistate.get_history(self.navigation_type())
+        object_history = self.uistate.get_history(self.navigation_type())
+        if object_history:
             object_history.connect(
                 "active-changed", self.sync(self.navigation_type())
             )
@@ -211,9 +211,11 @@ class ExtendedNavigationView(PageView):
             primary_category = self.uistate.viewmanager.get_category(
                 CATEGORIES[category]
             )
-            category_views = self.uistate.viewmanager.get_views()[primary_category]
+            category_views = self.uistate.viewmanager.get_views()[
+                primary_category
+            ]
             for (view_index, (dummy_view_plugin, view_class)) in enumerate(
-                    category_views
+                category_views
             ):
                 for component_class in list(view_class.__mro__):
                     if issubclass(component_class, current_ancestor):
@@ -351,8 +353,8 @@ class ExtendedNavigationView(PageView):
         """
         Set current bookmarks object.
         """
+        self.bookmarks.undisplay()
         if obj_type != "Tag":
-            self.bookmarks.undisplay()
             self.bookmarks = self.bookmarks_list[obj_type]
 
     def goto_bookmark(self, obj_type, obj_handle):

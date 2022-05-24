@@ -68,7 +68,7 @@ class PlaceCardView(CardView):
     Card view for a place
     """
 
-    def __init__(self, pdata, dbstate, uistate, nav_group=0):
+    def __init__(self, pdata, dbstate, uistate, nav_group=1):
         CardView.__init__(
             self,
             _("Place"),
@@ -83,6 +83,12 @@ class PlaceCardView(CardView):
         Return active navigation type.
         """
         return "Place"
+
+    def get_default_gramplets(self):
+        """
+        Return the default Gramplets.
+        """
+        return (("GetGOV Gramplet",), ())
 
     additional_ui = [
         MENU_LOCALEXPORT,

@@ -46,6 +46,7 @@ from gramps.gui.editors import (
     EditSource,
     EditUrl,
 )
+from gramps.gui.views.tags import EditTag
 
 # ------------------------------------------------------------------------
 #
@@ -90,5 +91,6 @@ GRAMPS_EDITORS = {
     "Place": EditPlace,
     "Repository": EditRepository,
     "Source": EditSource,
+    "Tag": EditTag,
     "Url": EditUrl,
 }

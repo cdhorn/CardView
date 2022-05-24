@@ -68,7 +68,7 @@ class MediaCardView(CardView):
     Card view for Media
     """
 
-    def __init__(self, pdata, dbstate, uistate, nav_group=0):
+    def __init__(self, pdata, dbstate, uistate, nav_group=1):
         CardView.__init__(
             self,
             _("Media"),

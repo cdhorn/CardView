@@ -102,6 +102,7 @@ class ExtendedHistory(Callback):
                 "Repository",
                 "Media",
                 "Note",
+                "Tag",
             ]:
                 self.uistate.register(dbstate, nav_type, 0)
                 self.signal_map[
