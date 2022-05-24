@@ -25,7 +25,7 @@ import os
 from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
 
-fname = os.path.join(USER_PLUGINS, "CardView", "src", "icons")
+fname = os.path.join(USER_PLUGINS, "CardView", "icons")
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(fname)
 
