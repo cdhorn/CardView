@@ -177,7 +177,7 @@ class PrimaryFrame(GrampsFrame):
         """
         Add a fact.
         """
-        if extra:
+        if extra and "extra" in self.widgets:
             self.widgets["extra"].add_fact(fact, label=label)
         else:
             self.widgets["facts"].add_fact(fact, label=label)
