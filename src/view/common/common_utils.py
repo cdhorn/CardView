@@ -543,6 +543,17 @@ def describe_object(db, obj):
     """
     Return description string for a Gramps object.
     """
+
+    def clean_title(title, split_character):
+        """
+        Cleanup title.
+        """
+        if split_character in title:
+            return title.split(split_character)[1].strip()
+        else:
+            return title.strip()
+        return title
+
     for obj_data in GRAMPS_OBJECTS:
         if isinstance(obj, obj_data[0]):
             (
@@ -557,12 +568,9 @@ def describe_object(db, obj):
             break
     if isinstance(obj, BasicPrimaryObject):
         title, dummy_obj = navigation_label(db, obj_type, obj.get_handle())
-        title = title.split("]")[1].strip()
+        title = clean_title(title, "]")
         if obj_type == "Event":
-            if "-" in title:
-                title = title.split("-")[1].strip()
-            else:
-                title = title.strip()
+            title = clean_title(title, "-")
         return title
     if obj_type == "Tag":
         return obj.name
@@ -570,29 +578,31 @@ def describe_object(db, obj):
         return ": ".join((_("Attribute"), str(obj.get_type())))
     if obj_type == "EventRef":
         title, dummy_obj = navigation_label(db, "Event", obj.ref)
-        title = title.split("]")[1].strip()
-        title = title.split("-")[1].strip()
+        title = clean_title(title, "]")
+        title = clean_title(title, "-")
         return "".join((_("Event"), " ", _("Reference"), ": ", title))
     if obj_type == "ChildRef":
         title, dummy_obj = navigation_label(db, "Person", obj.ref)
+        title = clean_title(title, "]")
         return "".join(
             (
                 _("Child"),
                 " ",
                 _("Reference"),
                 ": ",
-                title.split("]")[1].strip(),
+                title,
             )
         )
     if obj_type == "PersonRef":
         title, dummy_obj = navigation_label(db, "Person", obj.ref)
+        title = clean_title(title, "]")
         return "".join(
             (
                 _("Person"),
                 " ",
                 _("Reference"),
                 ": ",
-                title.split("]")[1].strip(),
+                title,
             )
         )
     return obj_lang
