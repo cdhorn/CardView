@@ -35,8 +35,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 _ = glocale.translation.sgettext
 
-HELP_URL = "https://www.gramps-project.org/wiki/index.php/Addon:CardView"
-
 # -------------------------------------------------------------------------
 #
 # Menu Items

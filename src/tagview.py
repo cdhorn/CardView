@@ -138,7 +138,7 @@ class TagModel(FlatBaseModel):
 
     def column_priority(self, data):
         """Return the priority of the Tag."""
-        return data[POS_PRIORITY]
+        return "%03d" % data[POS_PRIORITY]
 
     def column_color(self, data):
         return data[POS_COLOR]

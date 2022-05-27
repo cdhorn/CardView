@@ -32,6 +32,10 @@ from gramps.gen.lib import Citation
 
 _ = glocale.translation.sgettext
 
+WIKI_BASE = "https://www.gramps-project.org/wiki/index.php/"
+HELP_URL = "%s%s" % (WIKI_BASE, "Addon:CardView")
+HELP_TEMPLATE_EDITOR_URL = "%s%s" % (WIKI_BASE, "Addon:CardView#Features")
+
 BASE_TEMPLATE_NAME = "CardView"
 
 OPTION_VALUE_BIRTH = "Event:Birth"

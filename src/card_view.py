@@ -59,12 +59,11 @@ from gramps.gui.display import display_url
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from card_view_const import HELP_URL
 from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_const import PAGE_LABELS
 from view.common.common_utils import get_initial_object
-from view.config.config_const import CATEGORIES
+from view.config.config_const import CATEGORIES, HELP_URL
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
     ConfigTemplatesDialog,
