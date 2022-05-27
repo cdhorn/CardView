@@ -112,6 +112,7 @@ _TEMPLATE = (
     ("indicator.home-person", False),
     ("indicator.tags", False),
     ("indicator.tags-sort-by-name", False),
+    ("indicator.tags-max-displayed", 1),
     ("indicator.child-objects", False),
     ("indicator.child-objects-counts", False),
     ("indicator.names", True),

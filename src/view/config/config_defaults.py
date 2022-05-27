@@ -138,6 +138,7 @@ VIEWDEFAULTS = (
     ("indicator.home-person", True),
     ("indicator.tags", True),
     ("indicator.tags-sort-by-name", False),
+    ("indicator.tags-max-displayed", 20),
     ("indicator.child-objects", True),
     ("indicator.child-objects-counts", False),
     ("indicator.names", True),

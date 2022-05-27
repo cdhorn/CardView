@@ -427,6 +427,13 @@ def build_indicator_grid(configdialog, grstate, *_dummy_args):
         12,
         "indicator.tags-sort-by-name",
     )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum tag icons to display"),
+        13,
+        "indicator.tags-max-displayed",
+        (1, 100),
+    )    
     configdialog.add_text(grid, _("Child Object Indicators"), 20, bold=True)
     configdialog.add_checkbox(
         grid,

@@ -394,7 +394,8 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         else:
             tags.sort(key=lambda x: x.priority)
 
-        for tag in tags:
+        max_tags = self.grstate.config.get("indicator.tags-max-displayed")
+        for tag in tags[:max_tags]:
             eventbox = Gtk.EventBox(tooltip_text=tag.name)
             eventbox.add(get_tag_icon(tag))
             eventbox.connect(
