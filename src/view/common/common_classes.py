@@ -854,11 +854,13 @@ class GrampsBaseIcon(Gtk.EventBox):
     A simple class for a manged icon.
     """
 
-    def __init__(self, grstate, icon_name, tooltip=None):
+    def __init__(
+        self, grstate, name, size=Gtk.IconSize.SMALL_TOOLBAR, tooltip=None
+    ):
         Gtk.EventBox.__init__(self)
         self.grstate = grstate
         icon = Gtk.Image()
-        icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        icon.set_from_icon_name(name, size)
         self.add(icon)
         if tooltip:
             self.set_tooltip_text(tooltip)

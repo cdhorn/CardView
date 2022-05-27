@@ -30,12 +30,12 @@ Frame utility functions.
 from gi.repository import Gtk
 
 
-def get_tag_icon(tag):
+def get_tag_icon(tag, size=Gtk.IconSize.SMALL_TOOLBAR):
     """
     Return a colored tag icon.
     """
     icon = Gtk.Image()
-    icon.set_from_icon_name("gramps-tag", Gtk.IconSize.BUTTON)
+    icon.set_from_icon_name("gramps-tag", size)
     css = "".join(
         (
             ".image { margin: 0px; padding: 0px; background-image: none; ",

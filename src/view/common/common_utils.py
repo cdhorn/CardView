@@ -374,12 +374,12 @@ def get_bookmarks(db, obj_type):
     return []
 
 
-def prepare_icon(icon_name, tooltip=None):
+def prepare_icon(name, size=Gtk.IconSize.SMALL_TOOLBAR, tooltip=None):
     """
     Prepare an icon.
     """
     icon = Gtk.Image()
-    icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+    icon.set_from_icon_name(name, size)
     if tooltip:
         image = Gtk.EventBox(tooltip_text=tooltip)
         image.add(icon)
@@ -388,11 +388,18 @@ def prepare_icon(icon_name, tooltip=None):
     return image
 
 
-def pack_icon(widget, icon_name, tooltip=None, add=False, start=False):
+def pack_icon(
+    widget,
+    name,
+    size=Gtk.IconSize.SMALL_TOOLBAR,
+    tooltip=None,
+    add=False,
+    start=False,
+):
     """
     Pack an icon in a widget.
     """
-    icon = prepare_icon(icon_name, tooltip=tooltip)
+    icon = prepare_icon(name, size=size, tooltip=tooltip)
     if add:
         return widget.add(icon)
     if start:

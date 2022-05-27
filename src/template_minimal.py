@@ -62,6 +62,7 @@ _TEMPLATE = (
     ("display.use-color-scheme", True),
     ("display.use-smaller-title-font", True),
     ("display.use-smaller-detail-font", True),
+    ("display.use-smaller-icons", True),
     ("display.border-width", 2),
     ("display.icons-active-width", 24),
     ("display.icons-group-width", 12),

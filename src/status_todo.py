@@ -160,7 +160,7 @@ def build_todo_grid(configdialog, _dummy_grstate):
 # Function to check status and return icons as needed.
 #
 # ------------------------------------------------------------------------
-def get_todo_status(grstate, obj):
+def get_todo_status(grstate, obj, size):
     """
     Load todo status indicator if needed.
     """
@@ -182,7 +182,7 @@ def get_todo_status(grstate, obj):
         evaluate_object(db, obj, obj_path, todo_list)
 
     if todo_list:
-        todo_icon = GrampsToDoIcon(grstate, todo_list)
+        todo_icon = GrampsToDoIcon(grstate, todo_list, size)
         return [todo_icon]
     return []
 
@@ -328,12 +328,14 @@ class GrampsToDoIcon(GrampsBaseIcon):
     A class to manage the icon and enable access to the to do items.
     """
 
-    def __init__(self, grstate, todo_list):
+    def __init__(self, grstate, todo_list, size):
         if len(todo_list) > 1:
             tooltip = " ".join((str(len(todo_list)), _("To Do Tasks")))
         else:
             tooltip = " ".join(("1", _("To Do Task")))
-        GrampsBaseIcon.__init__(self, grstate, "task-due", tooltip=tooltip)
+        GrampsBaseIcon.__init__(
+            self, grstate, "task-due", size=size, tooltip=tooltip
+        )
         self.todo_list = todo_list
 
     def icon_clicked(self, event):

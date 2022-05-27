@@ -99,7 +99,7 @@ class StatusIndicatorService:
             if get_config_grids:
                 self.config_grid_builders.append(get_config_grids)
 
-    def get_status(self, grstate, obj):
+    def get_status(self, grstate, obj, size):
         """
         Perform and return status checks for an object.
         """
@@ -107,7 +107,7 @@ class StatusIndicatorService:
         obj_type = type(obj).__name__
         if obj_type in self.status_checks:
             for status_check in self.status_checks[obj_type]:
-                status = status_check(grstate, obj)
+                status = status_check(grstate, obj, size)
                 if status:
                     results = results + status
         return results

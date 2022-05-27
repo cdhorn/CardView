@@ -326,7 +326,7 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
 # Function to check status and return icons as needed.
 #
 # ------------------------------------------------------------------------
-def get_person_status(grstate, obj):
+def get_person_status(grstate, obj, size):
     """
     Load status indicators if needed.
     """
@@ -341,13 +341,17 @@ def get_person_status(grstate, obj):
             rank_text,
             missing_icon,
             missing_text,
-        ) = get_person_status_icons(grstate, obj)
+        ) = get_person_status_icons(grstate, obj, size)
         if ranking and rank_icon:
-            icon_list.append(prepare_icon(rank_icon, tooltip=rank_text))
+            icon_list.append(
+                prepare_icon(rank_icon, size=size, tooltip=rank_text)
+            )
         if alert and alert_icon:
             icon_list.append(alert_icon)
         if missing and missing_icon:
-            icon_list.append(prepare_icon(missing_icon, tooltip=missing_text))
+            icon_list.append(
+                prepare_icon(missing_icon, size=size, tooltip=missing_text)
+            )
     return icon_list
 
 
@@ -356,7 +360,7 @@ def get_person_status(grstate, obj):
 # Some helper functions.
 #
 # ------------------------------------------------------------------------
-def get_person_status_icons(grstate, obj):
+def get_person_status_icons(grstate, obj, size):
     """
     Evaluate and return status icons for an object.
     """
@@ -393,7 +397,7 @@ def get_person_status_icons(grstate, obj):
         rank_text = ""
 
     if confidence_alerts:
-        alert_icon = GrampsCitationAlertIcon(grstate, confidence_alerts)
+        alert_icon = GrampsCitationAlertIcon(grstate, confidence_alerts, size)
     else:
         alert_icon = None
 
@@ -701,13 +705,13 @@ class GrampsCitationAlertIcon(GrampsBaseIcon):
     A class to manage the icon and access to the citation alert items.
     """
 
-    def __init__(self, grstate, alert_list):
+    def __init__(self, grstate, alert_list, size):
         if len(alert_list) > 1:
             tooltip = " ".join((str(len(alert_list)), _("Citation Alerts")))
         else:
             tooltip = " ".join(("1", _("Citation Alert")))
         GrampsBaseIcon.__init__(
-            self, grstate, "software-update-urgent", tooltip=tooltip
+            self, grstate, "software-update-urgent", size=size, tooltip=tooltip
         )
         self.alert_list = alert_list
 

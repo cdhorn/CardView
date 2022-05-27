@@ -88,6 +88,10 @@ class FrameId(Gtk.HBox, GrampsConfig):
             valign=Gtk.Align.START,
         )
         GrampsConfig.__init__(self, grstate, groptions)
+        if self.grstate.config.get("display.use-smaller-icons"):
+            self.icon_size = Gtk.IconSize.SMALL_TOOLBAR
+        else:
+            self.icon_size = Gtk.IconSize.LARGE_TOOLBAR
 
     def load(self, grobject, gramps_id=None):
         """
@@ -96,7 +100,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
         if "Ref" in grobject.obj_type and self.groptions.ref_mode == 1:
             self.set_halign(Gtk.Align.START)
             self.add_privacy_indicator(grobject.obj)
-            pack_icon(self, "stock_link")
+            pack_icon(self, "stock_link", size=self.icon_size)
             if grobject.is_primary:
                 self.add_gramps_id(obj=grobject.obj)
             elif gramps_id:
@@ -109,7 +113,7 @@ class FrameId(Gtk.HBox, GrampsConfig):
             if grobject.has_handle:
                 self.add_bookmark_indicator(grobject.obj, grobject.obj_type)
             elif "Ref" in grobject.obj_type:
-                pack_icon(self, "stock_link")
+                pack_icon(self, "stock_link", size=self.icon_size)
             self.add_privacy_indicator(grobject.obj)
             if grobject.obj_type == "Person":
                 self.add_home_indicator(grobject.obj)
@@ -146,7 +150,12 @@ class FrameId(Gtk.HBox, GrampsConfig):
                 self.grstate.dbstate.db, obj_type
             ).get():
                 if bookmark == obj.get_handle():
-                    pack_icon(self, "gramps-bookmark", tooltip=_("Bookmarked"))
+                    pack_icon(
+                        self,
+                        "gramps-bookmark",
+                        size=self.icon_size,
+                        tooltip=_("Bookmarked"),
+                    )
                     break
 
     def add_privacy_indicator(self, obj):
@@ -157,10 +166,20 @@ class FrameId(Gtk.HBox, GrampsConfig):
         if mode:
             if obj.private:
                 if mode in [1, 3]:
-                    pack_icon(self, "gramps-lock", tooltip=_("Private"))
+                    pack_icon(
+                        self,
+                        "gramps-lock",
+                        size=self.icon_size,
+                        tooltip=_("Private"),
+                    )
             else:
                 if mode in [2, 3]:
-                    pack_icon(self, "gramps-unlock", tooltip=_("Public"))
+                    pack_icon(
+                        self,
+                        "gramps-unlock",
+                        size=self.icon_size,
+                        tooltip=_("Public"),
+                    )
 
     def add_home_indicator(self, obj):
         """
@@ -169,7 +188,12 @@ class FrameId(Gtk.HBox, GrampsConfig):
         if self.grstate.config.get("indicator.home-person"):
             default = self.grstate.dbstate.db.get_default_person()
             if default and default.get_handle() == obj.get_handle():
-                pack_icon(self, "go-home", tooltip=_("Home Person"))
+                pack_icon(
+                    self,
+                    "go-home",
+                    size=self.icon_size,
+                    tooltip=_("Home Person"),
+                )
 
 
 # ------------------------------------------------------------------------
@@ -241,6 +265,10 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         self.pack_end(self.flowbox, True, True, 0)
         self.grobject = None
         self.title = None
+        if self.grstate.config.get("display.use-smaller-icons"):
+            self.icon_size = Gtk.IconSize.SMALL_TOOLBAR
+        else:
+            self.icon_size = Gtk.IconSize.LARGE_TOOLBAR
 
     def load(self, grobject, title=None):
         """
@@ -262,7 +290,9 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         Load status indicators for an object.
         """
         status_service = StatusIndicatorService()
-        for icon in status_service.get_status(self.grstate, grobject.obj):
+        for icon in status_service.get_status(
+            self.grstate, grobject.obj, self.icon_size
+        ):
             self.flowbox.add(icon)
 
     def load_indicators(self, grobject):
@@ -338,7 +368,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         Add an indicator icon.
         """
         icon = Gtk.Image(halign=Gtk.Align.END)
-        icon.set_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        icon.set_from_icon_name(icon_name, self.icon_size)
         if count == 1:
             text = GROUP_LABELS_SINGLE[group_type]
             if group_type == "parent":
@@ -397,7 +427,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         max_tags = self.grstate.config.get("indicator.tags-max-displayed")
         for tag in tags[:max_tags]:
             eventbox = Gtk.EventBox(tooltip_text=tag.name)
-            eventbox.add(get_tag_icon(tag))
+            eventbox.add(get_tag_icon(tag, self.icon_size))
             eventbox.connect(
                 "button-press-event", self.__tag_click, tag.handle
             )

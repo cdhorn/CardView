@@ -145,24 +145,30 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
         19,
         "display.use-smaller-detail-font",
     )
+    configdialog.add_checkbox(
+        grid,
+        _("Use smaller icons"),
+        20,
+        "display.use-smaller-icons",
+    )
     configdialog.add_spinner(
         grid,
         _("Desired border width"),
-        20,
+        21,
         "display.border-width",
         (0, 3),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum icons to show per line in header frames."),
-        21,
+        22,
         "display.icons-active-width",
         (1, 40),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum icons to show per line in group frames."),
-        22,
+        23,
         "display.icons-group-width",
         (1, 40),
     )
@@ -433,7 +439,7 @@ def build_indicator_grid(configdialog, grstate, *_dummy_args):
         13,
         "indicator.tags-max-displayed",
         (1, 100),
-    )    
+    )
     configdialog.add_text(grid, _("Child Object Indicators"), 20, bold=True)
     configdialog.add_checkbox(
         grid,
