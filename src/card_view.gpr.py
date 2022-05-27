@@ -58,6 +58,23 @@ register(
 
 register(
     VIEW,
+    id="personcardview",
+    name=_("Person"),
+    description=_("A browseable Person card view."),
+    version=VERSION,
+    gramps_target_version=GRAMPS_TARGET_VERSION,
+    status=STABLE,
+    fname="card_view_person.py",
+    authors=AUTHORS,
+    authors_email=AUTHORS_EMAIL,
+    category=("Relationships", _("Relationships")),
+    viewclass="PersonCardView",
+    stock_icon="gramps-relation-linked",
+    order=END,
+)
+
+register(
+    VIEW,
     id="familycardview",
     name=_("Family"),
     description=_("A browseable Family card view."),
