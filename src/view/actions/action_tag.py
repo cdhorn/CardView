@@ -104,6 +104,22 @@ class TagAction(GrampsAction):
         self.target_object.obj.add_tag(self.action_object.obj.get_handle())
         self.target_object.commit(self.grstate, message)
 
+    def add_new_tag(self, *_dummy_args):
+        """
+        Create a new tag and add to current object.
+        """
+        self.set_action_object(Tag())
+        try:
+            EditTagWrapper(
+                self.db,
+                self.grstate.uistate,
+                [],
+                self.action_object.obj,
+                callback=self.add_tag,
+            )
+        except WindowActiveError:
+            pass
+
     def remove_tag(self, *_dummy_args):
         """
         Remove the given tag from the current object.
@@ -119,6 +135,32 @@ class TagAction(GrampsAction):
             self.action_object.obj.get_handle()
         ):
             self.target_object.commit(self.grstate, message)
+
+
+class EditTagWrapper(EditTag):
+    """
+    A class to wrap the tag editor to provide callback support.
+    """
+
+    def __init__(self, db, uistate, track, tag, callback=None):
+        self.callback = callback
+        self.saved = False
+        EditTag.__init__(self, db, uistate, track, tag)
+
+    def _save(self):
+        """
+        Handle save and set saved flag.
+        """
+        EditTag._save(self)
+        self.saved = True
+
+    def run(self):
+        """
+        Run the dialog and if user saved execute callback.
+        """
+        EditTag.run(self)
+        if self.saved and self.callback:
+            self.callback(self.tag)
 
 
 factory.register_action("Tag", TagAction)

@@ -449,7 +449,7 @@ def add_tags_menu(grstate, parent_menu, grobject, sort_by_name=False):
             grstate, menu, grobject, tag_delete_list, "list-delete"
         )
     action = action_handler("Tag", grstate, None, grobject)
-    menu.add(menu_item("gramps-tag", _("Create new tag"), action.new_tag))
+    menu.add(menu_item("gramps-tag", _("Add new tag"), action.add_new_tag))
     menu.add(menu_item("gramps-tag", _("Organize tags"), action.organize_tags))
     parent_menu.append(submenu_item("gramps-tag", _("Tags"), menu))
 
