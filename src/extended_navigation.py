@@ -207,22 +207,27 @@ class ExtendedNavigationView(PageView):
         Switch to different category view.
         """
         if category:
-            current_ancestor = type(self).mro()[1]
             primary_category = self.uistate.viewmanager.get_category(
                 CATEGORIES[category]
             )
-            category_views = self.uistate.viewmanager.get_views()[
-                primary_category
-            ]
-            for (view_index, (dummy_view_plugin, view_class)) in enumerate(
-                category_views
-            ):
-                for component_class in list(view_class.__mro__):
-                    if issubclass(component_class, current_ancestor):
-                        view_class.dirty = True
-                        return self.uistate.viewmanager.goto_page(
-                            primary_category, view_index
-                        )
+            try:
+                category_views = self.uistate.viewmanager.get_views()[
+                    primary_category
+                ]
+            except TypeError as error:
+                print("ERROR: No primary category found for {}".format(category))
+                raise TypeError(error)
+            if category_views:
+                current_ancestor = type(self).mro()[1]
+                for (view_index, (dummy_view_plugin, view_class)) in enumerate(
+                        category_views
+                ):
+                    for component_class in list(view_class.__mro__):
+                        if issubclass(component_class, current_ancestor):
+                            view_class.dirty = True
+                            return self.uistate.viewmanager.goto_page(
+                                primary_category, view_index
+                            )
 
     def change_page(self):
         """
