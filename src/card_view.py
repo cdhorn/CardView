@@ -63,7 +63,7 @@ from extended_navigation import ExtendedNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_const import PAGE_LABELS
 from view.common.common_utils import get_initial_object
-from view.config.config_const import CATEGORIES, HELP_URL
+from view.config.config_const import CATEGORIES, HELP_VIEW
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
     ConfigTemplatesDialog,
@@ -572,7 +572,7 @@ class CardView(ExtendedNavigationView):
         """
         Launch help page.
         """
-        display_url(HELP_URL)
+        display_url(HELP_VIEW)
 
     def launch_group_window(self, obj, group_type, title):
         """

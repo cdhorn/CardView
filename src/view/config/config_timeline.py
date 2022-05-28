@@ -49,11 +49,12 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # -------------------------------------------------------------------------
 from .config_const import (
+    HELP_CONFIG_TIMELINES,
     IMAGE_DISPLAY_MODES,
     REF_DISPLAY_MODES,
     TIMELINE_COLOR_MODES,
 )
-from .config_utils import add_config_reset, config_facts_fields, create_grid
+from .config_utils import add_config_buttons, config_facts_fields, create_grid
 
 _ = glocale.translation.sgettext
 
@@ -374,7 +375,9 @@ def build_timeline_grid(configdialog, grstate, space, *_dummy_args):
     if "person" in space:
         grid.attach(grid3, 1, 1, 1, 1)
         grid.attach(grid4, 1, 2, 1, 1)
-    return add_config_reset(configdialog, grstate, space, grid)
+    return add_config_buttons(
+        configdialog, grstate, space, grid, HELP_CONFIG_TIMELINES
+    )
 
 
 def build_person_timeline_grid(configdialog, grstate, *_dummy_args):

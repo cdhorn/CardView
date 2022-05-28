@@ -7,7 +7,7 @@
 
 This is an *introductory* **ReadMe.md** document.  The [in-depth documentation](https://www.gramps-project.org/wiki/index.php/Addon:CardView) is perpetually in development on the [Gramps information portal](https://gramps-project.org/wiki/index.php/Portal:Using_Gramps)
 
-The **CardView** AddOn is now actually a group of plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.
+The **CardView** AddOn is now actually a group of plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.  A simple list view for tags has also been added.
 
 This add-on is far enough along in development that it can be considered beta. Note all development and most testing to date has been done on Fedora.
 
@@ -33,7 +33,7 @@ Many pages will contain multiple cards in the header. For the citation page the 
 
 Each view is built around a primary object, and several pages may be available that are associated with that object.  These will be displayed in the same view pane under the same category. When navigating to a different primary object the view will then switch to the view pane in that category to render the page.
 
-Tags are not primary objects in Gramps, but a view for them has been added. As a result a Tags category will be added to the navigation bar to support that view. There is no list view for tags at the present time so this category is of little use outside of when rendering a tag page.
+Tags are not primary objects in Gramps, but both a more traditional though bare bones list view has been added for them in addition to a card view. As a result a Tags category will be added to the navigation bar to support the new views.
 
 Note that the groups rendered in the group section of the view are fully user configurable. A reasonable set of defaults has been selected, but you can add groups for associations, ordinances, names or anything else if you choose.
 

@@ -44,8 +44,8 @@ from gramps.gui.ddtargets import DdTargets
 # ------------------------------------------------------------------------
 from ..common.common_const import GROUP_LABELS
 from ..common.common_utils import make_scrollable, set_dnd_css
-from .config_const import PAGES
-from .config_utils import ConfigReset, create_grid
+from .config_const import PAGES, HELP_CONFIG_PAGE_LAYOUT
+from .config_utils import ConfigReset, create_grid, HelpButton
 
 _ = glocale.translation.sgettext
 
@@ -145,6 +145,7 @@ class ProfilePageLayout(Gtk.VBox):
         box = Gtk.HBox()
         bbox = Gtk.ButtonBox(spacing=6)
         bbox.set_layout(Gtk.ButtonBoxStyle.START)
+        bbox.pack_start(HelpButton(HELP_CONFIG_PAGE_LAYOUT), False, False, 0)
         apply = Gtk.Button(label=_("Apply"))
         apply.connect("clicked", self.apply_changes)
         bbox.pack_start(apply, False, False, 0)

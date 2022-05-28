@@ -54,7 +54,7 @@ from gramps.gui.managedwindow import ManagedWindow
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsState
-from .config_const import BASE_TEMPLATE_NAME, HELP_TEMPLATE_EDITOR_URL
+from .config_const import BASE_TEMPLATE_NAME, HELP_CONFIG_TEMPLATES
 from .config_defaults import VIEWDEFAULTS
 from .config_layout import build_layout_grid
 from .config_panel import (
@@ -131,7 +131,7 @@ class ConfigTemplates(Gtk.HBox):
         self.template_list = None
         self.template_model = None
         self._load_plugins()
-        self._build_layout()
+        self.remove_button, self.delete_button = self._build_layout()
         self._load_layout()
 
     def _load_plugins(self):
@@ -170,17 +170,23 @@ class ConfigTemplates(Gtk.HBox):
         ]
         self.template_list = Gtk.TreeView()
         self.template_model = ListModel(self.template_list, name_titles)
+        self.template_list.connect("cursor-changed", self._toggle_buttons)
         self.pack_start(self.template_list, 0, 0, 0)
         grid = Gtk.Grid(hexpand=False, vexpand=False)
         add_button(grid, 0, _("View Changes"), self.cb_changes_clicked)
         add_button(grid, 1, _("Copy Template"), self.cb_copy_clicked)
         add_button(grid, 2, _("Edit Attributes"), self.cb_info_clicked)
         add_button(grid, 3, _("Edit Template"), self.cb_edit_clicked)
-        add_button(grid, 4, _("Remove Template"), self.cb_remove_clicked)
-        add_button(grid, 5, _("Delete Template"), self.cb_delete_clicked)
+        remove = add_button(
+            grid, 4, _("Remove Template"), self.cb_remove_clicked
+        )
+        delete = add_button(
+            grid, 5, _("Delete Template"), self.cb_delete_clicked
+        )
         add_button(grid, 6, _("Import Template"), self.cb_import_clicked)
         add_button(grid, 7, _("Help"), self.cb_help_clicked)
         self.pack_start(grid, 0, 0, 0)
+        return remove, delete
 
     def _load_layout(self):
         """
@@ -226,6 +232,22 @@ class ConfigTemplates(Gtk.HBox):
         selection = self.template_list.get_selection()
         selection.select_iter(iter_)
         self.selected = store.get_value(iter_, 5)
+        self._toggle_buttons()
+
+    def _toggle_buttons(self, *_dummy_args):
+        """
+        Toggle button state if Default.
+        """
+        store, iter_ = self.template_model.get_selected()
+        if iter_ is None:
+            return
+
+        if store.get_value(iter_, 5) == "Default":
+            self.remove_button.set_sensitive(False)
+            self.delete_button.set_sensitive(False)
+        else:
+            self.remove_button.set_sensitive(True)
+            self.delete_button.set_sensitive(True)
 
     def cb_set_active(self, *args):
         """
@@ -474,7 +496,7 @@ class ConfigTemplates(Gtk.HBox):
         """
         Launch template editor help
         """
-        display_url(HELP_TEMPLATE_EDITOR_URL)
+        display_url(HELP_CONFIG_TEMPLATES)
 
 
 # -------------------------------------------------------------------------
@@ -977,6 +999,7 @@ def add_button(grid, column, label, callback):
     button.connect("clicked", callback)
     button.set_margin_bottom(5)
     grid.attach(button, 0, column, 1, 1)
+    return button
 
 
 def get_templates(name_list):

@@ -53,11 +53,18 @@ from ..services.service_fields import FieldCalculatorService
 from ..services.service_status import StatusIndicatorService
 from .config_colors import add_color
 from .config_const import (
+    HELP_CONFIG_DISPLAY,
+    HELP_CONFIG_GENERAL,
+    HELP_CONFIG_MENU,
+    HELP_CONFIG_INDICATORS_BASIC,
+    HELP_CONFIG_INDICATORS_STATUS,
+    HELP_CONFIG_CALCULATED_FIELDS,
+    HELP_CONFIG_MEDIA_BAR,
     MEDIA_DISPLAY_MODES,
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
-from .config_utils import add_config_reset, create_grid
+from .config_utils import add_config_buttons, create_grid, HelpButton
 
 _ = glocale.translation.sgettext
 
@@ -172,7 +179,9 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
         "display.icons-group-width",
         (1, 40),
     )
-    return add_config_reset(configdialog, grstate, "display", grid)
+    return add_config_buttons(
+        configdialog, grstate, "display", grid, HELP_CONFIG_DISPLAY
+    )
 
 
 def build_general_grid(configdialog, grstate, *_dummy_args):
@@ -251,7 +260,9 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
         20,
         "general.enable-warnings",
     )
-    return add_config_reset(configdialog, grstate, "general", grid)
+    return add_config_buttons(
+        configdialog, grstate, "general", grid, HELP_CONFIG_GENERAL
+    )
 
 
 def build_menu_grid(configdialog, grstate, *_dummy_args):
@@ -386,7 +397,9 @@ def build_menu_grid(configdialog, grstate, *_dummy_args):
     configdialog.add_checkbox(
         grid, _("Enable privacy option"), 33, "menu.privacy"
     )
-    return add_config_reset(configdialog, grstate, "menu", grid)
+    return add_config_buttons(
+        configdialog, grstate, "menu", grid, HELP_CONFIG_MENU
+    )
 
 
 def build_indicator_grid(configdialog, grstate, *_dummy_args):
@@ -531,7 +544,9 @@ def build_indicator_grid(configdialog, grstate, *_dummy_args):
         35,
         "indicator.urls",
     )
-    return add_config_reset(configdialog, grstate, "indicator", grid)
+    return add_config_buttons(
+        configdialog, grstate, "indicator", grid, HELP_CONFIG_INDICATORS_BASIC
+    )
 
 
 def build_status_grid(configdialog, grstate, *_dummy_args):
@@ -549,6 +564,9 @@ def build_status_grid(configdialog, grstate, *_dummy_args):
         row = row + 1
     vbox = Gtk.VBox(margin=12)
     vbox.pack_start(grid, True, True, 0)
+    hbox = Gtk.HBox()
+    hbox.pack_start(HelpButton(HELP_CONFIG_INDICATORS_STATUS), False, False, 0)
+    vbox.pack_start(hbox, False, False, 0)
     return make_scrollable(vbox, hexpand=True)
 
 
@@ -570,6 +588,9 @@ def build_field_grid(configdialog, grstate, *_dummy_args):
         return None
     vbox = Gtk.VBox(margin=12)
     vbox.pack_start(grid, True, True, 0)
+    hbox = Gtk.HBox()
+    hbox.pack_start(HelpButton(HELP_CONFIG_CALCULATED_FIELDS), False, False, 0)
+    vbox.pack_start(hbox, False, False, 0)
     return make_scrollable(vbox, hexpand=True)
 
 
@@ -633,4 +654,6 @@ def build_media_bar_grid(configdialog, grstate, *_dummy_args):
         14,
         "media-bar.page-link",
     )
-    return add_config_reset(configdialog, grstate, "media-bar", grid)
+    return add_config_buttons(
+        configdialog, grstate, "media-bar", grid, HELP_CONFIG_MEDIA_BAR
+    )

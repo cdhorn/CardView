@@ -51,12 +51,14 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from .config_const import (
     EVENT_COLOR_MODES,
     EVENT_DISPLAY_MODES,
+    HELP_CONFIG_ACTIVE_OBJECT,
+    HELP_CONFIG_OBJECT_GROUPS,
     IMAGE_DISPLAY_MODES,
     MEDIA_DISPLAY_MODES,
     REF_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
 )
-from .config_utils import add_config_reset, config_facts_fields, create_grid
+from .config_utils import add_config_buttons, config_facts_fields, create_grid
 
 _ = glocale.translation.sgettext
 
@@ -103,6 +105,15 @@ class ConfigNotebook(Gtk.Notebook):
             container.pack_start(page, True, True, 0)
             container.show_all()
             self.rendered_pages.append(index)
+
+
+def get_help(space):
+    """
+    Return help url based on space
+    """
+    if "group" in space:
+        return HELP_CONFIG_OBJECT_GROUPS
+    return HELP_CONFIG_ACTIVE_OBJECT
 
 
 def build_person_grid(configdialog, grstate, space, person):
@@ -182,8 +193,12 @@ def build_person_grid(configdialog, grstate, space, person):
             key="mfield",
         )
     grid.attach(grid3, 0, 2, 1, 1)
-    return add_config_reset(
-        configdialog, grstate, "{}.{}".format(space, person), grid
+    return add_config_buttons(
+        configdialog,
+        grstate,
+        "{}.{}".format(space, person),
+        grid,
+        get_help(space),
     )
 
 
@@ -276,8 +291,8 @@ def build_family_grid(configdialog, grstate, space, *_dummy_context):
             obj_type="Family",
         )
     grid.attach(grid3, 0, 2, 1, 1)
-    return add_config_reset(
-        configdialog, grstate, "{}.family".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.family".format(space), grid, get_help(space)
     )
 
 
@@ -299,8 +314,8 @@ def build_name_grid(configdialog, grstate, space, *_dummy_context):
                 "date."
             ),
         )
-    return add_config_reset(
-        configdialog, grstate, "{}.name".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.name".format(space), grid, get_help(space)
     )
 
 
@@ -322,8 +337,8 @@ def build_ldsord_grid(configdialog, grstate, space, *_dummy_context):
                 "date."
             ),
         )
-    return add_config_reset(
-        configdialog, grstate, "{}.ldsord".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.ldsord".format(space), grid, get_help(space)
     )
 
 
@@ -345,8 +360,12 @@ def build_address_grid(configdialog, grstate, space, *_dummy_context):
                 "date."
             ),
         )
-    return add_config_reset(
-        configdialog, grstate, "{}.address".format(space), grid
+    return add_config_buttons(
+        configdialog,
+        grstate,
+        "{}.address".format(space),
+        grid,
+        get_help(space),
     )
 
 
@@ -447,8 +466,8 @@ def build_media_grid(configdialog, grstate, space, *_dummy_context):
         key="rfield",
         obj_type="Media",
     )
-    return add_config_reset(
-        configdialog, grstate, "{}.media".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.media".format(space), grid, get_help(space)
     )
 
 
@@ -492,8 +511,8 @@ def build_note_grid(configdialog, grstate, space, *_dummy_context):
             5,
             "{}.note.include-child-objects".format(space),
         )
-    return add_config_reset(
-        configdialog, grstate, "{}.note".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.note".format(space), grid, get_help(space)
     )
 
 
@@ -656,8 +675,12 @@ def build_citation_grid(configdialog, grstate, space, *_dummy_context):
         key="rfield",
         obj_type="Citation",
     )
-    return add_config_reset(
-        configdialog, grstate, "{}.citation".format(space), grid
+    return add_config_buttons(
+        configdialog,
+        grstate,
+        "{}.citation".format(space),
+        grid,
+        get_help(space),
     )
 
 
@@ -703,8 +726,8 @@ def build_source_grid(configdialog, grstate, space, *_dummy_context):
         key="rfield",
         obj_type="Source",
     )
-    return add_config_reset(
-        configdialog, grstate, "{}.source".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.source".format(space), grid, get_help(space)
     )
 
 
@@ -753,8 +776,12 @@ def build_repository_grid(configdialog, grstate, space, *_dummy_context):
             "is available."
         ),
     )
-    return add_config_reset(
-        configdialog, grstate, "{}.repository".format(space), grid
+    return add_config_buttons(
+        configdialog,
+        grstate,
+        "{}.repository".format(space),
+        grid,
+        get_help(space),
     )
 
 
@@ -793,8 +820,8 @@ def build_place_grid(configdialog, grstate, space, *_dummy_context):
             5,
             "{}.place.show-all-enclosed-places".format(space),
         )
-    return add_config_reset(
-        configdialog, grstate, "{}.place".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.place".format(space), grid, get_help(space)
     )
 
 
@@ -900,6 +927,6 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
         key="rfield",
         obj_type="Event",
     )
-    return add_config_reset(
-        configdialog, grstate, "{}.event".format(space), grid
+    return add_config_buttons(
+        configdialog, grstate, "{}.event".format(space), grid, get_help(space)
     )

@@ -19,7 +19,7 @@
 #
 
 """
-GrampsPageView related constants
+Configuration related constants
 """
 
 # -------------------------------------------------------------------------
@@ -32,9 +32,30 @@ from gramps.gen.lib import Citation
 
 _ = glocale.translation.sgettext
 
-WIKI_BASE = "https://www.gramps-project.org/wiki/index.php/"
-HELP_URL = "%s%s" % (WIKI_BASE, "Addon:CardView")
-HELP_TEMPLATE_EDITOR_URL = "%s%s" % (WIKI_BASE, "Addon:CardView#Features")
+HELP_VIEW = "https://www.gramps-project.org/wiki/index.php/Addon:CardView"
+HELP_CONFIG = "%s%s" % (HELP_VIEW, "_Configuration:")
+HELP_CONFIG_TEMPLATES = "%s%s" % (HELP_CONFIG, "Templates")
+HELP_CONFIG_DISPLAY = "%s%s" % (HELP_CONFIG, "Global#Display")
+HELP_CONFIG_GENERAL = "%s%s" % (HELP_CONFIG, "Global#General")
+HELP_CONFIG_MENU = "%s%s" % (HELP_CONFIG, "Global#Context_Menu")
+HELP_CONFIG_INDICATORS_BASIC = "%s%s" % (
+    HELP_CONFIG,
+    "Global#Basic_Indicators",
+)
+HELP_CONFIG_INDICATORS_STATUS = "%s%s" % (
+    HELP_CONFIG,
+    "Global#Status_Indicators",
+)
+HELP_CONFIG_CALCULATED_FIELDS = "%s%s" % (
+    HELP_CONFIG,
+    "Global#Calculated_Fields",
+)
+HELP_CONFIG_MEDIA_BAR = "%s%s" % (HELP_CONFIG, "Global#Media_Bar")
+HELP_CONFIG_PAGE_LAYOUT = "%s%s" % (HELP_CONFIG, "Layout")
+HELP_CONFIG_ACTIVE_OBJECT = "%s%s" % (HELP_CONFIG, "Active")
+HELP_CONFIG_OBJECT_GROUPS = "%s%s" % (HELP_CONFIG, "Groups")
+HELP_CONFIG_TIMELINES = "%s%s" % (HELP_CONFIG, "Timelines")
+HELP_CONFIG_COLORS = "%s%s" % (HELP_CONFIG, "Colors")
 
 BASE_TEMPLATE_NAME = "CardView"
 

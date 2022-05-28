@@ -44,6 +44,7 @@ from gi.repository import Gtk
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gui.configure import GrampsPreferences
+from gramps.gui.display import display_url
 
 # -------------------------------------------------------------------------
 #
@@ -205,6 +206,29 @@ class ConfigReset(Gtk.ButtonBox):
         return options
 
 
+# -------------------------------------------------------------------------
+#
+# HelpButton Class
+#
+# -------------------------------------------------------------------------
+class HelpButton(Gtk.Button):
+    """
+    Simple help button
+    """
+
+    def __init__(self, url):
+        Gtk.Button.__init__(self)
+        self.url = url
+        self.set_label(_("Help"))
+        self.connect("clicked", self.launch_help)
+
+    def launch_help(self, *_dummy_args):
+        """
+        Lauch help
+        """
+        display_url(self.url)
+
+
 def create_grid():
     """
     Generate grid for config panels.
@@ -220,14 +244,16 @@ def create_grid():
     return grid
 
 
-def add_config_reset(configdialog, grstate, space, grid):
+def add_config_buttons(configdialog, grstate, space, grid, url):
     """
-    Add configuration reset option for grid options.
+    Add help and configuration reset buttons.
     """
     vbox = Gtk.VBox(margin=12)
     vbox.pack_start(grid, True, True, 0)
-    reset = ConfigReset(configdialog, grstate, space)
-    vbox.pack_end(reset, False, False, 0)
+    hbox = Gtk.ButtonBox(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+    hbox.add(HelpButton(url))
+    hbox.add(ConfigReset(configdialog, grstate, space))
+    vbox.pack_end(hbox, False, False, 0)
     return make_scrollable(vbox, hexpand=True)
 
 

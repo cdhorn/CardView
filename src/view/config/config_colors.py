@@ -49,7 +49,8 @@ from gramps.gui.widgets import BasicLabel
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from .config_utils import ConfigPreferences, add_config_reset, create_grid
+from .config_const import HELP_CONFIG_COLORS
+from .config_utils import ConfigPreferences, add_config_buttons, create_grid
 
 _ = glocale.translation.sgettext
 
@@ -195,7 +196,9 @@ def build_color_grid(configdialog, grstate, scheme_type, scheme_options):
         add_color(grstate.config, dark_grid, label, option, (row, column), 1)
     colors_grid.attach(light_grid, 0, 1, 2, 1)
     colors_grid.attach(dark_grid, 0, 2, 2, 1)
-    return add_config_reset(configdialog, grstate, space, grid)
+    return add_config_buttons(
+        configdialog, grstate, space, grid, HELP_CONFIG_COLORS
+    )
 
 
 def add_color(config, grid, text, option, coordinates, scheme):
