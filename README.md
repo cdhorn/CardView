@@ -233,9 +233,11 @@ Other attributes about the Source in Zotero are also imported and stored in the 
 Bug Reports and Feature Requests
 ---------------
 
-For the moment bugs, feedback or feature requests can be submitted on [Github](https://github.com/cdhorn/CardView).
+> Please check the [known issues](KNOWN_ISSUES.md) before reporting a bug or problem with the addons here.
 
-Once folded into the Gramps AddOns repository and published such things will be handled through the normal Gramps support channels.
+For the moment, after you have checked the known issues, then bugs can be submitted on [Github](https://github.com/cdhorn/CardView). Feature requests are welcome as well.
+
+Once folded into the Gramps Addons repository and published such things will be handled through the normal Gramps support channels and this repository will be archived.
 
 History
 ---------------

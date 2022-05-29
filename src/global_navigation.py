@@ -209,30 +209,20 @@ class GlobalNavigationView(PageView):
         """
         Switch to different category view.
         """
-        if category:
-            primary_category = self.uistate.viewmanager.get_category(
-                CATEGORIES[category]
-            )
-            try:
-                category_views = self.uistate.viewmanager.get_views()[
-                    primary_category
-                ]
-            except TypeError as error:
-                print(
-                    "ERROR: No primary category found for {}".format(category)
-                )
-                raise TypeError(error)
+        if category in CATEGORIES:
+            viewmanager = self.uistate.viewmanager
+            category_name = CATEGORIES[category]
+            category_index = viewmanager.get_category(category_name)
+            category_views = viewmanager.get_views()[category_index]
             if category_views:
-                current_ancestor = type(self).mro()[1]
                 for (view_index, (dummy_view_plugin, view_class)) in enumerate(
                     category_views
                 ):
-                    for component_class in list(view_class.__mro__):
-                        if issubclass(component_class, current_ancestor):
-                            view_class.dirty = True
-                            return self.uistate.viewmanager.goto_page(
-                                primary_category, view_index
-                            )
+                    if issubclass(view_class, GlobalNavigationView):
+                        return viewmanager.goto_page(
+                            category_index, view_index
+                        )
+                return viewmanager.goto_page(category_index)
 
     def change_page(self):
         """

@@ -202,7 +202,7 @@ TOOLBAR_MOREBUTTONS = (
         <property name="icon-name">help-browser</property>
         <property name="action-name">win.ViewHelp</property>
         <property name="tooltip_text" translatable="yes">"""
-    + """View help</property>
+    + """Card View help</property>
         <property name="label" translatable="yes">Help</property>
         <property name="use-underline">True</property>
       </object>
