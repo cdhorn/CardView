@@ -215,12 +215,14 @@ class ExtendedNavigationView(PageView):
                     primary_category
                 ]
             except TypeError as error:
-                print("ERROR: No primary category found for {}".format(category))
+                print(
+                    "ERROR: No primary category found for {}".format(category)
+                )
                 raise TypeError(error)
             if category_views:
                 current_ancestor = type(self).mro()[1]
                 for (view_index, (dummy_view_plugin, view_class)) in enumerate(
-                        category_views
+                    category_views
                 ):
                     for component_class in list(view_class.__mro__):
                         if issubclass(component_class, current_ancestor):

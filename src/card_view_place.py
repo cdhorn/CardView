@@ -88,7 +88,13 @@ class PlaceCardView(CardView):
         """
         Return the default Gramplets.
         """
-        return (("GetGOV Gramplet",), ())
+        return (
+            (
+                "RecentChanges",
+                "GetGOV Gramplet",
+            ),
+            (),
+        )
 
     additional_ui = [
         MENU_LOCALEXPORT,

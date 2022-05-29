@@ -241,6 +241,12 @@ class CardView(ExtendedNavigationView):
         """
         return True
 
+    def get_default_gramplets(self):
+        """
+        Return the default Gramplets.
+        """
+        return (("RecentChanges",), ())
+
     def reload_config(self, refresh_only=False):
         """
         Reload all config settings and initiate redraw.
