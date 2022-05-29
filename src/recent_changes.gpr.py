@@ -26,7 +26,7 @@ register(
     name=_("Recent Changes"),
     description=_("List the most recent records that have been changed"),
     status=STABLE,
-    version="0.7.7",
+    version="0.7.8",
     fname="recent_changes.py",
     authors=["Jakim Friant", "Christopher Horn"],
     authors_email=["jmodule@friant.org"],
@@ -34,5 +34,5 @@ register(
     gramplet="RecentChanges",
     gramps_target_version="5.1",
     gramplet_title=_("Recent Changes"),
-    help_url="RecentChanges",
+    help_url="Addon:Recent_Changes",
 )

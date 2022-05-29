@@ -21,7 +21,7 @@
 #
 
 """
-ExtendedHistory
+GlobalHistory
 """
 
 # ----------------------------------------------------------------
@@ -37,17 +37,17 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------------
 #
-# ExtendedHistory Class
+# GlobalHistory Class
 #
 # ------------------------------------------------------------------------------
-class ExtendedHistory(Callback):
+class GlobalHistory(Callback):
     """
-    The ExtendedHistory manages the pages that have been viewed, with ability to
-    go backward or forward. Unlike a list view History class it can track pages
-    for embedded secondary objects. It will also attempt to keep the list view
-    histories in sync.
+    The GlobalHistory manages the pages that have been viewed, with ability to
+    go backward or forward. Unlike a serial list view History class it tracks
+    navigation across objects and supports context for embedded secondary
+    objects. It will also attempt to keep the list view histories in sync.
 
-    In this extended class a history item or page reference is a tuple
+    In this global history class a history item or page reference is a tuple
     consisting of:
 
         (
@@ -68,7 +68,16 @@ class ExtendedHistory(Callback):
 
     __signals__ = {"active-changed": (tuple,), "mru-changed": (list,)}
 
-    __slots__ = ("uistate", "history", "mru", "index", "lock", "signal_map")
+    __slots__ = (
+        "dbstate",
+        "uistate",
+        "nav_type",
+        "history",
+        "mru",
+        "index",
+        "lock",
+        "signal_map",
+    )
 
     _init = False
 
@@ -77,7 +86,7 @@ class ExtendedHistory(Callback):
         Return the singleton class.
         """
         if not hasattr(cls, "instance"):
-            cls.instance = super(ExtendedHistory, cls).__new__(cls)
+            cls.instance = super(GlobalHistory, cls).__new__(cls)
         return cls.instance
 
     def __init__(self, dbstate, uistate):
@@ -86,7 +95,9 @@ class ExtendedHistory(Callback):
         """
         if not self._init:
             Callback.__init__(self)
+            self.dbstate = dbstate
             self.uistate = uistate
+            self.nav_type = "Global"
             self.history = []
             self.mru = []
             self.index = -1

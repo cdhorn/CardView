@@ -21,7 +21,7 @@
 #
 
 """
-ExtendedNavigation class
+GlobalNavigation class
 """
 
 # ----------------------------------------------------------------
@@ -71,7 +71,7 @@ from gramps.gui.views.pageview import PageView
 # Plugin Modules
 #
 # ----------------------------------------------------------------
-from extended_history import ExtendedHistory
+from global_history import GlobalHistory
 from view.config.config_const import CATEGORIES
 
 _ = glocale.translation.sgettext
@@ -99,14 +99,14 @@ BOOKMARKS = {
 
 # -----------------------------------------------------------------------------
 #
-# ExtendedNavigationView Class
+# GlobalNavigationView Class
 #
 # -----------------------------------------------------------------------------
-class ExtendedNavigationView(PageView):
+class GlobalNavigationView(PageView):
     """
-    The ExtendedNavigationView class is the base class for all views that
+    The GlobalNavigationView class is the base class for all views that
     require advanced navigation functionality across multiple object types.
-    It requires use of the ExtendedHistory class to keep list views in sync.
+    It requires use of the GlobalHistory class to keep list views in sync.
     """
 
     def __init__(self, title, pdata, state, uistate, nav_group):
@@ -128,7 +128,10 @@ class ExtendedNavigationView(PageView):
         self.dirty = False
         self.lock = False
 
-        self.history = ExtendedHistory(self.dbstate, uistate)
+        self.history = GlobalHistory(self.dbstate, uistate)
+        if ("Global", nav_group) not in uistate.history_lookup:
+            uistate.history_lookup[("Global", nav_group)] = self.history
+
         object_history = self.uistate.get_history(self.navigation_type())
         if object_history:
             object_history.connect(

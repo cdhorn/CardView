@@ -26,6 +26,7 @@
 # ------------------------------------------------------------------------
 from bisect import bisect
 from copy import copy
+from html import escape
 
 # ------------------------------------------------------------------------
 #
@@ -131,8 +132,9 @@ TAB_OPTION = _("Use tabbed mode")
 GLOBAL_OPTION = _("Show global change list")
 ALL_OPTION = _("Show all object type lists")
 MAX_OBJECTS = _("Maximum objects to display")
-ICON_OPTION = _("Use large icons")
-ID_OPTION = _("Show Gramps id")
+ICON_OPTION = _("Use small icons")
+TEXT_OPTION = _("Use smaller text for change time")
+ID_OPTION = _("Include Gramps id")
 
 
 # ------------------------------------------------------------------------
@@ -152,14 +154,15 @@ class RecentChanges(Gramplet):
         self.current_view = Gtk.VBox()
         self.gui.get_container_widget().remove(self.gui.textview)
         self.gui.get_container_widget().add_with_viewport(self.current_view)
-        self.change_service = RecentChangesService(self.dbstate)
+        self.change_service = RecentChangesService(self.dbstate, self.uistate)
         self.change_service.connect("change-notification", self.update)
         self.tabbed_mode = 0
         self.show_global_list = 1
         self.show_all_lists = 1
         self.show_gramps_id = 1
-        self.large_icons = 0
-        self.object_count = 15
+        self.small_icons = 0
+        self.small_text = 1
+        self.max_per_list = 10
 
     def build_options(self):
         """
@@ -170,8 +173,9 @@ class RecentChanges(Gramplet):
             BooleanOption(GLOBAL_OPTION, bool(self.show_global_list))
         )
         self.add_option(BooleanOption(ALL_OPTION, bool(self.show_all_lists)))
-        self.add_option(NumberOption(MAX_OBJECTS, self.object_count, 1, 25))
-        self.add_option(BooleanOption(ICON_OPTION, bool(self.large_icons)))
+        self.add_option(NumberOption(MAX_OBJECTS, self.max_per_list, 1, 25))
+        self.add_option(BooleanOption(ICON_OPTION, bool(self.small_icons)))
+        self.add_option(BooleanOption(TEXT_OPTION, bool(self.small_icons)))
         self.add_option(BooleanOption(ID_OPTION, bool(self.show_gramps_id)))
 
     def save_options(self):
@@ -181,21 +185,23 @@ class RecentChanges(Gramplet):
         self.tabbed_mode = int(self.get_option(TAB_OPTION).get_value())
         self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
         self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
-        self.object_count = int(self.get_option(MAX_OBJECTS).get_value())
-        self.large_icons = int(self.get_option(ICON_OPTION).get_value())
+        self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
+        self.small_icons = int(self.get_option(ICON_OPTION).get_value())
+        self.small_text = int(self.get_option(TEXT_OPTION).get_value())
         self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
 
     def on_load(self):
         """
         Load the options.
         """
-        if len(self.gui.data) == 6:
+        if len(self.gui.data) == 7:
             self.tabbed_mode = int(self.gui.data[0])
             self.show_global_list = int(self.gui.data[1])
             self.show_all_lists = int(self.gui.data[2])
-            self.object_count = int(self.gui.data[3])
-            self.large_icons = int(self.gui.data[4])
-            self.show_gramps_id = int(self.gui.data[5])
+            self.max_per_list = int(self.gui.data[3])
+            self.small_icons = int(self.gui.data[4])
+            self.small_text = int(self.gui.data[5])
+            self.show_gramps_id = int(self.gui.data[6])
 
     def save_update_options(self, widget=None):
         """
@@ -204,15 +210,17 @@ class RecentChanges(Gramplet):
         self.tabbed_mode = int(self.get_option(TAB_OPTION).get_value())
         self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
         self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
-        self.object_count = int(self.get_option(MAX_OBJECTS).get_value())
-        self.large_icons = int(self.get_option(ICON_OPTION).get_value())
+        self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
+        self.small_icons = int(self.get_option(ICON_OPTION).get_value())
+        self.small_text = int(self.get_option(TEXT_OPTION).get_value())
         self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
         self.gui.data = [
             self.tabbed_mode,
             self.show_global_list,
             self.show_all_lists,
-            self.object_count,
-            self.large_icons,
+            self.max_per_list,
+            self.small_icons,
+            self.small_text,
             self.show_gramps_id,
         ]
         self.update()
@@ -244,19 +252,21 @@ class RecentChanges(Gramplet):
         """
         list_widget = Gtk.VBox(vexpand=False)
         for obj_type, obj_handle, label, _change, change_string in handle_list[
-            : self.object_count
+            : self.max_per_list
         ]:
             if self.show_gramps_id:
-                title = label
+                title = escape(label)
             else:
-                title = label.split("]")[1].strip()
+                title = escape(label.split("]")[1].strip())
+            if self.small_text:
+                change_string = "<small>{}</small>".format(change_string)
             model = RecentChangesModel(
                 self.dbstate,
                 obj_type,
                 obj_handle,
                 title,
                 change_string,
-                self.large_icons,
+                self.small_icons,
             )
             view = RecentChangesView(self.uistate)
             RecentChangesPresenter(model, view)
@@ -316,10 +326,10 @@ class RecentChanges(Gramplet):
         else:
             icon_name = "gramps-{}".format(list_type.lower())
         icon = Gtk.Image()
-        if self.large_icons:
-            icon.set_from_icon_name(icon_name, Gtk.IconSize.LARGE_TOOLBAR)
-        else:
+        if self.small_icons:
             icon.set_from_icon_name(icon_name, Gtk.IconSize.SMALL_TOOLBAR)
+        else:
+            icon.set_from_icon_name(icon_name, Gtk.IconSize.LARGE_TOOLBAR)
         return icon
 
 
@@ -339,7 +349,7 @@ class RecentChangesService(Callback):
 
     __signals__ = {"change-notification": (str, str)}
 
-    __slots__ = ("dbstate", "depth", "change_history", "signal_map")
+    __slots__ = ("dbstate", "uistate", "depth", "change_history", "signal_map")
 
     __init = False
 
@@ -351,7 +361,7 @@ class RecentChangesService(Callback):
             cls.instance = super(RecentChangesService, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, dbstate, depth=25):
+    def __init__(self, dbstate, uistate, depth=25):
         """
         Initialize the class if needed.
         """
@@ -374,6 +384,8 @@ class RecentChangesService(Callback):
             self.register_signal("Tag")
             self.initialize_change_history()
             dbstate.connect("database-changed", self.initialize_change_history)
+            uistate.connect("nameformat-changed", self.rebuild_name_labels)
+            uistate.connect("placeformat-changed", self.rebuild_place_labels)
             self.__init = True
 
     def register_signal(self, object_type):
@@ -393,6 +405,12 @@ class RecentChangesService(Callback):
         """
         self.depth = depth
         self.load_change_history()
+        self.trigger_update()
+
+    def trigger_update(self):
+        """
+        Trigger a synthetic update to force a reload.
+        """
         if self.change_history["Global"]:
             last_object = self.change_history["Global"][0]
             self.emit("change-notification", (last_object[0], last_object[1]))
@@ -437,6 +455,49 @@ class RecentChangesService(Callback):
             if len(self.change_history["Global"]) > self.depth:
                 self.change_history["Global"].pop()
             self.emit("change-notification", (object_type, object_handle))
+
+    def rebuild_labels(self, category):
+        """
+        Rebuild labels for a name format change and trigger synthetic update.
+        """
+        for (
+            index,
+            (object_type, object_handle, object_label, change, change_string),
+        ) in enumerate(self.change_history[category]):
+            object_label, dummy_object = get_object_label(
+                self.dbstate.db, object_type, object_handle
+            )
+            updated_tuple = (
+                object_type,
+                object_handle,
+                object_label,
+                change,
+                change_string,
+            )
+            self.change_history[category][index] = updated_tuple
+            self.replace_global_label(object_handle, updated_tuple)
+        self.trigger_update()
+
+    def replace_global_label(self, object_handle, updated_tuple):
+        """
+        Replace a label in the Global history.
+        """
+        for (index, object_data) in enumerate(self.change_history["Global"]):
+            if object_data[1] == object_handle:
+                self.change_history["Global"][index] = updated_tuple
+                break
+
+    def rebuild_name_labels(self):
+        """
+        Rebuild labels for a name format change.
+        """
+        self.rebuild_labels("Person")
+
+    def rebuild_place_labels(self):
+        """
+        Rebuild labels for a place format change and trigger synthetic update.
+        """
+        self.rebuild_labels("Place")
 
     def clean_change_history(self, object_type, object_handle):
         """
@@ -597,9 +658,21 @@ class RecentChangesPresenter:
         category = CATEGORIES[self.model.obj_type]
         category_index = self.view.uistate.viewmanager.get_category(category)
         self.view.uistate.viewmanager.goto_page(category_index, None)
+
+        nav_group = self.view.uistate.viewmanager.active_page.nav_group
+        print(
+            "nav_group: {}  obj_type: {}  obj_handle: {}".format(
+                nav_group, self.model.obj_type, self.model.obj_handle
+            )
+        )
+        if nav_group == 1:
+            history = self.view.uistate.get_history("Global", nav_group)
+            if history:
+                self.view.uistate.viewmanager.active_page.dirty = 1
+                history.push((self.model.obj_type, self.model.obj_handle))
+                return True
         history = self.view.uistate.get_history(self.model.obj_type)
-        if history:
-            history.push(self.model.obj_handle)
+        history.push(self.model.obj_handle)
         return True
 
 
@@ -709,11 +782,11 @@ class RecentChangesView(Gtk.Bin):
         """
         if size:
             self.widgets.icon.set_from_icon_name(
-                name, Gtk.IconSize.LARGE_TOOLBAR
+                name, Gtk.IconSize.SMALL_TOOLBAR
             )
         else:
             self.widgets.icon.set_from_icon_name(
-                name, Gtk.IconSize.SMALL_TOOLBAR
+                name, Gtk.IconSize.LARGE_TOOLBAR
             )
 
 
@@ -732,8 +805,8 @@ class RecentChangesWidgets:
     def __init__(self):
         self.frame = Gtk.Frame()
         self.events = Gtk.EventBox()
-        self.title = Gtk.Label(xalign=0.0)
-        self.text = Gtk.Label(xalign=0.0)
+        self.title = Gtk.Label(xalign=0.0, use_markup=True)
+        self.text = Gtk.Label(xalign=0.0, use_markup=True)
         self.icon = Gtk.Image()
 
 

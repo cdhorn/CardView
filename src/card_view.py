@@ -59,7 +59,7 @@ from gramps.gui.display import display_url
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from extended_navigation import ExtendedNavigationView
+from global_navigation import GlobalNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_const import PAGE_LABELS
 from view.common.common_utils import get_initial_object
@@ -82,7 +82,7 @@ _ = glocale.translation.sgettext
 # CardView Class
 #
 # -------------------------------------------------------------------------
-class CardView(ExtendedNavigationView):
+class CardView(GlobalNavigationView):
     """
     A browseable card based view across all the associated objects in a tree.
     """
@@ -97,7 +97,7 @@ class CardView(ExtendedNavigationView):
     def __init__(self, title, pdata, dbstate, uistate, nav_group=1):
         self._config_view = None
         self.grstate = None
-        ExtendedNavigationView.__init__(
+        GlobalNavigationView.__init__(
             self,
             title,
             pdata,
@@ -346,7 +346,7 @@ class CardView(ExtendedNavigationView):
         """
         Define supported page actions.
         """
-        ExtendedNavigationView.define_actions(self)
+        GlobalNavigationView.define_actions(self)
         self._add_action("ViewHelp", self.launch_help)
         self._add_action("OpenPinnedView", self.launch_view_window)
         self._add_action("Edit", self.edit_active, "<PRIMARY>Return")
@@ -372,7 +372,7 @@ class CardView(ExtendedNavigationView):
         """
         Called when the page changes.
         """
-        ExtendedNavigationView.change_page(self)
+        GlobalNavigationView.change_page(self)
         self.uistate.clear_filter_results()
         if self.current_context and self.current_context.primary_obj:
             self._set_status_bar(self.current_context)
@@ -514,7 +514,7 @@ class CardView(ExtendedNavigationView):
         """
         if not self._init_history:
             self._get_initial_object()
-        ExtendedNavigationView.set_active(self)
+        GlobalNavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
 
     def _get_initial_object(self):
@@ -557,7 +557,7 @@ class CardView(ExtendedNavigationView):
         """
         Called when the page is no longer displayed.
         """
-        ExtendedNavigationView.set_inactive(self)
+        GlobalNavigationView.set_inactive(self)
         self.uistate.viewmanager.tags.tag_disable()
         if not self.dbstate.db.is_open():
             self._clear_current_view()
