@@ -230,6 +230,12 @@ class CardView(GlobalNavigationView):
         """
         return None
 
+    def navigation_group_key(self):
+        """
+        Return active navigation group key.
+        """
+        return "cardview"
+
     def can_configure(self):
         """
         Return indicator view is configurable.

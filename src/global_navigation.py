@@ -164,6 +164,13 @@ class GlobalNavigationView(PageView):
         """
         return self.nav_group
 
+    @abstractmethod
+    def navigation_group_key(self):
+        """
+        Return the navigation group key. Should be common value in the id field
+        of the view plugins used to find the view when switching categories.
+        """
+
     def get_history(self):
         """
         Return the history object.
@@ -215,14 +222,14 @@ class GlobalNavigationView(PageView):
             category_index = viewmanager.get_category(category_name)
             category_views = viewmanager.get_views()[category_index]
             if category_views:
-                for (view_index, (dummy_view_plugin, view_class)) in enumerate(
+                for (view_index, (view_plugin, view_class)) in enumerate(
                     category_views
                 ):
-                    if issubclass(view_class, GlobalNavigationView):
+                    if self.navigation_group_key() in view_plugin.id:
                         return viewmanager.goto_page(
                             category_index, view_index
                         )
-                return viewmanager.goto_page(category_index)
+                return viewmanager.goto_page(category_index, None)
 
     def change_page(self):
         """

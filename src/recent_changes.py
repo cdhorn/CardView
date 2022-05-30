@@ -626,8 +626,10 @@ class RecentChangesInteractor:
         """
         if action == "right":
             return self.presenter.edit()
+        if action == "middle":
+            return self.presenter.goto_list_view()
         if action == "left":
-            return self.presenter.goto()
+            return self.presenter.goto_card_view()
 
 
 # ------------------------------------------------------------------------
@@ -674,13 +676,40 @@ class RecentChangesPresenter:
                     pass
         return True
 
-    def goto(self):
+    def goto_list_view(self):
+        """
+        Navigate to a list view.
+        """
+        self.goto(list_view=True)
+
+    def goto_card_view(self):
+        """
+        Navigate to a card view.
+        """
+        self.goto(list_view=False)
+
+    def goto(self, list_view=False):
         """
         Perform a requested navigation action.
         """
+        viewmanager = self.view.uistate.viewmanager
         category = CATEGORIES[self.model.obj_type]
-        category_index = self.view.uistate.viewmanager.get_category(category)
-        self.view.uistate.viewmanager.goto_page(category_index, None)
+        category_index = viewmanager.get_category(category)
+        if list_view:
+            viewmanager.goto_page(category_index, 0)
+        else:
+            found = False
+            category_views = viewmanager.get_views()[category_index]
+            if category_views:
+                for (view_index, (view_plugin, dummy_view_class)) in enumerate(
+                    category_views
+                ):
+                    if "cardview" in view_plugin.id:
+                        viewmanager.goto_page(category_index, view_index)
+                        found = True
+                        break
+            if not found:
+                viewmanager.goto_page(category_index, None)
 
         nav_group = self.view.uistate.viewmanager.active_page.nav_group
         if nav_group == 1:
