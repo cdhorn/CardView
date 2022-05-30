@@ -246,7 +246,7 @@ class CardView(GlobalNavigationView):
         """
         Return the default Gramplets.
         """
-        return (("RecentChanges",), ())
+        return (("LastChanged",), ())
 
     def reload_config(self, refresh_only=False):
         """

@@ -128,9 +128,6 @@ SERIALIZATION_INDEX = {
     "Tag": 4,
 }
 
-EXPAND_OPTION = _("Use expanded list mode")
-GLOBAL_OPTION = _("Show global change list")
-ALL_OPTION = _("Show all object type lists")
 MAX_OBJECTS = _("Maximum objects to display")
 ICON_OPTION = _("Use small icons")
 TEXT_OPTION = _("Use smaller text for change time")
@@ -139,10 +136,10 @@ ID_OPTION = _("Include Gramps id")
 
 # ------------------------------------------------------------------------
 #
-# RecentChanges Gramplet
+# LastChanged Gramplet
 #
 # ------------------------------------------------------------------------
-class RecentChanges(Gramplet):
+class LastChanged(Gramplet):
     """
     Provides access to history of the most recently modified objects.
     """
@@ -154,28 +151,20 @@ class RecentChanges(Gramplet):
         self.current_view = Gtk.VBox()
         self.gui.get_container_widget().remove(self.gui.textview)
         self.gui.get_container_widget().add_with_viewport(self.current_view)
-        self.change_service = RecentChangesService(self.dbstate, self.uistate)
+        self.change_service = LastChangedService(self.dbstate, self.uistate)
         self.change_service.connect("change-notification", self.update)
         self.stack = None
-        self.expanded_list_mode = 0
-        self.show_global_list = 1
-        self.show_all_lists = 1
-        self.show_gramps_id = 1
+        self.stack_state = None
+        self.stack_active_button = None
+        self.max_per_list = 10
         self.small_icons = 0
         self.small_text = 1
-        self.max_per_list = 10
+        self.show_gramps_id = 1
 
     def build_options(self):
         """
         Build the options.
         """
-        self.add_option(
-            BooleanOption(EXPAND_OPTION, bool(self.expanded_list_mode))
-        )
-        self.add_option(
-            BooleanOption(GLOBAL_OPTION, bool(self.show_global_list))
-        )
-        self.add_option(BooleanOption(ALL_OPTION, bool(self.show_all_lists)))
         self.add_option(NumberOption(MAX_OBJECTS, self.max_per_list, 1, 25))
         self.add_option(BooleanOption(ICON_OPTION, bool(self.small_icons)))
         self.add_option(BooleanOption(TEXT_OPTION, bool(self.small_icons)))
@@ -185,11 +174,6 @@ class RecentChanges(Gramplet):
         """
         Save the options.
         """
-        self.expanded_list_mode = int(
-            self.get_option(EXPAND_OPTION).get_value()
-        )
-        self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
-        self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
         self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
         self.small_icons = int(self.get_option(ICON_OPTION).get_value())
         self.small_text = int(self.get_option(TEXT_OPTION).get_value())
@@ -199,32 +183,21 @@ class RecentChanges(Gramplet):
         """
         Load the options.
         """
-        if len(self.gui.data) == 7:
-            self.expanded_list_mode = int(self.gui.data[0])
-            self.show_global_list = int(self.gui.data[1])
-            self.show_all_lists = int(self.gui.data[2])
-            self.max_per_list = int(self.gui.data[3])
-            self.small_icons = int(self.gui.data[4])
-            self.small_text = int(self.gui.data[5])
-            self.show_gramps_id = int(self.gui.data[6])
+        if len(self.gui.data) == 4:
+            self.max_per_list = int(self.gui.data[0])
+            self.small_icons = int(self.gui.data[1])
+            self.small_text = int(self.gui.data[2])
+            self.show_gramps_id = int(self.gui.data[3])
 
     def save_update_options(self, widget=None):
         """
         Save updated options.
         """
-        self.expanded_list_mode = int(
-            self.get_option(EXPAND_OPTION).get_value()
-        )
-        self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
-        self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
         self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
         self.small_icons = int(self.get_option(ICON_OPTION).get_value())
         self.small_text = int(self.get_option(TEXT_OPTION).get_value())
         self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
         self.gui.data = [
-            self.expanded_list_mode,
-            self.show_global_list,
-            self.show_all_lists,
             self.max_per_list,
             self.small_icons,
             self.small_text,
@@ -236,21 +209,12 @@ class RecentChanges(Gramplet):
         """
         Fetch record change history and render.
         """
+        if self.stack:
+            self.stack_state = self.stack.get_visible_child_name()
         self.change_history = self.change_service.get_change_history()
         nav_type = self.uistate.viewmanager.active_page.navigation_type()
         list(map(self.current_view.remove, self.current_view.get_children()))
-
-        if self.show_all_lists:
-            display_list_types = [x for x in CATEGORIES]
-        else:
-            display_list_types = [nav_type]
-        if not self.show_global_list:
-            display_list_types.remove("Global")
-
-        if self.expanded_list_mode:
-            self.render_expander_mode(nav_type, display_list_types)
-        else:
-            self.render_stacked_mode(nav_type, display_list_types)
+        self.render_stacked_mode(nav_type, CATEGORIES)
         self.current_view.show_all()
 
     def build_list(self, nav_type, handle_list, current=False):
@@ -261,13 +225,13 @@ class RecentChanges(Gramplet):
         for obj_type, obj_handle, label, _change, change_string in handle_list[
             : self.max_per_list
         ]:
+            if self.small_text:
+                change_string = "<small>{}</small>".format(change_string)
             if self.show_gramps_id:
                 title = escape(label)
             else:
                 title = escape(label.split("]")[1].strip())
-            if self.small_text:
-                change_string = "<small>{}</small>".format(change_string)
-            model = RecentChangesModel(
+            model = LastChangedModel(
                 self.dbstate,
                 obj_type,
                 obj_handle,
@@ -275,24 +239,10 @@ class RecentChanges(Gramplet):
                 change_string,
                 self.small_icons,
             )
-            view = RecentChangesView(self.uistate)
-            RecentChangesPresenter(model, view)
+            view = LastChangedView(self.uistate)
+            LastChangedPresenter(model, view)
             list_widget.pack_start(view, False, False, 0)
         return list_widget
-
-    def render_expander_mode(self, nav_type, display_list_types):
-        """
-        Render using the expander mode.
-        """
-        for list_type in display_list_types:
-            current_type = list_type == nav_type
-            list_widget = self.build_list(
-                list_type, self.change_history[list_type], current_type
-            )
-            list_expander = Gtk.Expander(expanded=current_type)
-            list_expander.set_label(CATEGORIES_LANG[list_type])
-            list_expander.add(list_widget)
-            self.current_view.pack_start(list_expander, False, False, 0)
 
     def render_stacked_mode(self, nav_type, display_list_types):
         """
@@ -303,6 +253,8 @@ class RecentChanges(Gramplet):
         grid.attach(button_list, 0, 0, 1, 1)
         self.stack = Gtk.Stack(vexpand=True, hexpand=True)
         grid.attach(self.stack, 0, 1, 1, 1)
+        set_relief = False
+        current_button = None
         for list_type in display_list_types:
             current_type = list_type == nav_type
             stack_widget = self.build_list(
@@ -310,15 +262,32 @@ class RecentChanges(Gramplet):
             )
             self.stack.add_named(stack_widget, list_type)
             stack_button = self.get_stack_button(list_type)
+            if self.stack_state and self.stack_state == list_type:
+                self.stack_active_button = stack_button
+                set_relief = True
+            if current_type:
+                current_button = stack_button
             button_list.pack_start(stack_button, False, False, 0)
+        if not set_relief and current_button:
+            self.stack_active_button = current_button
+        self.stack_active_button.set_relief(Gtk.ReliefStyle.NORMAL)
+        self.stack.show_all()
+        if self.stack_state:
+            self.stack.set_visible_child_name(self.stack_state)
+        else:
+            self.stack.set_visible_child_name(nav_type)
         vbox = Gtk.VBox(vexpand=False)
         vbox.pack_start(grid, False, False, 0)
         self.current_view.pack_start(vbox, False, False, 0)
 
-    def switch_stack(self, _dummy, name):
+    def switch_stack(self, button, name):
         """
         Switch to new stack page.
         """
+        if self.stack_active_button:
+            self.stack_active_button.set_relief(Gtk.ReliefStyle.NONE)
+        button.set_relief(Gtk.ReliefStyle.NORMAL)
+        self.stack_active_button = button
         self.stack.set_visible_child_name(name)
 
     def get_stack_button(self, list_type):
@@ -353,19 +322,20 @@ class RecentChanges(Gramplet):
         """
         Clear focus when cursor leaves widget.
         """
-        widget.set_relief(Gtk.ReliefStyle.NONE)
+        if self.stack_active_button != widget:
+            widget.set_relief(Gtk.ReliefStyle.NONE)
 
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesService class
+# LastChangedService class
 #
 # The general idea here is that if different views or gramplets are going to
 # make use of this data we should only collect and update it a single time
 # in one place and let them reference it there as needed.
 #
 # ------------------------------------------------------------------------
-class RecentChangesService(Callback):
+class LastChangedService(Callback):
     """
     A singleton for centrally tracking changed objects in the database.
     """
@@ -381,7 +351,7 @@ class RecentChangesService(Callback):
         Return the singleton class.
         """
         if not hasattr(cls, "instance"):
-            cls.instance = super(RecentChangesService, cls).__new__(cls)
+            cls.instance = super(LastChangedService, cls).__new__(cls)
         return cls.instance
 
     def __init__(self, dbstate, uistate, depth=25):
@@ -563,10 +533,10 @@ class RecentChangesService(Callback):
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesModel class
+# LastChangedModel class
 #
 # ------------------------------------------------------------------------
-class RecentChangesModel:
+class LastChangedModel:
     """
     Model for presentation layer.
     """
@@ -605,10 +575,10 @@ class RecentChangesModel:
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesInteractor class
+# LastChangedInteractor class
 #
 # ------------------------------------------------------------------------
-class RecentChangesInteractor:
+class LastChangedInteractor:
     """
     Interaction handler for presentation layer.
     """
@@ -634,10 +604,10 @@ class RecentChangesInteractor:
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesPresenter class
+# LastChangedPresenter class
 #
 # ------------------------------------------------------------------------
-class RecentChangesPresenter:
+class LastChangedPresenter:
     """
     Update the view based on the model.
     """
@@ -647,7 +617,7 @@ class RecentChangesPresenter:
     def __init__(self, model, view):
         self.model = model
         self.view = view
-        RecentChangesInteractor(self, view)
+        LastChangedInteractor(self, view)
         self.load_view()
 
     def load_view(self):
@@ -725,10 +695,10 @@ class RecentChangesPresenter:
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesView class
+# LastChangedView class
 #
 # ------------------------------------------------------------------------
-class RecentChangesView(Gtk.Bin):
+class LastChangedView(Gtk.Bin):
     """
     Render the graphical view.
     """
@@ -739,7 +709,7 @@ class RecentChangesView(Gtk.Bin):
         Gtk.Bin.__init__(self)
         self.uistate = uistate
         self.callback = None
-        self.widgets = RecentChangesWidgets()
+        self.widgets = LastChangedWidgets()
         self.__build_layout(self.widgets)
         self.widgets.events.connect("button-press-event", self.clicked)
         self.widgets.events.connect("enter-notify-event", self.enter)
@@ -839,10 +809,10 @@ class RecentChangesView(Gtk.Bin):
 
 # ------------------------------------------------------------------------
 #
-# RecentChangesWidgets class
+# LastChangedWidgets class
 #
 # ------------------------------------------------------------------------
-class RecentChangesWidgets:
+class LastChangedWidgets:
     """
     Encapsulate the view widgets.
     """

@@ -9,7 +9,7 @@
 
 This is an *introductory* **ReadMe.md** document.  The [in-depth documentation](https://www.gramps-project.org/wiki/index.php/Addon:CardView) is perpetually in development on the [Gramps information portal](https://gramps-project.org/wiki/index.php/Portal:Using_Gramps)
 
-The **CardView** Addon is now actually a group of view, gramplet and other plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.  In addition to the core card views it includes a simple list view for tags and a recent changes gramplet.
+The **CardView** Addon is now actually a group of view, gramplet and other plugins that work together to provide an alternate interface that enables the user to navigate through the data in a Gramps genealogy database.  It uses something similar to the Card motif popularized in modern web design to provide a visual overview of the data.  In addition to the core card views it includes a simple list view for tags and a last changed gramplet.
 
 This add-on is far enough along in development that it can be considered early beta. Note all development and most testing to date has been done on Fedora.
 
