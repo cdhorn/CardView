@@ -683,11 +683,6 @@ class RecentChangesPresenter:
         self.view.uistate.viewmanager.goto_page(category_index, None)
 
         nav_group = self.view.uistate.viewmanager.active_page.nav_group
-        print(
-            "nav_group: {}  obj_type: {}  obj_handle: {}".format(
-                nav_group, self.model.obj_type, self.model.obj_handle
-            )
-        )
         if nav_group == 1:
             history = self.view.uistate.get_history("Global", nav_group)
             if history:

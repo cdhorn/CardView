@@ -105,12 +105,6 @@ class CardView(GlobalNavigationView):
             uistate,
             nav_group,
         )
-        self.passed_uistate = uistate
-        self.passed_navtype = None
-        if uistate.viewmanager.active_page:
-            self.passed_navtype = (
-                uistate.viewmanager.active_page.navigation_type()
-            )
         self.dirty = True
 
         self._config_callback_ids = []
@@ -130,6 +124,7 @@ class CardView(GlobalNavigationView):
         dbstate.connect("database-changed", self._handle_db_change)
         uistate.connect("nameformat-changed", self.build_tree)
         uistate.connect("placeformat-changed", self.build_tree)
+        uistate.connect("font-changed", self.build_tree)
         self.first_action_group = None
         self.second_action_group = None
         self.second_action_group_sensitive = False
@@ -525,7 +520,7 @@ class CardView(GlobalNavigationView):
         if present and present[0] == self.navigation_type():
             return present
 
-        list_history = self.passed_uistate.get_history(self.navigation_type())
+        list_history = self.uistate.get_history(self.navigation_type())
         if list_history and list_history.present():
             obj_tuple = (
                 self.navigation_type(),
@@ -536,7 +531,9 @@ class CardView(GlobalNavigationView):
                 None,
             )
         else:
-            obj_tuple = get_initial_object(self.dbstate.db, self._config_view)
+            obj_tuple = get_initial_object(
+                self.dbstate.db, self.navigation_type()
+            )
         if obj_tuple:
             hobj = self.get_history()
             hobj.lock = True

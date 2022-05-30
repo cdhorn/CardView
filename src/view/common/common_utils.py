@@ -667,26 +667,29 @@ def format_address_usa(lines, address):
         lines.append(address.country)
 
 
-def get_initial_object(db, config):
+def get_initial_object(db, obj_type=None):
     """
     Try to find an initial object.
     """
     if not db.is_open() and not db.get_dbid():
         return None
-    try:
-        obj_tuple = tuple(get_config_option(config, "active.last_object"))
-        if obj_tuple[0] == "None":
-            obj_tuple = None
-    except ValueError:
-        obj_tuple = None
 
-    if not obj_tuple or len(obj_tuple) != 2:
+    if obj_type in [None, "Person"]:
         initial_person = db.find_initial_person()
         if initial_person:
-            obj_tuple = ("Person", initial_person.get_handle())
+            return (
+                "Person",
+                initial_person.get_handle(),
+                None,
+                None,
+                None,
+                None,
+            )
 
-    if not obj_tuple:
-        for obj_type in [
+    if obj_type:
+        search_list = [obj_type]
+    else:
+        search_list = [
             "Person",
             "Family",
             "Event",
@@ -695,12 +698,10 @@ def get_initial_object(db, config):
             "Citation",
             "Source",
             "Repository",
-        ]:
-            get_handles = db.method("get_%s_handles", obj_type)
-            handles = get_handles()
-            if handles:
-                obj_tuple = (obj_type, handles[0])
-                break
-    if obj_tuple:
-        return (obj_tuple[0], obj_tuple[1], None, None, None, None)
+        ]
+    for search_type in search_list:
+        get_handles = db.method("get_%s_handles", search_type)
+        handles = get_handles()
+        if handles:
+            return (obj_type, handles[0], None, None, None, None)
     return None
