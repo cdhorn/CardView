@@ -468,6 +468,7 @@ class CardView(GlobalNavigationView):
         else:
             self.bookmarks.undisplay()
         self.current_context = page_context
+        self._set_status_bar(page_context)
         self.dirty = False
 
     def _set_status_bar(self, page_context):
