@@ -128,7 +128,7 @@ SERIALIZATION_INDEX = {
     "Tag": 4,
 }
 
-TAB_OPTION = _("Use tabbed mode")
+EXPAND_OPTION = _("Use expanded list mode")
 GLOBAL_OPTION = _("Show global change list")
 ALL_OPTION = _("Show all object type lists")
 MAX_OBJECTS = _("Maximum objects to display")
@@ -156,7 +156,8 @@ class RecentChanges(Gramplet):
         self.gui.get_container_widget().add_with_viewport(self.current_view)
         self.change_service = RecentChangesService(self.dbstate, self.uistate)
         self.change_service.connect("change-notification", self.update)
-        self.tabbed_mode = 0
+        self.stack = None
+        self.expanded_list_mode = 0
         self.show_global_list = 1
         self.show_all_lists = 1
         self.show_gramps_id = 1
@@ -168,7 +169,9 @@ class RecentChanges(Gramplet):
         """
         Build the options.
         """
-        self.add_option(BooleanOption(TAB_OPTION, bool(self.tabbed_mode)))
+        self.add_option(
+            BooleanOption(EXPAND_OPTION, bool(self.expanded_list_mode))
+        )
         self.add_option(
             BooleanOption(GLOBAL_OPTION, bool(self.show_global_list))
         )
@@ -182,7 +185,9 @@ class RecentChanges(Gramplet):
         """
         Save the options.
         """
-        self.tabbed_mode = int(self.get_option(TAB_OPTION).get_value())
+        self.expanded_list_mode = int(
+            self.get_option(EXPAND_OPTION).get_value()
+        )
         self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
         self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
         self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
@@ -195,7 +200,7 @@ class RecentChanges(Gramplet):
         Load the options.
         """
         if len(self.gui.data) == 7:
-            self.tabbed_mode = int(self.gui.data[0])
+            self.expanded_list_mode = int(self.gui.data[0])
             self.show_global_list = int(self.gui.data[1])
             self.show_all_lists = int(self.gui.data[2])
             self.max_per_list = int(self.gui.data[3])
@@ -207,7 +212,9 @@ class RecentChanges(Gramplet):
         """
         Save updated options.
         """
-        self.tabbed_mode = int(self.get_option(TAB_OPTION).get_value())
+        self.expanded_list_mode = int(
+            self.get_option(EXPAND_OPTION).get_value()
+        )
         self.show_global_list = int(self.get_option(GLOBAL_OPTION).get_value())
         self.show_all_lists = int(self.get_option(ALL_OPTION).get_value())
         self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
@@ -215,7 +222,7 @@ class RecentChanges(Gramplet):
         self.small_text = int(self.get_option(TEXT_OPTION).get_value())
         self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
         self.gui.data = [
-            self.tabbed_mode,
+            self.expanded_list_mode,
             self.show_global_list,
             self.show_all_lists,
             self.max_per_list,
@@ -240,10 +247,10 @@ class RecentChanges(Gramplet):
         if not self.show_global_list:
             display_list_types.remove("Global")
 
-        if self.tabbed_mode:
-            self.render_tabbed_mode(nav_type, display_list_types)
-        else:
+        if self.expanded_list_mode:
             self.render_expander_mode(nav_type, display_list_types)
+        else:
+            self.render_stacked_mode(nav_type, display_list_types)
         self.current_view.show_all()
 
     def build_list(self, nav_type, handle_list, current=False):
@@ -275,7 +282,7 @@ class RecentChanges(Gramplet):
 
     def render_expander_mode(self, nav_type, display_list_types):
         """
-        Render using the expander more.
+        Render using the expander mode.
         """
         for list_type in display_list_types:
             current_type = list_type == nav_type
@@ -287,37 +294,36 @@ class RecentChanges(Gramplet):
             list_expander.add(list_widget)
             self.current_view.pack_start(list_expander, False, False, 0)
 
-    def render_tabbed_mode(self, nav_type, display_list_types):
+    def render_stacked_mode(self, nav_type, display_list_types):
         """
-        Render using the tabbed mode.
+        Render using the stacked mode.
         """
-        notebook = Gtk.Notebook(vexpand=True, hexpand=True)
-        tab_count = 0
-        current_page = 0
+        grid = Gtk.Grid()
+        button_list = Gtk.HBox(hexpand=False, spacing=0, margin=0)
+        grid.attach(button_list, 0, 0, 1, 1)
+        self.stack = Gtk.Stack(vexpand=True, hexpand=True)
+        grid.attach(self.stack, 0, 1, 1, 1)
         for list_type in display_list_types:
             current_type = list_type == nav_type
-            if current_type:
-                current_page = tab_count
-            tab_widget = self.build_list(
+            stack_widget = self.build_list(
                 list_type, self.change_history[list_type], current_type
             )
-            tab_icon = self.get_tab_icon(list_type)
-            notebook.append_page(tab_widget, tab_icon)
-            tab_count = tab_count + 1
-        notebook.set_current_page(current_page)
-        css = ".notebook tab { border: 0px; margin: 0px; }".encode("utf-8")
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-        context = notebook.get_style_context()
-        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        context.add_class("notebook")
+            self.stack.add_named(stack_widget, list_type)
+            stack_button = self.get_stack_button(list_type)
+            button_list.pack_start(stack_button, False, False, 0)
         vbox = Gtk.VBox(vexpand=False)
-        vbox.pack_start(notebook, False, False, 0)
+        vbox.pack_start(grid, False, False, 0)
         self.current_view.pack_start(vbox, False, False, 0)
 
-    def get_tab_icon(self, list_type):
+    def switch_stack(self, _dummy, name):
         """
-        Get proper tab icon to use.
+        Switch to new stack page.
+        """
+        self.stack.set_visible_child_name(name)
+
+    def get_stack_button(self, list_type):
+        """
+        Get proper stack button with icon to use.
         """
         if list_type == "Global":
             icon_name = "gramps-gramplet"
@@ -330,7 +336,24 @@ class RecentChanges(Gramplet):
             icon.set_from_icon_name(icon_name, Gtk.IconSize.SMALL_TOOLBAR)
         else:
             icon.set_from_icon_name(icon_name, Gtk.IconSize.LARGE_TOOLBAR)
-        return icon
+        button = Gtk.Button(relief=Gtk.ReliefStyle.NONE)
+        button.set_image(icon)
+        button.connect("clicked", self.switch_stack, list_type)
+        button.connect("enter-notify-event", self.enter_stack_button)
+        button.connect("leave-notify-event", self.leave_stack_button)
+        return button
+
+    def enter_stack_button(self, widget, event):
+        """
+        Indicate focus when cursor enters widget.
+        """
+        widget.set_relief(Gtk.ReliefStyle.NORMAL)
+
+    def leave_stack_button(self, widget, event):
+        """
+        Clear focus when cursor leaves widget.
+        """
+        widget.set_relief(Gtk.ReliefStyle.NONE)
 
 
 # ------------------------------------------------------------------------
