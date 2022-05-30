@@ -428,7 +428,11 @@ class CardView(GlobalNavigationView):
         except pickle.UnpicklingError:
             return
         self.dirty = True
-        self.change_active(context.page_location)
+        if self.dirty_redraw_trigger:
+            self.dirty_redraw_trigger = False
+            self._render_page(context)
+        else:
+            self.change_active(context.page_location)
 
     def change_object(self, obj_tuple):
         """
