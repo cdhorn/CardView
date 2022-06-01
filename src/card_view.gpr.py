@@ -58,7 +58,7 @@ register(
 
 register(
     VIEW,
-    id="personcardview",
+    id="relationshipcardview",
     name=_("Person"),
     description=_("A browseable Person card view."),
     version=VERSION,
