@@ -52,7 +52,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("People", _("People")),
     viewclass="PersonCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-personcard",
     order=END,
 )
 
@@ -86,7 +86,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Families", _("Families")),
     viewclass="FamilyCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-familycard",
     order=END,
 )
 
@@ -103,7 +103,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Events", _("Events")),
     viewclass="EventCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-eventcard",
     order=END,
 )
 
@@ -120,7 +120,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Places", _("Places")),
     viewclass="PlaceCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-placecard",
     order=END,
 )
 
@@ -137,7 +137,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Sources", _("Sources")),
     viewclass="SourceCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-sourcecard",
     order=END,
 )
 
@@ -154,7 +154,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Citations", _("Citations")),
     viewclass="CitationCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-citationcard",
     order=END,
 )
 
@@ -171,7 +171,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Repositories", _("Repositories")),
     viewclass="RepositoryCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-repositorycard",
     order=END,
 )
 
@@ -188,7 +188,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Media", _("Media")),
     viewclass="MediaCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-mediacard",
     order=END,
 )
 
@@ -205,7 +205,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Notes", _("Notes")),
     viewclass="NoteCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-notecard",
     order=END,
 )
 
@@ -222,6 +222,6 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Tags", _("Tags")),
     viewclass="TagCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-tagcard",
     order=END,
 )
