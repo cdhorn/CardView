@@ -42,7 +42,7 @@ AUTHORS_EMAIL = ["https://gramps-project.org"]
 register(
     VIEW,
     id="personcardview",
-    name=_("Person"),
+    name=_("Person Card"),
     description=_("A browseable Person card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -76,7 +76,7 @@ register(
 register(
     VIEW,
     id="familycardview",
-    name=_("Family"),
+    name=_("Family Card"),
     description=_("A browseable Family card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -93,7 +93,7 @@ register(
 register(
     VIEW,
     id="eventcardview",
-    name=_("Event"),
+    name=_("Event Card"),
     description=_("A browseable Event card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -110,7 +110,7 @@ register(
 register(
     VIEW,
     id="placecardview",
-    name=_("Place"),
+    name=_("Place Card"),
     description=_("A browseable Place card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -127,7 +127,7 @@ register(
 register(
     VIEW,
     id="sourcecardview",
-    name=_("Source"),
+    name=_("Source Card"),
     description=_("A browseable Source card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -144,7 +144,7 @@ register(
 register(
     VIEW,
     id="citationcardview",
-    name=_("Citation"),
+    name=_("Citation Card"),
     description=_("A browseable Citation card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -161,7 +161,7 @@ register(
 register(
     VIEW,
     id="repositorycardview",
-    name=_("Repository"),
+    name=_("Repository Card"),
     description=_("A browseable Repository card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -178,7 +178,7 @@ register(
 register(
     VIEW,
     id="mediacardview",
-    name=_("Media"),
+    name=_("Media Card"),
     description=_("A browseable Media card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -195,7 +195,7 @@ register(
 register(
     VIEW,
     id="notecardview",
-    name=_("Note"),
+    name=_("Note Card"),
     description=_("A browseable Note card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
@@ -212,7 +212,7 @@ register(
 register(
     VIEW,
     id="tagcardview",
-    name=_("Tag"),
+    name=_("Tag Card"),
     description=_("A browseable Tag card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
