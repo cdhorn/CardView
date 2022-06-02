@@ -439,7 +439,12 @@ class CardView(GlobalNavigationView):
         Change the page view to load a new active object.
         """
         if obj_tuple and obj_tuple[0] != self.navigation_type():
-            return self.change_category(obj_tuple[0])
+            target = obj_tuple[0]
+            if target == "Person" and self._config_view.get(
+                "general.link-people-to-relationships-view"
+            ):
+                target = "Relationship"
+            return self.change_category(target)
         if self.dirty or self.dirty_redraw_trigger:
             self.dirty_redraw_trigger = False
             if not obj_tuple:

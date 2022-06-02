@@ -217,19 +217,31 @@ class GlobalNavigationView(PageView):
         Switch to different category view.
         """
         if category in CATEGORIES:
-            viewmanager = self.uistate.viewmanager
             category_name = CATEGORIES[category]
-            category_index = viewmanager.get_category(category_name)
-            category_views = viewmanager.get_views()[category_index]
-            if category_views:
-                for (view_index, (view_plugin, view_class)) in enumerate(
-                    category_views
-                ):
-                    if self.navigation_group_key() in view_plugin.id:
-                        return viewmanager.goto_page(
-                            category_index, view_index
-                        )
-                return viewmanager.goto_page(category_index, None)
+            if category_name != self.get_category():
+                viewmanager = self.uistate.viewmanager
+                category_index = viewmanager.get_category(category_name)
+                category_views = viewmanager.get_views()[category_index]
+                if category_views:
+                    for (view_index, (view_plugin, view_class)) in enumerate(
+                        category_views
+                    ):
+                        if self.navigation_group_key() in view_plugin.id:
+                            return viewmanager.goto_page(
+                                category_index, view_index
+                            )
+                    return viewmanager.goto_page(category_index, None)
+
+    def change_person_category(self):
+        """
+        Check preferred person view and switch category if needed
+        """
+        if self._config_view.get("general.link-people-to-relationships-view"):
+            if self.get_category() != "Relationships":
+                self.change_category("Relationship")
+        else:
+            if self.get_category() != "People":
+                self.change_category("Person")
 
     def change_page(self):
         """
@@ -283,6 +295,8 @@ class GlobalNavigationView(PageView):
         current_handle = self.history.present()
         if current_handle:
             if current_handle[0] == self.navigation_type():
+                if current_handle[0] == "Person":
+                    self.change_person_category()
                 if not self.history.lock:
                     self.goto_handle(current_handle)
                 self.uimanager.set_actions_sensitive(
@@ -292,7 +306,12 @@ class GlobalNavigationView(PageView):
                     self.back_action, not self.history.at_front()
                 )
             else:
-                return self.change_category(current_handle[0])
+                target = current_handle[0]
+                if target == "Person" and self._config_view.get(
+                    "general.link-people-to-relationships-view"
+                ):
+                    target = "Relationship"
+                return self.change_category(target)
 
     def change_active(self, obj_tuple, quiet=False):
         """

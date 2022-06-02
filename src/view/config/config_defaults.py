@@ -95,6 +95,7 @@ VIEWDEFAULTS = (
     ######################################################################
     ## General Options
     ######################################################################
+    ("general.link-people-to-relationships-view", False),
     ("general.image-page-link", True),
     ("general.link-citation-title-to-source", True),
     ("general.create-reciprocal-associations", True),

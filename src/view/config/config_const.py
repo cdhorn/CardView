@@ -164,6 +164,7 @@ REF_DISPLAY_MODES = [
 
 CATEGORIES = {
     "Person": "People",
+    "Relationship": "Relationships",
     "Family": "Families",
     "Event": "Events",
     "Place": "Places",

@@ -45,6 +45,11 @@ _ = glocale.translation.sgettext
 
 TOGGLE_OPTIONS = [
     (
+        "general.link-people-to-relationships-view",
+        _("Disable linking people to relationship category view"),
+        _("Enable linking people to relationship category view"),
+    ),
+    (
         "media-bar.enabled",
         _("Disable media bar"),
         _("Enable media bar"),

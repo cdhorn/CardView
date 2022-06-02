@@ -34,7 +34,7 @@ if not os.path.isdir(pathname):
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(pathname)
 
-VERSION = "0.97"
+VERSION = "0.98"
 GRAMPS_TARGET_VERSION = "5.1"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]
@@ -59,7 +59,7 @@ register(
 register(
     VIEW,
     id="relationshipcardview",
-    name=_("Person"),
+    name=_("Person Relationships"),
     description=_("A browseable Person card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
