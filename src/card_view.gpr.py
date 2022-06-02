@@ -69,7 +69,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Relationships", _("Relationships")),
     viewclass="PersonCardView",
-    stock_icon="gramps-relation-linked",
+    stock_icon="gramps-relationshipscard",
     order=END,
 )
 
