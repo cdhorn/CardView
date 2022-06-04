@@ -459,14 +459,24 @@ class GrampsContext:
         """
         Load a navigation history location tuple.
         """
-        (
-            primary_obj_type,
-            primary_obj_handle,
-            reference_obj_type,
-            reference_obj_handle,
-            secondary_obj_type,
-            secondary_obj_hash,
-        ) = history_page_location
+        if len(history_page_location) == 6:
+            (
+                primary_obj_type,
+                primary_obj_handle,
+                reference_obj_type,
+                reference_obj_handle,
+                secondary_obj_type,
+                secondary_obj_hash,
+            ) = history_page_location
+        else:
+            (
+                primary_obj_type,
+                primary_obj_handle,
+            ) = history_page_location
+            reference_obj_type = None
+            reference_obj_handle = None
+            secondary_obj_type = None
+            secondary_obj_hash = None
 
         primary_obj = grstate.fetch(primary_obj_type, primary_obj_handle)
         if reference_obj_type and reference_obj_handle:
