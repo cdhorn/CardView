@@ -235,8 +235,9 @@ class LastChanged(Gramplet):
         if self.stack:
             self.stack_state = self.stack.get_visible_child_name()
 
-        with self.change_service.history_lock:
-            self.change_history = self.change_service.get_change_history()
+        if self.dbstate.is_open():
+            with self.change_service.history_lock:
+                self.change_history = self.change_service.get_change_history()
         if self.change_history == {} and self.dbstate.is_open():
             list(
                 map(self.current_view.remove, self.current_view.get_children())
@@ -246,7 +247,6 @@ class LastChanged(Gramplet):
             )
             self.current_view.pack_start(label, False, False, 0)
             self.current_view.show_all()
-            self.change_service.history_lock.acquire()
             counter = 0
             db = self.dbstate.db
             self.change_history = {}
@@ -281,6 +281,7 @@ class LastChanged(Gramplet):
                 global_history = global_history + formatted_history
             global_history.sort(key=lambda x: x[3], reverse=True)
             self.change_history["Global"] = global_history[: self.max_per_list]
+            self.change_service.history_lock.acquire()
             self.change_service.set_change_history(self.change_history)
             self.change_service.history_lock.release()
 
@@ -472,7 +473,7 @@ class LastChangedService(Callback):
             self.depth = depth
             for obj_type in SERIALIZATION_INDEX:
                 self.__register_signals(obj_type)
-            self.__init_signals()
+            #            self.__init_signals()
             self.dbstate.connect("database-changed", self.__init_signals)
             uistate.connect("nameformat-changed", self.rebuild_name_labels)
             uistate.connect("placeformat-changed", self.rebuild_place_labels)
@@ -549,7 +550,7 @@ class LastChangedService(Callback):
 
     def rebuild_labels(self, category):
         """
-        Rebuild labels for a name format change and trigger synthetic update.
+        Rebuild labels for a formatting change and trigger synthetic update.
         """
         self.history_lock.acquire()
         for (

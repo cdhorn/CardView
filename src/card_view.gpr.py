@@ -59,8 +59,8 @@ register(
 register(
     VIEW,
     id="relationshipcardview",
-    name=_("Person Relationships"),
-    description=_("A browseable Person card view."),
+    name=_("Relationships Card"),
+    description=_("A browseable Relationships card view."),
     version=VERSION,
     gramps_target_version=GRAMPS_TARGET_VERSION,
     status=STABLE,
