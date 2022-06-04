@@ -1,4 +1,4 @@
-![Card view](<img src="icons/gramps-relationshipscard.svg" width="100">) Card View Addon
+![<img src="https://github.com/cdhorn/CardView/blob/master/icons/gramps-relationshipscard.svg" width="100">](https://github.com/cdhorn/CardView/blob/master/icons/gramps-relationshipscard.svg) Card View Addon
 ===============
 
 > **IMPORTANT!**  The view name, and thus the ini configuration file names, have changed yet again. Be sure to remove any previous versions of this view you have installed and to remove all previous ini files before using this latest copy.  This was originally named the **ProfileView** and then the **LinkedView** as that better described the navigation model.  Note this will be the last and final name change.
