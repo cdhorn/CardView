@@ -408,6 +408,7 @@ class LastChanged(Gramplet):
         button.connect("clicked", self.switch_stack, list_type)
         button.connect("enter-notify-event", self.enter_stack_button)
         button.connect("leave-notify-event", self.leave_stack_button)
+        button.set_tooltip_text(CATEGORIES_LANG[list_type])
         return button
 
     def enter_stack_button(self, widget, event):
