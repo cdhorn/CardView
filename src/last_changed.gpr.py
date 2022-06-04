@@ -26,7 +26,7 @@ register(
     name=_("Last Changed"),
     description=_("List the most recent records that have been changed"),
     status=STABLE,
-    version="1.0.0",
+    version="1.0.1",
     fname="last_changed.py",
     authors=["Jakim Friant", "Christopher Horn"],
     authors_email=["jmodule@friant.org"],

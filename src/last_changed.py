@@ -25,8 +25,8 @@
 #
 # ------------------------------------------------------------------------
 from bisect import bisect
-from copy import copy
 from html import escape
+from threading import Lock
 
 # ------------------------------------------------------------------------
 #
@@ -44,7 +44,6 @@ from gramps.gen.plug import Gramplet
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.plug.menu import BooleanOption, NumberOption
-from gramps.gui.views.listview import ListView
 from gramps.gen.datehandler import format_time
 from gramps.gen.utils.callback import Callback
 from gramps.gen.utils.db import navigation_label
@@ -128,11 +127,23 @@ SERIALIZATION_INDEX = {
     "Tag": 4,
 }
 
-MAX_OBJECTS = _("Maximum objects to display")
-ICON_OPTION = _("Use small icons")
-TEXT_OPTION = _("Use smaller text for change time")
-ID_OPTION = _("Include Gramps id")
+YIELD_COUNT = 2000
 
+MAXIMUM_OBJECTS = _("Maximum objects to display")
+ENABLE_SMALL_ICONS = _("Use small icons")
+ENABLE_SMALL_TEXT = _("Use smaller text for change time")
+ENABLE_GRAMPS_ID = _("Include Gramps id")
+ENABLE_OVERVIEW = _("Enable overview")
+ENABLE_PEOPLE = _("Enable people")
+ENABLE_FAMILIES = _("Enable families")
+ENABLE_EVENTS = _("Enable events")
+ENABLE_PLACES = _("Enable places")
+ENABLE_SOURCES = _("Enable sources")
+ENABLE_CITATIONS = _("Enable citations")
+ENABLE_REPOSITORIES = _("Enable repositories")
+ENABLE_MEDIA = _("Enable media")
+ENABLE_NOTES = _("Enable notes")
+ENABLE_TAGS = _("Enable tags")
 
 # ------------------------------------------------------------------------
 #
@@ -153,31 +164,46 @@ class LastChanged(Gramplet):
         self.gui.get_container_widget().add_with_viewport(self.current_view)
         self.change_service = LastChangedService(self.dbstate, self.uistate)
         self.change_service.connect("change-notification", self.update)
+        self.change_history = {}
         self.stack = None
         self.stack_state = None
         self.stack_active_button = None
         self.max_per_list = 10
-        self.small_icons = 0
-        self.small_text = 1
-        self.show_gramps_id = 1
+        self.enable_small_icons = 0
+        self.enable_small_text = 1
+        self.enable_gramps_id = 1
 
     def build_options(self):
         """
         Build the options.
         """
-        self.add_option(NumberOption(MAX_OBJECTS, self.max_per_list, 1, 25))
-        self.add_option(BooleanOption(ICON_OPTION, bool(self.small_icons)))
-        self.add_option(BooleanOption(TEXT_OPTION, bool(self.small_icons)))
-        self.add_option(BooleanOption(ID_OPTION, bool(self.show_gramps_id)))
+        self.add_option(
+            NumberOption(MAXIMUM_OBJECTS, self.max_per_list, 1, 25)
+        )
+        self.add_option(
+            BooleanOption(ENABLE_SMALL_ICONS, bool(self.enable_small_icons))
+        )
+        self.add_option(
+            BooleanOption(ENABLE_SMALL_TEXT, bool(self.enable_small_text))
+        )
+        self.add_option(
+            BooleanOption(ENABLE_GRAMPS_ID, bool(self.enable_gramps_id))
+        )
 
     def save_options(self):
         """
         Save the options.
         """
-        self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
-        self.small_icons = int(self.get_option(ICON_OPTION).get_value())
-        self.small_text = int(self.get_option(TEXT_OPTION).get_value())
-        self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
+        self.max_per_list = int(self.get_option(MAXIMUM_OBJECTS).get_value())
+        self.enable_small_icons = int(
+            self.get_option(ENABLE_SMALL_ICONS).get_value()
+        )
+        self.enable_small_text = int(
+            self.get_option(ENABLE_SMALL_TEXT).get_value()
+        )
+        self.enable_gramps_id = int(
+            self.get_option(ENABLE_GRAMPS_ID).get_value()
+        )
 
     def on_load(self):
         """
@@ -185,23 +211,20 @@ class LastChanged(Gramplet):
         """
         if len(self.gui.data) == 4:
             self.max_per_list = int(self.gui.data[0])
-            self.small_icons = int(self.gui.data[1])
-            self.small_text = int(self.gui.data[2])
-            self.show_gramps_id = int(self.gui.data[3])
+            self.enable_small_icons = int(self.gui.data[1])
+            self.enable_small_text = int(self.gui.data[2])
+            self.enable_gramps_id = int(self.gui.data[3])
 
     def save_update_options(self, widget=None):
         """
         Save updated options.
         """
-        self.max_per_list = int(self.get_option(MAX_OBJECTS).get_value())
-        self.small_icons = int(self.get_option(ICON_OPTION).get_value())
-        self.small_text = int(self.get_option(TEXT_OPTION).get_value())
-        self.show_gramps_id = int(self.get_option(ID_OPTION).get_value())
+        self.save_options()
         self.gui.data = [
             self.max_per_list,
-            self.small_icons,
-            self.small_text,
-            self.show_gramps_id,
+            self.enable_small_icons,
+            self.enable_small_text,
+            self.enable_gramps_id,
         ]
         self.update()
 
@@ -211,11 +234,85 @@ class LastChanged(Gramplet):
         """
         if self.stack:
             self.stack_state = self.stack.get_visible_child_name()
-        self.change_history = self.change_service.get_change_history()
-        nav_type = self.uistate.viewmanager.active_page.navigation_type()
+
+        with self.change_service.history_lock:
+            self.change_history = self.change_service.get_change_history()
+        if self.change_history == {} and self.dbstate.is_open():
+            list(
+                map(self.current_view.remove, self.current_view.get_children())
+            )
+            label = Gtk.Label(
+                xalign=0.0, use_markup=True, label=_("Processing history...")
+            )
+            self.current_view.pack_start(label, False, False, 0)
+            self.current_view.show_all()
+            self.change_service.history_lock.acquire()
+            counter = 0
+            db = self.dbstate.db
+            self.change_history = {}
+            global_history = []
+            for object_type in SERIALIZATION_INDEX:
+                self.update_label(label, object_type)
+                if object_type == "Citation":
+                    list_method = db.get_citation_handles
+                else:
+                    list_method = db.method(
+                        "iter_%s_handles", object_type.lower()
+                    )
+
+                handle_list = []
+                raw_method = db.method("get_raw_%s_data", object_type.lower())
+                change_index = SERIALIZATION_INDEX[object_type]
+                for object_handle in list_method():
+                    change = -raw_method(object_handle)[change_index]
+                    bsindex = bisect(
+                        KeyWrapper(handle_list, key=lambda c: c[2]), change
+                    )
+                    handle_list.insert(
+                        bsindex, (object_type, object_handle, change)
+                    )
+                    if len(handle_list) > self.max_per_list:
+                        handle_list.pop(self.max_per_list)
+                    if counter % YIELD_COUNT:
+                        yield True
+                    counter += 1
+                formatted_history = get_formatted_handle_list(db, handle_list)
+                self.change_history[object_type] = formatted_history
+                global_history = global_history + formatted_history
+            global_history.sort(key=lambda x: x[3], reverse=True)
+            self.change_history["Global"] = global_history[: self.max_per_list]
+            self.change_service.set_change_history(self.change_history)
+            self.change_service.history_lock.release()
+
         list(map(self.current_view.remove, self.current_view.get_children()))
-        self.render_stacked_mode(nav_type, CATEGORIES)
+        if self.dbstate.is_open() and self.uistate.viewmanager.active_page:
+            nav_type = self.uistate.viewmanager.active_page.navigation_type()
+            self.render_stacked_mode(nav_type, CATEGORIES)
         self.current_view.show_all()
+        yield False
+
+    def update_label(self, label, obj_type):
+        """
+        Update label.
+        """
+        TOTALS = {
+            "Person": self.dbstate.db.get_number_of_people,
+            "Family": self.dbstate.db.get_number_of_families,
+            "Event": self.dbstate.db.get_number_of_events,
+            "Place": self.dbstate.db.get_number_of_places,
+            "Source": self.dbstate.db.get_number_of_sources,
+            "Citation": self.dbstate.db.get_number_of_citations,
+            "Repository": self.dbstate.db.get_number_of_repositories,
+            "Media": self.dbstate.db.get_number_of_media,
+            "Note": self.dbstate.db.get_number_of_notes,
+            "Tag": self.dbstate.db.get_number_of_tags,
+        }
+        total = TOTALS[obj_type]()
+
+        text = "{} {} {}...".format(
+            _("Evaluating"), total, CATEGORIES_LANG[obj_type]
+        )
+        label.set_text(text)
 
     def build_list(self, nav_type, handle_list, current=False):
         """
@@ -225,9 +322,9 @@ class LastChanged(Gramplet):
         for obj_type, obj_handle, label, _change, change_string in handle_list[
             : self.max_per_list
         ]:
-            if self.small_text:
+            if self.enable_small_text:
                 change_string = "<small>{}</small>".format(change_string)
-            if self.show_gramps_id:
+            if self.enable_gramps_id:
                 title = escape(label)
             else:
                 title = escape(label.split("]")[1].strip())
@@ -237,7 +334,7 @@ class LastChanged(Gramplet):
                 obj_handle,
                 title,
                 change_string,
-                self.small_icons,
+                self.enable_small_icons,
             )
             view = LastChangedView(self.uistate)
             LastChangedPresenter(model, view)
@@ -301,7 +398,7 @@ class LastChanged(Gramplet):
         else:
             icon_name = "gramps-{}".format(list_type.lower())
         icon = Gtk.Image()
-        if self.small_icons:
+        if self.enable_small_icons:
             icon.set_from_icon_name(icon_name, Gtk.IconSize.SMALL_TOOLBAR)
         else:
             icon.set_from_icon_name(icon_name, Gtk.IconSize.LARGE_TOOLBAR)
@@ -330,23 +427,30 @@ class LastChanged(Gramplet):
 #
 # LastChangedService class
 #
-# The general idea here is that if different views or gramplets are going to
-# make use of this data we should only collect and update it a single time
-# in one place and let them reference it there as needed.
+# The general idea here is to share the last change history across any
+# copies of the Gramplet that are running to avoid having to reparse the
+# the database each time one initializes.
 #
 # ------------------------------------------------------------------------
 class LastChangedService(Callback):
     """
-    A singleton for centrally tracking changed objects in the database.
+    A singleton for centrally sharing changed object history across gramplets.
     """
 
-    __signals__ = {"change-notification": (str, str)}
+    __signals__ = {"change-notification": ()}
 
-    __slots__ = ("dbstate", "uistate", "depth", "change_history", "signal_map")
+    __slots__ = (
+        "change_history",
+        "dbstate",
+        "dbid",
+        "depth",
+        "history_lock",
+        "signal_map",
+    )
 
     __init = False
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args):
         """
         Return the singleton class.
         """
@@ -361,27 +465,27 @@ class LastChangedService(Callback):
         if not self.__init:
             Callback.__init__(self)
             self.dbstate = dbstate
-            self.depth = depth
-            self.change_history = {}
+            self.dbid = None
             self.signal_map = {}
-
-            self.register_signal("Person")
-            self.register_signal("Family")
-            self.register_signal("Event")
-            self.register_signal("Place")
-            self.register_signal("Source")
-            self.register_signal("Citation")
-            self.register_signal("Repository")
-            self.register_signal("Media")
-            self.register_signal("Note")
-            self.register_signal("Tag")
-            self.initialize_change_history()
-            dbstate.connect("database-changed", self.initialize_change_history)
+            self.change_history = {}
+            self.history_lock = Lock()
+            self.depth = depth
+            for obj_type in SERIALIZATION_INDEX:
+                self.__register_signals(obj_type)
+            self.__init_signals()
+            self.dbstate.connect("database-changed", self.__init_signals)
             uistate.connect("nameformat-changed", self.rebuild_name_labels)
             uistate.connect("placeformat-changed", self.rebuild_place_labels)
             self.__init = True
 
-    def register_signal(self, object_type):
+    def __init_signals(self, *args):
+        """
+        Connect to signals from database.
+        """
+        for sig, callback in self.signal_map.items():
+            self.dbstate.db.connect(sig, callback)
+
+    def __register_signals(self, object_type):
         """
         Register signal.
         """
@@ -392,43 +496,36 @@ class LastChangedService(Callback):
             self.signal_map["{}-{}".format(lower_type, sig)] = update_function
         self.signal_map["{}-delete".format(lower_type)] = delete_function
 
-    def change_depth(self, depth):
+    def set_change_history(self, history):
         """
-        Change depth, rebuild list and issue synthetic change notification.
+        Set the history.
+        Callers should lock and unlock around this.
         """
-        self.depth = depth
-        self.load_change_history()
-        self.trigger_update()
+        self.dbid = self.dbstate.db.get_dbid()
+        self.change_history = history
 
-    def trigger_update(self):
+    def get_change_history(self):
         """
-        Trigger a synthetic update to force a reload.
+        Fetch the history.
+        Callers should lock and unlock around this.
         """
-        if self.change_history["Global"]:
-            last_object = self.change_history["Global"][0]
-            self.emit("change-notification", (last_object[0], last_object[1]))
-
-    def load_change_history(self):
-        """
-        Load the change history.
-        """
-        self.change_history = get_all_object_handles(
-            self.dbstate.db, self.depth
-        )
-
-    def initialize_change_history(self, *args):
-        """
-        Rebuild history and connect database signals for change notifications.
-        """
-        self.load_change_history()
-        for sig, callback in self.signal_map.items():
-            self.dbstate.db.connect(sig, callback)
+        if not self.dbstate.is_open():
+            return {}
+        if self.dbid != self.dbstate.db.get_dbid():
+            return {}
+        if (
+            "Global" in self.change_history
+            and not self.change_history["Global"]
+        ):
+            return {}
+        return self.change_history
 
     def update_change_history(self, object_handles, object_type):
         """
         Update history and emit object modification signal.
         """
         if object_handles:
+            self.history_lock.acquire()
             object_handle = object_handles[0]
             self.clean_change_history(object_type, object_handle)
             object_label, changed_object = get_object_label(
@@ -447,12 +544,14 @@ class LastChangedService(Callback):
             self.change_history["Global"].insert(0, changed_tuple)
             if len(self.change_history["Global"]) > self.depth:
                 self.change_history["Global"].pop()
-            self.emit("change-notification", (object_type, object_handle))
+            self.history_lock.release()
+            self.emit("change-notification", ())
 
     def rebuild_labels(self, category):
         """
         Rebuild labels for a name format change and trigger synthetic update.
         """
+        self.history_lock.acquire()
         for (
             index,
             (object_type, object_handle, object_label, change, change_string),
@@ -469,7 +568,8 @@ class LastChangedService(Callback):
             )
             self.change_history[category][index] = updated_tuple
             self.replace_global_label(object_handle, updated_tuple)
-        self.trigger_update()
+        self.history_lock.release()
+        self.emit("change-notification", ())
 
     def replace_global_label(self, object_handle, updated_tuple):
         """
@@ -510,8 +610,10 @@ class LastChangedService(Callback):
             if self.check_removed_object(
                 object_type, object_handle
             ) or self.check_removed_object("Global", object_handle):
-                self.load_change_history()
-                self.emit("change-notification", (object_type, object_handle))
+                self.history_lock.acquire()
+                self.change_history = {}
+                self.history_lock.release()
+                self.emit("change-notification", ())
 
     def check_removed_object(self, object_type, object_handle):
         """
@@ -521,14 +623,6 @@ class LastChangedService(Callback):
             if object_data[1] == object_handle:
                 return True
         return False
-
-    def get_change_history(self, obj_type=None):
-        """
-        Return change history.
-        """
-        if obj_type in self.change_history:
-            return self.change_history[obj_type]
-        return self.change_history
 
 
 # ------------------------------------------------------------------------
@@ -879,38 +973,3 @@ def get_formatted_handle_list(db, handle_list):
             (object_type, object_handle, label, change, format_time(change))
         )
     return full_list
-
-
-def get_latest_handles(db, object_type, list_method, depth=10):
-    """
-    Get the most recently changed object handles for a given object type.
-    """
-    handle_list = []
-    raw_method = db.method("get_raw_%s_data", object_type.lower())
-    change_index = SERIALIZATION_INDEX[object_type]
-    for object_handle in list_method():
-        change = -raw_method(object_handle)[change_index]
-        bsindex = bisect(KeyWrapper(handle_list, key=lambda c: c[2]), change)
-        handle_list.insert(bsindex, (object_type, object_handle, change))
-        if len(handle_list) > depth:
-            handle_list.pop(depth)
-    return get_formatted_handle_list(db, handle_list)
-
-
-def get_all_object_handles(db, depth=10):
-    """
-    Gather and return all recently changed handles and a coalesced global list.
-    """
-    change_history = {}
-    global_history = []
-    for object_type in SERIALIZATION_INDEX:
-        if object_type == "Citation":
-            list_method = db.get_citation_handles
-        else:
-            list_method = db.method("iter_%s_handles", object_type.lower())
-        handle_list = get_latest_handles(db, object_type, list_method, depth)
-        change_history[object_type] = handle_list
-        global_history = global_history + handle_list
-    global_history.sort(key=lambda x: x[3], reverse=True)
-    change_history["Global"] = global_history[:depth]
-    return change_history
