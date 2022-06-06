@@ -32,7 +32,6 @@ CardView class
 # -------------------------------------------------------------------------
 import pickle
 import time
-from functools import lru_cache
 
 # -------------------------------------------------------------------------
 #
@@ -71,6 +70,7 @@ from view.config.config_templates import (
     build_templates_panel,
 )
 from view.services.service_windows import WindowService
+from view.services.service_images import ImagesService
 from view.actions import action_handler
 from view.views.view_builder import view_builder
 
@@ -128,6 +128,7 @@ class CardView(GlobalNavigationView):
         self.first_action_group = None
         self.second_action_group = None
         self.second_action_group_sensitive = False
+        self.image_service = ImagesService()
 
     def _load_config(self):
         """
@@ -183,12 +184,11 @@ class CardView(GlobalNavigationView):
         )
         self.grstate.set_templates(self._config)
 
-    @lru_cache(maxsize=32)
     def fetch_thumbnail(self, path, rectangle, size):
         """
         Fetch a thumbnail from cache when possible.
         """
-        return get_thumbnail_image(path, rectangle=rectangle, size=size)
+        return self.image_service.get_thumbnail_image(path, rectangle, size)
 
     def fetch_page_context(self):
         """
@@ -495,14 +495,14 @@ class CardView(GlobalNavigationView):
         name, dummy_obj = navigation_label(
             self.dbstate.db,
             primary_obj_type,
-            page_context.primary_obj.obj.get_handle(),
+            page_context.primary_obj.obj.handle,
         )
         if (
             primary_obj_type == "Person"
             and global_config.get("interface.statusbar") > 1
         ):
             relation = self.uistate.display_relationship(
-                self.dbstate, page_context.primary_obj.obj.get_handle()
+                self.dbstate, page_context.primary_obj.obj.handle
             )
             if relation:
                 name = "".join((name, " (", relation.strip(), ")"))
@@ -703,7 +703,7 @@ class CardView(GlobalNavigationView):
         active = self.current_context.primary_obj
         if (
             active.obj_type not in ["Tag"]
-            and active.obj.get_handle() == object_handle[1]
+            and active.obj.handle == object_handle[1]
         ):
             active.obj.add_tag(tag_handle)
             commit_method = self.grstate.dbstate.db.method(
