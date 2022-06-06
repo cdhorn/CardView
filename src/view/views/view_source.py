@@ -63,13 +63,9 @@ class SourceObjectView(GrampsObjectView):
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        group_list = self.grstate.config.get("layout.source.groups").split(",")
-        object_groups = self.get_object_groups(group_list, source)
-        if (
-            "people" in group_list
-            or "event" in group_list
-            or "place" in group_list
-        ):
+        groups = self.grstate.config.get("layout.source.groups").split(",")
+        object_groups = self.get_object_groups("layout.source", groups, source)
+        if "people" in groups or "event" in groups or "place" in groups:
             self.add_cited_subject_groups(source, object_groups)
 
         self.view_body = self.render_group_view(object_groups)
@@ -85,9 +81,7 @@ class SourceObjectView(GrampsObjectView):
         for (
             obj_type,
             obj_handle,
-        ) in self.grstate.dbstate.db.find_backlink_handles(
-            source.get_handle()
-        ):
+        ) in self.grstate.dbstate.db.find_backlink_handles(source.handle):
             if obj_type == "Citation":
                 self.__extract_references(
                     obj_handle, people_list, events_list, places_list

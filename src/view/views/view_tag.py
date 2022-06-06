@@ -58,7 +58,7 @@ class TagObjectView(GrampsObjectView):
         for (
             obj_type,
             obj_handle,
-        ) in self.grstate.dbstate.db.find_backlink_handles(tag.get_handle()):
+        ) in self.grstate.dbstate.db.find_backlink_handles(tag.handle):
             if obj_type not in object_list:
                 object_list.update({obj_type: []})
             object_list[obj_type].append((obj_type, obj_handle))

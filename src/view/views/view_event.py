@@ -67,11 +67,11 @@ class EventObjectView(GrampsObjectView):
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
-        group_list = self.grstate.config.get("layout.event.groups").split(",")
+        groups = self.grstate.config.get("layout.event.groups").split(",")
         object_groups = self.get_object_groups(
-            group_list, event, age_base=event.get_date_object()
+            "layout.event", groups, event, age_base=event.get_date_object()
         )
-        if "people" in group_list or "family" in group_list:
+        if "people" in groups or "family" in groups:
             self.add_participant_groups(event, object_groups)
 
         self.view_body = self.render_group_view(object_groups)
@@ -86,7 +86,7 @@ class EventObjectView(GrampsObjectView):
         for (
             obj_type,
             obj_handle,
-        ) in self.grstate.dbstate.db.find_backlink_handles(event.get_handle()):
+        ) in self.grstate.dbstate.db.find_backlink_handles(event.handle):
             if obj_type == "Person" and obj_handle not in people_list:
                 people_list.append(("Person", obj_handle))
             elif obj_type == "Family" and obj_handle not in family_list:

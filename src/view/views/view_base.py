@@ -164,25 +164,28 @@ class GrampsObjectView(Gtk.VBox):
         """
         Gather and build the object groups.
         """
-        option = ".".join(("layout", gramps_obj.obj_type.lower(), "groups"))
-        group_list = self.grstate.config.get(option).split(",")
+        space = ".".join(("layout", self.grcontext.page_type.lower()))
+        groups = self.grstate.config.get(".".join((space, "groups"))).split(
+            ","
+        )
         object_groups = self.get_object_groups(
-            group_list, gramps_obj.obj, age_base=age_base
+            space, groups, gramps_obj.obj, age_base=age_base
         )
         return self.render_group_view(object_groups)
 
-    def get_object_groups(self, group_list, obj, age_base=None):
+    def get_object_groups(self, space, groups, obj, age_base=None):
         """
-        Gather the object groups.
+        Gather the visible object groups.
         """
         args = {"page_type": self.grcontext.page_type.lower()}
         if age_base:
             args["age_base"] = age_base
         object_groups = {}
-        for key in group_list:
-            object_groups.update(
-                {key: group_builder(self.grstate, key, obj, args)}
-            )
+        for group in groups:
+            if self.grstate.config.get(".".join((space, group, "visible"))):
+                object_groups.update(
+                    {group: group_builder(self.grstate, group, obj, args)}
+                )
         return object_groups
 
     def render_group_view(self, obj_groups):
