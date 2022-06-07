@@ -229,6 +229,7 @@ class EventCardView(CardView):
         """
         Delete event.
         """
-        event = self.current_context.primary_obj.obj
-        action = action_handler("Event", self.grstate, event)
-        action.delete_object(event)
+        if self.current_context:
+            event = self.current_context.primary_obj.obj
+            action = action_handler("Event", self.grstate, event)
+            action.delete_object(event)

@@ -125,6 +125,7 @@ class CitationCardView(CardView):
         """
         Delete citation.
         """
-        citation = self.current_context.primary_obj.obj
-        action = action_handler("Citation", self.grstate, citation)
-        action.delete_object(citation)
+        if self.current_context:
+            citation = self.current_context.primary_obj.obj
+            action = action_handler("Citation", self.grstate, citation)
+            action.delete_object(citation)

@@ -695,23 +695,25 @@ class CardView(GlobalNavigationView):
         """
         Edit the active page object.
         """
-        active_object = self.current_context.primary_obj
-        action = action_handler(
-            active_object.obj_type, self.grstate, active_object.obj
-        )
-        action.edit_object()
+        if self.current_context:
+            active_object = self.current_context.primary_obj
+            action = action_handler(
+                active_object.obj_type, self.grstate, active_object.obj
+            )
+            action.edit_object()
 
     def add_tag(self, trans, object_handle, tag_handle):
         """
         Add a tag to the active page object.
         """
-        active = self.current_context.primary_obj
-        if (
-            active.obj_type not in ["Tag"]
-            and active.obj.handle == object_handle[1]
-        ):
-            active.obj.add_tag(tag_handle)
-            commit_method = self.grstate.dbstate.db.method(
-                "commit_%s", active.obj_type
-            )
-            commit_method(active.obj, trans)
+        if self.current_context:
+            active = self.current_context.primary_obj
+            if (
+                active.obj_type not in ["Tag"]
+                and active.obj.handle == object_handle[1]
+            ):
+                active.obj.add_tag(tag_handle)
+                commit_method = self.grstate.dbstate.db.method(
+                    "commit_%s", active.obj_type
+                )
+                commit_method(active.obj, trans)

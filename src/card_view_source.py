@@ -125,6 +125,7 @@ class SourceCardView(CardView):
         """
         Delete source.
         """
-        source = self.current_context.primary_obj.obj
-        action = action_handler("Source", self.grstate, source)
-        action.delete_object(source)
+        if self.current_context:
+            source = self.current_context.primary_obj.obj
+            action = action_handler("Source", self.grstate, source)
+            action.delete_object(source)

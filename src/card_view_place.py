@@ -134,6 +134,7 @@ class PlaceCardView(CardView):
         """
         Delete place.
         """
-        place = self.current_context.primary_obj.obj
-        action = action_handler("Place", self.grstate, place)
-        action.delete_object(place)
+        if self.current_context:
+            place = self.current_context.primary_obj.obj
+            action = action_handler("Place", self.grstate, place)
+            action.delete_object(place)

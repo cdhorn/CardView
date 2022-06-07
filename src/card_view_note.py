@@ -122,6 +122,7 @@ class NoteCardView(CardView):
         """
         Delete note.
         """
-        note = self.current_context.primary_obj.obj
-        action = action_handler("Note", self.grstate, note)
-        action.delete_object(note)
+        if self.current_context:
+            note = self.current_context.primary_obj.obj
+            action = action_handler("Note", self.grstate, note)
+            action.delete_object(note)

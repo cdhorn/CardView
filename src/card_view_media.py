@@ -138,6 +138,7 @@ class MediaCardView(CardView):
         """
         Delete media.
         """
-        media = self.current_context.primary_obj.obj
-        action = action_handler("Media", self.grstate, media)
-        action.delete_object(media)
+        if self.current_context:
+            media = self.current_context.primary_obj.obj
+            action = action_handler("Media", self.grstate, media)
+            action.delete_object(media)

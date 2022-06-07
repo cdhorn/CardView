@@ -194,17 +194,19 @@ class FamilyCardView(CardView):
         """
         Add a new person as a child member of the family.
         """
-        family = self.current_context.primary_obj.obj
-        action = action_handler("Family", self.grstate, family)
-        action.add_new_child()
+        if self.current_context:
+            family = self.current_context.primary_obj.obj
+            action = action_handler("Family", self.grstate, family)
+            action.add_new_child()
 
     def _add_existing_child(self, *_dummy_obj):
         """
         Add an existing person as a child member of the family.
         """
-        family = self.current_context.primary_obj.obj
-        action = action_handler("Family", self.grstate, family)
-        action.add_existing_child()
+        if self.current_context:
+            family = self.current_context.primary_obj.obj
+            action = action_handler("Family", self.grstate, family)
+            action.add_existing_child()
 
     def _add_new_family(self, *_dummy_obj):
         """
@@ -217,6 +219,7 @@ class FamilyCardView(CardView):
         """
         Delete family.
         """
-        family = self.current_context.primary_obj.obj
-        action = action_handler("Family", self.grstate, family)
-        action.delete_object(family)
+        if self.current_context:
+            family = self.current_context.primary_obj.obj
+            action = action_handler("Family", self.grstate, family)
+            action.delete_object(family)

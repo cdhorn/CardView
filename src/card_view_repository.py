@@ -125,6 +125,7 @@ class RepositoryCardView(CardView):
         """
         Delete repository.
         """
-        repository = self.current_context.primary_obj.obj
-        action = action_handler("Repository", self.grstate, repository)
-        action.delete_object(repository)
+        if self.current_context:
+            repository = self.current_context.primary_obj.obj
+            action = action_handler("Repository", self.grstate, repository)
+            action.delete_object(repository)

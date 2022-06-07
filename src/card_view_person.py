@@ -321,25 +321,28 @@ class PersonCardView(CardView):
         """
         Add a new set of parents.
         """
-        person = self.current_context.primary_obj.obj
-        action = action_handler("Person", self.grstate, person)
-        action.add_new_parents()
+        if self.current_context:
+            person = self.current_context.primary_obj.obj
+            action = action_handler("Person", self.grstate, person)
+            action.add_new_parents()
 
     def _add_existing_parents(self, *_dummy_obj):
         """
         Add an existing set of parents.
         """
-        person = self.current_context.primary_obj.obj
-        action = action_handler("Person", self.grstate, person)
-        action.add_existing_parents()
+        if self.current_context:
+            person = self.current_context.primary_obj.obj
+            action = action_handler("Person", self.grstate, person)
+            action.add_existing_parents()
 
     def _add_new_family(self, *_dummy_obj):
         """
         Add new family with or without spouse.
         """
-        person = self.current_context.primary_obj.obj
-        action = action_handler("Person", self.grstate, person)
-        action.add_new_family()
+        if self.current_context:
+            person = self.current_context.primary_obj.obj
+            action = action_handler("Person", self.grstate, person)
+            action.add_new_family()
 
     def _add_new_person(self, *_dummy_obj):
         """
@@ -355,6 +358,7 @@ class PersonCardView(CardView):
         """
         Delete person.
         """
-        person = self.current_context.primary_obj.obj
-        action = action_handler("Person", self.grstate, person)
-        action.delete_object(person)
+        if self.current_context:
+            person = self.current_context.primary_obj.obj
+            action = action_handler("Person", self.grstate, person)
+            action.delete_object(person)
