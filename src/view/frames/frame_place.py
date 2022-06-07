@@ -84,7 +84,7 @@ class PlaceFrame(ReferenceFrame):
             title = self.get_link(
                 place_name,
                 "Place",
-                place.get_handle(),
+                place.handle,
             )
         else:
             title = self.get_title_breadcrumbs()
@@ -94,8 +94,8 @@ class PlaceFrame(ReferenceFrame):
         """
         Add place type.
         """
-        if place.get_type():
-            text = glocale.translation.sgettext(place.get_type().xml_str())
+        if place.place_type:
+            text = glocale.translation.sgettext(place.place_type.xml_str())
             if text:
                 self.add_fact(
                     self.get_label(text), label=self.get_label(_("Type"))
@@ -105,9 +105,9 @@ class PlaceFrame(ReferenceFrame):
         """
         Add place code.
         """
-        if place.get_code():
+        if place.code:
             self.add_fact(
-                self.get_label(place.get_code()),
+                self.get_label(place.code),
                 label=self.get_label(_("Code")),
             )
 
@@ -115,12 +115,12 @@ class PlaceFrame(ReferenceFrame):
         """
         Add place geographic coordinates.
         """
-        if place.get_latitude():
-            latitude_text = place.get_latitude()
+        if place.lat:
+            latitude_text = place.lat
         else:
             latitude_text = "".join(("[", _("Missing"), "]"))
-        if place.get_longitude():
-            longitude_text = place.get_longitude()
+        if place.long:
+            longitude_text = place.long
         else:
             longitude_text = "".join(("[", _("Missing"), "]"))
         text = ", ".join((latitude_text, longitude_text))
@@ -131,14 +131,11 @@ class PlaceFrame(ReferenceFrame):
         """
         Add place alternate names.
         """
-        alternative_names = place.get_alternative_names()
-        if alternative_names:
-            for alternate_name in alternative_names:
-                value = alternate_name.get_value()
-                if alternate_name.get_language():
-                    value = "".join(
-                        (value, " (", alternate_name.get_language(), ")")
-                    )
+        if place.alt_names:
+            for alternate_name in place.alt_names:
+                value = alternate_name.value
+                if alternate_name.lang:
+                    value = "".join((value, " (", alternate_name.lang, ")"))
                 date = glocale.date_displayer.display(
                     alternate_name.get_date_object()
                 )
@@ -160,15 +157,15 @@ class PlaceFrame(ReferenceFrame):
         self.get_place_chain(chain, self.primary.obj)
         comma_label = None
         for place in chain:
-            title = place.get_name().get_value()
-            if place.get_type():
+            title = place.name.value
+            if place.place_type:
                 place_type = glocale.translation.sgettext(
-                    place.get_type().xml_str()
+                    place.place_type.xml_str()
                 )
             else:
                 place_type = None
             place_label = self.get_link(
-                title, "Place", place.get_handle(), tooltip=place_type
+                title, "Place", place.handle, tooltip=place_type
             )
             if comma_label:
                 hbox.pack_start(self.get_label(", "), False, False, 0)
@@ -180,8 +177,8 @@ class PlaceFrame(ReferenceFrame):
         """
         Return list of parent places.
         """
-        if obj.get_placeref_list():
-            place_ref = obj.get_placeref_list()[0]
+        if obj.placeref_list:
+            place_ref = obj.placeref_list[0]
             place = self.grstate.fetch("Place", place_ref.ref)
             chain.append(place)
             self.get_place_chain(chain, place)

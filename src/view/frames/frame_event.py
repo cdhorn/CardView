@@ -113,7 +113,7 @@ class EventFrame(ReferenceFrame):
         name = self.get_link(
             title,
             "Event",
-            event.get_handle(),
+            event.handle,
             hexpand=True,
         )
         self.widgets["title"].pack_start(name, True, True, 0)
@@ -241,10 +241,7 @@ class EventFrame(ReferenceFrame):
         role_name = str(role)
         title = " ".join((event_type, _("of"), primary_obj_name))
         if self.reference_base:
-            if (
-                self.reference_base.obj.get_handle()
-                == primary_obj.get_handle()
-            ):
+            if self.reference_base.obj.handle == primary_obj.handle:
                 title = self.__adjust_title(title, event_type, primary_obj)
             if (
                 self.groptions.relation
@@ -294,7 +291,7 @@ class EventFrame(ReferenceFrame):
                 birth_ref = primary_obj.get_birth_ref()
                 if (
                     birth_ref is not None
-                    and birth_ref.ref == self.primary.obj.get_handle()
+                    and birth_ref.ref == self.primary.obj.handle
                 ):
                     title = " ".join((title, "*"))
             elif current_type == EventType.DEATH and check_multiple_events(
@@ -303,7 +300,7 @@ class EventFrame(ReferenceFrame):
                 death_ref = primary_obj.get_death_ref()
                 if (
                     death_ref is not None
-                    and death_ref.ref == self.primary.obj.get_handle()
+                    and death_ref.ref == self.primary.obj.handle
                 ):
                     title = " ".join((title, "*"))
         return title
@@ -331,7 +328,7 @@ class EventFrame(ReferenceFrame):
             obj_event_ref,
             obj_name,
         ) in self.participants:
-            if obj.get_handle() == primary_obj.get_handle():
+            if obj.handle == primary_obj.handle:
                 continue
             roles.append((str(obj_event_ref.get_role()), obj_name))
         roles.sort(key=lambda x: x[0])
@@ -364,8 +361,8 @@ class EventFrame(ReferenceFrame):
         Generate textual description for confidence, source and citation counts.
         """
         sources = []
-        if self.primary.obj.get_citation_list():
-            for citation_handle in self.primary.obj.get_citation_list():
+        if self.primary.obj.citation_list:
+            for citation_handle in self.primary.obj.citation_list:
                 citation = self.fetch("Citation", citation_handle)
                 if citation.source_handle not in sources:
                     sources.append(citation.source_handle)
@@ -374,7 +371,7 @@ class EventFrame(ReferenceFrame):
         return (
             get_object_text(sources, _("Source"), _("Sources")),
             get_object_text(
-                self.primary.obj.get_citation_list(),
+                self.primary.obj.citation_list,
                 _("Citation"),
                 _("Citations"),
             ),
@@ -440,10 +437,10 @@ class EventFrame(ReferenceFrame):
         if (
             self.primary.obj.get_type() == EventType.BIRTH
             and self.reference_base
-            and self.reference_base.obj.get_handle()
-            == self.primary_participant[1].get_handle()
+            and self.reference_base.obj.handle
+            == self.primary_participant[1].handle
             and self.reference_base.obj.get_birth_ref().ref
-            != self.primary.obj.get_handle()
+            != self.primary.obj.handle
         ):
             action = action_handler(
                 "Person", self.grstate, self.reference_base, self.primary
@@ -463,10 +460,10 @@ class EventFrame(ReferenceFrame):
         if (
             self.primary.obj.get_type() == EventType.DEATH
             and self.reference_base
-            and self.reference_base.obj.get_handle()
-            == self.primary_participant[1].get_handle()
+            and self.reference_base.obj.handle
+            == self.primary_participant[1].handle
             and self.reference_base.obj.get_death_ref().ref
-            != self.primary.obj.get_handle()
+            != self.primary.obj.handle
         ):
             action = action_handler(
                 "Person", self.grstate, self.reference_base, self.primary

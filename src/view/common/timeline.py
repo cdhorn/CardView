@@ -103,6 +103,25 @@ class GrampsTimeline:
     date span, location or an optional grouping of specific people and families.
     """
 
+    __slots__ = (
+        "db_handle",
+        "timeline",
+        "timeline_type",
+        "reference_person",
+        "start_date",
+        "end_date",
+        "locale",
+        "precision",
+        "depth",
+        "eligible_events",
+        "event_filters",
+        "eligible_relatives",
+        "eligible_relative_events",
+        "relative_event_filters",
+        "cached_people",
+        "cached_events",
+    )
+
     def __init__(
         self,
         db_handle,
@@ -230,7 +249,7 @@ class GrampsTimeline:
 
     def get_category(self, event):
         """
-        Return the category for groupig the event.
+        Return the category for grouping the event.
         """
         type_event = event.get_type()
         for entry in type_event.get_menu_standard_xml():
@@ -302,9 +321,7 @@ class GrampsTimeline:
             if not relative:
                 role = event_ref.get_role()
                 if not role.is_primary() and not role.is_family():
-                    primary = self.get_primary_event_participant(
-                        event.get_handle()
-                    )
+                    primary = self.get_primary_event_participant(event.handle)
                     if primary:
                         calculator = get_relationship_calculator(
                             reinit=True, clocale=self.locale
@@ -332,10 +349,11 @@ class GrampsTimeline:
         """
         Get the primary event participant.
         """
+        get_person_from_handle = self.db_handle.get_person_from_handle
         for backlink in self.db_handle.find_backlink_handles(
             handle, include_classes=["Person"]
         ):
-            person = self.db_handle.get_person_from_handle(backlink[1])
+            person = get_person_from_handle(backlink[1])
             if person:
                 for event_ref in person.get_primary_event_ref_list():
                     if (
@@ -389,15 +407,16 @@ class GrampsTimeline:
         """
         index = int(bool(union)) - 1
         offset = -int(bool(union)) or 1
-        child_handles = family.get_child_ref_list()
+        child_handles = family.child_ref_list
         if child_handles:
             child = self.db_handle.get_person_from_handle(
                 child_handles[index].ref
             )
             birth = None
             birth_fallback = None
+            get_event_from_handle = self.db_handle.get_event_from_handle
             for event_ref in child.get_primary_event_ref_list():
-                event = self.db_handle.get_event_from_handle(event_ref.ref)
+                event = get_event_from_handle(event_ref.ref)
                 if event.type.is_birth():
                     birth = event
                     break
@@ -426,9 +445,11 @@ class GrampsTimeline:
         death = None
         death_fallback = None
         events = []
+        get_event_from_handle = self.db_handle.get_event_from_handle
+        get_family_from_handle = self.db_handle.get_family_from_handle
         for event_ref in person.event_ref_list:
             role = event_ref.get_role()
-            event = self.db_handle.get_event_from_handle(event_ref.ref)
+            event = get_event_from_handle(event_ref.ref)
             if role.is_primary():
                 if event.type.is_birth():
                     birth = event
@@ -458,11 +479,11 @@ class GrampsTimeline:
 
         events = []
         for family_handle in person.family_list:
-            family = self.db_handle.get_family_from_handle(family_handle)
+            family = get_family_from_handle(family_handle)
             for event_ref in family.event_ref_list:
                 events.append(
                     (
-                        self.db_handle.get_event_from_handle(event_ref.ref),
+                        get_event_from_handle(event_ref.ref),
                         event_ref,
                         family,
                     )
@@ -662,17 +683,19 @@ class GrampsTimeline:
         """
         if depth > 8:
             return
+        get_place_from_handle = self.db_handle.get_place_from_handle
+        get_event_from_handle = self.db_handle.get_event_from_handle
         for (
             obj_type,
             obj_handle,
         ) in self.db_handle.find_backlink_handles(handle):
             if obj_type == "Place":
-                place = self.db_handle.get_place_from_handle(obj_handle)
-                for place_ref in place.get_placeref_list():
+                place = get_place_from_handle(obj_handle)
+                for place_ref in place.placeref_list:
                     if place_ref.ref == handle:
                         self.add_place(obj_handle, depth=depth + 1)
             if obj_type == "Event":
-                event = self.db_handle.get_event_from_handle(obj_handle)
+                event = get_event_from_handle(obj_handle)
                 self.merge_generic_event(event)
 
     def merge_generic_event(self, event):
@@ -692,9 +715,9 @@ class GrampsTimeline:
             return
         if self.end_date and sortval > self.end_date.sortval:
             return
-        primary = self.get_primary_event_participant(event.get_handle())
+        primary = self.get_primary_event_participant(event.handle)
         if primary:
-            for event_ref in primary.get_event_ref_list():
+            for event_ref in primary.event_ref_list:
                 if event_ref.ref == event.handle:
                     self.timeline.append(
                         (

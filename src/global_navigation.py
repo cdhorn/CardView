@@ -454,7 +454,7 @@ class GlobalNavigationView(PageView):
         """
         defperson = self.dbstate.db.get_default_person()
         if defperson:
-            self.change_active(("Person", defperson.get_handle()))
+            self.change_active(("Person", defperson.handle))
         else:
             WarningDialog(
                 _("No Home Person"),
@@ -617,7 +617,7 @@ class GlobalNavigationView(PageView):
             self.active
             and event.type == Gdk.EventType.KEY_PRESS
             and event.keyval == Gdk.KEY_c
-            and match_primary_mask(event.get_state())
+            and match_primary_mask(event.state)
         ):
             self.call_copy()
             return True

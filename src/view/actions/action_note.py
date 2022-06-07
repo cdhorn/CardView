@@ -112,7 +112,7 @@ class NoteAction(GrampsAction):
             active_target_object = self.get_target_object()
             note = self.db.get_note_from_handle(note_handle)
             message = _("Added Note %s to %s") % (
-                note.get_gramps_id(),
+                note.gramps_id,
                 self.describe_object(self.target_object.obj),
             )
             active_target_object.save_hash()
@@ -139,7 +139,7 @@ class NoteAction(GrampsAction):
         )
         note = note_selector.run()
         if note:
-            self.added_note(note.get_handle())
+            self.added_note(note.handle)
 
     def remove_note(self, *_dummy_args):
         """
@@ -195,9 +195,7 @@ class NoteAction(GrampsAction):
                 self.describe_object(self.target_object.obj),
             )
         active_target_object.save_hash()
-        active_target_object.obj.remove_note(
-            self.action_object.obj.get_handle()
-        )
+        active_target_object.obj.remove_note(self.action_object.obj.handle)
         active_target_object.sync_hash(self.grstate)
         self.target_object.commit(self.grstate, message)
 

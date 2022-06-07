@@ -69,6 +69,7 @@ from ..menus.menu_utils import (
     show_menu,
 )
 from .frame_primary import PrimaryFrame
+from .frame_utils import load_metadata
 
 _ = glocale.translation.sgettext
 
@@ -97,9 +98,12 @@ class ReferenceFrame(PrimaryFrame):
             return
 
         if self.reference.obj_type not in ["PlaceRef"]:
-            self.ref_widgets["id"].load(
+            load_metadata(
+                self.ref_widgets["id"],
+                self.grstate,
+                self.groptions,
                 self.reference,
-                gramps_id=self.primary.obj.get_gramps_id(),
+                gramps_id=self.primary.obj.gramps_id,
             )
             self.ref_widgets["icons"].load(
                 self.reference,
@@ -243,7 +247,7 @@ class ReferenceFrame(PrimaryFrame):
         Handle button pressed.
         """
         if button_pressed(event, BUTTON_SECONDARY):
-            if match_primary_mask(event.get_state()):
+            if match_primary_mask(event.state):
                 build_bookmarks_menu(self, self.grstate, event)
                 return True
             self.build_ref_context_menu(obj, event)
@@ -266,7 +270,7 @@ class ReferenceFrame(PrimaryFrame):
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
-            if match_primary_mask(event.get_state()):
+            if match_primary_mask(event.state):
                 self._dump_context()
                 return True
             page_context = GrampsContext(

@@ -65,8 +65,7 @@ class EventRefFrame(EventFrame):
             role = str(event_ref.get_role())
             if (
                 groptions.relation
-                and groptions.relation.get_handle()
-                != self.reference_base.obj.get_handle()
+                and groptions.relation.handle != self.reference_base.obj.handle
             ):
                 name = None
                 if self.reference_base.obj_type == "Person":

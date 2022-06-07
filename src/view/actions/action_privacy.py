@@ -77,14 +77,14 @@ class PrivacyAction(GrampsAction):
         Return true if set.
         """
         active_target_object = self.get_target_object()
-        return active_target_object.obj.get_privacy()
+        return active_target_object.obj.private
 
     def toggle(self, *_dummy_args):
         """
         Toggle the privacy indicator.
         """
         active_target_object = self.get_target_object()
-        mode = active_target_object.obj.get_privacy()
+        mode = active_target_object.obj.private
         if mode:
             text = _("Public")
         else:

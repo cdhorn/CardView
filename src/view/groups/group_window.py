@@ -117,7 +117,7 @@ class FrameGroupWindow(ManagedWindow):
             title, dummy_obj = navigation_label(
                 self.grstate.dbstate.db,
                 self.group_base.obj_type,
-                self.group_base.obj.get_handle(),
+                self.group_base.obj.handle,
             )
             return title
         return ""

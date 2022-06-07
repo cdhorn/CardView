@@ -129,17 +129,14 @@ class GrampsZotero:
         Update Gramps source in case Zotero one changed.
         """
         change = False
-        if "title" in zsource and gsource.get_title() != zsource["title"]:
+        if "title" in zsource and gsource.title != zsource["title"]:
             gsource.set_title(zsource["title"])
             change = True
-        if (
-            "publisher" in zsource
-            and gsource.get_publication_info() != zsource["publisher"]
-        ):
+        if "publisher" in zsource and gsource.pubinfo != zsource["publisher"]:
             gsource.set_publication_info(zsource["publisher"])
             change = True
         author = construct_author_string(zsource)
-        if author and gsource.get_author() != author:
+        if author and gsource.author != author:
             gsource.set_author(author)
             change = True
         if merge_attributes(gsource, zsource):
@@ -150,7 +147,7 @@ class GrampsZotero:
                     (
                         _("Updating"),
                         _("Source"),
-                        gsource.get_gramps_id(),
+                        gsource.gramps_id,
                         _("from"),
                         _("Zotero"),
                         _("Source"),
@@ -192,13 +189,13 @@ class GrampsZotero:
                     note, zsource, znotes[index]
                 )
                 if note_change:
-                    gsource.add_note(note.get_handle())
+                    gsource.add_note(note.handle)
                     change = True
         if add_list:
             change = True
             for znote in add_list:
                 note, change = self.create_gramps_zotero_note(zsource, znote)
-                gsource.add_note(note.get_handle())
+                gsource.add_note(note.handle)
         if change:
             message = " ".join(
                 (
@@ -227,7 +224,7 @@ class GrampsZotero:
         Get Zotero notes for a Gramps object.
         """
         notes = []
-        for handle in gobject.get_note_list():
+        for handle in gobject.note_list:
             note = self.db.get_note_from_handle(handle)
             if note.get_type().xml_str() == "Zotero Note":
                 notes.append(note)
@@ -259,7 +256,7 @@ class GrampsZotero:
                     (
                         _("Updating"),
                         _("Note"),
-                        gnote.get_gramps_id(),
+                        gnote.gramps_id,
                         _("from"),
                         _("Zotero"),
                         _("Note"),
@@ -293,7 +290,7 @@ class GrampsZotero:
         Create new citation in Gramps.
         """
         gcitation = Citation()
-        gcitation.set_reference_handle(gsource.get_handle())
+        gcitation.set_reference_handle(gsource.handle)
         location = ""
         if (
             "label" in zcitation
@@ -310,7 +307,7 @@ class GrampsZotero:
                 _("Citation"),
                 _("from"),
                 _("Source"),
-                gsource.get_gramps_id(),
+                gsource.gramps_id,
             )
         )
         with DbTxn(message, self.db) as trans:
@@ -323,9 +320,9 @@ class GrampsZotero:
         Add citation to Gramps object.
         """
         if secondary_obj and isinstance(secondary_obj, CitationBase):
-            secondary_obj.add_citation(gcitation.get_handle())
+            secondary_obj.add_citation(gcitation.handle)
         elif primary_obj and isinstance(primary_obj, CitationBase):
-            primary_obj.add_citation(gcitation.get_handle())
+            primary_obj.add_citation(gcitation.handle)
         if isinstance(primary_obj, Person):
             obj_type = "Person"
             obj_lang = _("Person")
@@ -343,10 +340,10 @@ class GrampsZotero:
             (
                 _("Added"),
                 _("Citation"),
-                gcitation.get_gramps_id(),
+                gcitation.gramps_id,
                 _("to"),
                 obj_lang,
-                primary_obj.get_gramps_id(),
+                primary_obj.gramps_id,
             )
         )
         with DbTxn(message, self.db) as trans:
@@ -389,7 +386,7 @@ def find_attribute(obj, name):
     """
     Find an attribute for an object.
     """
-    for attribute in obj.get_attribute_list():
+    for attribute in obj.attribute_list:
         if attribute.get_type().xml_str() == name:
             return attribute
     return None

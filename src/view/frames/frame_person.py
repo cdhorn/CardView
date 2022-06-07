@@ -99,11 +99,7 @@ class PersonFrame(ReferenceFrame):
         Add person title.
         """
         display_name = name_displayer.display(person)
-        name = self.get_link(
-            display_name,
-            "Person",
-            person.handle,
-        )
+        name = self.get_link(display_name, "Person", person.handle)
         name_box = Gtk.HBox(spacing=2)
         if self.groptions.frame_number:
             label = Gtk.Label(
@@ -182,7 +178,7 @@ class PersonFrame(ReferenceFrame):
         birth_ref = self.primary.obj.get_birth_ref()
         death_ref = self.primary.obj.get_death_ref()
         for event in event_cache:
-            event_handle = event.get_handle()
+            event_handle = event.handle
             if birth_ref and event_handle == birth_ref.ref:
                 birth = event
             elif death_ref and event_handle == death_ref.ref:
@@ -234,7 +230,7 @@ class PersonFrame(ReferenceFrame):
             home_person = self.grstate.dbstate.db.get_default_person()
             if (
                 home_person is None
-                or home_person.get_handle() != self.primary.obj.get_handle()
+                or home_person.handle != self.primary.obj.handle
             ):
                 context_menu.append(
                     menu_item(

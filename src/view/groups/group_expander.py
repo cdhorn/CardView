@@ -79,7 +79,7 @@ class FrameGroupExpander(Gtk.Expander):
         Handle button press.
         """
         if button_pressed(event, BUTTON_SECONDARY) and match_primary_mask(
-            event.get_state()
+            event.state
         ):
             self.hide()
             self.grstate.set_dirty_redraw_trigger()

@@ -94,7 +94,7 @@ class GrampsFrame(FrameView):
         else:
             self.reference_base = None
             self.reference = None
-        FrameView.__init__(self, grstate, groptions, self.switch_object)
+        FrameView.__init__(self, grstate, groptions)
         self.primary = GrampsObject(primary_obj)
         self.secondary = None
         self.focus = self.primary
@@ -125,7 +125,7 @@ class GrampsFrame(FrameView):
         title, dummy_obj = navigation_label(
             self.grstate.dbstate.db,
             self.primary.obj_type,
-            self.primary.obj.get_handle(),
+            self.primary.obj.handle,
         )
         if self.reference:
             return "".join((title, ": ", self.reference.obj_lang))
@@ -164,7 +164,7 @@ class GrampsFrame(FrameView):
             returned_data = (
                 self.focus.dnd_type.drag_type,
                 id(self),
-                self.focus.obj.get_handle(),
+                self.focus.obj.handle,
                 0,
             )
             data.set(
@@ -340,7 +340,7 @@ class GrampsFrame(FrameView):
         if not self.primary.is_primary:
             return True
         if button_pressed(event, BUTTON_SECONDARY):
-            if match_primary_mask(event.get_state()):
+            if match_primary_mask(event.state):
                 build_bookmarks_menu(self, self.grstate, event)
                 return True
             self.build_context_menu(obj, event)
@@ -365,7 +365,7 @@ class GrampsFrame(FrameView):
         if not self.primary.is_primary:
             return True
         if button_released(event, BUTTON_PRIMARY):
-            if match_primary_mask(event.get_state()):
+            if match_primary_mask(event.state):
                 self._dump_context()
                 return True
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)

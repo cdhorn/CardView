@@ -46,7 +46,7 @@ class LDSOrdinancesFrameGroup(FrameGroupList):
         FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        for ordinance in obj.get_lds_ord_list():
+        for ordinance in obj.lds_ord_list:
             frame = LDSOrdinanceFrame(grstate, groptions, obj, ordinance)
             self.add_frame(frame)
         self.show_all()

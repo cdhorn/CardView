@@ -61,7 +61,7 @@ class ChildrenFrameGroup(FrameGroupList):
         if "parent" in groptions.option_space:
             context = "sibling"
 
-        groptions.set_backlink(family.get_handle())
+        groptions.set_backlink(family.handle)
         groptions.option_space = "".join(("group.", context))
         groptions.set_ref_mode(
             grstate.config.get(
@@ -73,7 +73,7 @@ class ChildrenFrameGroup(FrameGroupList):
         number_children = self.grstate.config.get(
             "".join((groptions.option_space, ".number-children"))
         )
-        for child_ref in family.get_child_ref_list():
+        for child_ref in family.child_ref_list:
             if number_children:
                 child_number = child_number + 1
                 groptions.set_number(child_number)
@@ -92,8 +92,8 @@ class ChildrenFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_child_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.child_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -101,7 +101,7 @@ class ChildrenFrameGroup(FrameGroupList):
                 _("Reordered Children"),
                 _("for"),
                 _("Family"),
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_child_ref_list(new_list)
@@ -111,12 +111,12 @@ class ChildrenFrameGroup(FrameGroupList):
         """
         Add a new child to the list of children.
         """
-        if self.group_base.obj.get_father_handle() == handle:
+        if self.group_base.obj.father_handle == handle:
             return
-        if self.group_base.obj.get_mother_handle() == handle:
+        if self.group_base.obj.mother_handle == handle:
             return
         for frame in self.row_frames:
-            if frame.primary.obj.get_handle() == handle:
+            if frame.primary.obj.handle == handle:
                 return
 
         child_ref = ChildRef()
@@ -142,22 +142,22 @@ class ChildrenFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_child_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.child_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, child_ref)
         child = self.fetch("Person", child_ref.ref)
         message = " ".join(
             (
                 _("Added Child"),
-                child.get_gramps_id(),
+                child.gramps_id,
                 _("to"),
                 _("Family"),
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         with DbTxn(message, self.grstate.dbstate.db) as trans:
             self.group_base.obj.set_child_ref_list(new_list)
             self.grstate.dbstate.db.commit_family(self.group_base.obj, trans)
-            child.add_parent_family_handle(self.group_base.obj.get_handle())
+            child.add_parent_family_handle(self.group_base.obj.handle)
             self.grstate.dbstate.db.commit_person(child, trans)

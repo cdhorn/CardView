@@ -136,9 +136,9 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
 
     total = 0
     number = 0
-    for child_ref in parent_family.get_child_ref_list():
+    for child_ref in parent_family.child_ref_list:
         total = total + 1
-        if child_ref.ref == obj.get_handle():
+        if child_ref.ref == obj.handle:
             number = total
     data = [" ".join((str(number), _("of"), str(total)))]
 
@@ -182,9 +182,9 @@ def get_parent_text(db, family, birth_date, parent_type):
     death_text = ""
     parent_text = ""
     if parent_type == "Mother":
-        parent_handle = family.get_mother_handle()
+        parent_handle = family.mother_handle
     else:
-        parent_handle = family.get_father_handle()
+        parent_handle = family.father_handle
     if not parent_handle:
         return "", ""
 

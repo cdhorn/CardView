@@ -50,7 +50,6 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db.dummydb import DummyDb
 from gramps.gen.errors import WindowActiveError
 from gramps.gen.utils.db import navigation_label
-from gramps.gen.utils.thumbnails import get_thumbnail_image
 from gramps.gui.display import display_url
 
 # -------------------------------------------------------------------------
@@ -62,7 +61,7 @@ from global_navigation import GlobalNavigationView
 from view.common.common_classes import GrampsContext, GrampsState
 from view.common.common_const import PAGE_LABELS
 from view.common.common_utils import get_initial_object
-from view.config.config_const import CATEGORIES, HELP_VIEW
+from view.config.config_const import HELP_VIEW
 from view.config.config_profile import ProfileManager
 from view.config.config_templates import (
     ConfigTemplatesDialog,
@@ -365,7 +364,7 @@ class CardView(GlobalNavigationView):
                 self.bookmarks.redraw()
             WindowService().close_all_windows()
             self.history.clear()
-            self.fetch_thumbnail.cache_clear()
+            self.image_service.get_thumbnail_image.cache_clear()
             self._load_config()
             self.build_tree()
 
@@ -476,7 +475,7 @@ class CardView(GlobalNavigationView):
             self.uimanager.update_menu()
             print(
                 "render_page: {} {}".format(
-                    page_context.primary_obj.obj.get_gramps_id(),
+                    page_context.primary_obj.obj.gramps_id,
                     time.time() - start,
                 )
             )
@@ -634,7 +633,7 @@ class CardView(GlobalNavigationView):
         """
         title = _("Configure %(cat)s - %(view)s") % {
             "cat": self.get_translated_category(),
-            "view": self.get_title(),
+            "view": self.title,
         }
 
         if self.can_configure():

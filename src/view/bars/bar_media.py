@@ -90,9 +90,7 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
             return
 
         if self.grstate.config.get("media-bar.sort-by-date"):
-            media_list.sort(
-                key=lambda x: x[0].get_date_object().get_sort_value()
-            )
+            media_list.sort(key=lambda x: x[0].get_date_object().sortval)
         media_list = self.group_by_type(media_list)
         media_list = self.filter_non_photos(media_list)
 
@@ -161,10 +159,10 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         Helper to extract a set of media references from an object.
         """
         if isinstance(obj, MediaBase):
-            for media_ref in obj.get_media_list():
+            for media_ref in obj.media_list:
                 media = self.fetch("Media", media_ref.ref)
                 media_type = ""
-                for attribute in media.get_attribute_list():
+                for attribute in media.attribute_list:
                     if attribute.get_type().xml_str() == "Media-Type":
                         media_type = attribute.get_value()
                 media_list.append((media, media_ref, media_type))
@@ -244,11 +242,11 @@ class MediaBarItem(MediaRefFrame):
         mobj = media
         if not mobj:
             mobj = self.fetch("Media", media_ref.ref)
-        if mobj and mobj.get_mime_type()[0:5] == "image":
+        if mobj and mobj.mime[0:5] == "image":
             rectangle = None
             if media_ref and crop:
                 rectangle = media_ref.get_rectangle()
-            path = media_path_full(self.grstate.dbstate.db, mobj.get_path())
+            path = media_path_full(self.grstate.dbstate.db, mobj.path)
             pixbuf = self.grstate.thumbnail(path, rectangle, size)
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
@@ -260,7 +258,7 @@ class MediaBarItem(MediaRefFrame):
         Open the image in the default picture viewer.
         """
         photo_path = media_path_full(
-            self.grstate.dbstate.db, self.primary.obj.get_path()
+            self.grstate.dbstate.db, self.primary.obj.path
         )
         open_file_with_default_application(photo_path, self.grstate.uistate)
 

@@ -98,7 +98,7 @@ class PlaceAction(GrampsAction):
         """
         place = Place()
         place_ref = PlaceRef()
-        place_ref.ref = self.action_object.obj.get_handle()
+        place_ref.ref = self.action_object.obj.handle
         place.add_placeref(place_ref)
         self._edit_place_reference(
             place, place_ref, self._save_place_reference
@@ -109,14 +109,14 @@ class PlaceAction(GrampsAction):
         Add an existing place as an enclosed place.
         """
         get_place_selector = SelectorFactory("Place")
-        skip = [self.target_object.obj.get_handle()]
+        skip = [self.target_object.obj.handle]
         place_selector = get_place_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
         place = place_selector.run()
         if place:
             place_ref = PlaceRef()
-            place_ref.ref = self.target_object.obj.get_handle()
+            place_ref.ref = self.target_object.obj.handle
             place.add_placeref(place_ref)
             self._edit_place_reference(
                 place, place_ref, self._save_place_reference
@@ -126,8 +126,8 @@ class PlaceAction(GrampsAction):
         """
         Update the place title if needed.
         """
-        place = self.db.get_place_from_handle(saved_place.get_handle())
-        if not place.get_title():
+        place = self.db.get_place_from_handle(saved_place.handle)
+        if not place.title:
             place_name = place.get_name().get_value()
             if place_ref and place_ref.ref:
                 top_place = self.db.get_place_from_handle(place_ref.ref)
@@ -138,7 +138,7 @@ class PlaceAction(GrampsAction):
             if place_name:
                 message = _("Updating Place Title %s for %s") % (
                     place_name,
-                    place.get_gramps_id(),
+                    place.gramps_id,
                 )
                 self.grstate.uistate.set_busy_cursor(True)
                 with DbTxn(message, self.db) as trans:
@@ -178,12 +178,12 @@ class PlaceAction(GrampsAction):
         Actually remove the enclosed place reference.
         """
         if self.target_object.obj_type == "Place":
-            place_handle = self.target_object.obj.get_handle()
+            place_handle = self.target_object.obj.handle
         elif self.target_object.obj_type == "PlaceRef":
             place_handle = self.target_object.obj.ref
 
         new_list = []
-        for place_ref in self.action_object.obj.get_placeref_list():
+        for place_ref in self.action_object.obj.placeref_list:
             if place_ref.ref != place_handle:
                 new_list.append(place_ref)
 

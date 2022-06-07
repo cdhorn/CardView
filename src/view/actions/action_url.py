@@ -121,7 +121,7 @@ class UrlAction(GrampsAction):
         if url:
             active_target_object = self.get_target_object()
             message = _("Edited Url %s for %s") % (
-                url.get_path(),
+                url.path,
                 self.describe_object(active_target_object.obj),
             )
             self.target_object.commit(self.grstate, message)
@@ -145,7 +145,7 @@ class UrlAction(GrampsAction):
         if url:
             active_target_object = self.get_target_object()
             message = _("Added Url %s to %s") % (
-                url.get_path(),
+                url.path,
                 self.describe_object(active_target_object.obj),
             )
             active_target_object.obj.add_url(url)
@@ -159,7 +159,7 @@ class UrlAction(GrampsAction):
             return
         active_target_object = self.get_target_object()
         target_name = self.describe_object(active_target_object.obj)
-        url_name = str(self.action_object.obj.get_path())
+        url_name = str(self.action_object.obj.path)
         message1 = _("Delete Url %s?") % url_name
         message2 = _(
             "Deleting the url will remove the url from "
@@ -178,7 +178,7 @@ class UrlAction(GrampsAction):
         """
         active_target_object = self.get_target_object()
         message = _("Deleted Url %s from %s") % (
-            self.action_object.obj.get_path(),
+            self.action_object.obj.path,
             self.describe_object(active_target_object.obj),
         )
         if active_target_object.obj.remove_url(self.action_object.obj):
@@ -188,8 +188,8 @@ class UrlAction(GrampsAction):
         """
         Launch a browser for a url.
         """
-        if self.action_object and self.action_object.obj.get_path():
-            display_url(self.action_object.obj.get_path())
+        if self.action_object and self.action_object.obj.path:
+            display_url(self.action_object.obj.path)
 
     def edit_object(self, *_dummy_args):
         """

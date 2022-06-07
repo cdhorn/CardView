@@ -59,7 +59,7 @@ class EnclosingPlacesFrameGroup(FrameGroupList):
             )
         )
         place_list = []
-        self.build_enclosing_place_list(place_list, place.get_handle())
+        self.build_enclosing_place_list(place_list, place.handle)
         place_list.reverse()
 
         for (list_place, list_place_ref) in place_list:
@@ -74,10 +74,10 @@ class EnclosingPlacesFrameGroup(FrameGroupList):
         Build a list of enclosing places.
         """
         place = self.fetch("Place", handle)
-        for place_ref in place.get_placeref_list():
+        for place_ref in place.placeref_list:
             found = False
             for (list_place, dummy_list_place_ref) in place_list:
-                if list_place.get_handle() == place_ref.ref:
+                if list_place.handle == place_ref.ref:
                     found = True
                     break
             if found:
@@ -99,7 +99,7 @@ class EnclosedPlacesFrameGroup(FrameGroupList):
 
     def __init__(self, grstate, groptions, place):
         FrameGroupList.__init__(self, grstate, groptions, place)
-        groptions.set_backlink(place.get_handle())
+        groptions.set_backlink(place.handle)
         groptions.option_space = "group.place"
         groptions.set_ref_mode(
             grstate.config.get(
@@ -110,7 +110,7 @@ class EnclosedPlacesFrameGroup(FrameGroupList):
         recurse = grstate.config.get("group.place.show-all-enclosed-places")
         place_list = []
         self.build_enclosed_place_list(
-            place_list, place.get_handle(), recurse=recurse
+            place_list, place.handle, recurse=recurse
         )
 
         for (list_place, list_place_ref) in place_list:
@@ -130,7 +130,7 @@ class EnclosedPlacesFrameGroup(FrameGroupList):
         ):
             if len(place_list) < self.maximum:
                 place = db.get_place_from_handle(obj_handle)
-                for place_ref in place.get_placeref_list():
+                for place_ref in place.placeref_list:
                     if place_ref.ref == handle:
                         place_list.append((place, place_ref))
                         if recurse:

@@ -124,7 +124,7 @@ def get_progenitors_field(grstate, obj, field_value, args):
         return [
             (
                 label,
-                get_link(name, "Family", family.get_handle(), title=False),
+                get_link(name, "Family", family.handle, title=False),
             )
         ]
     return []
@@ -135,9 +135,9 @@ def extract_progenitor_family(db, family, generation=1, paternal=True):
     Recursively extract progenitors.
     """
     if paternal:
-        parent_handle = family.get_father_handle()
+        parent_handle = family.father_handle
     else:
-        parent_handle = family.get_mother_handle()
+        parent_handle = family.mother_handle
     if parent_handle:
         parent = db.get_person_from_handle(parent_handle)
         if parent:

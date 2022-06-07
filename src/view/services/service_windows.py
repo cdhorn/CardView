@@ -81,7 +81,7 @@ class PinnedViewWindow(ManagedWindow):
             self.base_title, dummy_obj = navigation_label(
                 grstate.dbstate.db,
                 grcontext.primary_obj.obj_type,
-                grcontext.primary_obj.obj.get_handle(),
+                grcontext.primary_obj.obj.handle,
             )
 
         else:
@@ -212,7 +212,7 @@ class WindowService:
         """
         max_windows = grstate.config.get("display.max-group-windows")
         if isinstance(obj, TableObject):
-            key = "-".join((obj.get_handle(), group_type))
+            key = "-".join((obj.handle, group_type))
         else:
             key = uuid.uuid4().hex
         if reload_single_window(

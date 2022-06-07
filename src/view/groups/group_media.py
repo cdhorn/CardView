@@ -60,7 +60,7 @@ class MediaFrameGroup(FrameGroupList):
             self, grstate, groptions, obj, enable_drop=True
         )
         groptions.set_backlink(
-            (self.group_base.obj_type, self.group_base.obj.get_handle())
+            (self.group_base.obj_type, self.group_base.obj.handle)
         )
         groptions.set_ref_mode(
             self.grstate.config.get("group.media.reference-mode")
@@ -69,9 +69,7 @@ class MediaFrameGroup(FrameGroupList):
         media_list = self.collect_media()
         if media_list:
             if self.get_option("sort-by-date"):
-                media_list.sort(
-                    key=lambda x: x[1].get_date_object().get_sort_value()
-                )
+                media_list.sort(key=lambda x: x[1].get_date_object().sortval)
 
             if self.get_option("group-by-type"):
                 photo_list = []
@@ -120,8 +118,8 @@ class MediaFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_media_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.media_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -130,7 +128,7 @@ class MediaFrameGroup(FrameGroupList):
                 _("Media"),
                 _("for"),
                 self.group_base.obj_type,
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_media_list(new_list)
@@ -141,7 +139,7 @@ class MediaFrameGroup(FrameGroupList):
         Add new media to the list.
         """
         for frame in self.row_frames:
-            if frame.primary.obj.get_handle() == handle:
+            if frame.primary.obj.handle == handle:
                 return
 
         media_ref = MediaRef()
@@ -166,8 +164,8 @@ class MediaFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_media_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.media_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, media_ref)
         media = self.fetch("Media", media_ref.ref)
@@ -175,10 +173,10 @@ class MediaFrameGroup(FrameGroupList):
             (
                 _("Added"),
                 _("Media"),
-                media.get_gramps_id(),
+                media.gramps_id,
                 _("to"),
                 self.group_base.obj_type,
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_media_list(new_list)
@@ -199,10 +197,10 @@ class MediaFrameGroup(FrameGroupList):
         if not isinstance(obj, MediaBase):
             return
 
-        for media_ref in obj.get_media_list():
+        for media_ref in obj.media_list:
             media = self.fetch("Media", media_ref.ref)
             media_type = ""
-            for attribute in media.get_attribute_list():
+            for attribute in media.attribute_list:
                 if attribute.get_type().xml_str() == "Media-Type":
                     media_type = attribute.get_value()
             media_list.append((media_ref, media, media_type))

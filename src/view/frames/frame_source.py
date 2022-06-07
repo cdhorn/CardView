@@ -72,7 +72,7 @@ class SourceFrame(PrimaryFrame):
         title = self.get_link(
             source.title,
             "Source",
-            source.get_handle(),
+            source.handle,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
@@ -80,22 +80,22 @@ class SourceFrame(PrimaryFrame):
         """
         Add source author.
         """
-        if source.get_author():
-            self.add_fact(self.get_label(source.get_author()))
+        if source.author:
+            self.add_fact(self.get_label(source.author))
 
     def __add_source_publisher(self, source):
         """
         Add source publisher.
         """
-        if source.get_publication_info():
-            self.add_fact(self.get_label(source.get_publication_info()))
+        if source.pubinfo:
+            self.add_fact(self.get_label(source.pubinfo))
 
     def __add_source_abbrev(self, source):
         """
         Add source abbreviation.
         """
-        if source.get_abbreviation():
-            self.add_fact(self.get_label(source.get_abbreviation()))
+        if source.abbrev:
+            self.add_fact(self.get_label(source.abbrev))
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """

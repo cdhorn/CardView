@@ -287,12 +287,12 @@ class PersonCardView(CardView):
             and self.current_context.primary_obj.obj_type != "Tag"
         ):
             person = self.current_context.primary_obj.obj
-            family_handle_list = person.get_parent_family_handle_list()
-            self.second_action_group_sensitive = len(family_handle_list) > 1
-            family_handle_list = person.get_family_handle_list()
+            self.second_action_group_sensitive = (
+                len(person.parent_family_list) > 1
+            )
             if not self.second_action_group_sensitive:
                 self.second_action_group_sensitive = (
-                    len(family_handle_list) > 1
+                    len(person.family_list) > 1
                 )
 
     def reorder_button_press(self, obj, event, _dummy_handle):
@@ -312,7 +312,7 @@ class PersonCardView(CardView):
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                person.get_handle(),
+                person.handle,
             )
         except WindowActiveError:
             pass

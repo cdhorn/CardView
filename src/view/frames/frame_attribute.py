@@ -83,7 +83,7 @@ class AttributeFrame(SecondaryFrame):
             label = self.get_link(
                 name,
                 self.primary.obj_type,
-                self.primary.obj.get_handle(),
+                self.primary.obj.handle,
                 callback=self.switch_attribute_page,
             )
         else:

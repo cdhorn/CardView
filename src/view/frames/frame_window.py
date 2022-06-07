@@ -67,7 +67,7 @@ class FrameDebugWindow(ManagedWindow):
         text = " ".join(
             (
                 grcontext.primary_obj.obj_lang,
-                grcontext.primary_obj.obj.get_gramps_id(),
+                grcontext.primary_obj.obj.gramps_id,
             )
         )
         if grcontext.reference_obj:

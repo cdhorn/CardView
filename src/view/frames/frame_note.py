@@ -117,7 +117,7 @@ class NoteFrame(PrimaryFrame):
             label = self.get_link(
                 title,
                 "Note",
-                note.get_handle(),
+                note.handle,
             )
             self.add_fact(label)
 

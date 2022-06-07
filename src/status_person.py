@@ -515,22 +515,22 @@ def collect_person_data(db, person, rank_list, buckets, include_family=True):
     Collect all citation metrics associated with a person.
     """
     (object_bucket, events_bucket) = buckets
-    person_handle = person.get_handle()
+    person_handle = person.handle
 
     collect_object_data(db, person, rank_list, object_bucket)
     collect_event_data(db, person, events_bucket)
     if include_family:
         if "object" in rank_list:
-            for handle in person.get_parent_family_handle_list():
+            for handle in person.parent_family_list:
                 family = db.get_family_from_handle(handle)
-                for child_ref in family.get_child_ref_list():
+                for child_ref in family.child_ref_list:
                     if child_ref.ref == person_handle:
                         collect_child_object_data(
                             db, family, _("Child"), [child_ref], object_bucket
                         )
                         break
 
-        for handle in person.get_family_handle_list():
+        for handle in person.family_list:
             family = db.get_family_from_handle(handle)
             collect_object_data(db, family, rank_list, object_bucket)
             collect_event_data(db, family, events_bucket)
@@ -546,24 +546,23 @@ def collect_family_data(db, obj, rank_list, buckets, skip_handle=None):
     collect_object_data(db, obj, rank_list, object_bucket)
     collect_event_data(db, obj, events_bucket)
 
+    get_person_from_handle = db.get_person_from_handle
     if "spouses" in rank_list:
-        father_handle = obj.get_father_handle()
-        if father_handle and father_handle != skip_handle:
-            father = db.get_person_from_handle(father_handle)
+        if obj.father_handle and obj.father_handle != skip_handle:
+            father = get_person_from_handle(obj.father_handle)
             collect_person_data(
                 db, father, rank_list, buckets, include_family=False
             )
-        mother_handle = obj.get_mother_handle()
-        if mother_handle and mother_handle != skip_handle:
-            mother = db.get_person_from_handle(mother_handle)
+        if obj.mother_handle and obj.mother_handle != skip_handle:
+            mother = get_person_from_handle(obj.mother_handle)
             collect_person_data(
                 db, mother, rank_list, buckets, include_family=False
             )
 
     if "children" in rank_list:
-        for child_ref in obj.get_child_ref_list():
+        for child_ref in obj.child_ref_list:
             if child_ref != skip_handle:
-                child = db.get_person_from_handle(child_ref.ref)
+                child = get_person_from_handle(child_ref.ref)
                 collect_person_data(
                     db, child, rank_list, buckets, include_family=False
                 )
@@ -584,28 +583,26 @@ def collect_object_data(db, obj, rank_list, bucket):
             description = _("Event")
         collect_child_object_data(db, obj, description, [obj], bucket)
     if person and "names" in rank_list:
-        names = [obj.get_primary_name()] + obj.get_alternate_names()
+        names = [obj.primary_name] + obj.alternate_names
         collect_child_object_data(db, obj, _("Name"), names, bucket)
     if "ordinances" in rank_list:
         collect_child_object_data(
-            db, obj, _("Ordinance"), obj.get_lds_ord_list(), bucket
+            db, obj, _("Ordinance"), obj.lds_ord_list, bucket
         )
     if "attributes" in rank_list:
         collect_child_object_data(
-            db, obj, _("Attribute"), obj.get_attribute_list(), bucket
+            db, obj, _("Attribute"), obj.attribute_list, bucket
         )
     if person and "associations" in rank_list:
         collect_child_object_data(
-            db, obj, _("Association"), obj.get_person_ref_list(), bucket
+            db, obj, _("Association"), obj.person_ref_list, bucket
         )
     if person and "addresses" in rank_list:
         collect_child_object_data(
-            db, obj, _("Address"), obj.get_address_list(), bucket
+            db, obj, _("Address"), obj.address_list, bucket
         )
     if "media" in rank_list:
-        collect_child_object_data(
-            db, obj, _("Media"), obj.get_media_list(), bucket
-        )
+        collect_child_object_data(db, obj, _("Media"), obj.media_list, bucket)
 
 
 def collect_child_object_data(db, obj, description, child_list, bucket):
@@ -636,7 +633,7 @@ def collect_event_data(db, obj, bucket):
     """
     vital_handles = get_preferred_vital_handles(obj)
     seen_list = []
-    for event_ref in obj.get_event_ref_list():
+    for event_ref in obj.event_ref_list:
         event = db.get_event_from_handle(event_ref.ref)
         event_type = event.get_type()
         event_name = event_type.xml_str()
@@ -686,8 +683,7 @@ def get_citation_metrics(db, obj):
     """
     total_confidence = 0
     highest_confidence = 0
-    citations = obj.get_citation_list()
-    for handle in citations:
+    for handle in obj.citation_list:
         citation = db.get_citation_from_handle(handle)
         total_confidence = total_confidence + citation.confidence
         if citation.confidence > highest_confidence:

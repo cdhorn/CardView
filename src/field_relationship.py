@@ -80,15 +80,11 @@ def get_relationship_field(grstate, obj, field_value, args):
 
     get_label = args.get("get_label")
 
-    father_handle = obj.get_father_handle()
-    if not father_handle:
-        return []
-    mother_handle = obj.get_mother_handle()
-    if not mother_handle:
+    if not obj.father_handle or not obj.mother_handle:
         return []
 
-    father = grstate.fetch("Person", father_handle)
-    mother = grstate.fetch("Person", mother_handle)
+    father = grstate.fetch("Person", obj.father_handle)
+    mother = grstate.fetch("Person", obj.mother_handle)
 
     relations = grstate.uistate.relationship.get_all_relationships(
         grstate.dbstate.db, father, mother

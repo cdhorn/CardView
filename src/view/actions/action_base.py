@@ -124,7 +124,7 @@ class GrampsAction:
         if not gramps_id or not isinstance(obj, PrimaryObject):
             return describe_object(self.db, obj)
         return "".join(
-            (describe_object(self.db, obj), " [", obj.get_gramps_id(), "]")
+            (describe_object(self.db, obj), " [", obj.gramps_id, "]")
         )
 
     def verify_action(
@@ -184,7 +184,7 @@ class GrampsAction:
                 self.action_object.obj_lang,
                 _("for"),
                 self.target_object.obj_lang,
-                self.target_object.obj.get_gramps_id(),
+                self.target_object.obj.gramps_id,
             )
         )
         self.target_object.commit(self.grstate, message)
@@ -203,7 +203,7 @@ class GrampsAction:
             backlink_count = len(
                 list(
                     self.grstate.dbstate.db.find_backlink_handles(
-                        target_object.obj.get_handle()
+                        target_object.obj.handle
                     )
                 )
             )
@@ -262,7 +262,7 @@ class GrampsAction:
         text = self.describe_object(target_object.obj)
         delete_object(
             self.db,
-            target_object.obj.get_handle(),
+            target_object.obj.handle,
             target_object.obj_type,
             _("Deleted %s") % text,
         )

@@ -59,7 +59,7 @@ def find_event_ref(grstate, args, event_cache, event_ref, event_type):
     for event in event_cache:
         if event.get_type() == event_type:
             count = count + 1
-        if event.get_handle() == event_ref.ref:
+        if event.handle == event_ref.ref:
             ref_event = event
     args["multiple_events"] = count > 1
     return get_event_labels(grstate, ref_event, args)
@@ -155,13 +155,13 @@ def get_fact_field(_dummy_grstate, _dummy_obj, event_type, args):
             label = get_link(
                 str(event.get_type()),
                 "Event",
-                event.get_handle(),
+                event.handle,
                 title=False,
             )
             value = get_link(
                 event.get_description(),
                 "Event",
-                event.get_handle(),
+                event.handle,
                 title=False,
             )
             return [(label, value)]
@@ -176,7 +176,7 @@ def get_attribute_field(_dummy_grstate, obj, attribute_type, args):
     get_label = args.get("get_label")
     assert get_label is not None
     skip_labels = args.get("skip_labels")
-    for attribute in obj.get_attribute_list():
+    for attribute in obj.attribute_list:
         if (
             attribute.get_type().xml_str() == attribute_type
             and attribute.get_value()
@@ -200,7 +200,7 @@ def get_relation_field(grstate, obj, relation_handle, args):
     assert get_link is not None
     label = get_label(_("Relation"))
 
-    if obj.get_handle() == relation_handle:
+    if obj.handle == relation_handle:
         value = get_label(_("Home person"))
     else:
         try:

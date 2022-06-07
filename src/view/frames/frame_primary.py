@@ -73,6 +73,7 @@ from ..menus.menu_utils import (
 )
 from .frame_base import GrampsFrame
 from .frame_widgets import GrampsImage
+from .frame_utils import load_metadata
 
 _ = glocale.translation.sgettext
 
@@ -104,19 +105,19 @@ class PrimaryFrame(GrampsFrame):
         """
         Load standard portions of layout.
         """
-        if (
-            "spouse" in self.groptions.option_space
-            or "parent" in self.groptions.option_space
-        ):
-            if "active" in self.groptions.option_space:
+        option_space = self.groptions.option_space
+        if "spouse" in option_space or "parent" in option_space:
+            if "active" in option_space:
                 image_mode = self.get_option("active.family.image-mode")
             else:
                 image_mode = self.get_option("group.family.image-mode")
         else:
             image_mode = self.get_option("image-mode")
-        if image_mode and "media" not in self.groptions.option_space:
+        if image_mode and "media" not in option_space:
             self.load_image(image_mode)
-        self.widgets["id"].load(self.primary)
+        load_metadata(
+            self.widgets["id"], self.grstate, self.groptions, self.primary
+        )
         self.load_attributes()
         self.widgets["icons"].load(self.primary, title=self.get_title())
 
@@ -271,5 +272,5 @@ class PrimaryFrame(GrampsFrame):
         Copy current object to the clipboard.
         """
         self.grstate.copy_to_clipboard(
-            self.primary.obj_type, self.primary.obj.get_handle()
+            self.primary.obj_type, self.primary.obj.handle
         )

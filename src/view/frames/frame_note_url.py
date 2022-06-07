@@ -76,11 +76,11 @@ class NoteUrlFrame(GrampsFrame):
             use_markup=True, label="".join(("<b>", escape(link), "</b>"))
         )
         self.widgets["title"].pack_start(label, False, False, 0)
-        text = " ".join((_("Found"), _("in"), _("note"), note.get_gramps_id()))
+        text = " ".join((_("Found"), _("in"), _("note"), note.gramps_id))
         note_link = self.get_link(
             text,
             "Note",
-            note.get_handle(),
+            note.handle,
             hexpand=False,
             title=False,
         )

@@ -170,11 +170,11 @@ class MediaAction(GrampsAction):
             media = self.db.get_media_from_handle(obj_or_handle)
         else:
             media = obj_or_handle
-        for media_ref in self.target_object.obj.get_media_list():
-            if media_ref.ref == media.get_handle():
+        for media_ref in self.target_object.obj.media_list:
+            if media_ref.ref == media.handle:
                 return
         ref = MediaRef()
-        ref.ref = media.get_handle()
+        ref.ref = media.handle
         self._edit_media_reference(media, ref, self._added_new_media_reference)
 
     def _added_new_media_reference(self, reference, media):
@@ -199,7 +199,7 @@ class MediaAction(GrampsAction):
         )
         media = media_selector.run()
         if media:
-            self.add_new_media_reference(media.get_handle())
+            self.add_new_media_reference(media.handle)
 
     def remove_media_reference(self, *_dummy_args):
         """
@@ -233,7 +233,7 @@ class MediaAction(GrampsAction):
         Actually remove the media reference.
         """
         if self.action_object.obj_type == "Media":
-            media_handle = self.action_object.obj.get_handle()
+            media_handle = self.action_object.obj.handle
             media = self.action_object.obj
         else:
             media_handle = self.action_object.obj.ref
@@ -253,13 +253,13 @@ class MediaAction(GrampsAction):
         new_list = []
         image_ref = None
         if self.action_object.obj_type == "Media":
-            image_handle = self.action_object.obj.get_handle()
+            image_handle = self.action_object.obj.handle
             media = self.action_object.obj
         else:
             image_handle = self.action_object.obj.ref
             media = self.db.get_media_from_handle(image_handle)
 
-        for media_ref in self.target_object.obj.get_media_list():
+        for media_ref in self.target_object.obj.media_list:
             if media_ref.ref == image_handle:
                 image_ref = media_ref
             else:

@@ -78,13 +78,13 @@ class CitationFrame(PrimaryFrame):
             title = self.get_link(
                 source.title,
                 "Source",
-                source.get_handle(),
+                source.handle,
             )
         else:
             title = self.get_link(
                 source.title,
                 "Citation",
-                citation.get_handle(),
+                citation.handle,
             )
         self.widgets["title"].pack_start(title, True, False, 0)
 

@@ -80,7 +80,7 @@ class MediaFrame(ReferenceFrame):
         title = self.get_link(
             media.get_description(),
             "Media",
-            media.get_handle(),
+            media.handle,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
@@ -103,15 +103,15 @@ class MediaFrame(ReferenceFrame):
         """
         Add media path.
         """
-        if self.get_option("show-path") and media.get_path():
-            self.add_fact(self.get_label(media.get_path()))
+        if self.get_option("show-path") and media.path:
+            self.add_fact(self.get_label(media.path))
 
     def __add_media_mime_type(self, media):
         """
         Add media mime type.
         """
-        if self.get_option("show-mime-type") and media.get_mime_type():
-            self.add_fact(self.get_label(media.get_mime_type()))
+        if self.get_option("show-mime-type") and media.mime:
+            self.add_fact(self.get_label(media.mime))
 
     def _child_drop_handler(self, dnd_type, obj_or_handle, data):
         """

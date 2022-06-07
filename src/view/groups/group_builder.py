@@ -268,7 +268,7 @@ def get_references_group(
     Get the group of objects that reference the given object.
     """
     if not obj_list:
-        obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+        obj_list = grstate.dbstate.db.find_backlink_handles(obj.handle)
         if not obj_list:
             return None
 
@@ -340,7 +340,7 @@ def get_events_group(grstate, obj, args):
         if group:
             group_set.pack_start(group, False, True, 0)
 
-        for handle in obj.get_family_handle_list():
+        for handle in obj.family_list:
             family = grstate.fetch("Family", handle)
             group = prepare_event_group(grstate, family, "Family", args)
             if group:
@@ -356,7 +356,7 @@ def prepare_event_group(grstate, obj, obj_type, args):
     """
     Prepare and return an event group for use in a group set.
     """
-    if not obj.get_event_ref_list():
+    if not obj.event_ref_list:
         return None
 
     groptions = GrampsOptions("group.event")

@@ -65,6 +65,7 @@ from ..menus.menu_utils import (
     show_menu,
 )
 from .frame_base import GrampsFrame
+from .frame_utils import load_metadata
 
 _ = glocale.translation.sgettext
 
@@ -92,8 +93,10 @@ class SecondaryFrame(GrampsFrame):
         self.focus = self.secondary
         self.build_layout()
         self.frame.set_size_request(160, -1)
-        self.widgets["id"].load(self.secondary)
-        self.widgets["icons"].load(self.secondary, title=self.get_title())
+        load_metadata(
+            self.widgets["id"], self.grstate, self.groptions, self.secondary
+        )
+        self.widgets["icons"].load(self.secondary, title=self.title)
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time

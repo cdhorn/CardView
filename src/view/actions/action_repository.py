@@ -114,11 +114,11 @@ class RepositoryAction(GrampsAction):
                 % self.target_object.obj_type
             )
 
-        for repo_ref in self.target_object.obj.get_reporef_list():
-            if repo_ref.ref == self.action_object.obj.get_handle():
+        for repo_ref in self.target_object.obj.reporef_list:
+            if repo_ref.ref == self.action_object.obj.handle:
                 return
         repo_ref = RepoRef()
-        repo_ref.ref = self.action_object.obj.get_handle()
+        repo_ref.ref = self.action_object.obj.handle
         try:
             EditRepoRef(
                 self.grstate.dbstate,

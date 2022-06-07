@@ -269,7 +269,7 @@ class GrampsObject:
         Refresh object state. Only valid if a primary object.
         """
         assert self.is_primary
-        obj = grstate.fetch(self.obj_type, self.obj.get_handle())
+        obj = grstate.fetch(self.obj_type, self.obj.handle)
         self.load(obj)
 
     def commit(self, grstate, reason=None):
@@ -283,7 +283,7 @@ class GrampsObject:
             message = reason
         else:
             message = " ".join(
-                (_("Updated"), self.obj_lang, self.obj.get_gramps_id())
+                (_("Updated"), self.obj_lang, self.obj.gramps_id)
             )
         commit_method = grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(message, grstate.dbstate.db) as trans:
@@ -439,7 +439,7 @@ class GrampsContext:
         if self.secondary_obj:
             secondary_obj_type = self.secondary_obj.obj_type
             if secondary_obj_type == "Tag":
-                secondary_obj_hash = self.secondary_obj.obj.get_handle()
+                secondary_obj_hash = self.secondary_obj.obj.handle
             else:
                 secondary_obj_hash = self.secondary_obj.obj_hash
         else:
@@ -448,7 +448,7 @@ class GrampsContext:
 
         return (
             self.primary_obj.obj_type,
-            self.primary_obj.obj.get_handle(),
+            self.primary_obj.obj.handle,
             reference_obj_type,
             reference_obj_handle,
             secondary_obj_type,
@@ -508,7 +508,7 @@ class GrampsContext:
         """
         Return a unique object key
         """
-        key = self.primary_obj.obj.get_handle()
+        key = self.primary_obj.obj.handle
         if self.reference_obj:
             key = "-".join((key, self.reference_obj.obj.ref))
         if self.secondary_obj:
@@ -519,9 +519,7 @@ class GrampsContext:
         """
         Refresh current context state as something changed.
         """
-        new_primary_obj = grstate.fetch(
-            "Person", self.primary_obj.obj.get_handle()
-        )
+        new_primary_obj = grstate.fetch("Person", self.primary_obj.obj.handle)
         old_primary_obj = self.primary_obj.obj
         self.primary_obj = GrampsObject(new_primary_obj)
 

@@ -196,14 +196,15 @@ def evaluate_family(db, obj, obj_path, todo_list):
     """
     Evaluate all members of a family in case any have open todo items.
     """
+    get_event_from_handle = db.get_event_from_handle
+    get_person_from_handle = db.get_person_from_handle
     new_obj_path = evaluate_obj_path(db, obj, obj_path)
     evaluate_object(db, obj, new_obj_path, todo_list)
-    for event_ref in obj.get_event_ref_list():
-        event = db.get_event_from_handle(event_ref.ref)
+    for event_ref in obj.event_ref_list:
+        event = get_event_from_handle(event_ref.ref)
         evaluate_object(db, event, obj_path, todo_list)
-    father_handle = obj.get_father_handle()
-    if father_handle:
-        father = db.get_person_from_handle(father_handle)
+    if obj.father_handle:
+        father = get_person_from_handle(obj.father_handle)
         evaluate_person(
             db,
             father,
@@ -212,9 +213,8 @@ def evaluate_family(db, obj, obj_path, todo_list):
             include_parents=False,
             include_family=False,
         )
-    mother_handle = obj.get_mother_handle()
-    if mother_handle:
-        mother = db.get_person_from_handle(mother_handle)
+    if obj.mother_handle:
+        mother = get_person_from_handle(obj.mother_handle)
         evaluate_person(
             db,
             mother,
@@ -223,8 +223,8 @@ def evaluate_family(db, obj, obj_path, todo_list):
             include_parents=False,
             include_family=False,
         )
-    for child_ref in obj.get_child_ref_list():
-        person = db.get_person_from_handle(child_ref.ref)
+    for child_ref in obj.child_ref_list:
+        person = get_person_from_handle(child_ref.ref)
         evaluate_person(
             db, person, new_obj_path, todo_list, include_parents=False
         )
@@ -256,23 +256,27 @@ def evaluate_person_details(
     child references from parent families to determine if any to do items
     exist for any aspect of that person.
     """
-    for event_ref in obj.get_event_ref_list():
-        event = db.get_event_from_handle(event_ref.ref)
+    get_event_from_handle = db.get_event_from_handle
+    for event_ref in obj.event_ref_list:
+        event = get_event_from_handle(event_ref.ref)
         evaluate_object(db, event, obj_path, todo_list)
-    for media_ref in obj.get_media_list():
-        media = db.get_media_from_handle(media_ref.ref)
+    get_media_from_handle = db.get_media_from_handle
+    for media_ref in obj.media_list:
+        media = get_media_from_handle(media_ref.ref)
         evaluate_object(db, media, obj_path, todo_list)
+    get_family_from_handle = db.get_family_from_handle
     if include_family:
-        for handle in obj.get_family_handle_list():
-            family = db.get_family_from_handle(handle)
+        get_family_from_handle = db.get_family_from_handle
+        for handle in obj.family_list:
+            family = get_family_from_handle(handle)
             evaluate_object(db, family, obj_path, todo_list)
-            for event_ref in family.get_event_ref_list():
+            for event_ref in family.event_ref_list:
                 evaluate_event(db, event_ref.ref, obj_path, todo_list)
     if include_parents:
-        person_handle = obj.get_handle()
-        for handle in obj.get_parent_family_handle_list():
-            family = db.get_family_from_handle(handle)
-            for child_ref in family.get_child_ref_list():
+        person_handle = obj.handle
+        for handle in obj.parent_family_list:
+            family = get_family_from_handle(handle)
+            for child_ref in family.child_ref_list:
                 if child_ref.ref == person_handle:
                     evaluate_object(db, child_ref, obj_path, todo_list)
 
@@ -291,11 +295,11 @@ def evaluate_object(db, obj, obj_path, todo_list):
     Evaluate whether object has any todo notes.
     """
     new_obj_path = evaluate_obj_path(db, obj, obj_path)
-    for handle in obj.get_note_list():
+    for handle in obj.note_list:
         evaluate_note(db, handle, new_obj_path, todo_list)
     for child_obj in obj.get_note_child_list():
         new_obj_path = obj_path + [describe_object(db, child_obj)]
-        for handle in child_obj.get_note_list():
+        for handle in child_obj.note_list:
             evaluate_note(db, handle, new_obj_path, todo_list)
 
 
@@ -350,7 +354,7 @@ class GrampsToDoIcon(GrampsBaseIcon):
         for (obj_path, note) in self.todo_list:
             text = "->".join(tuple(obj_path))
             text = "->".join((text, _("Note")))
-            text = " ".join((text, note.get_gramps_id()))
+            text = " ".join((text, note.gramps_id))
             menu.append(menu_item("task-due", text, callback, note))
         return show_menu(menu, self, event)
 

@@ -46,7 +46,7 @@ class AddressesFrameGroup(FrameGroupList):
         FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        for address in obj.get_address_list():
+        for address in obj.address_list:
             frame = AddressFrame(
                 grstate,
                 groptions,

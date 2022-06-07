@@ -46,7 +46,7 @@ class AttributesFrameGroup(FrameGroupList):
         FrameGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        for attribute in obj.get_attribute_list():
+        for attribute in obj.attribute_list:
             frame = AttributeFrame(grstate, groptions, obj, attribute)
             self.add_frame(frame)
         self.show_all()

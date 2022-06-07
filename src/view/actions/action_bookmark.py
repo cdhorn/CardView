@@ -63,7 +63,7 @@ class BookmarkAction(GrampsAction):
         Return true if bookmark set.
         """
         bookmarks = get_bookmarks(self.db, self.action_object.obj_type).get()
-        if self.action_object.obj.get_handle() in bookmarks:
+        if self.action_object.obj.handle in bookmarks:
             return True
         return False
 
@@ -73,9 +73,9 @@ class BookmarkAction(GrampsAction):
         """
         bookmarks = get_bookmarks(self.db, self.action_object.obj_type)
         if self.is_set():
-            bookmarks.remove(self.action_object.obj.get_handle())
+            bookmarks.remove(self.action_object.obj.handle)
         else:
-            bookmarks.insert(0, self.action_object.obj.get_handle())
+            bookmarks.insert(0, self.action_object.obj.handle)
         self.grstate.set_dirty_redraw_trigger()
         context = self.grstate.fetch_page_context()
         self.grstate.load_page(context.pickled)

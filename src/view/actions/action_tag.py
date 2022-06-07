@@ -101,7 +101,7 @@ class TagAction(GrampsAction):
             self.target_object.obj_lang,
             self.describe_object(self.target_object.obj),
         )
-        self.target_object.obj.add_tag(self.action_object.obj.get_handle())
+        self.target_object.obj.add_tag(self.action_object.obj.handle)
         self.target_object.commit(self.grstate, message)
 
     def add_new_tag(self, *_dummy_args):
@@ -131,9 +131,7 @@ class TagAction(GrampsAction):
             self.target_object.obj_lang,
             self.describe_object(self.target_object.obj),
         )
-        if self.target_object.obj.remove_tag(
-            self.action_object.obj.get_handle()
-        ):
+        if self.target_object.obj.remove_tag(self.action_object.obj.handle):
             self.target_object.commit(self.grstate, message)
 
 

@@ -105,7 +105,7 @@ class FamilyAction(GrampsAction):
         """
         event_ref = EventRef()
         if event_handle:
-            for event_ref in self.action_object.obj.get_event_ref_list():
+            for event_ref in self.action_object.obj.event_ref_list:
                 if event_ref.ref == event_handle:
                     return
             event = self.db.get_event_from_handle(event_handle)
@@ -130,7 +130,7 @@ class FamilyAction(GrampsAction):
         """
         Finish adding a new event for a family.
         """
-        event_ref.ref = event.get_handle()
+        event_ref.ref = event.handle
         message = _("Added Family %s to Event %s") % (
             self.describe_object(self.action_object.obj),
             self.describe_object(event),
@@ -192,11 +192,11 @@ class FamilyAction(GrampsAction):
         name = Name()
         name.add_surname(Surname())
         name.set_primary_surname(0)
-        father_handle = self.action_object.obj.get_father_handle()
+        father_handle = self.action_object.obj.father_handle
         if father_handle:
             parent = self.db.get_person_from_handle(father_handle)
         else:
-            mother_handle = self.action_object.obj.get_mother_handle()
+            mother_handle = self.action_object.obj.mother_handle
             if mother_handle:
                 parent = self.db.get_person_from_handle(mother_handle)
         if parent:
@@ -218,7 +218,7 @@ class FamilyAction(GrampsAction):
         Second set parental relations.
         """
         child_ref = ChildRef()
-        child_ref.ref = child.get_handle()
+        child_ref.ref = child.handle
         callback = lambda x, y: self._added_child(child_ref, child)
         name = self.describe_object(child)
         self._edit_child_reference(name, child_ref, callback)
@@ -235,7 +235,7 @@ class FamilyAction(GrampsAction):
         with DbTxn(message, self.db) as trans:
             self.action_object.obj.add_child_ref(child_ref)
             self.db.commit_family(self.action_object.obj, trans)
-            child.add_parent_family_handle(self.action_object.obj.get_handle())
+            child.add_parent_family_handle(self.action_object.obj.handle)
             self.db.commit_person(child, trans)
         self.grstate.uistate.set_busy_cursor(False)
 
@@ -245,8 +245,8 @@ class FamilyAction(GrampsAction):
         """
         family = self.action_object.obj
         get_person_selector = SelectorFactory("Person")
-        skip_list = [family.get_father_handle(), family.get_mother_handle()]
-        skip_list.extend(x.ref for x in family.get_child_ref_list())
+        skip_list = [family.father_handle, family.mother_handle]
+        skip_list.extend(x.ref for x in family.child_ref_list)
         person_selector = get_person_selector(
             self.grstate.dbstate,
             self.grstate.uistate,
@@ -271,8 +271,8 @@ class FamilyAction(GrampsAction):
                 "target_object is %s not a Person or ChildRef"
             )
         found = False
-        for child_ref in self.action_object.obj.get_child_ref_list():
-            if child_ref.ref == person.get_handle():
+        for child_ref in self.action_object.obj.child_ref_list:
+            if child_ref.ref == person.handle:
                 found = True
                 break
         if found:
@@ -305,7 +305,7 @@ class FamilyAction(GrampsAction):
             person = self.db.get_person_from_handle(self.target_object.obj)
         self.grstate.uistate.set_busy_cursor(True)
         self.db.remove_child_from_family(
-            person.get_handle(), self.action_object.obj.get_handle()
+            person.handle, self.action_object.obj.handle
         )
         self.grstate.uistate.set_busy_cursor(False)
 
@@ -318,10 +318,10 @@ class FamilyAction(GrampsAction):
                 "target_object is %s not a Person"
                 % self.target_object.obj_type
             )
-        spouse_handle = self.target_object.obj.get_handle()
-        if not self.action_object.obj.get_father_handle():
+        spouse_handle = self.target_object.obj.handle
+        if not self.action_object.obj.father_handle:
             self.action_object.obj.set_father_handle(spouse_handle)
-        elif not self.action_object.obj.get_mother_handle():
+        elif not self.action_object.obj.mother_handle:
             self.action_object.obj.set_mother_handle(spouse_handle)
         else:
             return
@@ -352,7 +352,7 @@ class FamilyAction(GrampsAction):
         """
         self.grstate.uistate.set_busy_cursor(True)
         self.db.remove_parent_from_family(
-            partner.get_handle(), self.action_object.obj.get_handle()
+            partner.handle, self.action_object.obj.handle
         )
         self.grstate.uistate.set_busy_cursor(False)
 
@@ -365,9 +365,9 @@ class FamilyAction(GrampsAction):
                 "target_object is %s not a Person"
                 % self.target_object.obj_type
             )
-        parent_handle = self.target_object.obj.get_handle()
-        father_handle = self.action_object.obj.get_father_handle()
-        mother_handle = self.action_object.obj.get_mother_handle()
+        parent_handle = self.target_object.obj.handle
+        father_handle = self.action_object.obj.father_handle
+        mother_handle = self.action_object.obj.mother_handle
         if parent_handle in [father_handle, mother_handle]:
             self._remove_partner(self.target_object.obj)
 
@@ -380,9 +380,9 @@ class FamilyAction(GrampsAction):
                 "target_object is %s not a Person"
                 % self.target_object.obj_type
             )
-        spouse_handle = self.target_object.obj.get_handle()
-        father_handle = self.action_object.obj.get_father_handle()
-        mother_handle = self.action_object.obj.get_mother_handle()
+        spouse_handle = self.target_object.obj.handle
+        father_handle = self.action_object.obj.father_handle
+        mother_handle = self.action_object.obj.mother_handle
         if spouse_handle in [father_handle, mother_handle]:
             partner = None
             if spouse_handle == father_handle and mother_handle:
@@ -401,7 +401,7 @@ class FamilyAction(GrampsAction):
             self.describe_object(self.target_object.obj),
         )
         self.target_object.obj.set_main_parent_family_handle(
-            self.action_object.obj.get_handle()
+            self.action_object.obj.handle
         )
         self.target_object.commit(self.grstate, message)
 

@@ -60,10 +60,10 @@ class NotesFrameGroup(FrameGroupList):
             return
         if self.group_base.is_primary:
             groptions.set_backlink(
-                (self.group_base.obj_type, self.group_base.obj.get_handle())
+                (self.group_base.obj_type, self.group_base.obj.handle)
             )
         maximum = grstate.config.get("group.note.max-per-group")
-        notes = [(self.group_base.obj_lang, x) for x in obj.get_note_list()]
+        notes = [(self.group_base.obj_lang, x) for x in obj.note_list]
         if grstate.config.get("group.note.include-child-objects"):
             notes = self.get_child_object_notes(notes)
 
@@ -82,7 +82,7 @@ class NotesFrameGroup(FrameGroupList):
         if self.group_base.has_notes:
             for obj in self.group_base.obj.get_note_child_list():
                 obj_lang = get_object_type(obj, lang=True)
-                for handle in obj.get_note_list():
+                for handle in obj.note_list:
                     if handle not in notes:
                         notes.append((obj_lang, handle))
         return notes
@@ -96,10 +96,10 @@ class NotesFrameGroup(FrameGroupList):
             (
                 _("Added"),
                 _("Note"),
-                note.get_gramps_id(),
+                note.gramps_id,
                 _("to"),
                 self.group_base.obj_lang,
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.add_note(handle)

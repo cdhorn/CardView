@@ -115,20 +115,20 @@ class PersonAction(GrampsAction):
         Add person to existing event.
         """
         get_event_selector = SelectorFactory("Event")
-        skip = [x.ref for x in self.action_object.obj.get_event_ref_list()]
+        skip = [x.ref for x in self.action_object.obj.event_ref_list]
         event_selector = get_event_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
         event = event_selector.run()
         if event:
-            self.add_new_event(None, event_handle=event.get_handle())
+            self.add_new_event(None, event_handle=event.handle)
 
     def add_new_event(self, _dummy_arg=None, event_handle=None):
         """
         Add a new event for a person.
         """
         if event_handle:
-            for event_ref in self.action_object.obj.get_event_ref_list():
+            for event_ref in self.action_object.obj.event_ref_list:
                 if event_ref.ref == event_handle:
                     return
             event = self.db.get_event_from_handle(event_handle)
@@ -155,7 +155,7 @@ class PersonAction(GrampsAction):
         """
         Finish adding a new event for a person.
         """
-        reference.ref = event.get_handle()
+        reference.ref = event.handle
         message = _("Added Person %s as Participant to Event %s") % (
             self.describe_object(self.action_object.obj),
             self.describe_object(event),
@@ -180,7 +180,7 @@ class PersonAction(GrampsAction):
         """
         family = Family()
         child_ref = ChildRef()
-        child_ref.ref = self.action_object.obj.get_handle()
+        child_ref.ref = self.action_object.obj.handle
         family.add_child_ref(child_ref)
         try:
             EditFamily(self.grstate.dbstate, self.grstate.uistate, [], family)
@@ -192,7 +192,7 @@ class PersonAction(GrampsAction):
         Add existing parents for the person.
         """
         get_family_selector = SelectorFactory("Family")
-        skip = set(self.action_object.obj.get_family_handle_list())
+        skip = set(self.action_object.obj.family_list)
         family_selector = get_family_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
@@ -208,9 +208,9 @@ class PersonAction(GrampsAction):
         """
         family = Family()
         if self.action_object.obj.gender == Person.MALE:
-            family.set_father_handle(self.action_object.obj.get_handle())
+            family.set_father_handle(self.action_object.obj.handle)
         else:
-            family.set_mother_handle(self.action_object.obj.get_handle())
+            family.set_mother_handle(self.action_object.obj.handle)
         try:
             EditFamily(self.grstate.dbstate, self.grstate.uistate, [], family)
         except WindowActiveError:
@@ -225,7 +225,7 @@ class PersonAction(GrampsAction):
             self.describe_object(self.action_object.obj),
         )
         self.action_object.obj.set_main_parent_family_handle(
-            self.target_object.obj.get_handle()
+            self.target_object.obj.handle
         )
         self.action_object.commit(self.grstate, message)
 
@@ -234,7 +234,7 @@ class PersonAction(GrampsAction):
         Set the default person.
         """
         self.grstate.dbstate.db.set_default_person_handle(
-            self.action_object.obj.get_handle()
+            self.action_object.obj.handle
         )
 
     def set_birth_event(self, *_dummy_args):
@@ -253,7 +253,7 @@ class PersonAction(GrampsAction):
             self.describe_object(self.action_object.obj),
         )
         birth_ref = EventRef()
-        birth_ref.ref = self.target_object.obj.get_handle()
+        birth_ref.ref = self.target_object.obj.handle
         birth_ref.set_role(EventRoleType(EventRoleType.PRIMARY))
         self.action_object.obj.set_birth_ref(birth_ref)
         self.action_object.commit(self.grstate, message)
@@ -274,7 +274,7 @@ class PersonAction(GrampsAction):
             self.describe_object(self.action_object.obj),
         )
         death_ref = EventRef()
-        death_ref.ref = self.target_object.obj.get_handle()
+        death_ref.ref = self.target_object.obj.handle
         death_ref.set_role(EventRoleType(EventRoleType.PRIMARY))
         self.action_object.obj.set_death_ref(death_ref)
         self.action_object.commit(self.grstate, message)
@@ -301,7 +301,7 @@ class PersonAction(GrampsAction):
         if self.target_object.obj_type == "Person":
             person_ref = None
             for ref in self.action_object.obj.get_personref_list():
-                if ref.ref == self.target_object.obj.get_handle():
+                if ref.ref == self.target_object.obj.handle:
                     person_ref = ref
                     break
             if not person_ref:
@@ -339,8 +339,8 @@ class PersonAction(GrampsAction):
         Select an existing person for the person reference.
         """
         get_person_selector = SelectorFactory("Person")
-        skip = [x.ref for x in self.action_object.obj.get_person_ref_list()]
-        skip.append(self.action_object.obj.get_handle())
+        skip = [x.ref for x in self.action_object.obj.person_ref_list]
+        skip.append(self.action_object.obj.handle)
         person_selector = get_person_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
@@ -355,8 +355,8 @@ class PersonAction(GrampsAction):
         if isinstance(person_obj_or_handle, str):
             person_handle = person_obj_or_handle
         else:
-            person_handle = person_obj_or_handle.get_handle()
-        for person_ref in self.action_object.obj.get_person_ref_list():
+            person_handle = person_obj_or_handle.handle
+        for person_ref in self.action_object.obj.person_ref_list:
             if person_ref.ref == person_handle:
                 return
         ref = PersonRef()
@@ -377,10 +377,10 @@ class PersonAction(GrampsAction):
 
         if self.grstate.config.get("general.create-reciprocal-associations"):
             ref = PersonRef()
-            ref.ref = self.action_object.obj.get_handle()
-            ref.set_note_list(reference.get_note_list())
-            ref.set_citation_list(reference.get_citation_list())
-            ref.set_privacy(reference.get_privacy())
+            ref.ref = self.action_object.obj.handle
+            ref.set_note_list(reference.note_list)
+            ref.set_citation_list(reference.citation_list)
+            ref.set_privacy(reference.privacy)
             if reference.get_relation() in RECIPROCAL_ASSOCIATIONS:
                 ref.set_relation(
                     RECIPROCAL_ASSOCIATIONS[reference.get_relation()]
@@ -440,8 +440,8 @@ class PersonAction(GrampsAction):
         elif self.target_object.obj_type == "PersonRef":
             person = self.db.get_person_from_handle(self.target_object.obj.ref)
         new_list = []
-        for ref in self.action_object.obj.get_person_ref_list():
-            if not ref.ref == person.get_handle():
+        for ref in self.action_object.obj.person_ref_list:
+            if not ref.ref == person.handle:
                 new_list.append(ref)
         message = _("Removed Association from Person %s to Person %s") % (
             self.describe_object(person),

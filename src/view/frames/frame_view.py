@@ -46,7 +46,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig
-from .frame_widgets import FrameGrid, FrameIcons, FrameId
+from .frame_widgets import FrameGrid, FrameIcons
 
 _ = glocale.translation.sgettext
 
@@ -61,10 +61,9 @@ class FrameView(Gtk.VBox, GrampsConfig):
     A simple class to encapsulate the widget layout for a Gramps frame.
     """
 
-    def __init__(self, grstate, groptions, cbrouter):
+    def __init__(self, grstate, groptions):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate, groptions)
-        self.cbrouter = cbrouter
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         self.widgets = {"body": Gtk.HBox(hexpand=True, margin=3)}
         self.eventbox = Gtk.EventBox()
@@ -87,27 +86,34 @@ class FrameView(Gtk.VBox, GrampsConfig):
         """
         Initialize primary frame widgets.
         """
-        self.widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
-        self.widgets["age"] = Gtk.VBox(
+        widgets = self.widgets
+
+        widgets["image"] = Gtk.VBox(valign=Gtk.Align.START)
+        widgets["age"] = Gtk.VBox(
             margin_right=3,
             margin_left=3,
             margin_top=3,
             margin_bottom=3,
             spacing=2,
         )
-        self.widgets["title"] = Gtk.HBox(
+        widgets["title"] = Gtk.HBox(
             hexpand=True,
             vexpand=False,
             halign=Gtk.Align.START,
             valign=Gtk.Align.START,
         )
-        self.widgets["facts"] = FrameGrid()
+        widgets["facts"] = FrameGrid()
         if "active" in self.groptions.option_space:
-            self.widgets["extra"] = FrameGrid()
-        self.widgets["icons"] = FrameIcons(self.grstate, self.groptions)
+            widgets["extra"] = FrameGrid()
+        widgets["icons"] = FrameIcons(self.grstate, self.groptions)
 
-        self.widgets["id"] = FrameId(self.grstate, self.groptions)
-        self.widgets["attributes"] = FrameGrid(right=True)
+        widgets["id"] = Gtk.HBox(
+            hexpand=False,
+            vexpand=False,
+            halign=Gtk.Align.END,
+            valign=Gtk.Align.START,
+        )
+        widgets["attributes"] = FrameGrid(right=True)
 
     def _init_ref_widgets(self):
         """
@@ -115,7 +121,12 @@ class FrameView(Gtk.VBox, GrampsConfig):
         """
         self.ref_eventbox = Gtk.EventBox()
         right = self.groptions.ref_mode != 1
-        self.ref_widgets["id"] = FrameId(self.grstate, self.groptions)
+        self.ref_widgets["id"] = Gtk.HBox(
+            hexpand=False,
+            vexpand=False,
+            halign=Gtk.Align.END,
+            valign=Gtk.Align.START,
+        )
         self.ref_widgets["icons"] = FrameIcons(
             self.grstate, self.groptions, right_justify=right
         )
@@ -155,18 +166,9 @@ class FrameView(Gtk.VBox, GrampsConfig):
         ref_body = Gtk.VBox(hexpand=False, halign=justify, margin=3)
         if "ref" in self.groptions.size_groups:
             self.groptions.size_groups["ref"].add_widget(ref_body)
-        ref_body.pack_start(
-            self.ref_widgets["id"], expand=False, fill=False, padding=0
-        )
-        ref_body.pack_start(
-            self.ref_widgets["body"], expand=True, fill=True, padding=0
-        )
-        ref_body.pack_end(
-            self.ref_widgets["icons"],
-            expand=False,
-            fill=False,
-            padding=0,
-        )
+        ref_body.pack_start(self.ref_widgets["id"], False, False, 0)
+        ref_body.pack_start(self.ref_widgets["body"], True, True, 0)
+        ref_body.pack_end(self.ref_widgets["icons"], False, False, 0)
         self.ref_frame.add(ref_body)
         self.eventbox.add(self.widgets["body"])
 
@@ -174,6 +176,8 @@ class FrameView(Gtk.VBox, GrampsConfig):
         """
         Prepare a vertical reference layout, placing it on top or bottom.
         """
+        ref_widgets = self.ref_widgets
+
         self.set_spacing(3)
         if self.groptions.ref_mode == 2:
             self.pack_start(self.ref_eventbox, True, True, 0)
@@ -183,29 +187,18 @@ class FrameView(Gtk.VBox, GrampsConfig):
             self.pack_start(self.ref_eventbox, True, True, 0)
         ref_body = Gtk.HBox(hexpand=True, margin=3)
 
-        self.ref_widgets["body"] = Gtk.HBox(halign=Gtk.Align.START)
+        ref_widgets["body"] = Gtk.HBox(halign=Gtk.Align.START)
         if "data" in self.groptions.size_groups:
-            self.groptions.size_groups["data"].add_widget(
-                self.ref_widgets["body"]
-            )
-        ref_body.pack_start(
-            self.ref_widgets["body"], expand=True, fill=True, padding=0
-        )
+            self.groptions.size_groups["data"].add_widget(ref_widgets["body"])
+        ref_body.pack_start(ref_widgets["body"], True, True, 0)
         attribute_block = Gtk.VBox(hexpand=False)
         if "attributes" in self.groptions.size_groups:
             self.groptions.size_groups["attributes"].add_widget(
                 attribute_block
             )
-        attribute_block.pack_start(
-            self.ref_widgets["id"], expand=False, fill=False, padding=0
-        )
-        attribute_block.pack_end(
-            self.ref_widgets["icons"],
-            expand=False,
-            fill=False,
-            padding=0,
-        )
-        ref_body.pack_end(attribute_block, expand=False, fill=False, padding=0)
+        attribute_block.pack_start(ref_widgets["id"], False, False, 0)
+        attribute_block.pack_end(ref_widgets["icons"], False, False, 0)
+        ref_body.pack_end(attribute_block, False, False, 0)
         self.ref_frame.add(ref_body)
         self.frame.add(self.widgets["body"])
         self.eventbox.add(self.frame)
@@ -228,59 +221,36 @@ class FrameView(Gtk.VBox, GrampsConfig):
         """
         Construct framework for default layout.
         """
-        if "age" in self.widgets:
-            self.widgets["body"].pack_start(
-                self.widgets["age"], expand=False, fill=False, padding=0
-            )
-            if "age" in self.groptions.size_groups:
-                self.groptions.size_groups["age"].add_widget(
-                    self.widgets["age"]
-                )
+        widgets = self.widgets
+        size_groups = self.groptions.size_groups
+
+        if "age" in widgets:
+            widgets["body"].pack_start(widgets["age"], False, False, 0)
+            if "age" in size_groups:
+                size_groups["age"].add_widget(widgets["age"])
 
         image_mode = self.get_option("image-mode")
         if image_mode and image_mode in [3, 4]:
-            self.widgets["body"].pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=3
-            )
+            widgets["body"].pack_start(widgets["image"], False, False, 3)
 
         fact_block = Gtk.VBox(hexpand=True)
-        if "data" in self.groptions.size_groups:
-            self.groptions.size_groups["data"].add_widget(fact_block)
-        self.widgets["body"].pack_start(
-            fact_block, expand=True, fill=True, padding=0
-        )
-        fact_block.pack_start(
-            self.widgets["title"], expand=False, fill=False, padding=0
-        )
+        if "data" in size_groups:
+            size_groups["data"].add_widget(fact_block)
+        widgets["body"].pack_start(fact_block, True, True, 0)
+        fact_block.pack_start(widgets["title"], False, False, 0)
         fact_section = Gtk.HBox(hexpand=True, valign=Gtk.Align.START)
-        fact_section.pack_start(
-            self.widgets["facts"], expand=True, fill=True, padding=0
-        )
+        fact_section.pack_start(widgets["facts"], True, True, 0)
         if "active" in self.groptions.option_space:
-            fact_section.pack_start(
-                self.widgets["extra"], expand=True, fill=True, padding=0
-            )
-        fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        fact_block.pack_end(
-            self.widgets["icons"], expand=False, fill=False, padding=0
-        )
+            fact_section.pack_start(widgets["extra"], True, True, 0)
+        fact_block.pack_start(fact_section, True, True, 0)
+        fact_block.pack_end(widgets["icons"], False, False, 0)
 
         attribute_block = Gtk.VBox(halign=Gtk.Align.END, hexpand=False)
-        if "attributes" in self.groptions.size_groups:
-            self.groptions.size_groups["attributes"].add_widget(
-                attribute_block
-            )
-        self.widgets["body"].pack_start(
-            attribute_block, expand=False, fill=False, padding=0
-        )
-        attribute_block.pack_start(
-            self.widgets["id"], expand=False, fill=False, padding=0
-        )
-        attribute_block.pack_start(
-            self.widgets["attributes"], expand=True, fill=True, padding=0
-        )
+        if "attributes" in size_groups:
+            size_groups["attributes"].add_widget(attribute_block)
+        widgets["body"].pack_start(attribute_block, False, False, 0)
+        attribute_block.pack_start(widgets["id"], False, False, 0)
+        attribute_block.pack_start(widgets["attributes"], True, True, 0)
 
         if image_mode in [1, 2]:
-            self.widgets["body"].pack_end(
-                self.widgets["image"], expand=False, fill=False, padding=3
-            )
+            widgets["body"].pack_end(widgets["image"], False, False, 3)

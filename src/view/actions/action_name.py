@@ -144,7 +144,7 @@ class NameAction(GrampsAction):
             self.describe_object(self.target_object.obj),
         )
         name_list = []
-        for alternate_name in self.target_object.obj.get_alternate_names():
+        for alternate_name in self.target_object.obj.alternate_names:
             if (
                 alternate_name.serialize()
                 != self.action_object.obj.serialize()

@@ -64,7 +64,7 @@ class UrlsFrameGroup(FrameGroupList):
         Parse all urls associated with object.
         """
         if self.group_base.has_urls:
-            for url in self.group_base.obj.get_url_list():
+            for url in self.group_base.obj.urls:
                 frame = UrlFrame(
                     self.grstate, self.groptions, self.group_base.obj, url
                 )
@@ -75,11 +75,11 @@ class UrlsFrameGroup(FrameGroupList):
         Parse all notes associated with object.
         """
         if self.group_base.has_notes:
-            for handle in self.group_base.obj.get_note_list():
+            for handle in self.group_base.obj.note_list:
                 self.parse_note(handle)
 
             for obj in self.group_base.obj.get_note_child_list():
-                for handle in obj.get_note_list():
+                for handle in obj.note_list:
                     self.parse_note(handle)
 
     def parse_note(self, handle):

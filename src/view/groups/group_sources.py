@@ -61,7 +61,7 @@ class SourcesFrameGroup(FrameGroupList):
                 obj_type,
                 obj_handle,
             ) in grstate.dbstate.db.find_backlink_handles(
-                self.group_base.obj.get_handle()
+                self.group_base.obj.handle
             ):
                 if obj_type == "Source":
                     source = self.fetch("Source", obj_handle)

@@ -89,8 +89,8 @@ class EventAction(GrampsAction):
                 % self.target_object.obj_type
             )
         event_ref = None
-        for event_ref in self.target_object.obj.get_event_ref_list():
-            if event_ref.ref == self.action_object.obj.get_handle():
+        for event_ref in self.target_object.obj.event_ref_list:
+            if event_ref.ref == self.action_object.obj.handle:
                 break
         if event_ref:
             try:
@@ -129,7 +129,7 @@ class EventAction(GrampsAction):
         """
         self.set_target_object(Person())
         event_ref = EventRef()
-        event_ref.ref = self.action_object.obj.get_handle()
+        event_ref.ref = self.action_object.obj.handle
         event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
         self.target_object.obj.add_event_ref(event_ref)
         try:
@@ -157,7 +157,7 @@ class EventAction(GrampsAction):
             participant = person_selector.run()
         if participant:
             event_ref = EventRef()
-            event_ref.ref = self.action_object.obj.get_handle()
+            event_ref.ref = self.action_object.obj.handle
             event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
             self.set_target_object(participant)
             self.target_object.obj.add_event_ref(event_ref)
@@ -188,8 +188,8 @@ class EventAction(GrampsAction):
         participant = self.target_object
         new_list = []
         found_event_ref = None
-        for event_ref in participant.obj.get_event_ref_list():
-            if event_ref.ref == self.action_object.obj.get_handle():
+        for event_ref in participant.obj.event_ref_list:
+            if event_ref.ref == self.action_object.obj.handle:
                 found_event_ref = event_ref
             else:
                 new_list.append(event_ref)
@@ -216,8 +216,8 @@ class EventAction(GrampsAction):
         """
         new_list = []
         participant = self.target_object
-        for event_ref in participant.obj.get_event_ref_list():
-            if event_ref.ref != self.action_object.obj.get_handle():
+        for event_ref in participant.obj.event_ref_list:
+            if event_ref.ref != self.action_object.obj.handle:
                 new_list.append(event_ref)
         message = _("Removed Participant %s from Event %s") % (
             self.describe_object(participant.obj),
@@ -227,12 +227,12 @@ class EventAction(GrampsAction):
         death_ref = participant.obj.get_death_ref()
         participant.obj.set_event_ref_list(new_list)
         if birth_ref is not None:
-            if birth_ref.ref != self.action_object.obj.get_handle():
+            if birth_ref.ref != self.action_object.obj.handle:
                 participant.obj.set_birth_ref(birth_ref)
             else:
                 participant.obj.set_birth_ref(None)
             if death_ref is not None:
-                if death_ref.ref != self.action_object.obj.get_handle():
+                if death_ref.ref != self.action_object.obj.handle:
                     participant.obj.set_death_ref(death_ref)
                 else:
                     participant.obj.set_death_ref(None)

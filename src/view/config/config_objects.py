@@ -835,7 +835,8 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
         configdialog.add_spinner(
             grid,
             _(
-                "Maximum number of events to show in an events or timeline group"
+                "Maximum number of events to show in an events or timeline "
+                "group"
             ),
             1,
             "group.event.max-per-group",

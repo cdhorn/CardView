@@ -174,7 +174,7 @@ def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
         return
     action = action_handler("Attribute", grstate, None, grobject, grchild)
     menu = new_menu("list-add", _("Add a new attribute"), action.add_attribute)
-    attribute_list = target_object.obj.get_attribute_list()
+    attribute_list = target_object.obj.attribute_list
     if attribute_list:
         deletemenu = new_submenu(
             menu, "gramps-attribute", _("Delete an attribute")
@@ -238,7 +238,7 @@ def add_citations_menu(grstate, parent_menu, grobject, grchild=None):
         )
     )
     add_zotero_option(grstate, menu, action)
-    citation_list = target_object.obj.get_citation_list()
+    citation_list = target_object.obj.citation_list
     if citation_list:
         removemenu = new_submenu(
             menu, "gramps-citation", _("Remove a citation")
@@ -310,7 +310,7 @@ def add_notes_menu(grstate, parent_menu, grobject, grchild=None):
             "list-add", _("Add an existing note"), action.add_existing_note
         )
     )
-    note_list = target_object.obj.get_note_list()
+    note_list = target_object.obj.note_list
     if note_list:
         removemenu = new_submenu(menu, "gramps-notes", _("Remove a note"))
         if delete_enabled:
@@ -336,7 +336,7 @@ def get_child_notes(menu, grstate, grobject, grchild):
     """
     handle_list = []
     for child_obj in grobject.obj.get_note_child_list():
-        for note_handle in child_obj.get_note_list():
+        for note_handle in child_obj.note_list:
             if note_handle not in handle_list:
                 handle_list.append(note_handle)
     note_list = get_sorted_notes(grstate.dbstate.db, handle_list)
@@ -423,7 +423,7 @@ def add_tags_menu(grstate, parent_menu, grobject, sort_by_name=False):
         return
     delete_enabled = grstate.config.get(OPTION_DELETE_SUBMENUS)
     menu = Gtk.Menu()
-    tag_list = grobject.obj.get_tag_list()
+    tag_list = grobject.obj.tag_list
     tag_add_list = []
     tag_remove_list = []
     tag_delete_list = []
@@ -489,16 +489,16 @@ def add_urls_menu(grstate, parent_menu, grobject):
         return
     action = action_handler("Url", grstate, None, grobject)
     menu = new_menu("list-add", _("Add a url"), action.add_url)
-    url_list = grobject.obj.get_url_list()
+    url_list = grobject.obj.urls
     if url_list:
         editmenu = new_submenu(menu, "gramps-url", _("Edit a url"))
         deletemenu = new_submenu(menu, "gramps-url", _("Delete a url"))
         add_double_separator(menu)
         url_sort_list = []
-        for url in grobject.obj.get_url_list():
+        for url in grobject.obj.urls:
             text = url.get_description()
             if not text:
-                text = url.get_path()
+                text = url.path
             url_sort_list.append((text, url))
         url_sort_list.sort(key=lambda x: x[0])
         for text, url in url_sort_list:
@@ -531,7 +531,7 @@ def add_media_menu(grstate, parent_menu, grobject):
             action.add_existing_media,
         )
     )
-    media_list = grobject.obj.get_media_list()
+    media_list = grobject.obj.media_list
     if media_list:
         removemenu = new_submenu(
             menu, "gramps-media", _("Remove a media item")
@@ -564,11 +564,11 @@ def add_names_menu(grstate, parent_menu, grobject):
         return
     action = action_handler("Name", grstate, None, grobject)
     menu = new_menu("list-add", _("Add a new name"), action.add_name)
-    name_list = grobject.obj.get_alternate_names()
+    name_list = grobject.obj.alternate_names
     if name_list:
         deletemenu = new_submenu(menu, "gramps-person", _("Delete a name"))
         add_double_separator(menu)
-        name = grobject.obj.get_primary_name()
+        name = grobject.obj.primary_name
         action = action_handler("Name", grstate, name, grobject)
         given_name = name.get_regular_name()
         menu.add(menu_item("gtk-edit", given_name, action.edit_name))
@@ -602,7 +602,7 @@ def add_associations_menu(grstate, parent_menu, grobject):
             action.add_existing_person_reference,
         )
     )
-    person_ref_list = grobject.obj.get_person_ref_list()
+    person_ref_list = grobject.obj.person_ref_list
     if person_ref_list:
         removemenu = new_submenu(
             menu, "gramps-person", _("Delete an association")
@@ -649,7 +649,7 @@ def add_parents_menu(grstate, parent_menu, grobject):
             action.add_existing_parents,
         )
     )
-    parent_family_list = grobject.obj.get_parent_family_handle_list()
+    parent_family_list = grobject.obj.parent_family_list
     if parent_family_list:
         add_double_separator(menu)
         for family_handle in parent_family_list:
@@ -679,7 +679,7 @@ def add_partners_menu(grstate, parent_menu, grobject):
         _("Add as parent of new family"),
         action.add_new_family,
     )
-    family_list = grobject.obj.get_family_handle_list()
+    family_list = grobject.obj.family_list
     if family_list:
         add_double_separator(menu)
         for family_handle in family_list:
@@ -793,7 +793,7 @@ def add_repositories_menu(grstate, parent_menu, grobject):
             action.add_existing_repository,
         )
     )
-    reporef_list = grobject.obj.get_reporef_list()
+    reporef_list = grobject.obj.reporef_list
     if reporef_list:
         removemenu = new_submenu(
             menu, "gramps-repository", _("Remove a repository")
@@ -902,18 +902,18 @@ def is_preferred_parents(family, person):
     Return true if family the preferred one.
     """
     main_parents = person.get_main_parents_family_handle()
-    return family.get_handle() == main_parents
+    return family.handle == main_parents
 
 
 def has_spouse(family, parent):
     """
     Return true if parent has a spouse.
     """
-    father_handle = family.get_father_handle()
-    if father_handle and father_handle != parent.get_handle():
+    father_handle = family.father_handle
+    if father_handle and father_handle != parent.handle:
         return True
-    mother_handle = family.get_mother_handle()
-    if mother_handle and mother_handle != parent.get_handle():
+    mother_handle = family.mother_handle
+    if mother_handle and mother_handle != parent.handle:
         return True
     return False
 
@@ -926,7 +926,7 @@ def add_ldsords_menu(grstate, parent_menu, grobject):
         return
     action = action_handler("LdsOrd", grstate, None, grobject)
     menu = new_menu("list-add", _("Add a new ordinance"), action.add_ordinance)
-    ordinance_list = grobject.obj.get_lds_ord_list()
+    ordinance_list = grobject.obj.lds_ord_list
     if ordinance_list:
         deletemenu = new_submenu(
             menu, "gramps-person", _("Delete an ordinance")
@@ -991,7 +991,7 @@ def get_enclosed_places(db, place):
     """
     places = []
     for (dummy_obj_type, obj_handle) in db.find_backlink_handles(
-        place.get_handle(), ["Place"]
+        place.handle, ["Place"]
     ):
         places.append(db.get_place_from_handle(obj_handle))
     return places

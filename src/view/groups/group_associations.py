@@ -62,11 +62,11 @@ class AssociationsFrameGroup(FrameGroupList):
         back_list = [
             y
             for (x, y) in grstate.dbstate.db.find_backlink_handles(
-                obj.get_handle(), ["Person"]
+                obj.handle, ["Person"]
             )
         ]
 
-        for person_ref in obj.get_person_ref_list():
+        for person_ref in obj.person_ref_list:
             frame = PersonRefFrame(
                 grstate,
                 groptions,
@@ -88,8 +88,8 @@ class AssociationsFrameGroup(FrameGroupList):
         Add a person with a back reference.
         """
         back_person = self.fetch("Person", person_handle)
-        main_person = self.group_base.obj.get_handle()
-        for back_person_ref in back_person.get_person_ref_list():
+        main_person = self.group_base.obj.handle
+        for back_person_ref in back_person.person_ref_list:
             if back_person_ref.ref == main_person:
                 frame = PersonBackRefFrame(
                     self.grstate,
@@ -106,8 +106,8 @@ class AssociationsFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_person_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.person_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -116,7 +116,7 @@ class AssociationsFrameGroup(FrameGroupList):
                 _("Associations"),
                 _("for"),
                 _("Person"),
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_person_ref_list(new_list)
@@ -127,7 +127,7 @@ class AssociationsFrameGroup(FrameGroupList):
         Add a new person to the list of associations.
         """
         for frame in self.row_frames:
-            if frame.primary.obj.get_handle() == handle:
+            if frame.primary.obj.handle == handle:
                 return
 
         person_ref = PersonRef()
@@ -150,8 +150,8 @@ class AssociationsFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_person_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.person_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, person_ref)
         person = self.fetch("Person", person_ref.ref)
@@ -159,11 +159,11 @@ class AssociationsFrameGroup(FrameGroupList):
             (
                 _("Added"),
                 _("Person"),
-                person.get_gramps_id(),
+                person.gramps_id,
                 _("Association"),
                 _("to"),
                 _("Person"),
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_person_ref_list(new_list)

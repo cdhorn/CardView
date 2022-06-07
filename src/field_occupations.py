@@ -86,7 +86,7 @@ def get_occupations_field(_dummy_grstate, obj, _dummy_event_type, args):
         ):
             occupations.append(event.get_description())
 
-    for attribute in obj.get_attribute_list():
+    for attribute in obj.attribute_list:
         if (
             attribute.get_type().xml_str() == "Occupation"
             and attribute.get_value() not in occupations

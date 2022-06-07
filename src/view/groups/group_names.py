@@ -50,11 +50,11 @@ class NamesFrameGroup(FrameGroupList):
             grstate,
             groptions,
             obj,
-            obj.get_primary_name(),
+            obj.primary_name,
         )
         self.add_frame(frame)
 
-        for name in obj.get_alternate_names():
+        for name in obj.alternate_names:
             frame = NameFrame(grstate, groptions, obj, name)
             self.add_frame(frame)
         self.show_all()

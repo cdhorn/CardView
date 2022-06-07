@@ -80,18 +80,18 @@ class TimelineFrameGroup(FrameGroupList):
         )
         if self.group_base.obj_type == "Person":
             self.timeline.set_person(
-                obj.get_handle(),
+                obj.handle,
                 ancestors=self.options["ancestors"],
                 offspring=self.options["offspring"],
             )
         elif self.group_base.obj_type == "Family":
             self.timeline.set_family(
-                obj.get_handle(),
+                obj.handle,
                 ancestors=self.options["ancestors"],
                 offspring=self.options["offspring"],
             )
         elif self.group_base.obj_type == "Place":
-            self.timeline.set_place(obj.get_handle())
+            self.timeline.set_place(obj.handle)
 
         timeline = self.prepare_timeline(obj)
         for (dummy_sortval, timeline_obj_type, timeline_obj, item) in timeline:
@@ -253,18 +253,18 @@ class TimelineFrameGroup(FrameGroupList):
         if self.group_base.obj_type in ["Person", "Place"]:
             obj_list = extract(self.group_base.obj)
         elif self.group_base.obj_type == "Family":
-            if self.group_base.obj.get_mother_handle():
+            if self.group_base.obj.mother_handle:
                 mother = self.fetch(
-                    "Person", self.group_base.obj.get_mother_handle()
+                    "Person", self.group_base.obj.mother_handle
                 )
                 obj_list = obj_list + extract(mother)
-            if self.group_base.obj.get_father_handle():
+            if self.group_base.obj.father_handle:
                 father = self.fetch(
-                    "Person", self.group_base.obj.get_father_handle()
+                    "Person", self.group_base.obj.father_handle
                 )
                 obj_list = obj_list + extract(father)
-            if self.group_base.obj.get_child_ref_list():
-                for child_ref in self.group_base.obj.get_child_ref_list():
+            if self.group_base.obj.child_ref_list:
+                for child_ref in self.group_base.obj.child_ref_list:
                     child = self.fetch("Person", child_ref.ref)
                     obj_list = obj_list + extract(child)
         return obj_list
@@ -274,13 +274,11 @@ class TimelineFrameGroup(FrameGroupList):
         Return list of citations with a date value.
         """
         citations = []
-        for handle in obj.get_citation_list():
+        for handle in obj.citation_list:
             citation = self.fetch("Citation", handle)
             date = citation.get_date_object()
-            if date and date.is_valid() and date.get_sort_value():
-                citations.append(
-                    (date.get_sort_value(), "citation", obj, citation)
-                )
+            if date and date.is_valid() and date.sortval:
+                citations.append((date.sortval, "citation", obj, citation))
         return citations
 
     def extract_media(self, obj):
@@ -288,13 +286,11 @@ class TimelineFrameGroup(FrameGroupList):
         Return list of media items with a date value.
         """
         media = []
-        for media_ref in obj.get_media_list():
+        for media_ref in obj.media_list:
             item = self.fetch("Media", media_ref.ref)
             date = item.get_date_object()
-            if date and date.is_valid() and date.get_sort_value():
-                media.append(
-                    (date.get_sort_value(), "media", obj, (item, media_ref))
-                )
+            if date and date.is_valid() and date.sortval:
+                media.append((date.sortval, "media", obj, (item, media_ref)))
         return media
 
 
@@ -303,10 +299,10 @@ def extract_addresses(obj):
     Return list of addresses with a date value.
     """
     addresses = []
-    for address in obj.get_address_list():
+    for address in obj.address_list:
         date = address.get_date_object()
-        if date and date.is_valid() and date.get_sort_value():
-            addresses.append((date.get_sort_value(), "address", obj, address))
+        if date and date.is_valid() and date.sortval:
+            addresses.append((date.sortval, "address", obj, address))
     return addresses
 
 
@@ -315,10 +311,10 @@ def extract_names(obj):
     Return list of names with a date value.
     """
     names = []
-    for name in obj.get_alternate_names():
+    for name in obj.alternate_names:
         date = name.get_date_object()
-        if date and date.is_valid() and date.get_sort_value():
-            names.append((date.get_sort_value(), "name", obj, name))
+        if date and date.is_valid() and date.sortval:
+            names.append((date.sortval, "name", obj, name))
     return names
 
 
@@ -327,10 +323,8 @@ def extract_ordinances(obj):
     Return list of ordinance items with a date value.
     """
     ordinances = []
-    for ordinance in obj.get_lds_ord_list():
+    for ordinance in obj.lds_ord_list:
         date = ordinance.get_date_object()
-        if date and date.is_valid() and date.get_sort_value():
-            ordinances.append(
-                (date.get_sort_value(), "ldsord", obj, ordinance)
-            )
+        if date and date.is_valid() and date.sortval:
+            ordinances.append((date.sortval, "ldsord", obj, ordinance))
     return ordinances

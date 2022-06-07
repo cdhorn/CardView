@@ -338,8 +338,8 @@ def citation_option_text(db, citation):
     """
     if citation.source_handle:
         source = db.get_source_from_handle(citation.source_handle)
-        if source.get_title():
-            text = source.get_title()
+        if source.title:
+            text = source.title
         else:
             text = "".join(("[", _("Missing Source"), "]"))
     if citation.page:
@@ -380,11 +380,10 @@ def prepare_icon(name, size=Gtk.IconSize.SMALL_TOOLBAR, tooltip=None):
     """
     icon = Gtk.Image()
     icon.set_from_icon_name(name, size)
-    if tooltip:
-        image = Gtk.EventBox(tooltip_text=tooltip)
-        image.add(icon)
-    else:
-        image = icon
+    if not tooltip:
+        return icon
+    image = Gtk.EventBox(tooltip_text=tooltip)
+    image.add(icon)
     return image
 
 
@@ -412,15 +411,15 @@ def find_reference(obj, reference_type, reference_handle):
     Find a specific reference object inside a given object.
     """
     if reference_type == "EventRef":
-        reference_list = obj.get_event_ref_list()
+        reference_list = obj.event_ref_list
     elif reference_type == "ChildRef":
-        reference_list = obj.get_child_ref_list()
+        reference_list = obj.child_ref_list
     elif reference_type == "MediaRef":
-        reference_list = obj.get_media_list()
+        reference_list = obj.media_list
     elif reference_type == "PersonRef":
-        reference_list = obj.get_person_ref_list()
+        reference_list = obj.person_ref_list
     elif reference_type == "RepoRef":
-        reference_list = obj.get_reporef_list()
+        reference_list = obj.reporef_list
     else:
         return None
     for reference in reference_list:
@@ -441,7 +440,7 @@ def find_referencer(grstate, obj, reference_type, reference_hash):
         seek = ["Source"]
     else:
         return None
-    obj_list = grstate.dbstate.db.find_backlink_handles(obj.get_handle())
+    obj_list = grstate.dbstate.db.find_backlink_handles(obj.handle)
     for (obj_type, obj_handle) in obj_list:
         if obj_type in seek:
             work_obj = grstate.fetch(obj_type, obj_handle)
@@ -458,19 +457,19 @@ def get_secondary_object_list(obj, secondary_type):
     Return list of secondary objects.
     """
     if secondary_type == "Name":
-        secondary_list = [obj.get_primary_name()] + obj.get_alternate_names()
+        secondary_list = [obj.primary_name] + obj.alternate_names
     elif secondary_type == "Attribute":
-        secondary_list = obj.get_attribute_list()
+        secondary_list = obj.attribute_list
     elif secondary_type == "Address":
-        secondary_list = obj.get_address_list()
+        secondary_list = obj.address_list
     elif secondary_type == "LdsOrd":
-        secondary_list = obj.get_lds_ord_list()
+        secondary_list = obj.lds_ord_list
     elif secondary_type == "ChildRef":
-        secondary_list = obj.get_child_ref_list()
+        secondary_list = obj.child_ref_list
     elif secondary_type == "PersonRef":
-        secondary_list = obj.get_person_ref_list()
+        secondary_list = obj.person_ref_list
     elif secondary_type == "RepoRef":
-        secondary_list = obj.get_reporef_list()
+        secondary_list = obj.reporef_list
     else:
         return None
     return secondary_list
@@ -557,9 +556,7 @@ def describe_object(db, obj):
         """
         if split_character in title:
             return title.split(split_character)[1].strip()
-        else:
-            return title.strip()
-        return title
+        return title.strip()
 
     for obj_data in GRAMPS_OBJECTS:
         if isinstance(obj, obj_data[0]):
@@ -574,7 +571,7 @@ def describe_object(db, obj):
                 obj_lang = obj_type
             break
     if isinstance(obj, BasicPrimaryObject):
-        title, dummy_obj = navigation_label(db, obj_type, obj.get_handle())
+        title, dummy_obj = navigation_label(db, obj_type, obj.handle)
         title = clean_title(title, "]")
         if obj_type == "Event":
             title = clean_title(title, "-")
@@ -679,7 +676,7 @@ def get_initial_object(db, obj_type=None):
         if initial_person:
             return (
                 "Person",
-                initial_person.get_handle(),
+                initial_person.handle,
                 None,
                 None,
                 None,

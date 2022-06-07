@@ -122,7 +122,7 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
         """
         source_index = 0
         for frame in self.row_frames:
-            if frame.primary.obj.get_handle() == obj_handle:
+            if frame.primary.obj.handle == obj_handle:
                 if self.row_current == source_index:
                     break
                 row_moving = self.get_row_at_index(source_index)

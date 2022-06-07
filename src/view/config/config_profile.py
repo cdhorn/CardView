@@ -37,7 +37,6 @@ ProfileManager
 from gramps.gen.config import config as configman
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.plug import BasePluginManager
-from gramps.gui.pluginmanager import GuiPluginManager
 
 # -------------------------------------------------------------------------
 #
@@ -137,7 +136,7 @@ def merge_defaults(options, defaults):
     options = list(options)
     for (key, value) in defaults:
         found = False
-        for (option_key, option_value) in options:
+        for (option_key, _option_value) in options:
             if option_key == key:
                 found = True
                 break

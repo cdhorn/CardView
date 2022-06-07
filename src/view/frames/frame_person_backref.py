@@ -70,8 +70,8 @@ class PersonBackRefFrame(PersonFrame):
         )
         if groptions.ref_mode:
             reference_type = "".join(("[", _("Back Reference"), "]"))
-            for active_person_ref in active_person.get_person_ref_list():
-                if active_person_ref.ref == person.get_handle():
+            for active_person_ref in active_person.person_ref_list:
+                if active_person_ref.ref == person.handle:
                     reference_type = "".join(("[", _("Reciprocal"), "]"))
             self.add_ref_item(reference_type, None)
             association = person_ref.get_relation()

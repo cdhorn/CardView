@@ -74,7 +74,7 @@ class LDSOrdinanceFrame(SecondaryFrame):
         label = self.get_link(
             title,
             self.primary.obj,
-            self.primary.obj.get_handle(),
+            self.primary.obj.handle,
             callback=self.switch_ordinance_page,
         )
         self.widgets["title"].pack_start(label, False, False, 0)
@@ -118,7 +118,7 @@ class LDSOrdinanceFrame(SecondaryFrame):
         """
         Add ordinance family.
         """
-        ordinance_handle = ordinance.get_family_handle()
+        ordinance_handle = ordinance.famc
         if ordinance_handle:
             family = self.grstate.fetch("Family", ordinance_handle)
             text = family_name(family, self.grstate.dbstate.db)
@@ -130,7 +130,7 @@ class LDSOrdinanceFrame(SecondaryFrame):
         """
         Add ordinance temple.
         """
-        temple = ordinance.get_temple()
+        temple = ordinance.temple
         if temple:
             self.add_fact(
                 self.get_label(temple), label=self.get_label(_("Temple"))
@@ -140,7 +140,7 @@ class LDSOrdinanceFrame(SecondaryFrame):
         """
         Add ordinance status.
         """
-        if ordinance.get_status():
+        if ordinance.status:
             self.add_fact(
                 self.get_label(ordinance.status2str()),
                 label=self.get_label(_("Status")),

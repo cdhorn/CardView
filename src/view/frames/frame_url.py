@@ -97,7 +97,7 @@ class UrlFrame(SecondaryFrame):
         Handle button release.
         """
         if button_released(event, BUTTON_PRIMARY):
-            if match_primary_mask(event.get_state()):
+            if match_primary_mask(event.state):
                 self._dump_context()
                 return True
             display_url(self.link)

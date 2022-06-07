@@ -79,7 +79,7 @@ class RepositoryFrame(ReferenceFrame):
         title = self.get_link(
             repository.name,
             "Repository",
-            repository.get_handle(),
+            repository.handle,
         )
         self.widgets["title"].pack_start(title, True, False, 0)
 
@@ -87,7 +87,7 @@ class RepositoryFrame(ReferenceFrame):
         """
         Add repository address.
         """
-        address_list = repository.get_address_list()
+        address_list = repository.address_list
         if address_list:
             address = address_list[0]
             lines = format_address(address)

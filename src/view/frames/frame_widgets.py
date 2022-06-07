@@ -28,13 +28,6 @@ Widgets supporting various sections of the frame.
 
 # ------------------------------------------------------------------------
 #
-# Python Modules
-#
-# ------------------------------------------------------------------------
-from html import escape
-
-# ------------------------------------------------------------------------
-#
 # GTK Modules
 #
 # ------------------------------------------------------------------------
@@ -56,144 +49,17 @@ from gramps.gui.utils import open_file_with_default_application
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
+from .frame_utils import get_tag_icon
 from ..common.common_classes import GrampsConfig, GrampsContext
 from ..common.common_const import (
     BUTTON_PRIMARY,
     GROUP_LABELS,
     GROUP_LABELS_SINGLE,
 )
-from ..common.common_utils import button_pressed, get_bookmarks, pack_icon
+from ..common.common_utils import button_pressed
 from ..services.service_status import StatusIndicatorService
-from .frame_utils import get_tag_icon
 
 _ = glocale.translation.sgettext
-
-
-# ------------------------------------------------------------------------
-#
-# FrameId class
-#
-# ------------------------------------------------------------------------
-class FrameId(Gtk.HBox, GrampsConfig):
-    """
-    A class to display the id and privacy for a Frame object.
-    """
-
-    def __init__(self, grstate, groptions):
-        Gtk.HBox.__init__(
-            self,
-            hexpand=False,
-            vexpand=False,
-            halign=Gtk.Align.END,
-            valign=Gtk.Align.START,
-        )
-        GrampsConfig.__init__(self, grstate, groptions)
-        if self.grstate.config.get("display.use-smaller-icons"):
-            self.icon_size = Gtk.IconSize.SMALL_TOOLBAR
-        else:
-            self.icon_size = Gtk.IconSize.LARGE_TOOLBAR
-
-    def load(self, grobject, gramps_id=None):
-        """
-        Load the id field as needed for the given object.
-        """
-        if "Ref" in grobject.obj_type and self.groptions.ref_mode == 1:
-            self.set_halign(Gtk.Align.START)
-            self.add_privacy_indicator(grobject.obj)
-            pack_icon(self, "stock_link", size=self.icon_size)
-            if grobject.is_primary:
-                self.add_gramps_id(obj=grobject.obj)
-            elif gramps_id:
-                self.add_gramps_id(gramps_id=gramps_id)
-        else:
-            if grobject.is_primary:
-                self.add_gramps_id(obj=grobject.obj)
-            elif gramps_id:
-                self.add_gramps_id(gramps_id=gramps_id)
-            if grobject.has_handle:
-                self.add_bookmark_indicator(grobject.obj, grobject.obj_type)
-            elif "Ref" in grobject.obj_type:
-                pack_icon(self, "stock_link", size=self.icon_size)
-            self.add_privacy_indicator(grobject.obj)
-            if grobject.obj_type == "Person":
-                self.add_home_indicator(grobject.obj)
-            self.show_all()
-
-    def reload(self, grobject, gramps_id=None):
-        """
-        Reload the field.
-        """
-        list(map(self.remove, self.get_children()))
-        self.load(grobject, gramps_id=gramps_id)
-
-    def add_gramps_id(self, obj=None, gramps_id=""):
-        """
-        Add the gramps id if needed.
-        """
-        if self.grstate.config.get("indicator.gramps-ids"):
-            if obj:
-                text = obj.gramps_id
-            else:
-                text = gramps_id
-            label = Gtk.Label(
-                use_markup=True,
-                label=self.detail_markup.format(escape(text)),
-            )
-            self.pack_end(label, False, False, 0)
-
-    def add_bookmark_indicator(self, obj, obj_type):
-        """
-        Add the bookmark indicator if needed.
-        """
-        if self.grstate.config.get("indicator.bookmarks"):
-            for bookmark in get_bookmarks(
-                self.grstate.dbstate.db, obj_type
-            ).get():
-                if bookmark == obj.get_handle():
-                    pack_icon(
-                        self,
-                        "gramps-bookmark",
-                        size=self.icon_size,
-                        tooltip=_("Bookmarked"),
-                    )
-                    break
-
-    def add_privacy_indicator(self, obj):
-        """
-        Add privacy mode indicator if needed.
-        """
-        mode = self.grstate.config.get("indicator.privacy")
-        if mode:
-            if obj.private:
-                if mode in [1, 3]:
-                    pack_icon(
-                        self,
-                        "gramps-lock",
-                        size=self.icon_size,
-                        tooltip=_("Private"),
-                    )
-            else:
-                if mode in [2, 3]:
-                    pack_icon(
-                        self,
-                        "gramps-unlock",
-                        size=self.icon_size,
-                        tooltip=_("Public"),
-                    )
-
-    def add_home_indicator(self, obj):
-        """
-        Add the home indicator if needed.
-        """
-        if self.grstate.config.get("indicator.home-person"):
-            default = self.grstate.dbstate.db.get_default_person()
-            if default and default.get_handle() == obj.get_handle():
-                pack_icon(
-                    self,
-                    "go-home",
-                    size=self.icon_size,
-                    tooltip=_("Home Person"),
-                )
 
 
 # ------------------------------------------------------------------------
@@ -306,39 +172,39 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         if obj_type == "Person":
             self.__load_person(obj, check)
         elif obj_type == "Family" and check("indicator.children"):
-            count = len(obj.get_child_ref_list())
+            count = len(obj.child_ref_list)
             if count:
                 self.__add_icon("gramps-person", "child", count)
         if check("indicator.events") and grobject.has_events:
-            count = len(obj.get_event_ref_list())
+            count = len(obj.event_ref_list)
             if count:
                 self.__add_icon("gramps-event", "event", count)
         if check("indicator.ordinances") and grobject.has_ldsords:
-            count = len(obj.get_lds_ord_list())
+            count = len(obj.lds_ord_list)
             if count:
                 self.__add_icon("emblem-documents", "ldsord", count)
         if check("indicator.attributes") and grobject.has_attributes:
-            count = len(obj.get_attribute_list())
+            count = len(obj.attribute_list)
             if count:
                 self.__add_icon("gramps-attribute", "attribute", count)
         if check("indicator.media") and grobject.has_media:
-            count = len(obj.get_media_list())
+            count = len(obj.media_list)
             if count:
                 self.__add_icon("gramps-media", "media", count)
         if check("indicator.citations") and grobject.has_citations:
-            count = len(obj.get_citation_list())
+            count = len(obj.citation_list)
             if count:
                 self.__add_icon("gramps-citation", "citation", count)
         if check("indicator.notes") and grobject.has_notes:
-            count = len(obj.get_note_list())
+            count = len(obj.note_list)
             if count:
                 self.__add_icon("gramps-notes", "note", count)
         if check("indicator.addresses") and grobject.has_addresses:
-            count = len(obj.get_address_list())
+            count = len(obj.address_list)
             if count:
                 self.__add_icon("gramps-address", "address", count)
         if check("indicator.urls") and grobject.has_urls:
-            count = len(obj.get_url_list())
+            count = len(obj.urls)
             if count:
                 self.__add_icon("gramps-url", "url", count)
 
@@ -347,19 +213,19 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         Examine and load indicators for a person.
         """
         if check("indicator.names"):
-            count = len(obj.get_alternate_names())
+            count = len(obj.alternate_names)
             if count:
                 self.__add_icon("user-info", "name", count)
         if check("indicator.parents"):
-            count = len(obj.get_parent_family_handle_list())
+            count = len(obj.parent_family_list)
             if count:
                 self.__add_icon("gramps-family", "parent", count)
         if check("indicator.spouses"):
-            count = len(obj.get_family_handle_list())
+            count = len(obj.family_list)
             if count:
                 self.__add_icon("gramps-spouse", "spouse", count)
         if check("indicator.associations"):
-            count = len(obj.get_person_ref_list())
+            count = len(obj.person_ref_list)
             if count:
                 self.__add_icon("gramps-person", "association", count)
 
@@ -415,7 +281,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         Load tags for an object.
         """
         tags = []
-        for handle in grobject.obj.get_tag_list():
+        for handle in grobject.obj.tag_list:
             tag = self.fetch("Tag", handle)
             tags.append(tag)
 
@@ -467,15 +333,15 @@ class GrampsImage(Gtk.EventBox):
         elif isinstance(media_ref, MediaRef):
             self.media_ref = media_ref
             self.media = grstate.fetch("Media", media_ref.ref)
-        elif isinstance(obj, MediaBase) and obj.get_media_list():
-            self.media_ref = obj.get_media_list()[0]
+        elif isinstance(obj, MediaBase) and obj.media_list:
+            self.media_ref = obj.media_list[0]
             self.media = grstate.fetch("Media", self.media_ref.ref)
         else:
             self.media = None
 
         if self.media:
             self.path = media_path_full(
-                self.grstate.dbstate.db, self.media.get_path()
+                self.grstate.dbstate.db, self.media.path
             )
 
     def load(self, size=0, crop=True):
@@ -493,7 +359,7 @@ class GrampsImage(Gtk.EventBox):
         """
         Get the thumbnail image.
         """
-        if self.media and self.media.get_mime_type()[0:5] == "image":
+        if self.media and self.media.mime[0:5] == "image":
             rectangle = None
             if self.media_ref and crop:
                 rectangle = self.media_ref.get_rectangle()

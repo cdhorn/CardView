@@ -147,7 +147,7 @@ class SourceAction(GrampsAction):
         Add an existing repository.
         """
         get_repository_selector = SelectorFactory("Repository")
-        skip = [x.ref for x in self.action_object.obj.get_reporef_list()]
+        skip = [x.ref for x in self.action_object.obj.reporef_list]
         repository_selector = get_repository_selector(
             self.grstate.dbstate, self.grstate.uistate, skip=skip
         )
@@ -163,12 +163,12 @@ class SourceAction(GrampsAction):
             repository_handle = obj_or_handle
             repository = self.db.get_repository_from_handle(repository_handle)
         elif isinstance(obj_or_handle, Repository):
-            repository_handle = obj_or_handle.get_handle()
+            repository_handle = obj_or_handle.handle
             repository = obj_or_handle
         else:
             repository_handle = None
             repository = Repository()
-        for repo_ref in self.action_object.obj.get_reporef_list():
+        for repo_ref in self.action_object.obj.reporef_list:
             if repo_ref.ref == repository_handle:
                 return
         repo_ref = RepoRef()
@@ -190,7 +190,7 @@ class SourceAction(GrampsAction):
         Finish adding the repository reference.
         """
         (repo_ref, repository) = repo_tuple
-        repo_ref.ref = repository.get_handle()
+        repo_ref.ref = repository.handle
         message = _("Added Repository %s to Source %s") % (
             self.describe_object(repository),
             self.describe_object(self.action_object.obj),
@@ -233,7 +233,7 @@ class SourceAction(GrampsAction):
         Actually remove the repository reference.
         """
         new_list = []
-        for repo_ref in self.action_object.obj.get_reporef_list():
+        for repo_ref in self.action_object.obj.reporef_list:
             if not repo_ref.ref == self.target_object.obj.ref:
                 new_list.append(repo_ref)
         repository = self.db.get_repository_from_handle(

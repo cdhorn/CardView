@@ -93,7 +93,7 @@ class FamilyFrame(PrimaryFrame):
         self.show_all()
         self.enable_drag()
         if not self.parent2 and (
-            not family.get_father_handle() or not family.get_mother_handle()
+            not family.father_handle or not family.mother_handle
         ):
             self.dnd_drop_targets.append(DdTargets.PERSON_LINK.target())
         self.enable_drop(
@@ -128,7 +128,7 @@ class FamilyFrame(PrimaryFrame):
         Add couple facts.
         """
         event_cache = []
-        for event_ref in family.get_event_ref_list():
+        for event_ref in family.event_ref_list:
             event_cache.append(self.fetch("Event", event_ref.ref))
         option_prefix = "".join((anchor, ".lfield-"))
         self.load_fields("facts", option_prefix, event_cache)
@@ -153,14 +153,12 @@ class FamilyFrame(PrimaryFrame):
         """
         Construct framework for couple layout, overrides base class.
         """
+        widgets = self.widgets
+
         vcontent = Gtk.VBox(spacing=3)
-        self.widgets["body"].pack_start(
-            vcontent, expand=True, fill=True, padding=0
-        )
+        widgets["body"].pack_start(vcontent, True, True, 0)
         if self.compact:
-            vcontent.pack_start(
-                self.eventbox, expand=True, fill=True, padding=0
-            )
+            vcontent.pack_start(self.eventbox, True, True, 0)
         else:
             self.__build_full_layout(vcontent)
         data_content = Gtk.HBox()
@@ -170,81 +168,49 @@ class FamilyFrame(PrimaryFrame):
         else:
             image_mode = self.get_option("group.family.image-mode")
         if image_mode in [3, 4]:
-            data_content.pack_start(
-                self.widgets["image"], expand=False, fill=False, padding=0
-            )
+            data_content.pack_start(widgets["image"], False, False, 0)
 
         fact_block = Gtk.VBox()
-        data_content.pack_start(fact_block, expand=True, fill=True, padding=0)
-        fact_block.pack_start(
-            self.widgets["title"], expand=True, fill=True, padding=0
-        )
+        data_content.pack_start(fact_block, True, True, 0)
+        fact_block.pack_start(widgets["title"], True, True, 0)
         fact_section = Gtk.HBox(valign=Gtk.Align.START, vexpand=True)
-        fact_section.pack_start(
-            self.widgets["facts"], expand=True, fill=True, padding=0
-        )
+        fact_section.pack_start(widgets["facts"], True, True, 0)
         if "active" in self.groptions.option_space:
-            fact_section.pack_start(
-                self.widgets["extra"], expand=True, fill=True, padding=0
-            )
-        fact_block.pack_start(fact_section, expand=True, fill=True, padding=0)
-        fact_block.pack_end(
-            self.widgets["icons"], expand=True, fill=True, padding=0
-        )
+            fact_section.pack_start(widgets["extra"], True, True, 0)
+        fact_block.pack_start(fact_section, True, True, 0)
+        fact_block.pack_end(widgets["icons"], True, True, 0)
 
         attribute_block = Gtk.VBox(halign=Gtk.Align.END)
-        data_content.pack_start(
-            attribute_block, expand=True, fill=True, padding=0
-        )
-        attribute_block.pack_start(
-            self.widgets["id"], expand=True, fill=True, padding=0
-        )
-        attribute_block.pack_start(
-            self.widgets["attributes"], expand=True, fill=True, padding=0
-        )
+        data_content.pack_start(attribute_block, True, True, 0)
+        attribute_block.pack_start(widgets["id"], True, True, 0)
+        attribute_block.pack_start(widgets["attributes"], True, True, 0)
 
         if image_mode in [1, 2]:
-            data_content.pack_end(
-                self.widgets["image"], expand=False, fill=False, padding=0
-            )
+            data_content.pack_end(widgets["image"], False, False, 0)
 
     def __build_full_layout(self, vcontent):
         """
         Build full uncompact layout.
         """
+        size_groups = self.groptions.size_groups
+
         if self.groptions.vertical_orientation:
-            vcontent.pack_start(
-                self.partner1, expand=True, fill=True, padding=0
-            )
-            vcontent.pack_start(
-                self.eventbox, expand=True, fill=True, padding=0
-            )
-            vcontent.pack_start(
-                self.partner2, expand=True, fill=True, padding=0
-            )
+            vcontent.pack_start(self.partner1, True, True, 0)
+            vcontent.pack_start(self.eventbox, True, True, 0)
+            vcontent.pack_start(self.partner2, True, True, 0)
         else:
             group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
             partners = Gtk.HBox(hexpand=True, spacing=3)
-            vcontent.pack_start(partners, expand=True, fill=True, padding=0)
+            vcontent.pack_start(partners, True, True, 0)
             group.add_widget(self.partner1)
-            if "partner1" in self.groptions.size_groups:
-                self.groptions.size_groups["partner1"].add_widget(
-                    self.partner1
-                )
-            partners.pack_start(
-                self.partner1, expand=True, fill=True, padding=0
-            )
+            if "partner1" in size_groups:
+                size_groups["partner1"].add_widget(self.partner1)
+            partners.pack_start(self.partner1, True, True, 0)
             group.add_widget(self.partner2)
-            if "partner2" in self.groptions.size_groups:
-                self.groptions.size_groups["partner2"].add_widget(
-                    self.partner2
-                )
-            partners.pack_start(
-                self.partner2, expand=True, fill=True, padding=0
-            )
-            vcontent.pack_start(
-                self.eventbox, expand=True, fill=True, padding=0
-            )
+            if "partner2" in size_groups:
+                size_groups["partner2"].add_widget(self.partner2)
+            partners.pack_start(self.partner2, True, True, 0)
+            vcontent.pack_start(self.eventbox, True, True, 0)
 
     def load_fields(self, grid_key, option_prefix, event_cache):
         """
@@ -252,9 +218,10 @@ class FamilyFrame(PrimaryFrame):
         """
         have_marriage, have_divorce = None, None
         for event in event_cache:
-            if event.get_type() == EventType.MARRIAGE:
+            event_type = event.get_type()
+            if event_type == EventType.MARRIAGE:
                 have_marriage = event
-            elif event.get_type() == EventType.DIVORCE:
+            elif event_type == EventType.DIVORCE:
                 have_divorce = event
                 self.divorced = True
         args = {
@@ -287,21 +254,17 @@ class FamilyFrame(PrimaryFrame):
     def _get_profile(self, person):
         if person:
             self.groptions.set_backlink(self.family.handle)
-            profile = PersonFrame(
-                self.grstate,
-                self.groptions,
-                person,
-            )
+            profile = PersonFrame(self.grstate, self.groptions, person)
             return profile
         return None
 
     def _get_parents(self):
         father = None
-        if self.family.get_father_handle():
-            father = self.fetch("Person", self.family.get_father_handle())
+        if self.family.father_handle:
+            father = self.fetch("Person", self.family.father_handle)
         mother = None
-        if self.family.get_mother_handle():
-            mother = self.fetch("Person", self.family.get_mother_handle())
+        if self.family.mother_handle:
+            mother = self.fetch("Person", self.family.mother_handle)
 
         partner1 = father
         partner2 = mother
@@ -355,7 +318,7 @@ class FamilyFrame(PrimaryFrame):
                             "gramps-person",
                             text,
                             self.goto_person,
-                            partner.get_handle(),
+                            partner.handle,
                         )
                     )
 

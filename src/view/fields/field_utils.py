@@ -47,7 +47,7 @@ def format_single_line_normal(
     type_label = get_link(
         description,
         "Event",
-        event.get_handle(),
+        event.handle,
         title=False,
     )
     body = date or ""
@@ -56,7 +56,7 @@ def format_single_line_normal(
     body_label = get_link(
         body,
         "Event",
-        event.get_handle(),
+        event.handle,
         title=False,
     )
     return [(type_label, body_label)]
@@ -76,7 +76,7 @@ def format_single_line_abbreviated(
     body_label = get_link(
         body,
         "Event",
-        event.get_handle(),
+        event.handle,
         title=False,
     )
     return [(body_label, get_label(""))]
@@ -92,14 +92,14 @@ def format_split_line_normal(
     type_label = get_link(
         description,
         "Event",
-        event.get_handle(),
+        event.handle,
         title=False,
     )
     if date:
         date_label = get_link(
             date,
             "Event",
-            event.get_handle(),
+            event.handle,
             title=False,
         )
         widgets.append((type_label, date_label))
@@ -107,7 +107,7 @@ def format_split_line_normal(
         place_label = get_link(
             place,
             "Place",
-            event.get_place_handle(),
+            event.place,
             title=False,
         )
         if date:
@@ -132,7 +132,7 @@ def format_split_line_abbreviated(
         date_label = get_link(
             body,
             "Event",
-            event.get_handle(),
+            event.handle,
             title=False,
         )
         widgets.append((date_label, get_label("")))
@@ -144,7 +144,7 @@ def format_split_line_abbreviated(
         place_label = get_link(
             place,
             "Place",
-            event.get_place_handle(),
+            event.place,
             title=False,
         )
         widgets.append((place_label, get_label("")))
@@ -152,7 +152,7 @@ def format_split_line_abbreviated(
         type_label = get_link(
             body,
             "Event",
-            event.get_handle(),
+            event.handle,
             title=False,
         )
         widgets.append((type_label, get_label("")))

@@ -70,7 +70,7 @@ class EventsFrameGroup(FrameGroupList):
         )
         groptions.set_relation(obj)
 
-        for event_ref in obj.get_event_ref_list():
+        for event_ref in obj.event_ref_list:
             frame = EventRefFrame(
                 grstate,
                 groptions,
@@ -86,8 +86,8 @@ class EventsFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_event_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.event_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -96,7 +96,7 @@ class EventsFrameGroup(FrameGroupList):
                 _("Events"),
                 _("for"),
                 self.group_base.obj_type,
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         self.group_base.obj.set_event_ref_list(new_list)
@@ -111,7 +111,7 @@ class EventsFrameGroup(FrameGroupList):
         Add a new event to the list of events.
         """
         for frame in self.row_frames:
-            if frame.primary.obj.get_handle() == handle:
+            if frame.primary.obj.handle == handle:
                 return
 
         event_ref = EventRef()
@@ -136,18 +136,18 @@ class EventsFrameGroup(FrameGroupList):
         """
         new_list = []
         for frame in self.row_frames:
-            for ref in self.group_base.obj.get_event_ref_list():
-                if ref.ref == frame.primary.obj.get_handle():
+            for ref in self.group_base.obj.event_ref_list:
+                if ref.ref == frame.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, event_ref)
         message = " ".join(
             (
                 _("Added"),
                 _("Event"),
-                event.get_gramps_id(),
+                event.gramps_id,
                 _("to"),
                 self.group_base.obj_type,
-                self.group_base.obj.get_gramps_id(),
+                self.group_base.obj.gramps_id,
             )
         )
         if event.get_type == EventType.BIRTH and self.birth_ref:

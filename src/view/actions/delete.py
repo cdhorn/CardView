@@ -127,7 +127,7 @@ def delete_citation(db_handle, handle, trans):
         repo.remove_citation_references(ctn_handle_list)
         db_handle.commit_repository(repo, trans)
 
-    db_handle.remove_citation(citation.get_handle(), trans)
+    db_handle.remove_citation(citation.handle, trans)
 
 
 def delete_media(db_handle, handle, trans):
@@ -145,8 +145,8 @@ def delete_media(db_handle, handle, trans):
         person = db_handle.get_person_from_handle(_handle)
         new_list = [
             photo
-            for photo in person.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in person.media_list
+            if photo.source_handle != handle
         ]
         person.set_media_list(new_list)
         db_handle.commit_person(person, trans)
@@ -155,8 +155,8 @@ def delete_media(db_handle, handle, trans):
         family = db_handle.get_family_from_handle(_handle)
         new_list = [
             photo
-            for photo in family.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in family.media_list
+            if photo.source_handle != handle
         ]
         family.set_media_list(new_list)
         db_handle.commit_family(family, trans)
@@ -165,8 +165,8 @@ def delete_media(db_handle, handle, trans):
         event = db_handle.get_event_from_handle(_handle)
         new_list = [
             photo
-            for photo in event.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in event.media_list
+            if photo.source_handle != handle
         ]
         event.set_media_list(new_list)
         db_handle.commit_event(event, trans)
@@ -175,8 +175,8 @@ def delete_media(db_handle, handle, trans):
         place = db_handle.get_place_from_handle(_handle)
         new_list = [
             photo
-            for photo in place.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in place.media_list
+            if photo.source_handle != handle
         ]
         place.set_media_list(new_list)
         db_handle.commit_place(place, trans)
@@ -185,8 +185,8 @@ def delete_media(db_handle, handle, trans):
         source = db_handle.get_source_from_handle(_handle)
         new_list = [
             photo
-            for photo in source.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in source.media_list
+            if photo.source_handle != handle
         ]
         source.set_media_list(new_list)
         db_handle.commit_source(source, trans)
@@ -195,8 +195,8 @@ def delete_media(db_handle, handle, trans):
         citation = db_handle.get_citation_from_handle(_handle)
         new_list = [
             photo
-            for photo in citation.get_media_list()
-            if photo.get_reference_handle() != handle
+            for photo in citation.media_list
+            if photo.source_handle != handle
         ]
         citation.set_media_list(new_list)
         db_handle.commit_citation(citation, trans)
@@ -218,7 +218,7 @@ def delete_note(db_handle, handle, trans):
         repo_list,
     ) = get_note_referents(handle, db_handle)
 
-    note_handle = note.get_handle()
+    note_handle = note.handle
 
     for _handle in person_list:
         person = db_handle.get_person_from_handle(_handle)

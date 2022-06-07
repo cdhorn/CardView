@@ -85,7 +85,7 @@ class CitationAction(GrampsAction):
         """
         if focus and callback is None:
             callback = lambda x: self.pivot_focus(x, "Citation")
-        source_handle = self.action_object.obj.get_reference_handle()
+        source_handle = self.action_object.obj.source_handle
         if source_handle:
             source = self.db.get_source_from_handle(source_handle)
         else:
@@ -159,7 +159,7 @@ class CitationAction(GrampsAction):
         if isinstance(obj_or_handle, str):
             source_handle = obj_or_handle
         else:
-            source_handle = obj_or_handle.get_handle()
+            source_handle = obj_or_handle.handle
         self.action_object = GrampsObject(Citation())
         self.action_object.obj.set_reference_handle(source_handle)
         self._edit_citation(callback=self.added_citation)
@@ -176,9 +176,7 @@ class CitationAction(GrampsAction):
         if selection:
             if isinstance(selection, Source):
                 self.action_object = GrampsObject(Citation())
-                self.action_object.obj.set_reference_handle(
-                    selection.get_handle()
-                )
+                self.action_object.obj.set_reference_handle(selection.handle)
             elif isinstance(selection, Citation):
                 self.action_object = GrampsObject(selection)
             self._edit_citation(callback=self.added_citation)
@@ -263,7 +261,7 @@ class CitationAction(GrampsAction):
             )
         active_target_object.save_hash()
         active_target_object.obj.remove_citation_references(
-            [self.action_object.obj.get_handle()]
+            [self.action_object.obj.handle]
         )
         active_target_object.sync_hash(self.grstate)
         self.target_object.commit(self.grstate, message)

@@ -76,7 +76,7 @@ class NameFrame(SecondaryFrame):
         else:
             title = ": ".join((_("Alternate"), name_type))
         label = self.get_link(
-            title, "Person", obj.get_handle(), callback=self.switch_name_page
+            title, "Person", obj.handle, callback=self.switch_name_page
         )
         self.widgets["title"].pack_start(label, False, False, 0)
 
@@ -85,8 +85,8 @@ class NameFrame(SecondaryFrame):
         Add given name with title if there is one.
         """
         given_name = name.get_regular_name()
-        if name.get_title():
-            given_name = " ".join((name.get_title(), given_name))
+        if name.title:
+            given_name = " ".join((name.title, given_name))
         self.add_fact(
             self.get_label(given_name), label=self.get_label(_("Given"))
         )
@@ -95,9 +95,9 @@ class NameFrame(SecondaryFrame):
         """
         Add call name if there is one.
         """
-        if name.get_call_name():
+        if name.call:
             self.add_fact(
-                self.get_label(name.get_call_name()),
+                self.get_label(name.call),
                 label=self.get_label(_("Call Name")),
             )
 
@@ -105,9 +105,9 @@ class NameFrame(SecondaryFrame):
         """
         Add nick name if there is one.
         """
-        if name.get_nick_name():
+        if name.nick:
             self.add_fact(
-                self.get_label(name.get_nick_name()),
+                self.get_label(name.nick),
                 label=self.get_label(_("Nick Name")),
             )
 
@@ -135,9 +135,9 @@ class NameFrame(SecondaryFrame):
         """
         Add family_nick name if there is one.
         """
-        if name.get_family_nick_name():
+        if name.famnick:
             self.add_fact(
-                self.get_label(name.get_family_nick_name()),
+                self.get_label(name.famnick),
                 label=self.get_label(_("Family Nick Name")),
             )
 
