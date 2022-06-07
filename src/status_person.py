@@ -688,7 +688,7 @@ def get_citation_metrics(db, obj):
         total_confidence = total_confidence + citation.confidence
         if citation.confidence > highest_confidence:
             highest_confidence = citation.confidence
-    return len(citations), total_confidence, highest_confidence
+    return len(obj.citation_list), total_confidence, highest_confidence
 
 
 # ------------------------------------------------------------------------
