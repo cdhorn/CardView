@@ -185,7 +185,7 @@ class TagView(ListView):
     DEL_MSG = _("Delete the selected tag")
 
     FILTER_TYPE = "Tag"
-    QR_CATEGORY = CATEGORY_QR_NOTE
+    QR_CATEGORY = -1
 
     def __init__(self, pdata, dbstate, uistate, nav_group=0):
 
