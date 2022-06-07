@@ -356,23 +356,21 @@ class CardView(GlobalNavigationView):
         """
         Reset page if database changed.
         """
-        if not isinstance(db, DummyDb):
-            self._change_db(db)
-            self.uistate.modify_statusbar(self.dbstate)
-            self.uistate.status.pop(self.uistate.status_id)
-            self.uistate.status.push(
-                self.uistate.status_id, _("No active object")
-            )
-            self.current_context = None
-            self._init_history = False
-            self._init_methods()
-            if self.active:
-                self.bookmarks.redraw()
-            WindowService().close_all_windows()
-            self.history.clear()
-            self.image_service.get_thumbnail_image.cache_clear()
-            self._load_config()
+        self._change_db(db)
+        self._clear_current_view()
+        if self.active:
+            self.bookmarks.redraw()
+        WindowService().close_all_windows()
+        self.current_context = None
+        self._init_methods()
+        self.history.clear()
+        self._init_history = False
+        self.image_service.get_thumbnail_image.cache_clear()
+        self._load_config()
+        if self.active:
             self.build_tree()
+        else:
+            self.dirty = True
 
     def change_page(self):
         """
@@ -399,7 +397,7 @@ class CardView(GlobalNavigationView):
         """
         self.dirty = True
         if self.active:
-            active_object = self.get_active()
+            active_object = self.history.present()
             if active_object:
                 self.change_object(active_object)
             else:
