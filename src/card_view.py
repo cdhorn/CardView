@@ -358,6 +358,12 @@ class CardView(GlobalNavigationView):
         """
         if not isinstance(db, DummyDb):
             self._change_db(db)
+            self.uistate.modify_statusbar(self.dbstate)
+            self.uistate.status.pop(self.uistate.status_id)
+            self.uistate.status.push(
+                self.uistate.status_id, _("No active object")
+            )
+            self.current_context = None
             self._init_history = False
             self._init_methods()
             if self.active:
@@ -522,6 +528,8 @@ class CardView(GlobalNavigationView):
         """
         Called when the page is displayed.
         """
+        if not self.dbstate.is_open():
+            return
         if not self._init_history:
             self._get_initial_object()
         GlobalNavigationView.set_active(self)
