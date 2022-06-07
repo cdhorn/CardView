@@ -223,7 +223,7 @@ class GlobalNavigationView(PageView):
                 category_index = viewmanager.get_category(category_name)
                 category_views = viewmanager.get_views()[category_index]
                 if category_views:
-                    for (view_index, (view_plugin, view_class)) in enumerate(
+                    for (view_index, (view_plugin, _view_class)) in enumerate(
                         category_views
                     ):
                         if self.navigation_group_key() in view_plugin.id:

@@ -173,10 +173,10 @@ class ConfigTemplates(Gtk.HBox):
         self.template_list.connect("cursor-changed", self._toggle_buttons)
         self.pack_start(self.template_list, 0, 0, 0)
         grid = Gtk.Grid(hexpand=False, vexpand=False)
-        add_button(grid, 0, _("View Changes"), self.cb_changes_clicked)
-        add_button(grid, 1, _("Copy Template"), self.cb_copy_clicked)
-        add_button(grid, 2, _("Edit Attributes"), self.cb_info_clicked)
-        add_button(grid, 3, _("Edit Template"), self.cb_edit_clicked)
+        add_button(grid, 0, _("Edit Template"), self.cb_edit_clicked)
+        add_button(grid, 1, _("Rename Template"), self.cb_rename_clicked)
+        add_button(grid, 2, _("View Changes"), self.cb_changes_clicked)
+        add_button(grid, 3, _("Copy Template"), self.cb_copy_clicked)
         remove = add_button(
             grid, 4, _("Remove Template"), self.cb_remove_clicked
         )
@@ -321,9 +321,9 @@ class ConfigTemplates(Gtk.HBox):
         self.selected = new_name
         self._load_layout()
 
-    def cb_info_clicked(self, button):
+    def cb_rename_clicked(self, button):
         """
-        Edit the template name and description.
+        Edit the template name and description possibly renaming it.
         """
         store, iter_ = self.template_model.get_selected()
         if iter_ is None:
