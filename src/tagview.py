@@ -83,14 +83,12 @@ class TagModel(FlatBaseModel):
         self.gen_cursor = db.get_tag_cursor
         self.map = db.get_raw_tag_data
         self.fmap = [
-            self.column_handle,
             self.column_name,
             self.column_color,
             self.column_priority,
             self.column_change,
         ]
         self.smap = [
-            self.column_handle,
             self.column_name,
             self.column_color,
             self.column_priority,
@@ -122,7 +120,7 @@ class TagModel(FlatBaseModel):
         """
         Return the color column.
         """
-        return 2
+        return 1
 
     def on_get_n_columns(self):
         """Return the column number of the Tag tab."""
@@ -163,14 +161,13 @@ class TagView(ListView):
     TagView, a normal flat listview for the tags
     """
 
-    COL_NAME = 1
-    COL_COLO = 2
-    COL_PRIO = 3
-    COL_CHAN = 4
+    COL_NAME = 0
+    COL_COLO = 1
+    COL_PRIO = 2
+    COL_CHAN = 3
 
     # column definitions
     COLUMNS = [
-        (_("Handle"), TEXT, None),
         (_("Name"), TEXT, None),
         (_("Color"), TEXT, None),
         (_("Priority"), TEXT, None),
