@@ -191,6 +191,8 @@ GROUP_LABELS = {
     "timeline": _("Timeline"),
     "source": _("Sources"),
     "url": _("Urls"),
+    "paternal": _("Paternal Lineage"),
+    "maternal": _("Maternal Lineage"),
 }
 
 GROUP_LABELS_SINGLE = {
@@ -219,6 +221,8 @@ GROUP_LABELS_SINGLE = {
     "timeline": _("Timeline"),
     "source": _("Source"),
     "url": _("Url"),
+    "paternal": _("Paternal Lineage"),
+    "maternal": _("Maternal Lineage"),
 }
 
 

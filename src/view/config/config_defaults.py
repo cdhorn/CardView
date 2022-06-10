@@ -85,6 +85,7 @@ VIEWDEFAULTS = (
         "display.default-background-color",
         ["#eeeeee", "#454545"],
     ),
+    ("display.default-foreground-color", ["#454545", "#eeeeee"]),
     ("display.use-color-scheme", True),
     ("display.use-smaller-title-font", True),
     ("display.use-smaller-detail-font", True),
@@ -471,6 +472,14 @@ VIEWDEFAULTS = (
     ("group.person.rfield-8", "None"),
     ("group.person.rfield-9", "None"),
     ("group.person.rfield-10", "None"),
+    ######################################################################
+    ## Paternal Options
+    ######################################################################
+    ("group.paternal.display-mode", 1),
+    ######################################################################
+    ## Maternal Options
+    ######################################################################
+    ("group.maternal.display-mode", 1),
     ######################################################################
     ## Parent Options
     ######################################################################
@@ -1026,9 +1035,13 @@ VIEWDEFAULTS = (
     ("layout.person.scrolled", False),
     (
         "layout.person.groups",
-        "parent,event,timeline,ldsord,spouse,name,attribute,association,"
-        "citation,address,url,note,media,reference",
+        "paternal,maternal,parent,event,timeline,ldsord,spouse,name,"
+        "attribute,association,citation,address,url,note,media,reference",
     ),
+    ("layout.person.paternal.visible", False),
+    ("layout.person.paternal.append", False),
+    ("layout.person.maternal.visible", False),
+    ("layout.person.maternal.append", False),
     ("layout.person.parent.visible", True),
     ("layout.person.parent.append", False),
     ("layout.person.event.visible", False),

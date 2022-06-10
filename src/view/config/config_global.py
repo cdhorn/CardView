@@ -105,7 +105,7 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     add_color(
         grstate.config,
         grid,
-        _("Focal object light themed highlight color"),
+        _("Focal object highlight color light scheme"),
         "display.focal-object-color",
         (13, 1),
         0,
@@ -113,7 +113,7 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     add_color(
         grstate.config,
         grid,
-        _("Focal object dark themed highlight color"),
+        _("Focal object highlight color dark scheme"),
         "display.focal-object-color",
         (14, 1),
         1,
@@ -121,7 +121,7 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     add_color(
         grstate.config,
         grid,
-        _("Default frame light themed background color"),
+        _("Default card background color light scheme"),
         "display.default-background-color",
         (15, 1),
         0,
@@ -129,53 +129,69 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     add_color(
         grstate.config,
         grid,
-        _("Default frame dark themed background color"),
+        _("Default card background color dark scheme"),
         "display.default-background-color",
         (16, 1),
+        1,
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Default card foreground color light scheme"),
+        "display.default-foreground-color",
+        (17, 1),
+        0,
+    )
+    add_color(
+        grstate.config,
+        grid,
+        _("Default card foreground color dark scheme"),
+        "display.default-foreground-color",
+        (18, 1),
         1,
     )
     configdialog.add_checkbox(
         grid,
         _("Enable coloring schemes"),
-        17,
+        19,
         "display.use-color-scheme",
     )
     configdialog.add_checkbox(
         grid,
         _("Use a smaller font for titles"),
-        18,
+        20,
         "display.use-smaller-title-font",
     )
     configdialog.add_checkbox(
         grid,
         _("Use a smaller font for details"),
-        19,
+        21,
         "display.use-smaller-detail-font",
     )
     configdialog.add_checkbox(
         grid,
         _("Use smaller icons"),
-        20,
+        22,
         "display.use-smaller-icons",
     )
     configdialog.add_spinner(
         grid,
         _("Desired border width"),
-        21,
+        23,
         "display.border-width",
         (0, 3),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum icons to show per line in header frames."),
-        22,
+        24,
         "display.icons-active-width",
         (1, 40),
     )
     configdialog.add_spinner(
         grid,
         _("Maximum icons to show per line in group frames."),
-        23,
+        25,
         "display.icons-group-width",
         (1, 40),
     )

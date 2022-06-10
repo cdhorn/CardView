@@ -702,3 +702,19 @@ def get_initial_object(db, obj_type=None):
         if handles:
             return (obj_type, handles[0], None, None, None, None)
     return None
+
+
+def prepare_markup(config, key="detail", scheme=0):
+    """
+    Prepare text markup string.
+    """
+    if config.get("display.use-smaller-%s-font" % key):
+        size = "small"
+    else:
+        size = "normal"
+
+    foreground = config.get("display.default-foreground-color")
+    return '<span foreground="%s" size="%s">{}</span>' % (
+        foreground[scheme],
+        size,
+    )

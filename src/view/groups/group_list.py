@@ -86,10 +86,10 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
                         [gramps_frame.focus.dnd_type.target()],
                         Gdk.DragAction.COPY | Gdk.DragAction.MOVE,
                     )
-            self.row_frames.append(gramps_frame)
-            row = Gtk.ListBoxRow(selectable=False)
-            row.add(self.row_frames[-1])
-            self.add(row)
+        self.row_frames.append(gramps_frame)
+        row = Gtk.ListBoxRow(selectable=False)
+        row.add(self.row_frames[-1])
+        self.add(row)
 
     def on_drag_data_received(
         self,

@@ -82,6 +82,8 @@ from .config_objects import (
     build_place_grid,
     build_repository_grid,
     build_source_grid,
+    build_paternal_grid,
+    build_maternal_grid,
 )
 from .config_timeline import (
     build_family_timeline_grid,
@@ -160,6 +162,19 @@ def build_object_panel(configdialog, grstate, space):
     notebook.append_deferred_page(
         Gtk.Label(label=_("Association")), render_page
     )
+    if "group" in space:
+        render_page = lambda: build_paternal_grid(
+            configdialog, grstate, space, "paternal"
+        )
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Paternal Lineage")), render_page
+        )
+        render_page = lambda: build_maternal_grid(
+            configdialog, grstate, space, "maternal"
+        )
+        notebook.append_deferred_page(
+            Gtk.Label(label=_("Maternal Lineage")), render_page
+        )
     render_page = lambda: build_family_grid(configdialog, grstate, space)
     notebook.append_deferred_page(Gtk.Label(label=_("Family")), render_page)
     render_page = lambda: build_event_grid(configdialog, grstate, space)

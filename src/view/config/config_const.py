@@ -162,6 +162,12 @@ REF_DISPLAY_MODES = [
     (4, _("Display on bottom")),
 ]
 
+LINEAGE_DISPLAY_MODES = [
+    (0, _("Compact")),
+    (1, _("Horizontally")),
+    (2, _("Vertically")),
+]
+
 CATEGORIES = {
     "Person": "People",
     "Relationship": "Relationships",

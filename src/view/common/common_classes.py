@@ -48,6 +48,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.db import DbTxn
 from gramps.gen.errors import HandleError
@@ -77,6 +78,7 @@ from .common_utils import (
     find_reference,
     find_secondary_object,
     get_config_option,
+    prepare_markup,
 )
 
 _ = glocale.translation.sgettext
@@ -767,14 +769,12 @@ class GrampsConfig:
     def __init__(self, grstate, groptions):
         self.grstate = grstate
         self.groptions = groptions
-        if self.grstate.config.get("display.use-smaller-detail-font"):
-            self.detail_markup = "<small>{}</small>"
-        else:
-            self.detail_markup = "{}"
-        if self.grstate.config.get("display.use-smaller-title-font"):
-            self.title_markup = "<small>{}</small>"
-        else:
-            self.title_markup = "{}"
+
+        scheme = global_config.get("colors.scheme")
+        self.detail_markup = prepare_markup(grstate.config, scheme=scheme)
+        self.title_markup = prepare_markup(
+            grstate.config, key="title", scheme=scheme
+        )
         self.fetch = self.grstate.fetch
 
     def get_option(self, key, full=True):

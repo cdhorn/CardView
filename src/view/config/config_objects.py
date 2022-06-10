@@ -54,6 +54,7 @@ from .config_const import (
     HELP_CONFIG_ACTIVE_OBJECT,
     HELP_CONFIG_OBJECT_GROUPS,
     IMAGE_DISPLAY_MODES,
+    LINEAGE_DISPLAY_MODES,
     MEDIA_DISPLAY_MODES,
     REF_DISPLAY_MODES,
     SEX_DISPLAY_MODES,
@@ -930,4 +931,40 @@ def build_event_grid(configdialog, grstate, space, *_dummy_context):
     )
     return add_config_buttons(
         configdialog, grstate, "{}.event".format(space), grid, get_help(space)
+    )
+
+
+def build_paternal_grid(configdialog, grstate, space, *_dummy_context):
+    """
+    Builds paternal options section for the configuration dialog.
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Family display format"),
+        1,
+        "group.paternal.display-mode",
+        LINEAGE_DISPLAY_MODES,
+    )
+    return add_config_buttons(
+        configdialog, grstate, "group.paternal", grid, get_help(space)
+    )
+
+
+def build_maternal_grid(configdialog, grstate, space, *_dummy_context):
+    """
+    Builds maternal options section for the configuration dialog.
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, DISPLAY_OPTIONS, 0, bold=True)
+    configdialog.add_combo(
+        grid,
+        _("Family display format"),
+        1,
+        "group.maternal.display-mode",
+        LINEAGE_DISPLAY_MODES,
+    )
+    return add_config_buttons(
+        configdialog, grstate, "group.maternal", grid, get_help(space)
     )

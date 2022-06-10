@@ -38,6 +38,7 @@ from .group_addresses import AddressesFrameGroup
 from .group_associations import AssociationsFrameGroup
 from .group_attributes import AttributesFrameGroup
 from .group_citations import CitationsFrameGroup
+from .group_lineage import PaternalLineageFrameGroup, MaternalLineageFrameGroup
 from .group_media import MediaFrameGroup
 from .group_names import NamesFrameGroup
 from .group_notes import NotesFrameGroup
@@ -121,5 +122,15 @@ GRAMPS_GROUPS = {
         UrlsFrameGroup,
         _("Url"),
         _("Urls"),
+    ),
+    "paternal": (
+        PaternalLineageFrameGroup,
+        _("Paternal Lineage"),
+        _("Paternal Lineage"),
+    ),
+    "maternal": (
+        MaternalLineageFrameGroup,
+        _("Maternal Lineage"),
+        _("Maternal Lineage"),
     ),
 }

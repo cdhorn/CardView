@@ -41,6 +41,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
@@ -48,7 +49,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..common.common_utils import get_bookmarks, pack_icon
+from ..common.common_utils import get_bookmarks, pack_icon, prepare_markup
 
 _ = glocale.translation.sgettext
 
@@ -125,10 +126,9 @@ def add_gramps_id(widget, config, gramps_id):
     Add the gramps id if needed.
     """
     if config.get("indicator.gramps-ids"):
-        if config.get("display.use-smaller-detail-font"):
-            text = "<small>{}</small>".format(escape(gramps_id))
-        else:
-            text = escape(gramps_id)
+        scheme = global_config.get("colors.scheme")
+        markup = prepare_markup(config, scheme=scheme)
+        text = markup.format(escape(gramps_id))
         widget.pack_end(
             Gtk.Label(use_markup=True, label=text), False, False, 0
         )

@@ -46,6 +46,7 @@ register(
     authors=["The Gramps project"],
     authors_email=["http://gramps-project.org"],
     category=("Tags", _("Tags")),
+    stock_icon="gramps-tag",
     viewclass="TagView",
     order=START,
 )

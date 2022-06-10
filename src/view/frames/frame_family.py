@@ -266,11 +266,14 @@ class FamilyFrame(PrimaryFrame):
         if self.family.mother_handle:
             mother = self.fetch("Person", self.family.mother_handle)
 
-        partner1 = father
-        partner2 = mother
-        if not partner1:
-            partner1 = mother
-            partner2 = None
+        if self.groptions.maternal_mode:
+            partner1, partner2 = mother, father
+            if not partner1:
+                partner1, partner2 = father, None
+        else:
+            partner1, partner2 = father, mother
+            if not partner1:
+                partner1, partner2 = mother, None
         return partner1, partner2
 
     def add_custom_actions(self, context_menu):

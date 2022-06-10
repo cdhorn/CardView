@@ -37,6 +37,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.utils.alive import probably_alive
@@ -104,19 +105,31 @@ class PersonFrame(ReferenceFrame):
         if self.groptions.frame_number:
             label = Gtk.Label(
                 use_markup=True,
-                label=self.detail_markup.format(
+                label=self.title_markup.format(
                     "".join((str(self.groptions.frame_number), ". "))
                 ),
             )
             name_box.pack_start(label, False, False, 0)
         if self.get_option("sex-mode") == 1:
             name_box.pack_start(
-                Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
+                Gtk.Label(
+                    use_markup=True,
+                    label=self.title_markup.format(_GENDERS[person.gender]),
+                ),
+                False,
+                False,
+                0,
             )
         name_box.pack_start(name, False, False, 0)
         if self.get_option("sex-mode") == 2:
             name_box.pack_start(
-                Gtk.Label(label=_GENDERS[person.gender]), False, False, 0
+                Gtk.Label(
+                    use_markup=True,
+                    label=self.title_markup.format(_GENDERS[person.gender]),
+                ),
+                False,
+                False,
+                0,
             )
         self.widgets["title"].pack_start(name_box, True, True, 0)
 
