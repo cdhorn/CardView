@@ -82,7 +82,7 @@ CATEGORIES = {
 }
 
 CATEGORIES_LANG = {
-    "Global": _("Global"),
+    "Global": _("All objects"),
     "Person": _("People"),
     "Family": _("Families"),
     "Event": _("Events"),
@@ -159,7 +159,7 @@ class LastChanged(Gramplet):
         """
         Set up the GUI
         """
-        self.current_view = Gtk.VBox()
+        self.current_view = Gtk.VBox(vexpand=True)
         self.gui.get_container_widget().remove(self.gui.textview)
         self.gui.get_container_widget().add_with_viewport(self.current_view)
         self.change_service = LastChangedService(self.dbstate, self.uistate)
@@ -288,6 +288,8 @@ class LastChanged(Gramplet):
         list(map(self.current_view.remove, self.current_view.get_children()))
         if self.dbstate.is_open() and self.uistate.viewmanager.active_page:
             nav_type = self.uistate.viewmanager.active_page.navigation_type()
+            if not nav_type:
+                nav_type = "Global"
             self.render_stacked_mode(nav_type, CATEGORIES)
         self.current_view.show_all()
         yield False
