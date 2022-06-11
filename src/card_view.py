@@ -86,10 +86,7 @@ class CardView(GlobalNavigationView):
     A browseable card based view across all the associated objects in a tree.
     """
 
-    CONFIGSETTINGS = (
-        ("templates.active", "Default"),
-        ("templates.templates", ["Default"]),
-    )
+    CONFIGSETTINGS = (("templates.active", "Default"),)
 
     additional_ui = []
 
@@ -245,7 +242,7 @@ class CardView(GlobalNavigationView):
         """
         Return the default Gramplets.
         """
-        return (("LastChanged",), ())
+        return ((), ())
 
     def reload_config(self, refresh_only=False):
         """

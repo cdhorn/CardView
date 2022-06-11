@@ -85,7 +85,7 @@ class FrameGroupWindow(ManagedWindow):
             self.base_title = "".join(
                 (working_title, ": ", GROUP_LABELS[self.group_type])
             )
-        prefix = ".".join(("interface.linked-view.group", self.group_type))
+        prefix = "interface.cardview.group-%s-window" % self.group_type
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
 
         group_args = {"raw": True, "title": self.base_title}

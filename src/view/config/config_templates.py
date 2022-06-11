@@ -33,16 +33,15 @@ import os
 #
 # -------------------------------------------------------------------------
 from gi.repository import Gtk
-from gramps.gen.config import config as configman
 
 # -------------------------------------------------------------------------
 #
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
+from gramps.gen.config import config as configman
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.plug import BasePluginManager
 from gramps.gui.dialog import ErrorDialog, QuestionDialog2
 from gramps.gui.display import display_url
 from gramps.gui.listmodel import NOSORT, TOGGLE, ListModel
@@ -54,7 +53,8 @@ from gramps.gui.managedwindow import ManagedWindow
 #
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsState
-from .config_const import BASE_TEMPLATE_NAME, HELP_CONFIG_TEMPLATES
+from ..services.service_templates import TemplatesService
+from .config_const import HELP_CONFIG_TEMPLATES
 from .config_defaults import VIEWDEFAULTS
 from .config_layout import build_layout_grid
 from .config_panel import (
@@ -63,7 +63,6 @@ from .config_panel import (
     build_object_panel,
     build_timeline_panel,
 )
-from .config_profile import get_base_template_options, load_user_ini_file
 from .configure_dialog import ModifiedConfigureDialog
 
 _ = glocale.translation.sgettext
@@ -105,7 +104,9 @@ class ConfigTemplatesDialog(ModifiedConfigureDialog):
             dialogtitle=dialogtitle,
             on_close=on_close,
         )
-        self.setup_configs("interface.viewconfiguredialog", 420, 500)
+        self.setup_configs(
+            "interface.cardview.view-configuration-dialog", 420, 500
+        )
 
     def build_menu_names(self, obj):
         return (self.title, self.title)
@@ -127,34 +128,11 @@ class ConfigTemplates(Gtk.HBox):
         self.configdialog = configdialog
         self.grstate = grstate
         self.selected = None
-        self.config_managers = {}
+        self.templates_service = TemplatesService(self.grstate.dbstate)
         self.template_list = None
         self.template_model = None
-        self._load_plugins()
-        self.remove_button, self.delete_button = self._build_layout()
+        self.delete_button = self._build_layout()
         self._load_layout()
-
-    def _load_plugins(self):
-        """
-        Make sure each plugin has a user template.
-        """
-        plugin_manager = BasePluginManager.get_instance()
-        plugin_manager.load_plugin_category("TEMPLATE")
-        plugin_data = plugin_manager.get_plugin_data("TEMPLATE")
-        template_list = self.grstate.templates.get("templates.templates")
-        for plugin in plugin_data:
-            template_name = plugin["name"]
-            if template_name not in template_list:
-                user_ini_file = "_".join(
-                    (BASE_TEMPLATE_NAME, "template", template_name)
-                )
-                load_user_ini_file(
-                    user_ini_file, default_base_name=template_name
-                )
-                template_list.append(template_name)
-        template_list.sort()
-        self.grstate.templates.set("templates.templates", template_list)
-        self.grstate.templates.save()
 
     def _build_layout(self):
         """
@@ -164,8 +142,8 @@ class ConfigTemplates(Gtk.HBox):
             (_("Active"), NOSORT, 50, TOGGLE, True, self.cb_set_active),
             (_("Name"), NOSORT, 80),  # Lang
             (_("Description"), NOSORT, 200),
-            (_("Normal Defaults"), NOSORT, 120),
-            (_("Active Defaults"), NOSORT, 120),
+            (_("Normal Baseline"), NOSORT, 120),
+            (_("Active Baseline"), NOSORT, 120),
             ("", NOSORT, 0),  # Untranslated Name
         ]
         self.template_list = Gtk.TreeView()
@@ -174,42 +152,42 @@ class ConfigTemplates(Gtk.HBox):
         self.pack_start(self.template_list, 0, 0, 0)
         grid = Gtk.Grid(hexpand=False, vexpand=False)
         add_button(grid, 0, _("Edit Template"), self.cb_edit_clicked)
-        add_button(grid, 1, _("Rename Template"), self.cb_rename_clicked)
-        add_button(grid, 2, _("View Changes"), self.cb_changes_clicked)
-        add_button(grid, 3, _("Copy Template"), self.cb_copy_clicked)
-        remove = add_button(
-            grid, 4, _("Remove Template"), self.cb_remove_clicked
-        )
+        add_button(grid, 1, _("View Changes"), self.cb_changes_clicked)
+        add_button(grid, 2, _("Copy Template"), self.cb_copy_clicked)
+        add_button(grid, 3, _("Rename Template"), self.cb_rename_clicked)
         delete = add_button(
-            grid, 5, _("Delete Template"), self.cb_delete_clicked
+            grid, 4, _("Delete Template"), self.cb_delete_clicked
         )
-        add_button(grid, 6, _("Import Template"), self.cb_import_clicked)
-        add_button(grid, 7, _("Help"), self.cb_help_clicked)
+        add_button(grid, 5, _("Import Template"), self.cb_import_clicked)
+        add_button(grid, 6, _("Help"), self.cb_help_clicked)
         self.pack_start(grid, 0, 0, 0)
-        return remove, delete
+        return delete
 
     def _load_layout(self):
         """
         Load the layout.
         """
         active_template = self.grstate.templates.get("templates.active")
-        name_list = self.grstate.templates.get("templates.templates")
-        templates = get_templates(name_list)
+        templates = self.templates_service.get_templates()
+        templates.sort(key=lambda x: x["lang_string"])
         self.template_model.clear()
-        self.config_managers.clear()
-        for row in sorted(templates):
-            (lang, name, desc, ini, normal, active) = row
-            if name == active_template:
-                self.template_model.add(
-                    (True, lang, desc, normal, active, name)
-                )
+        for template in templates:
+            if template["xml_string"] == active_template:
+                flag = True
                 if not self.selected:
-                    self.selected = name
+                    self.selected = template["xml_string"]
             else:
-                self.template_model.add(
-                    (False, lang, desc, normal, active, name)
+                flag = False
+            self.template_model.add(
+                (
+                    flag,
+                    template["lang_string"],
+                    template["description"],
+                    template["normal_baseline"],
+                    template["active_baseline"],
+                    template["xml_string"],
                 )
-            self.config_managers.update({name: ini})
+            )
         self._select_active()
         self.template_list.show()
         self.template_list.columns_autosize()
@@ -230,8 +208,9 @@ class ConfigTemplates(Gtk.HBox):
         if not iter_:
             iter_ = iter_active
         selection = self.template_list.get_selection()
-        selection.select_iter(iter_)
-        self.selected = store.get_value(iter_, 5)
+        if selection:
+            selection.select_iter(iter_)
+            self.selected = store.get_value(iter_, 5)
         self._toggle_buttons()
 
     def _toggle_buttons(self, *_dummy_args):
@@ -243,10 +222,8 @@ class ConfigTemplates(Gtk.HBox):
             return
 
         if store.get_value(iter_, 5) == "Default":
-            self.remove_button.set_sensitive(False)
             self.delete_button.set_sensitive(False)
         else:
-            self.remove_button.set_sensitive(True)
             self.delete_button.set_sensitive(True)
 
     def cb_set_active(self, *args):
@@ -263,77 +240,6 @@ class ConfigTemplates(Gtk.HBox):
         self._load_layout()
         self.grstate.reload_config(refresh_only=False)
 
-    def cb_copy_clicked(self, button):
-        """
-        Create a new template by copying from selected one.
-        """
-        store, iter_ = self.template_model.get_selected()
-        if iter_ is None:
-            return
-
-        base_name = store.get_value(iter_, 5)
-        base_ini = self.config_managers[base_name]
-        self.create_template(base_ini)
-
-    def create_template(self, base_ini):
-        """
-        Create new template copy from old.
-        """
-        editor = EditTemplateName(self.grstate.uistate, [], "", "")
-        result = editor.run()
-        if not isinstance(result, tuple):
-            return
-        (new_name, new_description) = result
-        if not new_name:
-            return
-        template_list = self.grstate.templates.get("templates.templates")
-        if new_name in template_list:
-            return
-
-        new_template = get_template(new_name)
-        (
-            dummy_lang,
-            dummy_name,
-            dummy_description,
-            new_ini,
-            dummy_normal,
-            dummy_active,
-        ) = new_template
-        for section in base_ini.get_sections():
-            for setting in base_ini.get_section_settings(section):
-                key = ".".join((section, setting))
-                try:
-                    value = base_ini.get(key)
-                    default = base_ini.get_default(key)
-                except AttributeError:
-                    continue
-                new_ini.register(key, default)
-                new_ini.set(key, value)
-        new_ini.set("template.name_lang_string", new_name)
-        new_ini.set("template.name_xml_string", new_name)
-        new_ini.set("template.name_description", new_description)
-        new_ini.save()
-
-        template_list.append(new_name)
-        template_list.sort()
-        self.grstate.templates.set("templates.templates", template_list)
-        self.grstate.templates.save()
-        self.selected = new_name
-        self._load_layout()
-
-    def cb_rename_clicked(self, button):
-        """
-        Edit the template name and description possibly renaming it.
-        """
-        store, iter_ = self.template_model.get_selected()
-        if iter_ is None:
-            return
-
-        name = store.get_value(iter_, 5)
-        description = store.get_value(iter_, 2)
-        ini = self.config_managers[name]
-        self._edit_template_info(ini, name, description)
-
     def cb_edit_clicked(self, button):
         """
         Edit the template options.
@@ -345,7 +251,10 @@ class ConfigTemplates(Gtk.HBox):
         lang = store.get_value(iter_, 1)
         title = " ".join((_("Template Editor:"), lang))
         name = store.get_value(iter_, 5)
-        template = self.config_managers[name]
+        (
+            _dummy_name,
+            template,
+        ) = self.templates_service.get_rebased_user_options(name)
         EditTemplateOptions(
             self.grstate,
             self.configdialog.track,
@@ -354,71 +263,58 @@ class ConfigTemplates(Gtk.HBox):
             refresh_only=False,
         )
 
-    def _edit_template_info(self, ini, name, description):
+    def cb_changes_clicked(self, button):
         """
-        Edit template name and description.
-        """
-        self.selected = name
-        editor = EditTemplateName(
-            self.grstate.uistate,
-            self.configdialog.track,
-            name,
-            description,
-        )
-        result = editor.run()
-        if isinstance(result, tuple):
-            (new_name, new_description) = result
-            ini.set("template.name_lang_string", new_name)
-            ini.set("template.name_xml_string", new_name)
-            ini.set("template.name_description", new_description)
-            ini.save()
-            self.rename_template(ini, name, new_name)
-            self._load_layout()
-
-    def rename_template(self, ini, old_name, new_name):
-        """
-        If name change rename file to keep it in sync.
-        """
-        if new_name != old_name:
-            old_filename = ini.filename
-            dirname = os.path.dirname(old_filename)
-            filename = "".join(
-                (BASE_TEMPLATE_NAME, "_template_", new_name, ".ini")
-            )
-            new_filename = os.path.join(dirname, filename)
-            os.replace(old_filename, new_filename)
-            ini.filename = new_filename
-
-            template_list = self.grstate.templates.get("templates.templates")
-            template_list.remove(old_name)
-            template_list.append(new_name)
-            template_list.sort()
-            self.grstate.templates.set("templates.templates", template_list)
-            self.grstate.templates.save()
-            self.selected = new_name
-
-    def cb_remove_clicked(self, button):
-        """
-        Remove the selected template.
+        View changes against defaults.
         """
         store, iter_ = self.template_model.get_selected()
         if iter_ is None:
             return
 
         name = store.get_value(iter_, 5)
-        if name == "Default":
+        TemplateChangeViewer(self.grstate, self.configdialog.track, name)
+
+    def cb_copy_clicked(self, button):
+        """
+        Create a new template by copying a selected one.
+        """
+        store, iter_ = self.template_model.get_selected()
+        if iter_ is None:
             return
 
-        name_lang = store.get_value(iter_, 1)
-        yes_no = QuestionDialog2(
-            _("Remove template '%s'?") % name_lang,
-            _("The template will be removed but not deleted from disk."),
-            _("Yes"),
-            _("No"),
+        base_name = store.get_value(iter_, 5)
+        used_names = self.templates_service.get_template_names()
+        new_name_dialog = GetNewTemplateNameDialog(
+            self.grstate.uistate,
+            self.configdialog.track,
+            used_names=used_names,
         )
-        prompt = yes_no.run()
-        if prompt:
-            self.remove_template(name)
+        new_name = new_name_dialog.run()
+        if isinstance(new_name, str):
+            self.templates_service.copy_template(base_name, new_name)
+            self.selected = base_name
+            self._load_layout()
+
+    def cb_rename_clicked(self, button):
+        """
+        Rename an existing template.
+        """
+        store, iter_ = self.template_model.get_selected()
+        if iter_ is None:
+            return
+
+        base_name = store.get_value(iter_, 5)
+        used_names = self.templates_service.get_template_names()
+        new_name_dialog = GetNewTemplateNameDialog(
+            self.grstate.uistate,
+            self.configdialog.track,
+            used_names=used_names,
+        )
+        new_name = new_name_dialog.run()
+        if isinstance(new_name, str):
+            self.templates_service.rename_template(base_name, new_name)
+            self.selected = new_name
+            self._load_layout()
 
     def cb_delete_clicked(self, button):
         """
@@ -441,25 +337,9 @@ class ConfigTemplates(Gtk.HBox):
         )
         prompt = yes_no.run()
         if prompt:
-            self.remove_template(name, delete=True)
-
-    def remove_template(self, name, delete=False):
-        """
-        Remove template and optionally delete from disk.
-        """
-        active_template = self.grstate.templates.get("templates.active")
-        if name == active_template:
-            self.grstate.templates.set("templates.active", "Default")
-        template_list = self.grstate.templates.get("templates.templates")
-        template_list.remove(name)
-        template_list.sort()
-        self.grstate.templates.set("templates.templates", template_list)
-        self.grstate.templates.save()
-        if delete:
-            ini = self.config_managers[name]
-            os.remove(ini.filename)
-        self.selected = None
-        self._load_layout()
+            self.templates_service.delete_template(name)
+            self.selected = None
+            self._load_layout()
 
     def cb_import_clicked(self, button):
         """
@@ -481,17 +361,6 @@ class ConfigTemplates(Gtk.HBox):
                 import_ini.load()
             self.create_template(import_ini)
 
-    def cb_changes_clicked(self, button):
-        """
-        View changes against defaults.
-        """
-        store, iter_ = self.template_model.get_selected()
-        if iter_ is None:
-            return
-
-        name = store.get_value(iter_, 5)
-        TemplateChangeViewer(self.grstate, name)
-
     def cb_help_clicked(self, button):
         """
         Launch template editor help
@@ -501,29 +370,24 @@ class ConfigTemplates(Gtk.HBox):
 
 # -------------------------------------------------------------------------
 #
-# EditTemplateName Class
+# GetNewTemplateName Class
 #
 # -------------------------------------------------------------------------
-class EditTemplateName(ManagedWindow):
+class GetNewTemplateNameDialog(ManagedWindow):
     """
-    A dialog to enable the user to edit a template name and description.
+    A dialog to get a new template name from a user.
     """
 
-    def __init__(self, uistate, track, name, description=""):
-        if name:
-            self.title = _("Template: %s") % name
-        else:
-            self.title = _("New Template")
+    def __init__(self, uistate, track, used_names=None):
+        self.title = _("New Template Name")
         ManagedWindow.__init__(
             self, uistate, track, self.__class__, modal=True
         )
         # the self.top.run() below makes Gtk make it modal, so any change to
         # the previous line's "modal" would require that line to be changed
         self.top = None
-        self.name = name
         self.name_entry = None
-        self.description = description
-        self.description_entry = None
+        self.used_names = used_names or []
 
     def build_menu_names(self, obj):  # this is meaningless while it's modal
         return (self.title, None)
@@ -534,7 +398,9 @@ class EditTemplateName(ManagedWindow):
         """
         self.top = self._create_dialog()
         self.set_window(self.top, None, self.title)
-        self.setup_configs("interface.edit_template", 320, 100)
+        self.setup_configs(
+            "interface.cardview.new-template-name-modal", 320, 100
+        )
         self.show()
         while True:
             # the self.top.run() makes Gtk make it modal, so any change to that
@@ -543,9 +409,8 @@ class EditTemplateName(ManagedWindow):
             if response == Gtk.ResponseType.OK:
                 name = self.name_entry.get_text()
                 if self.check_name_valid(name):
-                    description = self.description_entry.get_text() or ""
                     self.close()
-                    return (name, description)
+                    return name
             elif response == Gtk.ResponseType.CANCEL:
                 self.close()
                 return None
@@ -557,19 +422,17 @@ class EditTemplateName(ManagedWindow):
         """
         Sanity check the name entered.
         """
+        error_message = None
         if not name:
-            ErrorDialog(
-                _("Invalid name field"),
-                _("The name cannot be empty"),
-                parent=self.window,
+            error_message = _("The name cannot be empty")
+        elif not name.isalnum():
+            error_message = _(
+                "Only a single word with alphanumeric characters is permitted"
             )
-            return False
-        if not name.isalnum():
-            ErrorDialog(
-                _("Invalid name field"),
-                _("Only alphanumeric characters are permitted in the name"),
-                parent=self.window,
-            )
+        elif name in self.used_names:
+            error_message = _("The name is already in use")
+        if error_message:
+            ErrorDialog(_("Invalid name"), error_message, parent=self.window)
             return False
         return True
 
@@ -579,25 +442,12 @@ class EditTemplateName(ManagedWindow):
         """
         top = Gtk.Dialog(transient_for=self.parent_window)
         top.vbox.set_spacing(5)
-        group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
         hbox = Gtk.Box()
         top.vbox.pack_start(hbox, False, False, 10)
-        label = Gtk.Label(label=_("Template Name:"))
-        group.add_widget(label)
+        label = Gtk.Label(label=_("New Template Name:"))
         self.name_entry = Gtk.Entry()
-        if self.name:
-            self.name_entry.set_text(self.name)
         hbox.pack_start(label, False, False, 5)
         hbox.pack_start(self.name_entry, True, True, 5)
-        hbox = Gtk.Box()
-        top.vbox.pack_start(hbox, False, False, 10)
-        label = Gtk.Label(label=_("Description:"))
-        group.add_widget(label)
-        self.description_entry = Gtk.Entry()
-        if self.description:
-            self.description_entry.set_text(self.description)
-        hbox.pack_start(label, False, False, 5)
-        hbox.pack_start(self.description_entry, True, True, 5)
         top.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
         top.add_button(_("_OK"), Gtk.ResponseType.OK)
         return top
@@ -755,7 +605,9 @@ class ImportTemplateSelector(ManagedWindow):
             Gtk.ResponseType.OK,
         )
         self.set_window(import_dialog, None, self.title)
-        self.setup_configs("interface.linked-view.import-template", 780, 630)
+        self.setup_configs(
+            "interface.cardview.import-template-modal", 780, 630
+        )
         import_dialog.set_local_only(False)
 
         file_filter = Gtk.FileFilter()
@@ -832,35 +684,29 @@ class TemplateChangeViewer(ManagedWindow):
     Display differences between default, template and active database options.
     """
 
-    def __init__(self, grstate, name):
+    def __init__(self, grstate, track, name):
         """
         A dialog to view template changes.
         """
+        self.templates_service = TemplatesService(grstate.dbstate)
         (
-            lang,
-            dummy_name,
-            dummy_description,
-            ini,
-            dummy_normal,
-            dummy_active,
-        ) = get_template(name)
-        self.ini = ini
+            _dummy_name,
+            template,
+        ) = self.templates_service.get_rebased_user_options(name)
+        lang, self.ini = template.get("template.xml_string"), template
         self.title = "".join(
             (_("Template Change View"), ": ", lang, " ", _("Template"))
         )
         ManagedWindow.__init__(
-            self, grstate.uistate, [], self.__class__, modal=True
+            self, grstate.uistate, track, self.__class__, modal=True
         )
-        # the import_dialog.run() below makes it modal, so any change to
-        # the previous line's "modal" would require that line to be changed
-
         self.grstate = grstate
         self.column_list = None
         self.column_model = None
         self.top, self.header = self.create_dialog()
         self.set_window(self.top, None, self.title)
         self.setup_configs(
-            "interface.linked-view.template-change-viewer", 320, 100
+            "interface.cardview.template-change-viewer-modal", 320, 100
         )
         self.load_data()
         self.show()
@@ -876,7 +722,7 @@ class TemplateChangeViewer(ManagedWindow):
         top.vbox.pack_start(header, False, False, 3)
         column_titles = [
             (_("Option"), NOSORT, 300),
-            (_("Default"), NOSORT, 160),
+            (_("Baseline"), NOSORT, 160),
             (_("Template"), NOSORT, 160),
             (_("Database"), NOSORT, 160),
         ]
@@ -898,22 +744,23 @@ class TemplateChangeViewer(ManagedWindow):
         add_header(
             self.header,
             group,
-            _("Template Name:"),
-            ini.get("template.name_lang_string"),
+            _("Active User Template:"),
+            ini.get("template.lang_string"),
             ini.filename,
         )
         add_header(
             self.header,
             group,
-            _("Database Baseline:"),
-            config.get("template.name_lang_string"),
+            _("Active Database Template:"),
+            config.get("template.lang_string"),
             config.filename,
         )
-        normal_defaults = ini.get("template.normal_defaults")
-        defaults, dummy_choosen_defaults = get_base_template_options(
-            normal_defaults
-        )
-        load_change_model(self.column_model.add, defaults, ini, config)
+        active_baseline = ini.get("template.active_baseline")
+        (
+            baseline_name,
+            baseline_options,
+        ) = self.templates_service.get_baseline_options(active_baseline)
+        load_change_model(self.column_model.add, baseline_options, ini, config)
         self.column_list.show()
 
     def build_menu_names(self, obj):  # this is meaningless since it's modal
@@ -1000,27 +847,3 @@ def add_button(grid, column, label, callback):
     button.set_margin_bottom(5)
     grid.attach(button, 0, column, 1, 1)
     return button
-
-
-def get_templates(name_list):
-    """
-    Collect the templates.
-    """
-    templates = []
-    for name in name_list:
-        template = get_template(name)
-        templates.append(template)
-    return templates
-
-
-def get_template(name):
-    """
-    Get a template.
-    """
-    ini_file = "_".join((BASE_TEMPLATE_NAME, "template", name))
-    ini = load_user_ini_file(ini_file)
-    lang = ini.get("template.name_lang_string")
-    normal_defaults = ini.get("template.normal_defaults")
-    active_defaults = ini.get("template.active_defaults")
-    description = ini.get("template.name_description")
-    return (lang, name, description, ini, normal_defaults, active_defaults)

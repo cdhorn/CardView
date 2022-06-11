@@ -85,8 +85,9 @@ class PinnedViewWindow(ManagedWindow):
             )
 
         else:
-            self.base_title = "".join(
-                (_("Tag"), ": ", grcontext.primary_obj.obj.get_name())
+            self.base_title = "%s: %s" % (
+                _("Tag"),
+                grcontext.primary_obj.obj.get_name(),
             )
         ManagedWindow.__init__(self, grstate.uistate, [], grcontext)
 
@@ -98,11 +99,9 @@ class PinnedViewWindow(ManagedWindow):
         window.set_transient_for(self.uistate.window)
         window.add(self.page_view)
         self.set_window(window, None, self.base_title)
-        prefix = ".".join(
-            (
-                "interface.linked-view.page",
-                grcontext.primary_obj.obj_type.lower(),
-            )
+        prefix = (
+            "interface.cardview.page-%s-window"
+            % grcontext.primary_obj.obj_type.lower()
         )
         self.setup_configs(prefix, 768, 768)
         self.show()
@@ -111,7 +110,7 @@ class PinnedViewWindow(ManagedWindow):
         """
         Return window key.
         """
-        return "-".join((self.key, "page"))
+        return "%s-page" % self.key
 
     def build_menu_names(self, _dummy_obj):
         """
@@ -120,13 +119,7 @@ class PinnedViewWindow(ManagedWindow):
         title = self.base_title
         if "]" in title:
             title = title.split("] ")[1].strip()
-        menu_label = "".join(
-            (
-                self.grcontext.primary_obj.obj_lang,
-                ": ",
-                title,
-            )
-        )
+        menu_label = "%s: %s" % (self.grcontext.primary_obj.obj_lang, title)
         return (menu_label, None)
 
     def rebuild(self):
@@ -212,7 +205,7 @@ class WindowService:
         """
         max_windows = grstate.config.get("display.max-group-windows")
         if isinstance(obj, TableObject):
-            key = "-".join((obj.handle, group_type))
+            key = "%s-%s" % (obj.handle, group_type)
         else:
             key = uuid.uuid4().hex
         if reload_single_window(

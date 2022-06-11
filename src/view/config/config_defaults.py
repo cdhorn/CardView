@@ -62,14 +62,13 @@ VIEWDEFAULTS = (
     ######################################################################
     ## Template Management Options
     ######################################################################
-    ("template.base_xml_string", "Default"),
-    ("template.base_lang_string", _("Default")),
-    ("template.base_description", _("Default view template")),
-    ("template.name_xml_string", ""),
-    ("template.name_lang_string", ""),
-    ("template.name_description", ""),
-    ("template.normal_defaults", ""),
-    ("template.active_defaults", ""),
+    ("template.type", "cardview"),
+    ("template.xml_string", "Default"),
+    ("template.lang_string", _("Default")),
+    ("template.description", _("Default view template")),
+    ("template.comments", []),
+    ("template.normal_baseline", ""),
+    ("template.active_baseline", ""),
     ######################################################################
     # Global Options
     #

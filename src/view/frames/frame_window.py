@@ -89,7 +89,7 @@ class FrameDebugWindow(ManagedWindow):
         window.set_transient_for(self.uistate.window)
         window.add(scroll)
         self.set_window(window, None, self.title)
-        self.setup_configs("interface.linked-view.debug", 768, 768)
+        self.setup_configs("interface.cardview.debug-window", 768, 768)
         self.show()
 
     def build_window_key(self, _dummy_obj):

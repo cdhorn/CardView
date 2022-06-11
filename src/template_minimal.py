@@ -36,14 +36,13 @@ _TEMPLATE = (
     ######################################################################
     ## Template Management Options
     ######################################################################
-    ("template.base_xml_string", "Minimal"),
-    ("template.base_lang_string", _("Minimal")),
-    ("template.base_description", _("Minimal view template")),
-    ("template.name_xml_string", ""),
-    ("template.name_lang_string", ""),
-    ("template.name_description", ""),
-    ("template.normal_defaults", ""),
-    ("template.active_defaults", ""),
+    ("template.type", "cardview"),
+    ("template.xml_string", "Minimal"),
+    ("template.lang_string", _("Minimal")),
+    ("template.description", _("Minimal view template")),
+    ("template.comments", []),
+    ("template.normal_baseline", ""),
+    ("template.active_baseline", ""),
     ######################################################################
     # Global Options
     #
