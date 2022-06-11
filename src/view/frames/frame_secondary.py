@@ -96,7 +96,9 @@ class SecondaryFrame(GrampsFrame):
         load_metadata(
             self.widgets["id"], self.grstate, self.groptions, self.secondary
         )
-        self.widgets["icons"].load(self.secondary, title=self.title)
+        print("loading icons?")
+        print(self.get_title())
+        self.widgets["icons"].load(self.secondary, title=self.get_title())
 
     def drag_data_get(
         self, _dummy_widget, _dummy_context, data, info, _dummy_time
