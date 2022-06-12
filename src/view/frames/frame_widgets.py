@@ -182,7 +182,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         if check("indicator.ordinances") and grobject.has_ldsords:
             count = len(obj.lds_ord_list)
             if count:
-                self.__add_icon("emblem-documents", "ldsord", count)
+                self.__add_icon("gramps-temple", "ldsord", count)
         if check("indicator.attributes") and grobject.has_attributes:
             count = len(obj.attribute_list)
             if count:
@@ -215,7 +215,7 @@ class FrameIcons(Gtk.HBox, GrampsConfig):
         if check("indicator.names"):
             count = len(obj.alternate_names)
             if count:
-                self.__add_icon("user-info", "name", count)
+                self.__add_icon("gramps-person-name", "name", count)
         if check("indicator.parents"):
             count = len(obj.parent_family_list)
             if count:

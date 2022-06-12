@@ -142,7 +142,7 @@ GRAMPS_OBJECTS = [
         DdTargets.SRCATTRIBUTE,
         "gramps-attribute",
     ),
-    (Name, "Name", _("Name"), DdTargets.NAME, "gramps-person"),
+    (Name, "Name", _("Name"), DdTargets.NAME, "gramps-person-name"),
     (Url, "Url", _("Url"), DdTargets.URL, "gramps-url"),
     (
         PersonRef,
@@ -163,7 +163,7 @@ GRAMPS_OBJECTS = [
     ),
     (RepoRef, "RepoRef", _("RepoRef"), DdTargets.REPOREF, "stock_link"),
     (Tag, "Tag", _("Tag"), None, "gramps-tag"),
-    (LdsOrd, "LdsOrd", _("LdsOrd"), None, "gramps-event"),
+    (LdsOrd, "LdsOrd", _("LdsOrd"), None, "gramps-temple"),
 ]
 
 GROUP_LABELS = {
