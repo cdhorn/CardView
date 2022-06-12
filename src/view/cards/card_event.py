@@ -174,14 +174,14 @@ class EventCard(ReferenceCard):
         Add event description.
         """
         if self.get_option("show-description"):
-            text = event.get_description()
+            text = event.description
             if not text and self.primary_participant:
                 text = "%s %s %s" % (
                     event_type,
                     _("of"),
                     self.primary_participant[3],
                 )
-            else:
+            elif not text:
                 text = UNKNOWN
             self.add_fact(self.get_label(text))
 
