@@ -47,6 +47,7 @@ from gramps.gui.utils import open_file_with_default_application
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import BUTTON_PRIMARY, BUTTON_SECONDARY
 from ..common.common_utils import button_pressed, button_released
+from ..services.service_images import images_service
 from ..cards import MediaRefCard
 
 _ = glocale.translation.sgettext
@@ -116,7 +117,7 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         """
         Initialize layout.
         """
-        card = Gtk.Card(shadow_type=Gtk.ShadowType.NONE)
+        card = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         if css:
             provider = Gtk.CssProvider()
             provider.load_from_data(css)
@@ -247,7 +248,7 @@ class MediaBarItem(MediaRefCard):
             if media_ref and crop:
                 rectangle = media_ref.get_rectangle()
             path = media_path_full(self.grstate.dbstate.db, mobj.path)
-            pixbuf = self.grstate.thumbnail(path, rectangle, size)
+            pixbuf = images_service.get_thumbnail_image(path, rectangle, size)
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
             return image

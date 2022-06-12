@@ -600,12 +600,6 @@ class GrampsState:
         except HandleError:
             return None
 
-    def thumbnail(self, path, rectangle, size):
-        """
-        Fetches a thumbnail from cache if possible.
-        """
-        return self.callbacks["fetch-thumbnail"](path, rectangle, size)
-
     def fetch_page_context(self):
         """
         Fetches active page context.

@@ -58,6 +58,7 @@ from ..common.common_const import (
 )
 from ..common.common_utils import button_pressed
 from ..services.service_status import StatusIndicatorService
+from ..services.service_images import images_service
 
 _ = glocale.translation.sgettext
 
@@ -367,7 +368,9 @@ class GrampsImage(Gtk.EventBox):
             rectangle = None
             if self.media_ref and crop:
                 rectangle = self.media_ref.get_rectangle()
-            pixbuf = self.grstate.thumbnail(self.path, rectangle, size)
+            pixbuf = images_service.get_thumbnail_image(
+                self.path, rectangle, size
+            )
             image = Gtk.Image()
             image.set_from_pixbuf(pixbuf)
             return image

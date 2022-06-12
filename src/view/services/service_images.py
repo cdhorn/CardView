@@ -67,3 +67,6 @@ class ImagesService:
         Return cache info.
         """
         return self.get_thumbnail_image.cache_info()
+
+
+images_service = ImagesService()

@@ -167,7 +167,6 @@ class CardView(GlobalNavigationView):
             "methods": self.methods,
             "load-page": self.load_page,
             "reload-config": self.reload_config,
-            "fetch-thumbnail": self.fetch_thumbnail,
             "fetch-page-context": self.fetch_page_context,
             "copy-to-clipboard": self.clipboard_copy,
             "update-history-reference": self.update_history_reference,
@@ -179,12 +178,6 @@ class CardView(GlobalNavigationView):
             dbstate, uistate, callbacks, self._config_view
         )
         self.grstate.set_templates(self._config)
-
-    def fetch_thumbnail(self, path, rectangle, size):
-        """
-        Fetch a thumbnail from cache when possible.
-        """
-        return self.image_service.get_thumbnail_image(path, rectangle, size)
 
     def fetch_page_context(self):
         """
