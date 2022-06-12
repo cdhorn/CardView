@@ -64,9 +64,29 @@ from .config_const import (
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
 )
-from .config_utils import add_config_buttons, create_grid, HelpButton
+from .config_utils import (
+    add_config_buttons,
+    create_grid,
+    HelpButton,
+    TemplateCommentsEntry,
+)
 
 _ = glocale.translation.sgettext
+
+
+def build_template_grid(configdialog, grstate, *_dummy_args):
+    """
+    Build template option configuration section.
+    """
+    comments_widget = TemplateCommentsEntry(grstate, "template.comments")
+    grid = create_grid()
+    configdialog.add_text(grid, _("Template Options"), 0, start=0, bold=True)
+    configdialog.add_entry(grid, _("Description"), 1, "template.description")
+    configdialog.add_text(grid, _("Comments:"), 2, start=0)
+    grid.attach(comments_widget, 1, 2, 2, 1)
+    return add_config_buttons(
+        configdialog, grstate, "template", grid, HELP_CONFIG_DISPLAY
+    )
 
 
 def build_display_grid(configdialog, grstate, *_dummy_args):

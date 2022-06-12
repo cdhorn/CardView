@@ -67,6 +67,7 @@ from .config_global import (
     build_media_bar_grid,
     build_menu_grid,
     build_status_grid,
+    build_template_grid,
 )
 from .config_objects import (
     ConfigNotebook,
@@ -124,6 +125,10 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
         )
     render_page = lambda: build_media_bar_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("Media Bar")), render_page)
+    render_page = lambda: build_template_grid(configdialog, grstate)
+    notebook.append_deferred_page(
+        Gtk.Label(label=_("Template Data")), render_page
+    )
     grid.attach(notebook, 1, 0, 1, 1)
     return grid
 

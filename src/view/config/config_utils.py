@@ -34,7 +34,7 @@ Config utility classes and functions
 # GTK Modules
 #
 # -------------------------------------------------------------------------
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk
 
 # -------------------------------------------------------------------------
 #
@@ -204,6 +204,76 @@ class ConfigReset(Gtk.ButtonBox):
                 else:
                     options.append("".join(("options.", setting)))
         return options
+
+
+# -------------------------------------------------------------------------
+#
+# TemplateCommentsEntry Class
+#
+# -------------------------------------------------------------------------
+class TemplateCommentsEntry(Gtk.VBox):
+    """
+    Simple text view for user to edit template comments section.
+    """
+
+    def __init__(self, grstate, option):
+        Gtk.HBox.__init__(self, hexpand=True, spacing=6)
+        self.grstate = grstate
+        self.option = option
+        self.defer_refresh = False
+        self.defer_refresh_id = None
+        self.text_buffer = Gtk.TextBuffer()
+        text = grstate.config.get(option)
+        self.text_buffer.set_text("\n".join(tuple(text)))
+        self.text_buffer.connect("changed", self.__defer_save)
+        text_view = Gtk.TextView(buffer=self.text_buffer)
+        text_view.set_margin_start(6)
+        text_view.set_margin_end(6)
+        text_view.set_margin_top(6)
+        text_view.set_margin_bottom(6)
+        frame = Gtk.Frame()
+        css = ".frame { border: solid; border-radius: 5px; border: 1px; }".encode(
+            "utf-8"
+        )
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        context = frame.get_style_context()
+        context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        context.add_class("frame")
+        box = Gtk.Box(spacing=6)
+        box.add(text_view)
+        frame.add(box)
+        self.pack_start(frame, True, True, 0)
+
+    def __defer_save(self, *_dummy_args):
+        """
+        Defer save a short bit in case user still typing.
+        """
+        if not self.defer_refresh_id:
+            self.defer_refresh_id = GObject.timeout_add(
+                1000, self.__perform_save
+            )
+        else:
+            self.defer_refresh = True
+
+    def __perform_save(self):
+        """
+        Perform the save.
+        """
+        if self.defer_refresh:
+            self.defer_refresh = False
+            return True
+        self.defer_refresh = False
+        lines = self.text_buffer.get_text(
+            self.text_buffer.get_start_iter(),
+            self.text_buffer.get_end_iter(),
+            False,
+        )
+        line_list = lines.split("\n")
+        self.grstate.config.set(self.option, line_list)
+        GObject.source_remove(self.defer_refresh_id)
+        self.defer_refresh_id = None
+        return False
 
 
 # -------------------------------------------------------------------------

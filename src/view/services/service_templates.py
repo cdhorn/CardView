@@ -1,6 +1,13 @@
 #
 # Gramps - a GTK+/GNOME based genealogy program
 #
+# Copyright (C) 2001-2007  Donald N. Allingham
+# Copyright (C) 2008       Raphael Ackermann
+# Copyright (C) 2009-2010  Gary Burton
+# Copyright (C) 2010       Benny Malengier
+# Copyright (C) 2012       Doug Blank <doug.blank@gmail.com>
+# Copyright (C) 2015-2016  Nick Hall
+# Copyright (C) 2015       Serge Noiraud
 # Copyright (C) 2022       Christopher Horn
 #
 # This program is free software; you can redistribute it and/or modify
@@ -295,7 +302,7 @@ class TemplatesService:
         if manager:
             manager.filename = new_file_name
         else:
-            manager = self.get_rebased_user_options(new_name)
+            _dummy_name, manager = self.get_rebased_user_options(new_name)
         manager.set("template.xml_string", new_name)
         manager.set("template.lang_string", new_name)
         self.save_template(manager)
@@ -307,6 +314,42 @@ class TemplatesService:
         """
         file_name = self.get_template_path(template_name)
         os.remove(file_name)
+
+    def validate_template_file(self, file_name):
+        """
+        Validate a file is a valid template file.
+        """
+        try:
+            data = parse_template(file_name)
+        except TypeError:
+            return False
+        for key in [
+            "xml_string",
+            "lang_string",
+            "type",
+            "normal_baseline",
+            "active_baseline",
+            "description",
+            "comments",
+        ]:
+            if key not in data:
+                return False
+        return True
+
+    def import_template_file(self, file_name, template_name):
+        """
+        Import a template, which is just a copy then rename.
+        """
+        new_file_name = self.get_template_path(template_name)
+        with open(file_name, "r") as import_file:
+            data = import_file.read()
+        with open(new_file_name, "w") as new_file:
+            new_file.write(data)
+        _dummy_name, manager = self.get_rebased_user_options(template_name)
+        manager.set("template.xml_string", template_name)
+        manager.set("template.lang_string", template_name)
+        self.save_template(manager)
+        configman.register_manager(template_name, override=manager)
 
 
 def parse_template(file_name):
@@ -324,6 +367,8 @@ def parse_template(file_name):
     for line in template_data.split("\n"):
         if in_header:
             if line_count < 3:
+                if line_count == 0 and line != ";; Gramps key file":
+                    raise TypeError("Not a Gramps key file: %s" % file_name)
                 line_count = line_count + 1
                 continue
             if line[:1] == "[":

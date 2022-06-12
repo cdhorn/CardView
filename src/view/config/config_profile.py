@@ -34,7 +34,6 @@ ProfileManager
 # Gramps Modules
 #
 # -------------------------------------------------------------------------
-from gramps.gen.config import config as configman
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # -------------------------------------------------------------------------

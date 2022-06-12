@@ -55,7 +55,6 @@ from gramps.gui.managedwindow import ManagedWindow
 from ..common.common_classes import GrampsState
 from ..services.service_templates import TemplatesService
 from .config_const import HELP_CONFIG_TEMPLATES
-from .config_defaults import VIEWDEFAULTS
 from .config_layout import build_layout_grid
 from .config_panel import (
     build_color_panel,
@@ -262,6 +261,7 @@ class ConfigTemplates(Gtk.HBox):
             title,
             refresh_only=False,
         )
+        self._load_layout()
 
     def cb_changes_clicked(self, button):
         """
@@ -283,13 +283,7 @@ class ConfigTemplates(Gtk.HBox):
             return
 
         base_name = store.get_value(iter_, 5)
-        used_names = self.templates_service.get_template_names()
-        new_name_dialog = GetNewTemplateNameDialog(
-            self.grstate.uistate,
-            self.configdialog.track,
-            used_names=used_names,
-        )
-        new_name = new_name_dialog.run()
+        new_name = self.get_new_template_name()
         if isinstance(new_name, str):
             self.templates_service.copy_template(base_name, new_name)
             self.selected = base_name
@@ -304,13 +298,7 @@ class ConfigTemplates(Gtk.HBox):
             return
 
         base_name = store.get_value(iter_, 5)
-        used_names = self.templates_service.get_template_names()
-        new_name_dialog = GetNewTemplateNameDialog(
-            self.grstate.uistate,
-            self.configdialog.track,
-            used_names=used_names,
-        )
-        new_name = new_name_dialog.run()
+        new_name = self.get_new_template_name()
         if isinstance(new_name, str):
             self.templates_service.rename_template(base_name, new_name)
             self.selected = new_name
@@ -345,27 +333,34 @@ class ConfigTemplates(Gtk.HBox):
         """
         Import a template.
         """
-        import_selector = ImportTemplateSelector(self.grstate.uistate, [])
+        import_selector = ImportTemplateSelector(
+            self.grstate.dbstate, self.grstate.uistate, []
+        )
         filename = import_selector.run()
         if isinstance(filename, str):
-            if configman.has_manager(filename):
-                import_ini = configman.get_manager(filename)
-            else:
-                import_ini = configman.register_manager(
-                    filename,
-                    use_config_path=False,
-                    use_plugins_path=False,
-                )
-                for key, value in VIEWDEFAULTS:
-                    import_ini.register(key, value)
-                import_ini.load()
-            self.create_template(import_ini)
+            new_name = self.get_new_template_name()
+            if isinstance(new_name, str):
+                self.templates_service.import_template_file(filename, new_name)
+                self.selected = new_name
+                self._load_layout()
 
     def cb_help_clicked(self, button):
         """
         Launch template editor help
         """
         display_url(HELP_CONFIG_TEMPLATES)
+
+    def get_new_template_name(self):
+        """
+        Prompt user for a new template name.
+        """
+        used_names = self.templates_service.get_template_names()
+        new_name_dialog = GetNewTemplateNameDialog(
+            self.grstate.uistate,
+            self.configdialog.track,
+            used_names=used_names,
+        )
+        return new_name_dialog.run()
 
 
 # -------------------------------------------------------------------------
@@ -578,7 +573,7 @@ class ImportTemplateSelector(ManagedWindow):
     Selector for picking an import file.
     """
 
-    def __init__(self, uistate, track):
+    def __init__(self, dbstate, uistate, track):
         """
         A dialog to import a template into Gramps
         """
@@ -586,8 +581,7 @@ class ImportTemplateSelector(ManagedWindow):
         ManagedWindow.__init__(
             self, uistate, track, self.__class__, modal=True
         )
-        # the import_dialog.run() below makes it modal, so any change to
-        # the previous line's "modal" would require that line to be changed
+        self.templates_service = TemplatesService(dbstate)
 
     def run(self):
         """
@@ -618,8 +612,6 @@ class ImportTemplateSelector(ManagedWindow):
             configman.get("paths.recent-import-dir")
         )
         while True:
-            # the import_dialog.run() makes it modal, so any change to that
-            # line would require the ManagedWindow.__init__ to be changed also
             response = import_dialog.run()
             if response == Gtk.ResponseType.CANCEL:
                 break
@@ -636,15 +628,15 @@ class ImportTemplateSelector(ManagedWindow):
 
     def check_errors(self, filename):
         """
-        Run common error checks and return True if any found.
+        Perform some sanity checks and return True if any found.
         """
         if not isinstance(filename, str):
             return True
 
         filename = os.path.normpath(os.path.abspath(filename))
-
         if len(filename) == 0:
             return True
+
         if os.path.isdir(filename):
             ErrorDialog(
                 _("Cannot open file"),
@@ -652,6 +644,7 @@ class ImportTemplateSelector(ManagedWindow):
                 parent=self.uistate.window,
             )
             return True
+
         if os.path.exists(filename) and not os.access(filename, os.R_OK):
             ErrorDialog(
                 _("Cannot open file"),
@@ -659,18 +652,17 @@ class ImportTemplateSelector(ManagedWindow):
                 parent=self.uistate.window,
             )
             return True
-        try:
-            load_user_ini_file(filename)
-        except:
+
+        if not self.templates_service.validate_template_file(filename):
             ErrorDialog(
-                _("Error loading file data"),
-                _("May not be in valid format."),
+                _("Error parsing file format"),
+                _("File does not appear to be a valid template."),
                 parent=self.uistate.window,
             )
             return True
         return False
 
-    def build_menu_names(self, obj):  # this is meaningless since it's modal
+    def build_menu_names(self, obj):
         return (self.title, None)
 
 
