@@ -19,7 +19,7 @@
 #
 
 """
-SourcesFrameGroup
+SourcesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,25 +34,25 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import SourceFrame
-from .group_list import FrameGroupList
+from ..cards import SourceCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# SourcesFrameGroup Class
+# SourcesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class SourcesFrameGroup(FrameGroupList):
+class SourcesCardGroup(CardGroupList):
     """
-    The SourcesFrameGroup class provides a container for viewing and
+    The SourcesCardGroup class provides a container for viewing and
     managing all of the sources associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         sources_list = []
@@ -72,10 +72,10 @@ class SourcesFrameGroup(FrameGroupList):
 
         if sources_list:
             for source in sources_list:
-                frame = SourceFrame(
+                card = SourceCard(
                     grstate,
                     groptions,
                     source,
                 )
-                self.add_frame(frame)
+                self.add_card(card)
         self.show_all()

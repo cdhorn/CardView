@@ -29,7 +29,7 @@ GenericObjectView
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -50,42 +50,42 @@ class GenericObjectView(GrampsObjectView):
         reference = self.grcontext.reference_obj
         secondary = self.grcontext.secondary_obj
 
-        build_frame = FRAME_MAP[primary.obj_type]
-        option_space = ".".join(("active", primary.obj_type.lower()))
+        build_card = CARD_MAP[primary.obj_type]
+        option_space = "active.%s" % primary.obj_type.lower()
         groptions = GrampsOptions(option_space)
-        primary_frame = build_frame(self.grstate, groptions, primary.obj)
+        primary_card = build_card(self.grstate, groptions, primary.obj)
 
         groups = primary
         if reference:
             groups = reference
-            reference_frame = self.build_secondary_frame(primary, reference)
-            self.view_object = reference_frame
+            reference_card = self.build_secondary_card(primary, reference)
+            self.view_object = reference_card
             self.view_focus = self.wrap_focal_widget(self.view_object)
-            self.view_header.pack_start(primary_frame, False, False, 0)
+            self.view_header.pack_start(primary_card, False, False, 0)
             self.view_header.pack_start(self.view_focus, False, False, 0)
         elif secondary:
             groups = secondary
-            self.view_object = self.build_secondary_frame(primary, secondary)
+            self.view_object = self.build_secondary_card(primary, secondary)
             self.view_focus = self.wrap_focal_widget(self.view_object)
-            self.view_header.pack_start(primary_frame, False, False, 0)
+            self.view_header.pack_start(primary_card, False, False, 0)
             self.view_header.pack_start(self.view_focus, False, False, 0)
         else:
-            self.view_object = primary_frame
+            self.view_object = primary_card
             self.view_focus = self.wrap_focal_widget(self.view_object)
             self.view_header.pack_start(self.view_focus, False, False, 0)
 
         self.view_body = self.build_object_groups(groups)
 
-    def build_secondary_frame(self, primary, secondary):
+    def build_secondary_card(self, primary, secondary):
         """
-        Build frame for secondary objects.
+        Build card for secondary objects.
         """
-        build_frame = FRAME_MAP[secondary.obj_type]
-        option_space = ".".join(("active", secondary.obj_type.lower()))
+        build_card = CARD_MAP[secondary.obj_type]
+        option_space = "active.%s" % secondary.obj_type.lower()
         groptions = GrampsOptions(option_space)
         if "Ref" in secondary.obj_type:
             groptions.set_ref_mode(2)
-        return build_frame(
+        return build_card(
             self.grstate,
             groptions,
             primary.obj,

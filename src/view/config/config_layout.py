@@ -309,11 +309,11 @@ class ProfileColumnLayout(Gtk.ListBox):
         self.connect("drag-motion", self.on_drag_motion)
         self.connect("drag-leave", self.on_drag_leave)
 
-    def add_row(self, frame):
+    def add_row(self, card):
         """
-        Add a framed row object.
+        Add a card row object.
         """
-        self.rows.append(frame)
+        self.rows.append(card)
         row = Gtk.ListBoxRow(selectable=False)
         row.add(self.rows[-1])
         self.add(row)
@@ -335,24 +335,24 @@ class ProfileColumnLayout(Gtk.ListBox):
         if data and data.get_text():
             source_number = data.get_text()
             source_index = 0
-            for frame in self.rows:
-                if str(frame.number) == source_number:
+            for card in self.rows:
+                if str(card.number) == source_number:
                     if self.row_current == source_index:
                         break
                     row_moving = self.get_row_at_index(source_index)
-                    frame_moving = self.rows[source_index]
+                    card_moving = self.rows[source_index]
                     self.remove(row_moving)
-                    self.rows.remove(frame_moving)
+                    self.rows.remove(card_moving)
                     if self.row_current < source_index:
                         self.insert(row_moving, self.row_current)
-                        self.rows.insert(self.row_current, frame_moving)
+                        self.rows.insert(self.row_current, card_moving)
                         break
                     if self.row_current == self.row_previous:
                         self.add(row_moving)
-                        self.rows.append(frame_moving)
+                        self.rows.append(card_moving)
                         break
                     self.insert(row_moving, self.row_current - 1)
-                    self.rows.insert(self.row_current - 1, frame_moving)
+                    self.rows.insert(self.row_current - 1, card_moving)
                     break
                 source_index = source_index + 1
         self.row_previous = 0

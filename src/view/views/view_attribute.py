@@ -29,7 +29,7 @@ AttributeObjectView
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -51,14 +51,14 @@ class AttributeObjectView(GrampsObjectView):
         if self.grcontext.reference_obj:
             base = self.grcontext.reference_obj
 
-        build_frame = FRAME_MAP[base.obj_type]
-        option_space = ".".join(("active", base.obj_type.lower()))
+        build_card = CARD_MAP[base.obj_type]
+        option_space = "active.%s" % base.obj_type.lower()
         groptions = GrampsOptions(option_space)
-        self.view_object = build_frame(self.grstate, groptions, base.obj)
+        self.view_object = build_card(self.grstate, groptions, base.obj)
 
         groptions = GrampsOptions("active.attribute")
         self.view_focus = self.wrap_focal_widget(
-            FRAME_MAP["Attribute"](
+            CARD_MAP["Attribute"](
                 self.grstate, groptions, base.obj, attribute.obj
             )
         )

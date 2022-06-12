@@ -19,7 +19,7 @@
 #
 
 """
-AddressesFrameGroup
+AddressesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,31 +27,31 @@ AddressesFrameGroup
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import AddressFrame
-from .group_list import FrameGroupList
+from ..cards import AddressCard
+from .group_list import CardGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# AddressesFrameGroup Class
+# AddressesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class AddressesFrameGroup(FrameGroupList):
+class AddressesCardGroup(CardGroupList):
     """
-    The AddressesFrameGroup class provides a container for managing
+    The AddressesCardGroup class provides a container for managing
     all of the addresses a person or repository may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for address in obj.address_list:
-            frame = AddressFrame(
+            card = AddressCard(
                 grstate,
                 groptions,
                 obj,
                 address,
             )
-            self.add_frame(frame)
+            self.add_card(card)
         self.show_all()

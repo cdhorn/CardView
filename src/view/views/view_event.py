@@ -37,7 +37,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from ..common.common_classes import GrampsOptions
 from ..groups.group_builder import get_references_group
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 _ = glocale.translation.sgettext
 
@@ -59,7 +59,7 @@ class EventObjectView(GrampsObjectView):
         event = self.grcontext.primary_obj.obj
 
         groptions = GrampsOptions("active.event")
-        self.view_object = FRAME_MAP["Event"](
+        self.view_object = CARD_MAP["Event"](
             self.grstate,
             groptions,
             event,

@@ -105,18 +105,9 @@ def get_progenitors_field(grstate, obj, field_value, args):
         if not name:
             return []
         if generations > 1:
-            name = "".join(
-                (
-                    name,
-                    " (",
-                    str(generations),
-                    " ",
-                    _("Generations"),
-                    ")",
-                )
-            )
+            name = "%s (%s %s)" % (name, str(generations), _("Generations"))
         elif generations == 1:
-            name = "".join((name, " (1 ", _("Generation"), ")"))
+            name = "%s (1 %s)" % (name, _("Generation"))
         if paternal:
             label = get_label(PATERNAL_PROGENITORS_LANG)
         else:

@@ -19,7 +19,7 @@
 #
 
 """
-AssociationsFrameGroup
+AssociationsCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -37,25 +37,25 @@ from gramps.gui.editors import EditPersonRef
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import PersonBackRefFrame, PersonRefFrame
-from .group_list import FrameGroupList
+from ..cards import PersonBackRefCard, PersonRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# AssociationsFrameGroup Class
+# AssociationsCardGroup Class
 #
 # ------------------------------------------------------------------------
-class AssociationsFrameGroup(FrameGroupList):
+class AssociationsCardGroup(CardGroupList):
     """
-    The AssociationsFrameGroup class provides a container for managing
+    The AssociationsCardGroup class provides a container for managing
     all of the associations a person has with other people.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(self, grstate, groptions, obj)
+        CardGroupList.__init__(self, grstate, groptions, obj)
         groptions.set_ref_mode(
             self.grstate.config.get("group.association.reference-mode")
         )
@@ -67,13 +67,13 @@ class AssociationsFrameGroup(FrameGroupList):
         ]
 
         for person_ref in obj.person_ref_list:
-            frame = PersonRefFrame(
+            card = PersonRefCard(
                 grstate,
                 groptions,
                 obj,
                 person_ref,
             )
-            self.add_frame(frame)
+            self.add_card(card)
             if person_ref.ref in back_list:
                 self._add_back_person(person_ref.ref)
                 back_list.remove(person_ref.ref)
@@ -91,13 +91,13 @@ class AssociationsFrameGroup(FrameGroupList):
         main_person = self.group_base.obj.handle
         for back_person_ref in back_person.person_ref_list:
             if back_person_ref.ref == main_person:
-                frame = PersonBackRefFrame(
+                card = PersonBackRefCard(
                     self.grstate,
                     self.groptions,
                     back_person,
                     back_person_ref,
                 )
-                self.add_frame(frame)
+                self.add_card(card)
                 return
 
     def save_reordered_list(self):
@@ -105,9 +105,9 @@ class AssociationsFrameGroup(FrameGroupList):
         Save a reordered list of associations.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.person_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -126,8 +126,8 @@ class AssociationsFrameGroup(FrameGroupList):
         """
         Add a new person to the list of associations.
         """
-        for frame in self.row_frames:
-            if frame.primary.obj.handle == handle:
+        for card in self.row_cards:
+            if card.primary.obj.handle == handle:
                 return
 
         person_ref = PersonRef()
@@ -149,9 +149,9 @@ class AssociationsFrameGroup(FrameGroupList):
         Save the new person added to the list of associations.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.person_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, person_ref)
         person = self.fetch("Person", person_ref.ref)

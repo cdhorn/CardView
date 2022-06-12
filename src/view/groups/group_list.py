@@ -19,7 +19,7 @@
 #
 
 """
-FrameGroupList
+CardGroupList
 """
 
 # ------------------------------------------------------------------------
@@ -43,18 +43,18 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject
 from ..common.common_utils import set_dnd_css
-from ..frames.frame_base import GrampsFrame
+from ..cards.card_base import GrampsCard
 
 
 # ------------------------------------------------------------------------
 #
-# FrameGroupList Class
+# CardGroupList Class
 #
 # ------------------------------------------------------------------------
-class FrameGroupList(Gtk.ListBox, GrampsConfig):
+class CardGroupList(Gtk.ListBox, GrampsConfig):
     """
-    The FrameGroupList class provides the core methods for managing
-    a list of Frame objects. It primarily supports drag and drop
+    The CardGroupList class provides the core methods for managing
+    a list of Card objects. It primarily supports drag and drop
     actions related to the list.
     """
 
@@ -63,7 +63,7 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
         GrampsConfig.__init__(self, grstate, groptions)
         self.group_base = GrampsObject(obj)
         self.managed_obj_type = None
-        self.row_frames = []
+        self.row_cards = []
         self.row_previous = 0
         self.row_current = 0
         self.row_previous_provider = None
@@ -73,22 +73,22 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
             self.connect("drag-motion", self.on_drag_motion)
             self.connect("drag-leave", self.on_drag_leave)
 
-    def add_frame(self, gramps_frame):
+    def add_card(self, gramps_card):
         """
-        Add a Frame object.
+        Add a Card object.
         """
-        if isinstance(gramps_frame, GrampsFrame):
+        if isinstance(gramps_card, GrampsCard):
             if not self.managed_obj_type:
-                self.managed_obj_type = gramps_frame.focus.obj_type
-                if gramps_frame.focus.dnd_type:
+                self.managed_obj_type = gramps_card.focus.obj_type
+                if gramps_card.focus.dnd_type:
                     self.drag_dest_set(
                         Gtk.DestDefaults.MOTION | Gtk.DestDefaults.DROP,
-                        [gramps_frame.focus.dnd_type.target()],
+                        [gramps_card.focus.dnd_type.target()],
                         Gdk.DragAction.COPY | Gdk.DragAction.MOVE,
                     )
-        self.row_frames.append(gramps_frame)
+        self.row_cards.append(gramps_card)
         row = Gtk.ListBoxRow(selectable=False)
-        row.add(self.row_frames[-1])
+        row.add(self.row_cards[-1])
         self.add(row)
 
     def on_drag_data_received(
@@ -121,27 +121,27 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
         Insert dropped object.
         """
         source_index = 0
-        for frame in self.row_frames:
-            if frame.primary.obj.handle == obj_handle:
+        for card in self.row_cards:
+            if card.primary.obj.handle == obj_handle:
                 if self.row_current == source_index:
                     break
                 row_moving = self.get_row_at_index(source_index)
-                frame_moving = self.row_frames[source_index]
+                card_moving = self.row_cards[source_index]
                 self.remove(row_moving)
-                self.row_frames.remove(frame_moving)
+                self.row_cards.remove(card_moving)
                 if self.row_current < source_index:
                     self.insert(row_moving, self.row_current)
-                    self.row_frames.insert(self.row_current, frame_moving)
+                    self.row_cards.insert(self.row_current, card_moving)
                 elif self.row_current == self.row_previous:
                     self.add(row_moving)
-                    self.row_frames.append(frame_moving)
+                    self.row_cards.append(card_moving)
                 elif self.row_current > source_index:
                     self.insert(row_moving, self.row_current - 1)
-                    self.row_frames.insert(self.row_current - 1, frame_moving)
+                    self.row_cards.insert(self.row_current - 1, card_moving)
                 self.save_reordered_list()
                 break
             source_index = source_index + 1
-        if source_index >= len(self.row_frames):
+        if source_index >= len(self.row_cards):
             self.save_new_object(obj_handle, self.row_current)
 
     def save_reordered_list(self):
@@ -183,25 +183,25 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
 
         if self.row_current == 0 and self.row_previous == 0:
             self.row_current_provider = set_dnd_css(
-                self.row_frames[self.row_current], top=True
+                self.row_cards[self.row_current], top=True
             )
         elif self.row_current == self.row_previous:
             self.row_current_provider = set_dnd_css(
-                self.row_frames[self.row_current], top=False
+                self.row_cards[self.row_current], top=False
             )
         elif self.row_current > self.row_previous:
             self.row_previous_provider = set_dnd_css(
-                self.row_frames[self.row_previous], top=False
+                self.row_cards[self.row_previous], top=False
             )
             self.row_current_provider = set_dnd_css(
-                self.row_frames[self.row_current], top=True
+                self.row_cards[self.row_current], top=True
             )
         else:
             self.row_previous_provider = set_dnd_css(
-                self.row_frames[self.row_previous], top=True
+                self.row_cards[self.row_previous], top=True
             )
             self.row_current_provider = set_dnd_css(
-                self.row_frames[self.row_current], top=False
+                self.row_cards[self.row_current], top=False
             )
 
     def on_drag_leave(self, *_dummy_obj):
@@ -215,12 +215,12 @@ class FrameGroupList(Gtk.ListBox, GrampsConfig):
         Reset custom CSS for the drag and drop view.
         """
         if self.row_previous_provider:
-            context = self.row_frames[self.row_previous].get_style_context()
+            context = self.row_cards[self.row_previous].get_style_context()
             context.remove_provider(self.row_previous_provider)
             self.row_previous_provider = None
-        self.row_frames[self.row_previous].set_css_style()
+        self.row_cards[self.row_previous].set_css_style()
         if self.row_current_provider:
-            context = self.row_frames[self.row_current].get_style_context()
+            context = self.row_cards[self.row_current].get_style_context()
             context.remove_provider(self.row_current_provider)
             self.row_current_provider = None
-        self.row_frames[self.row_current].set_css_style()
+        self.row_cards[self.row_current].set_css_style()

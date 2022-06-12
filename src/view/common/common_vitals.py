@@ -87,9 +87,9 @@ def format_date_string(event1, event2):
     text = ""
     if event1:
         text = glocale.date_displayer.display(event1.date)
-    text = "".join((text, " - "))
+    text = "%s - " % text
     if event2:
-        text = "".join((text, glocale.date_displayer.display(event2.date)))
+        text = "%s%s" % (text, glocale.date_displayer.display(event2.date))
     text = text.strip()
     if text == "-":
         return ""
@@ -112,7 +112,7 @@ def get_relation(db, person, relation, depth=15):
         db, base_person, person, extra_info=True
     )
     if result[0]:
-        return " ".join((result[0].capitalize(), _("of"), base_person_name))
+        return "%s %s %s" % (result[0].capitalize(), _("of"), base_person_name)
     return None
 
 
@@ -212,7 +212,7 @@ def get_participants_text(participants, primary=None):
         (dummy_obj_type, obj, dummy_obj_event_ref, obj_name) = participant
         if obj.handle == primary_obj_handle:
             continue
-        text = "; ".join((text, obj_name))
+        text = "%s; %s" % (text, obj_name)
     return text
 
 
@@ -410,16 +410,9 @@ def get_confidence_alert_text(name, confidence, language):
     Return confidence alert text.
     """
     if confidence == 0:
-        text = "".join((language[name], " (", _("Missing"), ")"))
+        text = "%s (%s)" % (language[name], _("Missing"))
     else:
-        text = "".join(
-            (
-                language[name],
-                " (",
-                get_confidence(confidence - 1),
-                ")",
-            )
-        )
+        text = "%s (%s)" % (language[name], get_confidence(confidence - 1))
     return text
 
 

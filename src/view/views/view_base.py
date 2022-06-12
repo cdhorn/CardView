@@ -142,7 +142,7 @@ class GrampsObjectView(Gtk.VBox):
             return focal_widget
         scheme = global_config.get("colors.scheme")
         background = self.grstate.config.get("display.focal-object-color")
-        frame = Gtk.Frame()
+        card = Gtk.Frame()
         css = "".join(
             (
                 ".frame { border: 0px; padding: 3px; ",
@@ -154,20 +154,18 @@ class GrampsObjectView(Gtk.VBox):
         css = css.encode("utf-8")
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
-        context = frame.get_style_context()
+        context = card.get_style_context()
         context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_class("frame")
-        frame.add(focal_widget)
-        return frame
+        card.add(focal_widget)
+        return card
 
     def build_object_groups(self, gramps_obj, age_base=None):
         """
         Gather and build the object groups.
         """
-        space = ".".join(("layout", self.grcontext.page_type.lower()))
-        groups = self.grstate.config.get(".".join((space, "groups"))).split(
-            ","
-        )
+        space = "layout.%s" % self.grcontext.page_type.lower()
+        groups = self.grstate.config.get("%s.groups" % space).split(",")
         object_groups = self.get_object_groups(
             space, groups, gramps_obj.obj, age_base=age_base
         )
@@ -182,7 +180,7 @@ class GrampsObjectView(Gtk.VBox):
             args["age_base"] = age_base
         object_groups = {}
         for group in groups:
-            if self.grstate.config.get(".".join((space, group, "visible"))):
+            if self.grstate.config.get("%s.%s.visible" % (space, group)):
                 object_groups.update(
                     {group: group_builder(self.grstate, group, obj, args)}
                 )
@@ -192,29 +190,27 @@ class GrampsObjectView(Gtk.VBox):
         """
         Identify format for the group view and call method to prepare it.
         """
-        space = ".".join(("layout", self.grcontext.page_type.lower()))
-        groups = self.grstate.config.get(".".join((space, "groups"))).split(
-            ","
-        )
-        scrolled = self.grstate.config.get(".".join((space, "scrolled")))
+        space = "layout.%s" % self.grcontext.page_type.lower()
+        groups = self.grstate.config.get("%s.groups" % space).split(",")
+        scrolled = self.grstate.config.get("%s.scrolled" % space)
         groupings = []
         current_grouping = []
         for group in groups:
             if (
-                self.grstate.config.get(".".join((space, group, "visible")))
+                self.grstate.config.get("%s.%s.visible" % (space, group))
                 and group in obj_groups
                 and obj_groups[group]
             ):
                 current_grouping.append(group)
             if (
-                not self.grstate.config.get(".".join((space, group, "append")))
+                not self.grstate.config.get("%s.%s.append" % (space, group))
                 and current_grouping
             ):
                 groupings.append(current_grouping)
                 current_grouping = []
         if current_grouping:
             groupings.append(current_grouping)
-        if self.grstate.config.get(".".join((space, "tabbed"))):
+        if self.grstate.config.get("%s.tabbed" % space):
             return prepare_tabbed_groups(obj_groups, groupings, scrolled)
         return prepare_untabbed_groups(obj_groups, groupings, scrolled)
 
@@ -238,7 +234,7 @@ def add_to_title(title, group):
     else:
         if " & " in title:
             title = title.replace(" &", ",")
-        title = "".join((title, " & ", GROUP_LABELS[group]))
+        title = "%s & %s" % (title, GROUP_LABELS[group])
     return title
 
 

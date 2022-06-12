@@ -406,7 +406,7 @@ class TagView(ListView):
         handles = self.selected_handles()
         if handles:
             obj = self.dbstate.db.get_tag_from_handle(handles[0])
-            msg1 = " ".join((_("Delete"), _("Tag"), obj.name))
+            msg1 = "%s %s %s" % (_("Delete"), _("Tag"), obj.name)
             msg2 = _("Deleting item will remove it from the database.")
             msg2 = "%s %s" % (msg2, data_recover_msg)
             QuestionDialog(
@@ -420,7 +420,7 @@ class TagView(ListView):
             )
 
     def delete_object_response(self, obj, parent=None):
-        msg = " ".join((_("Delete"), obj.name))
+        msg = "%s %s" % (_("Delete"), obj.name)
         delete_object(self.dbstate.db, obj.handle, "Tag", msg)
 
     def edit(self, *obj):
@@ -493,6 +493,6 @@ class TagView(ListView):
         if self.uistate.viewmanager.active_page == self:
             if selected_ids:
                 tag = self.dbstate.db.get_tag_from_handle(selected_ids[0])
-                name = "".join(("[", _("Tag"), "] ", tag.name))
+                name = "[%s] %s" % (_("Tag"), tag.name)
                 self.uistate.status.pop(self.uistate.status_id)
                 self.uistate.status.push(self.uistate.status_id, name)

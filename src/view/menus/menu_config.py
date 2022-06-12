@@ -108,7 +108,7 @@ def run_global_config(_dummy_obj, grstate):
 
 def run_object_config(_dummy_obj, grstate, groptions, primary_type):
     """
-    Configure object type based on current frame calling context.
+    Configure object type based on current card calling context.
     """
     space, context, dummy_menu_title, window_title = get_object_config_title(
         groptions, primary_type
@@ -131,21 +131,21 @@ def get_object_config_title(groptions, primary_type):
         context = "family"
         obj_type = _("Family")
     if "active" in space:
-        space_label = " ".join((_("Active"), obj_type))
+        space_label = "%s %s" % (_("Active"), obj_type)
     elif "group" in space:
-        space_label = " ".join((obj_type, _("Group")))
+        space_label = "%s %s" % (obj_type, _("Group"))
     elif "timeline" in space:
         if "person" in groptions.option_space:
             context = "person"
-            space_label = " ".join((_("Person"), _("Timeline")))
+            space_label = "%s %s" % (_("Person"), _("Timeline"))
         elif "family" in groptions.option_space:
             context = "family"
-            space_label = " ".join((_("Family"), _("Timeline")))
+            space_label = "%s %s" % (_("Family"), _("Timeline"))
         elif "place" in groptions.option_space:
             context = "place"
-            space_label = " ".join((_("Place"), _("Timeline")))
-    menu_title = " ".join((_("Configure"), space_label.lower()))
-    window_title = " ".join((_("Configuration"), _("for"), space_label))
+            space_label = "%s %s" % (_("Place"), _("Timeline"))
+    menu_title = "%s %s" % (_("Configure"), space_label.lower())
+    window_title = "%s %s %s" % (_("Configuration"), _("for"), space_label)
     return space, context, menu_title, window_title
 
 
@@ -154,21 +154,17 @@ def add_page_layout_option(menu, grstate):
     Build page layout menu option.
     """
     grcontext = grstate.fetch_page_context()
-    menu_title = " ".join(
-        (
-            _("Configure"),
-            PAGE_NAMES[grcontext.page_type],
-            _("Page"),
-            _("Layout"),
-        )
+    menu_title = "%s %s %s %s" % (
+        _("Configure"),
+        PAGE_NAMES[grcontext.page_type],
+        _("Page"),
+        _("Layout"),
     )
-    window_title = " ".join(
-        (
-            _("Configuration"),
-            _("for"),
-            PAGE_NAMES[grcontext.page_type],
-            _("Page"),
-        )
+    window_title = "%s %s %s %s" % (
+        _("Configuration"),
+        _("for"),
+        PAGE_NAMES[grcontext.page_type],
+        _("Page"),
     )
     menu.append(
         menu_item(

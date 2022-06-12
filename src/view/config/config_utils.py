@@ -52,7 +52,7 @@ from gramps.gui.display import display_url
 #
 # -------------------------------------------------------------------------
 from ..common.common_utils import make_scrollable
-from .config_selectors import FrameFieldSelector
+from .config_selectors import CardFieldSelector
 
 _ = glocale.translation.sgettext
 
@@ -352,7 +352,7 @@ def config_facts_fields(
     prefix = "".join((space, ".", context, ".", key, "-"))
     while row < start_row + number:
         option = "".join((prefix, str(count)))
-        user_select = FrameFieldSelector(
+        user_select = CardFieldSelector(
             option,
             grstate,
             count,
@@ -468,7 +468,7 @@ def config_event_grid(grstate, key, start=1, count=6):
     row_end = start + count
     for row in range(row_start, row_end):
         option = "".join((prefix, str(row)))
-        user_select = FrameFieldSelector(
+        user_select = CardFieldSelector(
             option,
             grstate,
             row,

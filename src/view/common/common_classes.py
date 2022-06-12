@@ -284,8 +284,10 @@ class GrampsObject:
         if reason:
             message = reason
         else:
-            message = " ".join(
-                (_("Updated"), self.obj_lang, self.obj.gramps_id)
+            message = "%s %s %s" % (
+                _("Updated"),
+                self.obj_lang,
+                self.obj.gramps_id,
             )
         commit_method = grstate.dbstate.db.method("commit_%s", self.obj_type)
         with DbTxn(message, grstate.dbstate.db) as trans:
@@ -418,8 +420,9 @@ class GrampsContext:
         """
         if self.reference_obj:
             if self.secondary_obj:
-                return "".join(
-                    (self.reference_obj.obj_type, self.secondary_obj.obj_type)
+                return "%s%s" % (
+                    self.reference_obj.obj_type,
+                    self.secondary_obj.obj_type,
                 )
             return self.reference_obj.obj_type
         if self.secondary_obj:
@@ -512,9 +515,9 @@ class GrampsContext:
         """
         key = self.primary_obj.obj.handle
         if self.reference_obj:
-            key = "-".join((key, self.reference_obj.obj.ref))
+            key = "%s-%s" % (key, self.reference_obj.obj.ref)
         if self.secondary_obj:
-            key = "-".join((key, self.secondary_obj.obj_hash))
+            key = "%s-%s" % (key, self.secondary_obj.obj_hash)
         return key
 
     def refresh(self, grstate):
@@ -682,13 +685,13 @@ class GrampsState:
 # ------------------------------------------------------------------------
 class GrampsOptions:
     """
-    A simple class to encapsulate the options for a Gramps frame or list.
+    A simple class to encapsulate the options for a Gramps card or list.
     """
 
-    def __init__(self, option_space, size_groups=None, frame_number=0):
+    def __init__(self, option_space, size_groups=None, card_number=0):
         self.option_space = option_space
         self.context = option_space.split(".")[-1]
-        self.frame_number = frame_number
+        self.card_number = card_number
         self.size_groups = size_groups
         self.ref_mode = 0
         self.vertical_orientation = True
@@ -733,9 +736,9 @@ class GrampsOptions:
 
     def set_number(self, value):
         """
-        Set frame number.
+        Set card number.
         """
-        self.frame_number = value
+        self.card_number = value
 
     def set_relation(self, value):
         """
@@ -764,8 +767,8 @@ class GrampsOptions:
 class GrampsConfig:
     """
     The GrampsConfig class provides the basis for handling configuration
-    related information and helper methods common to both the GrampsFrame
-    and the various GrampsFrameGroup classes.
+    related information and helper methods common to both the GrampsCard
+    and the various GrampsCardGroup classes.
     """
 
     def __init__(self, grstate, groptions):
@@ -781,12 +784,12 @@ class GrampsConfig:
 
     def get_option(self, key, full=True):
         """
-        Fetches an option in the frame configuration name space.
+        Fetches an option in the card configuration name space.
         """
         if key[:5] in ["activ", "group"]:
             option = key
         else:
-            option = ".".join((self.groptions.option_space, key))
+            option = "%s.%s" % (self.groptions.option_space, key)
         try:
             return get_config_option(self.grstate.config, option, full=full)
         except AttributeError:
@@ -820,7 +823,7 @@ class GrampsConfig:
         if text:
             text = escape(text)
         if italic:
-            text = "".join(("<i>", text, "</i>"))
+            text = "<i>%s</i>" % text
         label.set_markup(self.detail_markup.format(text))
         return label
 

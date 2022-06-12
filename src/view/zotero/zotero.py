@@ -297,8 +297,9 @@ class GrampsZotero:
             and "locator" in zcitation
             and zcitation["locator"]
         ):
-            location = " ".join(
-                (zcitation["label"].capitalize(), zcitation["locator"])
+            location = "%s %s" % (
+                zcitation["label"].capitalize(),
+                zcitation["locator"],
             )
         gcitation.set_page(location)
         message = " ".join(
@@ -375,9 +376,9 @@ def construct_author_string(zsource):
             if "given" in zauthor:
                 name = zauthor["given"]
             if "family" in zauthor:
-                name = " ".join((name, zauthor["family"]))
+                name = "%s %s" % (name, zauthor["family"])
             if name:
-                author = "".join((author, comma, name))
+                author = "%s%s%s" % (author, comma, name)
                 comma = ", "
     return author
 

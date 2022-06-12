@@ -36,7 +36,7 @@ from gi.repository import Gtk
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -61,7 +61,7 @@ class FamilyObjectView(GrampsObjectView):
         }
         groptions = GrampsOptions("active.spouse", size_groups=groups)
         groptions.set_vertical(False)
-        self.view_object = FRAME_MAP["Family"](
+        self.view_object = CARD_MAP["Family"](
             self.grstate,
             groptions,
             family,
@@ -119,7 +119,7 @@ class FamilyObjectView(GrampsObjectView):
                 ):
                     groptions.force_compact = True
                 groptions.set_relation(person)
-                return FRAME_MAP["Family"](
+                return CARD_MAP["Family"](
                     self.grstate,
                     groptions,
                     family,

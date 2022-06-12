@@ -19,7 +19,7 @@
 #
 
 """
-FrameGroup builder functions
+CardGroup builder functions
 """
 
 # ------------------------------------------------------------------------
@@ -43,12 +43,12 @@ from gramps.gen.lib import Family, Person
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames import FamilyFrame
-from .group_children import ChildrenFrameGroup
+from ..cards import FamilyCard
+from .group_children import ChildrenCardGroup
 from .group_const import GRAMPS_GROUPS
-from .group_events import EventsFrameGroup
-from .group_expander import FrameGroupExpander
-from .group_generic import GenericFrameGroup
+from .group_events import EventsCardGroup
+from .group_expander import CardGroupExpander
+from .group_generic import GenericCardGroup
 
 _ = glocale.translation.sgettext
 
@@ -78,16 +78,16 @@ def build_simple_group(grstate, group_type, obj, args):
     """
     Generate and return a simple group for a given object.
     """
-    framegroup, single, plural = GRAMPS_GROUPS[group_type]
+    cardgroup, single, plural = GRAMPS_GROUPS[group_type]
     if group_type == "timeline":
         if "page_type" in args:
             page_type = args["page_type"]
         else:
             page_type = "other"
-        groptions = GrampsOptions("".join(("timeline.", page_type)))
+        groptions = GrampsOptions("timeline.%s" % page_type)
         groptions.set_context("timeline")
     else:
-        groptions = GrampsOptions("".join(("group.", group_type)))
+        groptions = GrampsOptions("group.%s" % group_type)
 
     if "age_base" in args and args["age_base"]:
         groptions.set_age_base(args["age_base"])
@@ -98,7 +98,7 @@ def build_simple_group(grstate, group_type, obj, args):
     if "title" in args and args["title"]:
         groptions.title = args["title"]
 
-    group = framegroup(grstate, groptions, obj)
+    group = cardgroup(grstate, groptions, obj)
     if not group or len(group) == 0:
         return None
     if "raw" in args and args["raw"]:
@@ -108,26 +108,26 @@ def build_simple_group(grstate, group_type, obj, args):
 
 def group_wrapper(grstate, group, title):
     """
-    Wrap a frame group widget with an expander.
+    Wrap a card group widget with an expander.
     """
     group_title = get_group_title(group, title)
-    content = FrameGroupExpander(grstate)
-    content.set_label("".join(("<small><b>", group_title, "</b></small>")))
+    content = CardGroupExpander(grstate)
+    content.set_label("<small><b>%s</b></small>" % group_title)
     content.add(group)
     return content
 
 
 def get_group_title(group, title):
     """
-    Build title for a frame group.
+    Build title for a card group.
     """
     (single, plural, fixed) = title
     group_title = fixed
     if not group_title:
         if len(group) == 1:
-            group_title = " ".join(("1", single))
+            group_title = "1 %s" % single
         else:
-            group_title = " ".join((str(len(group)), plural))
+            group_title = "%s %s" % (str(len(group)), plural)
     return group_title
 
 
@@ -141,12 +141,12 @@ def get_children_group(
     """
     Get the group for all the children in a family unit.
     """
-    groptions = GrampsOptions("".join(("group.", context)))
+    groptions = GrampsOptions("group.%s" % context)
     groptions.set_relation(person)
     groptions.set_context(context)
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    group = ChildrenFrameGroup(grstate, groptions, family)
+    group = ChildrenCardGroup(grstate, groptions, family)
     if not group or len(group) == 0:
         return None
     if "raw" in args and args["raw"]:
@@ -162,11 +162,11 @@ def get_family_unit(grstate, family, args, context="family", relation=None):
     """
     Get the group for a family unit.
     """
-    groptions = GrampsOptions("".join(("group.", context)))
+    groptions = GrampsOptions("group.%s" % context)
     groptions.set_relation(relation)
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    couple = FamilyFrame(
+    couple = FamilyCard(
         grstate,
         groptions,
         family,
@@ -194,13 +194,11 @@ def get_parents_group(grstate, person, args):
         if "raw" not in args or not args["raw"]:
             groptions = GrampsOptions("group.parent")
             groptions.set_context("parent")
-            parents = FrameGroupExpander(
+            parents = CardGroupExpander(
                 grstate, expanded=True, use_markup=True
             )
             parents.set_label(
-                "".join(
-                    ("<small><b>", _("Parents and Siblings"), "</b></small>")
-                )
+                "<small><b>%s</b></small>" % _("Parents and Siblings")
             )
             parents.add(elements)
         else:
@@ -232,17 +230,11 @@ def get_spouses_group(grstate, person, args):
             if "raw" not in args or not args["raw"]:
                 groptions = GrampsOptions("group.spouse")
                 groptions.set_context("spouse")
-                spouses = FrameGroupExpander(
+                spouses = CardGroupExpander(
                     grstate, expanded=True, use_markup=True
                 )
                 spouses.set_label(
-                    "".join(
-                        (
-                            "<small><b>",
-                            _("Spouses and Children"),
-                            "</b></small>",
-                        )
-                    )
+                    "<small><b>%s</b></small>" % _("Spouses and Children")
                 )
                 spouses.add(elements)
             else:
@@ -281,16 +273,14 @@ def get_references_group(
         tuple_list = tuple_list[:maximum]
 
     groptions = prepare_reference_options(groptions, args)
-    group = GenericFrameGroup(grstate, groptions, "Tuples", tuple_list)
+    group = GenericCardGroup(grstate, groptions, "Tuples", tuple_list)
 
     single, plural = _("Reference"), _("References")
     if args and "title" in args:
         (single, plural) = args["title"]
     title = get_group_title(group, (single, plural, None))
     if not_shown:
-        title = "".join(
-            (title, " (", str(not_shown), " ", _("Not Shown"), ")")
-        )
+        title = "%s (%s %s)" % (title, str(not_shown), _("Not Shown"))
     return group_wrapper(grstate, group, (None, None, title))
 
 
@@ -365,7 +355,7 @@ def prepare_event_group(grstate, obj, obj_type, args):
         groptions.set_age_base(args["age_base"])
     if "title" in args and args["title"]:
         groptions.title = args["title"]
-    group = EventsFrameGroup(grstate, groptions, obj)
+    group = EventsCardGroup(grstate, groptions, obj)
     elements = Gtk.VBox(spacing=6)
     elements.add(group)
 
@@ -375,7 +365,7 @@ def prepare_event_group(grstate, obj, obj_type, args):
         event_type = _("Family")
 
     if len(group) == 1:
-        title = " ".join(("1", event_type, _("Event")))
+        title = "1 %s %s" % (event_type, _("Event"))
     else:
-        title = " ".join((str(len(group)), event_type, _("Events")))
+        title = "%s %s %s" % (str(len(group)), event_type, _("Events"))
     return group_wrapper(grstate, elements, (None, None, title))

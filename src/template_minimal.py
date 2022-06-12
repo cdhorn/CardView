@@ -142,8 +142,8 @@ _TEMPLATE = (
     ("media-bar.filter-non-photos", False),
     ("media-bar.page-link", True),
     ######################################################################
-    # Frame Level Options
-    # These apply when the frame is in the page header and not a group
+    # Card Level Options
+    # These apply when the card is in the page header and not a group
     #
     ######################################################################
     ## Person Options
@@ -401,7 +401,7 @@ _TEMPLATE = (
     ("active.note.preview-lines", 3),
     ######################################################################
     # Group Level Options
-    # These apply when the frame is in a group and not the page header
+    # These apply when the card is in a group and not the page header
     #
     ######################################################################
     ## Person Options

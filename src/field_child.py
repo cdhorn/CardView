@@ -140,7 +140,7 @@ def get_child_field(grstate, obj, _dummy_field_value, args):
         total = total + 1
         if child_ref.ref == obj.handle:
             number = total
-    data = [" ".join((str(number), _("of"), str(total)))]
+    data = ["%s %s %s" % (str(number), _("of"), str(total))]
 
     if person_birth:
         data = data + get_optional_fields(grstate, parent_family, person_birth)
@@ -213,9 +213,9 @@ def get_parent_age_text(parent_birth_date, event_date, parent_type):
     span = get_span(parent_birth_date, event_date)
     if span:
         if parent_type == "Mother":
-            parent_text = " ".join((_("Mother age"), span))
+            parent_text = "%s %s" % (_("Mother age"), span)
         else:
-            parent_text = " ".join((_("Father age"), span))
+            parent_text = "%s %s" % (_("Father age"), span)
     return parent_text
 
 
@@ -241,14 +241,14 @@ def get_family_text(db, family, birth_date, death_text):
             status = _("divorced")
 
     if status:
-        family_text = " ".join((_("Parents"), status))
+        family_text = "%s %s" % (_("Parents"), status)
 
     if death_text:
-        family_text = "; ".join((family_text, death_text))
+        family_text = "%s; %s" % (family_text, death_text)
     elif birth_date and base_date:
         span = get_span(base_date, birth_date)
         if span:
-            family_text = " ".join((family_text, span))
+            family_text = "%s %s" % (family_text, span)
     return family_text
 
 

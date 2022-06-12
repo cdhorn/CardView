@@ -29,7 +29,7 @@ MediaObjectView
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -57,7 +57,7 @@ class MediaObjectView(GrampsObjectView):
             age_base = media.obj.get_date_object()
 
         groptions = GrampsOptions("active.media")
-        self.view_object = FRAME_MAP["Media"](
+        self.view_object = CARD_MAP["Media"](
             self.grstate, groptions, media.obj
         )
         self.view_focus = self.wrap_focal_widget(self.view_object)

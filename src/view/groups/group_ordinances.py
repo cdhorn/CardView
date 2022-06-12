@@ -19,7 +19,7 @@
 #
 
 """
-LDSOrdinancesFrameGroup
+LDSOrdinancesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,26 +27,26 @@ LDSOrdinancesFrameGroup
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import LDSOrdinanceFrame
-from .group_list import FrameGroupList
+from ..cards import LDSOrdinanceCard
+from .group_list import CardGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# LDSOrdinancesFrameGroup Class
+# LDSOrdinancesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class LDSOrdinancesFrameGroup(FrameGroupList):
+class LDSOrdinancesCardGroup(CardGroupList):
     """
-    The LDSOrdinancesFrameGroup class provides a container for managing
+    The LDSOrdinancesCardGroup class provides a container for managing
     all of the ordinances a person or family may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for ordinance in obj.lds_ord_list:
-            frame = LDSOrdinanceFrame(grstate, groptions, obj, ordinance)
-            self.add_frame(frame)
+            card = LDSOrdinanceCard(grstate, groptions, obj, ordinance)
+            self.add_card(card)
         self.show_all()

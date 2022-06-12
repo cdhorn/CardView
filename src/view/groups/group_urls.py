@@ -19,7 +19,7 @@
 #
 
 """
-UrlsFrameGroup
+UrlsCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,24 +34,24 @@ import re
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import NoteUrlFrame, UrlFrame
-from .group_list import FrameGroupList
+from ..cards import NoteUrlCard, UrlCard
+from .group_list import CardGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# UrlsFrameGroup Class
+# UrlsCardGroup Class
 #
 # ------------------------------------------------------------------------
-class UrlsFrameGroup(FrameGroupList):
+class UrlsCardGroup(CardGroupList):
     """
-    The UrlsFrameGroup class provides a container for launching all
+    The UrlsCardGroup class provides a container for launching all
     of the urls associated with an object. It gathers them from the url
     list but also extracts what it can from the notes as well.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         self.parse_urls()
@@ -65,10 +65,10 @@ class UrlsFrameGroup(FrameGroupList):
         """
         if self.group_base.has_urls:
             for url in self.group_base.obj.urls:
-                frame = UrlFrame(
+                card = UrlCard(
                     self.grstate, self.groptions, self.group_base.obj, url
                 )
-                self.add_frame(frame)
+                self.add_card(card)
 
     def parse_notes(self):
         """
@@ -99,5 +99,5 @@ class UrlsFrameGroup(FrameGroupList):
         text = link
         if text[-1:] == ".":
             text = text[:-1]
-        frame = NoteUrlFrame(self.grstate, self.groptions, note, text)
-        self.add_frame(frame)
+        card = NoteUrlCard(self.grstate, self.groptions, note, text)
+        self.add_card(card)

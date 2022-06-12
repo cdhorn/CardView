@@ -19,7 +19,7 @@
 #
 
 """
-FrameGroup constants
+CardGroup constants
 """
 
 # ------------------------------------------------------------------------
@@ -34,102 +34,102 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin modules
 #
 # ------------------------------------------------------------------------
-from .group_addresses import AddressesFrameGroup
-from .group_associations import AssociationsFrameGroup
-from .group_attributes import AttributesFrameGroup
-from .group_citations import CitationsFrameGroup
-from .group_lineage import PaternalLineageFrameGroup, MaternalLineageFrameGroup
-from .group_media import MediaFrameGroup
-from .group_names import NamesFrameGroup
-from .group_notes import NotesFrameGroup
-from .group_ordinances import LDSOrdinancesFrameGroup
-from .group_places import EnclosedPlacesFrameGroup, EnclosingPlacesFrameGroup
-from .group_repositories import RepositoriesFrameGroup
-from .group_sources import SourcesFrameGroup
-from .group_timeline import TimelineFrameGroup
-from .group_urls import UrlsFrameGroup
+from .group_addresses import AddressesCardGroup
+from .group_associations import AssociationsCardGroup
+from .group_attributes import AttributesCardGroup
+from .group_citations import CitationsCardGroup
+from .group_lineage import PaternalLineageCardGroup, MaternalLineageCardGroup
+from .group_media import MediaCardGroup
+from .group_names import NamesCardGroup
+from .group_notes import NotesCardGroup
+from .group_ordinances import LDSOrdinancesCardGroup
+from .group_places import EnclosedPlacesCardGroup, EnclosingPlacesCardGroup
+from .group_repositories import RepositoriesCardGroup
+from .group_sources import SourcesCardGroup
+from .group_timeline import TimelineCardGroup
+from .group_urls import UrlsCardGroup
 
 _ = glocale.translation.sgettext
 
 
 GRAMPS_GROUPS = {
     "citation": (
-        CitationsFrameGroup,
+        CitationsCardGroup,
         _("Citation"),
         _("Citations"),
     ),
     "timeline": (
-        TimelineFrameGroup,
+        TimelineCardGroup,
         _("Timeline Event"),
         _("Timeline Events"),
     ),
     "media": (
-        MediaFrameGroup,
+        MediaCardGroup,
         _("Media Item"),
         _("Media Items"),
     ),
     "ldsord": (
-        LDSOrdinancesFrameGroup,
+        LDSOrdinancesCardGroup,
         _("Ordinance"),
         _("Ordinances"),
     ),
     "source": (
-        SourcesFrameGroup,
+        SourcesCardGroup,
         _("Source"),
         _("Sources"),
     ),
     "repository": (
-        RepositoriesFrameGroup,
+        RepositoriesCardGroup,
         _("Repository"),
         _("Repositories"),
     ),
     "note": (
-        NotesFrameGroup,
+        NotesCardGroup,
         _("Note"),
         _("Notes"),
     ),
     "association": (
-        AssociationsFrameGroup,
+        AssociationsCardGroup,
         _("Association"),
         _("Associations"),
     ),
     "address": (
-        AddressesFrameGroup,
+        AddressesCardGroup,
         _("Address"),
         _("Addresses"),
     ),
     "attribute": (
-        AttributesFrameGroup,
+        AttributesCardGroup,
         _("Attribute"),
         _("Attributes"),
     ),
     "enclosing": (
-        EnclosingPlacesFrameGroup,
+        EnclosingPlacesCardGroup,
         _("Enclosing Place"),
         _("Enclosing Places"),
     ),
     "enclosed": (
-        EnclosedPlacesFrameGroup,
+        EnclosedPlacesCardGroup,
         _("Enclosed Place"),
         _("Enclosed Places"),
     ),
     "name": (
-        NamesFrameGroup,
+        NamesCardGroup,
         _("Name"),
         _("Names"),
     ),
     "url": (
-        UrlsFrameGroup,
+        UrlsCardGroup,
         _("Url"),
         _("Urls"),
     ),
     "paternal": (
-        PaternalLineageFrameGroup,
+        PaternalLineageCardGroup,
         _("Paternal Lineage"),
         _("Paternal Lineage"),
     ),
     "maternal": (
-        MaternalLineageFrameGroup,
+        MaternalLineageCardGroup,
         _("Maternal Lineage"),
         _("Maternal Lineage"),
     ),

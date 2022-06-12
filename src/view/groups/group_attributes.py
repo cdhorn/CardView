@@ -19,7 +19,7 @@
 #
 
 """
-AttributesFrameGroup
+AttributesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,26 +27,26 @@ AttributesFrameGroup
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import AttributeFrame
-from .group_list import FrameGroupList
+from ..cards import AttributeCard
+from .group_list import CardGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# AttributesFrameGroup Class
+# AttributesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class AttributesFrameGroup(FrameGroupList):
+class AttributesCardGroup(CardGroupList):
     """
-    The AttributesFrameGroup class provides a container for managing
+    The AttributesCardGroup class provides a container for managing
     all of the attributes an object may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         for attribute in obj.attribute_list:
-            frame = AttributeFrame(grstate, groptions, obj, attribute)
-            self.add_frame(frame)
+            card = AttributeCard(grstate, groptions, obj, attribute)
+            self.add_card(card)
         self.show_all()

@@ -98,7 +98,7 @@ class TextLink(Gtk.EventBox):
         if markup:
             self.name = markup.format(self.name)
         if bold:
-            self.name = "".join(("<b>", self.name, "</b>"))
+            self.name = "<b>%s</b>" % self.name
         self.label = Gtk.Label(
             hexpand=hexpand,
             halign=Gtk.Align.START,
@@ -128,7 +128,7 @@ class TextLink(Gtk.EventBox):
         """
         Cursor entered so highlight.
         """
-        self.label.set_markup("".join(("<u>", self.name, "</u>")))
+        self.label.set_markup("<u>%s</u>" % self.name)
 
     def leave(self, _dummy_obj, _dummy_event):
         """
@@ -189,9 +189,9 @@ def format_color_css(background, border):
     scheme = global_config.get("colors.scheme")
     css = ""
     if background:
-        css = "".join(("background-color: ", background[scheme], ";"))
+        css = "background-color: %s;" % background[scheme]
     if border:
-        css = "".join((css, " border-color: ", border[scheme], ";"))
+        css = "%s border-color: %s;" % (css, border[scheme])
     return css
 
 
@@ -203,8 +203,8 @@ def get_confidence_color_css(index, config):
         return ""
 
     key = CONFIDENCE_COLOR_SCHEME[index]
-    background = config.get("".join(("colors.confidence.", key)))
-    border = config.get("".join(("colors.confidence.border-", key)))
+    background = config.get("colors.confidence.%s" % key)
+    border = config.get("colors.confidence.border-%s" % key)
     return format_color_css(background, border)
 
 
@@ -229,8 +229,8 @@ def get_relationship_color_css(relationship, config):
                     key = relative
                 break
 
-    background = config.get("".join(("colors.relations.", key)))
-    border = config.get("".join(("colors.relations.border-", key)))
+    background = config.get("colors.relations.%s" % key)
+    border = config.get("colors.relations.border-%s" % key)
     return format_color_css(background, border)
 
 
@@ -241,8 +241,8 @@ def get_event_category_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("".join(("colors.events.", index)))
-    border = config.get("".join(("colors.events.border-", index)))
+    background = config.get("colors.events.%s" % index)
+    border = config.get("colors.events.border-%s" % index)
     return format_color_css(background, border)
 
 
@@ -253,8 +253,8 @@ def get_event_role_color_css(index, config):
     if not index:
         return ""
 
-    background = config.get("".join(("colors.roles.", index)))
-    border = config.get("".join(("colors.roles.border-", index)))
+    background = config.get("colors.roles.%s" % index)
+    border = config.get("colors.roles.border-%s" % index)
     return format_color_css(background, border)
 
 
@@ -276,11 +276,11 @@ def get_person_color_css(person, living=False, home=None):
     else:
         value = "dead"
 
-    border = global_config.get("".join(("colors.border-", key, "-", value)))
+    border = global_config.get("colors.border-%s-%s" % (key, value))
     if home and home.handle == person.handle:
         key = "home"
         value = "person"
-    background = global_config.get("".join(("colors.", key, "-", value)))
+    background = global_config.get("colors.%s-%s" % (key, value))
     return format_color_css(background, border)
 
 
@@ -304,7 +304,7 @@ def get_family_color_css(family, divorced=False):
             4: "",
             99: "-divorced",
         }
-        background = global_config.get("".join(("colors.family", values[key])))
+        background = global_config.get("colors.family%s" % values[key])
     return format_color_css(background, border)
 
 
@@ -329,7 +329,7 @@ def save_config_option(config, option, option_type, option_value=""):
     """
     Save a compound config option.
     """
-    config.set(option, ":".join((option_type, option_value)))
+    config.set(option, "%s:%s" % (option_type, option_value))
 
 
 def citation_option_text(db, citation):
@@ -341,11 +341,11 @@ def citation_option_text(db, citation):
         if source.title:
             text = source.title
         else:
-            text = "".join(("[", _("Missing Source"), "]"))
+            text = "[%s]" % _("Missing Source")
     if citation.page:
-        text = ": ".join((text, citation.page))
+        text = "%s: %s" % (text, citation.page)
     else:
-        text = "".join((text, ": [", _("Missing Page"), "]"))
+        text = "%s: [%s]" % (text, _("Missing Page"))
     return text
 
 
@@ -528,14 +528,9 @@ def set_dnd_css(row, top):
         text = "top"
     else:
         text = "bottom"
-    css = "".join(
-        (
-            ".frame { border-",
-            text,
-            "-width: 3px; border-",
-            text,
-            "-color: #4e9a06; }",
-        )
+    css = ".frame { border-%s-width: 3px; border-%s-color: #4e9a06; }" % (
+        text,
+        text,
     )
     provider = Gtk.CssProvider()
     provider.load_from_data(css.encode("utf-8"))
@@ -579,36 +574,20 @@ def describe_object(db, obj):
     if obj_type == "Tag":
         return obj.name
     if obj_type == "Attribute":
-        return ": ".join((_("Attribute"), str(obj.get_type())))
+        return "%s: %s" % (_("Attribute"), str(obj.get_type()))
     if obj_type == "EventRef":
         title, dummy_obj = navigation_label(db, "Event", obj.ref)
         title = clean_title(title, "]")
         title = clean_title(title, "-")
-        return "".join((_("Event"), " ", _("Reference"), ": ", title))
+        return "%s %s: %s" % (_("Event"), _("Reference"), title)
     if obj_type == "ChildRef":
         title, dummy_obj = navigation_label(db, "Person", obj.ref)
         title = clean_title(title, "]")
-        return "".join(
-            (
-                _("Child"),
-                " ",
-                _("Reference"),
-                ": ",
-                title,
-            )
-        )
+        return "%s %s: %s" % (_("Child"), _("Reference"), title)
     if obj_type == "PersonRef":
         title, dummy_obj = navigation_label(db, "Person", obj.ref)
         title = clean_title(title, "]")
-        return "".join(
-            (
-                _("Person"),
-                " ",
-                _("Reference"),
-                ": ",
-                title,
-            )
-        )
+        return "%s %s: %s" % (_("Person"), _("Reference"), title)
     return obj_lang
 
 
@@ -652,12 +631,12 @@ def format_address_usa(lines, address):
         line = address.city
         comma = ", "
     elif address.county:
-        line = "".join((line, comma, address.county))
+        line = "%s%s%s" % (line, comma, address.county)
         comma = ", "
     if address.state:
-        line = "".join((line, comma, address.state))
+        line = "%s%s%s" % (line, comma, address.state)
     if address.postal:
-        line = " ".join((line, address.postal))
+        line = "%s %s" % (line, address.postal)
     if line:
         lines.append(line)
     if address.country:

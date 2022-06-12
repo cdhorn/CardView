@@ -19,7 +19,7 @@
 #
 
 """
-EnclosingPlacesFrameGroup and EnclosedPlacesFrameGroup
+EnclosingPlacesCardGroup and EnclosedPlacesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,39 +34,37 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import PlaceRefFrame
-from .group_list import FrameGroupList
+from ..cards import PlaceRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# EnclosingPlacesFrameGroup Class
+# EnclosingPlacesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class EnclosingPlacesFrameGroup(FrameGroupList):
+class EnclosingPlacesCardGroup(CardGroupList):
     """
     A container for managing a list of enclosing places.
     """
 
     def __init__(self, grstate, groptions, place):
-        FrameGroupList.__init__(self, grstate, groptions, place)
+        CardGroupList.__init__(self, grstate, groptions, place)
         groptions.option_space = "group.place"
         groptions.set_ref_mode(
-            grstate.config.get(
-                "".join((groptions.option_space, ".reference-mode"))
-            )
+            grstate.config.get("%s.reference-mode" % groptions.option_space)
         )
         place_list = []
         self.build_enclosing_place_list(place_list, place.handle)
         place_list.reverse()
 
         for (list_place, list_place_ref) in place_list:
-            profile = PlaceRefFrame(
+            profile = PlaceRefCard(
                 grstate, groptions, list_place, list_place_ref
             )
-            self.add_frame(profile)
+            self.add_card(profile)
         self.show_all()
 
     def build_enclosing_place_list(self, place_list, handle):
@@ -89,22 +87,20 @@ class EnclosingPlacesFrameGroup(FrameGroupList):
 
 # ------------------------------------------------------------------------
 #
-# EnclosedPlacesFrameGroup Class
+# EnclosedPlacesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class EnclosedPlacesFrameGroup(FrameGroupList):
+class EnclosedPlacesCardGroup(CardGroupList):
     """
     A container for managing a list of enclosed places.
     """
 
     def __init__(self, grstate, groptions, place):
-        FrameGroupList.__init__(self, grstate, groptions, place)
+        CardGroupList.__init__(self, grstate, groptions, place)
         groptions.set_backlink(place.handle)
         groptions.option_space = "group.place"
         groptions.set_ref_mode(
-            grstate.config.get(
-                "".join((groptions.option_space, ".reference-mode"))
-            )
+            grstate.config.get("%s.reference-mode" % groptions.option_space)
         )
         self.maximum = grstate.config.get("group.place.max-per-group")
         recurse = grstate.config.get("group.place.show-all-enclosed-places")
@@ -114,10 +110,10 @@ class EnclosedPlacesFrameGroup(FrameGroupList):
         )
 
         for (list_place, list_place_ref) in place_list:
-            profile = PlaceRefFrame(
+            profile = PlaceRefCard(
                 grstate, groptions, list_place, list_place_ref
             )
-            self.add_frame(profile)
+            self.add_card(profile)
         self.show_all()
 
     def build_enclosed_place_list(self, place_list, handle, recurse=False):

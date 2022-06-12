@@ -19,7 +19,7 @@
 #
 
 """
-PaternalLineageFrameGroup, MaternalLineageFrameGroup
+PaternalLineageCardGroup, MaternalLineageCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,24 +35,24 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames import FamilyFrame
-from .group_list import FrameGroupList
+from ..cards import FamilyCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# PaternalLineageFrameGroup Class
+# PaternalLineageCardGroup Class
 #
 # ------------------------------------------------------------------------
-class PaternalLineageFrameGroup(FrameGroupList):
+class PaternalLineageCardGroup(CardGroupList):
     """
     A container with a list of paternal ancestors for a person.
     """
 
     def __init__(self, grstate, groptions, person, maternal=False):
-        FrameGroupList.__init__(self, grstate, groptions, person)
+        CardGroupList.__init__(self, grstate, groptions, person)
         mode = 0
         groptions = GrampsOptions("group.person")
         groptions.maternal_mode = maternal
@@ -76,12 +76,12 @@ class PaternalLineageFrameGroup(FrameGroupList):
         Render lineage with family cards.
         """
         for family in families:
-            couple_widget = FamilyFrame(
+            couple_widget = FamilyCard(
                 self.grstate,
                 groptions,
                 family,
             )
-            self.add_frame(couple_widget)
+            self.add_card(couple_widget)
 
     def extract_line(self, maternal=False):
         """
@@ -120,15 +120,15 @@ class PaternalLineageFrameGroup(FrameGroupList):
 
 # ------------------------------------------------------------------------
 #
-# MaternalLineageFrameGroup Class
+# MaternalLineageCardGroup Class
 #
 # ------------------------------------------------------------------------
-class MaternalLineageFrameGroup(PaternalLineageFrameGroup):
+class MaternalLineageCardGroup(PaternalLineageCardGroup):
     """
     A container with a list of maternal ancestors for a person.
     """
 
     def __init__(self, grstate, groptions, person):
-        PaternalLineageFrameGroup.__init__(
+        PaternalLineageCardGroup.__init__(
             self, grstate, groptions, person, maternal=True
         )

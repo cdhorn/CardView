@@ -19,7 +19,7 @@
 #
 
 """
-ChildrenFrameGroup
+ChildrenCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -39,51 +39,49 @@ from gramps.gui.editors import EditChildRef
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import ChildRefFrame
-from .group_list import FrameGroupList
+from ..cards import ChildRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# ChildrenFrameGroup Class
+# ChildrenCardGroup Class
 #
 # ------------------------------------------------------------------------
-class ChildrenFrameGroup(FrameGroupList):
+class ChildrenCardGroup(CardGroupList):
     """
     A container for managing a list of children for a given family.
     """
 
     def __init__(self, grstate, groptions, family):
-        FrameGroupList.__init__(self, grstate, groptions, family)
+        CardGroupList.__init__(self, grstate, groptions, family)
         context = "child"
         if "parent" in groptions.option_space:
             context = "sibling"
 
         groptions.set_backlink(family.handle)
-        groptions.option_space = "".join(("group.", context))
+        groptions.option_space = "group.%s" % context
         groptions.set_ref_mode(
-            grstate.config.get(
-                "".join((groptions.option_space, ".reference-mode"))
-            )
+            grstate.config.get("%s.reference-mode" % groptions.option_space)
         )
 
         child_number = 0
         number_children = self.grstate.config.get(
-            "".join((groptions.option_space, ".number-children"))
+            "%s.number-children" % groptions.option_space
         )
         for child_ref in family.child_ref_list:
             if number_children:
                 child_number = child_number + 1
                 groptions.set_number(child_number)
-            profile = ChildRefFrame(
+            profile = ChildRefCard(
                 grstate,
                 groptions,
                 family,
                 child_ref,
             )
-            self.add_frame(profile)
+            self.add_card(profile)
         self.show_all()
 
     def save_reordered_list(self):
@@ -91,9 +89,9 @@ class ChildrenFrameGroup(FrameGroupList):
         Save a reordered list of children.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.child_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -115,8 +113,8 @@ class ChildrenFrameGroup(FrameGroupList):
             return
         if self.group_base.obj.mother_handle == handle:
             return
-        for frame in self.row_frames:
-            if frame.primary.obj.handle == handle:
+        for card in self.row_cards:
+            if card.primary.obj.handle == handle:
                 return
 
         child_ref = ChildRef()
@@ -141,9 +139,9 @@ class ChildrenFrameGroup(FrameGroupList):
         Save the new child added to the list of children.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.child_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, child_ref)
         child = self.fetch("Person", child_ref.ref)

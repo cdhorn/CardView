@@ -19,7 +19,7 @@
 #
 
 """
-GenericFrameGroup
+GenericCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,54 +35,54 @@ from gi.repository import Gtk
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
-from ..frames import (
-    CitationFrame,
-    EventFrame,
-    FamilyFrame,
-    MediaFrame,
-    NoteFrame,
-    PersonFrame,
-    PlaceFrame,
-    RepositoryFrame,
-    SourceFrame,
+from ..cards import (
+    CitationCard,
+    EventCard,
+    FamilyCard,
+    MediaCard,
+    NoteCard,
+    PersonCard,
+    PlaceCard,
+    RepositoryCard,
+    SourceCard,
 )
-from .group_list import FrameGroupList
+from .group_list import CardGroupList
 
-FRAME_MAP = {
-    "Person": PersonFrame,
-    "Family": FamilyFrame,
-    "Event": EventFrame,
-    "Place": PlaceFrame,
-    "Media": MediaFrame,
-    "Note": NoteFrame,
-    "Source": SourceFrame,
-    "Citation": CitationFrame,
-    "Repository": RepositoryFrame,
+CARD_MAP = {
+    "Person": PersonCard,
+    "Family": FamilyCard,
+    "Event": EventCard,
+    "Place": PlaceCard,
+    "Media": MediaCard,
+    "Note": NoteCard,
+    "Source": SourceCard,
+    "Citation": CitationCard,
+    "Repository": RepositoryCard,
 }
 
 
 # ------------------------------------------------------------------------
 #
-# GenericFrameGroup Class
+# GenericCardGroup Class
 #
 # ------------------------------------------------------------------------
-class GenericFrameGroup(FrameGroupList):
+class GenericCardGroup(CardGroupList):
     """
-    The GenericFrameGroup class provides a container for managing a
-    set of generic frames for a list of primary Gramps objects.
+    The GenericCardGroup class provides a container for managing a
+    set of generi..cards for a list of primary Gramps objects.
     """
 
-    def __init__(self, grstate, groptions, frame_obj_type, frame_obj_handles):
-        FrameGroupList.__init__(
+    def __init__(self, grstate, groptions, card_obj_type, card_obj_handles):
+        CardGroupList.__init__(
             self, grstate, groptions, None, enable_drop=False
         )
-        self.obj_type = frame_obj_type
-        self.obj_handles = frame_obj_handles
+        self.obj_type = card_obj_type
+        self.obj_handles = card_obj_handles
 
-        if frame_obj_type == "Tuples":
-            tuple_list = frame_obj_handles
+        if card_obj_type == "Tuples":
+            tuple_list = card_obj_handles
         else:
-            tuple_list = [(frame_obj_type, x) for x in frame_obj_handles]
+            tuple_list = [(card_obj_type, x) for x in card_obj_handles]
 
         groups = {
             "ref": Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL),
@@ -93,12 +93,12 @@ class GenericFrameGroup(FrameGroupList):
         }
 
         for obj_type, obj_handle in tuple_list:
-            if obj_type not in FRAME_MAP:
+            if obj_type not in CARD_MAP:
                 continue
-            group_space = "".join(("group.", obj_type.lower()))
+            group_space = "group.%s" % obj_type.lower()
             group_groptions = GrampsOptions(group_space, size_groups=groups)
             group_groptions.set_age_base(groptions.age_base)
             obj = self.fetch(obj_type, obj_handle)
-            frame = FRAME_MAP[obj_type](grstate, group_groptions, obj)
-            self.add_frame(frame)
+            card = CARD_MAP[obj_type](grstate, group_groptions, obj)
+            self.add_card(card)
         self.show_all()

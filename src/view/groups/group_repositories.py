@@ -19,7 +19,7 @@
 #
 
 """
-RepositoriesFrameGroup
+RepositoriesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -34,31 +34,31 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import RepositoryRefFrame
-from .group_list import FrameGroupList
+from ..cards import RepositoryRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# RepositoriesFrameGroup Class
+# RepositoriesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class RepositoriesFrameGroup(FrameGroupList):
+class RepositoriesCardGroup(CardGroupList):
     """
-    The RepositoriesFrameGroup class provides a container for managing
+    The RepositoriesCardGroup class provides a container for managing
     all of the repositories that may contain a Source.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         groptions.set_ref_mode(
             self.grstate.config.get("group.repository.reference-mode")
         )
         for repo_ref in obj.reporef_list:
-            profile = RepositoryRefFrame(grstate, groptions, obj, repo_ref)
-            self.add_frame(profile)
+            profile = RepositoryRefCard(grstate, groptions, obj, repo_ref)
+            self.add_card(profile)
         self.show_all()

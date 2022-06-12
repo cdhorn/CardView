@@ -29,7 +29,7 @@ PersonObjectView
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -62,7 +62,7 @@ class PersonObjectView(GrampsObjectView):
                 age_base = event.get_date_object()
 
         groptions = GrampsOptions("active.person")
-        self.view_object = FRAME_MAP["Person"](self.grstate, groptions, person)
+        self.view_object = CARD_MAP["Person"](self.grstate, groptions, person)
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 

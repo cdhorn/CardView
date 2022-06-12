@@ -110,7 +110,7 @@ def get_marriage_age_field(grstate, obj, field_value, args):
     if field_value == GROOM_AGE:
         return [(get_label(GROOM_AGE_LANG), get_label(groom_text))]
 
-    bride_text = " ".join((_("Bride age"), bride_text.lower()))
-    groom_text = " ".join((_("Groom age"), groom_text.lower()))
-    text = "; ".join((bride_text, groom_text))
+    bride_text = "%s %s" % (_("Bride age"), bride_text.lower())
+    groom_text = "%s %s" % (_("Groom age"), groom_text.lower())
+    text = "%s; %s" % (bride_text, groom_text)
     return [(get_label(AGES_LANG), get_label(text))]

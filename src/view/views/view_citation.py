@@ -29,7 +29,7 @@ CitationObjectView
 # -------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -57,11 +57,11 @@ class CitationObjectView(GrampsObjectView):
                 citation.obj.source_handle
             )
             groptions = GrampsOptions("active.source")
-            source_frame = FRAME_MAP["Source"](self.grstate, groptions, source)
-            self.view_header.pack_start(source_frame, False, False, 0)
+            source_card = CARD_MAP["Source"](self.grstate, groptions, source)
+            self.view_header.pack_start(source_card, False, False, 0)
 
         groptions = GrampsOptions("active.citation")
-        self.view_object = FRAME_MAP["Citation"](
+        self.view_object = CARD_MAP["Citation"](
             self.grstate, groptions, citation.obj
         )
         self.view_focus = self.wrap_focal_widget(self.view_object)

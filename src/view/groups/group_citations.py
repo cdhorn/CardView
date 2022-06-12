@@ -19,7 +19,7 @@
 #
 
 """
-CitationsFrameGroup
+CitationsCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,25 +35,25 @@ from gramps.gen.lib.citationbase import CitationBase
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import CitationFrame
-from .group_list import FrameGroupList
+from ..cards import CitationCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# CitationsFrameGroup Class
+# CitationsCardGroup Class
 #
 # ------------------------------------------------------------------------
-class CitationsFrameGroup(FrameGroupList):
+class CitationsCardGroup(CardGroupList):
     """
-    The CitationsFrameGroup class provides a container for viewing and
+    The CitationsCardGroup class provides a container for viewing and
     managing all of the citations associated with a primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         if self.group_base.is_primary:
@@ -70,10 +70,10 @@ class CitationsFrameGroup(FrameGroupList):
 
             for citation, references, ref_type, ref_desc in citation_list:
                 reference = (references, ref_type, ref_desc)
-                frame = CitationFrame(
+                card = CitationCard(
                     grstate, groptions, citation, reference=reference
                 )
-                self.add_frame(frame)
+                self.add_card(card)
         self.show_all()
 
     def save_new_object(self, handle, insert_row):

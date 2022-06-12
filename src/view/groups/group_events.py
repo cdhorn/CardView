@@ -19,7 +19,7 @@
 #
 
 """
-EventsFrameGroup
+EventsCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -37,27 +37,27 @@ from gramps.gui.editors import EditEventRef
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import EventRefFrame
-from .group_list import FrameGroupList
+from ..cards import EventRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# EventsFrameGroup Class
+# EventsCardGroup Class
 #
 # ------------------------------------------------------------------------
-class EventsFrameGroup(FrameGroupList):
+class EventsCardGroup(CardGroupList):
     """
-    The EventsFrameGroup class provides a container for managing
+    The EventsCardGroup class provides a container for managing
     the events associated with an object like a person or family. It only
     manages the list directly associated with the object, unlike a timeline
     that will look for all events associated with an object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(self, grstate, groptions, obj)
+        CardGroupList.__init__(self, grstate, groptions, obj)
         if self.group_base.obj_type == "Person":
             self.birth_ref = self.group_base.obj.get_birth_ref()
             self.death_ref = self.group_base.obj.get_death_ref()
@@ -71,13 +71,13 @@ class EventsFrameGroup(FrameGroupList):
         groptions.set_relation(obj)
 
         for event_ref in obj.event_ref_list:
-            frame = EventRefFrame(
+            card = EventRefCard(
                 grstate,
                 groptions,
                 obj,
                 event_ref,
             )
-            self.add_frame(frame)
+            self.add_card(card)
         self.show_all()
 
     def save_reordered_list(self):
@@ -85,9 +85,9 @@ class EventsFrameGroup(FrameGroupList):
         Save a reordered list of events.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.event_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -110,8 +110,8 @@ class EventsFrameGroup(FrameGroupList):
         """
         Add a new event to the list of events.
         """
-        for frame in self.row_frames:
-            if frame.primary.obj.handle == handle:
+        for card in self.row_cards:
+            if card.primary.obj.handle == handle:
                 return
 
         event_ref = EventRef()
@@ -135,9 +135,9 @@ class EventsFrameGroup(FrameGroupList):
         Save the new event added to the list of events.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.event_ref_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, event_ref)
         message = " ".join(

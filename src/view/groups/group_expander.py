@@ -23,7 +23,7 @@
 #
 
 """
-FrameGroup helper classes
+CardGroup helper classes
 """
 
 # ------------------------------------------------------------------------
@@ -54,12 +54,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# FrameGroupExpander Class
+# CardGroupExpander Class
 #
 # ------------------------------------------------------------------------
-class FrameGroupExpander(Gtk.Expander):
+class CardGroupExpander(Gtk.Expander):
     """
-    A simple class for managing collapse of a FrameGroup object.
+    A simple class for managing collapse of a CardGroup object.
     """
 
     def __init__(self, grstate, expanded=True, use_markup=True):

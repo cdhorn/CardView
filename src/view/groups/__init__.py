@@ -19,5 +19,5 @@
 #
 
 """
-Module containing the frame groups for the page views.
+Module containing the card groups for the page views.
 """

@@ -314,7 +314,7 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
         61,
         OPTION_MISSING_ALERT,
     )
-    configdialog.add_text(grid, "".join((_("Required Events"), ":")), 62)
+    configdialog.add_text(grid, "%s:" % _("Required Events"), 62)
     grid1 = config_event_fields(grstate, "missing", count=6)
     grid.attach(grid1, 1, 63, 2, 1)
     grids.append(grid)
@@ -404,7 +404,7 @@ def get_person_status_icons(grstate, obj, size):
     if missing_alerts:
         missing_icon = "emblem-important"
         missing_text = ", ".join(tuple(missing_alerts))
-        missing_text = "".join((_("Missing Events"), ": ", missing_text))
+        missing_text = "%s: %s" % (_("Missing Events"), missing_text)
     else:
         missing_icon = None
         missing_text = ""
@@ -453,18 +453,16 @@ def get_status_ranking(
         if primary and event_name in alert_list:
             if total_count == 0:
                 confidence_alerts.append(
-                    (event, "".join((str(event_type), ": ", _("Missing"))))
+                    (event, "%s: %s" % (str(event_type), _("Missing")))
                 )
             elif highest_confidence < alert_minimum:
                 confidence_alerts.append(
                     (
                         event,
-                        "".join(
-                            (
-                                str(event_type),
-                                ": ",
-                                get_confidence(highest_confidence),
-                            )
+                        "%s: %s"
+                        % (
+                            str(event_type),
+                            get_confidence(highest_confidence),
                         ),
                     )
                 )
@@ -703,9 +701,9 @@ class GrampsCitationAlertIcon(GrampsBaseIcon):
 
     def __init__(self, grstate, alert_list, size):
         if len(alert_list) > 1:
-            tooltip = " ".join((str(len(alert_list)), _("Citation Alerts")))
+            tooltip = "%s %s" % (str(len(alert_list)), _("Citation Alerts"))
         else:
-            tooltip = " ".join(("1", _("Citation Alert")))
+            tooltip = "1 %s" % _("Citation Alert")
         GrampsBaseIcon.__init__(
             self, grstate, "software-update-urgent", size=size, tooltip=tooltip
         )

@@ -334,9 +334,9 @@ class GrampsToDoIcon(GrampsBaseIcon):
 
     def __init__(self, grstate, todo_list, size):
         if len(todo_list) > 1:
-            tooltip = " ".join((str(len(todo_list)), _("To Do Tasks")))
+            tooltip = "%s %s" % (str(len(todo_list)), _("To Do Tasks"))
         else:
-            tooltip = " ".join(("1", _("To Do Task")))
+            tooltip = "1 %s" % _("To Do Task")
         GrampsBaseIcon.__init__(
             self, grstate, "task-due", size=size, tooltip=tooltip
         )
@@ -354,7 +354,7 @@ class GrampsToDoIcon(GrampsBaseIcon):
         for (obj_path, note) in self.todo_list:
             text = "->".join(tuple(obj_path))
             text = "->".join((text, _("Note")))
-            text = " ".join((text, note.gramps_id))
+            text = "%s %s" % (text, note.gramps_id)
             menu.append(menu_item("task-due", text, callback, note))
         return show_menu(menu, self, event)
 

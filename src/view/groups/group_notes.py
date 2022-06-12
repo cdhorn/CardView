@@ -19,7 +19,7 @@
 #
 
 """
-NotesFrameGroup
+NotesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,25 +35,25 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_utils import get_object_type
-from ..frames import NoteFrame
-from .group_list import FrameGroupList
+from ..cards import NoteCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# NotesFrameGroup Class
+# NotesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class NotesFrameGroup(FrameGroupList):
+class NotesCardGroup(CardGroupList):
     """
-    The NotesFrameGroup class provides a container for managing all
+    The NotesCardGroup class provides a container for managing all
     of the notes associated with an object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         if not self.group_base.has_notes:
@@ -70,9 +70,9 @@ class NotesFrameGroup(FrameGroupList):
         notes = notes[:maximum]
         for (obj_lang, handle) in notes:
             note = self.fetch("Note", handle)
-            frame = NoteFrame(grstate, groptions, note, reference=obj_lang)
-            frame.set_size_request(220, -1)
-            self.add_frame(frame)
+            card = NoteCard(grstate, groptions, note, reference=obj_lang)
+            card.set_size_request(220, -1)
+            self.add_card(card)
         self.show_all()
 
     def get_child_object_notes(self, notes):

@@ -57,7 +57,7 @@ class ZoteroBibTex:
         """
         GET data.
         """
-        target = "".join((self.base_url, "/", endpoint))
+        target = "%s/%s" % (self.base_url, endpoint)
         with urllib.request.urlopen(target, timeout=timeout) as response:
             data = response.read().decode("utf-8")
         return data
@@ -70,7 +70,7 @@ class ZoteroBibTex:
             payload = data.encode("utf-8")
         else:
             payload = json.dumps(data).encode("utf-8")
-        target = "".join((self.base_url, "/", endpoint))
+        target = "%s/%s" % (self.base_url, endpoint)
         request = urllib.request.Request(target, data=payload, method="POST")
         request.add_header("Content-Type", "application/json")
         request.add_header("Accept", "application/json")
@@ -151,15 +151,10 @@ class ZoteroBibTex:
         """
         Get export of a collection.
         """
-        endpoint = "".join(
-            (
-                "collection?",
-                collection_id,
-                ".",
-                collection_format,
-                "&exportNotes=",
-                str(notes).lower(),
-            )
+        endpoint = "collection?%s.%s&exportNotes=%s" % (
+            collection_id,
+            collection_format,
+            str(notes).lower(),
         )
         return self._get(endpoint)
 

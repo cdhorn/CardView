@@ -125,7 +125,7 @@ def add_edit_menu_option(grstate, parent_menu, grobject, grchild=None):
         action = action_handler(grchild.obj_type, grstate, grchild, grobject)
     else:
         action = action_handler(grobject.obj_type, grstate, grobject)
-    text = " ".join((_("Edit"), target_object.obj_lang.lower()))
+    text = "%s %s" % (_("Edit"), target_object.obj_lang.lower())
     parent_menu.append(
         menu_item(
             "gtk-edit",
@@ -182,11 +182,12 @@ def add_attributes_menu(grstate, parent_menu, grobject, grchild=None):
         add_double_separator(menu)
         work_list = []
         for attribute in attribute_list:
-            text = ": ".join(
-                (str(attribute.get_type()), attribute.get_value())
+            text = "%s: %s" % (
+                str(attribute.get_type()),
+                attribute.get_value(),
             )
             if len(text) > 50:
-                text = "".join((text[:50], "..."))
+                text = "%s..." % text[:50]
             work_list.append((text, attribute))
         work_list.sort(key=lambda x: x[0])
         for text, attribute in work_list:
@@ -357,8 +358,8 @@ def get_sorted_notes(db, handle_list):
         notetype = str(note.get_type())
         text = note.get()[:40].replace("\n", " ")
         if len(text) > 39:
-            text = "".join((text, "..."))
-        text = ": ".join((notetype, text))
+            text = "%s..." % text
+        text = "%s: %s" % (notetype, text)
         note_list.append((text, note))
     note_list.sort(key=lambda x: x[0])
     return note_list
@@ -767,7 +768,7 @@ def get_sorted_participants(participants):
     participant_list = []
     for (obj_type, obj, obj_event_ref, obj_name) in participants:
         if obj_type == "Person":
-            text = "".join((str(obj_event_ref.get_role()), ": ", obj_name))
+            text = "%s: %s" % (str(obj_event_ref.get_role()), obj_name)
             participant_list.append((text, obj, obj_event_ref))
     participant_list.sort(key=lambda x: x[0])
     return participant_list
@@ -937,7 +938,7 @@ def add_ldsords_menu(grstate, parent_menu, grobject):
             ordinance_date = ordinance.get_date_object()
             if ordinance_date:
                 date = glocale.date_displayer.display(ordinance_date)
-                text = "".join((date, ": ", ordinance.type2str()))
+                text = "%s: %s" % (date, ordinance.type2str())
             else:
                 text = ordinance.type2str()
             deletemenu.add(

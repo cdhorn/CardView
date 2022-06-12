@@ -47,7 +47,7 @@ from gramps.gui.utils import open_file_with_default_application
 from ..common.common_classes import GrampsConfig, GrampsObject, GrampsOptions
 from ..common.common_const import BUTTON_PRIMARY, BUTTON_SECONDARY
 from ..common.common_utils import button_pressed, button_released
-from ..frames import MediaRefFrame
+from ..cards import MediaRefCard
 
 _ = glocale.translation.sgettext
 
@@ -99,7 +99,7 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         crop = self.grstate.config.get("media-bar.display-mode") in [2, 4]
 
         for (media, media_ref, dummy_media_type) in media_list:
-            frame = MediaBarItem(
+            card = MediaBarItem(
                 grstate,
                 empty_groptions,
                 self.base.obj,
@@ -108,7 +108,7 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
                 size=size,
                 crop=crop,
             )
-            self.box.pack_start(frame, False, False, 0)
+            self.box.pack_start(card, False, False, 0)
         self.total = len(media_list)
         self.show_all()
 
@@ -116,11 +116,11 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         """
         Initialize layout.
         """
-        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        card = Gtk.Card(shadow_type=Gtk.ShadowType.NONE)
         if css:
             provider = Gtk.CssProvider()
             provider.load_from_data(css)
-            context = frame.get_style_context()
+            context = card.get_style_context()
             context.add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
             context.add_class("frame")
 
@@ -142,8 +142,8 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
         viewport = Gtk.Viewport()
         viewport.add(box)
         window.add(viewport)
-        frame.add(window)
-        self.add(frame)
+        card.add(window)
+        self.add(card)
         return box
 
     def collect_media(self):
@@ -212,7 +212,7 @@ class MediaBarGroup(Gtk.Box, GrampsConfig):
 # MediaBarItem Class
 #
 # ------------------------------------------------------------------------
-class MediaBarItem(MediaRefFrame):
+class MediaBarItem(MediaRefCard):
     """
     A simple class for managing display of a media bar image.
     """
@@ -221,7 +221,7 @@ class MediaBarItem(MediaRefFrame):
         self, grstate, groptions, obj, media, media_ref, size=0, crop=False
     ):
         groptions.bar_mode = True
-        MediaRefFrame.__init__(self, grstate, groptions, obj, media_ref)
+        MediaRefCard.__init__(self, grstate, groptions, obj, media_ref)
         self.set_hexpand(False)
         thumbnail = self.get_thumbnail(media, media_ref, size, crop)
         if thumbnail:
@@ -264,7 +264,7 @@ class MediaBarItem(MediaRefFrame):
 
     def ref_button_pressed(self, obj, event):
         """
-        Route the ref related action if the frame was clicked on.
+        Route the ref related action if the card was clicked on.
         """
         if button_pressed(event, BUTTON_PRIMARY):
             self.build_ref_action_menu(obj, event)

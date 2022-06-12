@@ -326,10 +326,10 @@ class FieldSelector(Gtk.HBox):
 
 # ------------------------------------------------------------------------
 #
-# FrameFieldSelector Class
+# CardFieldSelector Class
 #
 # ------------------------------------------------------------------------
-class FrameFieldSelector(Gtk.HBox):
+class CardFieldSelector(Gtk.HBox):
     """
     A custom selector for the user defined fields for the configdialog.
     """

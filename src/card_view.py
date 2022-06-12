@@ -217,7 +217,7 @@ class CardView(GlobalNavigationView):
             "tag",
         ]:
             for suffix in ["-add", "-update", "-delete", "-rebuild"]:
-                key = "".join((obj_type, suffix))
+                key = "%s%s" % (obj_type, suffix)
                 self.callman.add_db_signal(key, self.build_tree)
 
     def navigation_type(self):
@@ -265,7 +265,7 @@ class CardView(GlobalNavigationView):
             return
         for section in self._config_view.get_sections():
             for setting in self._config_view.get_section_settings(section):
-                key = ".".join((section, setting))
+                key = "%s.%s" % (section, setting)
                 if self._config_view.is_set(key):
                     try:
                         callback_id = self._config_view.connect(
@@ -509,16 +509,17 @@ class CardView(GlobalNavigationView):
                 self.dbstate, page_context.primary_obj.obj.handle
             )
             if relation:
-                name = "".join((name, " (", relation.strip(), ")"))
+                name = "%s (%s)" % (name, relation.strip())
         if primary_obj_type == "Tag":
-            name = "".join(
-                ("[", _("Tag"), "] ", page_context.primary_obj.obj.get_name())
+            name = "[%s] %s" % (
+                _("Tag"),
+                page_context.primary_obj.obj.get_name(),
             )
         if (
             page_context.page_type in PAGE_LABELS
             and page_context.page_type != "Tag"
         ):
-            name = "".join((name, " - ", PAGE_LABELS[page_context.page_type]))
+            name = "%s - %s" % (name, PAGE_LABELS[page_context.page_type])
         if name:
             self.uistate.status.pop(self.uistate.status_id)
             self.uistate.status.push(self.uistate.status_id, name)

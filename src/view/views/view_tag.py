@@ -30,7 +30,7 @@ TagObjectView
 from ..common.common_classes import GrampsOptions
 from ..groups.group_builder import get_references_group
 from .view_base import GrampsObjectView
-from .view_const import FRAME_MAP
+from .view_const import CARD_MAP
 
 
 # -------------------------------------------------------------------------
@@ -50,7 +50,7 @@ class TagObjectView(GrampsObjectView):
         tag = self.grcontext.primary_obj.obj
 
         groptions = GrampsOptions("active.tag")
-        self.view_object = FRAME_MAP["Tag"](self.grstate, groptions, tag)
+        self.view_object = CARD_MAP["Tag"](self.grstate, groptions, tag)
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 

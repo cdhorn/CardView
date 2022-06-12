@@ -19,7 +19,7 @@
 #
 
 """
-MediaFrameGroup
+MediaCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -38,27 +38,25 @@ from gramps.gui.editors import EditMediaRef
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import MediaRefFrame
-from .group_list import FrameGroupList
+from ..cards import MediaRefCard
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# MediaFrameGroup Class
+# MediaCardGroup Class
 #
 # ------------------------------------------------------------------------
-class MediaFrameGroup(FrameGroupList):
+class MediaCardGroup(CardGroupList):
     """
-    The MediaFrameGroup class provides a container for managing all
+    The MediaCardGroup class provides a container for managing all
     of the media items for a given primary Gramps object.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
-            self, grstate, groptions, obj, enable_drop=True
-        )
+        CardGroupList.__init__(self, grstate, groptions, obj, enable_drop=True)
         groptions.set_backlink(
             (self.group_base.obj_type, self.group_base.obj.handle)
         )
@@ -106,10 +104,10 @@ class MediaFrameGroup(FrameGroupList):
                 media,
                 dummy_media_type,
             ) in media_list:
-                frame = MediaRefFrame(
+                card = MediaRefCard(
                     grstate, groptions, self.group_base.obj, media_ref
                 )
-                self.add_frame(frame)
+                self.add_card(card)
         self.show_all()
 
     def save_reordered_list(self):
@@ -117,9 +115,9 @@ class MediaFrameGroup(FrameGroupList):
         Save a reordered list of media items.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.media_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
                     break
         message = " ".join(
@@ -138,8 +136,8 @@ class MediaFrameGroup(FrameGroupList):
         """
         Add new media to the list.
         """
-        for frame in self.row_frames:
-            if frame.primary.obj.handle == handle:
+        for card in self.row_cards:
+            if card.primary.obj.handle == handle:
                 return
 
         media_ref = MediaRef()
@@ -163,9 +161,9 @@ class MediaFrameGroup(FrameGroupList):
         Save the new media reference.
         """
         new_list = []
-        for frame in self.row_frames:
+        for card in self.row_cards:
             for ref in self.group_base.obj.media_list:
-                if ref.ref == frame.primary.obj.handle:
+                if ref.ref == card.primary.obj.handle:
                     new_list.append(ref)
         new_list.insert(insert_row, media_ref)
         media = self.fetch("Media", media_ref.ref)

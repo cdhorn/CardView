@@ -19,7 +19,7 @@
 #
 
 """
-NamesFrameGroup
+NamesCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -27,34 +27,34 @@ NamesFrameGroup
 # Plugin Modules
 #
 # ------------------------------------------------------------------------
-from ..frames import NameFrame
-from .group_list import FrameGroupList
+from ..cards import NameCard
+from .group_list import CardGroupList
 
 
 # ------------------------------------------------------------------------
 #
-# NamesFrameGroup Class
+# NamesCardGroup Class
 #
 # ------------------------------------------------------------------------
-class NamesFrameGroup(FrameGroupList):
+class NamesCardGroup(CardGroupList):
     """
-    The NamesFrameGroup class provides a container for managing
+    The NamesCardGroup class provides a container for managing
     all of the addresses a person or repository may have.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
-        frame = NameFrame(
+        card = NameCard(
             grstate,
             groptions,
             obj,
             obj.primary_name,
         )
-        self.add_frame(frame)
+        self.add_card(card)
 
         for name in obj.alternate_names:
-            frame = NameFrame(grstate, groptions, obj, name)
-            self.add_frame(frame)
+            card = NameCard(grstate, groptions, obj, name)
+            self.add_card(card)
         self.show_all()

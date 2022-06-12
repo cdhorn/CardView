@@ -53,7 +53,7 @@ from gramps.gui.managedwindow import ManagedWindow
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
-from view.groups.group_window import FrameGroupWindow
+from view.groups.group_window import CardGroupWindow
 from view.views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -217,7 +217,7 @@ class WindowService:
         ):
             callback = lambda x: clear_window(x, self.group_windows)
             try:
-                self.group_windows[key] = FrameGroupWindow(
+                self.group_windows[key] = CardGroupWindow(
                     grstate,
                     obj,
                     group_type,

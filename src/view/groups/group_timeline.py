@@ -19,7 +19,7 @@
 #
 
 """
-TimelineFrameGroup
+TimelineCardGroup
 """
 
 # ------------------------------------------------------------------------
@@ -35,32 +35,32 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.timeline import EVENT_CATEGORIES, RELATIVES, GrampsTimeline
-from ..frames import (
-    AddressFrame,
-    CitationFrame,
-    EventRefFrame,
-    LDSOrdinanceFrame,
-    MediaFrame,
-    NameFrame,
+from ..cards import (
+    AddressCard,
+    CitationCard,
+    EventRefCard,
+    LDSOrdinanceCard,
+    MediaCard,
+    NameCard,
 )
-from .group_list import FrameGroupList
+from .group_list import CardGroupList
 
 _ = glocale.translation.sgettext
 
 
 # ------------------------------------------------------------------------
 #
-# TimelineFrameGroup Class
+# TimelineCardGroup Class
 #
 # ------------------------------------------------------------------------
-class TimelineFrameGroup(FrameGroupList):
+class TimelineCardGroup(CardGroupList):
     """
-    The TimelineFrameGroup generates an event timeline for a person
+    The TimelineCardGroup generates an event timeline for a person
     that may also optionally include events for close family if choosen.
     """
 
     def __init__(self, grstate, groptions, obj):
-        FrameGroupList.__init__(
+        CardGroupList.__init__(
             self, grstate, groptions, obj, enable_drop=False
         )
         self.options = {
@@ -107,8 +107,8 @@ class TimelineFrameGroup(FrameGroupList):
                 obj = event_person
                 if event_family:
                     obj = event_family
-                self.add_frame(
-                    EventRefFrame(
+                self.add_card(
+                    EventRefCard(
                         grstate,
                         groptions,
                         obj,
@@ -117,10 +117,10 @@ class TimelineFrameGroup(FrameGroupList):
                 )
             elif timeline_obj_type == "media":
                 (media, dummy_media_ref) = item
-                self.add_frame(MediaFrame(grstate, groptions, media))
+                self.add_card(MediaCard(grstate, groptions, media))
             elif timeline_obj_type == "address":
-                self.add_frame(
-                    AddressFrame(
+                self.add_card(
+                    AddressCard(
                         grstate,
                         groptions,
                         timeline_obj,
@@ -128,8 +128,8 @@ class TimelineFrameGroup(FrameGroupList):
                     )
                 )
             elif timeline_obj_type == "name":
-                self.add_frame(
-                    NameFrame(
+                self.add_card(
+                    NameCard(
                         grstate,
                         groptions,
                         timeline_obj,
@@ -137,16 +137,16 @@ class TimelineFrameGroup(FrameGroupList):
                     )
                 )
             elif timeline_obj_type == "citation":
-                self.add_frame(
-                    CitationFrame(
+                self.add_card(
+                    CitationCard(
                         grstate,
                         groptions,
                         item,
                     )
                 )
             elif timeline_obj_type == "ldsord":
-                self.add_frame(
-                    LDSOrdinanceFrame(
+                self.add_card(
+                    LDSOrdinanceCard(
                         grstate,
                         groptions,
                         timeline_obj,
@@ -160,16 +160,16 @@ class TimelineFrameGroup(FrameGroupList):
         Parse and prepare filter groups and options.
         """
         for category in EVENT_CATEGORIES:
-            if self.get_option("".join(("show-class-", category))):
+            if self.get_option("show-class-%s" % category):
                 self.options["categories"].append(category)
             if self.group_base.obj_type == "Person" and self.get_option(
-                "".join(("show-family-class-", category))
+                "show-family-class-%s" % category
             ):
                 self.options["relation_categories"].append(category)
 
         if self.group_base.obj_type == "Person":
             for relation in RELATIVES:
-                if self.get_option("".join(("show-family-", relation))):
+                if self.get_option("show-family-%s" % relation):
                     self.options["relations"].append(relation)
 
         self.options["ancestors"] = self.get_option("generations-ancestors")
@@ -200,13 +200,8 @@ class TimelineFrameGroup(FrameGroupList):
         try:
             self.groptions.set_ref_mode(
                 self.grstate.config.get(
-                    "".join(
-                        (
-                            "timeline.",
-                            self.group_base.obj_type.lower(),
-                            ".reference-mode",
-                        )
-                    )
+                    "timeline.%s.reference-mode"
+                    % self.group_base.obj_type.lower()
                 )
             )
         except AttributeError:

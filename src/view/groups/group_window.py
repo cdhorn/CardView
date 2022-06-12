@@ -19,7 +19,7 @@
 #
 
 """
-FrameGroupWindow
+CardGroupWindow
 """
 
 # ------------------------------------------------------------------------
@@ -53,12 +53,12 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# FrameGroupWindow Class
+# CardGroupWindow Class
 #
 # ------------------------------------------------------------------------
-class FrameGroupWindow(ManagedWindow):
+class CardGroupWindow(ManagedWindow):
     """
-    Window to display a frame group.
+    Window to display a card group.
     """
 
     def __init__(self, grstate, obj, group_type, key, callback, title=None):
@@ -72,18 +72,15 @@ class FrameGroupWindow(ManagedWindow):
         self.group_type = group_type
         working_title = self.build_title(title)
         if "Ref" in self.group_base.obj_type:
-            self.base_title = "".join(
-                (
-                    working_title,
-                    " ",
-                    _("Reference"),
-                    ": ",
-                    GROUP_LABELS[self.group_type],
-                )
+            self.base_title = "%s %s: %s" % (
+                working_title,
+                _("Reference"),
+                GROUP_LABELS[self.group_type],
             )
         else:
-            self.base_title = "".join(
-                (working_title, ": ", GROUP_LABELS[self.group_type])
+            self.base_title = "%s: %s" % (
+                working_title,
+                GROUP_LABELS[self.group_type],
             )
         prefix = "interface.cardview.group-%s-window" % self.group_type
         ManagedWindow.__init__(self, grstate.uistate, [], obj)
@@ -129,13 +126,7 @@ class FrameGroupWindow(ManagedWindow):
         title = self.base_title
         if "]" in title:
             title = title.split("] ")[1].strip()
-        menu_label = "".join(
-            (
-                self.group_base.obj_lang,
-                ": ",
-                title,
-            )
-        )
+        menu_label = "%s: %s" % (self.group_base.obj_lang, title)
         return (menu_label, None)
 
     def rebuild(self):

@@ -134,7 +134,7 @@ class PlaceAction(GrampsAction):
                 if top_place:
                     top_place_name = top_place.get_name().get_value()
                     if top_place_name:
-                        place_name = ", ".join((top_place_name, place_name))
+                        place_name = "%s, %s" % (top_place_name, place_name)
             if place_name:
                 message = _("Updating Place Title %s for %s") % (
                     place_name,
