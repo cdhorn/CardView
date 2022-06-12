@@ -626,11 +626,13 @@ class GrampsState:
         context = GrampsContext(obj, None, None)
         return self.load_page(context.pickled)
 
-    def reload_config(self, refresh_only=False):
+    def reload_config(self, refresh_only=False, defer_refresh=True):
         """
         Reload the configuration and page.
         """
-        return self.callbacks["reload-config"](refresh_only=refresh_only)
+        return self.callbacks["reload-config"](
+            refresh_only=refresh_only, defer_refresh=defer_refresh
+        )
 
     def copy_to_clipboard(self, data, handle):
         """

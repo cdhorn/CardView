@@ -24,6 +24,13 @@ Configuration menu and helpers
 
 # ------------------------------------------------------------------------
 #
+# GTK Modules
+#
+# ------------------------------------------------------------------------
+from gi.repository import Gtk
+
+# ------------------------------------------------------------------------
+#
 # Gramps Modules
 #
 # ------------------------------------------------------------------------
@@ -39,7 +46,7 @@ from ..config.config_builder import config_factory
 from ..config.config_const import PAGE_NAMES
 from ..config.config_layout import build_layout_grid
 from ..config.config_panel import build_global_panel
-from .menu_utils import menu_item, new_menu, show_menu
+from .menu_utils import add_double_separator, menu_item, new_menu, show_menu
 
 _ = glocale.translation.sgettext
 
@@ -210,6 +217,10 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
     add_page_layout_option(menu, grstate)
     for option_data in TOGGLE_OPTIONS:
         menu.append(toggle_option(config, option_data))
+    add_double_separator(menu)
+    label = Gtk.MenuItem(label=_("Configuration"))
+    label.set_sensitive(False)
+    menu.append(label)
     return show_menu(menu, widget, event)
 
 

@@ -350,9 +350,9 @@ class FrameFieldSelector(Gtk.HBox):
         self.obj_type = obj_type
 
         if text:
-            label_text = "".join((text, " ", str(number), ":"))
+            label_text = "%s %s:" % (text, str(number))
         else:
-            label_text = "".join((_("Field"), " ", str(number), ":"))
+            label_text = "%s %s:" % (_("Field"), str(number))
         label = Gtk.Label(label=label_text)
         if size_groups and "label" in size_groups:
             size_groups["label"].add_widget(label)

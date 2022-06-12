@@ -248,7 +248,7 @@ class ConfigTemplates(Gtk.HBox):
             return
 
         lang = store.get_value(iter_, 1)
-        title = " ".join((_("Template Editor:"), lang))
+        title = "%s %s" % (_("Template Editor:"), lang)
         name = store.get_value(iter_, 5)
         (
             _dummy_name,
@@ -477,7 +477,7 @@ class EditTemplateOptions:
         self.config_callback_ids = []
         self.config_connect()
         ident = title.split(":").pop(-1).strip()
-        ident = "".join((_("Template"), ": ", ident, " - ", _("Card")))
+        ident = "%s:%s - %s" % (_("Template"), ident, _("Card"))
         try:
             ConfigTemplatesDialog(
                 grstate.uistate,
@@ -686,8 +686,10 @@ class TemplateChangeViewer(ManagedWindow):
             template,
         ) = self.templates_service.get_rebased_user_options(name)
         lang, self.ini = template.get("template.xml_string"), template
-        self.title = "".join(
-            (_("Template Change View"), ": ", lang, " ", _("Template"))
+        self.title = "%s: %s %s" % (
+            _("Template Change View"),
+            lang,
+            _("Template"),
         )
         ManagedWindow.__init__(
             self, grstate.uistate, track, self.__class__, modal=True

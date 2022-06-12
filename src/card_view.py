@@ -244,7 +244,7 @@ class CardView(GlobalNavigationView):
         """
         return ((), ())
 
-    def reload_config(self, refresh_only=False):
+    def reload_config(self, refresh_only=False, defer_refresh=True):
         """
         Reload all config settings and initiate redraw.
         """
@@ -252,7 +252,10 @@ class CardView(GlobalNavigationView):
         self._config_view.save()
         if not refresh_only:
             self._load_config()
-        self._defer_config_refresh()
+        if defer_refresh:
+            self._defer_config_refresh()
+        else:
+            self._perform_config_refresh()
 
     def config_connect(self):
         """
@@ -300,9 +303,10 @@ class CardView(GlobalNavigationView):
             return True
         self.defer_refresh = False
         self.build_tree()
-        GObject.source_remove(self.defer_refresh_id)
-        self.defer_refresh_id = None
-        return False
+        if self.defer_refresh_id:
+            GObject.source_remove(self.defer_refresh_id)
+            self.defer_refresh_id = None
+            return False
 
     def templates_panel(self, configdialog):
         """

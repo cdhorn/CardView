@@ -127,4 +127,8 @@ def build_bookmarks_menu(widget, grstate, event):
     menu = Gtk.Menu()
     for bookmark_type in BOOKMARK_TYPES:
         build_bookmark_menu(grstate, menu, bookmark_type)
+    add_double_separator(menu)
+    label = Gtk.MenuItem(label=_("Bookmarks"))
+    label.set_sensitive(False)
+    menu.append(label)
     return show_menu(menu, widget, event)

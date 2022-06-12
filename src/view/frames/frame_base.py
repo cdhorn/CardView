@@ -70,8 +70,8 @@ from ..common.common_const import (
 from ..common.common_utils import button_pressed, button_released
 from ..menus.menu_bookmarks import build_bookmarks_menu
 from ..menus.menu_config import build_config_menu
+from ..menus.menu_templates import build_templates_menu
 from .frame_view import FrameView
-from .frame_window import FrameDebugWindow
 
 _ = glocale.translation.sgettext
 
@@ -366,7 +366,7 @@ class GrampsFrame(FrameView):
             return True
         if button_released(event, BUTTON_PRIMARY):
             if match_primary_mask(event.state):
-                self._dump_context()
+                build_templates_menu(self, self.grstate, event)
                 return True
             self.switch_object(None, None, self.focus.obj_type, self.focus.obj)
             return True
@@ -387,22 +387,6 @@ class GrampsFrame(FrameView):
                 obj = obj_or_handle
             context = GrampsContext(obj, None, None)
         return self.grstate.load_page(context.pickled)
-
-    def _dump_context(self, *_dummy_args):
-        """
-        Dump context.
-        """
-        try:
-            FrameDebugWindow(self.grstate, self.get_context())
-        except WindowActiveError:
-            WarningDialog(
-                _("Could Not Open Context Object View"),
-                _(
-                    "A context object view window is already "
-                    "open, close it before launching a new one."
-                ),
-                parent=self.grstate.uistate.window,
-            )
 
     def build_context_menu(self, _dummy_obj, event):
         """
