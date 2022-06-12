@@ -1,7 +1,7 @@
 <img src="icons/gramps-relationshipscard.svg" width="100"> Card View Addon
 ===============
 
-> **IMPORTANT!**  The view name, and thus the ini configuration file names, have changed yet again. Be sure to remove any previous versions of this view you have installed and to remove all previous ini files before using this latest copy.  This was originally named the **ProfileView** and then the **LinkedView** as that better described the navigation model.  Note this will be the last and final name change.
+> **IMPORTANT!**  The template handling code has been refactored a bit and the metadata format has changed a little as a result. In your Gramps user directory you will likely want to clear out the template files CardView_* as well as the category ini files like People_personcardview.ini and the matching sidebar and bottombar ini files. Note going forward the CardView_* template files have been relocated to a templates subdirectory.
 
 > Please check the [known issues](KNOWN_ISSUES.md) before reporting a bug or problem with the addons here.
 
