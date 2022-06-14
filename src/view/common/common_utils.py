@@ -690,7 +690,7 @@ def prepare_markup(config, key="detail", scheme=0):
     if config.get("display.use-smaller-%s-font" % key):
         size = "small"
     else:
-        size = "normal"
+        size = "medium"
 
     foreground = config.get("display.default-foreground-color")
     return '<span foreground="%s" size="%s">{}</span>' % (
