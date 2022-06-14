@@ -427,7 +427,9 @@ class GrampsContext:
             return self.reference_obj.obj_type
         if self.secondary_obj:
             return self.secondary_obj.obj_type
-        return self.primary_obj.obj_type
+        if self.primary_obj:
+            return self.primary_obj.obj_type
+        return "Dashboard"
 
     @property
     def page_location(self):

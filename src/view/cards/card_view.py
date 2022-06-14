@@ -209,7 +209,8 @@ class CardView(Gtk.VBox, GrampsConfig):
         """
         self.frame.add(self.widgets["body"])
         if (
-            self.primary.obj_type == "Family"
+            self.primary
+            and self.primary.obj_type == "Family"
             and not self.groptions.is_secondary
         ):
             self.add(self.frame)

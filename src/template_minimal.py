@@ -1292,6 +1292,30 @@ _TEMPLATE = (
     ("layout.tag.media.visible", True),
     ("layout.tag.media.append", False),
     ######################################################################
+    ## Dashboard Page Options
+    ######################################################################
+    ("layout.dashboard.tabbed", False),
+    ("layout.dashboard.scrolled", False),
+    (
+        "layout.dashboard.groups",
+        "stats-person,stats-family,stats-event,stats-media,"
+        "stats-citation,stats-quality,stats-privacy",
+    ),
+    ("layout.dashboard.stats-person.visible", True),
+    ("layout.dashboard.stats-person.append", True),
+    ("layout.dashboard.stats-family.visible", True),
+    ("layout.dashboard.stats-family.append", False),
+    ("layout.dashboard.stats-event.visible", True),
+    ("layout.dashboard.stats-event.append", True),
+    ("layout.dashboard.stats-media.visible", True),
+    ("layout.dashboard.stats-media.append", False),
+    ("layout.dashboard.stats-citation.visible", True),
+    ("layout.dashboard.stats-citation.append", True),
+    ("layout.dashboard.stats-quality.visible", True),
+    ("layout.dashboard.stats-quality.append", True),
+    ("layout.dashboard.stats-privacy.visible", True),
+    ("layout.dashboard.stats-privacy.append", True),
+    ######################################################################
     # Miscellaneous Options
     ######################################################################
     ("status.todo", False),

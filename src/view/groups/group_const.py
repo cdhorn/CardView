@@ -52,7 +52,7 @@ from .group_urls import UrlsCardGroup
 _ = glocale.translation.sgettext
 
 
-GRAMPS_GROUPS = {
+GENERIC_GROUPS = {
     "citation": (
         CitationsCardGroup,
         _("Citation"),
@@ -133,4 +133,15 @@ GRAMPS_GROUPS = {
         _("Maternal Lineage"),
         _("Maternal Lineage"),
     ),
+}
+
+
+STATISTICS_GROUPS = {
+    "stats-person": _("Individual Statistics"),
+    "stats-family": _("Family Statistics"),
+    "stats-event": _("Event Statistics"),
+    "stats-media": _("Media Statistics"),
+    "stats-citation": _("Citation Statistics"),
+    "stats-quality": _("Quality Statistics"),
+    "stats-privacy": _("Privacy Statistics"),
 }

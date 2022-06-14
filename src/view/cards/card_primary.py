@@ -71,7 +71,7 @@ from ..menus.menu_utils import (
     add_urls_menu,
     show_menu,
 )
-from .card_base import GrampsCard
+from .card_object import ObjectCard
 from .card_widgets import GrampsImage
 from .card_utils import load_metadata
 
@@ -83,14 +83,14 @@ _ = glocale.translation.sgettext
 # PrimaryCard Class
 #
 # ------------------------------------------------------------------------
-class PrimaryCard(GrampsCard):
+class PrimaryCard(ObjectCard):
     """
     The PrimaryCard class provides core methods for constructing the
     view and working with the primary Gramps object it exposes.
     """
 
     def __init__(self, grstate, groptions, primary_obj, reference_tuple=None):
-        GrampsCard.__init__(
+        ObjectCard.__init__(
             self,
             grstate,
             groptions,

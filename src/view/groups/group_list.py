@@ -43,7 +43,7 @@ from gi.repository import Gdk, Gtk
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsConfig, GrampsObject
 from ..common.common_utils import set_dnd_css
-from ..cards.card_base import GrampsCard
+from ..cards.card_object import ObjectCard
 
 
 # ------------------------------------------------------------------------
@@ -77,7 +77,7 @@ class CardGroupList(Gtk.ListBox, GrampsConfig):
         """
         Add a Card object.
         """
-        if isinstance(gramps_card, GrampsCard):
+        if isinstance(gramps_card, ObjectCard):
             if not self.managed_obj_type:
                 self.managed_obj_type = gramps_card.focus.obj_type
                 if gramps_card.focus.dnd_type:

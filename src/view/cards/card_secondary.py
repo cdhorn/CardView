@@ -64,7 +64,7 @@ from ..menus.menu_utils import (
     add_privacy_menu_option,
     show_menu,
 )
-from .card_base import GrampsCard
+from .card_object import ObjectCard
 from .card_utils import load_metadata
 
 _ = glocale.translation.sgettext
@@ -75,7 +75,7 @@ _ = glocale.translation.sgettext
 # SecondaryCard Class
 #
 # ------------------------------------------------------------------------
-class SecondaryCard(GrampsCard):
+class SecondaryCard(ObjectCard):
     """
     The SecondaryCard class provides core methods for constructing the
     view and working with the secondary Gramps object it exposes.
@@ -83,7 +83,7 @@ class SecondaryCard(GrampsCard):
 
     def __init__(self, grstate, groptions, primary_obj, secondary_obj):
         groptions.is_secondary = True
-        GrampsCard.__init__(
+        ObjectCard.__init__(
             self,
             grstate,
             groptions,

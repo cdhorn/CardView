@@ -44,4 +44,5 @@ from .card_repository import RepositoryCard
 from .card_repository_ref import RepositoryRefCard
 from .card_source import SourceCard
 from .card_tag import TagCard
+from .card_text import TextCard
 from .card_url import UrlCard

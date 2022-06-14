@@ -23,7 +23,7 @@
 #
 
 """
-GrampsCard
+ObjectCard
 """
 
 # ------------------------------------------------------------------------
@@ -78,10 +78,10 @@ _ = glocale.translation.sgettext
 
 # ------------------------------------------------------------------------
 #
-# GrampsCard Class
+# ObjectCard Class
 #
 # ------------------------------------------------------------------------
-class GrampsCard(CardView):
+class ObjectCard(CardView):
     """
     Provides core methods for working with the Gramps objects it manages.
     """

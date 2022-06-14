@@ -47,7 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 # ------------------------------------------------------------------------
 from ..actions import action_handler
 from ..menus.menu_utils import menu_item, new_menu, show_menu
-from .card_base import GrampsCard
+from .card_object import ObjectCard
 
 _ = glocale.translation.sgettext
 
@@ -57,13 +57,13 @@ _ = glocale.translation.sgettext
 # TagCard Class
 #
 # ------------------------------------------------------------------------
-class TagCard(GrampsCard):
+class TagCard(ObjectCard):
     """
     The TagCard class exposes information about a tag.
     """
 
     def __init__(self, grstate, groptions, tag):
-        GrampsCard.__init__(self, grstate, groptions, tag)
+        ObjectCard.__init__(self, grstate, groptions, tag)
 
         fact_block = Gtk.VBox()
         self.widgets["body"].pack_start(

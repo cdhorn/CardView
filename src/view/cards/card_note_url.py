@@ -51,7 +51,7 @@ from gramps.gui.display import display_url
 # ------------------------------------------------------------------------
 from ..common.common_const import BUTTON_PRIMARY
 from ..common.common_utils import button_released
-from .card_base import GrampsCard
+from .card_object import ObjectCard
 
 _ = glocale.translation.sgettext
 
@@ -61,14 +61,14 @@ _ = glocale.translation.sgettext
 # NoteUrlCard Class
 #
 # ------------------------------------------------------------------------
-class NoteUrlCard(GrampsCard):
+class NoteUrlCard(ObjectCard):
     """
     The NoteUrlCard class exposes information about a Url found
     in a Note record.
     """
 
     def __init__(self, grstate, groptions, note, link):
-        GrampsCard.__init__(self, grstate, groptions, note)
+        ObjectCard.__init__(self, grstate, groptions, note)
         self.link = link
         self.build_layout()
 

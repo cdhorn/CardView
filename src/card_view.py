@@ -523,7 +523,7 @@ class CardView(GlobalNavigationView):
         """
         if not self.dbstate.is_open():
             return
-        if not self._init_history:
+        if not self._init_history and self.get_category() != "Dashboard":
             self._get_initial_object()
         GlobalNavigationView.set_active(self)
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)

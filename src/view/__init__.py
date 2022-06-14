@@ -19,5 +19,5 @@
 #
 
 """
-Module containing the profile view objects.
+Module containing the card view objects.
 """

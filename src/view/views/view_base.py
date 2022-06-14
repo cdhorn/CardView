@@ -84,10 +84,13 @@ class GrampsObjectView(Gtk.VBox):
         Render the view after building it.
         """
         self.build_view()
-        mode = self.grstate.config.get("media-bar.position")
-        if mode in [0]:
-            self.render_view_body(self, mode)
+        if self.grcontext.primary_obj is None:
+            mode = -1
         else:
+            mode = self.grstate.config.get("media-bar.position")
+        if mode < 1:
+            self.render_view_body(self, mode)
+        elif mode > 0:
             wrapper = Gtk.HBox(spacing=1)
             if mode in [1]:
                 self.add_media_bar(wrapper, self.grcontext.primary_obj.obj)

@@ -44,11 +44,13 @@ from gramps.gen.lib import Family, Person
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..cards import FamilyCard
+from ..services.service_statistics import StatisticsService
 from .group_children import ChildrenCardGroup
-from .group_const import GRAMPS_GROUPS
+from .group_const import GENERIC_GROUPS, STATISTICS_GROUPS
 from .group_events import EventsCardGroup
 from .group_expander import CardGroupExpander
 from .group_generic import GenericCardGroup
+from .group_statistics import StatisticsCardGroup
 
 _ = glocale.translation.sgettext
 
@@ -57,8 +59,10 @@ def group_builder(grstate, group_type, obj, args):
     """
     Generate and return group for a given object.
     """
-    if group_type in GRAMPS_GROUPS:
+    if group_type in GENERIC_GROUPS:
         group = build_simple_group(grstate, group_type, obj, args)
+    elif group_type in STATISTICS_GROUPS:
+        group = build_statistics_group(grstate, group_type)
     elif group_type == "event":
         group = get_events_group(grstate, obj, args)
     elif group_type == "parent":
@@ -78,7 +82,8 @@ def build_simple_group(grstate, group_type, obj, args):
     """
     Generate and return a simple group for a given object.
     """
-    cardgroup, single, plural = GRAMPS_GROUPS[group_type]
+    args = args or {}
+    cardgroup, single, plural = GENERIC_GROUPS[group_type]
     if group_type == "timeline":
         if "page_type" in args:
             page_type = args["page_type"]
@@ -104,6 +109,26 @@ def build_simple_group(grstate, group_type, obj, args):
     if "raw" in args and args["raw"]:
         return group
     return group_wrapper(grstate, group, (single, plural, None))
+
+
+def build_statistics_group(grstate, group):
+    """
+    Generate and return a database statistics group.
+    """
+    title = STATISTICS_GROUPS[group]
+    statistics_service = StatisticsService(grstate.dbstate)
+    data = statistics_service.get_data()
+    groptions = GrampsOptions("group.%s" % group)
+    key = group.split("-")[1]
+    output = []
+    for (categories, label, value, bonus) in data:
+        if key in categories:
+            if bonus:
+                output.append((label, "%s  (%.2f%%)" % (value, bonus)))
+            else:
+                output.append((label, value))
+    group = StatisticsCardGroup(grstate, groptions, title, output)
+    return group_wrapper(grstate, group, (title, title, title))
 
 
 def group_wrapper(grstate, group, title):

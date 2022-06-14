@@ -34,10 +34,27 @@ if not os.path.isdir(pathname):
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(pathname)
 
-VERSION = "0.99.7"
+VERSION = "0.99.8"
 GRAMPS_TARGET_VERSION = "5.1"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]
+
+register(
+    VIEW,
+    id="dashboardcardview",
+    name=_("Dashboard Card"),
+    description=_("A Dashboard card view."),
+    version=VERSION,
+    gramps_target_version=GRAMPS_TARGET_VERSION,
+    status=STABLE,
+    fname="card_view_dashboard.py",
+    authors=AUTHORS,
+    authors_email=AUTHORS_EMAIL,
+    category=("Dashboard", _("Dashboard")),
+    viewclass="DashboardCardView",
+    stock_icon="gramps-personcard",
+    order=END,
+)
 
 register(
     VIEW,
