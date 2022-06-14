@@ -104,6 +104,7 @@ def analyze_people(db):
     media_total, media_references = 0, 0
     incomp_names, disconnected = 0, 0
     missing_births, uncited_births, private_births = 0, 0, 0
+    missing_birth_dates, missing_death_dates = 0, 0
     missing_deaths, uncited_deaths, private_deaths = 0, 0, 0
     males, uncited_males, private_males = 0, 0, 0
     females, uncited_females, private_females = 0, 0, 0
@@ -135,7 +136,7 @@ def analyze_people(db):
         if birth_ref:
             birth = db.get_event_from_handle(birth_ref.ref)
             if not get_date(birth):
-                missing_births += 1
+                missing_birth_dates += 1
             if not birth.citation_list:
                 uncited_births += 1
             if birth.private:
@@ -147,7 +148,7 @@ def analyze_people(db):
         if death_ref:
             death = db.get_event_from_handle(death_ref.ref)
             if not get_date(death):
-                missing_deaths += 1
+                missing_death_dates += 1
             if not death.citation_list:
                 uncited_deaths += 1
             if death.private:
@@ -214,15 +215,27 @@ def analyze_people(db):
         ),
         (
             ["person"],
-            _("Missing birth dates"),
+            _("Missing birth events"),
             missing_births,
             missing_births * 100 / number_people,
         ),
         (
             ["person"],
-            _("Missing death dates"),
+            _("Birth events missing dates"),
+            missing_birth_dates,
+            missing_birth_dates * 100 / number_people,
+        ),
+        (
+            ["person"],
+            _("Missing death events"),
             missing_deaths,
             missing_deaths * 100 / number_people,
+        ),
+        (
+            ["person"],
+            _("Death events missing dates"),
+            missing_death_dates,
+            missing_death_dates * 100 / number_people,
         ),
         (
             ["person"],
