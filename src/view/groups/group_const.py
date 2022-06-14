@@ -140,9 +140,11 @@ STATISTICS_GROUPS = {
     "stats-person": _("Individual Statistics"),
     "stats-family": _("Family Statistics"),
     "stats-event": _("Event Statistics"),
+    "stats-place": _("Place Statistics"),
     "stats-media": _("Media Statistics"),
     "stats-source": _("Source Statistics"),
     "stats-citation": _("Citation Statistics"),
+    "stats-repository": _("Repository Statistics"),
     "stats-quality": _("Quality Statistics"),
     "stats-privacy": _("Privacy Statistics"),
 }

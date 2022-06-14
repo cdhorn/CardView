@@ -40,7 +40,7 @@ from bisect import bisect
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.datehandler import get_date
-from gramps.gen.lib import Citation, EventType, FamilyRelType, Person
+from gramps.gen.lib import Citation, EventType, EventRoleType, FamilyRelType, Person, PlaceType, RepositoryType
 
 _ = glocale.translation.sgettext
 
@@ -94,8 +94,10 @@ class StatisticsService:
         self.facts = self.facts + analyze_people(db)
         self.facts = self.facts + analyze_families(db)
         self.facts = self.facts + analyze_events(db)
+        self.facts = self.facts + analyze_places(db)
         self.facts = self.facts + analyze_sources(db)
         self.facts = self.facts + analyze_citations(db)
+        self.facts = self.facts + analyze_repositories(db)
 
 
 def analyze_people(db):
@@ -111,6 +113,7 @@ def analyze_people(db):
     females, uncited_females, private_females = 0, 0, 0
     unknowns, uncited_unknowns, private_unknowns = 0, 0, 0
     refs, refs_total, refs_unknown, refs_private, refs_uncited = 0, 0, 0, 0, 0
+    no_role, private_roles = 0, 0
     last_changed = []
 
     for person in db.iter_people():
@@ -186,6 +189,12 @@ def analyze_people(db):
                     refs_uncited += 1
                 if not ref.rel:
                     refs_unknown += 1
+
+        for ref in person.event_ref_list:
+            if ref.get_role() == EventRoleType.UNKNOWN:
+                no_role += 1
+            if ref.private:
+                private_roles += 1
         analyze_change(last_changed, person.handle, person.change, 20)
 
     number_people = db.get_number_of_people()
@@ -240,6 +249,12 @@ def analyze_people(db):
         ),
         (
             ["person"],
+            _("Unknown event participation roles"),
+            no_role,
+            None,
+        ),
+        (
+            ["person"],
             _("Disconnected from a family"),
             disconnected,
             disconnected * 100 / number_people,
@@ -274,7 +289,7 @@ def analyze_people(db):
             ),
             (
                 ["person"],
-                _("Associations without a relationship"),
+                _("Unknown association type"),
                 refs_unknown,
                 refs_unknown * 100 / refs_total,
             ),
@@ -362,6 +377,14 @@ def analyze_people(db):
             ),
         ]
 
+    result = result + [
+            (
+                ["privacy"],
+                _("Private individual event participants"),
+                private_roles,
+                None,
+            ),
+    ]
     if refs_total:
         result = result + [
             (
@@ -388,6 +411,7 @@ def analyze_families(db):
     missing_one_partner, missing_both_partners, unknown_relation = 0, 0, 0
     no_citations, no_events, no_children, private = 0, 0, 0, 0
     refs, refs_private, refs_uncited = 0, 0, 0
+    no_role, private_roles = 0, 0
     last_changed = []
 
     for family in db.iter_families():
@@ -401,6 +425,12 @@ def analyze_families(db):
             no_citations += 1
         if not family.event_ref_list:
             no_events += 1
+        else:
+            for ref in family.event_ref_list:
+                if ref.get_role() == EventRoleType.UNKNOWN:
+                    no_role += 1
+                if ref.private:
+                    private_roles += 1
         if not family.child_ref_list:
             no_children += 1
         else:
@@ -433,7 +463,7 @@ def analyze_families(db):
         (["family"], _("Unique surnames"), len(set(db.surname_list)), None),
         (
             ["family"],
-            _("Unknown relationships"),
+            _("Unknown relationship type"),
             unknown_relation,
             unknown_relation * 100 / number_families,
         ),
@@ -457,6 +487,12 @@ def analyze_families(db):
         ),
         (
             ["family"],
+            _("Unknown event participation roles"),
+            no_role,
+            None,
+        ),
+        (
+            ["family"],
             _("No children found"),
             no_children,
             no_children * 100 / number_families,
@@ -472,6 +508,12 @@ def analyze_families(db):
             _("Private families"),
             private,
             private * 100 / number_families,
+        ),
+        (
+            ["privacy"],
+            _("Private family event participant roles"),
+            private_roles,
+            None,
         ),
     ]
 
@@ -530,10 +572,10 @@ def analyze_events(db):
             no_date += 1
         if not event.get_description():
             no_description += 1
+        if event.get_type() == EventType.UNKNOWN:
+            no_type += 1
         if event.private:
             private += 1
-        if event.type == EventType.UNKNOWN:
-            no_type += 1
         analyze_change(last_changed, event.handle, event.change, 20)
 
     number_events = db.get_number_of_events()
@@ -568,7 +610,7 @@ def analyze_events(db):
         ),
         (
             ["event"],
-            _("Unknown type"),
+            _("Unknown event type"),
             no_type,
             no_type * 100 / number_events,
         ),
@@ -593,6 +635,105 @@ def analyze_events(db):
         (
             ["media"],
             _("Total number of event media object references"),
+            media_references,
+            None,
+        ),
+    ]
+
+
+def analyze_places(db):
+    """
+    Parse and analyze places.
+    """
+    media_total, media_references = 0, 0
+    no_name, no_type, no_latitude, no_longitude, no_code = 0, 0, 0, 0, 0
+    no_citations, private = 0, 0
+    last_changed = []
+
+    for place in db.iter_places():
+        length = len(place.media_list)
+        if length > 0:
+            media_total += 1
+            media_references += length
+        if not place.name:
+            no_name += 1
+        if place.get_type() == PlaceType.UNKNOWN:
+            no_type += 1
+        if not place.lat:
+            no_latitude += 1
+        if not place.long:
+            no_longitude += 1
+        if not place.code:
+            no_code += 1
+        if not place.citation_list:
+            no_citations += 1
+        if place.private:
+            private += 1
+        analyze_change(last_changed, place.handle, place.change, 20)
+
+    number_places = db.get_number_of_places()
+    if not number_places:
+        return [(["place"], _("Number of places"), 0, None)]
+
+    return [
+        (
+            ["changed"],
+            _("Most recently modified places"),
+            last_changed,
+            "Place",
+        ),
+        (["place"], _("Number of places"), number_places, None),
+        (
+            ["place"],
+            _("Missing name"),
+            no_name,
+            no_name * 100 / number_places,
+        ),
+        (
+            ["place"],
+            _("Missing latitude"),
+            no_latitude,
+            no_latitude * 100 / number_places,
+        ),
+        (
+            ["place"],
+            _("Missing longitude"),
+            no_longitude,
+            no_longitude * 100 / number_places,
+        ),
+        (
+            ["place"],
+            _("Missing place code"),
+            no_code,
+            no_code * 100 / number_places,
+        ),
+        (
+            ["place"],
+            _("Unknown place type"),
+            no_type,
+            no_type * 100 / number_places,
+        ),
+        (
+            ["quality"],
+            _("Places with no supporting citations"),
+            no_citations,
+            no_citations * 100 / number_places,
+        ),
+        (
+            ["privacy"],
+            _("Private places"),
+            private,
+            private * 100 / number_places,
+        ),
+        (
+            ["media"],
+            _("Places with media objects"),
+            media_total,
+            media_total * 100 / number_places,
+        ),
+        (
+            ["media"],
+            _("Total number of place media object references"),
             media_references,
             None,
         ),
@@ -724,13 +865,13 @@ def analyze_sources(db):
         ),
         (
             ["source"],
-            _("No abbreviation"),
+            _("Missing abbreviation"),
             no_abbrev,
             no_abbrev * 100 / number_sources,
         ),
         (
             ["source"],
-            _("Sources with no repository"),
+            _("Missing repository"),
             no_repository,
             no_repository * 100 / number_sources,
         ),
@@ -862,6 +1003,63 @@ def analyze_citations(db):
             _("Total number of citation media object references"),
             media_references,
             None,
+        ),
+    ]
+
+
+def analyze_repositories(db):
+    """
+    Parse and analyze repositories.
+    """
+    no_name, no_address, no_type, private = 0, 0, 0, 0
+    last_changed = []
+
+    for repository in db.iter_repositories():
+        if not repository.name:
+            no_name += 1
+        if not repository.address_list:
+            no_address += 1
+        if repository.get_type() == RepositoryType.UNKNOWN:
+            no_type += 1
+        if repository.private:
+            private += 1
+        analyze_change(last_changed, repository.handle, repository.change, 20)
+
+    number_repositories = db.get_number_of_repositories()
+    if not number_repositories:
+        return [(["repository"], _("Number of repositories"), 0, None)]
+
+    return [
+        (
+            ["changed"],
+            _("Most recently modified repositories"),
+            last_changed,
+            "Repository",
+        ),
+        (["repository"], _("Number of repositories"), number_repositories, None),
+        (
+            ["repository"],
+            _("Missing name"),
+            no_name,
+            no_name * 100 / number_repositories,
+        ),
+        (
+            ["repository"],
+            _("Missing address"),
+            no_address,
+            no_address * 100 / number_repositories,
+        ),
+        (
+            ["repository"],
+            _("Unknown repository type"),
+            no_type,
+            no_type * 100 / number_repositories,
+        ),
+        (
+            ["privacy"],
+            _("Private repositories"),
+            private,
+            private * 100 / number_repositories,
         ),
     ]
 
