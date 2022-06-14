@@ -40,7 +40,7 @@ from bisect import bisect
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.datehandler import get_date
-from gramps.gen.lib import Citation, EventType, Person
+from gramps.gen.lib import Citation, EventType, FamilyRelType, Person
 
 _ = glocale.translation.sgettext
 
@@ -94,6 +94,7 @@ class StatisticsService:
         self.facts = self.facts + analyze_people(db)
         self.facts = self.facts + analyze_families(db)
         self.facts = self.facts + analyze_events(db)
+        self.facts = self.facts + analyze_sources(db)
         self.facts = self.facts + analyze_citations(db)
 
 
@@ -384,7 +385,7 @@ def analyze_families(db):
     Parse and analyze families.
     """
     media_total, media_references = 0, 0
-    missing_one_partner, missing_both_partners = 0, 0
+    missing_one_partner, missing_both_partners, unknown_relation = 0, 0, 0
     no_citations, no_events, no_children, private = 0, 0, 0, 0
     refs, refs_private, refs_uncited = 0, 0, 0
     last_changed = []
@@ -394,6 +395,8 @@ def analyze_families(db):
         if length > 0:
             media_total += 1
             media_references += length
+        if family.type == FamilyRelType.UNKNOWN:
+            unknown_relation += 1
         if not family.citation_list:
             no_citations += 1
         if not family.event_ref_list:
@@ -428,6 +431,12 @@ def analyze_families(db):
         ),
         (["family"], _("Number of families"), number_families, None),
         (["family"], _("Unique surnames"), len(set(db.surname_list)), None),
+        (
+            ["family"],
+            _("Unknown relationships"),
+            unknown_relation,
+            unknown_relation * 100 / number_families,
+        ),
         (
             ["family"],
             _("Only one spouse found"),
@@ -517,8 +526,10 @@ def analyze_events(db):
             no_citations += 1
         if not event.place:
             no_place += 1
-        if not event.date:
+        if not get_date(event):
             no_date += 1
+        if not event.get_description():
+            no_description += 1
         if event.private:
             private += 1
         if event.type == EventType.UNKNOWN:
@@ -653,18 +664,116 @@ def analyze_media(db):
     ]
 
 
+def analyze_sources(db):
+    """
+    Parse and analyze sources.
+    """
+    media_total, media_references = 0, 0
+    no_title, no_author, no_pubinfo, no_abbrev = 0, 0, 0, 0
+    no_repository, private = 0, 0
+    last_changed = []
+
+    for source in db.iter_sources():
+        length = len(source.media_list)
+        if length > 0:
+            media_total += 1
+            media_references += length
+        if not source.reporef_list:
+            no_repository += 1
+        if not source.title:
+            no_title += 1
+        if not source.author:
+            no_author += 1
+        if not source.pubinfo:
+            no_pubinfo += 1
+        if not source.abbrev:
+            no_abbrev += 1
+        if source.private:
+            private += 1
+        analyze_change(last_changed, source.handle, source.change, 20)
+
+    number_sources = db.get_number_of_sources()
+    if not number_sources:
+        return [(["source"], _("Number of sources"), 0, None)]
+
+    return [
+        (
+            ["changed"],
+            _("Most recently modified sources"),
+            last_changed,
+            "Source",
+        ),
+        (["source"], _("Number of sources"), number_sources, None),
+        (
+            ["source"],
+            _("Missing title"),
+            no_title,
+            no_title * 100 / number_sources,
+        ),
+        (
+            ["source"],
+            _("Missing author"),
+            no_author,
+            no_author * 100 / number_sources,
+        ),
+        (
+            ["source"],
+            _("Missing publication info"),
+            no_pubinfo,
+            no_pubinfo * 100 / number_sources,
+        ),
+        (
+            ["source"],
+            _("No abbreviation"),
+            no_abbrev,
+            no_abbrev * 100 / number_sources,
+        ),
+        (
+            ["source"],
+            _("Sources with no repository"),
+            no_repository,
+            no_repository * 100 / number_sources,
+        ),
+        (
+            ["privacy"],
+            _("Private sources"),
+            private,
+            private * 100 / number_sources,
+        ),
+        (
+            ["media"],
+            _("Sources with media objects"),
+            media_total,
+            media_total * 100 / number_sources,
+        ),
+        (
+            ["media"],
+            _("Total number of source media object references"),
+            media_references,
+            None,
+        ),
+    ]
+
+
 def analyze_citations(db):
     """
     Parse and analyze citation objects.
     """
-    missing_source, missing_page, private = 0, 0, 0
+    media_total, media_references = 0, 0
+    missing_source, missing_page, no_date, private = 0, 0, 0, 0
     very_low, low, normal, high, very_high = 0, 0, 0, 0, 0
     last_changed = []
 
     for handle in db.get_citation_handles():
         citation = db.get_citation_from_handle(handle)
+        length = len(citation.media_list)
+        if length > 0:
+            media_total += 1
+            media_references += length
         if citation.private:
             private += 1
+        if not get_date(citation):
+            no_date += 1
         if not citation.source_handle:
             missing_source += 1
         if not citation.page:
@@ -707,6 +816,12 @@ def analyze_citations(db):
         ),
         (
             ["citation"],
+            _("Missing date"),
+            no_date,
+            no_date * 100 / number_citations,
+        ),
+        (
+            ["citation"],
             _("Very low confidence"),
             very_low,
             very_low * 100 / number_citations,
@@ -735,6 +850,18 @@ def analyze_citations(db):
             _("Private citations"),
             private,
             private * 100 / number_citations,
+        ),
+        (
+            ["media"],
+            _("Citations with media objects"),
+            media_total,
+            media_total * 100 / number_citations,
+        ),
+        (
+            ["media"],
+            _("Total number of citation media object references"),
+            media_references,
+            None,
         ),
     ]
 

@@ -1299,7 +1299,7 @@ _TEMPLATE = (
     (
         "layout.dashboard.groups",
         "stats-person,stats-family,stats-event,stats-media,"
-        "stats-citation,stats-quality,stats-privacy",
+        "stats-source,stats-citation,stats-quality,stats-privacy",
     ),
     ("layout.dashboard.stats-person.visible", True),
     ("layout.dashboard.stats-person.append", True),
@@ -1309,6 +1309,8 @@ _TEMPLATE = (
     ("layout.dashboard.stats-event.append", True),
     ("layout.dashboard.stats-media.visible", True),
     ("layout.dashboard.stats-media.append", False),
+    ("layout.dashboard.stats-source.visible", True),
+    ("layout.dashboard.stats-source.append", True),
     ("layout.dashboard.stats-citation.visible", True),
     ("layout.dashboard.stats-citation.append", True),
     ("layout.dashboard.stats-quality.visible", True),
