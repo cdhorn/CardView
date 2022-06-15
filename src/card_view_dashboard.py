@@ -115,9 +115,9 @@ class DashboardCardView(CardView):
 
         self._clear_current_view()
 
-        grcontext = GrampsContext()
+        self.current_context = GrampsContext()
 
-        view = view_builder(self.grstate, grcontext)
+        view = view_builder(self.grstate, self.current_context)
         self.current_view.pack_start(view, True, True, 0)
         self.current_view.show_all()
 

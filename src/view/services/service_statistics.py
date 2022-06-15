@@ -40,7 +40,15 @@ from bisect import bisect
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.datehandler import get_date
-from gramps.gen.lib import Citation, EventType, EventRoleType, FamilyRelType, Person, PlaceType, RepositoryType
+from gramps.gen.lib import (
+    Citation,
+    EventType,
+    EventRoleType,
+    FamilyRelType,
+    Person,
+    PlaceType,
+    RepositoryType,
+)
 
 _ = glocale.translation.sgettext
 
@@ -79,7 +87,10 @@ class StatisticsService:
         """
         Rescan the database.
         """
-        self.gather_data()
+        if self.dbstate.is_open():
+            self.gather_data()
+        else:
+            self.facts.clear()
 
     def get_data(self):
         if self.facts == []:
@@ -378,12 +389,12 @@ def analyze_people(db):
         ]
 
     result = result + [
-            (
-                ["privacy"],
-                _("Private individual event participants"),
-                private_roles,
-                None,
-            ),
+        (
+            ["privacy"],
+            _("Private individual event participants"),
+            private_roles,
+            None,
+        ),
     ]
     if refs_total:
         result = result + [
@@ -1035,7 +1046,12 @@ def analyze_repositories(db):
             last_changed,
             "Repository",
         ),
-        (["repository"], _("Number of repositories"), number_repositories, None),
+        (
+            ["repository"],
+            _("Number of repositories"),
+            number_repositories,
+            None,
+        ),
         (
             ["repository"],
             _("Missing name"),

@@ -515,7 +515,10 @@ class GrampsContext:
         """
         Return a unique object key
         """
-        key = self.primary_obj.obj.handle
+        if self.primary_obj:
+            key = self.primary_obj.obj.handle
+        else:
+            key = "dashboard"
         if self.reference_obj:
             key = "%s-%s" % (key, self.reference_obj.obj.ref)
         if self.secondary_obj:

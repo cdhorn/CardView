@@ -77,7 +77,9 @@ class PinnedViewWindow(ManagedWindow):
         self.grstate = grstate
         self.grcontext = grcontext
         self.callback = callback
-        if grcontext.primary_obj.obj_type != "Tag":
+        if key == "dashboard":
+            self.base_title = _("Dashboard")
+        elif grcontext.primary_obj.obj_type != "Tag":
             self.base_title, dummy_obj = navigation_label(
                 grstate.dbstate.db,
                 grcontext.primary_obj.obj_type,
@@ -99,10 +101,13 @@ class PinnedViewWindow(ManagedWindow):
         window.set_transient_for(self.uistate.window)
         window.add(self.page_view)
         self.set_window(window, None, self.base_title)
-        prefix = (
-            "interface.cardview.page-%s-window"
-            % grcontext.primary_obj.obj_type.lower()
-        )
+        if grcontext.primary_obj:
+            prefix = (
+                "interface.cardview.page-%s-window"
+                % grcontext.primary_obj.obj_type.lower()
+            )
+        else:
+            prefix = "interface.cardview.page-dashboard"
         self.setup_configs(prefix, 768, 768)
         self.show()
 
@@ -119,7 +124,13 @@ class PinnedViewWindow(ManagedWindow):
         title = self.base_title
         if "]" in title:
             title = title.split("] ")[1].strip()
-        menu_label = "%s: %s" % (self.grcontext.primary_obj.obj_lang, title)
+        if self.grcontext.primary_obj:
+            menu_label = "%s: %s" % (
+                self.grcontext.primary_obj.obj_lang,
+                title,
+            )
+        else:
+            menu_label = self.base_title
         return (menu_label, None)
 
     def rebuild(self):
