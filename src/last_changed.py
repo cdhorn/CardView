@@ -254,20 +254,13 @@ class LastChanged(Gramplet):
             max_per_list = self.max_per_list
             for object_type in SERIALIZATION_INDEX:
                 self.update_label(label, object_type)
-                if object_type == "Citation":
-                    list_method = db.iter_citation_handles
-                else:
-                    list_method = db.method(
-                        "iter_%s_handles", object_type.lower()
-                    )
-
                 handle_list = []
-                raw_method = db.method("get_raw_%s_data", object_type.lower())
                 change_index = SERIALIZATION_INDEX[object_type]
                 list_size = 0
                 list_full = False
-                for object_handle in list_method():
-                    change = -raw_method(object_handle)[change_index]
+                cursor = self.get_cursor(object_type)
+                for (object_handle, raw_object) in cursor():
+                    change = -raw_object[change_index]
                     bsindex = bisect(
                         KeyWrapper(handle_list, key=lambda c: c[2]), change
                     )
@@ -301,6 +294,31 @@ class LastChanged(Gramplet):
             self.render_stacked_mode(nav_type, CATEGORIES)
         self.current_view.show_all()
         yield False
+
+    def get_cursor(self, obj_type):
+        """
+        Return cursor.
+        """
+        if obj_type == "Person":
+            return self.dbstate.db.get_person_cursor
+        if obj_type == "Family":
+            return self.dbstate.db.get_family_cursor
+        if obj_type == "Event":
+            return self.dbstate.db.get_event_cursor
+        if obj_type == "Place":
+            return self.dbstate.db.get_place_cursor
+        if obj_type == "Source":
+            return self.dbstate.db.get_source_cursor
+        if obj_type == "Citation":
+            return self.dbstate.db.get_citation_cursor
+        if obj_type == "Repository":
+            return self.dbstate.db.get_repository_cursor
+        if obj_type == "Media":
+            return self.dbstate.db.get_media_cursor
+        if obj_type == "Note":
+            return self.dbstate.db.get_note_cursor
+        if obj_type == "Tag":
+            return self.dbstate.db.get_tag_cursor
 
     def update_label(self, label, obj_type):
         """
