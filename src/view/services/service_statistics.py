@@ -905,8 +905,7 @@ def analyze_citations(db):
     very_low, low, normal, high, very_high = 0, 0, 0, 0, 0
     last_changed = []
 
-    for handle in db.get_citation_handles():
-        citation = db.get_citation_from_handle(handle)
+    for citation in db.iter_citations():
         length = len(citation.media_list)
         if length > 0:
             media_total += 1

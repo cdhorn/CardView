@@ -254,7 +254,7 @@ class LastChanged(Gramplet):
             for object_type in SERIALIZATION_INDEX:
                 self.update_label(label, object_type)
                 if object_type == "Citation":
-                    list_method = db.get_citation_handles
+                    list_method = db.iter_citation_handles
                 else:
                     list_method = db.method(
                         "iter_%s_handles", object_type.lower()
