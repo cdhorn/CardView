@@ -52,7 +52,7 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Dashboard", _("Dashboard")),
     viewclass="DashboardCardView",
-    stock_icon="gramps-personcard",
+    stock_icon="gramps-dashboardcardview",
     order=END,
 )
 
