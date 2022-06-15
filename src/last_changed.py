@@ -251,6 +251,7 @@ class LastChanged(Gramplet):
             db = self.dbstate.db
             self.change_history = {}
             global_history = []
+            max_per_list = self.max_per_list
             for object_type in SERIALIZATION_INDEX:
                 self.update_label(label, object_type)
                 if object_type == "Citation":
@@ -263,6 +264,8 @@ class LastChanged(Gramplet):
                 handle_list = []
                 raw_method = db.method("get_raw_%s_data", object_type.lower())
                 change_index = SERIALIZATION_INDEX[object_type]
+                list_size = 0
+                list_full = False
                 for object_handle in list_method():
                     change = -raw_method(object_handle)[change_index]
                     bsindex = bisect(
@@ -271,8 +274,13 @@ class LastChanged(Gramplet):
                     handle_list.insert(
                         bsindex, (object_type, object_handle, change)
                     )
-                    if len(handle_list) > self.max_per_list:
-                        handle_list.pop(self.max_per_list)
+                    if list_full:
+                        handle_list.pop(max_per_list)
+                    else:
+                        list_size += 1
+                        if list_size > max_per_list:
+                            handle_list.pop(max_per_list)
+                            list_full = True
                     if counter % YIELD_COUNT:
                         yield True
                     counter += 1
@@ -476,7 +484,6 @@ class LastChangedService(Callback):
             self.depth = depth
             for obj_type in SERIALIZATION_INDEX:
                 self.__register_signals(obj_type)
-            #            self.__init_signals()
             self.dbstate.connect("database-changed", self.__init_signals)
             uistate.connect("nameformat-changed", self.rebuild_name_labels)
             uistate.connect("placeformat-changed", self.rebuild_place_labels)
