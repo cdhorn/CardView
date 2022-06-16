@@ -38,7 +38,6 @@ from bisect import bisect
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.utils.file import media_path_full
 from gramps.gen.datehandler import get_date
 from gramps.gen.lib import (
     Citation,
@@ -50,6 +49,8 @@ from gramps.gen.lib import (
     PlaceType,
     RepositoryType,
 )
+from gramps.gen.utils.alive import probably_alive
+from gramps.gen.utils.file import media_path_full
 
 _ = glocale.translation.sgettext
 
@@ -127,6 +128,7 @@ def analyze_people(db):
     males, uncited_males, private_males, tagged_males = 0, 0, 0, 0
     females, uncited_females, private_females, tagged_females = 0, 0, 0, 0
     unknowns, uncited_unknowns, private_unknowns, tagged_unknowns = 0, 0, 0, 0
+    living_males, living_females, living_unknowns = 0, 0, 0
     refs, refs_total, refs_unknown, refs_private, refs_uncited = 0, 0, 0, 0, 0
     no_role, private_roles = 0, 0
     last_changed = []
@@ -183,6 +185,8 @@ def analyze_people(db):
                 private_females += 1
             if person.tag_list:
                 tagged_females += 1
+            if probably_alive(person, db):
+                living_females += 1
         elif person.get_gender() == Person.MALE:
             males += 1
             if not person.citation_list:
@@ -191,6 +195,8 @@ def analyze_people(db):
                 private_males += 1
             if person.tag_list:
                 tagged_males += 1
+            if probably_alive(person, db):
+                living_males += 1
         else:
             unknowns += 1
             if not person.citation_list:
@@ -199,6 +205,8 @@ def analyze_people(db):
                 private_unknowns += 1
             if person.tag_list:
                 tagged_unknowns += 1
+            if probably_alive(person, db):
+                living_unknowns += 1
 
         if person.person_ref_list:
             refs += 1
@@ -331,6 +339,12 @@ def analyze_people(db):
                 private_males * 100 / males,
             ),
             (
+                ["privacy"],
+                _("Living males"),
+                living_males,
+                living_males * 100 / males,
+            ),
+            (
                 ["tag"],
                 _("Tagged males"),
                 tagged_males,
@@ -353,6 +367,12 @@ def analyze_people(db):
                 private_females * 100 / females,
             ),
             (
+                ["privacy"],
+                _("Living females"),
+                living_females,
+                living_females * 100 / males,
+            ),
+            (
                 ["tag"],
                 _("Tagged females"),
                 tagged_females,
@@ -373,6 +393,12 @@ def analyze_people(db):
                 _("Private unknown genders"),
                 private_unknowns,
                 private_unknowns * 100 / unknowns,
+            ),
+            (
+                ["privacy"],
+                _("Living unknown genders"),
+                living_unknowns,
+                living_unknowns * 100 / unknowns,
             ),
             (
                 ["tag"],
