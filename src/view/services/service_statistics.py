@@ -129,6 +129,11 @@ def analyze_people(db):
     females, uncited_females, private_females, tagged_females = 0, 0, 0, 0
     unknowns, uncited_unknowns, private_unknowns, tagged_unknowns = 0, 0, 0, 0
     living_males, living_females, living_unknowns = 0, 0, 0
+    (
+        living_males_not_private,
+        living_females_not_private,
+        living_unknowns_not_private,
+    ) = (0, 0, 0)
     refs, refs_total, refs_unknown, refs_private, refs_uncited = 0, 0, 0, 0, 0
     no_role, private_roles = 0, 0
     last_changed = []
@@ -187,6 +192,8 @@ def analyze_people(db):
                 tagged_females += 1
             if probably_alive(person, db):
                 living_females += 1
+                if not person.private:
+                    living_females_not_private += 1
         elif person.get_gender() == Person.MALE:
             males += 1
             if not person.citation_list:
@@ -197,6 +204,8 @@ def analyze_people(db):
                 tagged_males += 1
             if probably_alive(person, db):
                 living_males += 1
+                if not person.private:
+                    living_males_not_private += 1
         else:
             unknowns += 1
             if not person.citation_list:
@@ -207,6 +216,8 @@ def analyze_people(db):
                 tagged_unknowns += 1
             if probably_alive(person, db):
                 living_unknowns += 1
+                if not person.private:
+                    living_unknowns_not_private += 1
 
         if person.person_ref_list:
             refs += 1
@@ -345,6 +356,12 @@ def analyze_people(db):
                 living_males * 100 / males,
             ),
             (
+                ["privacy"],
+                _("Living males not marked private"),
+                living_males_not_private,
+                living_males_not_private * 100 / males,
+            ),
+            (
                 ["tag"],
                 _("Tagged males"),
                 tagged_males,
@@ -370,7 +387,13 @@ def analyze_people(db):
                 ["privacy"],
                 _("Living females"),
                 living_females,
-                living_females * 100 / males,
+                living_females * 100 / females,
+            ),
+            (
+                ["privacy"],
+                _("Living females not marked private"),
+                living_females_not_private,
+                living_females_not_private * 100 / females,
             ),
             (
                 ["tag"],
@@ -399,6 +422,12 @@ def analyze_people(db):
                 _("Living unknown genders"),
                 living_unknowns,
                 living_unknowns * 100 / unknowns,
+            ),
+            (
+                ["privacy"],
+                _("Living unknown genders not marked private"),
+                living_unknowns_not_private,
+                living_unknowns_not_private * 100 / unknowns,
             ),
             (
                 ["tag"],
