@@ -220,6 +220,7 @@ class ProfilePageLayout(Gtk.VBox):
             self.config.save()
             self.undo.set_visible(True)
         self.draw()
+        self.grstate.reload_config(refresh_only=False, defer_refresh=False)
 
     def apply_defaults(self, *_dummy_obj):
         """
