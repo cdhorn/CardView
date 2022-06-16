@@ -201,6 +201,9 @@ GROUP_LABELS = {
     "stats-source": _("Source Statistics"),
     "stats-citation": _("Citation Statistics"),
     "stats-repository": _("Repository Statistics"),
+    "stats-note": _("Note Statistics"),
+    "stats-tag": _("Tag Statistics"),
+    "stats-bookmark": _("Bookmark Statistics"),
     "stats-quality": _("Quality Statistics"),
     "stats-privacy": _("Privacy Statistics"),
 }

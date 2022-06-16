@@ -45,6 +45,7 @@ from gramps.gen.lib import (
     EventType,
     EventRoleType,
     FamilyRelType,
+    NoteType,
     Person,
     PlaceType,
     RepositoryType,
@@ -101,6 +102,7 @@ class StatisticsService:
         self.facts.clear()
 
         db = self.dbstate.db
+        self.facts = self.facts + analyze_tags(db)
         self.facts = self.facts + analyze_media(db)
         self.facts = self.facts + analyze_people(db)
         self.facts = self.facts + analyze_families(db)
@@ -109,6 +111,8 @@ class StatisticsService:
         self.facts = self.facts + analyze_sources(db)
         self.facts = self.facts + analyze_citations(db)
         self.facts = self.facts + analyze_repositories(db)
+        self.facts = self.facts + analyze_notes(db)
+        self.facts = self.facts + analyze_bookmarks(db)
 
 
 def analyze_people(db):
@@ -120,9 +124,9 @@ def analyze_people(db):
     missing_births, uncited_births, private_births = 0, 0, 0
     missing_birth_dates, missing_death_dates = 0, 0
     missing_deaths, uncited_deaths, private_deaths = 0, 0, 0
-    males, uncited_males, private_males = 0, 0, 0
-    females, uncited_females, private_females = 0, 0, 0
-    unknowns, uncited_unknowns, private_unknowns = 0, 0, 0
+    males, uncited_males, private_males, tagged_males = 0, 0, 0, 0
+    females, uncited_females, private_females, tagged_females = 0, 0, 0, 0
+    unknowns, uncited_unknowns, private_unknowns, tagged_unknowns = 0, 0, 0, 0
     refs, refs_total, refs_unknown, refs_private, refs_uncited = 0, 0, 0, 0, 0
     no_role, private_roles = 0, 0
     last_changed = []
@@ -177,18 +181,24 @@ def analyze_people(db):
                 uncited_females += 1
             if person.private:
                 private_females += 1
+            if person.tag_list:
+                tagged_females += 1
         elif person.get_gender() == Person.MALE:
             males += 1
             if not person.citation_list:
                 uncited_males += 1
             if person.private:
                 private_males += 1
+            if person.tag_list:
+                tagged_males += 1
         else:
             unknowns += 1
             if not person.citation_list:
                 uncited_unknowns += 1
             if person.private:
                 private_unknowns += 1
+            if person.tag_list:
+                tagged_unknowns += 1
 
         if person.person_ref_list:
             refs += 1
@@ -320,6 +330,12 @@ def analyze_people(db):
                 private_males,
                 private_males * 100 / males,
             ),
+            (
+                ["tag"],
+                _("Tagged males"),
+                tagged_males,
+                tagged_males * 100 / males,
+            ),
         ]
 
     if females:
@@ -336,6 +352,12 @@ def analyze_people(db):
                 private_females,
                 private_females * 100 / females,
             ),
+            (
+                ["tag"],
+                _("Tagged females"),
+                tagged_females,
+                tagged_females * 100 / females,
+            ),
         ]
 
     if unknowns:
@@ -351,6 +373,12 @@ def analyze_people(db):
                 _("Private unknown genders"),
                 private_unknowns,
                 private_unknowns * 100 / unknowns,
+            ),
+            (
+                ["tag"],
+                _("Tagged unknown genders"),
+                tagged_unknowns,
+                tagged_unknowns * 100 / unknowns,
             ),
         ]
 
@@ -420,7 +448,7 @@ def analyze_families(db):
     """
     media_total, media_references = 0, 0
     missing_one_partner, missing_both_partners, unknown_relation = 0, 0, 0
-    no_citations, no_events, no_children, private = 0, 0, 0, 0
+    no_citations, no_events, no_children, private, tagged = 0, 0, 0, 0, 0
     refs, refs_private, refs_uncited = 0, 0, 0
     no_role, private_roles = 0, 0
     last_changed = []
@@ -457,6 +485,8 @@ def analyze_families(db):
             missing_both_partners += 1
         elif not family.father_handle or not family.mother_handle:
             missing_one_partner += 1
+        if family.tag_list:
+            tagged += 1
         analyze_change(last_changed, family.handle, family.change, 20)
 
     number_families = db.get_number_of_families()
@@ -521,6 +551,12 @@ def analyze_families(db):
             private * 100 / number_families,
         ),
         (
+            ["tag"],
+            _("Tagged families"),
+            tagged,
+            tagged * 100 / number_families,
+        ),
+        (
             ["privacy"],
             _("Private family event participant roles"),
             private_roles,
@@ -567,7 +603,7 @@ def analyze_events(db):
     """
     media_total, media_references = 0, 0
     no_date, no_place, no_description, no_type = 0, 0, 0, 0
-    no_citations, private = 0, 0
+    no_citations, private, tagged = 0, 0, 0
     last_changed = []
 
     for event in db.iter_events():
@@ -587,6 +623,8 @@ def analyze_events(db):
             no_type += 1
         if event.private:
             private += 1
+        if event.tag_list:
+            tagged += 1
         analyze_change(last_changed, event.handle, event.change, 20)
 
     number_events = db.get_number_of_events()
@@ -638,6 +676,12 @@ def analyze_events(db):
             private * 100 / number_events,
         ),
         (
+            ["tag"],
+            _("Tagged events"),
+            tagged,
+            tagged * 100 / number_events,
+        ),
+        (
             ["media"],
             _("Events with media objects"),
             media_total,
@@ -658,7 +702,7 @@ def analyze_places(db):
     """
     media_total, media_references = 0, 0
     no_name, no_type, no_latitude, no_longitude, no_code = 0, 0, 0, 0, 0
-    no_citations, private = 0, 0
+    no_citations, private, tagged = 0, 0, 0
     last_changed = []
 
     for place in db.iter_places():
@@ -680,6 +724,8 @@ def analyze_places(db):
             no_citations += 1
         if place.private:
             private += 1
+        if place.tag_list:
+            tagged += 1
         analyze_change(last_changed, place.handle, place.change, 20)
 
     number_places = db.get_number_of_places()
@@ -737,6 +783,12 @@ def analyze_places(db):
             private * 100 / number_places,
         ),
         (
+            ["tag"],
+            _("Tagged places"),
+            tagged,
+            tagged * 100 / number_places,
+        ),
+        (
             ["media"],
             _("Places with media objects"),
             media_total,
@@ -755,7 +807,7 @@ def analyze_media(db):
     """
     Parse and analyze media objects.
     """
-    bytes_cnt, private, no_desc = 0, 0, 0
+    bytes_cnt, no_desc, private, tagged = 0, 0, 0, 0
     notfound = []
     last_changed = []
 
@@ -765,6 +817,8 @@ def analyze_media(db):
             private += 1
         if not media.desc:
             no_desc += 1
+        if media.tag_list:
+            tagged += 1
         fullname = media_path_full(db, media.get_path())
         try:
             bytes_cnt += os.path.getsize(fullname)
@@ -813,6 +867,12 @@ def analyze_media(db):
             private,
             private * 100 / number_media,
         ),
+        (
+            ["tag"],
+            _("Tagged media objects"),
+            tagged,
+            tagged * 100 / number_media,
+        ),
     ]
 
 
@@ -822,7 +882,7 @@ def analyze_sources(db):
     """
     media_total, media_references = 0, 0
     no_title, no_author, no_pubinfo, no_abbrev = 0, 0, 0, 0
-    no_repository, private = 0, 0
+    no_repository, private, tagged = 0, 0, 0
     last_changed = []
 
     for source in db.iter_sources():
@@ -842,6 +902,8 @@ def analyze_sources(db):
             no_abbrev += 1
         if source.private:
             private += 1
+        if source.tag_list:
+            tagged += 1
         analyze_change(last_changed, source.handle, source.change, 20)
 
     number_sources = db.get_number_of_sources()
@@ -893,6 +955,12 @@ def analyze_sources(db):
             private * 100 / number_sources,
         ),
         (
+            ["tag"],
+            _("Tagged sources"),
+            tagged,
+            tagged * 100 / number_sources,
+        ),
+        (
             ["media"],
             _("Sources with media objects"),
             media_total,
@@ -912,7 +980,7 @@ def analyze_citations(db):
     Parse and analyze citation objects.
     """
     media_total, media_references = 0, 0
-    missing_source, missing_page, no_date, private = 0, 0, 0, 0
+    missing_source, missing_page, no_date, private, tagged = 0, 0, 0, 0, 0
     very_low, low, normal, high, very_high = 0, 0, 0, 0, 0
     last_changed = []
 
@@ -921,14 +989,16 @@ def analyze_citations(db):
         if length > 0:
             media_total += 1
             media_references += length
-        if citation.private:
-            private += 1
         if not get_date(citation):
             no_date += 1
         if not citation.source_handle:
             missing_source += 1
         if not citation.page:
             missing_page += 1
+        if citation.private:
+            private += 1
+        if citation.tag_list:
+            tagged += 1
         if citation.confidence == Citation.CONF_VERY_LOW:
             very_low += 1
         elif citation.confidence == Citation.CONF_LOW:
@@ -1003,6 +1073,12 @@ def analyze_citations(db):
             private * 100 / number_citations,
         ),
         (
+            ["tag"],
+            _("Tagged citations"),
+            tagged,
+            tagged * 100 / number_citations,
+        ),
+        (
             ["media"],
             _("Citations with media objects"),
             media_total,
@@ -1021,7 +1097,7 @@ def analyze_repositories(db):
     """
     Parse and analyze repositories.
     """
-    no_name, no_address, no_type, private = 0, 0, 0, 0
+    no_name, no_address, no_type, private, tagged = 0, 0, 0, 0, 0
     last_changed = []
 
     for repository in db.iter_repositories():
@@ -1033,6 +1109,8 @@ def analyze_repositories(db):
             no_type += 1
         if repository.private:
             private += 1
+        if repository.tag_list:
+            tagged += 1
         analyze_change(last_changed, repository.handle, repository.change, 20)
 
     number_repositories = db.get_number_of_repositories()
@@ -1075,6 +1153,165 @@ def analyze_repositories(db):
             _("Private repositories"),
             private,
             private * 100 / number_repositories,
+        ),
+        (
+            ["tag"],
+            _("Tagged repositories"),
+            tagged,
+            tagged * 100 / number_repositories,
+        ),
+    ]
+
+
+def analyze_notes(db):
+    """
+    Parse and analyze notes.
+    """
+    no_type, no_text, private, tagged = 0, 0, 0, 0
+    last_changed = []
+
+    for note in db.iter_notes():
+        if not note.text:
+            no_text += 1
+        if note.get_type() == NoteType.UNKNOWN:
+            no_type += 1
+        if note.private:
+            private += 1
+        if note.tag_list:
+            tagged += 1
+        analyze_change(last_changed, note.handle, note.change, 20)
+
+    number_notes = db.get_number_of_notes()
+    if not number_notes:
+        return [(["note"], _("Number of notes"), 0, None)]
+
+    return [
+        (
+            ["changed"],
+            _("Most recently modified notes"),
+            last_changed,
+            "Note",
+        ),
+        (
+            ["note"],
+            _("Number of notes"),
+            number_notes,
+            None,
+        ),
+        (
+            ["note"],
+            _("Missing text"),
+            no_text,
+            no_text * 100 / number_notes,
+        ),
+        (
+            ["note"],
+            _("Unknown note type"),
+            no_type,
+            no_type * 100 / number_notes,
+        ),
+        (
+            ["privacy"],
+            _("Private notes"),
+            private,
+            private * 100 / number_notes,
+        ),
+        (
+            ["tag"],
+            _("Tagged notes"),
+            tagged,
+            tagged * 100 / number_notes,
+        ),
+    ]
+
+
+def analyze_tags(db):
+    """
+    Parse and analyze tags.
+    """
+    last_changed = []
+
+    for tag in db.iter_tags():
+        analyze_change(last_changed, tag.handle, tag.change, 20)
+
+    number_tags = db.get_number_of_tags()
+    if not number_tags:
+        return [(["tag"], _("Number of tags"), 0, None)]
+
+    return [
+        (
+            ["changed"],
+            _("Most recently modified tags"),
+            last_changed,
+            "Tag",
+        ),
+        (
+            ["tag"],
+            _("Number of tags"),
+            number_tags,
+            None,
+        ),
+    ]
+
+
+def analyze_bookmarks(db):
+    """
+    Parse and analyze bookmarks.
+    """
+    return [
+        (
+            ["bookmark"],
+            _("Person bookmarks"),
+            len(db.get_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Family bookmarks"),
+            len(db.get_family_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Event bookmarks"),
+            len(db.get_event_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Place bookmarks"),
+            len(db.get_place_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Media bookmarks"),
+            len(db.get_media_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Source bookmarks"),
+            len(db.get_source_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Citation bookmarks"),
+            len(db.get_citation_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Repository bookmarks"),
+            len(db.get_repo_bookmarks().bookmarks),
+            None,
+        ),
+        (
+            ["bookmark"],
+            _("Note bookmarks"),
+            len(db.get_note_bookmarks().bookmarks),
+            None,
         ),
     ]
 

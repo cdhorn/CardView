@@ -1325,8 +1325,8 @@ VIEWDEFAULTS = (
     (
         "layout.dashboard.groups",
         "stats-person,stats-family,stats-event,stats-place,stats-media,"
-        "stats-source,stats-citation,stats-repository,stats-quality,"
-        "stats-privacy",
+        "stats-note,stats-tag,stats-bookmark,stats-source,stats-citation,"
+        "stats-repository,stats-quality,stats-privacy",
     ),
     ("layout.dashboard.stats-person.visible", True),
     ("layout.dashboard.stats-person.append", True),
@@ -1337,7 +1337,13 @@ VIEWDEFAULTS = (
     ("layout.dashboard.stats-place.visible", True),
     ("layout.dashboard.stats-place.append", True),
     ("layout.dashboard.stats-media.visible", True),
-    ("layout.dashboard.stats-media.append", False),
+    ("layout.dashboard.stats-media.append", True),
+    ("layout.dashboard.stats-note.visible", True),
+    ("layout.dashboard.stats-note.append", True),
+    ("layout.dashboard.stats-tag.visible", True),
+    ("layout.dashboard.stats-tag.append", False),
+    ("layout.dashboard.stats-bookmark.visible", True),
+    ("layout.dashboard.stats-bookmark.append", False),
     ("layout.dashboard.stats-source.visible", True),
     ("layout.dashboard.stats-source.append", True),
     ("layout.dashboard.stats-citation.visible", True),

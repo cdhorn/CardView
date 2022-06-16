@@ -184,9 +184,9 @@ CATEGORIES = {
 
 PAGES = [
     ("Address", _("Address")),
-    ("Dashboard", _("Dashboard")),
     ("ChildRef", _("ChildRef")),
     ("Citation", _("Citation")),
+    ("Dashboard", _("Dashboard")),
     ("Event", _("Event")),
     ("EventRef", _("EventRef")),
     ("Family", _("Family")),
@@ -206,9 +206,9 @@ PAGES = [
 
 PAGE_NAMES = {
     "Address": _("Address"),
-    "Dashboard": _("Dashboard"),
     "ChildRef": _("Child Reference"),
     "Citation": _("Citation"),
+    "Dashboard": _("Dashboard"),
     "Event": _("Event"),
     "EventRef": _("Event Reference"),
     "Family": _("Family"),
