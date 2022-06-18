@@ -598,6 +598,8 @@ def format_address(address):
     lines = []
     if address.street:
         lines.append(address.street)
+    elif hasattr(address, "addr") and address.addr:
+        lines.append(address.addr)
     if address.country in ["USA", "United States", "United States of America"]:
         format_address_usa(lines, address)
     else:

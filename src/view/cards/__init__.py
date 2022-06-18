@@ -29,6 +29,7 @@ from .card_citation import CitationCard
 from .card_event import EventCard
 from .card_event_ref import EventRefCard
 from .card_family import FamilyCard
+from .card_family_tree import FamilyTreeCard
 from .card_media import MediaCard
 from .card_media_ref import MediaRefCard
 from .card_name import NameCard

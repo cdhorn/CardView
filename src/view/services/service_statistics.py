@@ -338,7 +338,7 @@ def analyze_people(db):
     if males:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Males with no supporting citations"),
                 uncited_males,
                 uncited_males * 100 / males,
@@ -372,7 +372,7 @@ def analyze_people(db):
     if females:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Females with no supporting citation"),
                 uncited_females,
                 uncited_females * 100 / females,
@@ -406,7 +406,7 @@ def analyze_people(db):
     if unknowns:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Unknown genders with no supporting citation"),
                 uncited_unknowns,
                 uncited_unknowns * 100 / unknowns,
@@ -441,7 +441,7 @@ def analyze_people(db):
     if number_people_with_births:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Preferred births with no supporting citation"),
                 uncited_births,
                 uncited_births * 100 / number_people_with_births,
@@ -458,7 +458,7 @@ def analyze_people(db):
     if number_people_with_deaths:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Preferred deaths with no supporting citation"),
                 uncited_deaths,
                 uncited_deaths * 100 / number_people_with_deaths,
@@ -482,7 +482,7 @@ def analyze_people(db):
     if refs_total:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Associations with no supporting citation"),
                 refs_uncited,
                 refs_uncited * 100 / refs_total,
@@ -594,7 +594,7 @@ def analyze_families(db):
             no_children * 100 / number_families,
         ),
         (
-            ["quality"],
+            ["uncited"],
             _("Families with no supporting citation"),
             no_citations,
             no_citations * 100 / number_families,
@@ -622,7 +622,7 @@ def analyze_families(db):
     if refs:
         result = result + [
             (
-                ["quality"],
+                ["uncited"],
                 _("Children with no supporting citation"),
                 refs_uncited,
                 refs_uncited * 100 / refs,
@@ -719,7 +719,7 @@ def analyze_events(db):
             no_type * 100 / number_events,
         ),
         (
-            ["quality"],
+            ["uncited"],
             _("Events with no supporting citation"),
             no_citations,
             no_citations * 100 / number_events,
@@ -826,7 +826,7 @@ def analyze_places(db):
             no_type * 100 / number_places,
         ),
         (
-            ["quality"],
+            ["uncited"],
             _("Places with no supporting citations"),
             no_citations,
             no_citations * 100 / number_places,
@@ -862,7 +862,7 @@ def analyze_media(db):
     """
     Parse and analyze media objects.
     """
-    bytes_cnt, no_desc, private, tagged = 0, 0, 0, 0
+    bytes_cnt, no_desc, no_path, no_mime, private, tagged = 0, 0, 0, 0, 0, 0
     notfound = []
     last_changed = []
 
@@ -872,18 +872,23 @@ def analyze_media(db):
             private += 1
         if not media.desc:
             no_desc += 1
+        if not media.mime:
+            no_mime += 1
         if media.tag_list:
             tagged += 1
-        fullname = media_path_full(db, media.get_path())
-        try:
-            bytes_cnt += os.path.getsize(fullname)
-            length = len(str(bytes_cnt))
-            if bytes_cnt <= 999999:
-                mbytes = _("less than 1")
-            else:
-                mbytes = str(bytes_cnt)[: (length - 6)]
-        except OSError:
-            notfound.append(media.get_path())
+        if not media.path:
+            no_path += 1
+        else:
+            fullname = media_path_full(db, media.path)
+            try:
+                bytes_cnt += os.path.getsize(fullname)
+                length = len(str(bytes_cnt))
+                if bytes_cnt <= 999999:
+                    mbytes = _("less than 1")
+                else:
+                    mbytes = str(bytes_cnt)[: (length - 6)]
+            except OSError:
+                notfound.append(media.get_path())
         analyze_change(last_changed, media.handle, media.change, 20)
 
     number_media = db.get_number_of_media()
@@ -912,9 +917,21 @@ def analyze_media(db):
         ),
         (
             ["media"],
+            _("Media objects with no path"),
+            no_path,
+            no_path * 100 / number_media,
+        ),
+        (
+            ["media"],
             _("Media objects with no description"),
             no_desc,
             no_desc * 100 / number_media,
+        ),
+        (
+            ["media"],
+            _("Media objects with no mime type"),
+            no_mime,
+            no_mime * 100 / number_media,
         ),
         (
             ["privacy"],

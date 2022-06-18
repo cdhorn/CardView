@@ -68,8 +68,8 @@ from view.config.config_templates import (
     EditTemplateOptions,
     build_templates_panel,
 )
-from view.services.service_windows import WindowService
 from view.services.service_images import ImagesService
+from view.services.service_windows import WindowService
 from view.actions import action_handler
 from view.views.view_builder import view_builder
 
@@ -212,6 +212,7 @@ class CardView(GlobalNavigationView):
             for suffix in ["-add", "-update", "-delete", "-rebuild"]:
                 key = "%s%s" % (obj_type, suffix)
                 self.callman.add_db_signal(key, self.build_tree)
+        self.callman.add_db_signal("home-person-changed", self.build_tree)
 
     def navigation_type(self):
         """

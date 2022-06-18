@@ -148,6 +148,6 @@ STATISTICS_GROUPS = {
     "stats-note": _("Note Statistics"),
     "stats-tag": _("Tag Statistics"),
     "stats-bookmark": _("Bookmark Statistics"),
-    "stats-quality": _("Quality Statistics"),
+    "stats-uncited": _("Uncited Statistics"),
     "stats-privacy": _("Privacy Statistics"),
 }

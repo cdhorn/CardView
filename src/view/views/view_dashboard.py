@@ -27,6 +27,8 @@ DashboardObjectView
 # Plugin Modules
 #
 # -------------------------------------------------------------------------
+from ..cards import FamilyTreeCard
+from ..common.common_classes import GrampsOptions
 from ..groups.group_builder import group_builder
 from .view_base import GrampsObjectView
 
@@ -45,8 +47,10 @@ class DashboardObjectView(GrampsObjectView):
         """
         Build the view header and body and set the focus.
         """
-        self.view_object = None
-        self.view_focus = None
+        groptions = GrampsOptions("active.tree")
+        self.view_object = FamilyTreeCard(self.grstate, groptions)
+        self.view_focus = self.wrap_focal_widget(self.view_object)
+        self.view_header.pack_start(self.view_focus, False, False, 0)
         self.view_body = self.build_dashboard_groups()
 
     def build_dashboard_groups(self):

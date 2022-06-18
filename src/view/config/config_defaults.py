@@ -1325,8 +1325,8 @@ VIEWDEFAULTS = (
     (
         "layout.dashboard.groups",
         "stats-person,stats-family,stats-event,stats-place,stats-media,"
-        "stats-note,stats-tag,stats-bookmark,stats-source,stats-citation,"
-        "stats-repository,stats-quality,stats-privacy",
+        "stats-note,stats-tag,stats-bookmark,stats-repository,stats-source,"
+        "stats-citation,stats-uncited,stats-privacy",
     ),
     ("layout.dashboard.stats-person.visible", True),
     ("layout.dashboard.stats-person.append", True),
@@ -1341,17 +1341,17 @@ VIEWDEFAULTS = (
     ("layout.dashboard.stats-note.visible", True),
     ("layout.dashboard.stats-note.append", True),
     ("layout.dashboard.stats-tag.visible", True),
-    ("layout.dashboard.stats-tag.append", False),
+    ("layout.dashboard.stats-tag.append", True),
     ("layout.dashboard.stats-bookmark.visible", True),
     ("layout.dashboard.stats-bookmark.append", False),
+    ("layout.dashboard.stats-repository.visible", True),
+    ("layout.dashboard.stats-repository.append", True),
     ("layout.dashboard.stats-source.visible", True),
     ("layout.dashboard.stats-source.append", True),
     ("layout.dashboard.stats-citation.visible", True),
     ("layout.dashboard.stats-citation.append", True),
-    ("layout.dashboard.stats-repository.visible", True),
-    ("layout.dashboard.stats-repository.append", False),
-    ("layout.dashboard.stats-quality.visible", True),
-    ("layout.dashboard.stats-quality.append", True),
+    ("layout.dashboard.stats-uncited.visible", True),
+    ("layout.dashboard.stats-uncited.append", True),
     ("layout.dashboard.stats-privacy.visible", True),
     ("layout.dashboard.stats-privacy.append", True),
     ######################################################################
