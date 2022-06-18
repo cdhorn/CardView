@@ -168,6 +168,14 @@ LINEAGE_DISPLAY_MODES = [
     (2, _("Vertically")),
 ]
 
+GROUP_WRAPPER_MODES = [
+    (0, _("Fixed, Left Justified")),
+    (1, _("Fixed, Centered")),
+    (2, _("Fixed, Right Justified")),
+    (3, _("Collapsable, Title Show")),
+    (4, _("Collapsable, Title Hidden")),
+]
+
 CATEGORIES = {
     "Person": "People",
     "Relationship": "Relationships",

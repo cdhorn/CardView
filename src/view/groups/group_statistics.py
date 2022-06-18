@@ -46,10 +46,5 @@ class StatisticsCardGroup(CardGroupList):
         CardGroupList.__init__(
             self, grstate, groptions, None, enable_drop=False
         )
-        card = TextCard(
-            grstate,
-            groptions,
-            title=title,
-            data=data
-        )
+        card = TextCard(grstate, groptions, title=title, data=data)
         self.add_card(card)

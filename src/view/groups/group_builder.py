@@ -127,16 +127,33 @@ def build_statistics_group(grstate, group):
                 output.append((label, "%s  (%.2f%%)" % (value, bonus)))
             else:
                 output.append((label, value))
-    group = StatisticsCardGroup(grstate, groptions, title, output)
+    group = StatisticsCardGroup(grstate, groptions, None, output)
     return group_wrapper(grstate, group, (title, title, title))
 
 
-def group_wrapper(grstate, group, title):
+def group_wrapper(grstate, group, title, force_mode=-1):
     """
     Wrap a card group widget with an expander.
     """
     group_title = get_group_title(group, title)
-    content = CardGroupExpander(grstate)
+    mode = grstate.config.get("display.group-mode")
+    if force_mode > -1:
+        mode = force_mode
+    if mode in [0, 1, 2]:
+        label = Gtk.Label(
+            use_markup=True,
+            label="<small><b> %s</b></small>" % group_title,
+            vexpand=False,
+        )
+        if mode == 0:
+            label.set_xalign(0.0)
+        elif mode == 2:
+            label.set_xalign(1.0)
+        vbox = Gtk.VBox(vexpand=False, hexpand=False)
+        vbox.pack_start(label, False, False, 0)
+        vbox.pack_start(group, False, False, 0)
+        return vbox
+    content = CardGroupExpander(grstate, mode == 4)
     content.set_label("<small><b>%s</b></small>" % group_title)
     content.add(group)
     return content
@@ -180,7 +197,7 @@ def get_children_group(
         title_tuple = (_("Sibling"), _("Siblings"), None)
     else:
         title_tuple = (_("Child"), _("Children"), None)
-    return group_wrapper(grstate, group, title_tuple)
+    return group_wrapper(grstate, group, title_tuple, force_mode=3)
 
 
 def get_family_unit(grstate, family, args, context="family", relation=None):
@@ -219,13 +236,8 @@ def get_parents_group(grstate, person, args):
         if "raw" not in args or not args["raw"]:
             groptions = GrampsOptions("group.parent")
             groptions.set_context("parent")
-            parents = CardGroupExpander(
-                grstate, expanded=True, use_markup=True
-            )
-            parents.set_label(
-                "<small><b>%s</b></small>" % _("Parents and Siblings")
-            )
-            parents.add(elements)
+            title = _("Parents and Siblings")
+            parents = group_wrapper(grstate, elements, (title, title, title))
         else:
             parents = elements
         family = grstate.fetch("Family", primary_handle)
@@ -255,13 +267,10 @@ def get_spouses_group(grstate, person, args):
             if "raw" not in args or not args["raw"]:
                 groptions = GrampsOptions("group.spouse")
                 groptions.set_context("spouse")
-                spouses = CardGroupExpander(
-                    grstate, expanded=True, use_markup=True
+                title = _("Spouses and Children")
+                spouses = group_wrapper(
+                    grstate, elements, (title, title, title)
                 )
-                spouses.set_label(
-                    "<small><b>%s</b></small>" % _("Spouses and Children")
-                )
-                spouses.add(elements)
             else:
                 spouses = elements
         family = grstate.fetch("Family", handle)

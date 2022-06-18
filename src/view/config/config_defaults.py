@@ -89,6 +89,7 @@ VIEWDEFAULTS = (
     ("display.use-smaller-title-font", True),
     ("display.use-smaller-detail-font", True),
     ("display.use-smaller-icons", True),
+    ("display.group-mode", 0),
     ("display.border-width", 2),
     ("display.icons-active-width", 24),
     ("display.icons-group-width", 12),

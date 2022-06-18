@@ -62,7 +62,9 @@ class CardGroupExpander(Gtk.Expander):
     A simple class for managing collapse of a CardGroup object.
     """
 
-    def __init__(self, grstate, expanded=True, use_markup=True):
+    def __init__(
+        self, grstate, hide_title=True, expanded=True, use_markup=True
+    ):
         Gtk.Expander.__init__(
             self, expanded=expanded, use_markup=use_markup, hexpand=True
         )
@@ -73,6 +75,7 @@ class CardGroupExpander(Gtk.Expander):
         self.grstate = grstate
         self.hidden = False
         self.nested = None
+        self.hidden_title = hide_title
 
     def button_press(self, _dummy_obj, event):
         """
@@ -95,11 +98,13 @@ class CardGroupExpander(Gtk.Expander):
             self.show_all()
             self.hidden = False
         elif self.get_expanded():
-            parent = self.get_parent()
-            gparent = parent.get_parent()
-            ggparent = gparent.get_parent()
-            if not hasattr(ggparent, "nested"):
-                self.set_hexpand(False)
-                for child in self.get_children():
-                    child.hide()
-                self.hidden = True
+            if self.hidden_title:
+                parent = self.get_parent()
+                gparent = parent.get_parent()
+                ggparent = gparent.get_parent()
+                if not hasattr(ggparent, "nested"):
+                    self.set_hexpand(False)
+                    for child in self.get_children():
+                        child.hide()
+                    self.hidden = True
+        return True

@@ -63,6 +63,7 @@ from .config_const import (
     MEDIA_DISPLAY_MODES,
     MEDIA_POSITION_MODES,
     PRIVACY_DISPLAY_MODES,
+    GROUP_WRAPPER_MODES,
 )
 from .config_utils import (
     add_config_buttons,
@@ -214,6 +215,13 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
         25,
         "display.icons-group-width",
         (1, 40),
+    )
+    configdialog.add_combo(
+        grid,
+        _("Group wrapper display mode"),
+        26,
+        "display.group-mode",
+        GROUP_WRAPPER_MODES,
     )
     return add_config_buttons(
         configdialog, grstate, "display", grid, HELP_CONFIG_DISPLAY
