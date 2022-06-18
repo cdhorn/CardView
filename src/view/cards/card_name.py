@@ -35,6 +35,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 #
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsContext
+from ..common.common_strings import MISSING_ORIGIN
 from .card_secondary import SecondaryCard
 
 _ = glocale.translation.sgettext
