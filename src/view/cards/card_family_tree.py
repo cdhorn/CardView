@@ -47,7 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE
 from gramps.gen.dbstate import DbState
 from gramps.gen.display.name import displayer as name_displayer
 from gramps.gen.errors import WindowActiveError
-from gramps.gen.lib import Note
+from gramps.gen.lib import Note, NoteType
 from gramps.gui.editors import EditNote
 
 # ------------------------------------------------------------------------
@@ -191,11 +191,6 @@ class FamilyTreeCard(GenericCard):
         else:
             facts.add_fact(self.get_label(NONE), label=self.get_label(label))
 
-    def get_database_type(self, database_name):
-        """
-        Get database type.
-        """
-
     def get_database_description_note(self):
         """
         Find database description.
@@ -228,6 +223,8 @@ class FamilyTreeCard(GenericCard):
         note = self.get_database_description_note()
         if not note:
             note = Note()
+            note_type = NoteType("Database Description")
+            note.set_type(note_type)
         try:
             EditNote(self.grstate.dbstate, self.grstate.uistate, [], note)
         except WindowActiveError:
