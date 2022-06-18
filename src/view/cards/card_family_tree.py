@@ -141,7 +141,7 @@ class FamilyTreeCard(GenericCard):
         facts.add_fact(self.get_label(""), self.get_label(_("Description")))
         db_note = self.get_database_description_note()
         if not db_note:
-            db_description = NONE
+            db_description = _("[None found, right mouse click to add]")
         else:
             db_description = db_note.get()
         facts.add_fact(self.get_label(db_description))
