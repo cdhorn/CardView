@@ -188,13 +188,13 @@ def examine_people(args, queue):
     payload = {
         "changed": {"Person": last_changed},
         "person": {
-            "person_total": total_people,
-            "person_incomplete_names": incomplete_names,
-            "person_no_family_connection": no_families,
+            "total": total_people,
+            "incomplete_names": incomplete_names,
+            "no_family_connection": no_families,
         },
         "media": {
-            "person_media": media,
-            "person_media_refs": media_refs,
+            "person": media,
+            "person_refs": media_refs,
         },
         "uncited": {},
         "privacy": {},
@@ -213,30 +213,33 @@ def examine_people(args, queue):
             new_key = "%s%s" % (prefix, key)
             if "uncited" in new_key:
                 index = "uncited"
+                new_key = new_key.replace("_uncited", "")
             elif "private" in new_key:
                 index = "privacy"
+                new_key = new_key.replace("_private", "")
             elif "tagged" in new_key:
                 index = "tag"
+                new_key = new_key.replace("_tagged", "")
             else:
                 index = "person"
             payload[index].update({new_key: value})
     append = {
         "association": {
-            "association_total": association,
-            "association_refs": association_refs,
-            "association_roles": association_roles,
+            "total": association,
+            "refs": association_refs,
+            "roles": association_roles,
         },
         "participant": {
-            "participant_total": participant,
-            "participant_refs": participant_refs,
-            "participant_roles": participant_roles,
+            "total": participant,
+            "refs": participant_refs,
+            "person_roles": participant_roles,
         },
         "uncited": {
-            "association_uncited": association_uncited,
+            "association": association_uncited,
         },
         "privacy": {
-            "association_private": association_private,
-            "participant_private": participant_private,
+            "association": association_private,
+            "participant": participant_private,
         },
     }
     fold(payload, append)
@@ -325,25 +328,25 @@ def examine_families(args, queue):
     payload = {
         "changed": {"Family": last_changed},
         "family": {
-            "family_total": total_families,
-            "family_surname_total": total_surnames,
-            "family_missing_one": missing_one,
-            "family_missing_both": missing_both,
-            "family_no_child": no_child,
-            "family_relations": family_relations,
-            "family_no_events": no_events,
+            "total": total_families,
+            "surname_total": total_surnames,
+            "missing_one": missing_one,
+            "missing_both": missing_both,
+            "no_child": no_child,
+            "relations": family_relations,
+            "no_events": no_events,
         },
         "uncited": {
-            "family_uncited": uncited,
-            "child_uncited": child_uncited,
+            "family": uncited,
+            "child": child_uncited,
         },
         "privacy": {
-            "family_private": private,
-            "child_private": child_private,
-            "family_participant_private": participant_private,
+            "family": private,
+            "child": child_private,
+            "family_participant": participant_private,
         },
         "tag": {
-            "family_tagged": tagged,
+            "family": tagged,
         },
         "children": {
             "child_refs": child,
@@ -351,11 +354,11 @@ def examine_families(args, queue):
             "child_father_relations": child_father_relations,
         },
         "participant": {
-            "family_participant_roles": participant_roles,
+            "family_roles": participant_roles,
         },
         "media": {
-            "family_media": media,
-            "family_media_refs": media_refs,
+            "family": media,
+            "family_refs": media_refs,
         },
     }
     queue.put(payload)
@@ -410,24 +413,24 @@ def examine_events(args, queue):
     payload = {
         "changed": {"Event": last_changed},
         "event": {
-            "event_total": total_events,
-            "event_no_place": no_place,
-            "event_no_date": no_date,
-            "event_no_description": no_description,
-            "event_types": event_types,
+            "total": total_events,
+            "no_place": no_place,
+            "no_date": no_date,
+            "no_description": no_description,
+            "types": event_types,
         },
         "uncited": {
-            "event_uncited": uncited,
+            "event": uncited,
         },
         "privacy": {
-            "event_private": private,
+            "event": private,
         },
         "tag": {
-            "event_tagged": tagged,
+            "event": tagged,
         },
         "media": {
-            "event_media": media,
-            "event_media_refs": media_refs,
+            "event": media,
+            "event_refs": media_refs,
         },
     }
     queue.put(payload)
@@ -484,25 +487,25 @@ def examine_places(args, queue):
     payload = {
         "changed": {"Place": last_changed},
         "place": {
-            "place_total": total_places,
-            "place_no_name": no_name,
-            "place_no_latitude": no_latitude,
-            "place_no_longitude": no_longitude,
-            "place_no_code": no_code,
-            "place_types": place_types,
+            "total": total_places,
+            "no_name": no_name,
+            "no_latitude": no_latitude,
+            "no_longitude": no_longitude,
+            "no_code": no_code,
+            "types": place_types,
         },
         "uncited": {
-            "place_uncited": uncited,
+            "place": uncited,
         },
         "privacy": {
-            "place_private": private,
+            "place": private,
         },
         "tag": {
-            "place_tagged": tagged,
+            "place": tagged,
         },
         "media": {
-            "place_media": media,
-            "place_media_refs": media_refs,
+            "place": media,
+            "place_refs": media_refs,
         },
     }
     queue.put(payload)
@@ -553,22 +556,23 @@ def examine_media(args, queue):
     payload = {
         "changed": {"Media": last_changed},
         "media": {
-            "media_total": total_media,
-            "media_size": megabytes,
-            "media_no_path": no_path,
-            "media_not_found": not_found,
-            "media_no_description": no_desc,
-            "media_no_date": no_date,
-            "media_no_mime": no_mime,
+            "total": total_media,
+            "size": megabytes,
+            "no_path": no_path,
+            "no_file": len(not_found),
+            "not_found": not_found,
+            "no_description": no_desc,
+            "no_date": no_date,
+            "no_mime": no_mime,
         },
         "uncited": {
-            "media_uncited": uncited,
+            "media": uncited,
         },
         "privacy": {
-            "media_private": private,
+            "media": private,
         },
         "tag": {
-            "media_tagged": tagged,
+            "media": tagged,
         },
     }
     queue.put(payload)
@@ -619,22 +623,22 @@ def examine_sources(args, queue):
     payload = {
         "changed": {"Source": last_changed},
         "source": {
-            "source_total": total_sources,
-            "source_no_title": no_title,
-            "source_no_author": no_author,
-            "source_no_pubinfo": no_pubinfo,
-            "source_no_abbrev": no_abbrev,
-            "source_no_repository": no_repository,
+            "total": total_sources,
+            "no_title": no_title,
+            "no_author": no_author,
+            "no_pubinfo": no_pubinfo,
+            "no_abbrev": no_abbrev,
+            "no_repository": no_repository,
         },
         "privacy": {
-            "source_private": private,
+            "source": private,
         },
         "tag": {
-            "source_tagged": tagged,
+            "source": tagged,
         },
         "media": {
-            "source_media": media,
-            "source_media_refs": media_refs,
+            "source": media,
+            "source_refs": media_refs,
         },
     }
     queue.put(payload)
@@ -691,25 +695,25 @@ def examine_citations(args, queue):
     payload = {
         "changed": {"Citation": last_changed},
         "citation": {
-            "citation_total": total_citations,
-            "citation_no_source": no_source,
-            "citation_no_date": no_date,
-            "citation_no_page": no_page,
-            "citation_very_low": very_low,
-            "citation_low": low,
-            "citation_normal": normal,
-            "citation_high": high,
-            "citation_very_high": very_high,
+            "total": total_citations,
+            "no_source": no_source,
+            "no_date": no_date,
+            "no_page": no_page,
+            "very_low": very_low,
+            "low": low,
+            "normal": normal,
+            "high": high,
+            "very_high": very_high,
         },
         "privacy": {
-            "citation_private": private,
+            "citation": private,
         },
         "tag": {
-            "citation_tagged": tagged,
+            "citation": tagged,
         },
         "media": {
-            "citation_media": media,
-            "citation_media_refs": media_refs,
+            "citation": media,
+            "citation_refs": media_refs,
         },
     }
     queue.put(payload)
@@ -753,16 +757,16 @@ def examine_repositories(args, queue):
     payload = {
         "changed": {"Repository": last_changed},
         "repository": {
-            "repository_total": total_repositories,
-            "repository_no_name": no_name,
-            "repository_no_address": no_address,
-            "repository_types": repository_types,
+            "total": total_repositories,
+            "no_name": no_name,
+            "no_address": no_address,
+            "types": repository_types,
         },
         "privacy": {
-            "repository_private": private,
+            "repository": private,
         },
         "tag": {
-            "repository_tagged": tagged,
+            "repository": tagged,
         },
     }
     queue.put(payload)
@@ -806,15 +810,15 @@ def examine_notes(args, queue):
     payload = {
         "changed": {"Note": last_changed},
         "note": {
-            "note_total": total_notes,
-            "note_no_text": no_text,
-            "note_types": note_types,
+            "total": total_notes,
+            "no_text": no_text,
+            "types": note_types,
         },
         "privacy": {
-            "note_private": private,
+            "note": private,
         },
         "tag": {
-            "note_tagged": tagged,
+            "note": tagged,
         },
     }
     queue.put(payload)
@@ -842,7 +846,7 @@ def examine_tags(args, queue):
 
     payload = {
         "changed": {"Tag": last_changed},
-        "tag": {"tag_total": total_tags},
+        "tag": {"total": total_tags},
     }
     queue.put(payload)
     if args.time:
@@ -880,16 +884,17 @@ def examine_bookmarks(args):
         + note_bookmarks
     )
     payload = {
-        "bookmarks": {
-            "bookmarks_person": person_bookmarks,
-            "bookmarks_family": family_bookmarks,
-            "bookmarks_event": event_bookmarks,
-            "bookmarks_place": place_bookmarks,
-            "bookmarks_media": media_bookmarks,
-            "bookmarks_source": source_bookmarks,
-            "bookmarks_citation": citation_bookmarks,
-            "bookmarks_repository": repository_bookmarks,
-            "bookmarks_note": note_bookmarks,
+        "bookmark": {
+            "total": total_bookmarks,
+            "person": person_bookmarks,
+            "family": family_bookmarks,
+            "event": event_bookmarks,
+            "place": place_bookmarks,
+            "media": media_bookmarks,
+            "source": source_bookmarks,
+            "citation": citation_bookmarks,
+            "repository": repository_bookmarks,
+            "note": note_bookmarks,
         }
     }
     close_readonly_database(db)
