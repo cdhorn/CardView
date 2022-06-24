@@ -86,14 +86,16 @@ def examine_people(args, queue):
         return gender_stats[gender]
 
     gender_stats = {}
-    media, media_refs = 0, 0
-    incomplete_names, no_families = 0, 0
-    association_roles = {}
+    media, media_refs, missing_region = 0, 0, 0
+    incomplete_names, alternate_names, no_families = 0, 0, 0
+    names_private, names_uncited = 0, 0
+    association_types = {}
     association, association_refs = 0, 0
     association_private, association_uncited = 0, 0
     participant_roles = {}
-    participant, participant_refs = 0, 0
-    participant_private = 0
+    participant, participant_refs, participant_private = 0, 0, 0
+    ldsord_people, ldsord_refs, ldsord_private, ldsord_uncited = 0, 0, 0, 0
+    no_temple, no_status, no_date, no_place, no_family = 0, 0, 0, 0, 0
     last_changed = []
 
     db = open_readonly_database(args.tree_name)
@@ -104,9 +106,18 @@ def examine_people(args, queue):
         if length > 0:
             media += 1
             media_refs += length
+            for media_ref in person.media_list:
+                if not media_ref.rect:
+                    missing_region += 1
 
-        for name in [person.get_primary_name()] + person.get_alternate_names():
-            if name.get_first_name().strip() == "":
+        if person.alternate_names:
+            alternate_names += 1
+        for name in [person.primary_name] + person.alternate_names:
+            if name.private:
+                names_private += 1
+            if not name.citation_list:
+                names_uncited += 1
+            if name.first_name.strip() == "":
                 incomplete_names += 1
             else:
                 if name.get_surname_list():
@@ -168,9 +179,9 @@ def examine_people(args, queue):
                     association_private += 1
                 if not person_ref.citation_list:
                     association_uncited += 1
-                if person_ref.rel not in association_roles:
-                    association_roles[person_ref.rel] = 0
-                association_roles[person_ref.rel] += 1
+                if person_ref.rel not in association_types:
+                    association_types[person_ref.rel] = 0
+                association_types[person_ref.rel] += 1
 
         if person.event_ref_list:
             participant += 1
@@ -182,6 +193,25 @@ def examine_people(args, queue):
                 participant_roles[role] += 1
                 if event_ref.private:
                     participant_private += 1
+
+        if person.lds_ord_list:
+            ldsord_people += 1
+            for ldsord in person.lds_ord_list:
+                ldsord_refs += 1
+                if ldsord.private:
+                    ldsord_private += 1
+                if not ldsord.citation_list:
+                    ldsord_uncited += 1
+                if not get_date(ldsord):
+                    no_date += 1
+                if not ldsord.place:
+                    no_place += 1
+                if not ldsord.famc:
+                    no_family += 1
+                if not ldsord.temple:
+                    no_temple += 1
+                if not ldsord.status:
+                    no_status += 1
         analyze_change(last_changed, person.handle, person.change, 20)
     close_readonly_database(db)
 
@@ -190,14 +220,44 @@ def examine_people(args, queue):
         "person": {
             "total": total_people,
             "incomplete_names": incomplete_names,
+            "alternate_names": alternate_names,
             "no_family_connection": no_families,
         },
         "media": {
             "person": media,
             "person_refs": media_refs,
+            "person_missing_region": missing_region,
         },
-        "uncited": {},
-        "privacy": {},
+        "ldsord_person": {
+            "ldsord": ldsord_people,
+            "ldsord_refs": ldsord_refs,
+            "no_temple": no_temple,
+            "no_status": no_status,
+            "no_date": no_date,
+            "no_place": no_place,
+            "no_family": no_family,
+        },
+        "association": {
+            "total": association,
+            "refs": association_refs,
+            "types": association_types,
+        },
+        "participant": {
+            "total": participant,
+            "refs": participant_refs,
+            "person_roles": participant_roles,
+        },
+        "uncited": {
+            "association": association_uncited,
+            "ldsord_person": ldsord_uncited,
+            "names": names_uncited,
+        },
+        "privacy": {
+            "names": names_private,
+            "ldsord_person": ldsord_private,
+            "association": association_private,
+            "participant": participant_private,
+        },
         "tag": {},
     }
     for gender in gender_stats:
@@ -223,26 +283,6 @@ def examine_people(args, queue):
             else:
                 index = "person"
             payload[index].update({new_key: value})
-    append = {
-        "association": {
-            "total": association,
-            "refs": association_refs,
-            "roles": association_roles,
-        },
-        "participant": {
-            "total": participant,
-            "refs": participant_refs,
-            "person_roles": participant_roles,
-        },
-        "uncited": {
-            "association": association_uncited,
-        },
-        "privacy": {
-            "association": association_private,
-            "participant": participant_private,
-        },
-    }
-    fold(payload, append)
     queue.put(payload)
     if args.time:
         print(
@@ -263,6 +303,8 @@ def examine_families(args, queue):
     uncited, no_events, private, tagged = 0, 0, 0, 0
     child, no_child, child_private, child_uncited = 0, 0, 0, 0
     child_mother_relations, child_father_relations = {}, {}
+    ldsord_families, ldsord_refs, ldsord_private, ldsord_uncited = 0, 0, 0, 0
+    no_temple, no_status, no_date, no_place = 0, 0, 0, 0
     participant_roles = {}
     participant_private = 0
     last_changed = []
@@ -322,6 +364,23 @@ def examine_families(args, queue):
                 if father_relation not in child_father_relations:
                     child_father_relations[father_relation] = 0
                 child_father_relations[father_relation] += 1
+
+        if family.lds_ord_list:
+            ldsord_families += 1
+            for ldsord in family.lds_ord_list:
+                ldsord_refs += 1
+                if ldsord.private:
+                    ldsord_private += 1
+                if not ldsord.citation_list:
+                    ldsord_uncited += 1
+                if not get_date(ldsord):
+                    no_date += 1
+                if not ldsord.place:
+                    no_place += 1
+                if not ldsord.temple:
+                    no_temple += 1
+                if not ldsord.status:
+                    no_status += 1
         analyze_change(last_changed, family.handle, family.change, 20)
     close_readonly_database(db)
 
@@ -336,22 +395,32 @@ def examine_families(args, queue):
             "relations": family_relations,
             "no_events": no_events,
         },
+        "ldsord_family": {
+            "ldsord": ldsord_families,
+            "ldsord_refs": ldsord_refs,
+            "no_temple": no_temple,
+            "no_status": no_status,
+            "no_date": no_date,
+            "no_place": no_place,
+        },
         "uncited": {
             "family": uncited,
             "child": child_uncited,
+            "ldsord_family": ldsord_uncited,
         },
         "privacy": {
             "family": private,
             "child": child_private,
             "family_participant": participant_private,
+            "ldsord_family": ldsord_private,
         },
         "tag": {
             "family": tagged,
         },
         "children": {
-            "child_refs": child,
-            "child_mother_relations": child_mother_relations,
-            "child_father_relations": child_father_relations,
+            "refs": child,
+            "mother_relations": child_mother_relations,
+            "father_relations": child_father_relations,
         },
         "participant": {
             "family_roles": participant_roles,
@@ -552,12 +621,18 @@ def examine_media(args, queue):
                     not_found.append(media.path)
         analyze_change(last_changed, media.handle, media.change, 20)
 
-    megabytes = int(size_bytes / 1048576)
+    if not int(size_bytes / 1024):
+        size_string = "%s bytes" % size_bytes
+    elif size_bytes < 1048576:
+        size_string = "%s KB" % int(size_bytes / 1024)
+    else:
+        size_string = "%s MB" % int(size_bytes / 1048576)
+
     payload = {
         "changed": {"Media": last_changed},
         "media": {
             "total": total_media,
-            "size": megabytes,
+            "size": size_string,
             "no_path": no_path,
             "no_file": len(not_found),
             "not_found": not_found,
@@ -591,7 +666,8 @@ def examine_sources(args, queue):
     """
     media, media_refs = 0, 0
     no_title, no_author, no_pubinfo, no_abbrev = 0, 0, 0, 0
-    no_repository, private, tagged = 0, 0, 0
+    no_repository, repos_refs, no_call_number, private, tagged = 0, 0, 0, 0, 0
+    media_types = {}
     last_changed = []
 
     db = open_readonly_database(args.tree_name)
@@ -613,6 +689,15 @@ def examine_sources(args, queue):
             no_abbrev += 1
         if not source.reporef_list:
             no_repository += 1
+        else:
+            repos_refs += len(source.reporef_list)
+            for repo_ref in source.reporef_list:
+                if not repo_ref.call_number:
+                    no_call_number += 1
+                media_type = repo_ref.media_type.serialize()
+                if media_type not in media_types:
+                    media_types[media_type] = 0
+                media_types[media_type] += 1
         if source.private:
             private += 1
         if source.tag_list:
@@ -629,6 +714,9 @@ def examine_sources(args, queue):
             "no_pubinfo": no_pubinfo,
             "no_abbrev": no_abbrev,
             "no_repository": no_repository,
+            "repository_refs": repos_refs,
+            "no_call_number": no_call_number,
+            "types": media_types,
         },
         "privacy": {
             "source": private,
@@ -699,11 +787,13 @@ def examine_citations(args, queue):
             "no_source": no_source,
             "no_date": no_date,
             "no_page": no_page,
-            "very_low": very_low,
-            "low": low,
-            "normal": normal,
-            "high": high,
-            "very_high": very_high,
+            "confidence": {
+                "very_low": very_low,
+                "low": low,
+                "normal": normal,
+                "high": high,
+                "very_high": very_high,
+            },
         },
         "privacy": {
             "citation": private,

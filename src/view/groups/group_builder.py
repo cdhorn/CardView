@@ -44,7 +44,6 @@ from gramps.gen.lib import Family, Person
 # ------------------------------------------------------------------------
 from ..common.common_classes import GrampsOptions
 from ..cards import FamilyCard
-from ..services.service_statistics import StatisticsService
 from .group_children import ChildrenCardGroup
 from .group_const import GENERIC_GROUPS, STATISTICS_GROUPS
 from .group_events import EventsCardGroup
@@ -116,18 +115,8 @@ def build_statistics_group(grstate, group):
     Generate and return a database statistics group.
     """
     title = STATISTICS_GROUPS[group]
-    statistics_service = StatisticsService(grstate.dbstate)
-    data = statistics_service.get_data()
     groptions = GrampsOptions("group.%s" % group)
-    key = group.split("-")[1]
-    output = []
-    for (categories, label, value, bonus) in data:
-        if key in categories:
-            if bonus:
-                output.append((label, "%s  (%.2f%%)" % (value, bonus)))
-            else:
-                output.append((label, value))
-    group = StatisticsCardGroup(grstate, groptions, None, output)
+    group = StatisticsCardGroup(grstate, groptions, group, title)
     return group_wrapper(grstate, group, (title, title, title))
 
 

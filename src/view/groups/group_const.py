@@ -139,7 +139,12 @@ GENERIC_GROUPS = {
 STATISTICS_GROUPS = {
     "stats-person": _("Individual Statistics"),
     "stats-family": _("Family Statistics"),
+    "stats-child": _("Child Statistics"),
+    "stats-association": _("Association Statistics"),
     "stats-event": _("Event Statistics"),
+    "stats-ldsordperson": _("Individual LDS Ordinances"),
+    "stats-ldsordfamily": _("Family LDS Ordinances"),
+    "stats-participant": _("Participant Statistics"),
     "stats-place": _("Place Statistics"),
     "stats-media": _("Media Statistics"),
     "stats-source": _("Source Statistics"),

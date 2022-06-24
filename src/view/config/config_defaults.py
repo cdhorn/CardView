@@ -1325,16 +1325,27 @@ VIEWDEFAULTS = (
     ("layout.dashboard.scrolled", False),
     (
         "layout.dashboard.groups",
-        "stats-person,stats-family,stats-event,stats-place,stats-media,"
-        "stats-note,stats-tag,stats-bookmark,stats-repository,stats-source,"
-        "stats-citation,stats-uncited,stats-privacy",
+        "stats-person,stats-family,stats-child,stats-association,stats-event,"
+        "stats-ldsordperson,stats-ldsordfamily,stats-participant,stats-place,"
+        "stats-media,stats-note,stats-tag,stats-bookmark,stats-repository,"
+        "stats-source,stats-citation,stats-uncited,stats-privacy",
     ),
     ("layout.dashboard.stats-person.visible", True),
     ("layout.dashboard.stats-person.append", True),
     ("layout.dashboard.stats-family.visible", True),
     ("layout.dashboard.stats-family.append", True),
+    ("layout.dashboard.stats-child.visible", True),
+    ("layout.dashboard.stats-child.append", True),
+    ("layout.dashboard.stats-association.visible", True),
+    ("layout.dashboard.stats-association.append", False),
     ("layout.dashboard.stats-event.visible", True),
-    ("layout.dashboard.stats-event.append", False),
+    ("layout.dashboard.stats-event.append", True),
+    ("layout.dashboard.stats-ldsordperson.visible", True),
+    ("layout.dashboard.stats-ldsordperson.append", True),
+    ("layout.dashboard.stats-ldsordfamily.visible", True),
+    ("layout.dashboard.stats-ldsordfamily.append", True),
+    ("layout.dashboard.stats-participant.visible", True),
+    ("layout.dashboard.stats-participant.append", False),
     ("layout.dashboard.stats-place.visible", True),
     ("layout.dashboard.stats-place.append", True),
     ("layout.dashboard.stats-media.visible", True),
@@ -1350,7 +1361,7 @@ VIEWDEFAULTS = (
     ("layout.dashboard.stats-source.visible", True),
     ("layout.dashboard.stats-source.append", True),
     ("layout.dashboard.stats-citation.visible", True),
-    ("layout.dashboard.stats-citation.append", True),
+    ("layout.dashboard.stats-citation.append", False),
     ("layout.dashboard.stats-uncited.visible", True),
     ("layout.dashboard.stats-uncited.append", True),
     ("layout.dashboard.stats-privacy.visible", True),
