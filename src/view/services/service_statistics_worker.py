@@ -77,7 +77,7 @@ def examine_people(args, queue=None):
 
     gender_stats = {}
     media, media_refs, missing_region = 0, 0, 0
-    incomplete_names, alternate_names, no_families = 0, 0, 0
+    incomplete_names, alternate_names, no_families, total_living = 0, 0, 0, 0
     names_private, names_uncited = 0, 0
     association_types = {}
     association, association_refs = 0, 0
@@ -219,7 +219,9 @@ def examine_people(args, queue=None):
                             burials_private += 1
         if not has_baptism:
             no_baptism += 1
-        if not living and not has_burial:
+        if living:
+            total_living += 1
+        elif not has_burial:
             no_burial += 1
 
         if person.lds_ord_list:
@@ -245,7 +247,7 @@ def examine_people(args, queue=None):
 
     with_birth = total_people - no_birth
     with_baptism = total_people - no_baptism
-    dead_people = total_people - living
+    dead_people = total_people - total_living
     with_death = dead_people - no_death
     with_burial = dead_people - no_burial
 
@@ -312,33 +314,39 @@ def examine_people(args, queue=None):
         },
         "tag": {},
     }
+
+    #                "total": 0,
+    #                "private": 0,
+    #                "tagged": 0,
+    #                "uncited": 0,
+    #                "living": 0,
+    #                "living_not_private": 0,
+
     for gender in gender_stats:
         if gender == Person.MALE:
-            prefix = "male_"
+            prefix = "male"
         elif gender == Person.FEMALE:
-            prefix = "female_"
-        elif gender == Person.UNKNOWN:
-            prefix = "unknown_"
+            prefix = "female"
         else:
-            prefix = "%s_" % str(gender)
-        total = gender_stats[gender]["total"]
-        for (key, value) in gender_stats[gender].items():
-            new_key = "%s%s" % (prefix, key)
-            if "uncited" in new_key:
-                index = "uncited"
-                new_key = new_key.replace("_uncited", "")
-            elif "private" in new_key:
-                index = "privacy"
-                new_key = new_key.replace("_private", "")
-            elif "tagged" in new_key:
-                index = "tag"
-                new_key = new_key.replace("_tagged", "")
-            else:
-                index = "person"
-            if key == "total":
-                payload[index].update({new_key: (value, None)})
-            else:
-                payload[index].update({new_key: (value, total)})
+            prefix = "unknown"
+        data = gender_stats[gender]
+
+        total_gender = data["total"]
+        payload["person"].update(
+            {
+                "%s_total" % prefix: (total_gender, total_people),
+                "%s_living" % prefix: (data["living"], total_gender),
+            }
+        )
+        payload["tag"].update({prefix: (data["tagged"], total_gender)})
+        payload["uncited"].update({prefix: (data["uncited"], total_gender)})
+        payload["privacy"].update(
+            {
+                prefix: (data["private"], total_gender),
+                "%s_living_not_private"
+                % prefix: (data["living_not_private"], data["living"]),
+            }
+        )
     return post_processing(args, "People", total_people, queue, payload)
 
 
@@ -521,7 +529,7 @@ def examine_events(args, queue=None):
             marriages += 1
             if not event.place:
                 no_marriage_place += 1
-            if not event.date:
+            if not get_date(event):
                 no_marriage_date += 1
             if event.private:
                 marriage_private += 1

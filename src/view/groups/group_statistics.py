@@ -121,10 +121,10 @@ def get_family_statistics(data):
         [
             "total",
             "surname_total",
+            "no_child",
             "missing_one",
             "missing_both",
             "no_events",
-            "no_child",
             "no_marriage_date",
             "no_marriage_place",
         ],
