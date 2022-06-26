@@ -70,6 +70,7 @@ _TEMPLATE = (
     ######################################################################
     ## General Options
     ######################################################################
+    ("general.concurrent-threshold", 50000),
     ("general.link-people-to-relationships-view", False),
     ("general.image-page-link", True),
     ("general.link-citation-title-to-source", True),

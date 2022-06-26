@@ -234,22 +234,29 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Behaviour Options"), 10, bold=True)
+    configdialog.add_spinner(
+        grid,
+        _("Concurrent data collection threshold (requires restart)"),
+        11,
+        "general.concurrent-threshold",
+        (1, 1000000),
+    )
     configdialog.add_checkbox(
         grid,
         _("Link people to relationships instead of people category"),
-        11,
+        12,
         "general.link-people-to-relationships-view",
     )
     configdialog.add_checkbox(
         grid,
         _("Link images to the media page and not the image viewer"),
-        12,
+        13,
         "general.image-page-link",
     )
     configdialog.add_checkbox(
         grid,
         _("Link citation title to the source page and not citation page"),
-        13,
+        14,
         "general.link-citation-title-to-source",
     )
     configdialog.add_checkbox(
@@ -258,13 +265,13 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Enable Zotero citation picking support with Better BibTex "
             "extension"
         ),
-        14,
+        15,
         "general.zotero-enabled",
     )
     configdialog.add_checkbox(
         grid,
         _("Enable experimental Zotero source note imports"),
-        15,
+        16,
         "general.zotero-enabled-notes",
     )
     configdialog.add_checkbox(
@@ -273,7 +280,7 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Open second instance of association editor to add a "
             "reciprocal association"
         ),
-        16,
+        17,
         "general.create-reciprocal-associations",
     )
     configdialog.add_checkbox(
@@ -282,7 +289,7 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Include notes found on child objects in the context menu "
             "note items"
         ),
-        17,
+        18,
         "general.include-child-notes",
     )
     configdialog.add_checkbox(
@@ -291,7 +298,7 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Parse and include urls found in notes in the url group "
             "when possible"
         ),
-        18,
+        19,
         "general.include-note-urls",
     )
     configdialog.add_spinner(
@@ -300,14 +307,14 @@ def build_general_grid(configdialog, grstate, *_dummy_args):
             "Maximum number of referencing objects to show in a "
             "references group"
         ),
-        19,
+        20,
         "general.references-max-per-group",
         (1, 5000),
     )
     configdialog.add_checkbox(
         grid,
         _("Enable warning dialogs when detaching or deleting objects"),
-        20,
+        21,
         "general.enable-warnings",
     )
     return add_config_buttons(

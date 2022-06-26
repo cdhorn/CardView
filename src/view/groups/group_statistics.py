@@ -573,7 +573,7 @@ class StatisticsCardGroup(CardGroupList):
         self.card = TextCard(grstate, groptions)
         self.add_card(self.card)
 
-        statistics_service = StatisticsService(grstate.dbstate)
+        statistics_service = StatisticsService(grstate)
         statistics_service.connect("statistics-updated", self.load_data)
 
         data = statistics_service.request_data()

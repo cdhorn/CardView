@@ -80,13 +80,14 @@ class StatisticsService(Callback):
             cls.instance = super(StatisticsService, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, dbstate):
+    def __init__(self, grstate):
         """
         Initialize the class if needed.
         """
         if not self.__init:
             Callback.__init__(self)
-            self.dbstate = dbstate
+            self.dbstate = grstate.dbstate
+            self.threshold = grstate.config.get("general.concurrent-threshold")
             self.thread = None
             self.lock = Lock()
             self.data = {}
@@ -101,7 +102,7 @@ class StatisticsService(Callback):
         """
         if self.dbstate.is_open():
             total, obj_list = get_object_list(self.dbstate.db.get_dbname())
-            if total > 50000:
+            if total > self.threshold:
                 return True
         return False
 
@@ -156,7 +157,6 @@ class StatisticsService(Callback):
         """
         self.concurrent = self.determine_collection_method()
         if self.dbstate.is_open():
-            print("dbstate change spawning collection")
             self.spawn_collect_statistics()
         else:
             self.data.clear()
@@ -192,7 +192,7 @@ def find_statistics_service_worker():
     )
     if not os.path.isfile(filepath):
         for root, dirs, files in os.walk(USER_PLUGINS):
-            if "statistics_worker.py" in files:
-                filepath = os.path.join(root, "statistics_worker.py")
+            if "service_statistics_worker.py" in files:
+                filepath = os.path.join(root, "service_statistics_worker.py")
                 break
     return filepath

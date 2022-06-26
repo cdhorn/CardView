@@ -996,6 +996,7 @@ def analyze_change(obj_list, obj_handle, change, max_length):
     if len(obj_list) > max_length:
         obj_list.pop(max_length)
 
+
 # ------------------------------------------------------------------------
 #
 # KeyWrapper class
