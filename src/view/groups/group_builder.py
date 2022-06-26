@@ -116,7 +116,7 @@ def build_statistics_group(grstate, group):
     """
     title = STATISTICS_GROUPS[group]
     groptions = GrampsOptions("group.%s" % group)
-    group = StatisticsCardGroup(grstate, groptions, group, title)
+    group = StatisticsCardGroup(grstate, groptions, group)
     return group_wrapper(grstate, group, (title, title, title))
 
 

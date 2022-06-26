@@ -65,38 +65,53 @@ class TextCard(GenericCard):
 
     def __init__(self, grstate, groptions, title=None, data=None):
         GenericCard.__init__(self, grstate, groptions, None)
-        self.title = title
-        self.data = data
         self.build_layout()
-        self.load_layout()
+        self.load_title(title)
+        self.load_data(data)
         self.set_css_style()
 
-    def load_layout(self):
+    def load_title(self, title):
         """
-        Load the layout.
+        Load the title.
         """
-        widgets = self.widgets
-        if self.title:
+        widget = self.widgets["title"]
+        list(map(widget.remove, widget.get_children()))
+        if title:
             label = Gtk.Label(
                 use_markup=True,
-                label=self.title_markup.format(
-                    "<b>%s</b>" % escape(self.title)
-                ),
+                label=self.title_markup.format("<b>%s</b>" % escape(title)),
             )
-            widgets["title"].pack_start(label, False, False, 0)
+            widget.pack_start(label, False, False, 0)
 
-        facts = self.widgets["facts"]
-        for (label, value) in self.data:
-            facts.add_fact(
-                self.get_label(str(value)), label=self.get_label(label)
-            )
+    def load_data(self, data):
+        """
+        Load the data.
+        """
+        widget = self.widgets["facts"]
+        widget.clear()
+        if data:
+            for item in data:
+                if len(item) == 2:
+                    (label, value) = item
+                    widget.add_fact(
+                        self.get_label(str(value), left=False),
+                        label=self.get_label(label),
+                    )
+                elif len(item) == 3:
+                    widget.add_facts(
+                        self.get_label(str(item[0])),
+                        self.get_label(str(item[1]), left=False),
+                        self.get_label(str(item[2])),
+                    )
+            widget.show_all()
 
     def build_layout(self):
         """
         Construct basic card layout.
         """
         widgets = self.widgets
-        fact_block = Gtk.VBox()
+        widgets["body"].set_halign(Gtk.Align.START)
+        fact_block = Gtk.VBox(hexpand=True, vexpand=False)
         widgets["body"].pack_start(
             fact_block, expand=True, fill=True, padding=0
         )

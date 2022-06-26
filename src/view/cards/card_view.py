@@ -65,7 +65,9 @@ class CardView(Gtk.VBox, GrampsConfig):
         Gtk.VBox.__init__(self, hexpand=True, vexpand=False)
         GrampsConfig.__init__(self, grstate, groptions)
         self.frame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
-        self.widgets = {"body": Gtk.HBox(hexpand=True, margin=3)}
+        self.widgets = {
+            "body": Gtk.HBox(vexpand=False, hexpand=True, margin=3)
+        }
         self.eventbox = Gtk.EventBox()
 
         self.ref_frame = None

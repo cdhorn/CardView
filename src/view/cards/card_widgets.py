@@ -81,6 +81,7 @@ class CardGrid(Gtk.Grid):
             halign=Gtk.Align.START,
             valign=Gtk.Align.START,
             hexpand=True,
+            vexpand=False,
         )
         self.row = 0
         if right:
@@ -95,7 +96,21 @@ class CardGrid(Gtk.Grid):
             self.attach(fact, 1, self.row, 1, 1)
         else:
             self.attach(fact, 0, self.row, 2, 1)
-        self.row = self.row + 1
+        self.row += 1
+
+    def add_facts(self, *args):
+        column = 0
+        for arg in args:
+            self.attach(arg, column, self.row, 1, 1)
+            column += 1
+        self.row += 1
+
+    def clear(self):
+        """
+        Clear grid.
+        """
+        list(map(self.remove, self.get_children()))
+        self.row = 0
 
 
 # ------------------------------------------------------------------------

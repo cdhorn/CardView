@@ -42,36 +42,22 @@ PERSON_LABELS = {
     "no_family_connection": _("Disconnected from a family"),
     "male_total": _("Males"),
     "male_living": _("Living males"),
-    "male_births_missing": _("Males missing birth events"),
-    "male_births_missing_date": _("Male preferred births missing dates"),
-    "male_births_missing_place": _("Male preferred births missing places"),
-    "male_deaths_missing": _("Males missing death events"),
-    "male_deaths_missing_date": _("Male preferred deaths missing dates"),
-    "male_deaths_missing_place": _("Male preferred deaths missing places"),
+    "no_birth": _("Missing birth"),
+    "no_birth_date": _("Missing preferred birth date"),
+    "no_birth_place": _("Missing preferred birth place"),
+    "no_baptism": _("Missing baptism or christening"),
+    "no_baptism_date": _("Missing baptism or christening date"),
+    "no_baptism_place": _("Missing baptism or christening place"),
+    "no_death": _("Missing death and not living"),
+    "no_death_date": _("Missing preferred death date"),
+    "no_death_place": _("Missing preferred death place"),
+    "no_burial": _("Missing burial or cremation and not living"),
+    "no_burial_date": _("Missing burial or cremation date"),
+    "no_burial_place": _("Missing burial or cremation place"),
     "female_total": _("Females"),
     "female_living": _("Living females"),
-    "female_births_missing": _("Female missing birth events"),
-    "female_births_missing_date": _("Female preferred births missing dates"),
-    "female_births_missing_place": _("Female preferred births missing places"),
-    "female_deaths_missing": _("Females missing death events"),
-    "female_deaths_missing_date": _("Female preferred deaths missing dates"),
-    "female_deaths_missing_place": _("Female preferred deaths missing places"),
     "unknown_total": _("Unknown genders"),
     "unknown_living": _("Living unknown genders"),
-    "unknown_births_missing": _("Unknown genders missing birth events"),
-    "unknown_births_missing_date": _(
-        "Unknown gender preferred births missing dates"
-    ),
-    "unknown_births_missing_place": _(
-        "Unknown gender preferred births missing places"
-    ),
-    "unknown_deaths_missing": _("Unknown genders missing death events"),
-    "unknown_deaths_missing_date": _(
-        "Unknown gender preferred deaths missing dates"
-    ),
-    "unknown_deaths_missing_place": _(
-        "Unknown gender preferred deaths missing places"
-    ),
 }
 
 
@@ -98,6 +84,8 @@ FAMILY_LABELS = {
     "missing_both": _("No spouses found"),
     "no_events": _("No events found"),
     "no_child": _("No children found"),
+    "no_marriage_date": _("Missing marriage date"),
+    "no_marriage_place": _("Missing marriage place"),
 }
 
 
@@ -151,14 +139,10 @@ PLACE_LABELS = {
 UNCITED_LABELS = {
     "names": _("Names of people"),
     "male": _("Males"),
-    "male_births": _("Preferred male births"),
-    "male_deaths": _("Preferred male deaths"),
     "female": _("Females"),
-    "female_births": _("Preferred female births"),
-    "female_deaths": _("Preferred female deaths"),
     "unknown": _("Unknown genders"),
-    "unknown_births": _("Preferred unknown gender births"),
-    "unknown_deaths": _("Preferred unknown gender deaths"),
+    "preferred_births": _("Preferred births"),
+    "preferred_deaths": _("Preferred deaths"),
     "family": _("Families"),
     "child": _("Children"),
     "association": _("Associations"),
@@ -167,24 +151,24 @@ UNCITED_LABELS = {
     "ldsord_family": _("LDS family ordinances"),
     "place": _("Places"),
     "media": _("Media"),
+    "events": _("Events"),
 }
 
 
 PRIVATE_LABELS = {
     "male": _("Males"),
     "male_living_not": _("Living males not private"),
-    "male_births": _("Preferred male births"),
-    "male_deaths": _("Preferred male deaths"),
     "female": _("Females"),
     "female_living_not": _("Living females not private"),
-    "female_births": _("Preferred female births"),
-    "female_deaths": _("Preferred female deaths"),
     "unknown": _("Unknown genders"),
     "unknown_living_not": _("Living unknown genders not private"),
-    "unknown_births": _("Preferred unknown gender births"),
-    "unknown_deaths": _("Preferred unknown gender deaths"),
+    "preferred_births": _("Preferred births"),
+    "baptism": _("Baptisms and christenings"),
+    "preferred_deaths": _("Preferred deaths"),
+    "burial": _("Burials and cremations"),
     "names": _("Names of people"),
     "family": _("Families"),
+    "marriage": _("Marriages"),
     "child": _("Children"),
     "association": _("Associations"),
     "event": _("Events"),

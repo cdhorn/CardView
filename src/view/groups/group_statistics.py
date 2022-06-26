@@ -48,7 +48,7 @@ from ..cards.card_text import TextCard
 from ..common.common_strings import UNKNOWN
 from .group_list import CardGroupList
 from ..services.service_statistics import StatisticsService
-from ..services.statistics_labels import (
+from ..services.service_statistics_labels import (
     PERSON_LABELS,
     PARTICIPANT_LABELS,
     ASSOCIATION_LABELS,
@@ -89,28 +89,22 @@ def get_person_statistics(data):
             "no_family_connection",
             "male_total",
             "male_living",
-            "male_births_missing",
-            "male_births_missing_date",
-            "male_births_missing_place",
-            "male_deaths_missing",
-            "male_deaths_missing_date",
-            "male_deaths_missing_place",
             "female_total",
             "female_living",
-            "female_births_missing",
-            "female_births_missing_date",
-            "female_births_missing_place",
-            "female_deaths_missing",
-            "female_deaths_missing_date",
-            "female_deaths_missing_place",
             "unknown_total",
             "unknown_living",
-            "unknown_births_missing",
-            "unknown_births_missing_date",
-            "unknown_births_missing_place",
-            "unknown_deaths_missing",
-            "unknown_deaths_missing_date",
-            "unknown_deaths_missing_place",
+            "no_birth",
+            "no_birth_date",
+            "no_birth_place",
+            "no_baptism",
+            "no_baptism_date",
+            "no_baptism_place",
+            "no_death",
+            "no_death_date",
+            "no_death_place",
+            "no_burial",
+            "no_burial_date",
+            "no_burial_place",
         ],
         people,
         PERSON_LABELS,
@@ -130,6 +124,8 @@ def get_family_statistics(data):
             "missing_both",
             "no_events",
             "no_child",
+            "no_marriage_date",
+            "no_marriage_place",
         ],
         families,
         FAMILY_LABELS,
@@ -309,18 +305,14 @@ def get_uncited_statistics(data):
     Return uncited statistics for rendering.
     """
     uncited = data.get("uncited")
-    return prepare_statistics(
+    result = prepare_statistics(
         [
             "names",
             "male",
-            "male_births",
-            "male_deaths",
             "female",
-            "female_births",
-            "female_deaths",
             "unknown",
-            "unknown_births",
-            "unknown_deaths",
+            "preferred_births",
+            "preferred_deaths",
             "family",
             "child",
             "association",
@@ -332,6 +324,9 @@ def get_uncited_statistics(data):
         ],
         uncited,
         UNCITED_LABELS,
+    )
+    return prepare_type_statistics(
+        result, uncited, EventType, UNCITED_LABELS, type_key="events"
     )
 
 
@@ -470,17 +465,16 @@ def get_private_statistics(data):
             "names",
             "male",
             "male_living_not",
-            "male_births",
-            "male_deaths",
             "female",
             "female_living_not",
-            "female_births",
-            "female_deaths",
             "unknown",
             "unknown_living_not",
-            "unknown_births",
-            "unknown_deaths",
+            "preferred_births",
+            "baptism",
+            "preferred_deaths",
+            "burial",
             "family",
+            "marriage",
             "child",
             "association",
             "event",
@@ -571,21 +565,34 @@ class StatisticsCardGroup(CardGroupList):
     statistical information about the database.
     """
 
-    def __init__(self, grstate, groptions, group, title):
+    def __init__(self, grstate, groptions, group):
         CardGroupList.__init__(
             self, grstate, groptions, None, enable_drop=False
         )
+        self.key = group.split("-")[1]
+        self.card = TextCard(grstate, groptions)
+        self.add_card(self.card)
+
         statistics_service = StatisticsService(grstate.dbstate)
-        data = statistics_service.get_data()
-        key = group.split("-")[1]
-        result = PREPARE_GROUP[key](data)
+        statistics_service.connect("statistics-updated", self.load_data)
+
+        data = statistics_service.request_data()
+        if data:
+            self.load_data(data)
+        else:
+            self.card.load_data([(_("Calculating..."), "")])
+
+    def load_data(self, data):
+        """
+        Load card data.
+        """
+        result = PREPARE_GROUP[self.key](data)
 
         output = []
         for (label, value, bonus) in result:
             if bonus:
-                output.append((label, "{0}   ({1:.2f}%)".format(value, bonus)))
+                output.append((label, value, "({0:.2f}%)".format(bonus)))
             else:
-                output.append((label, value))
-
-        card = TextCard(grstate, groptions, title=title, data=output)
-        self.add_card(card)
+                output.append((label, value, ""))
+        self.card.load_data(output)
+        self.show_all()

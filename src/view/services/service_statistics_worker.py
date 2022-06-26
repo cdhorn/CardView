@@ -50,12 +50,12 @@ from gramps.gen.db.utils import (
     make_database,
     write_lock_file,
 )
-from gramps.gen.lib import Citation, Person
+from gramps.gen.lib import Citation, Person, EventType
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.file import media_path_full
 
 
-def examine_people(args, queue):
+def examine_people(args, queue=None):
     """
     Parse and analyze people.
     """
@@ -70,16 +70,6 @@ def examine_people(args, queue):
                 "private": 0,
                 "tagged": 0,
                 "uncited": 0,
-                "births_missing": 0,
-                "births_missing_date": 0,
-                "births_missing_place": 0,
-                "births_uncited": 0,
-                "births_private": 0,
-                "deaths_missing": 0,
-                "deaths_missing_date": 0,
-                "deaths_missing_place": 0,
-                "deaths_uncited": 0,
-                "deaths_private": 0,
                 "living": 0,
                 "living_not_private": 0,
             }
@@ -98,7 +88,16 @@ def examine_people(args, queue):
     no_temple, no_status, no_date, no_place, no_family = 0, 0, 0, 0, 0
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    no_birth, no_birth_date, no_birth_place = 0, 0, 0
+    births_uncited, births_private = 0, 0
+    no_baptism, no_baptism_date, no_baptism_place = 0, 0, 0
+    baptisms_private = 0
+    no_death, no_death_date, no_death_place = 0, 0, 0
+    deaths_uncited, deaths_private = 0, 0
+    no_burial, no_burial_date, no_burial_place = 0, 0, 0
+    burials_private = 0
+
+    db = open_readonly_database(args.get("tree_name"))
     total_people = db.get_number_of_people()
 
     for person in db.iter_people():
@@ -143,33 +142,36 @@ def examine_people(args, queue):
         if birth_ref:
             birth = db.get_event_from_handle(birth_ref.ref)
             if not get_date(birth):
-                gender["births_missing_date"] += 1
+                no_birth_date += 1
             if not birth.place:
-                gender["births_missing_place"] += 1
+                no_birth_place += 1
             if not birth.citation_list:
-                gender["births_uncited"] += 1
+                births_uncited += 1
             if birth.private:
-                gender["births_private"] += 1
+                births_private += 1
         else:
-            gender["births_missing"] += 1
+            no_birth += 1
 
+        living = False
         death_ref = person.get_death_ref()
         if death_ref:
             death = db.get_event_from_handle(death_ref.ref)
             if not get_date(death):
-                gender["deaths_missing_date"] += 1
+                no_death_date += 1
             if not death.place:
-                gender["deaths_missing_place"] += 1
+                no_death_place += 1
             if not death.citation_list:
-                gender["deaths_uncited"] += 1
+                deaths_uncited += 1
             if death.private:
-                gender["deaths_private"] += 1
+                deaths_private += 1
         else:
-            gender["deaths_missing"] += 1
             if probably_alive(person, db):
+                living = True
                 gender["living"] += 1
                 if not person.private:
                     gender["living_not_private"] += 1
+            else:
+                no_death += 1
 
         if person.person_ref_list:
             association += 1
@@ -183,6 +185,7 @@ def examine_people(args, queue):
                     association_types[person_ref.rel] = 0
                 association_types[person_ref.rel] += 1
 
+        has_baptism, has_burial = False, False
         if person.event_ref_list:
             participant += 1
             for event_ref in person.event_ref_list:
@@ -193,6 +196,31 @@ def examine_people(args, queue):
                 participant_roles[role] += 1
                 if event_ref.private:
                     participant_private += 1
+
+                event = db.get_event_from_handle(event_ref.ref)
+                event_type = event.get_type()
+                if event_type in [EventType.BAPTISM, EventType.CHRISTEN]:
+                    has_baptism = True
+                    if not get_date(event):
+                        no_baptism_date += 1
+                    if not event.place:
+                        no_baptism_place += 1
+                    if event.private:
+                        baptisms_private += 1
+
+                if not living:
+                    if event_type in [EventType.BURIAL, EventType.CREMATION]:
+                        has_burial = True
+                        if not get_date(event):
+                            no_burial_date += 1
+                        if not event.place:
+                            no_burial_place += 1
+                        if event.private:
+                            burials_private += 1
+        if not has_baptism:
+            no_baptism += 1
+        if not living and not has_burial:
+            no_burial += 1
 
         if person.lds_ord_list:
             ldsord_people += 1
@@ -222,6 +250,18 @@ def examine_people(args, queue):
             "incomplete_names": incomplete_names,
             "alternate_names": alternate_names,
             "no_family_connection": no_families,
+            "no_birth": no_birth,
+            "no_birth_date": no_birth_date,
+            "no_birth_place": no_birth_place,
+            "no_baptism": no_baptism,
+            "no_baptism_date": no_baptism_date,
+            "no_baptism_place": no_baptism_place,
+            "no_death": no_death,
+            "no_death_date": no_death_date,
+            "no_death_place": no_death_place,
+            "no_burial": no_burial,
+            "no_burial_date": no_burial_date,
+            "no_burial_place": no_burial_place,
         },
         "media": {
             "person": media,
@@ -251,9 +291,15 @@ def examine_people(args, queue):
             "association": association_uncited,
             "ldsord_person": ldsord_uncited,
             "names": names_uncited,
+            "preferred_births": births_uncited,
+            "preferred_deaths": deaths_uncited,
         },
         "privacy": {
             "names": names_private,
+            "baptism": baptisms_private,
+            "preferred_births": births_private,
+            "preferred_deaths": deaths_private,
+            "burial": burials_private,
             "ldsord_person": ldsord_private,
             "association": association_private,
             "participant": participant_private,
@@ -283,17 +329,10 @@ def examine_people(args, queue):
             else:
                 index = "person"
             payload[index].update({new_key: value})
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "People", total_people, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "People", total_people, queue, payload)
 
 
-def examine_families(args, queue):
+def examine_families(args, queue=None):
     """
     Parse and analyze families.
     """
@@ -309,7 +348,7 @@ def examine_families(args, queue):
     participant_private = 0
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_families = db.get_number_of_families()
     total_surnames = len(set(db.surname_list))
 
@@ -430,17 +469,10 @@ def examine_families(args, queue):
             "family_refs": media_refs,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Families", total_families, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Families", total_families, queue, payload)
 
 
-def examine_events(args, queue):
+def examine_events(args, queue=None):
     """
     Parse and analyze events.
     """
@@ -448,9 +480,11 @@ def examine_events(args, queue):
     no_date, no_place, no_description = 0, 0, 0
     uncited, private, tagged = 0, 0, 0
     event_types = {}
+    uncited_events = {}
     last_changed = []
+    no_marriage_date, no_marriage_place, marriage_private = 0, 0, 0
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_events = db.get_number_of_events()
 
     for event in db.iter_events():
@@ -472,10 +506,22 @@ def examine_events(args, queue):
         if event.tag_list:
             tagged += 1
 
-        event_type = event.get_type().serialize()
-        if event_type not in event_types:
-            event_types[event_type] = 0
-        event_types[event_type] += 1
+        event_type = event.get_type()
+        if event_type == EventType.MARRIAGE:
+            if not event.place:
+                no_marriage_place += 1
+            if not event.date:
+                no_marriage_date += 1
+            if event.private:
+                marriage_private += 1
+
+        event_key = event_type.serialize()
+        if event_key not in event_types:
+            event_types[event_key] = 0
+            uncited_events[event_key] = 0
+        event_types[event_key] += 1
+        if not event.citation_list:
+            uncited_events[event_key] += 1
         analyze_change(last_changed, event.handle, event.change, 20)
     close_readonly_database(db)
 
@@ -488,11 +534,17 @@ def examine_events(args, queue):
             "no_description": no_description,
             "types": event_types,
         },
+        "family": {
+            "no_marriage_date": no_marriage_date,
+            "no_marriage_place": no_marriage_place,
+        },
         "uncited": {
             "event": uncited,
+            "events": uncited_events,
         },
         "privacy": {
             "event": private,
+            "marriage": marriage_private,
         },
         "tag": {
             "event": tagged,
@@ -502,17 +554,10 @@ def examine_events(args, queue):
             "event_refs": media_refs,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Events", total_events, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Events", total_events, queue, payload)
 
 
-def examine_places(args, queue):
+def examine_places(args, queue=None):
     """
     Parse and analyze places.
     """
@@ -522,7 +567,7 @@ def examine_places(args, queue):
     place_types = {}
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_places = db.get_number_of_places()
 
     for place in db.iter_places():
@@ -577,17 +622,10 @@ def examine_places(args, queue):
             "place_refs": media_refs,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Places", total_places, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Places", total_places, queue, payload)
 
 
-def examine_media(args, queue):
+def examine_media(args, queue=None):
     """
     Parse and analyze media objects.
     """
@@ -596,7 +634,7 @@ def examine_media(args, queue):
     not_found = []
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_media = db.get_number_of_media()
 
     for media in db.iter_media():
@@ -650,17 +688,10 @@ def examine_media(args, queue):
             "media": tagged,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Media", total_media, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Media", total_media, queue, payload)
 
 
-def examine_sources(args, queue):
+def examine_sources(args, queue=None):
     """
     Parse and analyze sources.
     """
@@ -670,7 +701,7 @@ def examine_sources(args, queue):
     media_types = {}
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_sources = db.get_number_of_sources()
 
     for source in db.iter_sources():
@@ -729,17 +760,10 @@ def examine_sources(args, queue):
             "source_refs": media_refs,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Sources", total_sources, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Sources", total_sources, queue, payload)
 
 
-def examine_citations(args, queue):
+def examine_citations(args, queue=None):
     """
     Parse and analyze citation objects.
     """
@@ -748,7 +772,7 @@ def examine_citations(args, queue):
     very_low, low, normal, high, very_high = 0, 0, 0, 0, 0
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_citations = db.get_number_of_citations()
 
     for citation in db.iter_citations():
@@ -806,17 +830,10 @@ def examine_citations(args, queue):
             "citation_refs": media_refs,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Citations", total_citations, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Citations", total_citations, queue, payload)
 
 
-def examine_repositories(args, queue):
+def examine_repositories(args, queue=None):
     """
     Parse and analyze repositories.
     """
@@ -824,7 +841,7 @@ def examine_repositories(args, queue):
     repository_types = {}
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_repositories = db.get_number_of_repositories()
 
     for repository in db.iter_repositories():
@@ -859,19 +876,12 @@ def examine_repositories(args, queue):
             "repository": tagged,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Repositories",
-                total_repositories,
-                time.time() - args.start_time,
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(
+        args, "Repositories", total_repositories, queue, payload
+    )
 
 
-def examine_notes(args, queue):
+def examine_notes(args, queue=None):
     """
     Parse and analyze notes.
     """
@@ -879,7 +889,7 @@ def examine_notes(args, queue):
     note_types = {}
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_notes = db.get_number_of_notes()
 
     for note in db.iter_notes():
@@ -911,23 +921,16 @@ def examine_notes(args, queue):
             "note": tagged,
         },
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Notes", total_notes, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Notes", total_notes, queue, payload)
 
 
-def examine_tags(args, queue):
+def examine_tags(args, queue=None):
     """
     Parse and analyze tags.
     """
     last_changed = []
 
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     total_tags = db.get_number_of_tags()
 
     for tag in db.iter_tags():
@@ -938,21 +941,14 @@ def examine_tags(args, queue):
         "changed": {"Tag": last_changed},
         "tag": {"total": total_tags},
     }
-    queue.put(payload)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Tags", total_tags, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
+    return post_processing(args, "Tags", total_tags, queue, payload)
 
 
 def examine_bookmarks(args):
     """
     Parse and analyze bookmarks.
     """
-    db = open_readonly_database(args.tree_name)
+    db = open_readonly_database(args.get("tree_name"))
     person_bookmarks = len(db.get_bookmarks().bookmarks)
     family_bookmarks = len(db.get_family_bookmarks().bookmarks)
     event_bookmarks = len(db.get_event_bookmarks().bookmarks)
@@ -988,14 +984,7 @@ def examine_bookmarks(args):
         }
     }
     close_readonly_database(db)
-    if args.time:
-        print(
-            "{0:<12} {1:6} {2}".format(
-                "Bookmarks", total_bookmarks, time.time() - args.start_time
-            ),
-            file=sys.stderr,
-        )
-    return payload
+    return post_processing(args, "Bookmarks", total_bookmarks, None, payload)
 
 
 def analyze_change(obj_list, obj_handle, change, max_length):
@@ -1006,7 +995,6 @@ def analyze_change(obj_list, obj_handle, change, max_length):
     obj_list.insert(bsindex, (obj_handle, change))
     if len(obj_list) > max_length:
         obj_list.pop(max_length)
-
 
 # ------------------------------------------------------------------------
 #
@@ -1053,6 +1041,23 @@ def close_readonly_database(db):
     db.close(update=False)
     if save_dir:
         write_lock_file(save_dir)
+
+
+def post_processing(args, obj_type, total, queue, payload):
+    """
+    Handle collection post processing.
+    """
+    if args.get("time"):
+        print(
+            "{0:<12} {1:6} {2}".format(
+                obj_type, total, time.time() - args.get("start_time")
+            ),
+            file=sys.stderr,
+        )
+    if queue:
+        queue.put(payload)
+    else:
+        return payload
 
 
 def get_object_list(dbname):
@@ -1105,6 +1110,60 @@ TASK_HANDLERS = {
 }
 
 
+def gather_serial_statistics(args, obj_list):
+    """
+    Gather statistics using non-concurrent serial mode.
+    """
+    facts = examine_bookmarks(args)
+    for obj_type in obj_list:
+        results = TASK_HANDLERS[obj_type](args)
+        fold(facts, results)
+    return facts
+
+
+def gather_concurrent_statistics(args, obj_list):
+    """
+    Gather statistics using multiprocessing mode.
+    """
+    workers = {}
+    queues = {}
+    for obj_type in obj_list:
+        queues[obj_type] = Queue()
+        workers[obj_type] = Process(
+            target=TASK_HANDLERS[obj_type], args=(args, queues[obj_type])
+        )
+        workers[obj_type].start()
+
+    facts = examine_bookmarks(args)
+    obj_list.reverse()
+    for obj_type in obj_list:
+        result_set = queues[obj_type].get()
+        workers[obj_type].join()
+        fold(facts, result_set)
+    return facts
+
+
+def gather_statistics(args):
+    """
+    Gather tree statistics.
+    """
+    try:
+        total, obj_list = get_object_list(args.get("tree_name"))
+    except TypeError:
+        print(
+            "Error: Problem finding and loading tree: %s"
+            % args.get("tree_name"),
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if args.get("serial"):
+        facts = gather_serial_statistics(args, obj_list)
+    else:
+        facts = gather_concurrent_statistics(args, obj_list)
+    return total, facts
+
+
 def main():
     """
     Main program.
@@ -1126,6 +1185,14 @@ def main():
         help="Dump run times",
     )
     parser.add_argument(
+        "-s",
+        "--serial",
+        dest="serial",
+        default=False,
+        action="store_true",
+        help="Serial mode",
+    )
+    parser.add_argument(
         "-y",
         "--yaml",
         dest="yaml",
@@ -1133,38 +1200,20 @@ def main():
         action="store_true",
         help="Dump statistics in YAML format if YAML support available",
     )
-    args = parser.parse_args()
+    parsed_args = parser.parse_args()
 
-    try:
-        total, obj_list = get_object_list(args.tree_name)
-    except TypeError:
-        print(
-            "Error: Problem finding and loading tree: %s" % args.tree_name,
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    if args.time:
-        args.start_time = time.time()
+    args = {
+        "tree_name": parsed_args.tree_name,
+        "time": parsed_args.time,
+        "serial": parsed_args.serial,
+    }
+    if parsed_args.time:
+        args["start_time"] = time.time()
         print("Run started", file=sys.stderr)
 
-    workers = {}
-    queues = {}
-    for obj_type in obj_list:
-        queues[obj_type] = Queue()
-        workers[obj_type] = Process(
-            target=TASK_HANDLERS[obj_type], args=(args, queues[obj_type])
-        )
-        workers[obj_type].start()
+    total, facts = gather_statistics(args)
 
-    facts = examine_bookmarks(args)
-    obj_list.reverse()
-    for obj_type in obj_list:
-        result_set = queues[obj_type].get()
-        workers[obj_type].join()
-        fold(facts, result_set)
-
-    if args.yaml:
+    if parsed_args.yaml:
         try:
             import yaml
 
@@ -1175,7 +1224,7 @@ def main():
         # https://stackoverflow.com/questions/38029058/sending-pickled-data-to-a-server
         sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="latin-1")
         print(pickle.dumps(facts).decode("latin-1"), end="", flush=True)
-    if args.time:
+    if parsed_args.time:
         print(
             "{0:<12} {1:6} {2}".format(
                 "Run complete", total, time.time() - args.start_time

@@ -268,7 +268,7 @@ def prepare_untabbed_groups(obj_groups, groupings, scrolled):
             box = Gtk.VBox(spacing=3, vexpand=False)
             for group in grouping:
                 box.pack_start(
-                    obj_groups[group], expand=False, fill=True, padding=0
+                    obj_groups[group], expand=False, fill=False, padding=0
                 )
             pack_container(container, scrolled, box)
     return container
