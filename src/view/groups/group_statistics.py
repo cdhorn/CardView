@@ -240,11 +240,23 @@ def get_association_statistics(data):
     result = prepare_statistics(["refs"], associations, ASSOCIATION_LABELS)
     types = associations.get("types")
     if types:
-        result.append((ASSOCIATION_LABELS["types"], "", None))
-        for (key, value) in types.items():
+        output = []
+        for key in types:
+            (count, total) = types[key]
             if not key:
                 key = UNKNOWN
-            result.append(("> %s" % key, value, None))
+            output.append(
+                (
+                    count,
+                    "> %s" % key,
+                    "%s of %s" % (count, total),
+                    count * 100 / total,
+                )
+            )
+        if output:
+            output.sort(key=lambda x: x[0], reverse=True)
+            result.append((ASSOCIATION_LABELS["types"], "", None))
+            result = result + [(x, y, z) for (discard, x, y, z) in output]
     return result
 
 
@@ -508,11 +520,19 @@ def prepare_type_statistics(
         statistics = data.get(type_key)
         for key in statistics:
             object_type = object_class().unserialize(key)
-            output.append(("> %s" % object_type, statistics[key], None))
+            (count, total) = statistics[key]
+            output.append(
+                (
+                    count,
+                    "> %s" % object_type,
+                    "%s of %s" % (count, total),
+                    count * 100 / total,
+                )
+            )
         if output:
-            output.sort(key=lambda x: x[1], reverse=True)
+            output.sort(key=lambda x: x[0], reverse=True)
             result.append((labels[type_key], "", None))
-            result = result + output
+            result = result + [(x, y, z) for (discard, x, y, z) in output]
     return result
 
 

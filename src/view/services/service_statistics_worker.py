@@ -245,6 +245,11 @@ def examine_people(args, queue=None):
         analyze_change(last_changed, person.handle, person.change, 20)
     close_readonly_database(db)
 
+    for key in participant_roles:
+        participant_roles[key] = (participant_roles[key], participant_refs)
+    for key in association_types:
+        association_types[key] = (association_types[key], association_refs)
+
     with_birth = total_people - no_birth
     with_baptism = total_people - no_baptism
     dead_people = total_people - total_living
@@ -291,8 +296,8 @@ def examine_people(args, queue=None):
             "types": association_types,
         },
         "participant": {
-            "total": (participant, total_people),
-            "refs": (participant_refs, None),
+            "person_total": (participant, total_people),
+            "person_refs": (participant_refs, None),
             "person_roles": participant_roles,
         },
         "uncited": {
@@ -315,13 +320,6 @@ def examine_people(args, queue=None):
         "tag": {},
     }
 
-    #                "total": 0,
-    #                "private": 0,
-    #                "tagged": 0,
-    #                "uncited": 0,
-    #                "living": 0,
-    #                "living_not_private": 0,
-
     for gender in gender_stats:
         if gender == Person.MALE:
             prefix = "male"
@@ -330,7 +328,6 @@ def examine_people(args, queue=None):
         else:
             prefix = "unknown"
         data = gender_stats[gender]
-
         total_gender = data["total"]
         payload["person"].update(
             {
@@ -363,7 +360,7 @@ def examine_families(args, queue=None):
     ldsord_families, ldsord_refs, ldsord_private, ldsord_uncited = 0, 0, 0, 0
     no_temple, no_status, no_date, no_place = 0, 0, 0, 0
     participant_roles = {}
-    participant_private = 0
+    participant, participant_refs, participant_private = 0, 0, 0
     last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
@@ -396,7 +393,9 @@ def examine_families(args, queue=None):
         if not family.event_ref_list:
             no_events += 1
         else:
+            participant += 1
             for event_ref in family.event_ref_list:
+                participant_refs += 1
                 role = event_ref.get_role().serialize()
                 if role not in participant_roles:
                     participant_roles[role] = 0
@@ -441,6 +440,15 @@ def examine_families(args, queue=None):
         analyze_change(last_changed, family.handle, family.change, 20)
     close_readonly_database(db)
 
+    for key in family_relations:
+        family_relations[key] = (family_relations[key], total_families)
+    for key in child_mother_relations:
+        child_mother_relations[key] = (child_mother_relations[key], child)
+    for key in child_father_relations:
+        child_father_relations[key] = (child_father_relations[key], child)
+    for key in participant_roles:
+        participant_roles[key] = (participant_roles[key], participant_refs)
+
     payload = {
         "changed": {"Family": last_changed},
         "family": {
@@ -480,6 +488,8 @@ def examine_families(args, queue=None):
             "father_relations": child_father_relations,
         },
         "participant": {
+            "family_total": participant,
+            "family_refs": participant_refs,
             "family_roles": participant_roles,
         },
         "media": {
@@ -543,6 +553,11 @@ def examine_events(args, queue=None):
             uncited_events[event_key] += 1
         analyze_change(last_changed, event.handle, event.change, 20)
     close_readonly_database(db)
+
+    for key in uncited_events:
+        uncited_events[key] = (uncited_events[key], event_types[key])
+    for key in event_types:
+        event_types[key] = (event_types[key], total_events)
 
     payload = {
         "changed": {"Event": last_changed},
@@ -616,6 +631,9 @@ def examine_places(args, queue=None):
             tagged += 1
         analyze_change(last_changed, place.handle, place.change, 20)
     close_readonly_database(db)
+
+    for key in place_types:
+        place_types[key] = (place_types[key], total_places)
 
     payload = {
         "changed": {"Place": last_changed},
@@ -755,6 +773,9 @@ def examine_sources(args, queue=None):
         analyze_change(last_changed, source.handle, source.change, 20)
     close_readonly_database(db)
 
+    for key in media_types:
+        media_types[key] = (media_types[key], repos_refs)
+
     payload = {
         "changed": {"Source": last_changed},
         "source": {
@@ -880,6 +901,9 @@ def examine_repositories(args, queue=None):
         analyze_change(last_changed, repository.handle, repository.change, 20)
     close_readonly_database(db)
 
+    for key in repository_types:
+        repository_types[key] = (repository_types[key], total_repositories)
+
     payload = {
         "changed": {"Repository": last_changed},
         "repository": {
@@ -925,6 +949,9 @@ def examine_notes(args, queue=None):
             tagged += 1
         analyze_change(last_changed, note.handle, note.change, 20)
     close_readonly_database(db)
+
+    for key in note_types:
+        note_types[key] = (note_types[key], total_notes)
 
     payload = {
         "changed": {"Note": last_changed},
