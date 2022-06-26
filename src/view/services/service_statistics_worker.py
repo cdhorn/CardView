@@ -243,66 +243,72 @@ def examine_people(args, queue=None):
         analyze_change(last_changed, person.handle, person.change, 20)
     close_readonly_database(db)
 
+    with_birth = total_people - no_birth
+    with_baptism = total_people - no_baptism
+    dead_people = total_people - living
+    with_death = dead_people - no_death
+    with_burial = dead_people - no_burial
+
     payload = {
         "changed": {"Person": last_changed},
         "person": {
-            "total": total_people,
-            "incomplete_names": incomplete_names,
-            "alternate_names": alternate_names,
-            "no_family_connection": no_families,
-            "no_birth": no_birth,
-            "no_birth_date": no_birth_date,
-            "no_birth_place": no_birth_place,
-            "no_baptism": no_baptism,
-            "no_baptism_date": no_baptism_date,
-            "no_baptism_place": no_baptism_place,
-            "no_death": no_death,
-            "no_death_date": no_death_date,
-            "no_death_place": no_death_place,
-            "no_burial": no_burial,
-            "no_burial_date": no_burial_date,
-            "no_burial_place": no_burial_place,
+            "total": (total_people, None),
+            "incomplete_names": (incomplete_names, total_people),
+            "alternate_names": (alternate_names, total_people),
+            "no_family_connection": (no_families, total_people),
+            "no_birth": (no_birth, total_people),
+            "no_birth_date": (no_birth_date, with_birth),
+            "no_birth_place": (no_birth_place, with_birth),
+            "no_baptism": (no_baptism, total_people),
+            "no_baptism_date": (no_baptism_date, with_baptism),
+            "no_baptism_place": (no_baptism_place, with_baptism),
+            "no_death": (no_death, dead_people),
+            "no_death_date": (no_death_date, with_death),
+            "no_death_place": (no_death_place, with_death),
+            "no_burial": (no_burial, dead_people),
+            "no_burial_date": (no_burial_date, with_burial),
+            "no_burial_place": (no_burial_place, with_burial),
         },
         "media": {
-            "person": media,
-            "person_refs": media_refs,
-            "person_missing_region": missing_region,
+            "person": (media, total_people),
+            "person_refs": (media_refs, None),
+            "person_missing_region": (missing_region, media_refs),
         },
         "ldsord_person": {
-            "ldsord": ldsord_people,
-            "ldsord_refs": ldsord_refs,
-            "no_temple": no_temple,
-            "no_status": no_status,
-            "no_date": no_date,
-            "no_place": no_place,
-            "no_family": no_family,
+            "ldsord": (ldsord_people, total_people),
+            "ldsord_refs": (ldsord_refs, None),
+            "no_temple": (no_temple, ldsord_refs),
+            "no_status": (no_status, ldsord_refs),
+            "no_date": (no_date, ldsord_refs),
+            "no_place": (no_place, ldsord_refs),
+            "no_family": (no_family, ldsord_refs),
         },
         "association": {
-            "total": association,
-            "refs": association_refs,
+            "total": (association, total_people),
+            "refs": (association_refs, None),
             "types": association_types,
         },
         "participant": {
-            "total": participant,
-            "refs": participant_refs,
+            "total": (participant, total_people),
+            "refs": (participant_refs, None),
             "person_roles": participant_roles,
         },
         "uncited": {
-            "association": association_uncited,
-            "ldsord_person": ldsord_uncited,
-            "names": names_uncited,
-            "preferred_births": births_uncited,
-            "preferred_deaths": deaths_uncited,
+            "association": (association_uncited, association_refs),
+            "ldsord_person": (ldsord_uncited, ldsord_refs),
+            "names": (names_uncited, None),
+            "preferred_births": (births_uncited, with_birth),
+            "preferred_deaths": (deaths_uncited, with_death),
         },
         "privacy": {
-            "names": names_private,
-            "baptism": baptisms_private,
-            "preferred_births": births_private,
-            "preferred_deaths": deaths_private,
-            "burial": burials_private,
-            "ldsord_person": ldsord_private,
-            "association": association_private,
-            "participant": participant_private,
+            "names": (names_private, None),
+            "baptism": (baptisms_private, with_baptism),
+            "preferred_births": (births_private, with_birth),
+            "preferred_deaths": (deaths_private, with_death),
+            "burial": (burials_private, with_burial),
+            "ldsord_person": (ldsord_private, ldsord_refs),
+            "association": (association_private, association_refs),
+            "participant": (participant_private, participant_refs),
         },
         "tag": {},
     }
@@ -315,6 +321,7 @@ def examine_people(args, queue=None):
             prefix = "unknown_"
         else:
             prefix = "%s_" % str(gender)
+        total = gender_stats[gender]["total"]
         for (key, value) in gender_stats[gender].items():
             new_key = "%s%s" % (prefix, key)
             if "uncited" in new_key:
@@ -328,7 +335,10 @@ def examine_people(args, queue=None):
                 new_key = new_key.replace("_tagged", "")
             else:
                 index = "person"
-            payload[index].update({new_key: value})
+            if key == "total":
+                payload[index].update({new_key: (value, None)})
+            else:
+                payload[index].update({new_key: (value, total)})
     return post_processing(args, "People", total_people, queue, payload)
 
 
@@ -426,38 +436,38 @@ def examine_families(args, queue=None):
     payload = {
         "changed": {"Family": last_changed},
         "family": {
-            "total": total_families,
-            "surname_total": total_surnames,
-            "missing_one": missing_one,
-            "missing_both": missing_both,
-            "no_child": no_child,
+            "total": (total_families, None),
+            "surname_total": (total_surnames, None),
+            "missing_one": (missing_one, total_families),
+            "missing_both": (missing_both, total_families),
+            "no_child": (no_child, total_families),
+            "no_events": (no_events, total_families),
             "relations": family_relations,
-            "no_events": no_events,
         },
         "ldsord_family": {
-            "ldsord": ldsord_families,
-            "ldsord_refs": ldsord_refs,
-            "no_temple": no_temple,
-            "no_status": no_status,
-            "no_date": no_date,
-            "no_place": no_place,
+            "ldsord": (ldsord_families, total_families),
+            "ldsord_refs": (ldsord_refs, None),
+            "no_temple": (no_temple, ldsord_refs),
+            "no_status": (no_status, ldsord_refs),
+            "no_date": (no_date, ldsord_refs),
+            "no_place": (no_place, ldsord_refs),
         },
         "uncited": {
-            "family": uncited,
-            "child": child_uncited,
-            "ldsord_family": ldsord_uncited,
+            "family": (uncited, total_families),
+            "child": (child_uncited, child),
+            "ldsord_family": (ldsord_uncited, ldsord_refs),
         },
         "privacy": {
-            "family": private,
-            "child": child_private,
-            "family_participant": participant_private,
-            "ldsord_family": ldsord_private,
+            "family": (private, total_families),
+            "child": (child_private, child),
+            "family_participant": (participant_private, None),
+            "ldsord_family": (ldsord_private, ldsord_refs),
         },
         "tag": {
-            "family": tagged,
+            "family": (tagged, total_families),
         },
         "children": {
-            "refs": child,
+            "refs": (child, None),
             "mother_relations": child_mother_relations,
             "father_relations": child_father_relations,
         },
@@ -465,8 +475,8 @@ def examine_families(args, queue=None):
             "family_roles": participant_roles,
         },
         "media": {
-            "family": media,
-            "family_refs": media_refs,
+            "family": (media, total_families),
+            "family_refs": (media_refs, None),
         },
     }
     return post_processing(args, "Families", total_families, queue, payload)
@@ -478,7 +488,7 @@ def examine_events(args, queue=None):
     """
     media, media_refs = 0, 0
     no_date, no_place, no_description = 0, 0, 0
-    uncited, private, tagged = 0, 0, 0
+    uncited, private, tagged, marriages = 0, 0, 0, 0
     event_types = {}
     uncited_events = {}
     last_changed = []
@@ -508,6 +518,7 @@ def examine_events(args, queue=None):
 
         event_type = event.get_type()
         if event_type == EventType.MARRIAGE:
+            marriages += 1
             if not event.place:
                 no_marriage_place += 1
             if not event.date:
@@ -528,30 +539,30 @@ def examine_events(args, queue=None):
     payload = {
         "changed": {"Event": last_changed},
         "event": {
-            "total": total_events,
-            "no_place": no_place,
-            "no_date": no_date,
-            "no_description": no_description,
+            "total": (total_events, None),
+            "no_place": (no_place, total_events),
+            "no_date": (no_date, total_events),
+            "no_description": (no_description, total_events),
             "types": event_types,
         },
         "family": {
-            "no_marriage_date": no_marriage_date,
-            "no_marriage_place": no_marriage_place,
+            "no_marriage_date": (no_marriage_date, marriages),
+            "no_marriage_place": (no_marriage_place, marriages),
         },
         "uncited": {
-            "event": uncited,
+            "event": (uncited, total_events),
             "events": uncited_events,
         },
         "privacy": {
-            "event": private,
-            "marriage": marriage_private,
+            "event": (private, total_events),
+            "marriage": (marriage_private, marriages),
         },
         "tag": {
-            "event": tagged,
+            "event": (tagged, total_events),
         },
         "media": {
-            "event": media,
-            "event_refs": media_refs,
+            "event": (media, total_events),
+            "event_refs": (media_refs, None),
         },
     }
     return post_processing(args, "Events", total_events, queue, payload)
@@ -601,25 +612,25 @@ def examine_places(args, queue=None):
     payload = {
         "changed": {"Place": last_changed},
         "place": {
-            "total": total_places,
-            "no_name": no_name,
-            "no_latitude": no_latitude,
-            "no_longitude": no_longitude,
-            "no_code": no_code,
+            "total": (total_places, None),
+            "no_name": (no_name, total_places),
+            "no_latitude": (no_latitude, total_places),
+            "no_longitude": (no_longitude, total_places),
+            "no_code": (no_code, total_places),
             "types": place_types,
         },
         "uncited": {
-            "place": uncited,
+            "place": (uncited, total_places),
         },
         "privacy": {
-            "place": private,
+            "place": (private, total_places),
         },
         "tag": {
-            "place": tagged,
+            "place": (tagged, total_places),
         },
         "media": {
-            "place": media,
-            "place_refs": media_refs,
+            "place": (media, total_places),
+            "place_refs": (media_refs, None),
         },
     }
     return post_processing(args, "Places", total_places, queue, payload)
@@ -669,23 +680,23 @@ def examine_media(args, queue=None):
     payload = {
         "changed": {"Media": last_changed},
         "media": {
-            "total": total_media,
-            "size": size_string,
-            "no_path": no_path,
-            "no_file": len(not_found),
+            "total": (total_media, None),
+            "size": (size_string, None),
+            "no_path": (no_path, total_media),
+            "no_file": (len(not_found), total_media - no_path),
             "not_found": not_found,
-            "no_description": no_desc,
-            "no_date": no_date,
-            "no_mime": no_mime,
+            "no_description": (no_desc, total_media),
+            "no_date": (no_date, total_media),
+            "no_mime": (no_mime, total_media),
         },
         "uncited": {
-            "media": uncited,
+            "media": (uncited, total_media),
         },
         "privacy": {
-            "media": private,
+            "media": (private, total_media),
         },
         "tag": {
-            "media": tagged,
+            "media": (tagged, total_media),
         },
     }
     return post_processing(args, "Media", total_media, queue, payload)
@@ -739,25 +750,25 @@ def examine_sources(args, queue=None):
     payload = {
         "changed": {"Source": last_changed},
         "source": {
-            "total": total_sources,
-            "no_title": no_title,
-            "no_author": no_author,
-            "no_pubinfo": no_pubinfo,
-            "no_abbrev": no_abbrev,
-            "no_repository": no_repository,
-            "repository_refs": repos_refs,
-            "no_call_number": no_call_number,
+            "total": (total_sources, None),
+            "no_title": (no_title, total_sources),
+            "no_author": (no_author, total_sources),
+            "no_pubinfo": (no_pubinfo, total_sources),
+            "no_abbrev": (no_abbrev, total_sources),
+            "no_repository": (no_repository, total_sources),
+            "repository_refs": (repos_refs, None),
+            "no_call_number": (no_call_number, repos_refs),
             "types": media_types,
         },
         "privacy": {
-            "source": private,
+            "source": (private, total_sources),
         },
         "tag": {
-            "source": tagged,
+            "source": (tagged, total_sources),
         },
         "media": {
-            "source": media,
-            "source_refs": media_refs,
+            "source": (media, total_sources),
+            "source_refs": (media_refs, None),
         },
     }
     return post_processing(args, "Sources", total_sources, queue, payload)
@@ -807,27 +818,27 @@ def examine_citations(args, queue=None):
     payload = {
         "changed": {"Citation": last_changed},
         "citation": {
-            "total": total_citations,
-            "no_source": no_source,
-            "no_date": no_date,
-            "no_page": no_page,
+            "total": (total_citations, None),
+            "no_source": (no_source, total_citations),
+            "no_date": (no_date, total_citations),
+            "no_page": (no_page, total_citations),
             "confidence": {
-                "very_low": very_low,
-                "low": low,
-                "normal": normal,
-                "high": high,
-                "very_high": very_high,
+                "very_low": (very_low, total_citations),
+                "low": (low, total_citations),
+                "normal": (normal, total_citations),
+                "high": (high, total_citations),
+                "very_high": (very_high, total_citations),
             },
         },
         "privacy": {
-            "citation": private,
+            "citation": (private, total_citations),
         },
         "tag": {
-            "citation": tagged,
+            "citation": (tagged, total_citations),
         },
         "media": {
-            "citation": media,
-            "citation_refs": media_refs,
+            "citation": (media, total_citations),
+            "citation_refs": (media_refs, None),
         },
     }
     return post_processing(args, "Citations", total_citations, queue, payload)
@@ -864,16 +875,16 @@ def examine_repositories(args, queue=None):
     payload = {
         "changed": {"Repository": last_changed},
         "repository": {
-            "total": total_repositories,
-            "no_name": no_name,
-            "no_address": no_address,
+            "total": (total_repositories, None),
+            "no_name": (no_name, total_repositories),
+            "no_address": (no_address, total_repositories),
             "types": repository_types,
         },
         "privacy": {
-            "repository": private,
+            "repository": (private, total_repositories),
         },
         "tag": {
-            "repository": tagged,
+            "repository": (tagged, total_repositories),
         },
     }
     return post_processing(
@@ -910,15 +921,15 @@ def examine_notes(args, queue=None):
     payload = {
         "changed": {"Note": last_changed},
         "note": {
-            "total": total_notes,
-            "no_text": no_text,
+            "total": (total_notes, None),
+            "no_text": (no_text, total_notes),
             "types": note_types,
         },
         "privacy": {
-            "note": private,
+            "note": (private, total_notes),
         },
         "tag": {
-            "note": tagged,
+            "note": (tagged, total_notes),
         },
     }
     return post_processing(args, "Notes", total_notes, queue, payload)
@@ -939,7 +950,7 @@ def examine_tags(args, queue=None):
 
     payload = {
         "changed": {"Tag": last_changed},
-        "tag": {"total": total_tags},
+        "tag": {"total": (total_tags, None)},
     }
     return post_processing(args, "Tags", total_tags, queue, payload)
 
@@ -971,16 +982,16 @@ def examine_bookmarks(args):
     )
     payload = {
         "bookmark": {
-            "total": total_bookmarks,
-            "person": person_bookmarks,
-            "family": family_bookmarks,
-            "event": event_bookmarks,
-            "place": place_bookmarks,
-            "media": media_bookmarks,
-            "source": source_bookmarks,
-            "citation": citation_bookmarks,
-            "repository": repository_bookmarks,
-            "note": note_bookmarks,
+            "total": (total_bookmarks, None),
+            "person": (person_bookmarks, total_bookmarks),
+            "family": (family_bookmarks, total_bookmarks),
+            "event": (event_bookmarks, total_bookmarks),
+            "place": (place_bookmarks, total_bookmarks),
+            "media": (media_bookmarks, total_bookmarks),
+            "source": (source_bookmarks, total_bookmarks),
+            "citation": (citation_bookmarks, total_bookmarks),
+            "repository": (repository_bookmarks, total_bookmarks),
+            "note": (note_bookmarks, total_bookmarks),
         }
     }
     close_readonly_database(db)

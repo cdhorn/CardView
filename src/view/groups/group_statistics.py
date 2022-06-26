@@ -84,6 +84,7 @@ def get_person_statistics(data):
     people = data.get("person")
     return prepare_statistics(
         [
+            "total",
             "incomplete_names",
             "alternate_names",
             "no_family_connection",
@@ -108,7 +109,6 @@ def get_person_statistics(data):
         ],
         people,
         PERSON_LABELS,
-        total_key="total",
     )
 
 
@@ -119,6 +119,7 @@ def get_family_statistics(data):
     families = data.get("family")
     result = prepare_statistics(
         [
+            "total",
             "surname_total",
             "missing_one",
             "missing_both",
@@ -129,7 +130,6 @@ def get_family_statistics(data):
         ],
         families,
         FAMILY_LABELS,
-        total_key="total",
     )
     return prepare_type_statistics(
         result, families, FamilyRelType, FAMILY_LABELS, type_key="relations"
@@ -164,10 +164,9 @@ def get_event_statistics(data):
     """
     events = data.get("event")
     result = prepare_statistics(
-        ["no_date", "no_place", "no_description"],
+        ["total", "no_date", "no_place", "no_description"],
         events,
         EVENT_LABELS,
-        total_key="total",
     )
     return prepare_type_statistics(result, events, EventType, EVENT_LABELS)
 
@@ -216,9 +215,7 @@ def get_participant_statistics(data):
     Return participant statistics for rendering.
     """
     participants = data.get("participant")
-    result = prepare_statistics(
-        ["refs"], participants, PARTICIPANT_LABELS, total_key="total"
-    )
+    result = prepare_statistics(["refs"], participants, PARTICIPANT_LABELS)
     result = prepare_type_statistics(
         result,
         participants,
@@ -240,9 +237,7 @@ def get_association_statistics(data):
     Return association statistics for rendering.
     """
     associations = data.get("association")
-    result = prepare_statistics(
-        ["refs"], associations, ASSOCIATION_LABELS, total_key="total"
-    )
+    result = prepare_statistics(["refs"], associations, ASSOCIATION_LABELS)
     types = associations.get("types")
     if types:
         result.append((ASSOCIATION_LABELS["types"], "", None))
@@ -259,10 +254,9 @@ def get_place_statistics(data):
     """
     places = data.get("place")
     result = prepare_statistics(
-        ["no_name", "no_latitude", "no_longitude", "no_code"],
+        ["total", "no_name", "no_latitude", "no_longitude", "no_code"],
         places,
         PLACE_LABELS,
-        total_key="total",
     )
     return prepare_type_statistics(result, places, PlaceType, PLACE_LABELS)
 
@@ -274,6 +268,7 @@ def get_media_statistics(data):
     media = data.get("media")
     return prepare_statistics(
         [
+            "total",
             "size",
             "no_path",
             "no_file",
@@ -296,7 +291,6 @@ def get_media_statistics(data):
         ],
         media,
         MEDIA_LABELS,
-        total_key="total",
     )
 
 
@@ -336,22 +330,16 @@ def get_citation_statistics(data):
     """
     citations = data.get("citation")
     result = prepare_statistics(
-        [
-            "no_source",
-            "no_page",
-            "no_date",
-        ],
+        ["total", "no_source", "no_page", "no_date"],
         citations,
         CITATION_LABELS,
-        total_key="total",
     )
     types = citations.get("confidence")
     if types:
-        total = citations.get("total")
         result.append((CITATION_LABELS["confidence"], "", None))
-        for (key, value) in types.items():
+        for (key, (count, total)) in types.items():
             result.append(
-                ("> %s" % CITATION_LABELS[key], value, value * 100 / total)
+                ("> %s" % CITATION_LABELS[key], count, count * 100 / total)
             )
     return result
 
@@ -363,6 +351,7 @@ def get_source_statistics(data):
     sources = data.get("source")
     result = prepare_statistics(
         [
+            "total",
             "no_title",
             "no_author",
             "no_pubinfo",
@@ -373,7 +362,6 @@ def get_source_statistics(data):
         ],
         sources,
         SOURCE_LABELS,
-        total_key="total",
     )
     return prepare_type_statistics(
         result, sources, SourceMediaType, SOURCE_LABELS
@@ -386,10 +374,9 @@ def get_repository_statistics(data):
     """
     repositories = data.get("repository")
     result = prepare_statistics(
-        ["no_name", "no_address"],
+        ["total", "no_name", "no_address"],
         repositories,
         REPOSITORY_LABELS,
-        total_key="total",
     )
     return prepare_type_statistics(
         result, repositories, RepositoryType, REPOSITORY_LABELS
@@ -401,9 +388,7 @@ def get_note_statistics(data):
     Return note statistics for rendering.
     """
     notes = data.get("note")
-    result = prepare_statistics(
-        ["no_text"], notes, NOTE_LABELS, total_key="total"
-    )
+    result = prepare_statistics(["total", "no_text"], notes, NOTE_LABELS)
     return prepare_type_statistics(result, notes, NoteType, NOTE_LABELS)
 
 
@@ -414,6 +399,7 @@ def get_tag_statistics(data):
     tags = data.get("tag")
     return prepare_statistics(
         [
+            "total",
             "male",
             "female",
             "unknown",
@@ -428,7 +414,6 @@ def get_tag_statistics(data):
         ],
         tags,
         TAG_LABELS,
-        total_key="total",
     )
 
 
@@ -439,6 +424,7 @@ def get_bookmark_statistics(data):
     bookmarks = data.get("bookmark")
     return prepare_statistics(
         [
+            "total",
             "person",
             "family",
             "event",
@@ -451,7 +437,6 @@ def get_bookmark_statistics(data):
         ],
         bookmarks,
         BOOKMARK_LABELS,
-        total_key="total",
     )
 
 
@@ -494,22 +479,21 @@ def get_private_statistics(data):
     )
 
 
-def prepare_statistics(keys, data, labels, total_key=None):
+def prepare_statistics(keys, data, labels):
     """
     Prepare statistics data for rendering.
     """
-    if total_key:
-        total = data.get(total_key) or 0
-        result = [(labels["total"], total, None)]
-    else:
-        total = 0
-        result = []
+    result = []
     for key in keys:
-        item = data.get(key) or 0
-        if total > 0 and str(item).isnumeric() and "size" not in key:
-            result.append((labels[key], item, item * 100 / total))
+        (count, total) = data.get(key) or (0, None)
+        if count == 0:
+            result.append((labels[key], _("None"), None))
+        elif total and str(count).isnumeric() and "size" not in key:
+            result.append(
+                (labels[key], "%s of %s" % (count, total), count * 100 / total)
+            )
         else:
-            result.append((labels[key], item, None))
+            result.append((labels[key], count, None))
     return result
 
 
