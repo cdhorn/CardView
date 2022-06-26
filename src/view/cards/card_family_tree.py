@@ -196,7 +196,7 @@ class FamilyTreeCard(GenericCard):
         Find database description.
         """
         for note in self.grstate.dbstate.db.iter_notes():
-            if str(note.get_type()) == "Database Description":
+            if str(note.get_type()) == "Tree Description":
                 return note
         return None
 
@@ -223,7 +223,7 @@ class FamilyTreeCard(GenericCard):
         note = self.get_database_description_note()
         if not note:
             note = Note()
-            note_type = NoteType("Database Description")
+            note_type = NoteType("Tree Description")
             note.set_type(note_type)
         try:
             EditNote(self.grstate.dbstate, self.grstate.uistate, [], note)
