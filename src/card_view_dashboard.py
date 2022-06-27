@@ -22,8 +22,14 @@
 #
 
 """
-TagCardView
+DashboardCardView
 """
+
+# -------------------------------------------------------------------------
+#
+# Python Modules
+#
+# -------------------------------------------------------------------------
 import time
 
 # -------------------------------------------------------------------------
@@ -32,8 +38,6 @@ import time
 #
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gen.lib import Tag
-from gramps.gui.uimanager import ActionGroup
 
 # -------------------------------------------------------------------------
 #
@@ -41,21 +45,8 @@ from gramps.gui.uimanager import ActionGroup
 #
 # -------------------------------------------------------------------------
 from card_view import CardView
-from card_view_const import (
-    MENU_LOCALEXPORT,
-    MENU_ADDEDITBOOK,
-    MENU_COMMONGO,
-    MENU_COMMONEDIT,
-    MENU_OTHEREDIT,
-    TOOLBAR_BARCOMMONEDIT,
-    TOOLBAR_COMMONNAVIGATION,
-    TOOLBAR_MOREBUTTONS,
-    ADD_TOOLTIPS,
-    EDIT_TOOLTIPS,
-    DELETE_TOOLTIPS,
-)
 from view.common.common_classes import GrampsContext
-from view.actions import action_handler
+from view.services.service_statistics import StatisticsService
 from view.views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -63,23 +54,24 @@ _ = glocale.translation.sgettext
 
 # -------------------------------------------------------------------------
 #
-# TagCardView Class
+# DashboardCardView Class
 #
 # -------------------------------------------------------------------------
 class DashboardCardView(CardView):
     """
-    Card view for a Tag
+    Card view for the Dashboard
     """
 
     def __init__(self, pdata, dbstate, uistate, nav_group=1):
         CardView.__init__(
             self,
-            _("Tag"),
+            _("Dashboard"),
             pdata,
             dbstate,
             uistate,
             nav_group,
         )
+        self.statistics_service = StatisticsService(self.grstate)
 
     def navigation_type(self):
         """
@@ -98,7 +90,52 @@ class DashboardCardView(CardView):
         self.bookmarks.undisplay()
 
     additional_ui = [
-        TOOLBAR_MOREBUTTONS,
+        """
+    <placeholder id='MoreButtons'>
+    <child groups='RO'>
+      <object class="GtkToolButton">
+        <property name="icon-name">help-browser</property>
+        <property name="action-name">win.ViewHelp</property>
+        <property name="tooltip_text" translatable="yes">"""
+        + """Card View help</property>
+        <property name="label" translatable="yes">Help</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
+    <child groups='RO'>
+      <object class="GtkSeparatorToolItem" id="sep2"/>
+    </child>
+    <child groups='RO'>
+      <object class="GtkToolButton">
+        <property name="icon-name">view-refresh</property>
+        <property name="action-name">win.ViewRefresh</property>
+        <property name="tooltip_text" translatable="yes">"""
+        + """Refresh statistics</property>
+        <property name="label" translatable="yes">Refresh</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
+    <child groups='RO'>
+      <object class="GtkToolButton">
+        <property name="icon-name">edit-copy</property>
+        <property name="action-name">win.OpenPinnedView</property>
+        <property name="tooltip_text" translatable="yes">"""
+        + """Pin copy of current view in new window</property>
+        <property name="label" translatable="yes">Pin</property>
+        <property name="use-underline">True</property>
+      </object>
+      <packing>
+        <property name="homogeneous">False</property>
+      </packing>
+    </child>
+    </placeholder>
+"""
     ]
 
     def define_actions(self):
@@ -106,6 +143,13 @@ class DashboardCardView(CardView):
         Define page specific actions.
         """
         CardView.define_actions(self)
+        self._add_action("ViewRefresh", self.refresh_statistics)
+
+    def refresh_statistics(self, *_dummy_args):
+        """
+        Rebuild statistics.
+        """
+        self.statistics_service.recalculate_data()
 
     def build_tree(self, *_dummy_args):
         """
