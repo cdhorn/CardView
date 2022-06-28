@@ -695,6 +695,7 @@ def examine_media(args, queue=None):
                 if media.path not in not_found:
                     not_found.append(media.path)
         analyze_change(last_changed, media.handle, media.change, 20)
+    close_readonly_database(db)
 
     if not int(size_bytes / 1024):
         size_string = "%s bytes" % size_bytes

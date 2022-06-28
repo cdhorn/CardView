@@ -34,7 +34,7 @@ import sys
 import time
 import pickle
 from subprocess import Popen, PIPE
-from threading import Thread, Lock
+from threading import Lock, Thread
 
 # -------------------------------------------------------------------------
 #
