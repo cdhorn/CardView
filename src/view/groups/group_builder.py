@@ -225,7 +225,14 @@ def get_parents_group(grstate, person, args):
         if "raw" not in args or not args["raw"]:
             groptions = GrampsOptions("group.parent")
             groptions.set_context("parent")
-            title = _("Parents and Siblings")
+            if len(person.parent_family_list) > 1:
+                title = "%s (%s %s)" % (
+                    _("Parents and Siblings"),
+                    len(person.parent_family_list),
+                    _("Families"),
+                )
+            else:
+                title = _("Parents and Siblings")
             parents = group_wrapper(grstate, elements, (title, title, title))
         else:
             parents = elements
@@ -256,7 +263,14 @@ def get_spouses_group(grstate, person, args):
             if "raw" not in args or not args["raw"]:
                 groptions = GrampsOptions("group.spouse")
                 groptions.set_context("spouse")
-                title = _("Spouses and Children")
+                if len(person.family_list) > 1:
+                    title = "%s (%s %s)" % (
+                        _("Spouses and Children"),
+                        len(person.family_list),
+                        _("Families"),
+                    )
+                else:
+                    title = _("Spouse and Children")
                 spouses = group_wrapper(
                     grstate, elements, (title, title, title)
                 )
