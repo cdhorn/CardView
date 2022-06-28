@@ -164,7 +164,7 @@ class ConfigReset(Gtk.ButtonBox):
         dialog.destroy()
         if response == Gtk.ResponseType.OK:
             if all_button.get_active():
-                self.space = "options."
+                self.space = "all"
             return True
         return False
 
@@ -172,37 +172,43 @@ class ConfigReset(Gtk.ButtonBox):
         """
         Reset any options that changed in a given space.
         """
-        if self.confirm_reset():
-            reset_option = False
-            options = self.get_option_space()
-            for option in options:
-                current_value = self.config.get(option)
-                if self.config.has_default(option):
-                    default_value = self.config.get_default(option)
-                    if current_value != default_value:
-                        self.config.set(option, default_value)
-                        reset_option = True
-            if reset_option:
-                self.dialog.done(None, None)
+        if not self.confirm_reset():
+            return
+        if self.space == "all":
+            self.config.reset()
+            self.config.save()
+            self.dialog.done(None, None)
+            return
+        reset_option = False
+        options = self.get_option_space()
+        for option in options:
+            current_value = self.config.get(option)
+            if self.config.has_default(option):
+                default_value = self.config.get_default(option)
+                if current_value != default_value:
+                    self.config.set(option, default_value)
+                    reset_option = True
+        if reset_option:
+            self.config.save()
+            self.dialog.done(None, None)
+        return
 
     def get_option_space(self):
         """
         Get all the options available in a given space.
         """
-        if "layout" in self.space:
-            settings = self.config.get_section_settings("layout")
-            prefix = self.space.replace("layout.", "")
+        if "." in self.space:
+            section = self.space.split(".")[0]
+            prefix = self.space.replace("%s." % section, "")
         else:
-            settings = self.config.get_section_settings("options")
-            prefix = self.space.replace("options.", "")
+            section = self.space
+            prefix = ""
+        settings = self.config.get_section_settings(section)
         prefix_length = len(prefix)
         options = []
         for setting in settings:
             if setting[:prefix_length] == prefix:
-                if "layout" in self.space:
-                    options.append("".join(("layout.", setting)))
-                else:
-                    options.append("".join(("options.", setting)))
+                options.append("%s.%s" % (section, setting))
         return options
 
 
