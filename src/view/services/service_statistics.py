@@ -33,7 +33,7 @@ import os
 import sys
 import time
 import pickle
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from threading import Event, Lock, Thread
 
 # -------------------------------------------------------------------------
@@ -139,10 +139,19 @@ class StatisticsService(Callback):
         done = False
         if self.concurrent and self.worker:
             try:
-                pipe = Popen(
+                process = Popen(
                     ["python", "-u", self.worker, "-t", dbname], stdout=PIPE
                 )
-                output, dummy_errors = pipe.communicate()
+                finished = False
+                while not finished:
+                    try:
+                        output, dummy_errors = process.communicate(timeout=0.1)
+                        finished = True
+                    except TimeoutExpired:
+                        if event.is_set():
+                            process.terminate()
+                            output, dummy_errors = process.communicate()
+                            finished = True
                 if not event.is_set():
                     with self.lock:
                         self.data = pickle.loads(output)
@@ -154,7 +163,7 @@ class StatisticsService(Callback):
                 self.worker = None
         if not done:
             args = {"tree_name": dbname, "serial": True}
-            dummy_total, data = gather_statistics(args)
+            dummy_total, data = gather_statistics(args, event=event)
             if not event.is_set():
                 with self.lock:
                     self.data = data

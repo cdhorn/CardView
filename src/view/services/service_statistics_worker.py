@@ -55,7 +55,7 @@ from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.file import media_path_full
 
 
-def examine_people(args, queue=None):
+def examine_people(args, queue=None, thread_event=None):
     """
     Parse and analyze people.
     """
@@ -101,6 +101,9 @@ def examine_people(args, queue=None):
     total_people = db.get_number_of_people()
 
     for person in db.iter_people():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(person.media_list)
         if length > 0:
             media += 1
@@ -347,7 +350,7 @@ def examine_people(args, queue=None):
     return post_processing(args, "People", total_people, queue, payload)
 
 
-def examine_families(args, queue=None):
+def examine_families(args, queue=None, thread_event=None):
     """
     Parse and analyze families.
     """
@@ -368,6 +371,9 @@ def examine_families(args, queue=None):
     total_surnames = len(set(db.surname_list))
 
     for family in db.iter_families():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(family.media_list)
         if length > 0:
             media += 1
@@ -500,7 +506,7 @@ def examine_families(args, queue=None):
     return post_processing(args, "Families", total_families, queue, payload)
 
 
-def examine_events(args, queue=None):
+def examine_events(args, queue=None, thread_event=None):
     """
     Parse and analyze events.
     """
@@ -516,6 +522,9 @@ def examine_events(args, queue=None):
     total_events = db.get_number_of_events()
 
     for event in db.iter_events():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(event.media_list)
         if length > 0:
             media += 1
@@ -591,7 +600,7 @@ def examine_events(args, queue=None):
     return post_processing(args, "Events", total_events, queue, payload)
 
 
-def examine_places(args, queue=None):
+def examine_places(args, queue=None, thread_event=None):
     """
     Parse and analyze places.
     """
@@ -605,6 +614,9 @@ def examine_places(args, queue=None):
     total_places = db.get_number_of_places()
 
     for place in db.iter_places():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(place.media_list)
         if length > 0:
             media += 1
@@ -662,7 +674,7 @@ def examine_places(args, queue=None):
     return post_processing(args, "Places", total_places, queue, payload)
 
 
-def examine_media(args, queue=None):
+def examine_media(args, queue=None, thread_event=None):
     """
     Parse and analyze media objects.
     """
@@ -675,6 +687,9 @@ def examine_media(args, queue=None):
     total_media = db.get_number_of_media()
 
     for media in db.iter_media():
+        if thread_event and thread_event.is_set():
+            break
+
         if not media.desc:
             no_desc += 1
         if not get_date(media):
@@ -729,7 +744,7 @@ def examine_media(args, queue=None):
     return post_processing(args, "Media", total_media, queue, payload)
 
 
-def examine_sources(args, queue=None):
+def examine_sources(args, queue=None, thread_event=None):
     """
     Parse and analyze sources.
     """
@@ -743,6 +758,9 @@ def examine_sources(args, queue=None):
     total_sources = db.get_number_of_sources()
 
     for source in db.iter_sources():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(source.media_list)
         if length > 0:
             media += 1
@@ -804,7 +822,7 @@ def examine_sources(args, queue=None):
     return post_processing(args, "Sources", total_sources, queue, payload)
 
 
-def examine_citations(args, queue=None):
+def examine_citations(args, queue=None, thread_event=None):
     """
     Parse and analyze citation objects.
     """
@@ -817,6 +835,9 @@ def examine_citations(args, queue=None):
     total_citations = db.get_number_of_citations()
 
     for citation in db.iter_citations():
+        if thread_event and thread_event.is_set():
+            break
+
         length = len(citation.media_list)
         if length > 0:
             media += 1
@@ -874,7 +895,7 @@ def examine_citations(args, queue=None):
     return post_processing(args, "Citations", total_citations, queue, payload)
 
 
-def examine_repositories(args, queue=None):
+def examine_repositories(args, queue=None, thread_event=None):
     """
     Parse and analyze repositories.
     """
@@ -886,6 +907,9 @@ def examine_repositories(args, queue=None):
     total_repositories = db.get_number_of_repositories()
 
     for repository in db.iter_repositories():
+        if thread_event and thread_event.is_set():
+            break
+
         repository_type = repository.get_type().serialize()
         if repository_type not in repository_types:
             repository_types[repository_type] = 0
@@ -925,7 +949,7 @@ def examine_repositories(args, queue=None):
     )
 
 
-def examine_notes(args, queue=None):
+def examine_notes(args, queue=None, thread_event=None):
     """
     Parse and analyze notes.
     """
@@ -937,6 +961,9 @@ def examine_notes(args, queue=None):
     total_notes = db.get_number_of_notes()
 
     for note in db.iter_notes():
+        if thread_event and thread_event.is_set():
+            break
+
         note_type = note.get_type().serialize()
         if note_type not in note_types:
             note_types[note_type] = 0
@@ -971,7 +998,7 @@ def examine_notes(args, queue=None):
     return post_processing(args, "Notes", total_notes, queue, payload)
 
 
-def examine_tags(args, queue=None):
+def examine_tags(args, queue=None, thread_event=None):
     """
     Parse and analyze tags.
     """
@@ -981,6 +1008,8 @@ def examine_tags(args, queue=None):
     total_tags = db.get_number_of_tags()
 
     for tag in db.iter_tags():
+        if thread_event and thread_event.is_set():
+            break
         analyze_change(last_changed, tag.handle, tag.change, 20)
     close_readonly_database(db)
 
@@ -1158,18 +1187,20 @@ TASK_HANDLERS = {
 }
 
 
-def gather_serial_statistics(args, obj_list):
+def gather_serial_statistics(args, obj_list, event=None):
     """
     Gather statistics using non-concurrent serial mode.
     """
     facts = examine_bookmarks(args)
     for obj_type in obj_list:
-        results = TASK_HANDLERS[obj_type](args)
+        results = TASK_HANDLERS[obj_type](args, thread_event=event)
+        if event.is_set():
+            break
         fold(facts, results)
     return facts
 
 
-def gather_concurrent_statistics(args, obj_list):
+def gather_concurrent_statistics(args, obj_list, event=None):
     """
     Gather statistics using multiprocessing mode.
     """
@@ -1178,7 +1209,8 @@ def gather_concurrent_statistics(args, obj_list):
     for obj_type in obj_list:
         queues[obj_type] = Queue()
         workers[obj_type] = Process(
-            target=TASK_HANDLERS[obj_type], args=(args, queues[obj_type])
+            target=TASK_HANDLERS[obj_type],
+            args=(args, queues[obj_type], event),
         )
         workers[obj_type].start()
 
@@ -1191,7 +1223,7 @@ def gather_concurrent_statistics(args, obj_list):
     return facts
 
 
-def gather_statistics(args):
+def gather_statistics(args, event=None):
     """
     Gather tree statistics.
     """
@@ -1206,9 +1238,9 @@ def gather_statistics(args):
         sys.exit(1)
 
     if args.get("serial"):
-        facts = gather_serial_statistics(args, obj_list)
+        facts = gather_serial_statistics(args, obj_list, event=event)
     else:
-        facts = gather_concurrent_statistics(args, obj_list)
+        facts = gather_concurrent_statistics(args, obj_list, event=event)
     return total, facts
 
 
