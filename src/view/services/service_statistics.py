@@ -34,7 +34,7 @@ import sys
 import time
 import pickle
 from subprocess import Popen, PIPE
-from threading import Lock, Thread
+from threading import Event, Lock, Thread
 
 # -------------------------------------------------------------------------
 #
@@ -88,7 +88,7 @@ class StatisticsService(Callback):
             Callback.__init__(self)
             self.dbstate = grstate.dbstate
             self.threshold = grstate.config.get("general.concurrent-threshold")
-            self.thread = None
+            self.threads = []
             self.lock = Lock()
             self.data = {}
             self.worker = find_statistics_service_worker()
@@ -101,21 +101,40 @@ class StatisticsService(Callback):
         Determine based on size what method to try to use.
         """
         if self.dbstate.is_open():
-            total, obj_list = get_object_list(self.dbstate.db.get_dbname())
+            total, dummy_obj_list = get_object_list(
+                self.dbstate.db.get_dbname()
+            )
             if total > self.threshold:
                 return True
         return False
 
-    def emit_statistics_updated(self):
+    def emit_statistics_updated(self, thread_dbname):
         """
         Emit statistics updated signal.
         """
-        self.thread.join()
-        self.thread = None
-        self.emit("statistics-updated", (self.data,))
+        for (index, (dbname, dummy_thread, dummy_event)) in enumerate(
+            self.threads
+        ):
+            if dbname == thread_dbname:
+                if self.dbstate.db.get_dbname() == thread_dbname:
+                    self.emit("statistics-updated", (self.data,))
+                del self.threads[index]
         return False
 
-    def collect_statistics(self, dbname):
+    def clean_stale_thread(self, thread_dbname):
+        """
+        Cleanup aborted thread entry.
+        """
+        for (index, (dbname, dummy_thread, dummy_event)) in enumerate(
+            self.threads
+        ):
+            if dbname == thread_dbname:
+                del self.threads[index]
+
+    def collect_statistics(self, event, dbname):
+        """
+        Thread to handle the statistics collection work.
+        """
         s = time.time()
         done = False
         if self.concurrent and self.worker:
@@ -123,9 +142,10 @@ class StatisticsService(Callback):
                 pipe = Popen(
                     ["python", "-u", self.worker, "-t", dbname], stdout=PIPE
                 )
-                output, errors = pipe.communicate()
-                with self.lock:
-                    self.data = pickle.loads(output)
+                output, dummy_errors = pipe.communicate()
+                if not event.is_set():
+                    with self.lock:
+                        self.data = pickle.loads(output)
                 print(
                     "stats collected: %s" % (time.time() - s), file=sys.stderr
                 )
@@ -134,39 +154,60 @@ class StatisticsService(Callback):
                 self.worker = None
         if not done:
             args = {"tree_name": dbname, "serial": True}
-            total, data = gather_statistics(args)
-            with self.lock:
-                self.data = data
+            dummy_total, data = gather_statistics(args)
+            if not event.is_set():
+                with self.lock:
+                    self.data = data
             print("stats collected: %s" % (time.time() - s), file=sys.stderr)
-        GLib.idle_add(self.emit_statistics_updated)
+        if not event.is_set():
+            GLib.idle_add(self.emit_statistics_updated, dbname)
+        else:
+            GLib.idle_add(self.clean_stale_thread, dbname)
 
     def spawn_collect_statistics(self):
         """
         Spawn statistics collection thread.
         """
-        if self.thread is None:
-            dbname = self.dbstate.db.get_dbname()
-            self.thread = Thread(
-                target=self.collect_statistics, args=(dbname,), daemon=True
-            )
-            self.thread.start()
+        current_dbname = self.dbstate.db.get_dbname()
+        if current_dbname:
+            need_collect = True
+            for (dbname, dummy_thread, event) in self.threads:
+                if dbname == current_dbname:
+                    need_collect = False
+                else:
+                    event.set()
+            if need_collect:
+                self.concurrent = self.determine_collection_method()
+                with self.lock:
+                    self.data.clear()
+                    event = Event()
+                    thread = Thread(
+                        target=self.collect_statistics,
+                        args=(
+                            event,
+                            current_dbname,
+                        ),
+                    )
+                    self.threads.append((current_dbname, thread, event))
+                    thread.start()
+        else:
+            for (dummy_dbname, dummy_thread, event) in self.threads:
+                event.set()
+            with self.lock:
+                self.data.clear()
 
-    def database_changed(self, *args):
+    def database_changed(self, *_dummy_args):
         """
         Rescan the database.
         """
-        self.concurrent = self.determine_collection_method()
-        if self.dbstate.is_open():
-            self.spawn_collect_statistics()
-        else:
-            self.data.clear()
+        self.spawn_collect_statistics()
 
     def request_data(self):
         """
         Return data if available otherwise initiate statistics collection.
         """
-        if self.data != {}:
-            with self.lock:
+        with self.lock:
+            if self.data != {}:
                 return self.data
         self.spawn_collect_statistics()
         return None
@@ -191,7 +232,7 @@ def find_statistics_service_worker():
         "service_statistics_worker.py",
     )
     if not os.path.isfile(filepath):
-        for root, dirs, files in os.walk(USER_PLUGINS):
+        for root, dummy_dirs, files in os.walk(USER_PLUGINS):
             if "service_statistics_worker.py" in files:
                 filepath = os.path.join(root, "service_statistics_worker.py")
                 break
