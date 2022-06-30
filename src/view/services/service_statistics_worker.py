@@ -50,7 +50,7 @@ from gramps.gen.db.utils import (
     make_database,
     write_lock_file,
 )
-from gramps.gen.lib import Citation, Person, EventType
+from gramps.gen.lib import Citation, Person, EventType, EventRoleType
 from gramps.gen.utils.alive import probably_alive
 from gramps.gen.utils.file import media_path_full
 
@@ -141,40 +141,96 @@ def examine_people(args, queue=None, thread_event=None):
         if not person.citation_list:
             gender["uncited"] += 1
 
+        living = True
         birth_ref = person.get_birth_ref()
-        if birth_ref:
-            birth = db.get_event_from_handle(birth_ref.ref)
-            if not get_date(birth):
-                no_birth_date += 1
-            if not birth.place:
-                no_birth_place += 1
-            if not birth.citation_list:
-                births_uncited += 1
-            if birth.private:
-                births_private += 1
-        else:
-            no_birth += 1
-
-        living = False
         death_ref = person.get_death_ref()
-        if death_ref:
-            death = db.get_event_from_handle(death_ref.ref)
-            if not get_date(death):
-                no_death_date += 1
-            if not death.place:
-                no_death_place += 1
-            if not death.citation_list:
-                deaths_uncited += 1
-            if death.private:
-                deaths_private += 1
-        else:
-            if probably_alive(person, db):
-                living = True
+        has_birth, has_baptism = False, False
+        has_death, has_burial = False, False
+
+        if person.event_ref_list:
+            participant += 1
+            for event_ref in person.event_ref_list:
+                participant_refs += 1
+                role = event_ref.get_role()
+                role_key = role.serialize()
+                if role_key not in participant_roles:
+                    participant_roles[role_key] = 0
+                participant_roles[role_key] += 1
+                if event_ref.private:
+                    participant_private += 1
+
+                if role == EventRoleType.PRIMARY:
+                    event = db.get_event_from_handle(event_ref.ref)
+                    if birth_ref and event.handle == birth_ref.ref:
+                        has_birth = True
+                        birth_ref = None
+                        if not get_date(event):
+                            no_birth_date += 1
+                        if not event.place:
+                            no_birth_place += 1
+                        if not event.citation_list:
+                            births_uncited += 1
+                        if event.private:
+                            births_private += 1
+                        continue
+                    if death_ref and event.handle == death_ref.ref:
+                        has_death = True
+                        death_ref = None
+                        if not get_date(event):
+                            no_death_date += 1
+                        if not event.place:
+                            no_death_place += 1
+                        if not event.citation_list:
+                            deaths_uncited += 1
+                        if event.private:
+                            deaths_private += 1
+                        living = False
+                        continue
+                    event_type = event.get_type()
+                    if event_type in [EventType.BAPTISM, EventType.CHRISTEN]:
+                        has_baptism = True
+                        if not get_date(event):
+                            no_baptism_date += 1
+                        if not event.place:
+                            no_baptism_place += 1
+                        if event.private:
+                            baptisms_private += 1
+                        continue
+                    if event_type in [EventType.BURIAL, EventType.CREMATION]:
+                        has_burial = True
+                        if not get_date(event):
+                            no_burial_date += 1
+                        if not event.place:
+                            no_burial_place += 1
+                        if event.private:
+                            burials_private += 1
+                        living = False
+                        continue
+                    if event_type in [
+                        EventType.CAUSE_DEATH,
+                        EventType.PROBATE,
+                    ]:
+                        living = False
+
+        if not has_birth:
+            no_birth += 1
+        if not has_baptism:
+            no_baptism += 1
+
+        if living:
+            if not probably_alive(person, db):
+                living = False
+            else:
+                total_living += 1
                 gender["living"] += 1
                 if not person.private:
                     gender["living_not_private"] += 1
-            else:
+
+        if not living:
+            if not has_death:
                 no_death += 1
+            if not has_burial:
+                no_burial += 1
 
         if person.person_ref_list:
             association += 1
@@ -187,45 +243,6 @@ def examine_people(args, queue=None, thread_event=None):
                 if person_ref.rel not in association_types:
                     association_types[person_ref.rel] = 0
                 association_types[person_ref.rel] += 1
-
-        has_baptism, has_burial = False, False
-        if person.event_ref_list:
-            participant += 1
-            for event_ref in person.event_ref_list:
-                participant_refs += 1
-                role = event_ref.get_role().serialize()
-                if role not in participant_roles:
-                    participant_roles[role] = 0
-                participant_roles[role] += 1
-                if event_ref.private:
-                    participant_private += 1
-
-                event = db.get_event_from_handle(event_ref.ref)
-                event_type = event.get_type()
-                if event_type in [EventType.BAPTISM, EventType.CHRISTEN]:
-                    has_baptism = True
-                    if not get_date(event):
-                        no_baptism_date += 1
-                    if not event.place:
-                        no_baptism_place += 1
-                    if event.private:
-                        baptisms_private += 1
-
-                if not living:
-                    if event_type in [EventType.BURIAL, EventType.CREMATION]:
-                        has_burial = True
-                        if not get_date(event):
-                            no_burial_date += 1
-                        if not event.place:
-                            no_burial_place += 1
-                        if event.private:
-                            burials_private += 1
-        if not has_baptism:
-            no_baptism += 1
-        if living:
-            total_living += 1
-        elif not has_burial:
-            no_burial += 1
 
         if person.lds_ord_list:
             ldsord_people += 1
