@@ -873,13 +873,7 @@ def examine_citations(args, queue=None, thread_event=None):
             "no_source": (no_source, total_citations),
             "no_date": (no_date, total_citations),
             "no_page": (no_page, total_citations),
-            "confidence": {
-                "very_low": (very_low, total_citations),
-                "low": (low, total_citations),
-                "normal": (normal, total_citations),
-                "high": (high, total_citations),
-                "very_high": (very_high, total_citations),
-            },
+            "confidence": {},
         },
         "privacy": {
             "citation": (private, total_citations),
@@ -892,6 +886,16 @@ def examine_citations(args, queue=None, thread_event=None):
             "citation_refs": (media_refs, None),
         },
     }
+    if total_citations:
+        payload["citation"]["confidence"].update(
+            {
+                "very_low": (very_low, total_citations),
+                "low": (low, total_citations),
+                "normal": (normal, total_citations),
+                "high": (high, total_citations),
+                "very_high": (very_high, total_citations),
+            }
+        )
     return post_processing(args, "Citations", total_citations, queue, payload)
 
 
