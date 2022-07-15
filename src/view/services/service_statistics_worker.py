@@ -99,6 +99,7 @@ def examine_people(args, queue=None, thread_event=None):
 
     db = open_readonly_database(args.get("tree_name"))
     total_people = db.get_number_of_people()
+    all_events = args.get("all_events")
 
     for person in db.iter_people():
         if thread_event and thread_event.is_set():
@@ -149,68 +150,99 @@ def examine_people(args, queue=None, thread_event=None):
 
         if person.event_ref_list:
             participant += 1
-            for event_ref in person.event_ref_list:
-                participant_refs += 1
-                role = event_ref.get_role()
-                role_key = role.serialize()
-                if role_key not in participant_roles:
-                    participant_roles[role_key] = 0
-                participant_roles[role_key] += 1
-                if event_ref.private:
-                    participant_private += 1
+            if all_events:
+                for event_ref in person.event_ref_list:
+                    participant_refs += 1
+                    role = event_ref.get_role()
+                    role_key = role.serialize()
+                    if role_key not in participant_roles:
+                        participant_roles[role_key] = 0
+                    participant_roles[role_key] += 1
+                    if event_ref.private:
+                        participant_private += 1
 
-                if role == EventRoleType.PRIMARY:
-                    event = db.get_event_from_handle(event_ref.ref)
-                    if birth_ref and event.handle == birth_ref.ref:
-                        has_birth = True
-                        birth_ref = None
-                        if not get_date(event):
-                            no_birth_date += 1
-                        if not event.place:
-                            no_birth_place += 1
-                        if not event.citation_list:
-                            births_uncited += 1
-                        if event.private:
-                            births_private += 1
-                        continue
-                    if death_ref and event.handle == death_ref.ref:
-                        has_death = True
-                        death_ref = None
-                        if not get_date(event):
-                            no_death_date += 1
-                        if not event.place:
-                            no_death_place += 1
-                        if not event.citation_list:
-                            deaths_uncited += 1
-                        if event.private:
-                            deaths_private += 1
-                        living = False
-                        continue
-                    event_type = event.get_type()
-                    if event_type in [EventType.BAPTISM, EventType.CHRISTEN]:
-                        has_baptism = True
-                        if not get_date(event):
-                            no_baptism_date += 1
-                        if not event.place:
-                            no_baptism_place += 1
-                        if event.private:
-                            baptisms_private += 1
-                        continue
-                    if event_type in [EventType.BURIAL, EventType.CREMATION]:
-                        has_burial = True
-                        if not get_date(event):
-                            no_burial_date += 1
-                        if not event.place:
-                            no_burial_place += 1
-                        if event.private:
-                            burials_private += 1
-                        living = False
-                        continue
-                    if event_type in [
-                        EventType.CAUSE_DEATH,
-                        EventType.PROBATE,
-                    ]:
-                        living = False
+                    if role == EventRoleType.PRIMARY:
+                        event = db.get_event_from_handle(event_ref.ref)
+                        if birth_ref and event.handle == birth_ref.ref:
+                            has_birth = True
+                            birth_ref = None
+                            if not get_date(event):
+                                no_birth_date += 1
+                            if not event.place:
+                                no_birth_place += 1
+                            if not event.citation_list:
+                                births_uncited += 1
+                            if event.private:
+                                births_private += 1
+                            continue
+                        if death_ref and event.handle == death_ref.ref:
+                            has_death = True
+                            death_ref = None
+                            if not get_date(event):
+                                no_death_date += 1
+                            if not event.place:
+                                no_death_place += 1
+                            if not event.citation_list:
+                                deaths_uncited += 1
+                            if event.private:
+                                deaths_private += 1
+                            living = False
+                            continue
+                        event_type = event.get_type()
+                        if event_type in [
+                            EventType.BAPTISM,
+                            EventType.CHRISTEN,
+                        ]:
+                            has_baptism = True
+                            if not get_date(event):
+                                no_baptism_date += 1
+                            if not event.place:
+                                no_baptism_place += 1
+                            if event.private:
+                                baptisms_private += 1
+                            continue
+                        if event_type in [
+                            EventType.BURIAL,
+                            EventType.CREMATION,
+                        ]:
+                            has_burial = True
+                            if not get_date(event):
+                                no_burial_date += 1
+                            if not event.place:
+                                no_burial_place += 1
+                            if event.private:
+                                burials_private += 1
+                            living = False
+                            continue
+                        if event_type in [
+                            EventType.CAUSE_DEATH,
+                            EventType.PROBATE,
+                        ]:
+                            living = False
+            else:
+                if birth_ref:
+                    event = db.get_event_from_handle(birth_ref.ref)
+                    has_birth = True
+                    if not get_date(event):
+                        no_birth_date += 1
+                    if not event.place:
+                        no_birth_place += 1
+                    if not event.citation_list:
+                        births_uncited += 1
+                    if event.private:
+                        births_private += 1
+                if death_ref:
+                    event = db.get_event_from_handle(death_ref.ref)
+                    has_death = True
+                    if not get_date(event):
+                        no_death_date += 1
+                    if not event.place:
+                        no_death_place += 1
+                    if not event.citation_list:
+                        deaths_uncited += 1
+                    if event.private:
+                        deaths_private += 1
+                    living = False
 
         if not has_birth:
             no_birth += 1
@@ -1271,6 +1303,14 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "-a",
+        "--all",
+        dest="all_events",
+        default=False,
+        action="store_true",
+        help="Examine all person events",
+    )
+    parser.add_argument(
         "-t",
         "--tree",
         dest="tree_name",
@@ -1304,6 +1344,7 @@ def main():
     parsed_args = parser.parse_args()
 
     args = {
+        "all_events": parsed_args.all_events,
         "tree_name": parsed_args.tree_name,
         "time": parsed_args.time,
         "serial": parsed_args.serial,

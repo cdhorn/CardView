@@ -88,6 +88,9 @@ class StatisticsService(Callback):
             Callback.__init__(self)
             self.dbstate = grstate.dbstate
             self.threshold = grstate.config.get("general.concurrent-threshold")
+            self.all_events = grstate.config.get(
+                "general.summarize-all-events"
+            )
             self.threads = []
             self.lock = Lock()
             self.data = {}
@@ -138,10 +141,11 @@ class StatisticsService(Callback):
         s = time.time()
         done = False
         if self.concurrent and self.worker:
+            args = ["python", "-u", self.worker, "-t", dbname]
+            if self.all_events:
+                args.append("-a")
             try:
-                process = Popen(
-                    ["python", "-u", self.worker, "-t", dbname], stdout=PIPE
-                )
+                process = Popen(args, stdout=PIPE)
                 finished = False
                 while not finished:
                     try:
@@ -162,7 +166,11 @@ class StatisticsService(Callback):
             except EOFError:
                 self.worker = None
         if not done:
-            args = {"tree_name": dbname, "serial": True}
+            args = {
+                "all_events": self.all_events,
+                "tree_name": dbname,
+                "serial": True,
+            }
             dummy_total, data = gather_statistics(args, event=event)
             if not event.is_set():
                 with self.lock:

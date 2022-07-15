@@ -112,6 +112,35 @@ def get_person_statistics(data):
     )
 
 
+def get_person_statistics_short(data):
+    """
+    Return person statistics for rendering.
+    """
+    people = data.get("person")
+    return prepare_statistics(
+        [
+            "total",
+            "incomplete_names",
+            "alternate_names",
+            "no_family_connection",
+            "male_total",
+            "male_living",
+            "female_total",
+            "female_living",
+            "unknown_total",
+            "unknown_living",
+            "no_birth",
+            "no_birth_date",
+            "no_birth_place",
+            "no_death",
+            "no_death_date",
+            "no_death_place",
+        ],
+        people,
+        PERSON_LABELS,
+    )
+
+
 def get_family_statistics(data):
     """
     Return family statistics for rendering.
@@ -538,6 +567,7 @@ def prepare_type_statistics(
 
 PREPARE_GROUP = {
     "person": get_person_statistics,
+    "person-short": get_person_statistics_short,
     "family": get_family_statistics,
     "child": get_child_statistics,
     "association": get_association_statistics,
@@ -574,6 +604,10 @@ class StatisticsCardGroup(CardGroupList):
             self, grstate, groptions, None, enable_drop=False
         )
         self.key = group.split("-")[1]
+        if self.key == "person" and not grstate.config.get(
+            "general.summarize-all-events"
+        ):
+            self.key = "person-short"
         self.card = TextCard(grstate, groptions)
         self.add_card(self.card)
 
