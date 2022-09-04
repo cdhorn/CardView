@@ -29,7 +29,7 @@ GrampsObjectView factory and builder functions
 # -------------------------------------------------------------------------
 from ..common.common_exceptions import FactoryException
 from .view_attribute import AttributeObjectView
-from .view_dashboard import DashboardObjectView
+from .view_changes import ChangesObjectView
 from .view_citation import CitationObjectView
 from .view_event import EventObjectView
 from .view_family import FamilyObjectView
@@ -37,10 +37,11 @@ from .view_generic import GenericObjectView
 from .view_media import MediaObjectView
 from .view_person import PersonObjectView
 from .view_source import SourceObjectView
+from .view_statistics import StatisticsObjectView
 from .view_tag import TagObjectView
 
 
-def view_factory(grcontext):
+def view_factory(grcontext, hint=None):
     """
     A factory to return an object viewer based on navigation context.
     """
@@ -76,19 +77,21 @@ def view_factory(grcontext):
         cls = SourceObjectView
     elif page_type == "Tag":
         cls = TagObjectView
-    elif page_type == "Dashboard":
-        cls = DashboardObjectView
+    elif hint == "Statistics":
+        cls = StatisticsObjectView
+    elif hint == "Changes":
+        cls = ChangesObjectView
     else:
         raise FactoryException(
             "Attempt to create unknown ObjectView class: "
-            "classname = %s" % str(page_type)
+            "classname = %s | %s" % (str(page_type), str(hint))
         )
     return cls
 
 
-def view_builder(grstate, grcontext):
+def view_builder(grstate, grcontext, hint=None):
     """
     A builder to instantiate the view based on navigation context.
     """
-    view = view_factory(grcontext)
+    view = view_factory(grcontext, hint=hint)
     return view(grstate, grcontext)

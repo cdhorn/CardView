@@ -194,7 +194,6 @@ PAGES = [
     ("Address", _("Address")),
     ("ChildRef", _("ChildRef")),
     ("Citation", _("Citation")),
-    ("Dashboard", _("Dashboard")),
     ("Event", _("Event")),
     ("EventRef", _("EventRef")),
     ("Family", _("Family")),
@@ -209,6 +208,7 @@ PAGES = [
     ("Repository", _("Repository")),
     ("RepoRef", _("RepoRef")),
     ("Source", _("Source")),
+    ("Statistics", _("Statistics")),
     ("Tag", _("Tag")),
 ]
 
@@ -216,7 +216,6 @@ PAGE_NAMES = {
     "Address": _("Address"),
     "ChildRef": _("Child Reference"),
     "Citation": _("Citation"),
-    "Dashboard": _("Dashboard"),
     "Event": _("Event"),
     "EventRef": _("Event Reference"),
     "Family": _("Family"),
@@ -231,5 +230,6 @@ PAGE_NAMES = {
     "Repository": _("Repository"),
     "RepoRef": _("Repository Reference"),
     "Source": _("Source"),
+    "Statistics": _("Statistics"),
     "Tag": _("Tag"),
 }

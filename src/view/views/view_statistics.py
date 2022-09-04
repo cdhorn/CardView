@@ -19,7 +19,7 @@
 #
 
 """
-DashboardObjectView
+StatisticsObjectView
 """
 
 # -------------------------------------------------------------------------
@@ -35,12 +35,12 @@ from .view_base import GrampsObjectView
 
 # -------------------------------------------------------------------------
 #
-# DashboardView Class
+# StatisticsView Class
 #
 # -------------------------------------------------------------------------
-class DashboardObjectView(GrampsObjectView):
+class StatisticsObjectView(GrampsObjectView):
     """
-    Provides the dashboard view.
+    Provides the statistics view.
     """
 
     def build_view(self):
@@ -51,18 +51,20 @@ class DashboardObjectView(GrampsObjectView):
         self.view_object = FamilyTreeCard(self.grstate, groptions)
         self.view_focus = self.wrap_focal_widget(self.view_object)
         self.view_header.pack_start(self.view_focus, False, False, 0)
-        self.view_body = self.build_dashboard_groups()
+        self.view_body = self.build_statistics_groups()
 
-    def build_dashboard_groups(self):
+    def build_statistics_groups(self):
         """
-        Gather and build the dashboard groups.
+        Gather and build the statistics groups.
         """
-        groups = self.grstate.config.get("layout.dashboard.groups").split(",")
+        groups = self.grstate.config.get("layout.statistics.groups").split(",")
 
         object_groups = {}
         for group in groups:
-            if self.grstate.config.get("layout.dashboard.%s.visible" % group):
+            if self.grstate.config.get("layout.statistics.%s.visible" % group):
                 object_groups.update(
                     {group: group_builder(self.grstate, group, None, None)}
                 )
-        return self.render_group_view(object_groups)
+        return self.render_group_view(
+            object_groups, space_override="layout.statistics"
+        )

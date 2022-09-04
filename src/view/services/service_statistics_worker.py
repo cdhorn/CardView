@@ -1120,8 +1120,9 @@ def analyze_change(obj_list, obj_handle, change, max_length):
     """
     Analyze a change for inclusion in a last modified list.
     """
-    bsindex = bisect(KeyWrapper(obj_list, key=lambda c: c[1]), change)
-    obj_list.insert(bsindex, (obj_handle, change))
+    change_value = -change
+    bsindex = bisect(KeyWrapper(obj_list, key=lambda c: c[1]), change_value)
+    obj_list.insert(bsindex, (obj_handle, change_value))
     if len(obj_list) > max_length:
         obj_list.pop(max_length)
 

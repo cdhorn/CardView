@@ -120,7 +120,7 @@ class GrampsObjectView(Gtk.VBox):
             widget.pack_end(scrollable_body, True, True, 0)
         else:
             body = Gtk.VBox()
-            body.pack_start(self.view_header, False, False, 0)
+            body.pack_start(self.view_header, True, True, 0)
             if mode == 0:
                 self.add_media_bar(body, self.grcontext.primary_obj.obj)
             body.pack_end(self.view_body, True, True, 0)
@@ -189,11 +189,13 @@ class GrampsObjectView(Gtk.VBox):
                 )
         return object_groups
 
-    def render_group_view(self, obj_groups):
+    def render_group_view(self, obj_groups, space_override=None):
         """
         Identify format for the group view and call method to prepare it.
         """
-        space = "layout.%s" % self.grcontext.page_type.lower()
+        space = (
+            space_override or "layout.%s" % self.grcontext.page_type.lower()
+        )
         groups = self.grstate.config.get("%s.groups" % space).split(",")
         scrolled = self.grstate.config.get("%s.scrolled" % space)
         groupings = []

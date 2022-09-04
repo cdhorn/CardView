@@ -290,10 +290,6 @@ class PersonCardView(CardView):
             self.second_action_group_sensitive = (
                 len(person.parent_family_list) > 1
             )
-            if not self.second_action_group_sensitive:
-                self.second_action_group_sensitive = (
-                    len(person.family_list) > 1
-                )
 
     def reorder_button_press(self, obj, event, _dummy_handle):
         """

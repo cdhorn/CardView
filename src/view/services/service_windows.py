@@ -69,16 +69,21 @@ class PinnedViewWindow(ManagedWindow):
     Window to display an object page view.
     """
 
-    def __init__(self, grstate, grcontext, key, callback):
+    def __init__(self, grstate, grcontext, key, callback, hint=None):
         """
         Initialize class.
         """
         self.key = key
+        self.hint = hint
         self.grstate = grstate
         self.grcontext = grcontext
         self.callback = callback
-        if key == "dashboard":
+        if key == "changes":
+            self.base_title = _("Changes")
+        elif key == "dashboard":
             self.base_title = _("Dashboard")
+        elif key == "statistics":
+            self.base_title = _("Statistics")
         elif grcontext.primary_obj.obj_type != "Tag":
             self.base_title, dummy_obj = navigation_label(
                 grstate.dbstate.db,
@@ -94,7 +99,7 @@ class PinnedViewWindow(ManagedWindow):
         ManagedWindow.__init__(self, grstate.uistate, [], grcontext)
 
         self.page_view = Gtk.VBox()
-        view = view_builder(grstate, grcontext)
+        view = view_builder(grstate, grcontext, hint=self.hint)
         self.page_view.pack_start(view, True, True, 0)
 
         window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -137,7 +142,7 @@ class PinnedViewWindow(ManagedWindow):
         """
         Rebuild current page view.
         """
-        view = view_builder(self.grstate, self.grcontext)
+        view = view_builder(self.grstate, self.grcontext, hint=self.hint)
         list(map(self.page_view.remove, self.page_view.get_children()))
         self.page_view.pack_start(view, True, True, 0)
         self.show()
@@ -153,7 +158,8 @@ class PinnedViewWindow(ManagedWindow):
         """
         Refresh navigation context and rebuild.
         """
-        self.grcontext.refresh(self.grstate)
+        if self.grcontext.primary_obj:
+            self.grcontext.refresh(self.grstate)
         return self.rebuild()
 
     def close(self, *_dummy_args, defer_delete=False):
@@ -191,12 +197,15 @@ class WindowService:
         self.group_windows = {}
         self.page_windows = {}
 
-    def launch_view_window(self, grstate, grcontext):
+    def launch_view_window(self, grstate, grcontext, hint=None):
         """
         Launch a page view in a separate window.
         """
         max_windows = grstate.config.get("display.max-page-windows")
-        key = grcontext.obj_key
+        if hint:
+            key = hint.lower()
+        else:
+            key = grcontext.obj_key
         if reload_single_window(self.page_windows, max_windows, grcontext):
             return
         if launch_new_window(
@@ -205,7 +214,7 @@ class WindowService:
             callback = lambda x: clear_window(x, self.page_windows)
             try:
                 self.page_windows[key] = PinnedViewWindow(
-                    grstate, grcontext, key, callback
+                    grstate, grcontext, key, callback, hint=hint
                 )
             except WindowActiveError:
                 pass

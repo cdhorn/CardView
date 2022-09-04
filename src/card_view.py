@@ -69,6 +69,7 @@ from view.config.config_templates import (
     build_templates_panel,
 )
 from view.services.service_images import ImagesService
+from view.services.service_statistics import StatisticsService
 from view.services.service_windows import WindowService
 from view.actions import action_handler
 from view.views.view_builder import view_builder
@@ -125,6 +126,7 @@ class CardView(GlobalNavigationView):
         self.second_action_group = None
         self.second_action_group_sensitive = False
         self.image_service = ImagesService()
+        StatisticsService(self.grstate)
 
     def _load_config(self):
         """

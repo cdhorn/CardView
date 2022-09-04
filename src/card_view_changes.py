@@ -22,7 +22,7 @@
 #
 
 """
-DashboardCardView
+ChangesCardView
 """
 
 # -------------------------------------------------------------------------
@@ -47,6 +47,7 @@ from gramps.gen.const import GRAMPS_LOCALE as glocale
 from card_view import CardView
 from view.common.common_classes import GrampsContext
 from view.services.service_statistics import StatisticsService
+from view.services.service_windows import WindowService
 from view.views.view_builder import view_builder
 
 _ = glocale.translation.sgettext
@@ -54,30 +55,24 @@ _ = glocale.translation.sgettext
 
 # -------------------------------------------------------------------------
 #
-# DashboardCardView Class
+# ChangesCardView Class
 #
 # -------------------------------------------------------------------------
-class DashboardCardView(CardView):
+class ChangesCardView(CardView):
     """
-    Card view for the Dashboard
+    Card view for the Changes
     """
 
     def __init__(self, pdata, dbstate, uistate, nav_group=1):
         CardView.__init__(
             self,
-            _("Dashboard"),
+            _("Changes"),
             pdata,
             dbstate,
             uistate,
             nav_group,
         )
         self.statistics_service = StatisticsService(self.grstate)
-
-    def navigation_type(self):
-        """
-        Return active navigation type.
-        """
-        return None
 
     def set_active(self):
         CardView.set_active(self)
@@ -161,7 +156,7 @@ class DashboardCardView(CardView):
 
         self.current_context = GrampsContext()
 
-        view = view_builder(self.grstate, self.current_context)
+        view = view_builder(self.grstate, self.current_context, hint="Changes")
         self.current_view.pack_start(view, True, True, 0)
         self.current_view.show_all()
 
@@ -174,3 +169,13 @@ class DashboardCardView(CardView):
 
     def change_page(self):
         pass
+
+    def launch_view_window(self, *_dummy_args):
+        """
+        Display a particular group of objects.
+        """
+        if self.current_context:
+            windows = WindowService()
+            windows.launch_view_window(
+                self.grstate, self.current_context, hint="Changes"
+            )
