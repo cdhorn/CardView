@@ -160,6 +160,19 @@ def build_person_grid(configdialog, grstate, space, person):
             "group.{}.reference-mode".format(person),
             REF_DISPLAY_MODES,
         )
+    if "active" in space:
+        configdialog.add_checkbox(
+            grid1,
+            _("Show primary parents"),
+            8,
+            "{}.{}.show-parents".format(space, person),
+        )
+        configdialog.add_checkbox(
+            grid1,
+            _("Use a compact mode for primary parents"),
+            9,
+            "{}.{}.compact-mode-parents".format(space, person),
+        )
     grid.attach(grid1, 0, 0, 1, 1)
 
     grid2a = create_grid()

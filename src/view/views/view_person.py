@@ -64,8 +64,37 @@ class PersonObjectView(GrampsObjectView):
         groptions = GrampsOptions("active.person")
         self.view_object = CARD_MAP["Person"](self.grstate, groptions, person)
         self.view_focus = self.wrap_focal_widget(self.view_object)
+
+        if self.grstate.config.get("active.person.show-parents"):
+            self._add_primary_parents(person)
         self.view_header.pack_start(self.view_focus, False, False, 0)
 
         self.view_body = self.build_object_groups(
             self.grcontext.primary_obj, age_base=age_base
         )
+
+    def _add_primary_parents(self, person):
+        """
+        Add widget with primary parents of a person.
+        """
+        primary_handle = person.get_main_parents_family_handle()
+        if primary_handle:
+            family = self.grstate.dbstate.db.get_family_from_handle(
+                primary_handle
+            )
+            groptions = GrampsOptions("active.parent")
+            groptions.set_relation(person)
+            groptions.set_vertical(False)
+            if self.grstate.config.get("active.person.compact-mode-parents"):
+                groptions.partners_only = True
+
+            self.view_header.pack_start(
+                CARD_MAP["Family"](
+                    self.grstate,
+                    groptions,
+                    family,
+                ),
+                False,
+                False,
+                0,
+            )

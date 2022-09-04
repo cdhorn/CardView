@@ -89,7 +89,8 @@ class FamilyCard(PrimaryCard):
         self.family = family
         self.relation = groptions.relation
         self.__add_couple_title(family)
-        self.__add_couple_facts(anchor, family)
+        if not groptions.partners_only:
+            self.__add_couple_facts(anchor, family)
         self.show_all()
         self.enable_drag()
         if not self.parent2 and (
@@ -120,8 +121,9 @@ class FamilyCard(PrimaryCard):
                     self.partner2.add(profile)
         else:
             title = family_name(family, self.grstate.dbstate.db)
-        label = self.get_link(title, "Family", family.handle)
-        self.widgets["title"].pack_start(label, True, True, 0)
+        if not self.groptions.partners_only:
+            label = self.get_link(title, "Family", family.handle)
+            self.widgets["title"].pack_start(label, True, True, 0)
 
     def __add_couple_facts(self, anchor, family):
         """

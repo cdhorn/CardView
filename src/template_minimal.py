@@ -155,6 +155,8 @@ _TEMPLATE = (
     ("active.person.show-age", True),
     ("active.person.sex-mode", 1),
     ("active.person.image-mode", 3),
+    ("active.person.show-parents", False),
+    ("active.person.compact-mode-parents", False),
     ("active.person.lfield-skip-birth-alternates", True),
     ("active.person.lfield-skip-death-alternates", True),
     ("active.person.lfield-1", "Event:Birth"),
