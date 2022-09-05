@@ -19,7 +19,7 @@
 #
 
 """
-Person status indicators.
+Person and family status indicators.
 """
 
 # ------------------------------------------------------------------------
@@ -118,10 +118,10 @@ def load_on_reg(_dummy_dbstate, _dummy_uistate, _dummy_plugin):
     """
     return [
         {
-            "supported_types": ["Person"],
+            "supported_types": ["Person", "Family"],
             "default_options": default_options,
-            "get_config_grids": get_person_status_config_grids,
-            "get_status": get_person_status,
+            "get_config_grids": get_status_config_grids,
+            "get_status": get_status,
         }
     ]
 
@@ -184,7 +184,7 @@ default_options = [
 # Function to build and return configuration grids for the options.
 #
 # ------------------------------------------------------------------------
-def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
+def get_status_config_grids(configdialog, grstate, *_dummy_args):
     """
     Build status indicator configuration section.
     """
@@ -326,6 +326,18 @@ def get_person_status_config_grids(configdialog, grstate, *_dummy_args):
 # Function to check status and return icons as needed.
 #
 # ------------------------------------------------------------------------
+def get_status(grstate, obj, size):
+
+    if isinstance(obj, Person):
+        return get_person_status(grstate, obj, size)
+    return get_family_status(grstate, obj, size)
+
+
+# ------------------------------------------------------------------------
+#
+# Some helper functions.
+#
+# ------------------------------------------------------------------------
 def get_person_status(grstate, obj, size):
     """
     Load status indicators if needed.
@@ -355,11 +367,6 @@ def get_person_status(grstate, obj, size):
     return icon_list
 
 
-# ------------------------------------------------------------------------
-#
-# Some helper functions.
-#
-# ------------------------------------------------------------------------
 def get_person_status_icons(grstate, obj, size):
     """
     Evaluate and return status icons for an object.
@@ -412,6 +419,46 @@ def get_person_status_icons(grstate, obj, size):
     return alert_icon, rank_icon, rank_text, missing_icon, missing_text
 
 
+def get_family_status(grstate, obj, size):
+    """
+    Load status indicators if needed.
+    """
+    icon_list = []
+    alert = grstate.config.get(OPTION_CITATION_ALERT)
+    if alert:
+        alert_icon = get_family_status_icons(grstate, obj, size)
+        if alert_icon:
+            icon_list.append(alert_icon)
+    return icon_list
+
+
+def get_family_status_icons(grstate, obj, size):
+    """
+    Evaluate and return status icons for an object.
+    """
+    alert_list = get_event_fields(grstate, "alert")
+    alert_minimum = grstate.config.get(OPTION_CITATION_ALERT_MINIMUM)
+    alert_minimum = alert_minimum + 1
+    (
+        total_rank_items,
+        total_rank_confidence,
+        missing_alerts,
+        confidence_alerts,
+    ) = get_status_ranking(
+        grstate.dbstate.db,
+        obj,
+        [],
+        alert_list,
+        alert_minimum,
+        [],
+    )
+    if confidence_alerts:
+        alert_icon = GrampsCitationAlertIcon(grstate, confidence_alerts, size)
+    else:
+        alert_icon = None
+    return alert_icon
+
+
 def get_status_ranking(
     db,
     obj,
@@ -453,7 +500,11 @@ def get_status_ranking(
         if primary and event_name in alert_list:
             if total_count == 0:
                 confidence_alerts.append(
-                    (event, "%s: %s" % (str(event_type), _("Missing")))
+                    (
+                        event,
+                        "%s: %s %s"
+                        % (str(event_type), _("Missing"), _("Citation")),
+                    )
                 )
             elif highest_confidence < alert_minimum:
                 confidence_alerts.append(
