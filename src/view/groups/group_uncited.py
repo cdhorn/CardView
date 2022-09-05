@@ -59,15 +59,31 @@ class UncitedEventsCardGroup(CardGroupList):
         )
         groptions.set_relation(obj)
 
+        self.check_events(groptions, obj)
+        if self.group_base.obj_type == "Person":
+            for family_handle in obj.family_list:
+                self.check_family(groptions, family_handle)
+        self.show_all()
+
+    def check_events(self, options, obj):
+        """
+        Check for uncited events and add to group if found.
+        """
         db = self.grstate.dbstate.db
         for event_ref in obj.event_ref_list:
             event = db.get_event_from_handle(event_ref.ref)
             if not event.citation_list:
                 card = EventRefCard(
-                    grstate,
-                    groptions,
+                    self.grstate,
+                    options,
                     obj,
                     event_ref,
                 )
                 self.add_card(card)
-        self.show_all()
+
+    def check_family(self, options, family_handle):
+        """
+        Check family events with spouse.
+        """
+        family = self.grstate.dbstate.db.get_family_from_handle(family_handle)
+        self.check_events(options, family)
