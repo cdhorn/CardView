@@ -127,7 +127,7 @@ class NoteAction(GrampsAction):
         self.set_action_object(Note())
         if self.content:
             self.action_object.obj.set(self.content)
-        self.edit_note(self.added_note)
+        self.edit_note(callback=self.added_note)
 
     def add_existing_note(self, *_dummy_args):
         """
