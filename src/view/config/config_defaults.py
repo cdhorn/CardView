@@ -1040,7 +1040,8 @@ VIEWDEFAULTS = (
     (
         "layout.person.groups",
         "paternal,maternal,parent,event,timeline,ldsord,spouse,name,"
-        "attribute,association,citation,address,url,note,media,reference",
+        "attribute,association,citation,address,url,note,media,reference,"
+        "uncited,todo,research",
     ),
     ("layout.person.paternal.visible", False),
     ("layout.person.paternal.append", False),
@@ -1074,6 +1075,12 @@ VIEWDEFAULTS = (
     ("layout.person.media.append", False),
     ("layout.person.reference.visible", False),
     ("layout.person.reference.append", False),
+    ("layout.person.uncited.visible", False),
+    ("layout.person.uncited.append", False),
+    ("layout.person.todo.visible", False),
+    ("layout.person.todo.append", False),
+    ("layout.person.research.visible", False),
+    ("layout.person.research.append", False),
     ######################################################################
     ## Family Page Options
     ######################################################################
@@ -1082,7 +1089,7 @@ VIEWDEFAULTS = (
     (
         "layout.family.groups",
         "child,event,timeline,ldsord,attribute,citation,url,note,media,"
-        "reference",
+        "reference,uncited,todo,research",
     ),
     ("layout.family.child.visible", True),
     ("layout.family.child.append", False),
@@ -1104,6 +1111,12 @@ VIEWDEFAULTS = (
     ("layout.family.media.append", False),
     ("layout.family.reference.visible", False),
     ("layout.family.reference.append", False),
+    ("layout.family.uncited.visible", False),
+    ("layout.family.uncited.append", False),
+    ("layout.family.todo.visible", False),
+    ("layout.family.todo.append", False),
+    ("layout.family.research.visible", False),
+    ("layout.family.research.append", False),
     ######################################################################
     ## Event Page Options
     ######################################################################
@@ -1111,7 +1124,8 @@ VIEWDEFAULTS = (
     ("layout.event.scrolled", False),
     (
         "layout.event.groups",
-        "attribute,people,family,citation,url,note,media,reference",
+        "attribute,people,family,citation,url,note,media,reference,"
+        "todo,research",
     ),
     ("layout.event.attribute.visible", False),
     ("layout.event.attribute.append", False),
@@ -1129,6 +1143,10 @@ VIEWDEFAULTS = (
     ("layout.event.media.append", False),
     ("layout.event.reference.visible", False),
     ("layout.event.reference.append", False),
+    ("layout.event.todo.visible", False),
+    ("layout.event.todo.append", False),
+    ("layout.event.research.visible", False),
+    ("layout.event.research.append", False),
     ######################################################################
     ## EventRef Page Options
     ######################################################################

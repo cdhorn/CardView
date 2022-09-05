@@ -73,8 +73,8 @@ class GrampsObjectView(Gtk.VBox):
         )
         self.grstate = grstate
         self.grcontext = grcontext
-        self.view_header = Gtk.VBox(spacing=3)
-        self.view_body = Gtk.HBox()
+        self.view_header = Gtk.VBox(vexpand=False, spacing=3)
+        self.view_body = Gtk.HBox(vexpand=False)
         self.view_object = None
         self.view_focus = None
         self.render_view()
@@ -91,14 +91,14 @@ class GrampsObjectView(Gtk.VBox):
         if mode < 1:
             self.render_view_body(self, mode)
         elif mode > 0:
-            wrapper = Gtk.HBox(spacing=1)
+            wrapper = Gtk.HBox(vexpand=False, spacing=1)
             if mode in [1]:
                 self.add_media_bar(wrapper, self.grcontext.primary_obj.obj)
-                vbox = Gtk.VBox()
+                vbox = Gtk.VBox(vexpand=False)
                 self.render_view_body(vbox, mode)
                 wrapper.pack_start(vbox, True, True, 0)
             else:
-                vbox = Gtk.VBox()
+                vbox = Gtk.VBox(vexpand=False)
                 self.render_view_body(vbox, mode)
                 wrapper.pack_start(vbox, True, True, 0)
                 self.add_media_bar(wrapper, self.grcontext.primary_obj.obj)
@@ -119,8 +119,8 @@ class GrampsObjectView(Gtk.VBox):
             )
             widget.pack_end(scrollable_body, True, True, 0)
         else:
-            body = Gtk.VBox()
-            body.pack_start(self.view_header, True, True, 0)
+            body = Gtk.VBox(vexpand=False)
+            body.pack_start(self.view_header, False, False, 0)
             if mode == 0:
                 self.add_media_bar(body, self.grcontext.primary_obj.obj)
             body.pack_end(self.view_body, True, True, 0)

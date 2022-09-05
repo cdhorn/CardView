@@ -45,114 +45,132 @@ from .group_notes import NotesCardGroup
 from .group_ordinances import LDSOrdinancesCardGroup
 from .group_places import EnclosedPlacesCardGroup, EnclosingPlacesCardGroup
 from .group_repositories import RepositoriesCardGroup
+from .group_research import ResearchNotesCardGroup
 from .group_sources import SourcesCardGroup
 from .group_timeline import TimelineCardGroup
+from .group_todo import TodoNotesCardGroup
+from .group_uncited import UncitedEventsCardGroup
 from .group_urls import UrlsCardGroup
 
 _ = glocale.translation.sgettext
 
 
 GENERIC_GROUPS = {
-    "citation": (
-        CitationsCardGroup,
-        _("Citation"),
-        _("Citations"),
-    ),
-    "timeline": (
-        TimelineCardGroup,
-        _("Timeline Event"),
-        _("Timeline Events"),
-    ),
-    "media": (
-        MediaCardGroup,
-        _("Media Item"),
-        _("Media Items"),
-    ),
-    "ldsord": (
-        LDSOrdinancesCardGroup,
-        _("Ordinance"),
-        _("Ordinances"),
-    ),
-    "source": (
-        SourcesCardGroup,
-        _("Source"),
-        _("Sources"),
-    ),
-    "repository": (
-        RepositoriesCardGroup,
-        _("Repository"),
-        _("Repositories"),
-    ),
-    "note": (
-        NotesCardGroup,
-        _("Note"),
-        _("Notes"),
+    "address": (
+        AddressesCardGroup,
+        _("Address"),
+        _("Addresses"),
     ),
     "association": (
         AssociationsCardGroup,
         _("Association"),
         _("Associations"),
     ),
-    "address": (
-        AddressesCardGroup,
-        _("Address"),
-        _("Addresses"),
-    ),
     "attribute": (
         AttributesCardGroup,
         _("Attribute"),
         _("Attributes"),
     ),
-    "enclosing": (
-        EnclosingPlacesCardGroup,
-        _("Enclosing Place"),
-        _("Enclosing Places"),
+    "citation": (
+        CitationsCardGroup,
+        _("Citation"),
+        _("Citations"),
     ),
     "enclosed": (
         EnclosedPlacesCardGroup,
         _("Enclosed Place"),
         _("Enclosed Places"),
     ),
-    "name": (
-        NamesCardGroup,
-        _("Name"),
-        _("Names"),
+    "enclosing": (
+        EnclosingPlacesCardGroup,
+        _("Enclosing Place"),
+        _("Enclosing Places"),
     ),
-    "url": (
-        UrlsCardGroup,
-        _("Url"),
-        _("Urls"),
-    ),
-    "paternal": (
-        PaternalLineageCardGroup,
-        _("Paternal Lineage"),
-        _("Paternal Lineage"),
+    "ldsord": (
+        LDSOrdinancesCardGroup,
+        _("Ordinance"),
+        _("Ordinances"),
     ),
     "maternal": (
         MaternalLineageCardGroup,
         _("Maternal Lineage"),
         _("Maternal Lineage"),
     ),
+    "media": (
+        MediaCardGroup,
+        _("Media Item"),
+        _("Media Items"),
+    ),
+    "name": (
+        NamesCardGroup,
+        _("Name"),
+        _("Names"),
+    ),
+    "note": (
+        NotesCardGroup,
+        _("Note"),
+        _("Notes"),
+    ),
+    "paternal": (
+        PaternalLineageCardGroup,
+        _("Paternal Lineage"),
+        _("Paternal Lineage"),
+    ),
+    "repository": (
+        RepositoriesCardGroup,
+        _("Repository"),
+        _("Repositories"),
+    ),
+    "research": (
+        ResearchNotesCardGroup,
+        _("Research Note"),
+        _("Research Notes"),
+    ),
+    "source": (
+        SourcesCardGroup,
+        _("Source"),
+        _("Sources"),
+    ),
+    "timeline": (
+        TimelineCardGroup,
+        _("Timeline Event"),
+        _("Timeline Events"),
+    ),
+    "todo": (
+        TodoNotesCardGroup,
+        _("To Do Note"),
+        _("To Do Notes"),
+    ),
+    "uncited": (
+        UncitedEventsCardGroup,
+        _("Uncited Event"),
+        _("Uncited Events"),
+    ),
+    "url": (
+        UrlsCardGroup,
+        _("Url"),
+        _("Urls"),
+    ),
 }
 
 
 STATISTICS_GROUPS = {
-    "stats-person": _("People"),
-    "stats-family": _("Families"),
-    "stats-child": _("Children"),
     "stats-association": _("Associations"),
-    "stats-event": _("Events"),
-    "stats-ldsordperson": _("Person Ordinances"),
-    "stats-ldsordfamily": _("Family Ordinances"),
-    "stats-participant": _("Participants"),
-    "stats-place": _("Places"),
-    "stats-media": _("Media"),
-    "stats-source": _("Sources"),
-    "stats-citation": _("Citations"),
-    "stats-repository": _("Repositories"),
-    "stats-note": _("Notes"),
-    "stats-tag": _("Tags"),
     "stats-bookmark": _("Bookmarks"),
-    "stats-uncited": _("Uncited Information"),
+    "stats-child": _("Children"),
+    "stats-citation": _("Citations"),
+    "stats-event": _("Events"),
+    "stats-family": _("Families"),
+    "stats-ldsordfamily": _("Family Ordinances"),
+    "stats-ldsordperson": _("Person Ordinances"),
+    "stats-media": _("Media"),
+    "stats-note": _("Notes"),
+    "stats-participant": _("Participants"),
+    "stats-person": _("People"),
+    "stats-place": _("Places"),
     "stats-privacy": _("Privacy"),
+    "stats-repository": _("Repositories"),
+    "stats-source": _("Sources"),
+    "stats-tag": _("Tags"),
+    "stats-uncited": _("Uncited Information"),
 }

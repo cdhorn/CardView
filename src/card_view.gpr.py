@@ -34,7 +34,7 @@ if not os.path.isdir(pathname):
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(pathname)
 
-VERSION = "0.99.107"
+VERSION = "0.99.108"
 GRAMPS_TARGET_VERSION = "5.1"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]
