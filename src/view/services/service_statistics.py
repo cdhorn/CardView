@@ -196,7 +196,7 @@ class StatisticsService(Callback):
         s = time.time()
         done = False
         if self.concurrent and self.worker:
-            args = ["python", "-u", self.worker, "-t", dbname]
+            args = ["python3", "-u", self.worker, "-t", dbname]
             if self.all_events:
                 args.append("-a")
             try:
