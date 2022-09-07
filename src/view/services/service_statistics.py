@@ -218,6 +218,8 @@ class StatisticsService(Callback):
                     "stats collected: %s" % (time.time() - s), file=sys.stderr
                 )
                 done = True
+            except FileNotFoundError:
+                self.worker = None
             except EOFError:
                 self.worker = None
         if not done:
