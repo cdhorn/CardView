@@ -160,7 +160,7 @@ def build_person_grid(configdialog, grstate, space, person):
             "group.{}.reference-mode".format(person),
             REF_DISPLAY_MODES,
         )
-    if "active" in space:
+    if "active" in space and "person" in person:
         configdialog.add_checkbox(
             grid1,
             _("Show primary parents"),
