@@ -277,7 +277,7 @@ def get_association_statistics(data):
             output.append(
                 (
                     count,
-                    "> %s" % key,
+                    "• %s" % key,
                     "%s of %s" % (count, total),
                     count * 100 / total,
                 )
@@ -380,7 +380,7 @@ def get_citation_statistics(data):
         result.append((CITATION_LABELS["confidence"], "", None))
         for (key, (count, total)) in types.items():
             result.append(
-                ("> %s" % CITATION_LABELS[key], count, count * 100 / total)
+                ("• %s" % CITATION_LABELS[key], count, count * 100 / total)
             )
     return result
 
@@ -553,7 +553,7 @@ def prepare_type_statistics(
             output.append(
                 (
                     count,
-                    "> %s" % object_type,
+                    "• %s" % object_type,
                     "%s of %s" % (count, total),
                     count * 100 / total,
                 )
