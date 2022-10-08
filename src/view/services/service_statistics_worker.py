@@ -294,7 +294,7 @@ def examine_people(args, queue=None, thread_event=None):
                     no_temple += 1
                 if not ldsord.status:
                     no_status += 1
-        analyze_change(last_changed, person.handle, person.change, 20)
+        analyze_change(last_changed, person.handle, person.change, 40)
     close_readonly_database(db)
 
     for key in participant_roles:
@@ -492,7 +492,7 @@ def examine_families(args, queue=None, thread_event=None):
                     no_temple += 1
                 if not ldsord.status:
                     no_status += 1
-        analyze_change(last_changed, family.handle, family.change, 20)
+        analyze_change(last_changed, family.handle, family.change, 40)
     close_readonly_database(db)
 
     for key in family_relations:
@@ -609,7 +609,7 @@ def examine_events(args, queue=None, thread_event=None):
         event_types[event_key] += 1
         if not event.citation_list:
             uncited_events[event_key] += 1
-        analyze_change(last_changed, event.handle, event.change, 20)
+        analyze_change(last_changed, event.handle, event.change, 40)
     close_readonly_database(db)
 
     for key in uncited_events:
@@ -690,7 +690,7 @@ def examine_places(args, queue=None, thread_event=None):
             private += 1
         if place.tag_list:
             tagged += 1
-        analyze_change(last_changed, place.handle, place.change, 20)
+        analyze_change(last_changed, place.handle, place.change, 40)
     close_readonly_database(db)
 
     for key in place_types:
@@ -758,7 +758,7 @@ def examine_media(args, queue=None, thread_event=None):
             except OSError:
                 if media.path not in not_found:
                     not_found.append(media.path)
-        analyze_change(last_changed, media.handle, media.change, 20)
+        analyze_change(last_changed, media.handle, media.change, 40)
     close_readonly_database(db)
 
     if not int(size_bytes / 1024):
@@ -838,7 +838,7 @@ def examine_sources(args, queue=None, thread_event=None):
             private += 1
         if source.tag_list:
             tagged += 1
-        analyze_change(last_changed, source.handle, source.change, 20)
+        analyze_change(last_changed, source.handle, source.change, 40)
     close_readonly_database(db)
 
     for key in media_types:
@@ -912,7 +912,7 @@ def examine_citations(args, queue=None, thread_event=None):
             high += 1
         elif citation.confidence == Citation.CONF_VERY_HIGH:
             very_high += 1
-        analyze_change(last_changed, citation.handle, citation.change, 20)
+        analyze_change(last_changed, citation.handle, citation.change, 40)
     close_readonly_database(db)
 
     payload = {
@@ -976,7 +976,7 @@ def examine_repositories(args, queue=None, thread_event=None):
             private += 1
         if repository.tag_list:
             tagged += 1
-        analyze_change(last_changed, repository.handle, repository.change, 20)
+        analyze_change(last_changed, repository.handle, repository.change, 40)
     close_readonly_database(db)
 
     for key in repository_types:
@@ -1028,7 +1028,7 @@ def examine_notes(args, queue=None, thread_event=None):
             private += 1
         if note.tag_list:
             tagged += 1
-        analyze_change(last_changed, note.handle, note.change, 20)
+        analyze_change(last_changed, note.handle, note.change, 40)
     close_readonly_database(db)
 
     for key in note_types:
@@ -1063,7 +1063,7 @@ def examine_tags(args, queue=None, thread_event=None):
     for tag in db.iter_tags():
         if thread_event and thread_event.is_set():
             break
-        analyze_change(last_changed, tag.handle, tag.change, 20)
+        analyze_change(last_changed, tag.handle, tag.change, 40)
     close_readonly_database(db)
 
     payload = {

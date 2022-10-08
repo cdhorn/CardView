@@ -93,6 +93,7 @@ VIEWDEFAULTS = (
     ("display.border-width", 2),
     ("display.icons-active-width", 24),
     ("display.icons-group-width", 12),
+    ("display.max-changes-per-list", 20),
     ######################################################################
     ## General Options
     ######################################################################

@@ -131,7 +131,7 @@ class ChangesObjectView(GrampsObjectView):
         self.stack = None
         self.stack_state = None
         self.stack_active_button = None
-        self.max_per_list = 20
+        self.max_per_list = self.grstate.config.get("display.max-changes-per-list")
         self.load_data()
 
     def build_view(self):
@@ -176,7 +176,7 @@ class ChangesObjectView(GrampsObjectView):
             )
             view = LastChangedView(self.grstate.uistate)
             LastChangedPresenter(model, view)
-            list_widget.pack_start(view, True, True, 0)
+            list_widget.pack_start(view, False, False, 0)
         return list_widget
 
     def render_stacked_mode(self, nav_type, display_list_types):

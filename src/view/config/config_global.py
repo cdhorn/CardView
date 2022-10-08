@@ -204,14 +204,14 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     )
     configdialog.add_spinner(
         grid,
-        _("Maximum icons to show per line in header cards."),
+        _("Maximum icons to show per line in header cards"),
         24,
         "display.icons-active-width",
         (1, 40),
     )
     configdialog.add_spinner(
         grid,
-        _("Maximum icons to show per line in group cards."),
+        _("Maximum icons to show per line in group cards"),
         25,
         "display.icons-group-width",
         (1, 40),
@@ -222,6 +222,13 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
         26,
         "display.group-mode",
         GROUP_WRAPPER_MODES,
+    )
+    configdialog.add_spinner(
+        grid,
+        _("Maximum items per changed object list"),
+        27,
+        "display.max-changes-per-list",
+        (1, 40),
     )
     return add_config_buttons(
         configdialog, grstate, "display", grid, HELP_CONFIG_DISPLAY

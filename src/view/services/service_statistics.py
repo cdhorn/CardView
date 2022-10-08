@@ -309,7 +309,7 @@ class StatisticsService(Callback):
             change_history[obj_type] = formatted_history
             global_history = global_history + formatted_history
         global_history.sort(key=lambda x: x[3], reverse=True)
-        change_history["Global"] = global_history[:20]
+        change_history["Global"] = global_history[:40]
         with self.lock:
             self.change_history = change_history
 
@@ -350,10 +350,10 @@ class StatisticsService(Callback):
                 format_time(changed_object.change),
             )
             self.change_history[object_type].insert(0, changed_tuple)
-            if len(self.change_history[object_type]) > 20:
+            if len(self.change_history[object_type]) > 40:
                 self.change_history[object_type].pop()
             self.change_history["Global"].insert(0, changed_tuple)
-            if len(self.change_history["Global"]) > 20:
+            if len(self.change_history["Global"]) > 40:
                 self.change_history["Global"].pop()
             print("update change hist emitting")
             self.emit("changes-updated", ())
