@@ -90,7 +90,6 @@ class PlaceCardView(CardView):
         """
         return (
             (
-                "LastChanged",
                 "GetGOV Gramplet",
             ),
             (),

@@ -84,6 +84,17 @@ class ChangesCardView(CardView):
         self.uistate.viewmanager.tags.tag_enable(update_menu=False)
         self.bookmarks.undisplay()
 
+    def get_default_gramplets(self):
+        """
+        Return the default Gramplets.
+        """
+        return (
+            (
+                "Session Log",
+            ),
+            (),
+        )
+
     additional_ui = [
         """
     <placeholder id='MoreButtons'>
