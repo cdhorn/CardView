@@ -126,7 +126,8 @@ class CardView(GlobalNavigationView):
         self.second_action_group = None
         self.second_action_group_sensitive = False
         self.image_service = ImagesService()
-        StatisticsService(self.grstate)
+        if global_config.get("interface.cardview.enable-statistics-dashboard"):
+            StatisticsService(self.grstate)
 
     def _load_config(self):
         """

@@ -84,17 +84,6 @@ class PlaceCardView(CardView):
         """
         return "Place"
 
-    def get_default_gramplets(self):
-        """
-        Return the default Gramplets.
-        """
-        return (
-            (
-                "GetGOV Gramplet",
-            ),
-            (),
-        )
-
     additional_ui = [
         MENU_LOCALEXPORT,
         MENU_ADDEDITBOOK,

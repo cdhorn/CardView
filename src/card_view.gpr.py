@@ -24,6 +24,7 @@ import os
 
 from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
+from gramps.gen.config import config
 
 pathname = os.path.join(USER_PLUGINS, "CardView", "icons")
 if not os.path.isdir(pathname):
@@ -34,44 +35,33 @@ if not os.path.isdir(pathname):
 icons = Gtk.IconTheme().get_default()
 icons.append_search_path(pathname)
 
-VERSION = "0.99.109"
+VERSION = "0.99.110"
 GRAMPS_TARGET_VERSION = "5.1"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]
 
-register(
-    VIEW,
-    id="changescardview",
-    name=_("Changes"),
-    description=_("A recently changed objects dashboard."),
-    version=VERSION,
-    gramps_target_version=GRAMPS_TARGET_VERSION,
-    status=STABLE,
-    fname="card_view_changes.py",
-    authors=["Jakim Friant", "Christopher Horn"],
-    authors_email=AUTHORS_EMAIL,
-    category=("Dashboard", _("Dashboard")),
-    viewclass="ChangesCardView",
-    stock_icon="gramps-dashboardcardview",
-    order=END,
-)
+if not config.has_default("interface.cardview.enable-statistics-dashboard"):
+    config.register("interface.cardview.enable-statistics-dashboard", False)
+    config.save()
+enable_dashboard = config.get("interface.cardview.enable-statistics-dashboard")
 
-register(
-    VIEW,
-    id="statisticscardview",
-    name=_("Statistics"),
-    description=_("A tree statistics dashboard."),
-    version=VERSION,
-    gramps_target_version=GRAMPS_TARGET_VERSION,
-    status=STABLE,
-    fname="card_view_statistics.py",
-    authors=AUTHORS,
-    authors_email=AUTHORS_EMAIL,
-    category=("Dashboard", _("Dashboard")),
-    viewclass="StatisticsCardView",
-    stock_icon="gramps-dashboardcardview",
-    order=END,
-)
+if enable_dashboard:
+    register(
+        VIEW,
+        id="statisticscardview",
+        name=_("Statistics"),
+        description=_("A tree statistics dashboard."),
+        version=VERSION,
+        gramps_target_version=GRAMPS_TARGET_VERSION,
+        status=STABLE,
+        fname="card_view_statistics.py",
+        authors=AUTHORS,
+        authors_email=AUTHORS_EMAIL,
+        category=("Dashboard", _("Dashboard")),
+        viewclass="StatisticsCardView",
+        stock_icon="gramps-dashboardcardview",
+        order=END,
+    )
 
 register(
     VIEW,

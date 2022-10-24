@@ -35,6 +35,7 @@ _ = glocale.translation.sgettext
 HELP_VIEW = "https://www.gramps-project.org/wiki/index.php/Addon:CardView"
 HELP_CONFIG = "%s%s" % (HELP_VIEW, "_Configuration:")
 HELP_CONFIG_TEMPLATES = "%s%s" % (HELP_CONFIG, "Templates")
+HELP_CONFIG_DASHBOARD = "%s%s" % (HELP_CONFIG, "Global#Dashboard")
 HELP_CONFIG_DISPLAY = "%s%s" % (HELP_CONFIG, "Global#Display")
 HELP_CONFIG_GENERAL = "%s%s" % (HELP_CONFIG, "Global#General")
 HELP_CONFIG_MENU = "%s%s" % (HELP_CONFIG, "Global#Context_Menu")

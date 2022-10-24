@@ -35,7 +35,6 @@ import sys
 import time
 import pickle
 import argparse
-from bisect import bisect
 from multiprocessing import Process, Queue
 
 # -------------------------------------------------------------------------
@@ -86,7 +85,6 @@ def examine_people(args, queue=None, thread_event=None):
     participant, participant_refs, participant_private = 0, 0, 0
     ldsord_people, ldsord_refs, ldsord_private, ldsord_uncited = 0, 0, 0, 0
     no_temple, no_status, no_date, no_place, no_family = 0, 0, 0, 0, 0
-    last_changed = []
 
     no_birth, no_birth_date, no_birth_place = 0, 0, 0
     births_uncited, births_private = 0, 0
@@ -294,7 +292,6 @@ def examine_people(args, queue=None, thread_event=None):
                     no_temple += 1
                 if not ldsord.status:
                     no_status += 1
-        analyze_change(last_changed, person.handle, person.change, 40)
     close_readonly_database(db)
 
     for key in participant_roles:
@@ -309,7 +306,6 @@ def examine_people(args, queue=None, thread_event=None):
     with_burial = dead_people - no_burial
 
     payload = {
-        "changed": {"Person": last_changed},
         "person": {
             "total": (total_people, None),
             "incomplete_names": (incomplete_names, total_people),
@@ -413,7 +409,6 @@ def examine_families(args, queue=None, thread_event=None):
     no_temple, no_status, no_date, no_place = 0, 0, 0, 0
     participant_roles = {}
     participant, participant_refs, participant_private = 0, 0, 0
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_families = db.get_number_of_families()
@@ -492,7 +487,6 @@ def examine_families(args, queue=None, thread_event=None):
                     no_temple += 1
                 if not ldsord.status:
                     no_status += 1
-        analyze_change(last_changed, family.handle, family.change, 40)
     close_readonly_database(db)
 
     for key in family_relations:
@@ -505,7 +499,6 @@ def examine_families(args, queue=None, thread_event=None):
         participant_roles[key] = (participant_roles[key], participant_refs)
 
     payload = {
-        "changed": {"Family": last_changed},
         "family": {
             "total": (total_families, None),
             "surname_total": (total_surnames, None),
@@ -564,7 +557,6 @@ def examine_events(args, queue=None, thread_event=None):
     uncited, private, tagged, marriages = 0, 0, 0, 0
     event_types = {}
     uncited_events = {}
-    last_changed = []
     no_marriage_date, no_marriage_place, marriage_private = 0, 0, 0
 
     db = open_readonly_database(args.get("tree_name"))
@@ -609,7 +601,6 @@ def examine_events(args, queue=None, thread_event=None):
         event_types[event_key] += 1
         if not event.citation_list:
             uncited_events[event_key] += 1
-        analyze_change(last_changed, event.handle, event.change, 40)
     close_readonly_database(db)
 
     for key in uncited_events:
@@ -618,7 +609,6 @@ def examine_events(args, queue=None, thread_event=None):
         event_types[key] = (event_types[key], total_events)
 
     payload = {
-        "changed": {"Event": last_changed},
         "event": {
             "total": (total_events, None),
             "no_place": (no_place, total_events),
@@ -657,7 +647,6 @@ def examine_places(args, queue=None, thread_event=None):
     no_name, no_latitude, no_longitude, no_code = 0, 0, 0, 0
     uncited, private, tagged = 0, 0, 0
     place_types = {}
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_places = db.get_number_of_places()
@@ -690,14 +679,12 @@ def examine_places(args, queue=None, thread_event=None):
             private += 1
         if place.tag_list:
             tagged += 1
-        analyze_change(last_changed, place.handle, place.change, 40)
     close_readonly_database(db)
 
     for key in place_types:
         place_types[key] = (place_types[key], total_places)
 
     payload = {
-        "changed": {"Place": last_changed},
         "place": {
             "total": (total_places, None),
             "no_name": (no_name, total_places),
@@ -730,7 +717,6 @@ def examine_media(args, queue=None, thread_event=None):
     no_desc, no_date, no_path, no_mime = 0, 0, 0, 0
     uncited, private, tagged, size_bytes = 0, 0, 0, 0
     not_found = []
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_media = db.get_number_of_media()
@@ -758,7 +744,6 @@ def examine_media(args, queue=None, thread_event=None):
             except OSError:
                 if media.path not in not_found:
                     not_found.append(media.path)
-        analyze_change(last_changed, media.handle, media.change, 40)
     close_readonly_database(db)
 
     if not int(size_bytes / 1024):
@@ -769,7 +754,6 @@ def examine_media(args, queue=None, thread_event=None):
         size_string = "%s MB" % int(size_bytes / 1048576)
 
     payload = {
-        "changed": {"Media": last_changed},
         "media": {
             "total": (total_media, None),
             "size": (size_string, None),
@@ -801,7 +785,6 @@ def examine_sources(args, queue=None, thread_event=None):
     no_title, no_author, no_pubinfo, no_abbrev = 0, 0, 0, 0
     no_repository, repos_refs, no_call_number, private, tagged = 0, 0, 0, 0, 0
     media_types = {}
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_sources = db.get_number_of_sources()
@@ -838,14 +821,12 @@ def examine_sources(args, queue=None, thread_event=None):
             private += 1
         if source.tag_list:
             tagged += 1
-        analyze_change(last_changed, source.handle, source.change, 40)
     close_readonly_database(db)
 
     for key in media_types:
         media_types[key] = (media_types[key], repos_refs)
 
     payload = {
-        "changed": {"Source": last_changed},
         "source": {
             "total": (total_sources, None),
             "no_title": (no_title, total_sources),
@@ -878,7 +859,6 @@ def examine_citations(args, queue=None, thread_event=None):
     media, media_refs = 0, 0
     no_source, no_page, no_date, private, tagged = 0, 0, 0, 0, 0
     very_low, low, normal, high, very_high = 0, 0, 0, 0, 0
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_citations = db.get_number_of_citations()
@@ -912,11 +892,9 @@ def examine_citations(args, queue=None, thread_event=None):
             high += 1
         elif citation.confidence == Citation.CONF_VERY_HIGH:
             very_high += 1
-        analyze_change(last_changed, citation.handle, citation.change, 40)
     close_readonly_database(db)
 
     payload = {
-        "changed": {"Citation": last_changed},
         "citation": {
             "total": (total_citations, None),
             "no_source": (no_source, total_citations),
@@ -954,7 +932,6 @@ def examine_repositories(args, queue=None, thread_event=None):
     """
     no_name, no_address, private, tagged = 0, 0, 0, 0
     repository_types = {}
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_repositories = db.get_number_of_repositories()
@@ -976,14 +953,12 @@ def examine_repositories(args, queue=None, thread_event=None):
             private += 1
         if repository.tag_list:
             tagged += 1
-        analyze_change(last_changed, repository.handle, repository.change, 40)
     close_readonly_database(db)
 
     for key in repository_types:
         repository_types[key] = (repository_types[key], total_repositories)
 
     payload = {
-        "changed": {"Repository": last_changed},
         "repository": {
             "total": (total_repositories, None),
             "no_name": (no_name, total_repositories),
@@ -1008,7 +983,6 @@ def examine_notes(args, queue=None, thread_event=None):
     """
     no_text, private, tagged = 0, 0, 0
     note_types = {}
-    last_changed = []
 
     db = open_readonly_database(args.get("tree_name"))
     total_notes = db.get_number_of_notes()
@@ -1028,14 +1002,12 @@ def examine_notes(args, queue=None, thread_event=None):
             private += 1
         if note.tag_list:
             tagged += 1
-        analyze_change(last_changed, note.handle, note.change, 40)
     close_readonly_database(db)
 
     for key in note_types:
         note_types[key] = (note_types[key], total_notes)
 
     payload = {
-        "changed": {"Note": last_changed},
         "note": {
             "total": (total_notes, None),
             "no_text": (no_text, total_notes),
@@ -1055,19 +1027,11 @@ def examine_tags(args, queue=None, thread_event=None):
     """
     Parse and analyze tags.
     """
-    last_changed = []
-
     db = open_readonly_database(args.get("tree_name"))
     total_tags = db.get_number_of_tags()
-
-    for tag in db.iter_tags():
-        if thread_event and thread_event.is_set():
-            break
-        analyze_change(last_changed, tag.handle, tag.change, 40)
     close_readonly_database(db)
 
     payload = {
-        "changed": {"Tag": last_changed},
         "tag": {"total": (total_tags, None)},
     }
     return post_processing(args, "Tags", total_tags, queue, payload)
@@ -1114,40 +1078,6 @@ def examine_bookmarks(args):
     }
     close_readonly_database(db)
     return post_processing(args, "Bookmarks", total_bookmarks, None, payload)
-
-
-def analyze_change(obj_list, obj_handle, change, max_length):
-    """
-    Analyze a change for inclusion in a last modified list.
-    """
-    change_value = -change
-    bsindex = bisect(KeyWrapper(obj_list, key=lambda c: c[1]), change_value)
-    obj_list.insert(bsindex, (obj_handle, change_value))
-    if len(obj_list) > max_length:
-        obj_list.pop(max_length)
-
-
-# ------------------------------------------------------------------------
-#
-# KeyWrapper class
-#
-# ------------------------------------------------------------------------
-class KeyWrapper:
-    """
-    For bisect to operate on an element of a tuple in the list.
-    """
-
-    __slots__ = "iter", "key"
-
-    def __init__(self, iterable, key):
-        self.iter = iterable
-        self.key = key
-
-    def __getitem__(self, i):
-        return self.key(self.iter[i])
-
-    def __len__(self):
-        return len(self.iter)
 
 
 def open_readonly_database(dbname):

@@ -97,8 +97,6 @@ VIEWDEFAULTS = (
     ######################################################################
     ## General Options
     ######################################################################
-    ("general.concurrent-threshold", 50000),
-    ("general.summarize-all-events", True),
     ("general.link-people-to-relationships-view", False),
     ("general.image-page-link", True),
     ("general.link-citation-title-to-source", True),
@@ -109,6 +107,11 @@ VIEWDEFAULTS = (
     ("general.zotero-enabled", True),
     ("general.zotero-enabled-notes", False),
     ("general.references-max-per-group", 200),
+    ######################################################################
+    ## Dashboard Options
+    ######################################################################
+    ("dashboard.concurrent-threshold", 50000),
+    ("dashboard.summarize-all-events", True),
     ######################################################################
     ## Menu Options
     ######################################################################

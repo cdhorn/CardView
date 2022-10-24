@@ -28,6 +28,7 @@ GrampsPageView factory and builder functions
 #
 # -------------------------------------------------------------------------
 from .config_global import (
+    build_dashboard_grid,
     build_display_grid,
     build_general_grid,
     build_indicator_grid,
@@ -56,6 +57,7 @@ from .config_timeline import (
 )
 
 CONFIG_GRID_MAP = {
+    "dashboard": build_dashboard_grid,
     "display": build_display_grid,
     "general": build_general_grid,
     "indicator": build_indicator_grid,

@@ -605,7 +605,7 @@ class StatisticsCardGroup(CardGroupList):
         )
         self.key = group.split("-")[1]
         if self.key == "person" and not grstate.config.get(
-            "general.summarize-all-events"
+            "dashboard.summarize-all-events"
         ):
             self.key = "person-short"
         self.card = TextCard(grstate, groptions)

@@ -34,6 +34,7 @@ from gi.repository import Gtk
 # Gramps Modules
 #
 # ------------------------------------------------------------------------
+from gramps.gen.config import config as global_config
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
 # ------------------------------------------------------------------------
@@ -213,6 +214,15 @@ def build_config_menu(widget, grstate, groptions, primary_type, event):
     add_page_layout_option(menu, grstate)
     for option_data in TOGGLE_OPTIONS:
         menu.append(toggle_option(config, option_data))
+    add_double_separator(menu)
+    menu.append(toggle_option(
+        global_config,
+        (
+            "interface.cardview.enable-statistics-dashboard",
+            _("Disable statistics dashboard (requires restart)"),
+            _("Enable statistics dashboard (requires restart)"),
+        )
+    ))
     add_double_separator(menu)
     label = Gtk.MenuItem(label=_("Configuration"))
     label.set_sensitive(False)

@@ -29,7 +29,6 @@ GrampsObjectView factory and builder functions
 # -------------------------------------------------------------------------
 from ..common.common_exceptions import FactoryException
 from .view_attribute import AttributeObjectView
-from .view_changes import ChangesObjectView
 from .view_citation import CitationObjectView
 from .view_event import EventObjectView
 from .view_family import FamilyObjectView
@@ -79,8 +78,6 @@ def view_factory(grcontext, hint=None):
         cls = TagObjectView
     elif hint == "Statistics":
         cls = StatisticsObjectView
-    elif hint == "Changes":
-        cls = ChangesObjectView
     else:
         raise FactoryException(
             "Attempt to create unknown ObjectView class: "

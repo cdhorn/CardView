@@ -53,6 +53,7 @@ from ..services.service_fields import FieldCalculatorService
 from ..services.service_status import StatusIndicatorService
 from .config_colors import add_color
 from .config_const import (
+    HELP_CONFIG_DASHBOARD,
     HELP_CONFIG_DISPLAY,
     HELP_CONFIG_GENERAL,
     HELP_CONFIG_MENU,
@@ -235,25 +236,36 @@ def build_display_grid(configdialog, grstate, *_dummy_args):
     )
 
 
+def build_dashboard_grid(configdialog, grstate, *_dummy_args):
+    """
+    Build dashboard option configuration section.
+    """
+    grid = create_grid()
+    configdialog.add_text(grid, _("Dashboard Options"), 1, bold=True)
+    configdialog.add_spinner(
+        grid,
+        _("Concurrent data collection threshold (requires restart)"),
+        3,
+        "dashboard.concurrent-threshold",
+        (1, 1000000),
+    )
+    configdialog.add_checkbox(
+        grid,
+        _("Collect extended person event summary data (requires restart)"),
+        4,
+        "dashboard.summarize-all-events",
+    )
+    return add_config_buttons(
+        configdialog, grstate, "dashboard", grid, HELP_CONFIG_DASHBOARD
+    )
+
+
 def build_general_grid(configdialog, grstate, *_dummy_args):
     """
     Build general option configuration section.
     """
     grid = create_grid()
     configdialog.add_text(grid, _("Behaviour Options"), 10, bold=True)
-    configdialog.add_spinner(
-        grid,
-        _("Concurrent data collection threshold (requires restart)"),
-        11,
-        "general.concurrent-threshold",
-        (1, 1000000),
-    )
-    configdialog.add_checkbox(
-        grid,
-        _("Collect extended person event summary data (requires restart)"),
-        12,
-        "general.summarize-all-events",
-    )
     configdialog.add_checkbox(
         grid,
         _("Link people to relationships instead of people category"),

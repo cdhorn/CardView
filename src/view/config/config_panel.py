@@ -60,6 +60,7 @@ from .config_colors import (
     build_color_grid,
 )
 from .config_global import (
+    build_dashboard_grid,
     build_display_grid,
     build_field_grid,
     build_general_grid,
@@ -106,6 +107,8 @@ def build_global_panel(configdialog, grstate, *_dummy_args):
     notebook.append_page(page, tab_label=Gtk.Label(label=_("Display")))
     render_page = lambda: build_general_grid(configdialog, grstate)
     notebook.append_deferred_page(Gtk.Label(label=_("General")), render_page)
+    render_page = lambda: build_dashboard_grid(configdialog, grstate)
+    notebook.append_deferred_page(Gtk.Label(label=_("Dashboard")), render_page)
     render_page = lambda: build_menu_grid(configdialog, grstate)
     notebook.append_deferred_page(
         Gtk.Label(label=_("Context Menu")), render_page
