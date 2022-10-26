@@ -97,9 +97,8 @@ class MediaCardView(CardView):
             EDIT_TOOLTIPS["Media"],
             DELETE_TOOLTIPS["Media"],
         ),
-        TOOLBAR_MOREBUTTONS,
         """
-        <placeholder id='AfterTools'>
+        <placeholder id='MoreButtons'>
           <child>
             <object class="GtkToolButton">
               <property name="icon-name">gramps-viewmedia</property>
@@ -107,6 +106,38 @@ class MediaCardView(CardView):
               <property name="tooltip_text" translatable="yes">"""
         """View in the default viewer</property>
               <property name="label" translatable="yes">View</property>
+            </object>
+            <packing>
+              <property name="homogeneous">False</property>
+            </packing>
+          </child>
+          <child>
+		    <object class="GtkSeparatorToolItem" id="sep2"/>
+          </child>
+		  <child>
+            <object class="GtkToolButton">
+              <property name="icon-name">help-browser</property>
+              <property name="action-name">win.ViewHelp</property>
+              <property name="tooltip_text" translatable="yes">"""
+        """Card View help</property>
+              <property name="label" translatable="yes">Help</property>
+              <property name="use-underline">True</property>
+            </object>
+            <packing>
+              <property name="homogeneous">False</property>
+            </packing>
+          </child>
+          <child>
+		    <object class="GtkSeparatorToolItem" id="sep3"/>
+          </child>
+		  <child>
+            <object class="GtkToolButton">
+              <property name="icon-name">edit-copy</property>
+              <property name="action-name">win.OpenPinnedView</property>
+              <property name="tooltip_text" translatable="yes">"""
+        """Pin copy of current view in new window</property>
+              <property name="label" translatable="yes">Pin</property>
+              <property name="use-underline">True</property>
             </object>
             <packing>
               <property name="homogeneous">False</property>
