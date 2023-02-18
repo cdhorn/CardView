@@ -221,16 +221,18 @@ class GlobalNavigationView(PageView):
             if category_name != self.get_category():
                 viewmanager = self.uistate.viewmanager
                 category_index = viewmanager.get_category(category_name)
-                category_views = viewmanager.get_views()[category_index]
-                if category_views:
-                    for (view_index, (view_plugin, _view_class)) in enumerate(
-                        category_views
-                    ):
-                        if self.navigation_group_key() in view_plugin.id:
-                            return viewmanager.goto_page(
-                                category_index, view_index
-                            )
-                    return viewmanager.goto_page(category_index, None)
+                if category_index is not None:
+                    category_views = viewmanager.get_views()[category_index]
+                    if category_views:
+                        for (
+                            view_index,
+                            (view_plugin, _view_class),
+                        ) in enumerate(category_views):
+                            if self.navigation_group_key() in view_plugin.id:
+                                return viewmanager.goto_page(
+                                    category_index, view_index
+                                )
+                        return viewmanager.goto_page(category_index, None)
 
     def change_person_category(self):
         """
