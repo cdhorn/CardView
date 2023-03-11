@@ -20,20 +20,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-import os
-
-from gi.repository import Gtk
 from gramps.gen.const import USER_PLUGINS
 from gramps.gen.config import config
-
-pathname = os.path.join(USER_PLUGINS, "CardView", "icons")
-if not os.path.isdir(pathname):
-    for root, dirs, files in os.walk(USER_PLUGINS):
-        if "gramps-relation-linked.svg" in files:
-            pathname = root
-            break
-icons = Gtk.IconTheme().get_default()
-icons.append_search_path(pathname)
 
 VERSION = "0.99.110"
 GRAMPS_TARGET_VERSION = "5.1"
@@ -59,6 +47,8 @@ if enable_dashboard:
         authors_email=AUTHORS_EMAIL,
         category=("Dashboard", _("Dashboard")),
         viewclass="StatisticsCardView",
+        icondir="%s/CardView/icons" % USER_PLUGINS,
+        icons=[("gramps-dashboardcardview", _("Dashboard Card"))],
         stock_icon="gramps-dashboardcardview",
         order=END,
     )
@@ -76,6 +66,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("People", _("People")),
     viewclass="PersonCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-personcard", _("Person Card"))],
     stock_icon="gramps-personcard",
     order=END,
 )
@@ -93,6 +85,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Relationships", _("Relationships")),
     viewclass="PersonCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-relationshipscard", _("Relationships Card"))],
     stock_icon="gramps-relationshipscard",
     order=END,
 )
@@ -110,6 +104,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Families", _("Families")),
     viewclass="FamilyCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-familycard", _("Family Card"))],
     stock_icon="gramps-familycard",
     order=END,
 )
@@ -127,6 +123,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Events", _("Events")),
     viewclass="EventCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-eventcard", _("Event Card"))],
     stock_icon="gramps-eventcard",
     order=END,
 )
@@ -144,6 +142,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Places", _("Places")),
     viewclass="PlaceCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-placecard", _("Place Card"))],
     stock_icon="gramps-placecard",
     order=END,
 )
@@ -161,6 +161,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Sources", _("Sources")),
     viewclass="SourceCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-sourcecard", _("Source Card"))],
     stock_icon="gramps-sourcecard",
     order=END,
 )
@@ -178,6 +180,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Citations", _("Citations")),
     viewclass="CitationCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-citationcard", _("Citation Card"))],
     stock_icon="gramps-citationcard",
     order=END,
 )
@@ -195,6 +199,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Repositories", _("Repositories")),
     viewclass="RepositoryCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-repositorycard", _("Repository Card"))],
     stock_icon="gramps-repositorycard",
     order=END,
 )
@@ -212,6 +218,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Media", _("Media")),
     viewclass="MediaCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-mediacard", _("Media Card"))],
     stock_icon="gramps-mediacard",
     order=END,
 )
@@ -229,6 +237,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Notes", _("Notes")),
     viewclass="NoteCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-notecard", _("Note Card"))],
     stock_icon="gramps-notecard",
     order=END,
 )
@@ -246,6 +256,8 @@ register(
     authors_email=AUTHORS_EMAIL,
     category=("Tags", _("Tags")),
     viewclass="TagCardView",
+    icondir="%s/CardView/icons" % USER_PLUGINS,
+    icons=[("gramps-tagcard", _("Tag Card"))],
     stock_icon="gramps-tagcard",
     order=END,
 )
