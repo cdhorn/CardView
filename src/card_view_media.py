@@ -32,7 +32,9 @@ MediaCardView
 # -------------------------------------------------------------------------
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.lib import Media
+from gramps.gen.utils.file import media_path_full
 from gramps.gui.uimanager import ActionGroup
+from gramps.gui.utils import open_file_with_default_application
 
 # -------------------------------------------------------------------------
 #
@@ -154,7 +156,11 @@ class MediaCardView(CardView):
         CardView.define_actions(self)
         self.first_action_group = ActionGroup(name="RW")
         self.first_action_group.add_actions(
-            [("Add", self._add_new_media), ("Remove", self._delete_media)]
+            [
+                ("Add", self._add_new_media),
+                ("Remove", self._delete_media),
+                ("OpenMedia", self._open_media),
+            ]
         )
         self._add_action_group(self.first_action_group)
 
@@ -173,3 +179,12 @@ class MediaCardView(CardView):
             media = self.current_context.primary_obj.obj
             action = action_handler("Media", self.grstate, media)
             action.delete_object(media)
+
+    def _open_media(self, *_dummy_obj):
+        """
+        Open media viewer.
+        """
+        if self.current_context:
+            media = self.current_context.primary_obj.obj
+            path = media_path_full(self.grstate.dbstate.db, media.path)
+            open_file_with_default_application(path, self.grstate.uistate)
