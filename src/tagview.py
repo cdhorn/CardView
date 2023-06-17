@@ -230,6 +230,11 @@ class TagView(ListView):
         Use the gramps-tag stock icon
         """
         return "gramps-tag"
+    def get_viewtype_stock(self):
+        """
+        Use the gramps-tag stock icon
+        """
+        return "gramps-tag"
 
     additional_ui = [  # Defines the UI string for UIManager
         """

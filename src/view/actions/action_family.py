@@ -103,24 +103,24 @@ class FamilyAction(GrampsAction):
         """
         Add a new event for a family.
         """
-        event_ref = EventRef()
+        new_event_ref = EventRef()
         if event_handle:
             for event_ref in self.action_object.obj.event_ref_list:
                 if event_ref.ref == event_handle:
                     return
             event = self.db.get_event_from_handle(event_handle)
-            event_ref.ref = event_handle
+            new_event_ref.ref = event_handle
         else:
-            event = Event()
-            event.set_type(EventType(EventType.MARRIAGE))
-        event_ref.set_role(EventRoleType(EventRoleType.FAMILY))
+            new_event = Event()
+            new_event.set_type(EventType(EventType.MARRIAGE))
+        new_event_ref.set_role(EventRoleType(EventRoleType.FAMILY))
         try:
             EditEventRef(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                event,
-                event_ref,
+                new_event,
+                new_event_ref,
                 self._added_new_event,
             )
         except WindowActiveError:
@@ -135,12 +135,8 @@ class FamilyAction(GrampsAction):
             self.describe_object(self.action_object.obj),
             self.describe_object(event),
         )
-        self.grstate.uistate.set_busy_cursor(True)
-        with DbTxn(message, self.db) as trans:
-            self.db.commit_event(event, trans)
-            self.action_object.obj.add_event_ref(event_ref)
-            self.db.commit_family(self.action_object.obj, trans)
-        self.grstate.uistate.set_busy_cursor(False)
+        self.action_object.obj.add_event_ref(event_ref)
+        self.action_object.commit(self.grstate, message)
 
     def _edit_child_reference(self, name, child_ref, callback=None):
         """
@@ -219,7 +215,7 @@ class FamilyAction(GrampsAction):
         """
         child_ref = ChildRef()
         child_ref.ref = child.handle
-        callback = lambda x, y: self._added_child(child_ref, child)
+        callback = lambda x: self._added_child(child_ref, child)
         name = self.describe_object(child)
         self._edit_child_reference(name, child_ref, callback)
 

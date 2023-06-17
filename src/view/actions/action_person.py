@@ -127,51 +127,50 @@ class PersonAction(GrampsAction):
         """
         Add a new event for a person.
         """
+        new_event_ref = EventRef()
         if event_handle:
             for event_ref in self.action_object.obj.event_ref_list:
                 if event_ref.ref == event_handle:
                     return
-            event = self.db.get_event_from_handle(event_handle)
-            ref = EventRef()
-            ref.ref = event_handle
-            ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
+            new_event = self.db.get_event_from_handle(event_handle)
+            new_event_ref.ref = event_handle
+            new_event_ref.set_role(EventRoleType(EventRoleType.UNKNOWN))
         else:
-            event = Event()
-            ref = EventRef()
-            ref.set_role(EventRoleType(EventRoleType.PRIMARY))
+            new_event = Event()
+            new_event_ref.set_role(EventRoleType(EventRoleType.PRIMARY))
         try:
             EditEventRef(
                 self.grstate.dbstate,
                 self.grstate.uistate,
                 [],
-                event,
-                ref,
+                new_event,
+                new_event_ref,
                 self._added_new_event,
             )
         except WindowActiveError:
             pass
 
-    def _added_new_event(self, reference, event):
+    def _added_new_event(self, event_ref, event):
         """
         Finish adding a new event for a person.
         """
-        reference.ref = event.handle
+        event_ref.ref = event.handle
         message = _("Added Person %s as Participant to Event %s") % (
             self.describe_object(self.action_object.obj),
             self.describe_object(event),
         )
         if event.get_type() == EventType.BIRTH:
             if self.action_object.obj.get_birth_ref() is None:
-                self.action_object.obj.set_birth_ref(reference)
+                self.action_object.obj.set_birth_ref(event_ref)
             else:
-                self.action_object.obj.add_event_ref(reference)
+                self.action_object.obj.add_event_ref(event_ref)
         elif event.get_type() == EventType.DEATH:
             if self.action_object.obj.get_death_ref() is None:
-                self.action_object.obj.set_death_ref(reference)
+                self.action_object.obj.set_death_ref(event_ref)
             else:
-                self.action_object.obj.add_event_ref(reference)
+                self.action_object.obj.add_event_ref(event_ref)
         else:
-            self.action_object.obj.add_event_ref(reference)
+            self.action_object.obj.add_event_ref(event_ref)
         self.action_object.commit(self.grstate, message)
 
     def add_new_parents(self, *_dummy_args):
