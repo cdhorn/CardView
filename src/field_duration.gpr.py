@@ -25,7 +25,7 @@ register(
     description=_("A duration related field calculator."),
     category="FIELD",
     version="0.9",
-    gramps_target_version="5.1",
+    gramps_target_version="5.2",
     status=STABLE,
     fname="field_duration.py",
     load_on_reg=True,

@@ -225,6 +225,12 @@ class TagView(ListView):
         """
         return None
 
+    def get_config_name(self):
+        """
+        Set the config name string.
+        """
+        return __name__
+
     def get_stock(self):
         """
         Use the gramps-tag stock icon
