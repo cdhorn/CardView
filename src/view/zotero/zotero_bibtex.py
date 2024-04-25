@@ -102,9 +102,9 @@ class ZoteroBibTex:
             pick = self._get(endpoint)
             if pick:
                 citation = json.loads(pick)[0]
-                if detail and "citekey" in citation:
-                    source = self.get_source_data(citation["citekey"])
-                    notes = self.get_note_data(citation["citekey"])
+                if detail and "citationKey" in citation:
+                    source = self.get_source_data(citation["citationKey"])
+                    notes = self.get_note_data(citation["citationKey"])
                 else:
                     source = None
                     notes = None
@@ -121,7 +121,7 @@ class ZoteroBibTex:
             return None
         try:
             data = json.loads(export)
-            source = json.loads(data["result"][2])[0]
+            source = json.loads(data["result"])[0]
         except json.JSONDecodeError:
             return None
         return source
