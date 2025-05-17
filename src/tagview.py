@@ -128,24 +128,24 @@ class TagModel(FlatBaseModel):
 
     def column_handle(self, data):
         """Return the handle of the Tag."""
-        return data[POS_HANDLE]
+        return data.handle
 
     def column_name(self, data):
         """Return the name of the Tag in readable format."""
-        return data[POS_NAME]
+        return data.name
 
     def column_priority(self, data):
         """Return the priority of the Tag."""
-        return "%03d" % data[POS_PRIORITY]
+        return "%03d" % data.priority
 
     def column_color(self, data):
-        return data[POS_COLOR]
+        return data.color
 
     def sort_change(self, data):
-        return "%012x" % data[POS_CHANGE]
+        return "%012x" % data.change
 
     def column_change(self, data):
-        return format_time(data[POS_CHANGE])
+        return format_time(data.change)
 
 
 # -------------------------------------------------------------------------

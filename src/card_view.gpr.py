@@ -23,8 +23,8 @@
 from gramps.gen.const import USER_PLUGINS
 from gramps.gen.config import config
 
-VERSION = "0.2024.04241"
-GRAMPS_TARGET_VERSION = "5.2"
+VERSION = "0.2025.05171"
+GRAMPS_TARGET_VERSION = "6.0"
 AUTHORS = ["The Gramps Project", "Christopher Horn"]
 AUTHORS_EMAIL = ["https://gramps-project.org"]
 

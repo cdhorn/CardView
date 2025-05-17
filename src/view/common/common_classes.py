@@ -60,7 +60,7 @@ from gramps.gen.lib.mediabase import MediaBase
 from gramps.gen.lib.notebase import NoteBase
 from gramps.gen.lib.primaryobj import BasicPrimaryObject
 from gramps.gen.lib.privacybase import PrivacyBase
-from gramps.gen.lib.serialize import to_json
+from gramps.gen.lib.json_utils import object_to_dict
 from gramps.gen.lib.tableobj import TableObject
 from gramps.gen.lib.tagbase import TagBase
 from gramps.gen.lib.urlbase import UrlBase
@@ -411,7 +411,7 @@ class GrampsContext:
             context.update({"reference": self.reference_obj.obj})
         if self.reference_base_obj:
             context.update({"reference_base": self.reference_base_obj.obj})
-        return to_json(context)
+        return object_to_dict(context)
 
     @property
     def page_type(self):
