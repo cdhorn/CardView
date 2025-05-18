@@ -25,7 +25,7 @@ register(
     description=_("A minimal option template for the card views."),
     category="TEMPLATE",
     version="0.9",
-    gramps_target_version="5.2",
+    gramps_target_version="6.0",
     status=STABLE,
     fname="template_minimal.py",
     load_on_reg=True,
